@@ -16,14 +16,14 @@
       file_id: RTE_Device_917
     path: brd2605a/RTE_Device_917.h
   - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_led_917"
+      file_id: led_config
+      instance: ledB
+    path: brd2605a/sl_si91x_led_init_ledB_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%psram_core"
       file_id: psram_pin_config
     path: brd4340a/sl_si91x_psram_pin_config.h
-  - override:
-      component: "%extension-wiseconnect3_sdk%adc_instance"
-      file_id: adc_config
-      instance: channel_0
-    path: common_config/sl_si91x_adc_init_channel_0_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
@@ -100,10 +100,10 @@
       instance: channel_15
     path: common_config/sl_si91x_adc_init_channel_15_config.h
   - override:
-      component: "%extension-wiseconnect3_sdk%pwm_instance"
-      file_id: pwm_config
-      instance: led0
-    path: common_config/sl_si91x_pwm_init_led0_config.h
+      component: "%extension-wiseconnect3_sdk%adc_instance"
+      file_id: adc_config
+      instance: channel_16
+    path: common_config/sl_si91x_adc_init_channel_16_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
@@ -171,3 +171,25 @@
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: pin_config
     path: brd2605a/pin_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_button_917"
+      file_id: button_config
+      instance: btn0
+    path: brd2605a/sl_si91x_button_init_btn0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_button_917"
+      file_id: button_config
+      instance: btn1
+    path: brd2605a/sl_si91x_button_init_btn1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si70xx"
+      file_id: si70xx_config
+    path: brd2605a/sl_si91x_i2c_init_i2c2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%iostream_si91x"
+      file_id: iostream_usart_config
+    path: brd2605a/sl_iostream_usart_vcom_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_icm40627"
+      file_id: icm40627_config
+    path: brd2605a/sl_si91x_icm40627_config.h

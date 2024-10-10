@@ -59,27 +59,27 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc_ch15 signal=P15> SL_ADC_CH15
+// <adc_ch15 signal=P> SL_ADC_CH15
 // $[ADC_CH15_SL_ADC_CH15]
 #ifndef SL_ADC_CH15_PERIPHERAL
 #define SL_ADC_CH15_PERIPHERAL ADC_CH15
 #endif
 
-// ADC_CH15 P15 on GPIO_30
-#ifndef SL_ADC_CH15_P15_PORT
-#define SL_ADC_CH15_P15_PORT 0
+// ADC_CH15 P on GPIO_30
+#ifndef SL_ADC_CH15_P_PORT
+#define SL_ADC_CH15_P_PORT HP
 #endif
-#ifndef SL_ADC_CH15_P15_PIN
-#define SL_ADC_CH15_P15_PIN 30
+#ifndef SL_ADC_CH15_P_PIN
+#define SL_ADC_CH15_P_PIN 30
 #endif
-#ifndef SL_ADC_CH15_P15_LOC
-#define SL_ADC_CH15_P15_LOC 266
+#ifndef SL_ADC_CH15_P_LOC
+#define SL_ADC_CH15_P_LOC 266
 #endif
 // [ADC_CH15_SL_ADC_CH15]$
 // <<< sl:end pin_tool >>>
 
-#ifdef SL_ADC_CH15_P15_LOC
-#define SL_ADC_CHANNEL_15_POS_INPUT_CHNL_SEL (SL_ADC_CH15_P15_LOC - P15_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH15_P_LOC
+#define SL_ADC_CHANNEL_15_POS_INPUT_CHNL_SEL (SL_ADC_CH15_P_LOC - P15_START_LOCATION_PINTOOL)
 #else
 #define SL_ADC_CHANNEL_15_POS_INPUT_CHNL_SEL 18
 #endif

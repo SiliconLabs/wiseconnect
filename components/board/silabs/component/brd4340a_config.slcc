@@ -20,6 +20,16 @@
       file_id: psram_pin_config
     path: brd4340a/sl_si91x_psram_pin_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_led_917"
+      file_id: led_config
+      instance: led0
+    path: brd4340a/sl_si91x_led_init_led0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_led_917"
+      file_id: led_config
+      instance: led1
+    path: brd4340a/sl_si91x_led_init_led1_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_1
@@ -102,11 +112,6 @@
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
-      instance: led0
-    path: common_config/sl_si91x_pwm_init_led0_config.h
-  - override:
-      component: "%extension-wiseconnect3_sdk%pwm_instance"
-      file_id: pwm_config
       instance: channel_0
     path: common_config/sl_si91x_pwm_init_channel_0_config.h
   - override:
@@ -124,6 +129,11 @@
       file_id: pwm_config
       instance: channel_3
     path: common_config/sl_si91x_pwm_init_channel_3_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: led0
+    path: common_config/sl_si91x_pwm_init_led0_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%i2c_instance"
       file_id: i2c_config
@@ -181,3 +191,25 @@
       file_id: analog_comparator_config
       instance: comparator2
     path: common_config/sl_si91x_analog_comparator_comparator2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_button_917"
+      file_id: button_config
+      instance: btn0
+    path: brd4340a/sl_si91x_button_init_btn0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si91x_button_917"
+      file_id: button_config
+      instance: btn1
+    path: brd4340a/sl_si91x_button_init_btn1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_si70xx"
+      file_id: si70xx_config
+    path: brd4340a/sl_si91x_i2c_init_i2c2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%memlcd_917"
+      file_id: memlcd_config
+    path: brd4340a/sl_si91x_memlcd_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%iostream_si91x"
+      file_id: iostream_usart_config
+    path: brd4340a/sl_iostream_usart_vcom_config.h

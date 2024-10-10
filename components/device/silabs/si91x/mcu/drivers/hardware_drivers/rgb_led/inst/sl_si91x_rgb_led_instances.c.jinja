@@ -1,4 +1,5 @@
-/***************************************************************************/ /**
+/***************************************************************************/ 
+/**
  * @file sl_si91x_rgb_led_instances.c.jinja
  * @brief RGB LED Instances
  *******************************************************************************
@@ -31,18 +32,67 @@
 #include "sl_si91x_rgb_led.h"
 #include "sl_si91x_rgb_led_config.h"
 
-{%- for inst in led_instance | sort %}
-sl_led_t led_{{ inst | lower }} = {
-  .port = SL_LED_{{ inst | upper }}_PORT,
-  .pin = SL_LED_{{ inst | upper }}_PIN,
-  .led_number = SL_LED_{{ inst | upper }}_NUMBER,
-  .pad = SL_LED_{{ inst | upper }}_PAD,
+#ifdef SI917_RGB_DRIVER_OLD
+sl_led_t led_red = {
+  .port = SL_LED_RED_PORT,
+  .pin = SL_LED_RED_PIN,
+  .led_number = SL_LED_RED_NUMBER,
+  .pad = SL_LED_RED_PAD,
 };
+
+sl_led_t led_green = {
+  .port = SL_LED_GREEN_PORT,
+  .pin = SL_LED_GREEN_PIN,
+  .led_number = SL_LED_GREEN_NUMBER,
+  .pad = SL_LED_GREEN_PAD,
+};
+
+sl_led_t led_blue = {
+  .port = SL_LED_BLUE_PORT,
+  .pin = SL_LED_BLUE_PIN,
+  .led_number = SL_LED_BLUE_NUMBER,
+  .pad = SL_LED_BLUE_PAD,
+};
+#else
+{%- for inst in led_instance | sort %}
+  sl_led_t led_{{ inst | lower }}_red = {
+    .port = SL_LED_{{ inst | upper }}_RED_PORT,
+    .pin = SL_LED_{{ inst | upper }}_RED_PIN,
+    .led_number = SL_LED_{{ inst | upper }}_RED_NUMBER,
+    .pad = SL_LED_{{ inst | upper }}_RED_PAD,
+  };
+
+  sl_led_t led_{{ inst | lower }}_green = {
+    .port = SL_LED_{{ inst | upper }}_GREEN_PORT,
+    .pin = SL_LED_{{ inst | upper }}_GREEN_PIN,
+    .led_number = SL_LED_{{ inst | upper }}_GREEN_NUMBER,
+    .pad = SL_LED_{{ inst | upper }}_GREEN_PAD,
+  };
+
+  sl_led_t led_{{ inst | lower }}_blue = {
+    .port = SL_LED_{{ inst | upper }}_BLUE_PORT,
+    .pin = SL_LED_{{ inst | upper }}_BLUE_PIN,
+    .led_number = SL_LED_{{ inst | upper }}_BLUE_NUMBER,
+    .pad = SL_LED_{{ inst | upper }}_BLUE_PAD,
+  };
+
+  const sl_rgb_led_t led_{{ inst | lower }} = {
+    .red = &led_{{ inst | lower }}_red,
+    .green = &led_{{ inst | lower }}_green,
+    .blue = &led_{{ inst | lower }}_blue,
+  };
 {%- endfor %}
+#endif
 
 void rgb_led_init_instances(void)
 {
-  {%- for inst in led_instance %}
-  sl_si91x_rgb_led_init(&led_{{ inst | lower }});
-  {%- endfor %}
+#ifdef SI917_RGB_DRIVER_OLD
+sl_si91x_rgb_led_init(&led_red);
+sl_si91x_rgb_led_init(&led_green);
+sl_si91x_rgb_led_init(&led_blue);
+#else
+{%- for inst in led_instance %}
+sl_si91x_simple_rgb_led_init(&led_{{ inst | lower }});
+{%- endfor %}
+#endif
 }

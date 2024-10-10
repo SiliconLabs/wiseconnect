@@ -248,9 +248,12 @@ __STATIC_INLINE void process_dma_irq(uint32_t dma_number, uint32_t channel, uint
 sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init)
 {
 
-  sl_status_t status = SL_STATUS_OK;
+  sl_status_t status                         = SL_STATUS_OK;
+  RSI_UDMA_DATACONTEXT_T *udma_driver_handle = (RSI_UDMA_HANDLE_T)udmaHandle[dma_init->dma_number];
   if (dma_init->dma_number <= ULP_DMA_INSTANCE) {
-    if (udmaHandle[dma_init->dma_number] == NULL) {
+    // If the handle is NULL, it is the first time initialization, if the handle is already present, it means it is sleep-wakeup scenario which needs dma initialization.
+    if ((udmaHandle[dma_init->dma_number] == NULL)
+        || (udma_driver_handle->base == UDMA0 || udma_driver_handle->base == UDMA1)) {
       // Initialize dma peripheral
       udmaHandle[dma_init->dma_number] = UDMAx_Initialize(UDMA_driver_resources[dma_init->dma_number],
                                                           udma_driver_table[dma_init->dma_number],
@@ -264,6 +267,8 @@ sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init)
         //DMA init pass
         status = SL_STATUS_OK;
       }
+    } else {
+      status = SL_STATUS_NOT_INITIALIZED;
     }
   } else {
     status = SL_STATUS_INVALID_PARAMETER;
@@ -314,6 +319,10 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
       }
       // Uninitialize DMA
       status = (sl_status_t)UDMAx_Uninitialize(UDMA_driver_resources[dma_number]);
+      if (status == SL_STATUS_OK) {
+        // Clearing the udmaHandle for udma0 or udma1 as per the dma number.
+        udmaHandle[dma_number] = NULL;
+      }
     }
   } while (false);
   return status;

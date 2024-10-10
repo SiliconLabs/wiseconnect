@@ -17,13 +17,12 @@ This application explains how to configure and use the ECDSA crypto APIs.
 
 ## Prerequisites/Setup Requirements
 
-- The board MBR should have "ta_secure_boot_enable" set to 1 for wrap functionality
-
 ### Hardware Requirements
 
 - Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4338A](https://www.silabs.com/)
+- For the Wrap Key feature of this application to work, the keys should be programmed and secure boot (ta_secure_boot) should be enabled in the device
 
 ### Software Requirements
 

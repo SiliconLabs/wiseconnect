@@ -30,8 +30,14 @@
 #include "rsi_ulpss_clk.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_clks.h"
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
 #include "rsi_d_cache.h"
+#endif
+
+#if defined(SI91X_32kHz_EXTERNAL_OSCILLATOR)
+#include "sl_si91x_external_oscillator.h"
+#define MCU_RETENTION_BASE_ADDRESS 0x24048600
+#define NPSS_GPIO_CTRL             (MCU_RETENTION_BASE_ADDRESS + 0x1C)
 #endif
 /*----------------------------------------------------------------------------
   Define clocks
@@ -95,7 +101,7 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
     package_type = PACKAGE_TYPE_WMCU;
   }
 #endif
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
   rsi_d_cache_invalidate_all();
 #endif
   /*Initialize IPMU and MCU FSM blocks */
@@ -116,13 +122,19 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   /* Configuring MCU FSM clock for BG_PMU */
   RSI_IPMU_ClockMuxSel(2);
 
-#if defined(SL_SI91X_MODULE_BOARD)
-  /* Configuring RC 32KHz Clock for LF-FSM*/
+#if defined(SI91X_32kHz_EXTERNAL_OSCILLATOR)
+
+  // Configuring the UULP_GPIOs for external oscillator
+  *(volatile uint32 *)(NPSS_GPIO_CTRL + (4 * OSC_UULP_GPIO)) = (BIT(3) | UULP_GPIO_OSC_MODE);
+  MCUAON_GEN_CTRLS_REG |= BIT(0);
+  MCUAON_GEN_CTRLS_REG;
+
+  // Configuring RC 32KHz Clock for LF-FSM
   RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
 #else
   /* Configuring XTAL 32.768kHz Clock for LF-FSM */
   RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL);
-#endif // SL_SI91X_MODULE_BOARD
+#endif // SI91X_32kHz_EXTERNAL_OSCILLATOR
 
   /* Configuring RC-32MHz Clock for HF-FSM */
   RSI_PS_FsmHfClkSel(FSM_32MHZ_RC);

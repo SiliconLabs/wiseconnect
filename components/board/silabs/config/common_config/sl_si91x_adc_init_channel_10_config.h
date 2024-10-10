@@ -59,27 +59,27 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc_ch10 signal=P10> SL_ADC_CH10
+// <adc_ch10 signal=P> SL_ADC_CH10
 // $[ADC_CH10_SL_ADC_CH10]
 #ifndef SL_ADC_CH10_PERIPHERAL
 #define SL_ADC_CH10_PERIPHERAL ADC_CH10
 #endif
 
-// ADC_CH10 P10 on ULP_GPIO_9/GPIO_73
-#ifndef SL_ADC_CH10_P10_PORT
-#define SL_ADC_CH10_P10_PORT 0
+// ADC_CH10 P on ULP_GPIO_9/GPIO_73
+#ifndef SL_ADC_CH10_P_PORT
+#define SL_ADC_CH10_P_PORT ULP
 #endif
-#ifndef SL_ADC_CH10_P10_PIN
-#define SL_ADC_CH10_P10_PIN 9
+#ifndef SL_ADC_CH10_P_PIN
+#define SL_ADC_CH10_P_PIN 9
 #endif
-#ifndef SL_ADC_CH10_P10_LOC
-#define SL_ADC_CH10_P10_LOC 438
+#ifndef SL_ADC_CH10_P_LOC
+#define SL_ADC_CH10_P_LOC 438
 #endif
 // [ADC_CH10_SL_ADC_CH10]$
 // <<< sl:end pin_tool >>>
 
-#ifdef SL_ADC_CH10_P10_LOC
-#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL (SL_ADC_CH10_P10_LOC - P10_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH10_P_LOC
+#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL (SL_ADC_CH10_P_LOC - P10_START_LOCATION_PINTOOL)
 #else
 #define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL 14
 #endif

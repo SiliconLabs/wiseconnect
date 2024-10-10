@@ -178,13 +178,6 @@ typedef void (*select_callback)(fd_set *fd_read, fd_set *fd_write, fd_set *fd_ex
  */
 typedef void (*remote_socket_termination_callback)(int socket, uint16_t port, uint32_t bytes_sent);
 
-/// Si91x specific socket type length value
-typedef struct {
-  uint16_t type;   ///< Socket type
-  uint16_t length; ///< Data length
-  uint8_t value[]; ///< Data
-} si91x_socket_type_length_value_t;
-
 /** @} */
 
 /// Internal  si91x BSD socket status
@@ -201,32 +194,32 @@ typedef enum {
 #define SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
 
 #pragma pack()
-/// Internal  si91x server name indication extensions
+/// Internal  si91x TLS extensions
 typedef struct {
   uint8_t buffer[SI91X_MAX_SIZE_OF_EXTENSION_DATA]; ///< Buffer
   uint16_t total_extensions;                        ///< Total extensions
   uint16_t current_size_of_extensions;              ///< Current size of extensions
-} si91x_server_name_indication_extensions_t;
+} sli_si91x_tls_extensions_t;
 
 #pragma pack()
 
 /// Internal si91x socket handle
 typedef struct {
-  int32_t id;                                               ///< Socket ID
-  int32_t type;                                             ///< Socket type
-  int role;                                                 ///< Socket role
-  int32_t protocol;                                         ///< Protocol
-  uint16_t tcp_keepalive_initial_time;                      ///< TCP keepalive intial time
-  uint8_t max_tcp_retries;                                  ///< MAX TCOP retries
-  uint16_t read_timeout;                                    ///< Read timeout
-  uint8_t certificate_index;                                ///< Certificate Index
-  uint8_t vap_id;                                           ///< Virtual AP ID
-  uint16_t mss;                                             ///< Maximum segment size (MSS) value
-  struct sockaddr_in6 local_address;                        ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
-  struct sockaddr_in6 remote_address;                       ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
-  si91x_bsd_socket_state_t state;                           ///< BSD socket state (used for internal tracking)
-  si91x_server_name_indication_extensions_t sni_extensions; ///< SNI Extension
-  bool is_waiting_on_ack;                                   ///< Boolean flag to check if socket is waiting for an ack.
+  int32_t id;                                ///< Socket ID
+  int32_t type;                              ///< Socket type
+  int role;                                  ///< Socket role
+  int32_t protocol;                          ///< Protocol
+  uint16_t tcp_keepalive_initial_time;       ///< TCP keepalive intial time
+  uint8_t max_tcp_retries;                   ///< MAX TCOP retries
+  uint16_t read_timeout;                     ///< Read timeout
+  uint8_t certificate_index;                 ///< Certificate Index
+  uint8_t vap_id;                            ///< Virtual AP ID
+  uint16_t mss;                              ///< Maximum segment size (MSS) value
+  struct sockaddr_in6 local_address;         ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
+  struct sockaddr_in6 remote_address;        ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
+  si91x_bsd_socket_state_t state;            ///< BSD socket state (used for internal tracking)
+  sli_si91x_tls_extensions_t tls_extensions; ///< TLS Extension
+  bool is_waiting_on_ack;                    ///< Boolean flag to check if socket is waiting for an ack.
 #ifdef SLI_SI917
   uint32_t ssl_bitmap;                       ///< SSL bitmap
   uint32_t max_retransmission_timeout_value; ///< Max retransmission timeout value

@@ -321,9 +321,10 @@ int sl_si91x_setsockopt_async(int32_t sockID,
       break;
     }
 
-    case SL_SI91X_SO_TLS_SNI: {
-      sl_status_t status = add_server_name_indication_extension(&si91x_socket->sni_extensions,
-                                                                (const si91x_socket_type_length_value_t *)option_value);
+    case SL_SI91X_SO_TLS_SNI:
+    case SL_SI91X_SO_TLS_ALPN: {
+      sl_status_t status = sli_si91x_add_tls_extension(&si91x_socket->tls_extensions,
+                                                       (const sl_si91x_socket_type_length_value_t *)option_value);
 
       if (status != SL_STATUS_OK) {
         SET_ERROR_AND_RETURN(ENOMEM);

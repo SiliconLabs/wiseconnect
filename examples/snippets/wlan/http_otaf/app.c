@@ -57,8 +57,9 @@
  *                    Constants
  ******************************************************/
 //! Type of FW update
-#define M4_FW_UPDATE 0
-#define TA_FW_UPDATE 1
+#define M4_FW_UPDATE       0
+#define TA_FW_UPDATE       1
+#define COMBINED_FW_UPDATE 2
 
 //! Set FW update type
 #define FW_UPDATE_TYPE TA_FW_UPDATE
@@ -99,7 +100,7 @@
 //! Server port number
 #define HTTP_PORT 443
 //! Server URL
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
 #define HTTP_URL "rps/firmware.rps"
 #else
 #define HTTP_URL "isp.bin"
@@ -138,7 +139,7 @@ char *hostname = "si917updates.blob.core.windows.net";
 //! HTTP Server IP address.
 #define HTTP_SERVER_IP_ADDRESS "192.168.0.100"
 //! HTTP resource name
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
 #define HTTP_URL "rps/firmware.rps"
 #else
 #define HTTP_URL "isp.bin"
@@ -283,7 +284,7 @@ void application_start(const void *unused)
   sl_status_t status = SL_STATUS_OK;
   uint16_t flags     = FLAGS;
   char server_ip[16];
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
   sl_wifi_firmware_version_t version = { 0 };
 #endif
 #if defined(AWS_ENABLE) || defined(AZURE_ENABLE)
@@ -328,7 +329,7 @@ void application_start(const void *unused)
 
       } break;
       case WLAN_FIRMWARE_UPDATE: {
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
         status = sl_wifi_get_firmware_version(&version);
         print_firmware_version(&version);
 #endif
@@ -393,7 +394,7 @@ void application_start(const void *unused)
         app_state = WLAN_NET_DOWN_STATE;
       } break;
       case WLAN_NET_DOWN_STATE: {
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
         //! Client deinitialization
         status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
         if (status != SL_STATUS_OK) {

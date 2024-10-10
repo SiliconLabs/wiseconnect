@@ -22,20 +22,18 @@
 
 ## Overview
 
--	Calendar calculates milliseconds, seconds, minutes, hours, days, months and years up to 4 centuries. 
--	It also calculates days of week and takes care of number of days in month as well as leap year. 
--	It can also configure alarm for desired time as a one-shot trigger. 
--	It can generate triggers on one second and one millisecond time interval. 
--	It uses APB for read and write operations in real time. 
--	RC clock and RO clock are configurable, and it can also be calibrated using the APIs. 
+-	Calendar calculates milliseconds, seconds, minutes, hours, days, months and years up to 4 centuries.
+-	It also calculates days of week and takes care of number of days in month as well as leap year.
+-	It can also configure alarm for desired time as a one-shot trigger.
+-	It can generate triggers on one second and one millisecond time interval.
+-	It uses APB for read and write operations in real time.
 
 ## About Example Code
 
-- This example demonstrates clock configuration, setting calendar date-time, retrieving calendar date-time, setting alarm date-time, retrieving alarm date-time, handling alarm triggers, one-millisecond triggers, one-second triggers, and clock calibration. 
-- To configure the calendar clock, select the clock from UC. The \ref sl_si91x_calendar_config function is used to set the calendar clock. 
-- A structure is created containing default values for calendar date-time. It is created using \ref sl_si91x_calendar_build_datetime_struct. After entering all the parameters, it returns a structure filled with all the parameters. 
-- Calendar date-time is configured using the \ref sl_si91x_calendar_set_date_time API. It configures the date-time, and the calendar blocks start counting from that time. 
-- To verify if the desired time is set, the \ref sl_si91x_calendar_get_date_time API is used. It returns a structure with the current date-time. 
+- This example demonstrates clock configuration, setting calendar date-time, retrieving calendar date-time, setting alarm date-time, retrieving alarm date-time, handling alarm triggers, one-millisecond triggers, one-second triggers, and clock calibration.
+- A structure is created containing default values for calendar date-time. It is created using \ref sl_si91x_calendar_build_datetime_struct. After entering all the parameters, it returns a structure filled with all the parameters.
+- Calendar date-time is configured using the \ref sl_si91x_calendar_set_date_time API. It configures the date-time, and the calendar blocks start counting from that time.
+- To verify if the desired time is set, the \ref sl_si91x_calendar_get_date_time API is used. It returns a structure with the current date-time.
 
 - If **ALARM_EXAMPLE** macro is enabled:
 
@@ -44,16 +42,6 @@
   - Now callback is registered to perform action at the time of trigger using \ref sl_si91x_calendar_register_alarm_trigger_callback API.
   - To verify if the desired alarm is set, \ref sl_si91x_calendar_get_alarm API is used, It returns a structure which has configured alarm date-time.
   - At the time of trigger, it prints current date-time on the console.
-
-- If **CLOCK_CALIBRATION** macro is enabled:
-  
-  - This clock calibration applies to RO and RC Clock only. For RO clock \ref sl_si91x_calendar_roclk_calibration should be used and for RC clock \ref sl_si91x_calendar_rcclk_calibration should be used.
-  - It is recommended to calibrate clock before activating any trigger after every power cycle.
-  - Initialization of clock is performed using \ref sl_si91x_calendar_calibration_init API.
-  - To select the clock in UC, follow the procedure mentioned in "Configuration and Steps for Execution" section.
-  - According to the clock configured in UC, either RO or RC, use respective API to configure the clock. In this example RC clock is selected so \ref sl_si91x_calendar_rcclk_calibration API is used.
-  - This API expects \ref clock_calibration_config_t structure. For rc_trigger_time, \ref RC_CLOCK_CALIBRATION_ENUM enum can be used, and for ro_trigger_time \ref RO_CLOCK_CALIBRATION_ENUM enum can be used.
-  - After calibration \ref sl_si91x_calendar_rtc_start is called to start the calendar clock.
 
 - If **SEC_INTR** macro is enabled:
 
@@ -89,8 +77,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -111,25 +98,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Configure UC from the slcp component.
-- Open **sl_si91x_calendar.slcp** project file select **software component** tab and search for **Calendar** in search bar.
-- Using configuration wizard one can configure the Calendar clock, i.e., RO, RC and XTAL.
-
-  ![Figure: Introduction](resources/uc_screen/calendar_uc_screen.png)
-
-- Configuration file is generated in **config folder**, if not changed then the code will run on default UC values.
 - Configure the following macros in calendar_example.h file and update/modify following macros if required.
 
 - `ALARM_EXAMPLE`: If ALARM_EXAMPLE is enabled, it prints "Alarm Callback is Triggered" on console when alarm is triggered. By default, it is set to 0.
 
   ```C
     #define ALARM_EXAMPLE     0 // To enable alarm trigger 
-  ```
-
-- `CLOCK_CALIBRATION`: If CLOCK_CALIBRATION is enabled, after calibration "Successfully performed clock calibration" print is there on serial console. By default, it is set to 0.
-
-  ```C
-    #define CLOCK_CALIBRATION 0 // To enable clock calibration 
   ```
 
 - `SEC_INTR`: If SEC_INTR is enabled, every one second "One Sec Callback is Triggered" print is there on serial console. By default, it is set to 0.
@@ -155,8 +129,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. By default, time and date is configured and prints are observed on serial console.
-3. After successful program execution, the prints in serial console looks as shown below.
+2. By default, time and date is configured and its Unix timestamp conversion is done, and prints are observed on serial console.
+3. Unix timestamp is now incemented by 5min and it is converted back to Calendar time and date.
+4. After successful program execution, the prints in serial console looks as shown below.
 
     ![Figure: Introduction](resources/readme/output.png)
 

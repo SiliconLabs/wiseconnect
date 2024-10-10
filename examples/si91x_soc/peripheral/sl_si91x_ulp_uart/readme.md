@@ -57,8 +57,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -142,7 +141,10 @@ Follow the steps below for successful execution of the application:
   sl_gpio_set_pin_mode(0,8,9,1);  
   // Enable PAD receiver for gpio 8
   // sl_si91x_gpio_enable_pad_receiver(gpio_num); 
-  sl_si91x_gpio_enable_pad_receiver(8);  
+  sl_si91x_gpio_enable_pad_receiver(8); 
+  // Set the pin mode  
+  // sl_gpio_set_pin_mode(port, pin, mode, output_value)
+  sl_gpio_set_pin_mode(4,2,0,1); 
   // Sets ulp soc gpio mode
   // sl_si91x_gpio_ulp_soc_mode(ulp_gpio_num,mode) 
   sl_si91x_gpio_ulp_soc_mode(2,3);  
@@ -156,6 +158,9 @@ Follow the steps below for successful execution of the application:
   // Enable PAD receiver for gpio 9
   // sl_si91x_gpio_enable_pad_receiver(gpio_num);
   sl_si91x_gpio_enable_pad_receiver(9);
+  // Set the pin mode  
+  // sl_gpio_set_pin_mode(port, pin, mode, output_value)
+  sl_gpio_set_pin_mode(4,3,0,1); 
   // Sets ulp soc gpio mode  
   // sl_si91x_gpio_ulp_soc_mode(ulp_gpio_num,mode)
   sl_si91x_gpio_ulp_soc_mode(3,3);  

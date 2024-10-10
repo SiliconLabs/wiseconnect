@@ -345,24 +345,20 @@ sl_i2c_status_t sl_i2c_driver_send_data_blocking(sl_i2c_instance_t i2c_instance,
  * is updated after data transfer completion.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init must be called prior.
- *      - Transfer type must be set to 'using DMA'.
- *      - \ref sl_i2c_driver_set_follower_address (if sending from follower).
- * 
- * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
- * @param[in] address Follower address (7-bit: 0-127, 10-bit: 0-1023).
- * @param[in] tx_buffer Pointer to the transmit data buffer.
- * @param[in] tx_len Data length in bytes (range: 1-30,000).
- * @param[in] p_dma_config Pointer to the DMA configuration structure. See \ref sl_i2c_dma_config_t.
- * 
- * @note It is recommended to use up to 30,000 bytes maximum transfer length, 
- * but this limit may vary depending on the available RAM size.
- * 
- * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
- *         - SL_DMA_TRANSFER_ERROR - DMA parameters are invalid.
- * 
+ *      - \ref sl_i2c_driver_init 
+ *      - Here transfer-type should be set as DMA-type
+ *      - \ref sl_i2c_driver_set_follower_address, if used in salve application
+ * @param[in] i2c_instance I2C Instance.
+ * @param[in] address Follower address can be provided in 7-bit length (0-127)
+ * or in 10-bit length(0-1023).
+ * @param[in] tx_buffer A pointer to transmit data buffer
+ * @param[in] tx_len Data length in number of bytes in the range of 1-30000 bytes.
+ * @param[in] p_dma_config A pointer to DMA configuration structure \ref sl_i2c_dma_config_t.
+ * @note Maximum tx_len values can be 30000 (receives back in around 4 seconds)
+ * @return status 0 if successful, else error code as follow
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid 
+ *         - \ref SL_I2C_DMA_TRANSFER_ERROR (0x000E) - DMA parameters are invalid 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_instance,
                                                      uint16_t address,
@@ -422,15 +418,13 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
  * @param[in] p_dma_config Pointer to the DMA configuration structure. See \ref sl_i2c_dma_config_t.
  * 
  * @note 
- *       - It is recommended to use up to 30,000 bytes maximum transfer length, 
- *          but this limit may vary depending on the available RAM size.
- *       - The default values cannot be any of the reserved address locations: 0x00 to 0x07, or 0x78 to 0x7f.
- * 
- * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
- *         - SL_DMA_TRANSFER_ERROR - DMA parameters are invalid.
- * 
+ *       -  Maximum rx_len values can be 30000 (receives back in around 4 seconds).
+ *       - The default values cannot be any of the reserved address locations: that is, 0x00 to 0x07, 
+ *        or 0x78 to 0x7f.
+ * @return status 0 if successful, else error code as follow
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid 
+ *         - \ref SL_I2C_DMA_TRANSFER_ERROR (0x000E) - DMA parameters are invalid
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_instance,
                                                         uint16_t address,

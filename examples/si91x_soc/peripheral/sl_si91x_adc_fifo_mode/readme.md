@@ -52,6 +52,7 @@
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_adc_register_event_callback.
 - Then start the ADC to sample the data using \ref sl_si91x_adc_start API.
 - Once sampling is done callback will hit and set the true "data_sample_complete_flag" flag to read the sampled data using \ref sl_si91x_adc_read_data API for FIFO mode of ADC. This process will run continuously.
+- If ADC is started, it is recommended to stop it before de-initializing. This is general flow of API calls for ADC: sl_si91x_adc_init -> sl_si91x_adc_start   -> sl_si91x_adc_stop -> sl_si91x_adc_deinit.
 
 ## Prerequisites/Setup Requirements
 
@@ -64,8 +65,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

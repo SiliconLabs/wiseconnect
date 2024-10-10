@@ -81,55 +81,16 @@ void sl_si91x_watchdog_init_timer(void)
 }
 
 /*******************************************************************************
-* @brief: Configures watchdog-timer clock sources
-*
-* @details:
-*  Configures the watchdog-timer low frequency and high frequency clock sources
-*  Also configures bg_pmu clock source
+* @brief: This API is no longer supported due to the restriction on peripheral drivers to configuring clock
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *timer_clk_config_ptr)
 {
-  sl_status_t status = SL_STATUS_OK;
-  /* WDT_TIMER_UC is defined by default. when this macro (WDT_TIMER_UC) is defined, peripheral
-   * configuration is directly taken from the configuration set in the universal configuration (UC).
-   * if the application requires the configuration to be changed in run-time, undefined this macro
-   * and change the peripheral configuration through the sl_si91x_watchdog_configure_clock API.
-   */
-#if (WDT_TIMER_UC == 1)
-  timer_clk_config_ptr = &sl_watchdog_timer_clk_config_handle;
-#endif
-  do {
-    // To validate the structure pointer, if the parameters is NULL, it
-    // will return an error code
-    if (timer_clk_config_ptr == NULL) {
-      status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    // Validating bg-pmu clock source value
-    if ((timer_clk_config_ptr->bg_pmu_clock_source != RO_32KHZ_CLOCK)
-        && (timer_clk_config_ptr->bg_pmu_clock_source != MCU_FSM__CLOCK)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validating low frequency FSM clock source value
-    if ((timer_clk_config_ptr->low_freq_fsm_clock_src != KHZ_RO_CLK_SEL)
-        && (timer_clk_config_ptr->low_freq_fsm_clock_src != KHZ_RC_CLK_SEL)
-        && (timer_clk_config_ptr->low_freq_fsm_clock_src != KHZ_XTAL_CLK_SEL)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validating high frequency FSM clock source value
-    if ((timer_clk_config_ptr->high_freq_fsm_clock_src != FSM_20MHZ_RO)
-        && (timer_clk_config_ptr->high_freq_fsm_clock_src != FSM_32MHZ_RC)
-        && (timer_clk_config_ptr->high_freq_fsm_clock_src != FSM_40MHZ_XTAL)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // FSM clock enable for WDT to be functional
-    // Enable clock sources
-    RSI_IPMU_ClockMuxSel(RO_32KHZ_CLOCK);
-    RSI_PS_FsmLfClkSel(timer_clk_config_ptr->low_freq_fsm_clock_src);
-  } while (false);
+  sl_status_t status = SL_STATUS_OK; // return ok to support backward compatibility
+
+  // FSM LF Clock has already been configured in sl_system_init,
+  // This API is no longer supported due to the restriction on peripheral drivers to configure clocks
+  UNUSED_VARIABLE(timer_clk_config_ptr);
+
   return status;
 }
 

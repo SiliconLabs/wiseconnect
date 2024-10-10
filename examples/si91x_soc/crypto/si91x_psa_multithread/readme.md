@@ -27,7 +27,7 @@
   - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
-  - Simplicity SDK version: 2024.6.1
+  - Simplicity SDK version: 2024.6.2
   - Si91x SDK
   - Embedded Development Environment
     - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)

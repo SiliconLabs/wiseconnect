@@ -8,10 +8,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 readme:
   - path: readme.md
 source:
@@ -38,7 +38,6 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
-  - path: resources/uc_screen/calendar_uc_screen.png
   - path: resources/readme/output.png
 ui_hints:
   highlight:

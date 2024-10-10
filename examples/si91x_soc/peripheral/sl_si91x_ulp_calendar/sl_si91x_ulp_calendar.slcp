@@ -16,10 +16,10 @@ source:
   - path: ulp_calendar_example.h
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -46,7 +46,6 @@ define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
 other_file:
   - path: resources/readme/setupdiagram.png
-  - path: resources/uc_screen/calendar_uc_screen.png
   - path: resources/readme/output_ulp_calendar.png
 template_contribution:
 - name: user_files_ps2

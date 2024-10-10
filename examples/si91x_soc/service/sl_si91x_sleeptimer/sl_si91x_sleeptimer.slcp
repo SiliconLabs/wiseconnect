@@ -7,10 +7,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 source:
   - path: app.c
   - path: main.c
@@ -32,8 +32,12 @@ component:
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
   - id: sl_si91x_led_917
-    instance:
-      - led1
+    instance: [led0]
+    condition: [device_is_module]
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance: [led1]
+    condition: [device_has_chip]
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png

@@ -16,13 +16,20 @@
  ******************************************************************************/
 
 #include "button_baremetal.h"
-#include "sl_si91x_led.h"
 #include "sl_si91x_button.h"
 #include "sl_si91x_button_pin_config.h"
-#include "sl_si91x_led_config.h"
 #include "sl_si91x_button_instances.h"
-#include "sl_si91x_led_instances.h"
 #include "sl_si91x_clock_manager.h"
+
+#ifndef SI917_DEVKIT
+#include "sl_si91x_led.h"
+#include "sl_si91x_led_config.h"
+#include "sl_si91x_led_instances.h"
+#else
+#include "sl_si91x_rgb_led.h"
+#include "sl_si91x_rgb_led_config.h"
+#include "sl_si91x_rgb_led_instances.h"
+#endif
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -32,11 +39,7 @@
 #endif
 
 #ifndef LED_INSTANCE
-#ifndef SI917_DEVKIT
 #define LED_INSTANCE led_led0
-#else
-#define LED_INSTANCE led_ledb
-#endif
 #endif
 
 #define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
@@ -89,7 +92,11 @@ void sl_si91x_button_isr(uint8_t pin, int8_t state)
 {
   if (pin == BUTTON_INSTANCE.pin) {
     if (state == BUTTON_PRESSED) {
+#ifndef SI917_DEVKIT
       sl_si91x_led_toggle(LED_INSTANCE.pin);
+#else
+      sl_si91x_simple_rgb_led_toggle(&LED_INSTANCE);
+#endif
     }
   }
 }

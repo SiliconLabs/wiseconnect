@@ -385,6 +385,10 @@ sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperatu
     if (status != SL_STATUS_OK) {
       break;
     }
+    status = sl_si91x_adc_stop(sl_bjt_temperature_sensor_config);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
     status = sl_si91x_adc_deinit(sl_bjt_temperature_sensor_config);
     if (status != SL_STATUS_OK) {
       break;

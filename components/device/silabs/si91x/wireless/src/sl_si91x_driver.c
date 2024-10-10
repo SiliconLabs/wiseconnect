@@ -317,6 +317,22 @@ const sl_si91x_set_region_ap_request_t default_SG_region_5GHZ_configurations = {
   .channel_info[4]               = { .first_channel = 149, .no_of_channels = 4, .max_tx_power = 29 }
 };
 
+// Define default configurations for the China region for 2.4GHz and 5GHz bands
+const sl_si91x_set_region_ap_request_t default_CN_region_2_4GHZ_configurations = {
+  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
+  .country_code                  = "CN ",
+  .no_of_rules                   = 1,
+  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 20 }
+};
+
+const sl_si91x_set_region_ap_request_t default_CN_region_5GHZ_configurations = {
+  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
+  .country_code                  = "CN ",
+  .no_of_rules                   = 2,
+  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 9, .max_tx_power = 20 },
+  .channel_info[4]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 33 }
+};
+
 // clang-format off
   static uint8_t firmware_queue_id[SI91X_CMD_MAX]   = { [SI91X_COMMON_CMD]  = RSI_WLAN_MGMT_Q,
                                                       [SI91X_WLAN_CMD]    = RSI_WLAN_MGMT_Q,
@@ -1276,6 +1292,29 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
                                                     context.packet_id,
                                                     wait_time,
                                                     &response);
+  // Check if the status is SL_STATUS_TIMEOUT, indicating a timeout has occurred
+  if (status == SL_STATUS_TIMEOUT) {
+
+    // Declare a temporary packet pointer to hold the packet to be removed
+    sl_wifi_buffer_t *temp_packet;
+
+    sl_status_t status =
+      sl_si91x_host_remove_node_from_queue(queue_type, &temp_packet, &context, si91x_packet_identification_function);
+
+    // Check if the packet removal was successful
+    if (status == SL_STATUS_OK) {
+
+      // Retrieve the actual packet node data from the removed buffer
+      sli_si91x_queue_packet_t *node = sl_si91x_host_get_buffer_data(temp_packet, 0, NULL);
+
+      // Free the host packet memory associated with the node (TX packet memory)
+      sl_si91x_host_free_buffer(node->host_packet);
+
+      // Free the temporary buffer memory that held the packet
+      sl_si91x_host_free_buffer(temp_packet);
+    }
+  }
+
   VERIFY_STATUS_AND_RETURN(status);
 
   // Process the response packet and return the firmware status
@@ -1844,6 +1883,14 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
             request = default_SG_region_2_4GHZ_configurations;
           } else {
             request = default_SG_region_5GHZ_configurations;
+          }
+          break;
+        }
+        case CN: {
+          if (band == SL_SI91X_WIFI_BAND_2_4GHZ) {
+            request = default_CN_region_2_4GHZ_configurations;
+          } else {
+            request = default_CN_region_5GHZ_configurations;
           }
           break;
         }

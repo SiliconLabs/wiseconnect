@@ -77,30 +77,36 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-- The application uses the default configurations as provided in the **wifi_commands.c** and user can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **wifi_commands.c** and the user can choose to configure these parameters as needed.
   
-  User can enable or disable powersave related optimizations by setting the ENABLE_POWERSAVE_CLI macro in the **wifi_commands.c** file to 1 or 0 respectively
+  The user can enable or disable powersave related optimizations by setting the ENABLE_POWERSAVE_CLI macro in the **wifi_commands.c** file to 1 or 0 respectively.
 
 > **Note** :
- The included Cloud connectivity certificates are for reference only, using default certificates in the release, cloud connection doesn't work. Please replace the default certificates with valid certificates while connecting to appropriate Cloud/OpenSSL Server.
+
+> - The default SSID is `MY_AP_SSID` and passphrase is `MY_AP_PASSPHRASE` in **wifi_commands.c** file. You may either use these or modify them.
+
+```c
+    #define SOFT_AP_SSID         "MY_AP_SSID"
+    #define SOFT_AP_PSK          "MY_AP_PASSPHRASE"   
+```
+
+> - The included cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
 ## Test the application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Build the application in Studio.
->
-> Note: 
-> - The default SSID is "MY_AP_SSID" and passphrase is "MY_AP_PASSPHRASE". You may either use these or modify them as described in the [Application Build Environment](#application-build-environment) section.
-- Flash, run and debug the application
+- Build the application in Studio
+
+- Flash, run, and debug the application
 
    ![cli_demo_Output](resources/readme/build_output.png)
 
 Follow the steps below for successful execution of the application:
 
-- The terminal screen displays lot of commands which can be added manually in Extension command in Serial debug assistant.
+- The terminal screen displays several commands which can be added manually in the Extension command in the Serial debug assistant.
 
- **Here are List of those commands:**
+ **Here are a list of those commands:**
 
 1. HELP
 2. wifi_init
@@ -137,13 +143,13 @@ Follow the steps below for successful execution of the application:
 
 And so on...
 
-### Below are the examples of the commands on how to enter those in the Serial Debug Assistant
+### The following are examples of the commands and instructions for entering them in the Serial Debug Assistant:
 
 - **HELP COMMAND:-** 
   
   **![Help_command](resources/readme/help.png)**
 
-- After issuing the **help** command in serial Debug assistant it will display all the commands of the CLI demo on the Serial Debug screen as shown in the below image.
+- After issuing the **help** command in the Serial Debug Assistant, it will display all the commands of the CLI demo on the Serial Debug screen as shown in the image below.
 
   **![Prints](resources/readme/prints.png)**
 
@@ -153,7 +159,7 @@ And so on...
 
   **![Prints](resources/readme/empty_data.png)**
 
-### **Below are the Commands to run the RF test example.**
+### **The following are the commands to run the RF test example.**
 
 - **Transmit Test Commands for Wi-Fi**
 
@@ -172,11 +178,11 @@ By default antenna type should be set to 0.
 
     e.g., wifi_transmit_test_start 127 0 100 1 1.
 
-- For Wi-Fi 6 or 802.11ax mode RF test, issue the below command.
+- For Wi-Fi 6 or 802.11ax mode RF test, issue the following command.
 
 4. wifi_ax_transmit_test_start **power** **data rate** **length** **mode** **channel** **enable_11ax** **coding_type** **nominal_pe** **ul_dl** **he_ppdu_type** **beam_change** **bw** **stbc** **tx_bf** **gi_ltf** **dcm** **nsts_midamble** **spatial_reuse** **bss_color** **he_siga2_reserved** **ru_allocation** **n_heltf_tot** **sigb_dcm** **sigb_mcs** **user_sta_id** **user_idx** **sigb_compression_field**
     e.g., wifi_ax_transmit_test_start 127 0 100 1 1 1 0 1 1 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 1 1 1
-  **power**: Set transmit power in dbm. Valid values are from 2dBm to 18dBm.
+  **power**: Set transmit power in dbm. Valid values are from 2 dBm to 18 dBm.
 
 **Note**: To configure the maximum power level for a particular frequency band, 
 Set **power** = 127
@@ -195,8 +201,8 @@ Set **power** = 127
 **Note**:
 
 **Burst Mode**
-DUT transmits a burst of packets with the given power, rate, length in the channel configured. The burst size will be 
-determined by the **length** parameter, if it the **length** parameter is zero, then DUT keeps transmitting till 
+DUT transmits a burst of packets with the given power, rate, and length in the channel configured. The burst size will be 
+determined by the **length** parameter. If the **length** parameter is zero, then DUT keeps transmitting until 
 stop API is called.
 
 **Continuous Mode**:
@@ -213,7 +219,7 @@ of carrier leakage will be seen at Center Frequency.
 For example, for 2412 MHz the output will be seen at 2409.5 MHz.
 
 **Continuous Wave Mode (Non-Modulation) in Single Tone Mode (Center frequency +5 MHz)**:
-The DUT transmits a spectrum that is generated at 5MHz from the center frequency of the channel selected. Some amount of 
+The DUT transmits a spectrum that is generated at 5 MHz from the center frequency of the channel selected. Some amount of 
 carrier leakage will be seen at Center Frequency.
 For example, for 2412 MHz the output will be seen at 2417 MHz. 
 
@@ -277,37 +283,37 @@ By default antenna type should be set to 0.
 
     e.g., wifi_start_statistic_report -i client -c 1 -n 30
   
-  To observe the receive stats for 'n' iterations (e.g. 20), the command can be given as follows:   
+  To observe the receive stats for 'n' iterations (e.g., 20), the command can be given as follows:   
      e.g., wifi_start_statistic_report -i client -c 1 -n 20
 
 
 **WIFI INIT COMMAND:-**
 
-- Click on the extension cmd and click on the Entered **wifi_init** command from the command console
+- Click on the extension cmd and click on the Entered **wifi_init** command from the command console.
 
   **![Prints](resources/readme/wifi_init.png)**
 
-- After issuing the **wifi_init** command from the command console, This is how the response is displayed on the screen.
+- After issuing the **wifi_init** command from the command console, this is how the response is displayed on the screen.
 
   **![Prints](resources/readme/wifi_init_prints.png)**
 
 **WIFI SCAN COMMAND:-**
 
-- After issuing the **wifi_scan** command in the command console, This is how the response is displayed on the screen.
+- After issuing the **wifi_scan** command in the command console, this is how the response is displayed on the screen.
 
   **![Prints](resources/readme/scan_prints.png)**
 
 **WIFI CONNECT COMMAND:-**
 
-- After issuing the **wifi_connect** command in the command console, This is how the response is displayed on the screen. 
+- After issuing the **wifi_connect** command in the command console, this is how the response is displayed on the screen. 
 
   **![Prints](resources/readme/wifi_connect.png)**
 
-- To connect to open mode networks, following command can be issued: wifi_connect <SSID> -s open
+- To connect to open mode networks, the following command can be issued: wifi_connect <SSID> -s open
 
 **WIFI DEINIT COMMAND:-**
 
-- After issuing the **wifi_deinit** command in command console, This is how the response is displayed on the screen.  
+- After issuing the **wifi_deinit** command in command console, this is how the response is displayed on the screen.  
 
   **![Prints](resources/readme/deinit.png)**
 
@@ -322,7 +328,7 @@ By default antenna type should be set to 0.
 Here the new command is: *cli_demo_new_cmd*
 The structure variable for the newly created command is *_cli_demo_new_cmd_command*.
 
-2. The *_cli_demo_new_cmd_command* structure variable should be declared in the **console_commands/src/console_command_database.c** file with the following fields
+2. The *_cli_demo_new_cmd_command* structure variable should be declared in the **console_commands/src/console_command_database.c** file with the following fields:
 
     **![cmdstructure](resources/readme/picture2.png)**
 
@@ -338,7 +344,7 @@ The structure variable for the newly created command is *_cli_demo_new_cmd_comma
 
 - The function name can be anything, but the return type and argument must be as shown above.
 
-**The string array for argument description of the command  handler:-**
+**The string array for argument description of the command handler:-**
 
 - In the above figure, *_cli_demo_new_cmd_arg_help* is the string array which needs to be defined.
 - We need to define a string array in **console_commands/src/console_command_database.c** file which briefly explains about the arguments in the command handler. The declaration is as shown below.
@@ -349,22 +355,22 @@ We have given the description for all three strings as 0.
 
 **The list of data types of arguments of command handler:-**
 
-- Refering to the *_cli_demo_new_cmd_command* structure variable image, { CONSOLE_OPTIONAL_ARG('s', CONSOLE_ARG_STRING ), CONSOLE_ARG_UINT, CONSOLE_ARG_INT, CONSOLE_ARG_END } }  are the list of datatypes corresponding to the list of arguments.
-- The data types CONSOLE_ARG_UINT corresponds to ‘uint’ , CONSOLE_ARG_INT corresponds to ‘int’ and CONSOLE_ARG_STRING corresponds to ‘string’. The list of arguments must end with CONSOLE_ARG_END.
-- The arguments can be mandatory or optional. The mandatory arguments are given directly, but optional arguments are given using an expression, CONSOLE_OPTIONAL_ARG(‘character’, datatype) The ‘character’ is an alphabet which is user choice which can be used to give an optional argument in a cli command. The datatype can be anything mentioned above.
-- In addition to standard data type arguments like uint, int, string, there can be enums which can also be passed as arguments to a command. The arguments we need to pass in a command depends on what APIs we call in a command handler. 
+- Referring to the *_cli_demo_new_cmd_command* structure variable image, { CONSOLE_OPTIONAL_ARG('s', CONSOLE_ARG_STRING ), CONSOLE_ARG_UINT, CONSOLE_ARG_INT, CONSOLE_ARG_END } }  are the list of datatypes corresponding to the list of arguments.
+- The data types CONSOLE_ARG_UINT corresponds to ‘uint’ , CONSOLE_ARG_INT corresponds to ‘int’, and CONSOLE_ARG_STRING corresponds to ‘string’. The list of arguments must end with CONSOLE_ARG_END.
+- The arguments can be mandatory or optional. The mandatory arguments are given directly, but optional arguments are given using an expression, CONSOLE_OPTIONAL_ARG(‘character’, datatype). The ‘character’ is an alphabet which is the user's choice and can be used to give an optional argument in a cli command. The datatype can be anything mentioned above.
+- In addition to standard data type arguments like uint, int, and string, there can be enums which can also be passed as arguments to a command. The arguments we need to pass in a command depend on what APIs we call in a command handler. 
 - For some of the wifi APIs we call inside a command handler, we may need to use the argument values as specified in the *console_argument_values* variable defined in **console_commands/src/console_argument_types.c** file. For passing those values in a cli command, we need to look for the corresponding argument types defined in the same file.
 For example:
-We may want to pass a data rate as *SL_WIFI_RATE_11B_1* enum value in a cli command, the corresponding uint32 array is mapped to *[CONSOLE_TYPE(data_rate)]*. We need to search for *data_rate_type* string array in the same file as shown below
-The sring corresponding to *SL_WIFI_RATE_11B_1* is "1Mbps". So *1Mbps* should be passed as an argument in the cli command.
-In the command handler, the arguments passed in the cli command are internally mapped to corresponding enum values and hence can be accessed directly using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG().
+We may want to pass a data rate as *SL_WIFI_RATE_11B_1* enum value in a cli command, the corresponding uint32 array is mapped to *[CONSOLE_TYPE(data_rate)]*. We need to search for *data_rate_type* string array in the same file as shown below:
+The string corresponding to *SL_WIFI_RATE_11B_1* is "1Mbps". So *1Mbps* should be passed as an argument in the cli command.
+In the command handler, the arguments passed in the cli command are internally mapped to corresponding enum values and can be accessed directly using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG().
 **![cmdhandler](resources/readme/picture8.png)**
 **![cmdhandler](resources/readme/picture9.png)**
 **![cmdhandler](resources/readme/picture10.png)**
 
 - So, the overall changes we need to make in  **console_commands/src/console_command_database.c** file is as shown below:
 **![cmdhandler](resources/readme/picture5.png)**
-- So, the cli command that can be used with the above changes is *cli_demo_new_cmd -s Optional_String 1 2*
+- So, the cli command that can be used with the above changes is *cli_demo_new_cmd -s Optional_String 1 2*.
 
 3. The command handler should be defined in a relevant file as shown below. The arguments can be accessed directly or by using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG() as shown below. 
 **![cmdhandler](resources/readme/picture6.png)**

@@ -107,6 +107,7 @@ extern rsi_m4ta_desc_t crypto_desc[2];
 #define PASSIVE_SCAN_ENABLE                  BIT(7)
 #define LP_CHAIN_ENABLE                      BIT(6)
 #define QUICK_SCAN_ENABLE                    1
+#define SCAN_RESULTS_TO_HOST                 2
 #define MAX_2_4G_CHANNEL                     14
 
 /*========================================================================*/
@@ -417,6 +418,12 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                                       advanced_scan_configuration.active_channel_time);
       VERIFY_STATUS_AND_RETURN(status);
     }
+
+    if (SL_WIFI_SCAN_TYPE_EXTENDED == configuration->type) {
+      scan_request.scan_feature_bitmap |= SCAN_RESULTS_TO_HOST;
+    }
+    sli_wifi_flush_scan_results_database();
+
     status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SCAN,
                                           SI91X_WLAN_CMD_QUEUE,
                                           &scan_request,
@@ -447,6 +454,12 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
 
   VERIFY_STATUS_AND_RETURN(status);
   return status;
+}
+
+sl_status_t sl_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
+                                            sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters)
+{
+  return sli_wifi_get_stored_scan_results(interface, extended_scan_parameters);
 }
 
 sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
@@ -1535,6 +1548,7 @@ sl_status_t sl_wifi_deinit(void)
   reset_sl_wifi_rate();
   memset(&advanced_scan_configuration, 0, sizeof(sl_wifi_advanced_scan_configuration_t));
   status = sl_si91x_driver_deinit();
+  sli_wifi_flush_scan_results_database();
 
   SLI_NETWORK_CLEANUP_HANDLER();
 

@@ -22,6 +22,7 @@ This application demonstrates how to encrypt and decrypt the data using AES APIs
 - Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4338A](https://www.silabs.com/)
+- For the Wrap Key feature of this application to work, the keys should be programmed and secure boot (ta_secure_boot) should be enabled in the device
 
 ### Software Requirements
 

@@ -6,6 +6,9 @@ description: >
 category: Device|Si91x|MCU|Hardware
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/hardware_drivers/icm40627"
+config_file:
+  - path: config/sl_si91x_icm40627_config.h
+    file_id: icm40627_config
 source:
   - path: "src/sl_si91x_icm40627.c"
 include:

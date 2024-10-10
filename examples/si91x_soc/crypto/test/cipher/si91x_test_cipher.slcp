@@ -18,10 +18,10 @@ include:
       - path: psa_driver_cipher_test_data.h
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

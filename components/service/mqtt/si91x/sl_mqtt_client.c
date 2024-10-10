@@ -481,11 +481,15 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
   if (status == SL_STATUS_IN_PROGRESS) {
     return status;
   } else if (status != SL_STATUS_OK) {
+    if (client->state == SL_MQTT_CLIENT_DISCONNECTED || status == SL_STATUS_SI91X_COMMAND_ISSUED_IN_REJOIN_STATE) {
+      SL_DEBUG_LOG("\r\nWLAN disconnected. No need to call the disconnect again.\r\n");
+      return status;
+    }
     client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
     status        = sl_mqtt_client_disconnect(client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
     if (status != SL_STATUS_OK) {
       SL_DEBUG_LOG(
-        "Failed to disconnect the client after failed connection attempt. User need to call disconnect explicitly");
+        "Failed to disconnect the client after failed connection attempt. User needs to call disconnect explicitly.");
     }
     SL_CLEANUP_MALLOC(sdk_context);
     return status;
@@ -839,6 +843,15 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
         break;
       }
 
+      if (rx_packet->command == RSI_WLAN_RSP_JOIN) {
+        reason                     = SL_MQTT_CLIENT_WLAN_DISCONNECTION;
+        event_data                 = &reason;
+        sdk_context->client->state = SL_MQTT_CLIENT_DISCONNECTED;
+        // Free all subscriptions as we have disconnected from MQTT broker
+        sli_si91x_remove_and_free_all_subscriptions(sdk_context->client);
+        break;
+      }
+
       is_error_event = true;
       // This state updates is necessary as we need to send NWP disconnect even in case of connection failure.
       sdk_context->client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
@@ -847,7 +860,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
 
       if (status != SL_STATUS_OK) {
         SL_DEBUG_LOG(
-          "Failed to disconnect the client after failed connection attempt. User need to call disconnect explicitly");
+          "Failed to disconnect the client after failed connection attempt. User needs to call disconnect explicitly.");
       } else {
         sdk_context->client->state = SL_MQTT_CLIENT_DISCONNECTED;
       }

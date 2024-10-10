@@ -50,6 +50,9 @@
 #define SI91X_CERT_INDEX_1 1
 #define SI91X_CERT_INDEX_2 2
 
+#define SL_SI91X_TLS_EXTENSION_SNI_TYPE  1 ///< TLS extension for SNI
+#define SL_SI91X_TLS_EXTENSION_ALPN_TYPE 2 ///< TLS extension for ALPN
+
 #define SI91X_SOCKET_TCP_CLIENT 0x0000
 #define SI91X_SOCKET_UDP_CLIENT 0x0001
 #define SI91X_SOCKET_TCP_SERVER 0x0002
@@ -86,6 +89,7 @@
 #define SL_SI91X_SO_MSS                              40 ///< To configure the TCP MSS
 #define SL_SI91X_SO_SOCK_VAP_ID                      25 ///< To configure the socket VAP ID
 #define SL_SI91X_SO_TLS_SNI                          47 ///< To configure the TLS SNI extension
+#define SL_SI91X_SO_TLS_ALPN                         50 ///< To configure the TLS ALPN extension
 /** @} */
 
 #define SHUTDOWN_BY_ID   0

@@ -60,43 +60,43 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc_ch8 signal=P8,N8> SL_ADC_CH8
+// <adc_ch8 signal=P,N> SL_ADC_CH8
 // $[ADC_CH8_SL_ADC_CH8]
 #ifndef SL_ADC_CH8_PERIPHERAL
 #define SL_ADC_CH8_PERIPHERAL ADC_CH8
 #endif
 
-// ADC_CH8 P8 on GPIO_27
-#ifndef SL_ADC_CH8_P8_PORT
-#define SL_ADC_CH8_P8_PORT 0
+// ADC_CH8 P on GPIO_27
+#ifndef SL_ADC_CH8_P_PORT
+#define SL_ADC_CH8_P_PORT HP
 #endif
-#ifndef SL_ADC_CH8_P8_PIN
-#define SL_ADC_CH8_P8_PIN 27
+#ifndef SL_ADC_CH8_P_PIN
+#define SL_ADC_CH8_P_PIN 27
 #endif
-#ifndef SL_ADC_CH8_P8_LOC
-#define SL_ADC_CH8_P8_LOC 140
+#ifndef SL_ADC_CH8_P_LOC
+#define SL_ADC_CH8_P_LOC 140
 #endif
 
-// ADC_CH8 N8 on GPIO_28
-#ifndef SL_ADC_CH8_N8_PORT
-#define SL_ADC_CH8_N8_PORT 0
+// ADC_CH8 N on GPIO_28
+#ifndef SL_ADC_CH8_N_PORT
+#define SL_ADC_CH8_N_PORT HP
 #endif
-#ifndef SL_ADC_CH8_N8_PIN
-#define SL_ADC_CH8_N8_PIN 28
+#ifndef SL_ADC_CH8_N_PIN
+#define SL_ADC_CH8_N_PIN 28
 #endif
-#ifndef SL_ADC_CH8_N8_LOC
-#define SL_ADC_CH8_N8_LOC 413
+#ifndef SL_ADC_CH8_N_LOC
+#define SL_ADC_CH8_N_LOC 413
 #endif
 // [ADC_CH8_SL_ADC_CH8]$
 // <<< sl:end pin_tool >>>
 
-#ifdef SL_ADC_CH8_P8_LOC
-#define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL (SL_ADC_CH8_P8_LOC - P8_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH8_P_LOC
+#define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL (SL_ADC_CH8_P_LOC - P8_START_LOCATION_PINTOOL)
 #else
 #define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL 7
 #endif
-#ifdef SL_ADC_CH8_N8_LOC
-#define SL_ADC_CHANNEL_8_NEG_INPUT_CHNL_SEL (SL_ADC_CH8_N8_LOC - N8_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH8_N_LOC
+#define SL_ADC_CHANNEL_8_NEG_INPUT_CHNL_SEL (SL_ADC_CH8_N_LOC - N8_START_LOCATION_PINTOOL)
 #else
 #define SL_ADC_CHANNEL_8_NEG_INPUT_CHNL_SEL 7
 #endif

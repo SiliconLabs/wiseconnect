@@ -20,11 +20,10 @@
 
 // -----------------------------------------------------------------------------
 // Macros
-#define ALARM_EXAMPLE     ENABLE  ///< To enable alarm trigger
-#define CLOCK_CALIBRATION DISABLE ///< To enable clock calibration
-#define SEC_INTR          DISABLE ///< To enable one second trigger
-#define MILLI_SEC_INTR    DISABLE ///< To enable one millisecond trigger
-#define TIME_CONVERSION   DISABLE ///< To enable time conversion
+#define ALARM_EXAMPLE   ENABLE  ///< To enable alarm trigger
+#define SEC_INTR        DISABLE ///< To enable one second trigger
+#define MILLI_SEC_INTR  DISABLE ///< To enable one millisecond trigger
+#define TIME_CONVERSION DISABLE ///< To enable time conversion
 
 // -----------------------------------------------------------------------------
 // Prototypes

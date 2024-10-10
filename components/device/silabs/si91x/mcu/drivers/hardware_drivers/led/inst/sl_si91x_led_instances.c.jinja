@@ -28,9 +28,9 @@
  *
  ******************************************************************************/
 
-#include "sl_si91x_led.h"
 #include "sl_si91x_led_config.h"
 #include "sl_si91x_led_instances.h"
+#include "sl_si91x_led.h"
 
 {%- for inst in simple_led_instance | sort %}
 sl_led_t const led_{{ inst | lower }} = {

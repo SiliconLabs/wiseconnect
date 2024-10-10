@@ -979,15 +979,6 @@ sl_psram_return_type_t sl_si91x_psram_init()
 
   if ((psram_id.MFID == PSRAM_Device.deviceID.MFID) && (psram_id.KGD == PSRAM_Device.deviceID.KGD)) {
 
-    /* Configuring clock for PSRAM operation based on selected configs */
-    QSPI_CLK_SRC_SEL_T clk_src = PSRAM_CLK_SOURCE_SEL;
-
-    clkStatus = RSI_CLK_Qspi2ClkConfig(M4CLK, clk_src, 0, 0, PSRAM_FREQ_CLK_DIV_FACTOR);
-
-    if (RSI_OK != clkStatus) {
-      return PSRAM_CLOCK_INIT_FAILURE;
-    }
-
     if (PSRAM_INTERFACE_MODE == QUAD_MODE) {
       /*Set the PSRAM device to QPI mode*/
       psram_enter_qpi_mode();

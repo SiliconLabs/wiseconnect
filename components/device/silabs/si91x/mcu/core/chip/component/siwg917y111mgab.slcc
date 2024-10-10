@@ -16,7 +16,7 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
-  - name: SL_SI91X_MODULE_BOARD
+  - name: SL_SI91X_ACX_MODULE
     value: '1'
   - name: SRAM_BASE
     value: "0x0cUL"
@@ -47,6 +47,7 @@
   - name: device_has_mpu
   - name: device_is_module
   - name: device_has_antenna
+  - name: device_is_module
 - requires:
   - name: rsilib_chip
   - name: romdriver_clks
@@ -56,6 +57,7 @@
   - name: wiseconnect_toolchain_plugin
   - name: freertos_config
     condition: [freertos]
+  - name: si91x_32kHz_external_oscillator
 - template_contribution:
   - name: device_opn
     value: SIWG917Y111MGAB
@@ -137,7 +139,7 @@
       - name: Main Flash
         page_size: 256
         size: 8388608
-        start: 136060928
+        start: 136323072 # 0x0820 2000
         type: non-volatile
       # TODO: Check these Values
       - name: RAM

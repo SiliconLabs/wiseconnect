@@ -41,11 +41,19 @@
 #endif // SLI_SI91X_MCU_INTERFACE
 
 /******************************************************
+*                    Constants
+******************************************************/
+#define POWER_SAVE_PROFILE STANDBY_POWER_SAVE
+
+/******************************************************
  *               Function Declarations
  ******************************************************/
 static void application_start(void *argument);
 static void enable_standby(void);
+
+#ifndef SLI_SI91X_MCU_INTERFACE
 static void enable_high_performance(void);
+#endif
 
 /******************************************************
  *               Variable Definitions
@@ -106,49 +114,64 @@ static void application_start(void *argument)
   // Initialize the Wi-Fi client interface
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
-    printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
+    printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
     return;
   }
-  printf("Wi-Fi interface up Success\r\n");
+  printf("\r\nWi-Fi client interface init success\r\n");
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   uint8_t xtal_enable = 1;
   // Establish a secure handshake between the M4 core and the NWP
   status = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
-    printf("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
+    printf("\r\nFailed to bring m4_ta_secure_handshake: 0x%lX\r\n", status);
     return;
   }
-  printf("m4_ta_secure_handshake Success\r\n");
+  printf("\r\nm4_ta_secure_handshake Success\r\n");
 #endif
 
   // Enabling low-power standby mode
   enable_standby();
-  printf("NWP is in power save mode \n");
+  printf("\r\nNWP is in power save mode\r\n");
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   printf("\r\nM4 in Sleep\r\n");
   status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS0);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with the error code.
-    printf("sl_si91x_power_manager_add_ps_requirement failed, Error Code: 0x%lX \n", status);
+    printf("\r\nsl_si91x_power_manager_add_ps_requirement failed, Error Code: 0x%lX\r\n", status);
   } else {
     printf("\r\nM4 wake up\r\n");
   }
 
 #else
-  osDelay(10000);
-#endif
+  osDelay(30000);
 
-  // Brings the NWP out of power save mode
-  enable_high_performance();
-  printf("NWP comes out of power save mode \n");
+  if (POWER_SAVE_PROFILE == STANDBY_POWER_SAVE_WITH_RAM_RETENTION) {
+
+    // Brings the NWP out of power save mode
+    enable_high_performance();
+    printf("\r\nNWP comes out of power save mode\r\n");
+
+  } else if (POWER_SAVE_PROFILE == STANDBY_POWER_SAVE) {
+
+    // Initialize the Wi-Fi client interface
+    status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
+      return;
+    }
+    printf("\r\nWi-Fi client interface init success\r\n");
+  }
+
   printf("\r\nExample Demonstration Completed\r\n");
+
+#endif
 }
 
 static void enable_standby(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { .profile = STANDBY_POWER_SAVE };
+  sl_wifi_performance_profile_t performance_profile = { .profile = POWER_SAVE_PROFILE };
 
   sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
@@ -158,14 +181,16 @@ static void enable_standby(void)
   printf("\r\nPower save profile with deep sleep Success \r\n");
 }
 
+#ifndef SLI_SI91X_MCU_INTERFACE
 static void enable_high_performance(void)
 {
   sl_wifi_performance_profile_t performance_profile = { .profile = HIGH_PERFORMANCE };
 
   sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
-    printf("\r\nPower save profile with deep sleep Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\nFailed to keep module in HIGH_PERFORMANCE mode, Error Code : 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nPower save profile with deep sleep Success\r\n");
+  printf("\r\nModule is in HIGH_PERFORMANCE mode\r\n");
 }
+#endif

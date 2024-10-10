@@ -14,7 +14,8 @@ instantiable:
   prefix: instance
 config_file:
   - path: "config/sl_si91x_button_pin_config.h"
-  - path: "config/sl_si91x_button_{{instance}}_config.h"
+  - path: "config/sl_si91x_button_init_{{instance}}_config.h"
+    file_id: button_config
 include:
   - path: "inc"
     file_list:

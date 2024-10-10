@@ -67,7 +67,7 @@ extern "C" {
 
 // DAC0 OUT on ULP_GPIO_4/GPIO_68
 #ifndef SL_DAC0_OUT_PORT
-#define SL_DAC0_OUT_PORT 0
+#define SL_DAC0_OUT_PORT ULP
 #endif
 #ifndef SL_DAC0_OUT_PIN
 #define SL_DAC0_OUT_PIN 4

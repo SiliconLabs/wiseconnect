@@ -30,9 +30,6 @@
 
 #include "sl_si91x_button_pin_config.h"
 #include "sl_si91x_button_instances.h"
-{% for inst in simple_button_instance -%}
-#include "sl_si91x_button_{{ inst | lower }}_config.h"
-{% endfor %}
 
 {%- for inst in simple_button_instance | sort %}
 sl_button_t const button_{{ inst | lower }} = {

@@ -50,6 +50,8 @@
   - name: device_compute_mvp
   - name: device_supports_psram
   - name: device_has_mpu
+  - name: device_has_chip
+  - name: device_supports_external_flash
 - requires:
   - name: rsilib_chip
   - name: romdriver_clks

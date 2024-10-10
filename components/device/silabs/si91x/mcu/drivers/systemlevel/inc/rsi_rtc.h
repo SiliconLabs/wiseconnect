@@ -84,8 +84,8 @@ typedef struct RTC_TIME_CONFIG {
   uint8_t Day;                 ///< Day (Format 1...31)
   RTC_DAY_OF_WEEK_T DayOfWeek; ///< Day of the week (Format 0...6)
   RTC_MONTH_T Month;           ///< Month (Format 1...12)
-  uint8_t Year;                ///< Year (Format 1...99) + 2000
-  uint8_t Century;             ///< Century
+  uint8_t Year;                ///< Year (Format 0...99) + 2000
+  uint8_t Century;             ///< Century (Format 0...3)
 } RTC_TIME_CONFIG_T;
 
 /**

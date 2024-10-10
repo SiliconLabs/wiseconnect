@@ -29,6 +29,7 @@ root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: config/sl_si91x_i2c_init_{{instance}}_config.h
     file_id: i2c_config
+    unless: [sl_si70xx]
 provides:
   - name: i2c_instance
     allow_multiple: true

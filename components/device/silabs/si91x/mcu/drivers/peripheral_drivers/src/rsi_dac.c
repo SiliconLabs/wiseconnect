@@ -255,7 +255,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
         // Program in PS2 state  Need to integrate
         // Configured DAC clock as 32Mhz RC
         RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-        clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_32MHZ) / sampl_rate);
+        clk_div_fac = (uint16_t)ceil((2 * RSI_CLK_GetBaseClock(ULPSS_AUX)) / sampl_rate);
         // Configure the DAC division factor for required sampling rate
         RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
         return (uint32_t)((clk_div_fac * sampl_rate) / 2);
@@ -263,7 +263,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
         if (sampl_rate > DAC_SAMPLE_RATE_32KSPS && sampl_rate < DAC_SAMPLE_RATE_80KSPS) {
           // Configured DAC clock as 32Mhz RC
           RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_32MHZ) / sampl_rate);
+          clk_div_fac = (uint16_t)ceil((2 * RSI_CLK_GetBaseClock(ULPSS_AUX)) / sampl_rate);
           if (clk_div_fac > 0x03FF) {
             clk_div_fac = 0x03FF;
           }
@@ -271,10 +271,9 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
           RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);
         } else {
-          RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
           // Configured DAC clock as 32Mhz RC
           RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_32MHZ) / sampl_rate);
+          clk_div_fac = (uint16_t)ceil((2 * RSI_CLK_GetBaseClock(ULPSS_AUX)) / sampl_rate);
           // Configure the DAC division factor for required sampling rate
           RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);

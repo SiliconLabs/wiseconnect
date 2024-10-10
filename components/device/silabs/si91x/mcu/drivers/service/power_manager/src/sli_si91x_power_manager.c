@@ -46,6 +46,11 @@
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
 #include "sl_si91x_power_manager_wakeup_handler.h"
 #endif
+#ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+#include "sl_si91x_psram_config.h"
+#include "rsi_d_cache.h"
+#endif
+#include "rsi_debug.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -61,8 +66,9 @@
 #endif
 #define MAX_ULPSS_RAM_SIZE       8          // Maximum ulpss RAM size
 #define SOC_PLL_REF_FREQUENCY    40000000   // SOC Pll reference frequency
-#define PS4_HP_FREQUENCY         100000000  // PS4 high power clock frequency
-#define PS4_LP_FREQUENCY         32000000   // PS4 low power clock frequency
+#define INTF_PLL_REF_FREQUENCY   40000000   // INTF Pll reference frequency
+#define PS4_HP_FREQUENCY         180000000  // PS4 high power clock frequency
+#define PS4_LP_FREQUENCY         100000000  // PS4 low power clock frequency
 #define PS3_HP_FREQUENCY         80000000   // PS3 high power clock frequency
 #define PS3_LP_FREQUENCY         32000000   // PS3 low power clock frequency
 #define DIVISION_FACTOR          0          // Division Factor for clock
@@ -260,7 +266,12 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   if (state != SL_SI91X_POWER_MANAGER_PS2) {
     //Changing the Core-Clock to ULP_REF clock before entering Sleep mode.
     RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
+#ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+    /* Configuring clock for PSRAM to ULP_REF before entering Sleep mode. */
+    RSI_CLK_Qspi2ClkConfig(M4CLK, QSPI_ULPREFCLK, 0, 0, 0);
+#endif
   }
+
   // If any error code, it returns it otherwise goes to sleep with retention.
   status = trigger_sleep(&config, SLEEP_WITH_RETENTION);
   if (status != SL_STATUS_OK) {
@@ -509,6 +520,9 @@ sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, bool
  ******************************************************************************/
 void sli_si91x_power_manager_init_hardware(void)
 {
+  // Power-Down the deep-sleep timer
+  RSI_PS_PowerSupplyDisable(POWER_ENABLE_DEEPSLEEP_TIMER);
+
   // Sets PS4 Power save mode, 100 MHz.
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS4, false);
 }
@@ -540,17 +554,19 @@ static void low_power_hardware_configuration(boolean_t is_sleep)
   RSI_PS_SocPllSpiDisable();
   // Power-Down QSPI-DLL Domain
   RSI_PS_QspiDllDomainDisable();
+
   // Enable first boot up
   RSI_PS_EnableFirstBootUp(1);
-  /* Configure PMU Start-up Time to be used on Wake-up*/
+  // Configure PMU Start-up Time to be used on Wake-up
   RSI_PS_PmuGoodTimeDurationConfig(PMU_GOOD_TIME);
-  /* Configure XTAL Start-up Time to be used on Wake-up*/
+  // Configure XTAL Start-up Time to be used on Wake-up
   RSI_PS_XtalGoodTimeDurationConfig(XTAL_GOOD_TIME);
-  // by using this API we programmed the RTC timer clock in SOC
-  // MSB 8 bits for the Integer part &
-  // LSB 17bits for the Fractional part
-  // Ex: 32Khz clock = 31.25us ==> 31.25*2^17 = 4096000 = 0x3E8000
-  /* Time Period Programming */
+
+  // The API allows configuring the time period for the sleep clock.
+  // MSB 8-bits for the Integer part &c
+  // LSB 17-bits for the Fractional part
+  // Ex: 32kHz clock = 31.25us ==> 31.25*2^17 = 4096000 = 0x3E8000
+  // Ex: 32.768kHz clock = 30.51us ==> 30.51*2^17 = 4000000 = 0x3D0900
   RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
 }
 
@@ -757,11 +773,13 @@ static sl_status_t trigger_sleep(sli_power_sleep_config_t *config, uint8_t sleep
                               config->vector_offset,
                               config->mode);
 #if SL_WIFI_COMPONENT_INCLUDED
+  /* Check's if SOC is in PS2 state. If so, skip writing to PLL registers as they are unavailable in this state. */
   if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
 
     if (sl_si91x_is_device_initialized()) {
       /* Check whether M4 is using XTAL */
       if (sli_si91x_is_xtal_in_use_by_m4() == true) {
+        /* To prevent an open-loop PLL clock condition, ensure the PLL's are turned off before turning off the XTAL (PLL source). */
         if (system_clocks.soc_pll_clock != DEFAULT_SOC_PLL_CLOCK) {
           /* TurnOff the SOC_PLL */
           RSI_CLK_SocPllTurnOff();
@@ -787,8 +805,9 @@ static sl_status_t trigger_sleep(sli_power_sleep_config_t *config, uint8_t sleep
   error_code = RSI_PS_EnterDeepSleep(sleep_type, config->low_freq_clock);
 
 #if SL_WIFI_COMPONENT_INCLUDED
+  /* Check's if SOC is in PS2 state. If so, skip writing to PLL registers as they are unavailable in this state. */
   if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-
+    /* To avoid an open-loop PLL clock configuration, the PLLs are turned OFF before sleep. Therefore,it's necessary to turnON them upon waking up */
     if (system_clocks.soc_pll_clock != DEFAULT_SOC_PLL_CLOCK) {
       /* TurnON the SOC_PLL */
       RSI_CLK_SocPllTurnOn();
@@ -804,6 +823,12 @@ static sl_status_t trigger_sleep(sli_power_sleep_config_t *config, uint8_t sleep
       RSI_CLK_I2sPllTurnOn();
     }
   }
+#endif
+#ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+  rsi_d_cache_invalidate_all();
+  /* Configuring clock for PSRAM operation based on selected configs */
+  RSI_CLK_SetIntfPllFreq(M4CLK, PS4_HP_FREQUENCY, INTF_PLL_REF_FREQUENCY);
+  RSI_CLK_Qspi2ClkConfig(M4CLK, QSPI_INTFPLLCLK, 0, 0, PSRAM_FREQ_CLK_DIV_FACTOR);
 #endif
   // If error is encountered, it is converted to sl error code.
   status = convert_rsi_to_sl_error_code(error_code);

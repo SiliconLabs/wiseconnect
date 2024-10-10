@@ -52,8 +52,6 @@
 #define ALARM_SECONDS      15u
 #define ALARM_MILLISECONDS 100u
 
-#define CAL_RC_CLOCK 2u
-
 static sl_power_state_t current_power_state = SL_SI91X_POWER_MANAGER_PS4;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -85,16 +83,6 @@ void calendar_example_init(void)
   sl_calendar_datetime_config_t get_datetime;
   sl_status_t status;
   do {
-
-    // Configuration of clock and initialization of calendar
-    status = sl_si91x_calendar_set_configuration(CAL_RC_CLOCK);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_calendar_set_configuration: Invalid Parameters, Error "
-               "Code : %lu \n",
-               status);
-      break;
-    }
-    DEBUGOUT("Successfully configured Calendar\n");
     // Initialization of Calendar
     sl_si91x_calendar_init();
     // Setting datetime for Calendar
@@ -134,27 +122,6 @@ void calendar_example_init(void)
     DEBUGOUT("Successfully fetched the calendar datetime \n");
     calendar_print_datetime(get_datetime);
     DEBUGOUT("\n");
-
-#if defined(CLOCK_CALIBRATION) && (CLOCK_CALIBRATION == ENABLE)
-    // Clock Calibration
-    sl_si91x_calendar_calibration_init();
-    clock_calibration_config_t clock_calibration_config;
-    clock_calibration_config.rc_enable_calibration          = true;
-    clock_calibration_config.rc_enable_periodic_calibration = true;
-    clock_calibration_config.rc_trigger_time                = SL_RC_THIRTY_SEC;
-    clock_calibration_config.ro_enable_calibration          = true;
-    clock_calibration_config.ro_enable_periodic_calibration = true;
-    clock_calibration_config.ro_trigger_time                = SL_RO_ONE_SEC;
-    status = sl_si91x_calendar_rcclk_calibration(&clock_calibration_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_calendar_rcclk_calibration: Invalid Parameters, Error "
-               "Code : %lu \n",
-               status);
-      break;
-    }
-    DEBUGOUT("Successfully performed clock calibration \n");
-    sl_si91x_calendar_rtc_start();
-#endif
 
 #if defined(ALARM_EXAMPLE) && (ALARM_EXAMPLE == ENABLE)
     sl_calendar_datetime_config_t alarm_config;

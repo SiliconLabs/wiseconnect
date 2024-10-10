@@ -34,9 +34,9 @@ extern uint32_t dma_rom_buff0[30], dma_rom_buff1[30];     //we can keep wrapeers
 #define RESOLUTION_16_BIT 16
 #define I2S0_CHANNEL1_CHANNEL_OFFSET 2
 
-#define I2S0_CLK_SRC      ULP_I2S_REF_CLK
+#define I2S0_CLK_SRC      ULP_I2S_PLL_CLK
 #define I2S0_CLK_DIV_FACT 0
-#define I2S1_CLK_SRC      ULP_I2S_ULP_32MHZ_RC_CLK
+#define I2S1_CLK_SRC      ULP_I2S_REF_CLK
 #define I2S1_CLK_DIV_FACT 0
 
 /* IAR support */

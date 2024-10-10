@@ -87,6 +87,11 @@ typedef struct {
   uint32_t queued_packet_count;
 } si91x_packet_queue_t;
 
+void sli_handle_wifi_beacon(sl_si91x_packet_t *packet);
+sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
+                                             sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters);
+void sli_wifi_flush_scan_results_database(void);
+
 typedef uint32_t sl_si91x_host_timestamp_t;
 
 typedef void (*sl_si91x_host_atomic_action_function_t)(void *user_data);

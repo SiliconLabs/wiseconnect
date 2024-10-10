@@ -20,6 +20,15 @@
  */
 
 #include "rsi_time_period.h"
+#include "rsi_power_save.h"
+
+// by using these macros, we program the RTC timer clock in SOC
+// MSB 8-bits for the Integer part &c
+// LSB 17-bits for the Fractional part
+// Ex: 32kHz clock = 31.25us ==> 31.25*2^17 = 4096000 = 0x3E8000
+// Ex: 32.768kHz clock = 30.51us ==> 30.51*2^17 = 4000000 = 0x3D0900
+#define RTC_TIME_PERIOD_32000HZ (0x003E7FFFUL) // Time period value for 32kHz
+#define RTC_TIME_PERIOD_32768HZ (0x003D08FFUL) // Time period value for 32.768kHz
 
 #ifndef UNUSED_PARAMETER
 #define UNUSED_PARAMETER(x) (void)(x)
@@ -315,13 +324,24 @@ rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
 
 rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
 {
+  uint32_t rtc_time_period = 0, clock_type = 0;
+
+  UNUSED_PARAMETER(u32TimePeriod);
   /*Check for the NULL parameter*/
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
   }
-  /*Update the timer period */
-  pstcTimePeriod->MCU_CAL_TIMER_CLOCK_PERIOD_b.RTC_TIMER_CLK_PERIOD = (unsigned int)(u32TimePeriod & 0x01FFFFFF);
 
+  // read the currently configured FSM low frequency clock
+  clock_type = MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.AON_KHZ_CLK_SEL;
+  if (clock_type == KHZ_XTAL_CLK_SEL) {
+    rtc_time_period = RTC_TIME_PERIOD_32768HZ;
+  } else if (clock_type == KHZ_RC_CLK_SEL) {
+    rtc_time_period = RTC_TIME_PERIOD_32000HZ;
+  }
+
+  /*Update the timer period */
+  pstcTimePeriod->MCU_CAL_TIMER_CLOCK_PERIOD_b.RTC_TIMER_CLK_PERIOD = (unsigned int)(rtc_time_period & 0x01FFFFFF);
   /*Indicated SOC programmed rtc_timer clock period is applied at KHz clock domain*/
   while (!pstcTimePeriod->MCU_CAL_TIMER_CLOCK_PERIOD_b.SPI_RTC_TIMER_CLK_PERIOD_APPLIED_b)
     ;

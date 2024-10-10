@@ -363,7 +363,9 @@ typedef struct {
 * @return Status code indicating the result:
 *       SL_STATUS_OK (0X000)- Success, peripherals initialization was done properly.
 *       SL_STATUS_FAIL (0x0001) - Failed, peripherals initialization failed.
-*       SL_ALL_PERIPHERALS_INIT_FAILED (0x001C), All peripherals initializaion failed 
+*       SL_ALL_PERIPHERALS_INIT_FAILED (0x001C), All peripherals initializaion failed.
+*
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_init();
 
@@ -375,7 +377,7 @@ sl_status_t sl_si91x_sensorhub_init();
 * @param[in] num_of_sensors   -     Number of sensors given by user.
 * @return Number of sensors scanned, if successful.
 *       SL_STATUS_FAIL (0x0001) - No sensors found.
-*
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_detect_sensors(sl_sensor_id_t sensor_id_info[], uint8_t num_of_sensors);
 
@@ -395,6 +397,7 @@ sl_status_t sl_si91x_sensorhub_detect_sensors(sl_sensor_id_t sensor_id_info[], u
 *       SL_SH_HAL_SENSOR_DELETION_FAILED (0X0016) - Sensor deletion failed at HAL layer.
 *       SL_SH_SENSOR_INDEX_NOT_FOUND (0x00FF) - Given sensor index not found.
 *
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id);
 
@@ -418,8 +421,8 @@ sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id);
 *        SL_SH_CONFIG_NOT_FOUND  (0x0010) - Configuration of the sensor not found.
 *        SL_SH_INVALID_MODE  (0x0013) - Invalid mode.
 *        SL_SH_HAL_SENSOR_CREATION_FAILED  (0x0015) - Sensor creation failed at HAL. 
-*
-******************************************************************************/
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+*******************************************************************************/
 sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id);
 
 /***************************************************************************/ /**
@@ -439,6 +442,7 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id);
 *       SL_SH_SENSOR_CREATE_FAIL (0x0007) - Given sensor not created.
 *       SL_SH_INVALID_MODE (0x0013) - Invaild mode given.
 *
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id);
 
@@ -458,6 +462,7 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id);
 *       SL_SH_TIMER_STOP_FAIL (0x0004) - Failed to stop timer.
 *       SL_SH_SENSOR_CREATE_FAIL (0x0007) -  Given sensor not created.
 *
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id);
 
@@ -625,6 +630,8 @@ sl_sensor_info_t *sli_si91x_get_sensor_info(sl_sensor_id_t sensor_id);
 * @return    Status code indicating the result:
 *                SL_STATUS_OK (0X000) - Success, callback registered.
 *                SL_SH_INVALID_PARAMETERS (0x000B) - Invalid parameters.
+*
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_notify_cb_register(sl_sensor_signalEvent_t cb_event, sl_sensor_id_t *cb_ack);
 
@@ -650,7 +657,9 @@ void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer);
 * @param[in] intr_type  -   NPSS GPIO interrupt type.
 * @return     Status code indicating the result:
 *             SL_STATUS_OK (0X000) - Success, interrupt configured.
-*             SL_SH_INTERRUPT_TYPE_CONFIG_FAIL (0x000E) - Invaild interrupt type.
+*             SL_SH_INTERRUPT_TYPE_CONFIG_FAIL (0x000E) - Invalid interrupt type.
+* 
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_gpio_intr_type_t intr_type);
 
@@ -688,6 +697,8 @@ void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin);
 *             SL_SH_POWER_TASK_CREATION_FAILED (0x0019) - Failed to create power task.
 *             SL_SH_SENSOR_TASK_CREATION_FAILED (0x001A) - Failed to create sensor task.
 *             SL_SH_EM_TASK_CREATION_FAILED (0x001B) - Failed to create EM task.
+*
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensor_hub_start(void);
 
@@ -763,8 +774,9 @@ void sli_si91x_sensorhub_ps2tops4_state(void);
 *
 * @return      Status code indicating the result:
 *              SL_STATUS_OK (0X000)- Success, ADC initialized.
-*              SL_STATUS_FAIL (0x0001)- Failed to initialize ADC .
+*              SL_STATUS_FAIL (0x0001)- Failed to initialize ADC.
 *
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sli_si91x_adc_init(void);
 
@@ -777,23 +789,23 @@ sl_status_t sli_si91x_adc_init(void);
 ******************************************************************************/
 void vPortSetupTimerInterrupt(void);
 
-/*=============================================================================*/
+/**************************************************************************/
 /**
  * @brief      I2C event handler
  * @param[in] event - I2C transmit and receive events.
  */
-/*=============================================================================*/
+/**************************************************************************/
 void ARM_I2C_SignalEvent(uint32_t event);
 
-/*=============================================================================*/
+/**************************************************************************/
 /**
  *  @brief       To fetch ADC bus interface information. This can be used by lower level layers.
  *  @return      Pointer to ADC configuration structure.
  */
-/*=============================================================================*/
+/**************************************************************************/
 sl_adc_cfg_t *sl_si91x_fetch_adc_bus_intf_info(void);
 
-/*=============================================================================*/
+/**************************************************************************/
 /**
  * @brief ADC callback to set event flag
  * @details This callback function is called when ADC event occured and it sets event flag corresponding to that event
@@ -801,18 +813,18 @@ sl_adc_cfg_t *sl_si91x_fetch_adc_bus_intf_info(void);
  * @param[in] event      - Callback event (ADC_STATIC_MODE_CALLBACK, 
  *                         ADC_THRSHOLD_CALLBACK, INTERNAL_DMA, FIFO_MODE_EVENT).
  */
-/*=============================================================================*/
+/**************************************************************************/
 void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event);
 
-/*=============================================================================*/
-/**
+/**************************************************************************/ /**
  *  @brief       To initialize sdc Interface based on the configuration.
  *  @return      Returns status 0 if successful.
  *               Otherwise, it returns an error code.
  *               SL_STATUS_FAIL (0x0001) - Fail.
  *               SL_STATUS_OK (0X000) - Success.
- */
-/*=============================================================================*/
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sli_si91x_sdc_init(void);
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
@@ -820,10 +832,6 @@ sl_status_t sli_si91x_sdc_init(void);
  *  @fn          void sli_config_sdc_params(sl_sdc_config_t * sdc_config)
  *  @brief       Initialize the sdc Interface based on the configuration.
  *  @param[in] sdc_config_st_p - Configuration parameters for SDC Driver
- *  @return      Returns status 0 if successful. 
- *               Otherwise, it returns an error code.
- *               SL_STATUS_FAIL (0x0001) - Fail.
- *               SL_STATUS_OK (0X000) - Success.
 *******************************************************************************/
 void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
 /** @endcond */

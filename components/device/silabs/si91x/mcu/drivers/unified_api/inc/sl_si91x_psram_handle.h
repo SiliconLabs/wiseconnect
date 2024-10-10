@@ -32,7 +32,9 @@
  */
 extern struct sl_psram_info_type_t PSRAM_Device;
 
-/** @defgroup PSRAM_GPIO_PIN_SET PSRAM GPIO Pin Sets
+/**
+ * @addtogroup PSRAM_GPIO_PIN_SET PSRAM GPIO Pin Sets
+ * @ingroup PSRAM
  * @{
  */
 #define PSRAM_GPIO_PIN_SET_52_TO_57      1 /**< GPIO Pin Set 52 to 57 */
@@ -41,9 +43,11 @@ extern struct sl_psram_info_type_t PSRAM_Device;
 #define PSRAM_GPIO_PIN_SET_46_TO_51_CS_1 4 /**< GPIO Pin Set 46 to 51 with Chip Select 1 */
 #define PSRAM_GPIO_PIN_SET_46_TO_57_CS_0 5 /**< GPIO Pin Set 46 to 57 with Chip Select 0 */
 #define PSRAM_GPIO_PIN_SET_46_TO_57_CS_1 6 /**< GPIO Pin Set 46 to 57 with Chip Select 1 */
-/** @} */
+/// @} end group PSRAM_GPIO_PIN_SET
 
-/** @defgroup PSRAM_CHIP_SELECT PSRAM Chip Select and Base Address
+/**
+ * @addtogroup PSRAM_CHIP_SELECT PSRAM Chip Select and Base Address
+ * @ingroup PSRAM
  * @{
  */
 #if (PSRAM_GPIO_PIN_SET_SEL == PSRAM_GPIO_PIN_SET_52_TO_57)
@@ -65,9 +69,11 @@ extern struct sl_psram_info_type_t PSRAM_Device;
 #define PSRAM_CHIP_SELECT  (CHIP_ONE)   /**< Chip Select for GPIO Pin Set 46 to 57 with CS 1 */
 #define PSRAM_BASE_ADDRESS (0x0B000000) /**< Base Address for GPIO Pin Set 46 to 57 with CS 1 */
 #endif
-/** @} */
+/// @} end group PSRAM_CHIP_SELECT
 
-/** @defgroup PSRAM_PIN_CONFIG PSRAM Pin Configuration
+/**
+ * @addtogroup PSRAM_PIN_CONFIG PSRAM Pin Configuration
+ * @ingroup PSRAM
  * @{
  */
 #if (PSRAM_GPIO_PIN_SET_SEL == PSRAM_GPIO_PIN_SET_0_TO_5)
@@ -215,6 +221,6 @@ extern struct sl_psram_info_type_t PSRAM_Device;
 #define NUM_OF_PSRAM_PINS (6) /**< Number of PSRAM Pins for GPIO Pin Set 52 to 57 */
 
 #endif
-/** @} */
+/// @} end group PSRAM_PIN_CONFIG
 
 #endif //__SL_SI91X_PSRAM_HANDLE_H_

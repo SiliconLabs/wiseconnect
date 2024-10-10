@@ -697,10 +697,11 @@ int sl_si91x_set_custom_sync_sockopt(int socket_id,
       break;
     }
 
-    case SO_TLS_SNI: {
-      // Call a function to add a Server Name Indication (SNI) extension to si91x_socket
-      sl_status_t status = add_server_name_indication_extension(&si91x_socket->sni_extensions,
-                                                                (const si91x_socket_type_length_value_t *)option_value);
+    case SO_TLS_SNI:
+    case SO_TLS_ALPN: {
+      // Call a function to add a TLS extension to si91x_socket
+      sl_status_t status = sli_si91x_add_tls_extension(&si91x_socket->tls_extensions,
+                                                       (const sl_si91x_socket_type_length_value_t *)option_value);
       // Check if the operation was successful
       if (status != SL_STATUS_OK) {
         SET_ERROR_AND_RETURN(ENOMEM);

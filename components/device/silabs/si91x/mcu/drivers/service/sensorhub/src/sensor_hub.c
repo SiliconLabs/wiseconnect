@@ -417,6 +417,10 @@ void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
     M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN | /* TA_RAM_RETENTION_MODE_EN |*/
     M4ULP_RAM_RETENTION_MODE_EN /*| M4SS_RAM_RETENTION_MODE_EN | HPSRAM_RET_ULP_MODE_EN*/); /* Enable SRAM Retention of 16KB during Sleep */
 
+  // by using this API we programmed the RTC timer clock in SOC
+  // MSB 8-bits for the Integer part &
+  // LSB 17-bits for the Fractional part
+  // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
   /* Time Period Programming */
   RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
 
@@ -480,10 +484,10 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
 
   RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
 
-  /* by using this API we programmed the RTC timer clock in SOC
-    MSB 8 bits for the Integer part &
-    LSB 17bits for the Fractional part
-    Ex: 32Khz clock = 31.25us ==> 31.25*2^17 = 4096000 = 0x3E8000*/
+  // by using this API we programmed the RTC timer clock in SOC
+  // MSB 8-bits for the Integer part &
+  // LSB 17-bits for the Fractional part
+  // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
   /* Time Period Programming */
   RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
   /* tass_ref_clk_mux_ctr in NWP Control */

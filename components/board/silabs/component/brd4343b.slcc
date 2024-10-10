@@ -16,12 +16,15 @@
   - name: external_psram_none
   - name: rsilib_board
   - name: si91x_common_flash
+  - name: si91x_32kHz_external_oscillator
 - provides:
   - name: brd4343b
   - name: hardware_board
   - name: hardware_board_rb
   - name: hardware_board_supports_multi_slave
   - name: si91x_b0_board
+  - name: si917_prod_board
+  - name: si917_module_radio_board
 - recommends:
   - id: brd4002a
 - define:
@@ -29,7 +32,7 @@
     value: '"BRD4343B"'
   - name: SL_BOARD_REV
     value: '"A02"'
-  - name: SL_SI91X_MODULE_BOARD
+  - name: SL_SI91X_ACX_MODULE
     value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     value: '1'

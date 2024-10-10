@@ -101,6 +101,7 @@ int sl_si91x_socket_async(int family, int type, int protocol, receive_data_callb
  *   - @ref SL_SI91X_SO_SSL_V_1_3_ENABLE
  *   - @ref SL_SI91X_SO_CERT_INDEX
  *   - @ref SL_SI91X_SO_TLS_SNI
+ *   - @ref SL_SI91X_SO_TLS_ALPN
  *   - @ref SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE
  *
  * @param[in] option_value 

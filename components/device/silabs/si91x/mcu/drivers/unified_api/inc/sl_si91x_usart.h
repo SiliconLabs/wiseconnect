@@ -269,8 +269,10 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
  * @param[in] usart_handle Pointer to the USART/UART driver.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, UART/USART deinitialization done properly.
-*         - SL_STATUS_FAIL (0x0001) - Fail, UART/USART deinitialization failed.
+ *         - SL_STATUS_OK (0x0000) - Success, UART/USART deinitialization done properly.
+ *         - SL_STATUS_FAIL (0x0001) - Fail, UART/USART deinitialization failed.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note
  *   When the USART/UART module is used in combination with other peripherals, while deinitializing in the application, see the notes below:
@@ -284,7 +286,6 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
  *   2. A few peripherals (ULP Peripherals, UULP Peripherals, GPDMA, and SDIO-SPI) have separate domains; those can be powered down independently. For additional details, see the Power architecture section in the Hardware Reference Manual.
  *      Here, ULP_UART has a separate power domain ULPSS_PWRGATE_ULP_UART, which can be powered down independently. See the rsi_power_save.h file for all power gate definitions.
  * 
- * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
 
@@ -472,15 +473,16 @@ sl_status_t sl_si91x_usart_async_receive_data(sl_usart_handle_t usart_handle, vo
  * @param[in] data_length Length of the data to be received.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, data transfer completed.
-*         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+ *         - SL_STATUS_OK (0x0000) - Success, data transfer completed.
+ *         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
+ *         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](
+ * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note This function is to be used in USART mode only (i.e., synchronous mode). In asynchronous
  * mode, use \ref sl_si91x_usart_receive_data() and \ref sl_si91x_usart_send_data().
- * 
- * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_usart_transfer_data(sl_usart_handle_t usart_handle,
                                          const void *data_out,

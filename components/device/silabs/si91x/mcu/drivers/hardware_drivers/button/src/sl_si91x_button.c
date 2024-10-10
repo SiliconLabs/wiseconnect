@@ -22,6 +22,7 @@
 #include "sl_common.h"
 #include "sl_si91x_button.h"
 #include "sl_si91x_button_pin_config.h"
+#include "sl_si91x_button_instances.h"
 #include "si91x_device.h"
 #include "sl_driver_gpio.h"
 #include "sl_si91x_driver_gpio.h"

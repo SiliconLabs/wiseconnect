@@ -11,8 +11,6 @@ description: >
 category: Device|Si91x|MCU|Peripheral
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
-config_file:
-  - path: "config/sl_si91x_calendar_config.h"
 source:
   - path: "src/sl_si91x_calendar.c"
 include:

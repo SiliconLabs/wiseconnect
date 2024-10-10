@@ -70,6 +70,7 @@ typedef enum SLEEP_TYPE {
 #define DEFAULT_BYP_RC_CLOCK     32000000
 #define DEFAULT_I2S_PLL_CLOCK    0
 #define DEFAULT_REF_CLOCK        2
+#define MAX_INTF_PLL_FREQUENCY   180000000
 
 /* Selecting the PLL reference clock */
 /* 0 - XTAL_CLK, 1 - Reserved, 2 - RC_32MHZ_CLK, 3 - Reserved */

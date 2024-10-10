@@ -1108,7 +1108,7 @@ STATIC INLINE void RSI_PS_FsmHfFreqConfig(uint32_t freq)
 
 /**
  * @fn            STATIC INLINE void RSI_PS_FsmLfClkSel(AON_CLK_T fsmLfClk)
- * @brief   This API is used to  configure the FSM low frequency clock
+ * @brief   This API is used to configure the FSM low frequency clock
  * @param[in]     fsmLfClk enum value of the low frequency clock sources
  *                \ref MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b
  * @return    none

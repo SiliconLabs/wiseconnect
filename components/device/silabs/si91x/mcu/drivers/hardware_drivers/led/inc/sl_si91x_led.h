@@ -18,28 +18,15 @@
 #ifndef __SL_SI91X_LED_H__
 #define __SL_SI91X_LED_H__
 
-#include "sl_si91x_led_config.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include "sl_si91x_led_instances.h"
 
 /** 
  * @addtogroup LED LED
  * @ingroup SI91X_HARDWARE_DRIVER_APIS
  * @{
  */
-
-/**
- * @brief Structure representing an LED configuration.
- *
- * This structure contains the configuration parameters for an LED, including
- * the port and pin numbers, as well as an identifier for the LED. It is used
- * to initialize and control the LED hardware.
- */
-typedef struct {
-  uint8_t pin;        ///< Pin number of the LED.
-  uint8_t port;       ///< Port number of the LED.
-  uint8_t led_number; ///< LED number for identification.
-} sl_led_t;
 
 /***************************************************************************/
 /**
@@ -48,7 +35,7 @@ typedef struct {
  * @details This API initializes the selected GPIOs, sets their operation modes, and configures them for controlling the LEDs.
  *          It ensures that the GPIOs are properly configured to drive the LEDs as per the specified settings in the handle.
  * 
- * @param[in] handle  The pointer to an @ref sl_led_t structure that contains the specific LED information. 
+ * @param[in] handle  The pointer to an sl_led_t structure that contains the specific LED information. 
  * 
  * @pre The GPIO peripheral must be enabled and clocked before calling this function.
  * @post The specified GPIO pin will be configured and set to the initial state as defined in the handle.
@@ -127,8 +114,8 @@ void sl_si91x_led_StackIndicateActivity(bool turnOn);
 * 
 * @section led_config Configuration
 * 
-* All LED instances are configured with an @ref sl_led_t struct. This struct along with a function definition for initializing LED is automatically generated when an LED is set up using Simplicity Studio's wizard.
-* This struct @ref sl_led_t struct is automatically generated into the following files sl_si91x_led_instances.h and sl_si91x_led_instances.c.
+* All LED instances are configured with an sl_led_t struct. This struct along with a function definition for initializing LED is automatically generated when an LED is set up using Simplicity Studio's wizard.
+* This struct sl_led_t struct is automatically generated into the following files sl_si91x_led_instances.h and sl_si91x_led_instances.c.
 * The samples below are for a single instance called "led0".
 * 
 * @code{.c}

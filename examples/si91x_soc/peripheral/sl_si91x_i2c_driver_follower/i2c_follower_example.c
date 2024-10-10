@@ -41,8 +41,6 @@
 #define INSTANCE_ZERO                0                // For 0 value
 #define INSTANCE_ONE                 1                // For 0 value
 #define INSTANCE_TWO                 2                // For 0 value
-#define MS_DELAY_COUNTER             4600             // Delay count
-#define SEND_DATA_SYNC               2                // Sync delay required for send
 
 #if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
 #define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
@@ -82,7 +80,6 @@ sl_i2c_dma_config_t p_dma_config;
 static void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status);
 static void compare_data(void);
 static void default_clock_configuration(void);
-static void delay(uint32_t idelay);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -183,6 +180,7 @@ void i2c_follower_example_process_action(void)
           DEBUGOUT("sl_i2c_driver_receive_data_blocking : Invalid Parameters, "
                    "Error Code : %u \n",
                    i2c_status);
+          i2c_receive_data_flag = false;
           break;
         }
 #endif
@@ -196,6 +194,7 @@ void i2c_follower_example_process_action(void)
           DEBUGOUT("sl_i2c_driver_receive_data_non_blocking : Invalid Parameters, "
                    "Error Code : %u \n",
                    i2c_status);
+          i2c_receive_data_flag = false;
           break;
         }
 #endif
@@ -213,16 +212,16 @@ void i2c_follower_example_process_action(void)
         current_mode          = I2C_SEND_DATA;
       }
       if (i2c_driver_dma_error) {
-        DEBUGOUT("Data is not transferred to Follower successfully \n");
         i2c_driver_dma_error = false;
-        break;
+        DEBUGOUT("Data is not transferred to Follower successfully \n");
+        i2c_send_data_flag = true;
+        current_mode       = I2C_SEND_DATA;
       }
 #endif
       break;
 
     case I2C_SEND_DATA:
       if (i2c_send_data_flag) {
-        delay(SEND_DATA_SYNC);
         // Validation for executing the API only once.
 #if (BLOCKING_APPLICATION)
         i2c_status =
@@ -231,6 +230,7 @@ void i2c_follower_example_process_action(void)
           DEBUGOUT("sl_i2c_driver_send_data_blocking : Invalid Parameters, "
                    "Error Code : %u \n",
                    i2c_status);
+          i2c_send_data_flag = false;
           break;
         }
 #endif
@@ -244,16 +244,17 @@ void i2c_follower_example_process_action(void)
           DEBUGOUT("sl_i2c_driver_send_data_non_blocking : Invalid Parameters, "
                    "Error Code : %u \n",
                    i2c_status);
+          i2c_send_data_flag = false;
           break;
         }
 #endif
         i2c_send_data_flag = false;
       }
 #if (BLOCKING_APPLICATION)
-      current_mode = I2C_TRANSMISSION_COMPLETED;
       // After the receive is completed, input and output data is compared and
       // output is printed on console.
       compare_data();
+      current_mode = I2C_TRANSMISSION_COMPLETED;
 #endif
 #if (NON_BLOCKING_APPLICATION)
       // It waits till i2c_transfer_complete is true in callback.
@@ -267,7 +268,7 @@ void i2c_follower_example_process_action(void)
       if (i2c_driver_dma_error) {
         DEBUGOUT("Data is not transferred to Follower successfully \n");
         i2c_driver_dma_error = false;
-        break;
+        current_mode         = I2C_TRANSMISSION_COMPLETED;
       }
 #endif
       break;
@@ -319,12 +320,5 @@ void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status)
       break;
     default:
       break;
-  }
-}
-
-static void delay(uint32_t idelay)
-{
-  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
-    __NOP();
   }
 }

@@ -27,8 +27,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -59,7 +58,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > ![Figure: Core Component Installation](resources/readme/core_component.png)
 - Configuration for Pinset
 > ![Figure: PSRAM Pin Configuration](resources/readme/pin_configs.png)
-- Configuration for Clock, Read-Write type, Interface mode
+- Configuration for Clock Frequency, Read-Write type, Interface mode
 > ![Figure: PSRAM Device Configuration](resources/readme/device_config.png)
   
 ## Test the Application

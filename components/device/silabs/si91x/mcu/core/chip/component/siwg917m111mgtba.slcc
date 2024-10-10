@@ -45,6 +45,7 @@
   - name: device_supports_psram
   - name: device_has_stacked_flash
   - name: device_has_mpu
+  - name: device_has_chip
 - requires:
   - name: rsilib_chip
   - name: romdriver_clks
@@ -75,7 +76,6 @@
     value: 7168
   - name: nvm3_size
     value: 65536
-
   - name: flash_present
     value: 1
 
@@ -134,7 +134,7 @@
       - name: Main Flash
         page_size: 256
         size: 8388608
-        start: 136060928
+        start: 136323072 # 0x0820 2000
         type: non-volatile
       # TODO: Check these Values
       - name: RAM

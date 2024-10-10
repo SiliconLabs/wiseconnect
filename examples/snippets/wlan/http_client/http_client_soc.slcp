@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version: 2024.6.1}
+sdk: {id: simplicity_sdk, version: 2024.6.2}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.2}
+- {id: wiseconnect3_sdk, version: 3.3.3}
 source:
   - path: app.c
   - path: main.c
@@ -51,6 +51,9 @@ requires:
   condition: [device_has_devinfo]
 - name: emlib_ldma
   condition: [device_has_devinfo]
+- name: device_needs_ram_execution
+  condition:
+    - si91x_common_flash
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

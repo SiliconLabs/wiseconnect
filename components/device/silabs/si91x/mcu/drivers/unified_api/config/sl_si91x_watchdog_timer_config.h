@@ -43,19 +43,6 @@
 //  <i> Default: 1
 #define WDT_TIMER_UC 1
 
-// <h>Clock Configuration
-#define KHZ_RO_CLK_SEL   1
-#define KHZ_RC_CLK_SEL   2
-#define KHZ_XTAL_CLK_SEL 4
-// <o SL_LOW_FREQ_FSM_CLK_SRC> Low Frequency Clock
-//   <KHZ_RO_CLK_SEL=> RO CLK
-//   <KHZ_RC_CLK_SEL=> RC CLK
-//   <KHZ_XTAL_CLK_SEL=> XTAL CLK
-// <i> Selection of Low Frequency FSM CLK
-#define SL_LOW_FREQ_FSM_CLK_SRC KHZ_RC_CLK_SEL
-#define FSM_32MHZ_RC            2
-// </h>
-
 // <h>Watchdog Timer Configuration
 
 // <o SL_WDT_SYSTEM_RESET_TIME> System-reset time

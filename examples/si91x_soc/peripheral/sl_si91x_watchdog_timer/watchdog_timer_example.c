@@ -79,9 +79,6 @@ void watchdog_timer_example_init(void)
 {
   sl_status_t status;
   sl_watchdog_timer_version_t version;
-  watchdog_timer_clock_config_t wdt_clock_config;
-  wdt_clock_config.low_freq_fsm_clock_src = KHZ_RC_CLK_SEL;
-  wdt_clock_config.bg_pmu_clock_source    = RO_32KHZ_CLOCK;
   watchdog_timer_config_t wdt_config;
   wdt_config.interrupt_time    = SL_WDT_INTERRUPT_TIME;
   wdt_config.system_reset_time = SL_WDT_SYSTEM_RESET_TIME;
@@ -113,13 +110,6 @@ void watchdog_timer_example_init(void)
     // Initializing watchdog-timer
     sl_si91x_watchdog_init_timer();
     DEBUGOUT("Successfully initialized watchdog-timer \n");
-    // Configuring watchdog-timer
-    status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_watchdog_configure_clock : Invalid Parameters, Error Code : %lu \n", status);
-      break;
-    }
-    DEBUGOUT("Successfully Configured watchdog-timer with default clock sources\n");
     // Configuring watchdog-timer
     status = sl_si91x_watchdog_set_configuration(&wdt_config);
     if (status != SL_STATUS_OK) {

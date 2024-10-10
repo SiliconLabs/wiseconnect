@@ -19,14 +19,14 @@
 
 This application shows how to update the NWP or M4 firmware of a device via Wi-Fi by downloading an update from a remote HTTP/HTTPS server. The server can be run on a local PC(Apache server) or hosted on a cloud service like Amazon AWS or Microsoft Azure. Here's how the update process works:
 
-> **Note:** By enabling the `HTTPS_SUPPORT` flag in the `app.c` file, the same HTTP OTA (Over-the-Air) application can be used for HTTPS OTA.
+> **Note:** By enabling the `HTTPS_SUPPORT` flag in the `app.c` file, the same HTTP Over-the-Air (OTA) application can be used for HTTPS OTA.
 
 - **Connection**: The device connects to a Wi-Fi network and acts as a HTTP/HTTPS client.
 - **Request**: The device sends a request to the HTTP/HTTPS server for the firmware update file.
 - **Download**: The server sends the firmware file to the device.
 - **Update**: The device writes the new firmware to its memory and then restarts to complete the update.
 
-This process allows the device to update its software over the air (OTA) without needing a physical connection.
+This process allows the device to update its software OTA without needing a physical connection.
 
 ## Prerequisites/Setup Requirements
 
@@ -79,15 +79,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit user requirements and the development environment. Read through the following sections and make any changes needed.
 
-- The application uses the default configurations as provided in the **DEFAULT_WIFI_CLIENT_PROFILE** in **sl_net_default_values.h** and user can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **DEFAULT_WIFI_CLIENT_PROFILE** in **sl_net_default_values.h** and the user can choose to configure these parameters as needed.
 
 - In the Project explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable SiWx91x to connect to your Wi-Fi network.
 
-- STA instance related parameters
+- STA instance related parameters:
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network will be advertised and Si91X module is connected to it.
 
     ```c
     #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
@@ -107,11 +107,11 @@ The application can be configured to suit user requirements and development envi
 
 - Other STA instance configurations can be modified if required in **DEFAULT_WIFI_CLIENT_PROFILE** configuration structure.
 
-- Below mentioned configurations in ``app.c`` file can be configured as per requirements
+- The following configurations in the ``app.c`` file can be configured as per requirements:
 
   - Select Firmware update type
 
-  - For NWP firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE and for Combined firmware upgrade, set FW_UPDATE_TYPE to COMBINED_FW_UPDATE
+  - For NWP firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE. For Combined firmware upgrade, set FW_UPDATE_TYPE to COMBINED_FW_UPDATE
 
     ```c
     //! Type of FW update
@@ -123,18 +123,18 @@ The application can be configured to suit user requirements and development envi
     #define FW_UPDATE_TYPE TA_FW_UPDATE
     ```
 
-- Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which firmware files needs to be downloaded, the below mentioned parameters needs to be configured.
-- Configure FLAGS to choose the version and security type to be enabled
+- Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which firmware files needs to be downloaded, the parameters below need to be configured.
+- Configure FLAGS to choose the version and security type to be enabled.
 
-  Valid configurations are :
+  Valid configurations are:
 
   ```c
   #define HTTPS_SUPPORT    BIT(0)         // Set HTTPS_SUPPORT to use HTTPS feature
-  #define HTTPV6           BIT(3)         // Enable IPv6 set this bit in FLAGS, Default is IPv4
+  #define HTTPV6           BIT(3)         // Enable IPv6. Set this bit in FLAGS. Default is IPv4
   #define HTTP_V_1_1       BIT(6)         // Set HTTP_V_1_1 to use HTTP version 1.1
   ```
 
-- In the application, **AWS_ENABLE** macro is enabled by default. Depending on the requirement user can enable downloading firmware from Azure Blob storage (Enable Macro **AZURE_ENABLE**).
+- In the application, the **AWS_ENABLE** macro is enabled by default. Depending on the requirement, the user can enable downloading firmware from Azure Blob storage (Enable Macro **AZURE_ENABLE**).
 - Else if both **AWS_ENABLE** and **AZURE_ENABLE** macros are disabled, HTTP/HTTPS Apache server can be used to download the firmware.<br>
 - In the application, the following parameters should be configured:
   - HTTP_PORT refers to HTTP Server port number
@@ -181,7 +181,7 @@ The application can be configured to suit user requirements and development envi
 
   - Include Starfield root certificate file for SSL connection.
   
-    > **Note:** The certificate authority for Amazon AWS S3 is Starfield, hence we need to include Starfield Root certification for SSL connection to be successful. This certificate is already included in the SDK in linear array format ``aws_starfield_ca.pem.h`` which can be directly used for SSL connection to AWS S3.
+    > **Note:** The certificate authority for Amazon AWS S3 is Starfield, so we need to include Starfield Root certification for SSL connection to be successful. This certificate is already included in the SDK in linear array format ``aws_starfield_ca.pem.h``, which can be directly used for SSL connection to AWS S3.
 
   - Extract the hostname from AWS S3 bucket URL `https://<Your-S3-Bucket-name>.s3.<Your-nearest-S3-location>.amazonaws.com/firmware.rps` and provide it in **hostname**.
   
@@ -203,9 +203,9 @@ The application can be configured to suit user requirements and development envi
     char *hostname                             ="example.s3.ap-south-1.amazonaws.com";
     ```
 
-    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the S3 bucket URL created has public access provided. Refer [Configuring AWS S3 Bucket](#configuring-aws-s3-bucket) section on how to upload Firmware in AWS S3 Bucket.
+    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" because the S3 bucket URL that was created has public access provided. Refer to [Configuring AWS S3 Bucket](#configuring-aws-s3-bucket) section on how to upload Firmware in AWS S3 Bucket.
 
-    - For Private resource: While trying to download the private resource, please make sure to create the pre-signed URL and use it in HTTP_URL as shown below.
+    - For Private resource: While trying to download the private resource, make sure to create the pre-signed URL and use it in the HTTP_URL as shown below.
       ```C
       #define HTTP_URL "filename?query_parameters"  // This should be used when pre-signed URLs are passed
       ```
@@ -213,15 +213,15 @@ The application can be configured to suit user requirements and development envi
 - For **Azure Blob Storage**:
 
   - Include Azure Baltimore certificate file for SSL connection.
-    > **Note:** This certificate is already included in the SDK in linear array format ``azure_baltimore_ca.pem.h`` which can be directly used for SSL connection to Azure Blob Storage.
+    > **Note:** This certificate is already included in the SDK in linear array format ``azure_baltimore_ca.pem.h``, which can be directly used for SSL connection to Azure Blob Storage.
 
   - Extract the hostname from Azure Blob Storage URL `https://<Your-Azure-Storage-Account-name>.blob.core.windows.net/<Your-container-name>/firmware.rps` and provide it in **hostname**.
   
-    > Example: For Azure Blob Storage URL <https://example1.blob.core.windows.net/example2/firmware.rps>", hostname will be "example..blob.core.windows.net".
+    > Example: For Azure Blob Storage URL <https://example1.blob.core.windows.net/example2/firmware.rps>", the hostname will be "example..blob.core.windows.net".
 
   - Extract the firmware package name from URL `<Your-Azure-Storage-Account-name>.blob.core.windows.net/<Your-container-name>/firmware.rps` and provide it in **HTTP_URL**.
 
-    > Example: For Azure Blob Storage URL "https://example1.blob.core.windows.net/example2/firmware.rps>", HTTP_URL will be "example2/firmware.rps"
+    > Example: For Azure Blob Storage URL "https://example1.blob.core.windows.net/example2/firmware.rps>", the HTTP_URL will be "example2/firmware.rps".
   
   - Configurations for Azure Blob Storage
     ```c
@@ -235,9 +235,9 @@ The application can be configured to suit user requirements and development envi
     char *hostname                            ="example.blob.core.windows.net";
     ```
 
-    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the Azure Blob storage URL created has public access provided. Refer to [Configuring Azure Blob Storage](#configuring-azure-blob-storage) on how to upload Firmware in Azure Blob storage.
+    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" because the Azure Blob storage URL that was created has public access provided. Refer to [Configuring Azure Blob Storage](#configuring-azure-blob-storage) on how to upload Firmware in Azure Blob storage.
 
-- The **station_init_configuration** from `app.c` should be modified as per below requirements
+- The **station_init_configuration** from `app.c` should be modified as per the requirements below.
 
   - For **Apache HTTP Server**:
 
@@ -266,7 +266,7 @@ The application can be configured to suit user requirements and development envi
     ```
 
 - Certificate Loading
-  - The **[sl_net_set_credential()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API expects the certificate in the form of linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
+  - The **[sl_net_set_credential()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API expects the certificate in the form of a linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
 
   - For example : If the certificate is ca-certificate.pem, enter the command in the following way:
    `python certificate_script.py ca-certificate.pem`
@@ -274,7 +274,7 @@ The application can be configured to suit user requirements and development envi
 
   - Root CA certificate needs to be converted as mentioned above.
 
-  - After the conversion, place the converted file in `<SDK>/resources/certificates/` path and include the certificate file in ``app.c``
+  - After the conversion, place the converted file in the `<SDK>/resources/certificates/` path and include the certificate file in ``app.c``
 
 - For HTTPS Apache server
 
@@ -305,6 +305,9 @@ The application can be configured to suit user requirements and development envi
   // Load Security Certificates
   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, azure_baltimore_ca, (sizeof(azure_baltimore_ca) - 1));
   ```
+**Note:**
+> AWS has announced that there will be changes in their root CA chain. More details can be found in the reference links. (https://aws.amazon.com/blogs/security/acm-will-no-longer-cross-sign-certificates-with-starfield-class-2-starting-august-2024/)
+> We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`
 
 ## Test the Application
 
@@ -342,7 +345,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
    ![ACL](resources/readme/aws_bucket_acl_enable.png)
 
-- Under **Bucket settings for Block Public Access** uncheck **Block all public access**.
+- Under **Bucket settings for Block Public Access**, uncheck **Block all public access**.
 
    ![Block all public access](resources/readme/aws_bucket_public_access.png)
 
@@ -354,111 +357,111 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
    ![Create bucket](resources/readme/image392.png)
 
-- Choose the created bucket from the list of buckets in console.
+- Choose the created bucket from the list of buckets in the console.
 
 - Upload the file in creating bucket.
 
    ![Upload the file](resources/readme/image393.png)
 
-- Add the file to the bucket
+- Add the file to the bucket.
 
    ![Add the file to the bucket](resources/readme/image394.png)
 
-- Setting permission to public access
+- Set permission to public access.
 
    ![Setting permission to public access](resources/readme/image395.png)
 
-- After uploading the file, click on the file
+- After uploading the file, click on the file.
 
    ![S3_URL_1](resources/readme/aws_bucket_getting_url_1.png)
 
-- Get the object URL inside bucket/properties, like below :
+- Get the object URL inside bucket/properties, like below:
 
    ![S3_URL_2](resources/readme/aws_bucket_getting_url_2.png)
 
 ### Configuring Azure Blob Storage
-* Login to your Azure account and go to Storage Account or search for Storage Account
+* Login to your Azure account and go to Storage Account or search for Storage Account.
 
   ![Search for Storage Account](resources/readme/image396.png)
 
-* Open storage account and create a new storage
+* Open storage account and create a new storage.
 
   ![Create a new storage](resources/readme/image397.png)
 
-* While creating a storage account select your common Resource Group you have already created and provide a storage account name.
-* Select preferred location, for the account kind select Blob-Storage and Replication select LRS
+* While creating a storage account, select your common Resource Group you have already created and provide a storage account name.
+* Select preferred location. For the account kind, select Blob-Storage and Replication select LRS.
 
   ![Select preferred location](resources/readme/image398.png)
 
-* Review and create your storage account
-* Now download the Windows Storage Explorer here
+* Review and create your storage account.
+* Now download the Windows Storage Explorer here.
 * After installing the storage explorer, open Azure Storage Explorer in your Windows machine and navigate to Account management and add your Azure account.
 
   ![Open Azure Storage Explorer](resources/readme/image399.png)
 
   ![Add your Azure account](resources/readme/image400.png)
 
-* Click on Open connect dialog, where you need to select a Resource from the list as shown below
+* Click on Open connect dialog, where you need to select a Resource from the list as shown below.
 
   ![Select a Resource from the list](resources/readme/image401.png)
 
-* Select Storage account or service, then select connection method as Connection String
+* Select Storage account or service, then select connection method as Connection String.
 
   ![Select connection method as Connection String](resources/readme/image402.png)
 
-* In the Azure Portal, navigate to your newly created storage account and select Access Keys, copy the connection string for Key1
+* In the Azure Portal, navigate to your newly created storage account and select Access Keys. Copy the connection string for Key1.
 
   ![Copy the connection string for Key1](resources/readme/image403.png)
 
-* The connection string has to be given in the local Azure Storage Explorer app
-* Up on successfully adding, you should now see the EXPLORER tab on your Azure Storage Explorer display all the storages available in your account
+* The connection string has to be given in the local Azure Storage Explorer app.
+* Upon successfully adding, you should now see the EXPLORER tab on your Azure Storage Explorer displaying all the storages available in your account.
 
   ![Display all the storages available in your account](resources/readme/image404.png)
-* In the Azure Portal search for Storage Explorer and work the same thing there also. But it is in preview so better to use Windows Azure Storage Explorer.
+* In the Azure Portal, search for Storage Explorer and perform the same steps as above. However, this option is in preview, so it is better to use Windows Azure Storage Explorer.
 * Create a new blob container as shown below:
 
   ![Create a new blob container](resources/readme/image405.png)
 
-* The route folder name you give is quite important as all the further connections happen from here. For this I am choosing a file extension
-* The name used here is “rps”
-* This should create a new folder, which looks like this
+* The route folder name you provide is quite important as all the further connections happen from here. For this example, we chose a file extension.
+* The name used here is “rps”.
+* This should create a new folder, which looks like this:
 
   ![New folder looks like this](resources/readme/image406.png)
 
-* Change the Public Access Level, right click on the new folder and select Set Container Access Level
+* Change the Public Access Level by right-clicking on the new folder and selecting Set Container Access Level.
 
   ![Select Set Container Access Level](resources/readme/image407.png)
 
-* We can upload the Device Update File
+* We can upload the Device Update File:
 
   ![Upload the Device Update File](resources/readme/image408.png)
 
-* Once done uploading, we can see the file
+* Once done uploading, we can see the file:
 
   ![We can see the file](resources/readme/image409.png)
 
-* Right click on the uploaded file, then select properties. You will find a URL path.
+* Right-click on the uploaded file, then select properties. You will find a URL path.
 
   ![Find a URL path](resources/readme/image410.png)
 
-* Copy it this link is used for accessing our device update files
+* Copy the URL path as this link is used for accessing our device update files.
 
   ![This link is used for accessing our device update files](resources/readme/image411.png)
 
-* By accessing this URL, you can download the Device Update files in application
+* By accessing this URL, you can download the Device Update files in the application.
 
 ### Configuring and Uploading Firmware on Apache HTTP
 
 - Download and Install Wamp-Apache Server
-  - Open the below link in your system browser.
+  - Open the following link in your system browser:
     Wamp Server - (<https://www.wampserver.com/en/>)
-  - Under Downloads, Download the latest version of WAMP server for 32bit or 64bit machine.
+  - Under Downloads, download the latest version of WAMP server for 32 bit or 64 bit machine.
   - Install Wamp-Apache server with all the default settings.
   - Make sure the Wamp-Apache server is present in C:\ directory
-  - Configure a HTTP server
+  - Configure an HTTP server.
   - Navigate to C:\wamp64\bin\apache\apache2.4.46\conf
   - Open httpd.conf file with an editor.
-  - Change the below lines into system IP address
+  - Change the following lines into system IP address:
 
   ```sh
       Listen {System-IP-Address}:80
@@ -468,34 +471,34 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   ```
 
 - Save the file and Exit.
-- Open command prompt and run with Administrator Privilege's.
+- Open command prompt and run with Administrator Privileges.
 - Navigate to directory C:\wamp64\bin\apache\apache2.4.46\bin
 - Add Apache as a Windows Service:
 
     `httpd.exe -k install`
 
-- While the install is in progress, you will be prompted to Windows Network Access page as shown below. Make sure you allow both Private and Public network access.
+- While the install is in progress, you will be directed to the Windows Network Access page as shown below. Make sure you allow both Private and Public network access.
 
    ![Windows Network Access page](resources/readme/image412.png)
 
 - Start Apache Service in Windows
   - Open RUN in windows using WIN+R button.
-  - Input "services.msc" into RUN
-  - This will open your Windows System Services
-  - In the list of services running you can find Apache2.x present.
-  - Start the service as shown below
+  - Input "services.msc" into RUN.
+  - This will open your Windows System Services.
+  - In the list of services running, you can find Apache2.x.
+  - Start the service as shown below:
 
    ![Start the service](resources/readme/image413.png)
 
-- Now that your Apache has started and running, check it by using your browser. Open a Web browser and type the machine IP in the address bar and hit Enter. You should see the below, if server has started successfully.
+- Now that your Apache has started and running, check it by using your browser. Open a Web browser and type the machine IP in the address bar and hit Enter. You should see the window below, if the server has started successfully.
 
    ![If server has started successfully.](resources/readme/image414.png)
 
-- As you can see the connection is "Not Secure" means it is running HTTP server.
-- Configure HTTP Wamp-Apache Server to Download firmware
-  - Goto the Wamp Root directory, in my case it is C:\wamp64 and navigate to "www" folder C:\wamp64\www.
-  - Create a new folder in that directory, in my case I created a folder named "Firmware". [Folder Structure: C:\wamp64\www\Firmware]
-  - In the "Firmware" folder create an "index.html" file and write below contents to the file.
+- As you can see, the connection is "Not Secure", meaning it is running the HTTP server.
+- Configure the HTTP Wamp-Apache Server to Download firmware:
+  - Go to the Wamp Root directory. In this example, it is C:\wamp64 and navigate to "www" folder C:\wamp64\www.
+  - Create a new folder in that directory. In this example, I created a folder named "Firmware". [Folder Structure: C:\wamp64\www\Firmware].
+  - In the "Firmware" folder, create an "index.html" file and write the following contents to the file.
 
     ```html
         <!DOCTYPE html>
@@ -508,8 +511,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
         </html>
     ```
 
-- This code will link your resources to Apache server, so that those files can be downloaded.
-- you can edit href values in the index.html to your firmware file names.
+- This code will link your resources to the Apache server so those files can be downloaded.
+- You can edit href values in the index.html to your firmware file names.
 - Make sure to copy all the firmware files into the present directory, C:\wamp64\www\Firmware. Save the file and Exit.
 
     ```html
@@ -519,30 +522,30 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Configure HTTPD.conf file for Wamp-Apache Server
   - Open httpd.conf file in C:\wamp64\bin\apache\apache2.4.46\conf\httpd.conf
-  - Search or Find "DocumentRoot" and change it to following configuration. Save the file and Exit
+  - Search or Find "DocumentRoot" and change it to the following configuration. Save the file and Exit.
 
    ```sh
     "${INSTALL_DIR}/www/Firmware"
     ```
 
 - Restart Apache Service
-  - Open Windows services, "WIN+R" → "services.msc" → ENTER
-  - Check for Apache service and Restart the service
-  - In the above configuration, we have created a resource for our server in "Firmware" folder.
-  - Our access resource URL looks as shown in following
+  - Open Windows services, "WIN+R" → "services.msc" → ENTER.
+  - Check for Apache service and restart the service.
+  - In the above configuration, we have created a resource for our server in the "Firmware" folder.
+  - Our access resource URL looks as shown in following:
 
 - `http://<your-ip-address>/<Sub-Resource-Directory>/<Resources>`
 >
-> Eg: 
+> For example: 
 >- <http://192.168.1.4/Firmware/firmware.rps>
 >- <http://192.168.1.4/Firmware/firmware1.rps>
 
-- Giving the `http://<your-ip-address>/<Sub-Resource-Directory>` in browser should load as shown in following. Clicking on any link should download the Firmware files.
+- Entering `http://<your-ip-address>/<Sub-Resource-Directory>` in the browser should load the window shown in following image. Clicking on any link should download the firmware files.
 
    ![Webpage in browser](resources/readme/image415.png)
 
-- Get the resource Information and test with Application
-  - In the SiWx91x FOTA application, make below changes and test application this should start downloading firmware.
+- Get the resource information and test with application.
+  - In the SiWx91x FOTA application, make the changes below and test the application; this should start downloading firmware.
   
   ```c
   #define HTTP_SERVER_IP_ADDRESS "192.168.1.4"              //Replace this values related to your requirements
@@ -550,16 +553,16 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   #define HTTP_HOSTNAME          "192.168.1.4"//Replace this values related to your requirements
   ```
 
-  > **Warning:** Make sure that you are able to Access the WAMP-Apache Server (with its IP Address) is accessible to other systems in the same network, if not follow the Changing PHP Configurations. Else proceed with next steps.
+  > **Warning:** Make sure that you are able to access the WAMP-Apache Server (with its IP Address), and that it is accessible to other systems in the same network. If not, follow the Changing PHP Configurations. Otherwise, proceed with the next steps.
 
 - Changing PHP Configuration
-  - The following steps to be done only when you face an issue of not able to access the WAMP-Server from other machines in the network. Issue shown below :
+  - Complete the following steps only if you are unable to access the WAMP-Server from other machines in the network, as shown in the image below:
 
    ![Issue of not able to access the WAMP-Server from other machines](resources/readme/image416.png)
 
-  - Give permissions to the newly created resource `"<Sub-Resource-Directory>"`
-  - Open "phpmyadmin.conf" file in "C:\wamp64\alias\phpmyadmin.conf"
-  - Add the line shown in following into the end of file "phpmyadmin.conf" file. Save and exit the file.
+  - Give permissions to the newly created resource `"<Sub-Resource-Directory>"`.
+  - Open "phpmyadmin.conf" file in "C:\wamp64\alias\phpmyadmin.conf".
+  - Add the line shown in the following image to the end of the "phpmyadmin.conf" file. Save and exit the file.
 
     ```sh
     <Directory "c:/wamp64/www/<Sub-Resource-Directory>/">
@@ -573,25 +576,25 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     </Directory>
     ```
 
-  - Restart Apache service and now the resource should be accessible from any systems connected in the same network.
+  - Restart the Apache service and now the resource should be accessible from any systems connected in the same network.
 
-> **Note:** Even though if you are not able to access `http://<your-ip-address>/` this page directly, you will be able to access your resources from here `http://<your-ip-address>/<Sub-Resource-Directory>/` as we gave only permissions for this
+> **Note:** Even if you are not able to access `http://<your-ip-address>/` this page directly, you will be able to access your resources from here `http://<your-ip-address>/<Sub-Resource-Directory>/`.
 
 ### Configuring and Uploading Firmware on Apache HTTPs
 
-HTTPs Sever configuration for Apache requires Wamp server, if you have not installed it, follow the **"Step 1: Download and Install Wamp-Apache Server"** step and continue with the HTTPS steps in this document.
+The HTTPs server configuration for Apache requires the Wamp server. If you have not installed it, follow the procedures in **"Step 1: Download and Install Wamp-Apache Server"** and continue with the HTTPS steps in this document.
 
-- **Download and Install OPENSSL for windows**
+- **Download and install OPENSSL for Windows**
   - OpenSSL for windows from here (<https://slproweb.com/products/Win32OpenSSL.html>).
-  - Do default install for OpenSSL.
-  - We can only run OpenSSL using command prompt, for that we need to first find the openssl.exe file.
-  - Normally it will be in "C:\Program Files\OpenSSL-Win64\bin\openssl.exe"
+  - Choose default install for OpenSSL.
+  - We can only run OpenSSL using command prompt, and for that we need to first find the openssl.exe file.
+  - Normally, it will be in "C:\Program Files\OpenSSL-Win64\bin\openssl.exe".
 
 - **Generate required certs**
-   > **Note:** If you already have the required certs to run the server then, skip the **Generate required certs** step, copy your certs to `C:\wamp64\bin\apache\apache2.4.46\conf` directory and update the `httpd-ssl.conf` file with these certificate paths shown in **HTTPD Configuration** step.
+   > **Note:** If you already have the required certs to run the server, you can skip the **Generate required certs** step. Copy your certs to `C:\wamp64\bin\apache\apache2.4.46\conf` directory and update the `httpd-ssl.conf` file with the certificate paths shown in the **HTTPD configuration** step.
 
-  - Open Command Prompt in Administrator privilege's.
-  - Change directory to your openssl.exe file "cd C:\Program Files\OpenSSL-Win64\bin\"
+  - Open Command Prompt in Administrator privileges.
+  - Change directory to your openssl.exe file "cd C:\Program Files\OpenSSL-Win64\bin\".
   - Execute the following command to generate a private.key file with AES 256 encryption.
 
  ```sh
@@ -601,11 +604,11 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
     openssl.exe req -new -x509 -nodes -sha1 -key private.key -out certificate.crt -days 36500 -config C:\wamp64\bin\apache\apache2.4.46\conf\openssl.conf
  ```
 
-- Now there will be two files created [Private.key and certificate.crt] in "C:\Program Files\OpenSSL-Win64\bin\" directory, copy them to "C:\wamp64\bin\apache\apache2.4.46\conf"
+- Now there will be two files created [Private.key and certificate.crt] in the "C:\Program Files\OpenSSL-Win64\bin\" directory. Copy them to "C:\wamp64\bin\apache\apache2.4.46\conf".
 
-- **HTTPD Configuration**
+- **HTTPD configuration**
   - Open ``httpd.conf`` file in "C:\wamp64\bin\apache\apache2.4.46\conf"
-  - Uncomment the below shown lines in that file. Save and Exit.
+  - Uncomment the lines shown below in that file. Save and Exit.
 
   ```sh
   LoadModule ssl_module modules/mod_ssl.so
@@ -613,10 +616,10 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
   LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
   ```
 
-  - Open "php.ini" file in "C:\wamp64\bin\php\php5.6.40" and uncomment the below line in the file
+  - Open "php.ini" file in "C:\wamp64\bin\php\php5.6.40" and uncomment the below line in the file.
   
       `extension=php_openssl.dll`
-  - Open ``httpd-ssl.conf`` file in "C:\wamp64\bin\apache\apache2.4.46\conf\extra" and update the below paths with proper information (i.e provide system relative paths)
+  - Open ``httpd-ssl.conf`` file in "C:\wamp64\bin\apache\apache2.4.46\conf\extra" and update the below paths with proper information (i.e., provide system relative paths).
 
   ``` sh
   <VirtualHost default:443>
@@ -631,13 +634,13 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
   SSLCertificateKeyFile "C:/wamp64/bin/apache/apache2.4.46/conf/private.key" 
   ```
 
-  - Run below command to check if the configurations given above are proper or not. If the configurations are proper, it will return "Syntax OK"
+  - Run the command below to check if the configurations given above are correct. If the configurations are correct, the command will return "Syntax OK".
 
       `httpd.exe -t`
-- **Configure HTTPS Wamp-Apache Server to Download firmware**
-  - Go to the Wamp Root directory "C:\wamp64" and navigate to "www"
+- **Configure HTTPS Wamp-Apache Server to download firmware**
+  - Go to the Wamp Root directory "C:\wamp64" and navigate to "www".
   - Create a new folder in that directory "Firmware". [Folder Structure: C:\wamp64\www\Firmware]
-  - In the "Firmware" folder create an "index.html" file and write below contents to the file.
+  - In the "Firmware" folder, create an "index.html" file and write the following contents to the file:
 
   ```html
       <!DOCTYPE html>
@@ -650,11 +653,11 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
       </html>
   ```
 
-- This code will link your resources to Apache server, so that those files can be downloaded.
+- This code will link your resources to the Apache server so that those files can be downloaded.
 
-- Make sure to copy all the firmware files into the present directory, C:\wamp64\www\Firmware
+- Make sure to copy all the firmware files into the present directory, C:\wamp64\www\Firmware.
 
-- you can edit href values in the index.html to your firmware file names.
+- You can edit the href values in the index.html to your firmware file names.
 
   ```html
       <a href="<your-firmware-file>-1.rps" download>Download_Version_6</a><br><br>
@@ -664,13 +667,13 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
 - Save the file and Exit.
 - **Restart Server**
 >
-> - Open RUN, "WIN+R" → "services.msc" → ENTER
+> - Open RUN, "WIN+R" → "services.msc" → ENTER.
 > - Restart the Apache service.
-> - Open browser and give your Apache server URL
+> - Open your browser and enter your Apache server URL.
 
   ![Give your Apache server URL](resources/readme/image418.png)
 
-> - Here click on "Advanced Settings" and click on "Proceed to 192.168.43.85 (unsafe)"
+> - Click on "Advanced Settings" and then click on "Proceed to 192.168.43.85 (unsafe)".
 > - You will be able to access the page and resources in HTTPS.
 
    ![Access the page and resources in HTTPS](resources/readme/image419.png)

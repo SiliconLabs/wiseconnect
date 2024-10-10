@@ -676,13 +676,6 @@ static void set_npss_wakeup_source(uint32_t wakeup_source)
     case SL_SI91X_POWER_MANAGER_SEC_WAKEUP:
       // Calendar clock is stopped to reset the configurations.
       sl_si91x_calendar_rtc_stop();
-      // Calendar configuration is set, i.e. clock is set to RC clock.
-      status = sl_si91x_calendar_set_configuration(2);
-      if (status != SL_STATUS_OK) {
-        // If status is not OK, error code is returned.
-        DEBUGOUT("sl_si91x_ulp_timer_set_configuration failed, Error Code: 0x%lX \n", status);
-        return;
-      }
       // Wakeup source is configured as second trigger.
       status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
       if (status != SL_STATUS_OK) {

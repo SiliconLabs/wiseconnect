@@ -8,10 +8,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 source:
   - path: sl_ulp_dac_example.c
   - path: app.c

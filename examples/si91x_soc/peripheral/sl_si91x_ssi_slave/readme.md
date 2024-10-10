@@ -92,8 +92,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -156,6 +155,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   ```
 
 - By default 8 bit unsigned integer is declared for data buffer. If using data-width more than 8 bit, update the variable to 16 bit unsigned integer.
+
   ```C
   // For data-width less than equal to 8
   static uint8_t ssi_slave_tx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' }; 
@@ -165,7 +165,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   static uint16_t ssi_slave_rx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
   ```
 
-### Pin Configuration
+## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board
 
 | GPIO pin      | Description             |
 | ------------- | ----------------------- |
@@ -176,6 +176,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image511d.png)
 
+## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4343A/BRD4343B/BRD4343Q radio board
+
+| GPIO pin      | Description             |
+| ------------- | ----------------------- |
+| GPIO_26 [P27] | RTE_SSI_SLAVE_SCK_PIN   |
+| GPIO_25 [P25] | RTE_SSI_SLAVE_CS_PIN    |
+| GPIO_27 [P29] | RTE_SSI_SLAVE_MOSI_PIN  |
+| GPIO_28 [P31] | RTE_SSI_SLAVE_MISO_PIN  |
+
 >**Note:** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
 
 ## Test the Application
@@ -184,13 +193,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. Connect master ssi pins to slave ssi pins on WPK board.
-3. First reset the slave board and then reset the master board. The time difference between these resets is expected upto 5 seconds. 
+3. First reset the slave board and then reset the master board. The time difference between these resets is expected upto 5 seconds.
 4. Console output of successful configuration of clock, power mode and SSI configuration.
 5. Post transfer the data with master, slave should print the console output as test case passed.
 6. After successful program execution the prints in serial console looks as shown below.
 
     ![Figure: Introduction](resources/readme/output.png)
-
 
 > **Note:**
 >

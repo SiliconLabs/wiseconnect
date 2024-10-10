@@ -15,6 +15,7 @@
 ## Purpose/Scope
 
 - This application contains an example code to demonstrate one shot and periodic SLEEPTIMER with LED toggle functionality.
+      - LED0 for ACx Module boards and LED1 for ICs
 
 ## Prerequisites/Setup Requirements
 
@@ -66,7 +67,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. Sets the board state of LED1 to on and off after 5 sec and then configured for periodic blink rate of 400 ms.
-3. LED1 should blink on WPK base board and prints should come on console. 
+2. Sets the board state of LED to on and off after 5 sec and then configured for periodic blink rate of 400 ms.
+3. LED should blink on WPK base board and prints should come on console. 
 
    ![Figure: Introduction](resources/readme/output.png)

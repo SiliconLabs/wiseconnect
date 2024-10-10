@@ -68,7 +68,7 @@ void sl_si91x_soc_soft_reset(void)
   /*Upon Reset key size is 16 by default in case of inline  encryption */
   /*Store key length bit (32 Bytes) in BBFF if device security is with 32 Bytes key*/
   if (M4_QSPI_AES_CONFIG & AES_QSPI_KEY_SIZE) {
-    M4_BBFF_STORAGE1 |= KEY_LENGTH;
+    M4_BBFF_STORAGE1 |= AES_QSPI_KEY_LENGTH;
   }
   while (1)
     ;
@@ -84,7 +84,7 @@ void sl_si91x_soc_nvic_reset(void)
   /*Upon Reset key size is 16 by default in case of inline  encryption */
   /*Store key length bit (32 Bytes) in BBFF if device security is with 32 Bytes key*/
   if (M4_QSPI_AES_CONFIG & AES_QSPI_KEY_SIZE) {
-    M4_BBFF_STORAGE1 |= KEY_LENGTH;
+    M4_BBFF_STORAGE1 |= AES_QSPI_KEY_LENGTH;
   }
   __asm volatile("cpsid i" ::: "memory");
   /*Data Synchronization Barrier */

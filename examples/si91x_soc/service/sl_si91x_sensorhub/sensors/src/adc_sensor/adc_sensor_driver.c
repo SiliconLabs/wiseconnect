@@ -66,6 +66,7 @@ sl_status_t sl_si91x_adc_channel_init(sl_adc_channel_config_t *adc_ch_cfg, sl_ad
 sl_status_t sl_si91x_adc_de_init(sl_adc_config_t *adc_cfg)
 {
   sl_status_t sl_status;
+  sl_status = sl_si91x_adc_stop(*adc_cfg);
   sl_status = sl_si91x_adc_deinit(*adc_cfg);
 
   return sl_status;

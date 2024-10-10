@@ -40,6 +40,9 @@
 #include "cmsis_os2.h" // CMSIS RTOS2
 #include "sl_si91x_types.h"
 
+/******************************************************
+ *               Macro Declarations
+ ******************************************************/
 // Macro to check the status and return it if it's not SL_STATUS_OK
 #define VERIFY_STATUS(s)   \
   do {                     \
@@ -47,6 +50,99 @@
       return s;            \
   } while (0)
 
+// WLAN Management Frame Sub-Type
+#define SLI_WIFI_FRAME_SUBTYPE_MASK       0xf0 // WLAN Management Frame Sub-Type Mask
+#define SLI_WIFI_FRAME_SUBTYPE_PROBE_RESP 0x50 // WLAN Management Frame Sub-Type Probe Response Frame
+#define SLI_WIFI_FRAME_SUBTYPE_BEACON     0x80 // WLAN Management Frame Sub-Type Beacon Frame
+#define SLI_WIFI_MINIMUM_FRAME_LENGTH     36   // Minimum Frame Length of WLAN Management Frame
+#define SLI_WIFI_HARDWARE_ADDRESS_LENGTH  6    // Hardware Address Length
+
+// WLAN Information Element Type
+#define SLI_WLAN_TAG_SSID            0   // WLAN Information Element Type SSID
+#define SLI_WLAN_TAG_RSN             48  // WLAN Robust Security Network Information Element
+#define SLI_WLAN_TAG_VENDOR_SPECIFIC 221 // WLAN Vendor Specific Information Element
+
+// Authentication key Management Type
+#define SLI_AUTH_KEY_MGMT_UNSPEC_802_1X   0x000FAC01 // Unspecified Authentication key Management Type
+#define SLI_AUTH_KEY_MGMT_PSK_OVER_802_1X 0x000FAC02 // PSK Authentication key Management Type
+#define SLI_AUTH_KEY_MGMT_802_1X_SHA256   0x000FAC05 // SHA256 Authentication key Management Type
+#define SLI_AUTH_KEY_MGMT_PSK_SHA256      0x000FAC06 // PSK SHA256 Authentication key Management Type
+#define SLI_AUTH_KEY_MGMT_SAE             0x000FAC08 // SAE Authentication key Management Type
+#define SLI_AUTH_KEY_MGMT_FT_SAE          0x000FAC09 // FT_SAE Authentication key Management Type
+
+// Authentication key Management Type Flags
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA           0x00000001 // WPA AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA2          0x00000002 // WPA2 AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA_PSK       0x00000004 // WPA_PSK AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA2_PSK      0x00000008 // WPA2_PSK AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_SAE           0x00010000 // SAE AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_FT_SAE        0x00100000 // FT_SAE AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_802_1X_SHA256 0x00020000 // SHA256 AKM Type
+#define SLI_WLAN_AUTH_KEY_MGMT_TYPE_PSK_SHA256    0x00040000 // PSK_SHA256 AKM Type
+
+/******************************************************
+ *               Local Type Declarations
+ ******************************************************/
+// WLAN Frame
+typedef struct {
+  uint8_t fc[2];                                   // Frame Control
+  uint8_t duration[2];                             // Duration
+  uint8_t da[SLI_WIFI_HARDWARE_ADDRESS_LENGTH];    // Destination Address
+  uint8_t sa[SLI_WIFI_HARDWARE_ADDRESS_LENGTH];    // Source Address
+  uint8_t bssid[SLI_WIFI_HARDWARE_ADDRESS_LENGTH]; // BSS Id
+  uint8_t sc[2];                                   // Sequence Control Id
+  uint8_t timestamp[8];                            // Time Stamp
+  uint8_t bi[2];                                   // Beacon Interval
+  uint8_t ci[2];                                   // Capability Information
+  uint8_t tagged_info[];                           // Variable Information Elememt
+} sli_wifi_data_frame_t;
+
+// WLAN Information Element
+typedef struct {
+  uint8_t tag;         // Information Element Tag Id
+  uint8_t data_length; // Information Element Data Length
+  uint8_t data[];      // Information Element Data
+} sli_wifi_data_tagged_info_t;
+
+// Cipher suite
+typedef struct {
+  uint8_t cs_oui[3]; // Cipher Suite OUI
+  uint8_t cs_type;   // Cipher Suite Type
+} sli_wlan_cipher_suite_t;
+
+// WLAN Robust Security Network Information Element
+typedef struct {
+  uint8_t version[2];          // RSN Version
+  sli_wlan_cipher_suite_t gcs; // Group cipher suite
+  uint8_t pcsc[2];             // Pairwise cipher suite count
+  uint8_t pcsl[];              // Pairwise cipher suite list
+} sli_wlan_rsn_element_t;
+
+// WLAN Vendor Specific Information Element
+typedef struct {
+  uint8_t oui[3];              // Vendor OUI
+  uint8_t vs_oui;              // Vendor specific OUI
+  uint8_t type;                // WPA Information Element
+  uint8_t wpa_version[2];      // WPA Version
+  sli_wlan_cipher_suite_t mcs; // Multicast Cipher Suite
+  uint8_t ucsc;                // Unicast Cipher Suite List Count
+  uint8_t ucsl[];              // Unicast Cipher Suite List
+} sli_wlan_vendor_specific_element_t;
+
+// Scan Information
+typedef struct sli_scan_info_s {
+  struct sli_scan_info_s *next;
+  uint8_t channel;                                 ///< Channel number of the AP
+  uint8_t security_mode;                           ///< Security mode of the AP
+  uint8_t rssi;                                    ///< RSSI value of the AP
+  uint8_t network_type;                            ///< AP network type
+  uint8_t ssid[34];                                ///< SSID of the AP
+  uint8_t bssid[SLI_WIFI_HARDWARE_ADDRESS_LENGTH]; ///< BSSID of the AP
+} sli_scan_info_t;
+
+/******************************************************
+ *               Variable Declarations
+ ******************************************************/
 osThreadId_t si91x_thread           = 0;
 osThreadId_t si91x_event_thread     = 0;
 osEventFlagsId_t si91x_events       = 0;
@@ -100,6 +196,333 @@ static sl_si91x_boot_configuration_t saved_boot_configuration = { 0 };
 
 static sl_si91x_coex_mode_t coex_mode = 0;
 
+static sli_scan_info_t *scan_info_database = NULL;
+
+/******************************************************
+ *             Internal Function Declarations
+ ******************************************************/
+// Function to update a existing entry or create new entry for scan results database
+static sli_scan_info_t *sli_update_or_create_scan_info_element(sli_scan_info_t *info)
+{
+  sli_scan_info_t *element = NULL;
+
+  element = scan_info_database;
+  while (NULL != element) {
+    if (0 == memcmp(info->bssid, element->bssid, SLI_WIFI_HARDWARE_ADDRESS_LENGTH)) {
+      element->channel       = element->channel;
+      element->security_mode = element->security_mode;
+      element->rssi          = element->rssi;
+      element->network_type  = element->network_type;
+      memcpy(element->ssid, info->ssid, 34);
+      break;
+    }
+    element = element->next;
+  }
+
+  if (NULL == element) {
+    element = malloc(sizeof(sli_scan_info_t));
+    memcpy(element, info, sizeof(sli_scan_info_t));
+    element->next = NULL;
+    return element;
+  }
+
+  return NULL;
+}
+
+// Function to store a given scan info element in scan results database
+static void sli_store_scan_info_element(sli_scan_info_t *info)
+{
+  sli_scan_info_t *element = NULL;
+  sli_scan_info_t *head    = NULL;
+  sli_scan_info_t *tail    = NULL;
+
+  if (NULL == info) {
+    return;
+  }
+
+  element = sli_update_or_create_scan_info_element(info);
+  if (NULL == element) {
+    return;
+  }
+
+  if (NULL == scan_info_database) {
+    scan_info_database = element;
+    return;
+  }
+
+  tail = scan_info_database;
+  while (NULL != tail) {
+    if (element->rssi < tail->rssi) {
+      element->next = tail;
+      if (NULL == head) {
+        scan_info_database = element;
+      } else {
+        head->next = element;
+      }
+      break;
+    }
+
+    head = tail;
+    tail = tail->next;
+
+    if (NULL == tail) {
+      head->next = element;
+    }
+  }
+
+  return;
+}
+
+// Function to identify Authentication Key Management Type
+static uint32_t sli_get_key_management_info(const sli_wlan_cipher_suite_t *akms, const uint16_t akmsc)
+{
+  int i;
+  uint32_t key_mgmt = 0;
+  uint32_t oui_type;
+
+  if (NULL == akms) {
+    return 0;
+  }
+
+  for (i = 0; i < akmsc; i++) {
+    oui_type = ((akms[i].cs_oui[0] << 24) | (akms[i].cs_oui[1] << 16) | (akms[i].cs_oui[2] << 8) | akms[0].cs_type);
+
+    switch (oui_type) {
+      case SLI_AUTH_KEY_MGMT_UNSPEC_802_1X:
+        key_mgmt |= SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA | SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA2;
+        break;
+      case SLI_AUTH_KEY_MGMT_PSK_OVER_802_1X:
+        key_mgmt |= SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA_PSK | SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA2_PSK;
+        break;
+      case SLI_AUTH_KEY_MGMT_802_1X_SHA256:
+        key_mgmt |= SLI_WLAN_AUTH_KEY_MGMT_TYPE_802_1X_SHA256;
+        break;
+      case SLI_AUTH_KEY_MGMT_PSK_SHA256:
+        key_mgmt |= SLI_WLAN_AUTH_KEY_MGMT_TYPE_PSK_SHA256;
+        break;
+      case SLI_AUTH_KEY_MGMT_SAE:
+        key_mgmt |= SLI_WLAN_AUTH_KEY_MGMT_TYPE_SAE;
+        break;
+      case SLI_AUTH_KEY_MGMT_FT_SAE:
+        key_mgmt |= SLI_WLAN_AUTH_KEY_MGMT_TYPE_FT_SAE;
+        break;
+    }
+  }
+  return key_mgmt;
+}
+
+// Function to parse Information elements in WiFi Beacon or Probe response frames
+static void sli_process_tag_info(sli_wifi_data_tagged_info_t *info, sli_scan_info_t *scan_info)
+{
+  uint8_t wlan_oui[3]                        = { 0x00, 0x50, 0xF2 };
+  uint8_t wlan_gcs_oui[3]                    = { 0x00, 0x0F, 0xAC };
+  uint16_t akmsc                             = 0;
+  sli_wlan_cipher_suite_t *akms              = NULL;
+  sli_wlan_vendor_specific_element_t *vendor = NULL;
+
+  switch (info->tag) {
+    case SLI_WLAN_TAG_SSID:
+      memcpy(scan_info->ssid, info->data, info->data_length);
+      scan_info->ssid[info->data_length] = 0;
+      break;
+    case SLI_WLAN_TAG_RSN:
+      scan_info->security_mode    = SL_WIFI_WPA2_ENTERPRISE;
+      sli_wlan_rsn_element_t *rsn = (sli_wlan_rsn_element_t *)info->data;
+      uint16_t pcsc               = (rsn->pcsc[0] | (rsn->pcsc[1] << 8));
+      uint8_t *akmslc             = (rsn->pcsl + (pcsc * sizeof(sli_wlan_cipher_suite_t)));
+      akmsc                       = (akmslc[0] | (akmslc[1] << 8));
+      akms                        = (sli_wlan_cipher_suite_t *)(akmslc + 2);
+      SL_DEBUG_LOG("RSN OUI %02x:%02x:%02x.\n", rsn->gcs.cs_oui[0], rsn->gcs.cs_oui[1], rsn->gcs.cs_oui[2]);
+      SL_DEBUG_LOG("Pairwise cipher suite count : %u.\n", pcsc);
+
+      if (!memcmp(rsn->gcs.cs_oui, wlan_gcs_oui, 3)) {
+        scan_info->security_mode = SL_WIFI_WPA2;
+        uint32_t key = sli_get_key_management_info((const sli_wlan_cipher_suite_t *)akms, (const uint16_t)akmsc);
+
+        if (akms[0].cs_type == 1) {
+          scan_info->security_mode = SL_WIFI_WPA2_ENTERPRISE;
+        }
+
+        if (key & SLI_WLAN_AUTH_KEY_MGMT_TYPE_SAE) {
+          scan_info->security_mode = SL_WIFI_WPA3;
+          if ((key & SLI_WLAN_AUTH_KEY_MGMT_TYPE_PSK_SHA256) || (key & SLI_WLAN_AUTH_KEY_MGMT_TYPE_WPA2_PSK)) {
+            scan_info->security_mode = SL_WIFI_WPA3_TRANSITION;
+          }
+        }
+      }
+      break;
+    case SLI_WLAN_TAG_VENDOR_SPECIFIC:
+      vendor = (sli_wlan_vendor_specific_element_t *)info->data;
+
+      if ((!memcmp(vendor->oui, wlan_oui, 3)) && (vendor->vs_oui == 0x01)
+          && ((scan_info->security_mode == SL_WIFI_OPEN) || (scan_info->security_mode == SL_WIFI_WEP))) {
+        uint8_t *list_count      = NULL;
+        scan_info->security_mode = SL_WIFI_WPA;
+        list_count =
+          (vendor->ucsl + (sizeof(sli_wlan_cipher_suite_t) * vendor->ucsc)); // Get Pointer to AKM Suite Count
+        akmsc = (list_count[0] | (list_count[1] << 8));
+        akms  = (sli_wlan_cipher_suite_t *)(list_count + 2);
+
+        if (0 != akmsc) {
+          if (akms[akmsc - 1].cs_type == 1) {
+            scan_info->security_mode = SL_WIFI_WPA_ENTERPRISE;
+          }
+        }
+      }
+      break;
+  }
+
+  return;
+}
+
+// Function to identify expected scan result based on filter
+static bool sli_filter_scan_info(sli_scan_info_t *scan_info,
+                                 sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters)
+{
+  if (NULL == scan_info) {
+    return false;
+  }
+
+  if ((NULL != extended_scan_parameters->channel_filter)
+      && (*(extended_scan_parameters->channel_filter) != scan_info->channel)) {
+    return false;
+  }
+
+  if ((NULL != extended_scan_parameters->security_mode_filter)
+      && (*(extended_scan_parameters->security_mode_filter) != scan_info->security_mode)) {
+    return false;
+  }
+
+  if ((NULL != extended_scan_parameters->rssi_filter)
+      && (*(extended_scan_parameters->rssi_filter) <= scan_info->rssi)) {
+    return false;
+  }
+
+  if ((NULL != extended_scan_parameters->network_type_filter)
+      && (*(extended_scan_parameters->network_type_filter) != scan_info->network_type)) {
+    return false;
+  }
+
+  return true;
+}
+
+/******************************************************
+ *            Internal Function Declarations
+ ******************************************************/
+// Function to Parse the Beacon and Probe response Frames
+void sli_handle_wifi_beacon(sl_si91x_packet_t *packet)
+{
+  uint8_t subtype                   = 0;
+  uint16_t recv_freq                = 0;
+  sli_wifi_data_frame_t *wifi_frame = (sli_wifi_data_frame_t *)packet->data;
+  sli_scan_info_t scan_info         = { 0 };
+  uint16_t ies_length               = 0;
+
+  recv_freq         = packet->desc[9];
+  recv_freq         = (recv_freq << 8) | packet->desc[8];
+  scan_info.rssi    = (~packet->desc[10]);
+  scan_info.channel = packet->desc[11];
+
+  // Check for ESS bit and TBSS status bit in capability info
+  // 1 in ESS bit indicates that the transmitter is an AP
+  if (1 == (wifi_frame->ci[0] & 0x03)) {
+    scan_info.network_type = 1;
+  } else {
+    scan_info.network_type = 0;
+  }
+
+  if (wifi_frame->ci[0] & 0x08) {
+    scan_info.security_mode = SL_WIFI_WEP;
+  } else {
+    scan_info.security_mode = SL_WIFI_OPEN;
+  }
+
+  subtype = wifi_frame->fc[0] & SLI_WIFI_FRAME_SUBTYPE_MASK;
+  switch (subtype) {
+    case SLI_WIFI_FRAME_SUBTYPE_PROBE_RESP:
+    case SLI_WIFI_FRAME_SUBTYPE_BEACON: {
+      if (packet->length <= SLI_WIFI_MINIMUM_FRAME_LENGTH) {
+        return;
+      }
+      ies_length = packet->length - SLI_WIFI_MINIMUM_FRAME_LENGTH;
+
+      memcpy(scan_info.bssid, wifi_frame->bssid, SLI_WIFI_HARDWARE_ADDRESS_LENGTH);
+
+      sli_wifi_data_tagged_info_t *info = (sli_wifi_data_tagged_info_t *)wifi_frame->tagged_info;
+      while (0 != ies_length) {
+        sli_process_tag_info(info, &scan_info);
+        ies_length -= (sizeof(sli_wifi_data_tagged_info_t) + info->data_length);
+        info = (sli_wifi_data_tagged_info_t *)&(info->data[info->data_length]);
+
+        if (ies_length <= sizeof(sli_wifi_data_tagged_info_t)) {
+          ies_length = 0;
+        }
+      }
+
+      sli_store_scan_info_element(&scan_info);
+    } break;
+    default:
+      return;
+  }
+
+  return;
+}
+
+// Function to get all or filtered scan results from scan result database
+sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
+                                             sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters)
+{
+  UNUSED_PARAMETER(interface);
+  if (NULL == extended_scan_parameters) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sl_wifi_extended_scan_result_t *scan_results = extended_scan_parameters->scan_results;
+  uint16_t *result_count                       = extended_scan_parameters->result_count;
+  uint16_t length                              = extended_scan_parameters->array_length;
+  sli_scan_info_t *scan_info                   = scan_info_database;
+
+  if ((NULL == scan_results) || (NULL == result_count) || (0 == length)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  *result_count = 0;
+
+  while ((0 != length) && (NULL != scan_info)) {
+    if (true == sli_filter_scan_info(scan_info, extended_scan_parameters)) {
+      scan_results[*result_count].rf_channel    = scan_info->channel;
+      scan_results[*result_count].security_mode = scan_info->security_mode;
+      scan_results[*result_count].rssi          = scan_info->rssi;
+      scan_results[*result_count].network_type  = scan_info->network_type;
+      memcpy(scan_results[*result_count].bssid, scan_info->bssid, SLI_WIFI_HARDWARE_ADDRESS_LENGTH);
+      memcpy(scan_results[*result_count].ssid, scan_info->ssid, 34);
+      (*result_count)++;
+      length--;
+    }
+    scan_info = scan_info->next;
+  }
+
+  return SL_STATUS_OK;
+}
+
+// Function to Clean up all the scan results in scan result database
+void sli_wifi_flush_scan_results_database(void)
+{
+  sli_scan_info_t *scan_info = scan_info_database;
+  sli_scan_info_t *node      = NULL;
+
+  while (NULL != scan_info) {
+    node      = scan_info;
+    scan_info = scan_info->next;
+    free(node);
+  }
+  scan_info_database = NULL;
+
+  return;
+}
+
+/******************************************************
+ *               Function Declarations
+ ******************************************************/
 void save_wifi_current_performance_profile(const sl_wifi_performance_profile_t *profile)
 {
   SL_ASSERT(profile != NULL);
@@ -1232,6 +1655,8 @@ uint8_t sli_multicast_mac_hash(const uint8_t *mac)
   return crc;
 }
 
+/* Function to get the current status of the NVM command progress
+Returns true if an NVM command is in progress, false otherwise*/
 bool sli_si91x_get_flash_command_status()
 {
   return sli_si91x_packet_status;
@@ -1242,17 +1667,11 @@ void sli_si91x_update_flash_command_status(bool flag)
   sli_si91x_packet_status = flag;
 }
 
-// This function is used to update the power manager to see whether the device is ready for sleep or not.
-// True indicates ready for sleep, and false indicates not ready for sleep.
+/*  This function is used to update the power manager to see whether the device is ready for sleep or not.
+ True indicates ready for sleep, and false indicates not ready for sleep.*/
 bool sli_si91x_is_sdk_ok_to_sleep()
 {
-  bool tx_queues_empty = (sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
-                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
-                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
-                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
-                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_BT_CMD)
-                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_DATA));
-  return ((!sli_si91x_get_flash_command_status()) && (!tx_queues_empty) && (sl_si91x_is_device_initialized()));
+  return ((!sli_si91x_get_flash_command_status()) && (sl_si91x_is_device_initialized()));
 }
 
 bool sl_si91x_is_device_initialized(void)

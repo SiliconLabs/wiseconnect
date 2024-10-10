@@ -281,9 +281,9 @@ sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init);
  * @param[in] dma_number 0 for UDMA0, 1 for ULP_DMA.
  * 
  * @return sl_status_t De-initialization status:
-*         - SL_STATUS_OK (0x0000) - De-initialization success.
-*         - SL_STATUS_BUSY (0x0002) - Cannot de-initialize the peripheral due to an ongoing transfer.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
+ *         - SL_STATUS_OK (0x0000) - De-initialization success.
+ *         - SL_STATUS_BUSY (0x0002) - Cannot de-initialize the peripheral due to an ongoing transfer.
+ *         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

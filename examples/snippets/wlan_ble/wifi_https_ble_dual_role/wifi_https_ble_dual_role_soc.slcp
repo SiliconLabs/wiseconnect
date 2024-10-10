@@ -15,10 +15,10 @@ filter:
       - Advanced
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 source:
   - path: app.c
   - path: main.c
@@ -84,6 +84,10 @@ other_file:
   - path: resources/readme/remote_screen3.png
   - path: resources/readme/SSL_screen1.png
   - path: resources/readme/http_server_1.png
+requires:
+- name: device_needs_ram_execution
+  condition:
+    - si91x_common_flash
 ui_hints:
   highlight:
     - path: readme.md

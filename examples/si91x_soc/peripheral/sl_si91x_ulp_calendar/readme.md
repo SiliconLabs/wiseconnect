@@ -43,16 +43,6 @@
   - To verify if the desired alarm is set, \ref sl_si91x_calendar_get_alarm API is used, It returns a structure which has configured alarm date-time.
   - At the time of trigger, it prints current date-time on the console.
 
-- If **CLOCK_CALIBRATION** macro is enabled:
-  
-  - This clock calibration applies to RO and RC Clock only. For RO clock \ref sl_si91x_calendar_roclk_calibration should be used and for RC clock \ref sl_si91x_calendar_rcclk_calibration should be used.
-  - It is recommended to calibrate clock before activating any trigger after every power cycle.
-  - Initialization of clock is performed using \ref sl_si91x_calendar_calibration_init API.
-  - To select the clock in UC, follow the procedure mentioned in "Configuration and Steps for Execution" section.
-  - According to the clock configured in UC, either RO or RC, use respective API to configure the clock. In this example RC clock is selected so \ref sl_si91x_calendar_roclk_calibration API is used.
-  - This API expects \ref clock_calibration_config_t structure. For rc_trigger_time, \ref RC_CLOCK_CALIBRATION_ENUM enum can be used, and for ro_trigger_time \ref RO_CLOCK_CALIBRATION_ENUM enum can be used.
-  - After calibration \ref sl_si91x_calendar_rtc_start is called to start the calendar clock.
-
 - If **SEC_INTR** macro is enabled:
 
   - Callback is registered for one second trigger using \ref sl_si91x_calendar_register_sec_trigger_callback API.
@@ -84,8 +74,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -104,14 +93,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure UC from the slcp component.
-
-   ![Figure: Introduction](resources/uc_screen/calendar_uc_screen.png)
-
-- Open **sl_si91x_calendar.slcp** project file select **software component** tab and search for **Calendar** in search bar.
-- Using configuration wizard one can configure the Calendar clock, i.e., RO, RC and XTAL.
-- Configuration file is generated in **config folder**, if not changed then the code will run on default UC values.
-
 - Set any of the macro in calender_example.h whose functionality needs to be tested.
 
 - To enable alarm trigger callback set the ALARM_EXAMPLE macro.
@@ -120,11 +101,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
    #define ALARM_EXAMPLE       1 ///< To enable alarm trigger \n
   ```
 
-- To enable clock calibration set the CLOCK_CALIBRATION macro.
-
-   ```C
-    #define CLOCK_CALIBRATION  1 ///< To enable clock calibration \n
-   ```
 - To enable second trigger callback set the SEC_INTR macro.
 
    ```C

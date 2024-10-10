@@ -30,14 +30,6 @@
 // <d> 1
 #define PSRAM_FREQ_CLK_DIV_FACTOR 1
 
-// <o PSRAM_CLK_SOURCE_SEL> PSRAM clock source selection
-//   <0=> QSPI_ULPREFCLK
-//   <2=> QSPI_INTFPLLCLK
-//   <3=> QSPI_SOCPLLCLK
-//   <4=> M4_SOCCLKNOSWLSYNCCLKTREEGATED
-// <d> 2
-#define PSRAM_CLK_SOURCE_SEL 2
-
 // <o PSRAM_RW_TYPE>PSRAM Read-Write Type
 //   <NORMAL_RW=> Normal Read-Write
 //   <FAST_RW=> Fast Read-Write

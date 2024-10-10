@@ -8,7 +8,6 @@
   - [Software Requirements](#software-requirements)
   - [Setup Diagram](#setup-diagram)
 - [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
@@ -39,25 +38,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
-## Application Build Environment
-
-- Configure the following parameters in rgb_led.c file, update/modify following macro if required.
-
-  ```C
-  #define RGB_COLOUR 0xFFFFFF//  configured for white colour by default 
-  ```   
-  ```C
-  #define TICK_DELAY 1// configured delay for PWM simulation (1 TICK_DELAY = 30.5 us)
-  ``` 
-  ```C
-  #define PULSE_PERIOD (TICK_DELAY * 0xFF)//  configured total delay for the PWM cycle (Dependant on TICK_DELAY)
-  ``` 
-
 ## Test the Application
 
-1. Sets the board state of RGB LED to ON and the colour is set according to the colour input.
+1. Sets the board state of RGB LED to ON and different set of colours can be observed.
  
 
 > **Note:**
+>
+> - Currently, the RGB LED functionality is limited to a single instance.
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

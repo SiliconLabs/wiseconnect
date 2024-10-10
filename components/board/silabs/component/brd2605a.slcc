@@ -16,9 +16,9 @@
 - provides:
   - name: brd2605a
   - name: hardware_board
-  - name: hardware_board_rb
   - name: hardware_board_supports_multi_slave
   - name: si91x_b0_board
+  - name: si917_dev_board
 - define:
   - name: SL_BOARD_NAME
     value: '"BRD2605A"'
@@ -34,7 +34,7 @@
     value: '1' 
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
-
+  - name: SI917_DEVKIT
 - template_contribution:
   # Default Memory configuration
   - name: device_flash_addr

@@ -19,7 +19,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates how SiWx91x will connect to three different SSL servers with three different set of SSL certificates and loading certificates into the FLASH.
+This application demonstrates how the SiWx91x will connect to three different SSL servers with three different sets of SSL certificates and load certificates into the FLASH.
 
 ## Prerequisites/Set up Requirements
 
@@ -27,7 +27,7 @@ This application demonstrates how SiWx91x will connect to three different SSL se
 
 - Windows PC
 - USB-C cable
-- A Wireless Access point (which has an active internet access)
+- A Wireless Access Point (which has an active internet access)
 
 - **SoC Mode**:
   - Standalone
@@ -78,11 +78,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- In the Project Explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+- In the Project Explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
 - STA instance related parameters
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network shall be advertised and Si91X module is connected to it.
  
    ```c
    #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
@@ -102,7 +102,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-- Configure the following parameters in ``app.c`` to test three_ssl_client_sockets app as per requirements  
+- Configure the following parameters in ``app.c`` to test three_ssl_client_sockets app as per requirements:  
 
 ```c
    #define SERVER_PORT1   <remote port>       // Remote server port
@@ -113,7 +113,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - If certificates are not there in flash, then SSL handshake will fail.
   
-- AWS_DOMAIN_NAME refers to domain name of the AWS server. To get this refer to the [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-below-parameters-in-aws_iot_configh-file-present-at-projectconfig).
+- AWS_DOMAIN_NAME refers to the domain name of the AWS server. To get this name, refer to the [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-below-parameters-in-aws_iot_configh-file-present-at-projectconfig).
 
 ```c
    #define AWS_DOMAIN_NAME   "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"
@@ -123,25 +123,25 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 > - Before configuring the parameters in `aws_iot_config.h`, register the SiWx917 device in the AWS IoT registry by following the steps mentioned in [Create an AWS Thing](#create-an-aws-thing) section.
 >
-> - Configure AWS_IOT_MQTT_HOST macro with the device data endpoint to connect to AWS. For getting the device data endpoint in the AWS IoT Console navigate to Settings and copy the Endpoint and define the AWS_IOT_MQTT_HOST macro with this value.
+> - Configure AWS_IOT_MQTT_HOST macro with the device data endpoint to connect to AWS. To get the device data endpoint in the AWS IoT Console, navigate to Settings, copy the Endpoint, and define the AWS_IOT_MQTT_HOST macro with this value.
 >
 >  ![AWS_IOT_MQTT_HOST_NAME](resources/readme/aws_iot_mqtt_host_url_1.png)
 
 ```c
 #define AWS_IOT_MQTT_HOST "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"  ///< Customer specific MQTT HOST. The same will be used for Thing Shadow
-#define AWS_IOT_MQTT_PORT      8883                 ///< default port for MQTT/S
+#define AWS_IOT_MQTT_PORT      8883                 ///< Default port for MQTT/S
 #define AWS_IOT_MQTT_CLIENT_ID "silicon_labs_thing" ///< MQTT client ID should be unique for every device
 #define AWS_IOT_MY_THING_NAME  "silicon_labs_thing" 
 ```
 
-> - To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must be having device certificate, private key and CA certificate which are downloaded during the creation/registration of AWS Thing.
+> - To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must have a device certificate, private key, and CA certificate, which are downloaded during the creation/registration of AWS Thing.
 > 
-> - By default the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx917, the certificate and private key should be converted into a C-array. For converting the certificates and private key into C-array refer to [Setting up Security Certificates](#setting-up-security-certificates).
+> - By default, the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx917, the certificate and private key should be converted into a C-array. For converting the certificates and private key into a C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
 >
-> - By default the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
+> - By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
 
 > **Note** :
- The included self signed certificates will work for local OpenSSL server. Incase of cloud server, using default certificates in the release, cloud connection doesn't work. Please replace the default certificates with valid certificates while connecting to Cloud Server.
+ The included self-signed certificates will work for local OpenSSL servers. For a cloud server, using default certificates will not work for the cloud connection. You must replace the default certificates with valid certificates while connecting to a cloud server.
 
 ## Test the Application
 
@@ -149,9 +149,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 Copy the certificates server-cert and server-key into Openssl/bin folder in the Windows PC (Remote PC).
 
->**NOTE:** All the certificates are given in the SDK. Path: `<SDK>/resources/certificates`
+>**NOTE:** All the certificates are given in the SDK. Path: `<SDK>/resources/certificates`.
 
-- In Windows PC (Remote PC) which is connected to AP, run the Openssl server by giving the following command.
+- In Windows PC (Remote PC). which is connected to AP, run the Openssl server by giving the following command.
 
 ```c
     > Openssl.exe s_server -accept <SERVER_PORT> -cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
@@ -162,14 +162,14 @@ Copy the certificates server-cert and server-key into Openssl/bin folder in the 
 
 ### Run the application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
-- After the program gets executed, SiWx91x would be connected to access point having the configuration same that of in the application and get IP.
+- After the program is executed, the SiWx91x connects to the access point that has the same configuration as that in the application, and gets the IP.
 
-- The device which is configured as SSL client will connect to three different remote SSL servers.
+- The device which is configured as an SSL client will connect to three different remote SSL servers.
 
   ![two_ssl_servers](resources/readme/two_ssl_servers.png)
 
@@ -181,7 +181,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/).
 
-- Copy the downloaded device certificate, private key from AWS and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
+- Copy the downloaded device certificate, private key from AWS, and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
 
 - To convert the device certificate and private key to C arrays, open a system command prompt in the same path and give the following commands.
 
@@ -193,7 +193,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   $> python3 certificate_to_array.py d8f3a44d3f.pem.key aws_private_key
   ```
 
-- After running the above commands, two new files shall be created as below:
+- After running the above commands, two new files are created as below:
 
   ```sh
   aws_device_certificate.crt.h
@@ -211,23 +211,30 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **NOTE :**
 > Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/aws_starfield_ca.pem.h).
 >
-> For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
+> AWS has announced that there will be changes in their root CA chain. More details can be found in the reference link:(https://aws.amazon.com/blogs/security/acm-will-no-longer-cross-sign-certificates-with-starfield-class-2-starting-august-2024/)
 >
-> The StarField Root CA Class 2 certificate is an expected/required certificate which usually comes pre-installed in the operating systems and plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
+> We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`.
 >
-> On SiWx91x device, we do not maintain the root CA trust repository due to memory constraints, so it is mandatory to load Starfield Root CA Class 2 certificate for successful mutual authentication to the AWS server.
+> For AWS connectivity, StarField Root CA certificate has the highest authority being at the top of the signing hierarchy.
+>
+> The StarField Root CA certificate is an expected/required certificate which usually comes pre-installed in the operating systems and plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
+>
+> On the SiWx91x device, we do not maintain the root CA trust repository due to memory constraints, so it is mandatory to load Starfield Root CA certificate for successful mutual authentication to the AWS server.
 >
 > The certificate chain sent by AWS server is as below:
-> id-at-commonName=Amazon,id-at-organizationalUnitName=Server CA 1B,id-at-organizationName=Amazon,id-at-countryName=US
+> Starfield Class 2 :
+> id-at-commonName=Amazon,RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
 > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
-> id-at-commonName=Starfield Services Root Certificate Authority ,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at- stateOrProvinceName=Arizona,id-at-countryName=US)
+> id-at-commonName=Starfield Services Root Certificate Authority - G2,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at- stateOrProvinceName=Arizona,id-at-countryName=US
+>id-at-organizationalUnitName=Starfield Class 2 Certification Authority,id-at-organizationName=Starfield Technologies, Inc.,id-at-countryName=US
 >
-> On SiWx91x to authenticate the AWS server, firstly Root CA is validated (validate the Root CA received with the Root CA loaded on the device). Once the Root CA validation is successful, other certificates sent from the AWS server are validated.
-> SiWx91x doesn't authenticate to AWS server if intermediate CA certificates are loaded instead of Starfield Root CA Class 2 certificate and would result in a Handshake error.
-> StarField Root CA Class 2 certificate is at <https://certs.secureserver.net/repository/sf-class2-root.crt>
+> Starfield G2:
+> id-at-commonName=Amazon RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
+> id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
+> id-at-commonName=Starfield Services Root Certificate Authority - G2,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at-stateOrProvinceName=Arizona,id-at-countryName=US
 >
-> Reference links :
-> <https://aws.amazon.com/blogs/security/how-to-prepare-for-aws-move-to-its-own-certificate-authority/>
+> To authenticate the AWS server on SiWx91x, first validate the Root CA (validate the Root CA received with the Root CA loaded on the device). Once the Root CA validation is successful, other certificates sent from the AWS server are validated.
+> If intermediate CA certificates are loaded instead of the Starfield Root CA certificate, the SiWx91x will not authenticate to the AWS server, resulting in a Handshake error.
 
 ### Create an AWS Thing
 
@@ -245,33 +252,33 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
   ![AWS thing creation](resources/readme/aws_create_thing_step3.png)
 
-- On the **Specify thing properties** page, enter a name for your IoT thing (for example, **Test_IoT**), and choose **Unnamed shadow (classic)** in the Device Shadow section, then choose **Next**. You can't change the name of a thing after you create it. To change a thing's name, you must create a new thing, give it the new name, and then delete the old thing.
+- On the **Specify thing properties** page, enter a name for your IoT thing (for example, **Test_IoT**), and choose **Unnamed shadow (classic)** in the Device Shadow section, then choose **Next**. You cannot change the name of a thing after you create it. To change a thing's name, you must create a new thing, give it the new name, and then delete the old thing.
 
   ![Add Device 1](resources/readme/aws_create_thing_step4.png)
 
-- During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
+- During the **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
 
   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- Attach the policy to the thing created
-  -  If you have any existing policy, attach it and click on create thing
+- Attach the policy to the thing created.
+  -  If you have any existing policy, attach it and click on create thing.
 
      ![Attach policy](resources/readme/aws_choosing_policy.png)
 
-  -  If policy is not yet created, follow the below steps.
+  -  If policy is not yet created, follow the steps below.
   
-     -   Choose **Create policy** and fill the fields as per your requirements.
+     -   Choose **Create policy** and fill in the fields as per your requirements.
      
          ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
 
-     - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
+     - Give the **Name** to your Policy. Fill in the **Action** and **Resource ARN** fields as shown in the image below. Click on **Allow** under **Effect** and click **Create**.
     
        ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
 
      - Choose the created policy and click on **Create thing**.
 
 - Choose the **Download** links to download the device certificate and private key. Note that Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
-  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.
+  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them securely.
 
   ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
 

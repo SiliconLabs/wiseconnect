@@ -93,8 +93,7 @@
 - Si91x
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -154,12 +153,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
 | ULP_GPIO_2  [F10]  | ULP_SSI_MASTER_MISO_PIN  |
 
-## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4343A radio board
+## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4343A/BRD4343B/BRD4343Q radio board
 
 | GPIO pin           | Description              |
 | ------------------ | ------------------------ |
 | ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
-| ULP_GPIO_10 [P17]  |RTE_SSI_ULP_MASTER_CS0_PIN|
+| ULP_GPIO_4  [P17]  |RTE_SSI_ULP_MASTER_CS1_PIN|
 | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
 | ULP_GPIO_2  [P37]  | ULP_SSI_MASTER_MISO_PIN  |
 

@@ -62,6 +62,7 @@ static void callback_event(uint8_t channel_no, uint8_t event);
 sl_status_t sl_si91x_joystick_init(void)
 {
   sl_status_t status                  = 0;
+  sl_adc_channel_config.channel       = JOYSTICK_ADC_CHANNEL;
   uint8_t adc_channel                 = sl_adc_channel_config.channel;
   sl_adc_config.num_of_channel_enable = 1;
   sl_adc_config.operation_mode        = SL_ADC_STATIC_MODE;
@@ -106,38 +107,41 @@ sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystic
       status = SL_STATUS_NOT_READY;
       break;
     }
-    //Read the ADC sampling data.
-    status = sl_si91x_adc_read_data_static(sl_adc_channel_config, sl_adc_config, &adc_value);
-    if (status != SL_STATUS_OK) {
-      break;
+    // Check ADC start.
+    if (AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_ENABLE == ENABLE) {
+      //Read the ADC sampling data.
+      status = sl_si91x_adc_read_data_static(sl_adc_channel_config, sl_adc_config, &adc_value);
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+      if (adc_value & AUXADC_DATA_TWELFTH) {
+        adc_value = (int16_t)(adc_value & (ADC_MASK_VALUE));
+      } else {
+        adc_value = adc_value | AUXADC_DATA_TWELFTH;
+      }
+      sample_data = (((float)adc_value / (float)ADC_MAX_OP_VALUE) * vref_value);
+      sample_data = (sample_data * DIVISION_MULTIPLIER);
+      // determine which direction pad was pressed
+      if ((sample_data >= JOYSTICK_MV_C - JOYSTICK_MV_ERROR) && (sample_data <= JOYSTICK_MV_C + JOYSTICK_MV_ERROR)) {
+        joystick_direction = SL_JOYSTICK_C;
+      } else if ((sample_data >= JOYSTICK_MV_N - JOYSTICK_MV_ERROR)
+                 && (sample_data <= JOYSTICK_MV_N + JOYSTICK_MV_ERROR)) {
+        joystick_direction = SL_JOYSTICK_N;
+      } else if ((sample_data >= JOYSTICK_MV_E - JOYSTICK_MV_ERROR)
+                 && (sample_data <= JOYSTICK_MV_E + JOYSTICK_MV_ERROR)) {
+        joystick_direction = SL_JOYSTICK_E;
+      } else if ((sample_data >= JOYSTICK_MV_S - JOYSTICK_MV_ERROR)
+                 && (sample_data <= JOYSTICK_MV_S + JOYSTICK_MV_ERROR)) {
+        joystick_direction = SL_JOYSTICK_S;
+      } else if ((sample_data >= JOYSTICK_MV_W - JOYSTICK_MV_ERROR)
+                 && (sample_data <= JOYSTICK_MV_W + JOYSTICK_MV_ERROR)) {
+        joystick_direction = SL_JOYSTICK_W;
+      } else {
+        joystick_direction = SL_JOYSTICK_NONE;
+      }
+      //Update direction on pointer variable.
+      *pos = joystick_direction;
     }
-    if (adc_value & AUXADC_DATA_TWELFTH) {
-      adc_value = (int16_t)(adc_value & (ADC_MASK_VALUE));
-    } else {
-      adc_value = adc_value | AUXADC_DATA_TWELFTH;
-    }
-    sample_data = (((float)adc_value / (float)ADC_MAX_OP_VALUE) * vref_value);
-    sample_data = (sample_data * DIVISION_MULTIPLIER);
-    // determine which direction pad was pressed
-    if ((sample_data >= JOYSTICK_MV_C - JOYSTICK_MV_ERROR) && (sample_data <= JOYSTICK_MV_C + JOYSTICK_MV_ERROR)) {
-      joystick_direction = SL_JOYSTICK_C;
-    } else if ((sample_data >= JOYSTICK_MV_N - JOYSTICK_MV_ERROR)
-               && (sample_data <= JOYSTICK_MV_N + JOYSTICK_MV_ERROR)) {
-      joystick_direction = SL_JOYSTICK_N;
-    } else if ((sample_data >= JOYSTICK_MV_E - JOYSTICK_MV_ERROR)
-               && (sample_data <= JOYSTICK_MV_E + JOYSTICK_MV_ERROR)) {
-      joystick_direction = SL_JOYSTICK_E;
-    } else if ((sample_data >= JOYSTICK_MV_S - JOYSTICK_MV_ERROR)
-               && (sample_data <= JOYSTICK_MV_S + JOYSTICK_MV_ERROR)) {
-      joystick_direction = SL_JOYSTICK_S;
-    } else if ((sample_data >= JOYSTICK_MV_W - JOYSTICK_MV_ERROR)
-               && (sample_data <= JOYSTICK_MV_W + JOYSTICK_MV_ERROR)) {
-      joystick_direction = SL_JOYSTICK_W;
-    } else {
-      joystick_direction = SL_JOYSTICK_NONE;
-    }
-    //Update direction on pointer variable.
-    *pos = joystick_direction;
   } while (false);
   return status;
 }

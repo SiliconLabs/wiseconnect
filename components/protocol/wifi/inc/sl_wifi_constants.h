@@ -14,7 +14,8 @@
 /** \addtogroup SL_WIFI_CONSTANTS Constants
   * @{ */
 
-/// Maximum number of Access Points that can be scanned during a Wi-Fi scan operation.
+/// Maximum number of Access Points are scanned in response to a normal scan request.
+/// @note This is not a configurable value.
 #define SL_WIFI_MAX_SCANNED_AP 11
 
 /// Maximum number of clients supported when module is running in Access Point mode.
@@ -78,6 +79,7 @@ typedef enum {
  * @brief Enumeration for Wi-Fi encryption methods.
  *
  * @note Some encryption types are not currently supported in station (STA) mode.
+ * @note If encryption type is configured anything other than SL_WIFI_DEFAULT_ENCRYPTION, then make sure the AP (third party) supports the configured encryption type. If not, there might be a possibility of getting join failure due to the encryption type mismatch between AP (third party) and STA.
  */
 typedef enum {
   SL_WIFI_DEFAULT_ENCRYPTION,       ///< Default Wi-Fi encryption
@@ -220,7 +222,9 @@ typedef enum {
 typedef enum {
   SL_WIFI_SCAN_TYPE_ACTIVE = 0x00, ///< Active scan: Transmit probe requests and listen for responses
   SL_WIFI_SCAN_TYPE_PASSIVE =
-    0x01, ///< Passive scan: No active transmissions, listen for AP beacons and probe responses
+    0x01, ///< Passive scan. No active transmissions, listen for AP beacons and probe responses
+  SL_WIFI_SCAN_TYPE_EXTENDED =
+    0x02, ///< Extended Active scan. Transmit probe requests and listen for responses to get more than SL_WIFI_MAX_SCANNED_AP number of results
   SL_WIFI_SCAN_TYPE_PROHIBITED_CHANNELS = 0x04, ///< Scan channels prohibited by regulatory region
   SL_WIFI_SCAN_TYPE_ADV_SCAN = 0X08 ///< Advanced scan: Scan for Access Points while the module is in connected state
 } sl_wifi_scan_type_t;

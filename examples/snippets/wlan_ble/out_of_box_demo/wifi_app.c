@@ -177,7 +177,7 @@ void wifi_app_set_event(uint32_t event_num);
 void wifi_app_clear_event(uint32_t event_num);
 int32_t wifi_app_get_event(void);
 sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg);
-void rsi_wlan_app_call_backs_init(void);
+void rsi_wlan_app_callbacks_init(void);
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
@@ -366,7 +366,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   return SL_STATUS_OK;
 }
 
-void rsi_wlan_app_call_backs_init(void)
+void rsi_wlan_app_callbacks_init(void)
 {
   //! Initialize join fail call back
   sl_wifi_set_join_callback(join_callback_handler, NULL);

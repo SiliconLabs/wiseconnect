@@ -691,7 +691,7 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, data, sizeof(data));
   uint8_t temp = data[1];
   gyro_bias_stored[0] |= (int16_t)((temp & 0x0F) << 8);
-  gyro_bias_stored[1] = (int16_t)((temp & 0xF0) << 8);
+  gyro_bias_stored[1] = (int16_t)((temp & 0xF0) << 4);
 
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, data, sizeof(data));
   gyro_bias_stored[1] |= (int16_t)data[1];
@@ -721,7 +721,7 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   /* Subtract from the factory calibration value */
 
   /* Read factory accelerometer trim values */
-  accel_bias_factory[0] = (int16_t)((temp & 0xF0) << 8);
+  accel_bias_factory[0] = (int16_t)((temp & 0xF0) << 4);
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, data, sizeof(data));
   accel_bias_factory[0] |= (int16_t)data[1];
 
@@ -731,7 +731,7 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, data, sizeof(data));
   temp = data[1];
   accel_bias_factory[1] |= (int16_t)((temp & 0x0F) << 8);
-  accel_bias_factory[2] = (int16_t)((temp & 0xF0) << 8);
+  accel_bias_factory[2] = (int16_t)((temp & 0xF0) << 4);
 
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, data, sizeof(data));
   accel_bias_factory[2] |= (int16_t)data[1];
@@ -741,15 +741,15 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   accel_bias_factory[2] -= ((accel_bias[2] / 8) & ~1);
 
   /* Split the values into two bytes */
-  data[0] = gyro_bias_stored[0] >> 8;
-  data[1] = (((gyro_bias_stored[0]) & 0xF0) >> 8) | ((gyro_bias_stored[1]) & 0xF0);
-  data[2] = gyro_bias_stored[1] >> 8;
-  data[3] = gyro_bias_stored[2] >> 8;
-  data[4] = (((gyro_bias_stored[2]) & 0xF0) >> 8) | ((accel_bias_factory[0]) & 0xF0);
-  data[5] = accel_bias_factory[0] >> 8;
-  data[6] = accel_bias_factory[1] >> 8;
-  data[7] = (((accel_bias_factory[2]) & 0xF0) >> 8) | ((accel_bias_factory[1]) & 0xF0);
-  data[8] = accel_bias_factory[2] >> 8;
+  data[0] = gyro_bias_stored[0] & 0xFF;
+  data[1] = ((gyro_bias_stored[0]) >> 8) | ((gyro_bias_stored[1] >> 4) & 0xF0);
+  data[2] = gyro_bias_stored[1] & 0xFF;
+  data[3] = gyro_bias_stored[2] & 0xFF;
+  data[4] = ((gyro_bias_stored[2]) >> 8) | ((accel_bias_factory[0] >> 4) & 0xF0);
+  data[5] = accel_bias_factory[0] & 0xFF;
+  data[6] = accel_bias_factory[1] & 0xFF;
+  data[7] = (((accel_bias_factory[1])) >> 8) | ((accel_bias_factory[2] >> 4) & 0xF0);
+  data[8] = accel_bias_factory[2] & 0xFF;
 
   /* Write the  gyro and accel bias values to the chip */
   icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, &data[0], 1);

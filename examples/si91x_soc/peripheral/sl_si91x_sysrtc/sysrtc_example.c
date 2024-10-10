@@ -275,9 +275,14 @@ void sysrtc_callback(void *callback_flags)
   DEBUGOUT("In handler... \n");
   // to avoid unused variable warning
   (void)callback_flags;
-  // To toggle LED1
   state = !state;
+#ifdef SL_SI91X_ACX_MODULE
+  // To toggle LED0
+  sl_si91x_led_toggle(SL_LED_LED0_PIN);
+#else
+  // To toggle LED1
   sl_si91x_led_toggle(SL_LED_LED1_PIN);
+#endif
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE))
   static uint8_t interrupt_count = 0;
   uint32_t compare_value         = COMPARE_VALUE_32KHZ;

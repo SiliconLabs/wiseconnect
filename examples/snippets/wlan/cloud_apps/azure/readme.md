@@ -44,7 +44,7 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 >
 > - For establishing an AWS connection, it is essential for the user to replace the default certificate ([aws_client_certificate.pem.crt.h](https://github.com/SiliconLabs/wiseconnect/blob/master/resources/certificates/aws_client_certificate.pem.crt.h)) and private key ([aws_client_private_key.pem.key.h](https://github.com/SiliconLabs/wiseconnect/blob/master/resources/certificates/aws_client_private_key.pem.key.h)) with the authentic certificate and private key generated from their designated Certificate Authority (CA).
 >
-> - Please refer to [Setting up Security Certificates](#setting-up-security-certificates) for a complete end-to-end procedure on how to generate and use authentic certificates.
+> - Refer to [Setting up Security Certificates](#setting-up-security-certificates) for a complete end-to-end procedure on how to generate and use authentic certificates.
 
 ### Setup Diagram
 
@@ -120,17 +120,17 @@ Open the ``demo_config.h`` file. Configure the following parameters.
       #define USE_SYMMETRIC_KEY   0 
     ```
   > **Note** : By default Symmetric Key is set
-  - Device symmetric key.
+  - Device symmetric key
   	```c
   	#define democonfigDEVICE_SYMMETRIC_KEY              Symmetric key
   	```
 
-  - Client's X509 Certificate.
+  - Client's X509 Certificate
   	```c
   	#define democonfigCLIENT_CERTIFICATE_PEM            YOUR DEVICE CERT HERE
   	```
 
-  - Client's private key.
+  - Client's private key
   	```c
   	#define democonfigCLIENT_PRIVATE_KEY_PEM            YOUR DEVICE PRIVATE KEY HERE
   	```
@@ -144,7 +144,7 @@ Open the ``demo_config.h`` file. Configure the following parameters.
     #include "silabs_dgcert_ca.pem.h"
     ```
 
-  - If X509 authentication is to be used, Three certificates (CA certificate, device certificate and the private key certificate) are required for the authentication process and three certificates have to be loaded into the SiWx91x module. The CA certificate is provided in the SDK, but the device certificate and the private key certificates have to be generated, converted to linear array format and loaded into the module. Refer to [Register IoT Deivice with X.509 Authenticated Device with IoT Hub](#132---register-iot-deivice-with-x509-authenticated-device-with-iot-hub) regarding the process of generating, converting the certificates to linear array format and loading into the module.
+  - If X509 authentication is to be used, three certificates (CA certificate, device certificate, and the private key certificate) are required for the authentication process and three certificates have to be loaded into the SiWx91x module. The CA certificate is provided in the SDK, but the device certificate and the private key certificates have to be generated, converted to linear array format and loaded into the module. Refer to [Register IoT Deivice with X.509 Authenticated Device with IoT Hub](#132---register-iot-deivice-with-x509-authenticated-device-with-iot-hub) regarding the process of generating, converting the certificates to linear array format, and loading into the module.
 
     ```c
     // Certificate includes
@@ -156,14 +156,14 @@ Open the ``demo_config.h`` file. Configure the following parameters.
   > **Note** : This application continuously receives and sends publish messages between the cloud and the IoT Hub.
 
   > **Note** :
- The included Cloud connectivity certificates are for reference only, using default certificates in the release, cloud connection doesn't work. Please replace the default certificates with valid certificates while connecting to appropriate Cloud/OpenSSL Server.
+ The included Cloud connectivity certificates are for reference only. If using default certificates in the release, cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
 - SoC and NCP mode
 
@@ -173,11 +173,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ###  Follow the steps below for successful execution of the application:
 
-1. SiWx917 configured as Wi-Fi staion, connects to the access point with Internet connection in OPEN/WPA-PSK/WPA2-PSK mode
+1. The SiWx917 configured as Wi-Fi station connects to the access point with Internet connection in OPEN/WPA-PSK/WPA2-PSK mode.
 2. Required certificates are loaded, and SiWx917 tries to connect to the Azure IoT hub device using the credentials configured in the application.
-3. The SiWx917 upon connection, will send 5 telemetry messages to Azure Hub and waits to receive atleast 5 C2D messages.
-4. Refer to Appendix section [Steps to check Telemetry message on Azure cloud](#appendix-2--steps-to-check-telemetry-message-on-azure-cloud) section to check the messages sent by application to cloud in the Azure portal.
-5. Refer to Appendix section [Steps to send c2d message from the cloud](#appendix-3--steps-to-send-c2d-message-from-the-cloud) section to how to send C2D messages from Azure Hub
+3. The SiWx917, upon connection, sends five telemetry messages to Azure Hub and waits to receive atleast five C2D messages.
+4. Refer to Appendix section [Steps to check Telemetry message on Azure cloud](#appendix-2--steps-to-check-telemetry-message-on-azure-cloud) to check the messages sent by the application to the cloud in the Azure portal.
+5. Refer to Appendix section [Steps to send c2d message from the cloud](#appendix-3--steps-to-send-c2d-message-from-the-cloud) for information on how to send C2D messages from the Azure Hub.
 
 ## **Appendix**
 
@@ -185,13 +185,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### 1.1 ***Azure Account creation***
 
-- Azure offers a free 30-day trail account for all new account holders, later depending on the services you will be charged in [Pay-as-you-go way.](https://azure.microsoft.com/en-in/pricing/)
+- Azure offers a free 30-day trail account for all new account holders. Depending on the services you receive, later you will be charged in [Pay-as-you-go way.](https://azure.microsoft.com/en-in/pricing/)
 
-- You can follow the below steps or refer on [how to create an Azure Account.](https://docs.microsoft.com/en-us/learn/modules/create-an-azure-account/)
+- You can follow the steps below or refer to [how to create an Azure Account.](https://docs.microsoft.com/en-us/learn/modules/create-an-azure-account/)
 
   **Step 1:** Navigate to <https://azure.microsoft.com/>
 
-  **Step 2:** Click on “Free Account” in the top right
+  **Step 2:** Click on “Free Account” in the top right.
 
 ![Azure account ](resources/readme/azureaccountcreatea.png)
 
@@ -199,7 +199,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ![Azure free trial](resources/readme/azureaccountcreateb.png)
 
-  **Step 4:** Enter the details requested to register to Microsoft Azure account. (Details like email, username, password etc...)
+  **Step 4:** Enter the details requested to register your Microsoft Azure account. (Details like email, username, password etc.)
 
   **Step 5:** Finally, agree to the Microsoft Azure terms and conditions to complete the setup process.
 
@@ -207,15 +207,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   **Step 6:** At this stage you should be getting an Azure Link for your Azure Account.
 
-You have now successfully created Azure account and you will be able to access all Azure Services.
+You have now successfully created your Azure account and you will be able to access all Azure Services.
 
 ### 1.2 ***Azure IoT Hub and device creation***
 
-- Follow the steps below or refer [how to create an IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/)
-- Azure IoT Hub acts as a Gate way between IoT Devices and Azure Cloud Services
-- Lets create a new IoT Hub service
-
-- Login to your Azure account at <https://portal.azure.com/#home>
+- Follow the steps below or refer to [how to create an IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/).
+- Azure IoT Hub acts as a gateway between IoT Devices and Azure Cloud Services.
+- Let's create a new IoT Hub service by logging in to your Azure account at <https://portal.azure.com/#home>.
 
   ![Azure login](resources/readme/azureaccountlogin.png)
 
@@ -227,11 +225,11 @@ You have now successfully created Azure account and you will be able to access a
 
   ![Iot hub Search](resources/readme/azureresourcecreateb.png)
 
-- This will open a page given below, select IoT Hub select “Create”
+- This will open the page shown below. Select IoT Hub under “Create”
 
   ![Create IoT Hub](resources/readme/azureiothubcreate.png)
 
-- Update the Basic details with below information
+- Update the Basics details with below information
 
 - If a resource group is already available, choose the available resource group in the Resource group drop-down. If it is not available, then create a resource group as shown in the image and click "Next: Networking >"
 
@@ -273,9 +271,9 @@ We have IoT Hub ready, now we can proceed with creating a device identity in the
 
   ![Select IoT Device](resources/readme/azureiothubadddevice.png)
 
-  To enable the device interactions after SAS authentication. Refer [Register IoT Device with symmetric key authentication in IoT Hub](#131---register-iot-device-with-symmetric-key-authentication-in-iot-hub) section.
+  To enable the device interactions after SAS authentication, refer to the [Register IoT Device with symmetric key authentication in IoT Hub](#131---register-iot-device-with-symmetric-key-authentication-in-iot-hub) section.
   
-  To enable the device interactions after X509 self-signed certificate authentication. Refer [Register IoT Deivice with X.509 Authenticated Device with IoT Hub](#132---register-iot-deivice-with-x509-authenticated-device-with-iot-hub) section.
+  To enable the device interactions after X509 self-signed certificate authentication, refer to the [Register IoT Deivice with X.509 Authenticated Device with IoT Hub](#132---register-iot-deivice-with-x509-authenticated-device-with-iot-hub) section.
 
 ### 1.3 - **Register the authentication method**
 
@@ -285,40 +283,40 @@ We have IoT Hub ready, now we can proceed with creating a device identity in the
 
   ![Create Device](resources/readme/azurecreatedevicea.png)
 
-  **Step 4:** After the device is created, open the device from the list in the **IoT devices** pane. Select Device created  and copy the **Primary Connection String** for use later.
+  **Step 4:** After the device is created, open the device from the list in the **IoT devices** pane. Select the device created  and copy the **Primary Connection String** for use later.
 
   ![Create Device](resources/readme/azurecreatedevicea2.png)
 
   ![Primary connection string](resources/readme/azurecopyconnstring.png)
 
-  **Step 5:** For symmetric key authentication the primary connection string has to be referred.
- For example, consider below sample connection string
+  **Step 5:** For symmetric key authentication, the primary connection string has to be referred.
+ For example, consider the below sample connection string
  HostName=example.azure-devices.net;DeviceId=example_Device_SymKey;SharedAccessKey=xxxxxx";
- then configure macros as below
+ then configure macros as below:
  ```c
 #define democonfigHOSTNAME "example.azure-devices.net"
 #define democonfigDEVICE_ID "example_Device_SymKey"
 #define democonfigDEVICE_SYMMETRIC_KEY "xxxxxx"
  ```
-Device is now successfully registered to IoT Hub with Symmetric key authentication type.
+The device is now successfully registered to IoT Hub with Symmetric key authentication type.
 
 ### 1.3.2 - ***Register IoT Device with X.509 Authenticated Device with IoT Hub***
 
  For X.509 self-signed authentication, sometimes referred to as thumbprint authentication, you need to create certificates to place on your device. These certificates have a thumbprint in them that you share with IoT Hub for authentication.
 
- Follow the steps below or refer to the [Register a X.509 Device](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-authenticate-downstream-device?view=iotedge-2021-11#x509-self-signed-authentication)
+ Follow the steps below or refer to the [Register a X.509 Device](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-authenticate-downstream-device?view=iotedge-2021-11#x509-self-signed-authentication).
 
-  **Step 1:** Generating X509 Self Signed certificates
+  **Step 1:** Generating X509 Self-signed certificates
 
-  Generate the IoT device's x509 Certificate and the Private key certificate by using the below OpenSSL command from a Powershell window
+  Generate the IoT device's x509 Certificate and the Private key certificate by using the below OpenSSL command from a Powershell window:
 
   `Openssl req -newkey rsa:2048 -nodes -keyout azure_client_key.pem -x509 -days 365 -out azure_client_cert.pem`
 
-  After executing the above command, user is prompted to enter details like Country Name, click enter for all the fields
+  After executing the above command, the user is prompted to enter details such as Country Name. Click enter for all the fields.
 
  ![x509 certificate generation with OpenSSL](resources/readme/azureclientx509openssl.png)
 
-  The following private key and device certificate files are generated
+  The following private key and device certificate files are generated:
 
 - `azure_client_key.pem`  is the private key file
 - `azure_client_cert.pem` is the x509 device certificate file
@@ -335,20 +333,20 @@ Device is now successfully registered to IoT Hub with Symmetric key authenticati
 
   `E2927BCA4BEBB41DE54DCCDE3148AE6AD8D175C8`
 
-  **Step 3:** Go to Azure Portal - IoTHub to create new device with authentication type as X.509 Self-signed
+  **Step 3:** Go to Azure Portal - IoTHub to create a new device with authentication type as X.509 Self-signed
 
-  Fill the Device ID field. Choose X.509 Self-Signed as Authentication type. Enter the copied finger prints into both Primary Thumprint and Secondary Thumbprint fields.
+  Fill the Device ID field. Choose X.509 Self-signed as Authentication type. Enter the copied fingerprints into both Primary Thumprint and Secondary Thumbprint fields.
   Click Save.
 
   ![Create x509 Device](resources/readme/azurex509devicecreate.png)
 
   **Step 4:** Converting the certificates to linear array format
   
-  Copy the generated certificate file (azure_client_cert.pem) and key file (azure_client_cert.pem) into the <SDK_path>/resources/certificates
+  Copy the generated certificate file (azure_client_cert.pem) and key file (azure_client_cert.pem) into the <SDK_path>/resources/certificates.
 
-  Copy the certificate_to_array.py script from <SDK_path>/resources/scripts to <SDK_path>/resources/certificates
+  Copy the certificate_to_array.py script from <SDK_path>/resources/scripts to <SDK_path>/resources/certificates.
 
-  Execute the following python commands to convert the generated certificate and key files into linear array format
+  Execute the following python commands to convert the generated certificate and key files into linear array format:
 
   ```sh
   python certificate_to_array.py azure_client_cert.pem
@@ -356,14 +354,14 @@ Device is now successfully registered to IoT Hub with Symmetric key authenticati
   python certificate_to_array.py azure_client_key.pem
   ```
 
-  The files "azure_client_cert.pem.h" and "azure_client_key.pem.h" are over-written with the contents of the certificate and keyfiles which we have generated earlier.
+  The files "azure_client_cert.pem.h" and "azure_client_key.pem.h" are overwritten with the contents of the certificate and keyfiles which we have generated earlier.
 
-  **Step 5:** For X.509 self-signed authentication, there is no connection string available. We can configure as below
+  **Step 5:** For X.509 self-signed authentication, there is no connection string available. We can configure as below:
   ```c
   #define democonfigHOSTNAME "example.azure-devices.net"
   #define democonfigDEVICE_ID "example_Device_x509_Key"
    ```
-   Device is now successfully registered with the IoT Hub with X509 self signed authentication type.
+   The device is now successfully registered with the IoT Hub with X509 self signed authentication type.
 
 ### ***Appendix-2*** : **Steps to check Telemetry message on Azure cloud**
 
@@ -381,7 +379,7 @@ Device is now successfully registered to IoT Hub with Symmetric key authenticati
 
   eg: az iot hub monitor-events --hub-name azure-iothub-1 --output table
 
-- The received telemetry message will be displayed as follows
+- The received telemetry message will be displayed as follows:
   
   ![Azure telemetry messages](resources/readme/azureviewmsg.png)
 
@@ -389,7 +387,7 @@ Device is now successfully registered to IoT Hub with Symmetric key authenticati
 
 - az iot hub monitor-events --hub-name <hub_name> --output table
 
-- Login to Azure portal and navigate to the Hub that the device is created in
+- Login to Azure portal and navigate to the Hub that the device is created in.
 
   ![Azure portal login](resources/readme/azurehubopen.png)
 

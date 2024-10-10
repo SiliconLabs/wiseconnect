@@ -45,6 +45,7 @@
 #define MISC_CONFIG_MISC_CTRL1 *(volatile uint32_t *)(0x46008000 + 0x44)
 #endif                                       // MISC_CONFIG_MISC_CTRL1
 #define MAX_SAMPLE_RATE           2500000    // Maximum sampling rate 2.5 Msps.
+#define INVALID_SAMPLE_RATE       0          // Invalid sample rate.
 #define MINIMUM_NUMBER_OF_CHANNEL 1          // Minimum number of channel enable
 #define MAXIMUM_NUMBER_OF_CHANNEL 16         // Maximum number of channel enable
 #define MAXIMUM_CHANNEL_ID        16         // Maximum adc dma support channel id.
@@ -978,6 +979,11 @@ static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_
     // Validate input type
     if (adc_channel_config->input_type[channel] >= SL_ADC_INPUT_TYPE_LAST) {
       status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Invalid sample rate validation.
+    if (adc_channel_config->sampling_rate[channel] == INVALID_SAMPLE_RATE) {
+      status = SL_STATUS_NOT_FOUND;
       break;
     }
     // Verify the user given sampling rate is proper or not

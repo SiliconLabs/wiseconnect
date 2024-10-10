@@ -27,10 +27,10 @@
 #include <math.h>
 #include <string.h>
 #include "sl_si91x_dma.h"
+#include "clock_update.h"
 //---------------------- Macros -----------------//
 #define ADC_CLK_SOURCE_32KHZ      32000
 #define ADC_CLK_SOURCE_20MHZ      20000000
-#define ADC_CLK_SOURCE_32MHZ      32000000
 #define ADC_CLK_SOURCE_40MHZ      40000000
 #define MAXIMUM_ADC_SAMPLE_LEN    1023
 #define MINIMUM_ADC_SAMPLE_LEN    1
@@ -173,25 +173,17 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   }
   // Configure 32MHz RC clock to ADC
   else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_800KSPS) {
-    // Select 32MHz RC clock for ADC
+    // Select MHz RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
+    /* Update the ADC clock source variable */
+    adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
   } else {
     // Configure the 32MHz RC clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-#ifdef SIMULATION
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
-#else
-      // Select 32MHz RC ULP reference clock
-      RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
-
       // Select 40MHz XTAL clock for ADC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
-
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
-#endif
+      /* Update the ADC clock source variable */
+      adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
     } else {
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
     }
@@ -210,13 +202,13 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
@@ -292,22 +284,14 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
     // Select 32MHz RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
+    adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
   } else {
     // Configure the 32MHz RC clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-#ifdef SIMULATION
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
-#else
-      // Select 32MHz RC ULP reference clock
-      RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
-
-      // Select 32MHz RC clock for ADC
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
-#endif
+      // Select 40MHz XTAL clock for ADC
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
+      /* Update the ADC clock source variable */
+      adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
     } else {
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
     }
@@ -325,13 +309,13 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
@@ -888,19 +872,19 @@ rsi_error_t ADC_Deinit(void)
   rsi_error_t ADC_Deinit(adc_config_t adcConfig)
 #endif
 {
-  // Power down the ADC block
-  RSI_ADC_PowerControl(ADC_POWER_OFF);
-
+  (void)adcConfig;
 #ifdef CHIP_9118
   // Stop ADC operation
   RSI_ADC_Stop(AUX_ADC_DAC_COMP);
 #endif
-#ifdef SLI_SI917
-  RSI_ADC_Stop(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
-#endif
+  // Disable IRQ
+  NVIC_DisableIRQ(ADC_IRQn);
+
   if (sl_si91x_dma_unregister_callbacks(DMA_INSTANCE, DMA_CHANNEL, SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB)) {
     return ARM_DRIVER_ERROR;
   }
+  // Power down the ADC block
+  RSI_ADC_PowerControl(ADC_POWER_OFF);
 
   return RSI_OK;
 }
@@ -932,9 +916,9 @@ rsi_error_t ADC_Stop(void)
  */
 rsi_error_t ADC_Stop(adc_config_t adcConfig)
 {
-
-  RSI_ADC_Stop(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
-  return RSI_OK;
+  rsi_error_t error_status;
+  error_status = RSI_ADC_Stop(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
+  return error_status;
 }
 #endif
 
@@ -1937,6 +1921,9 @@ rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC)
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_DYN_ENABLE = 0;
   }
 #endif
+  if (AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_ENABLE != 1U) {
+    return RSI_FAIL;
+  }
   pstcADC->AUXADC_CTRL_1_b.ADC_ENABLE = 0;
   return RSI_OK;
 }

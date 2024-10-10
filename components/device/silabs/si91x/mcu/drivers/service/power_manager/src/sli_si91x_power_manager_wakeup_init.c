@@ -103,11 +103,6 @@ sl_status_t sli_si91x_power_manager_calendar_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 #if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
-  // Calendar configuration is set, i.e. clock is set to RC clock.
-  status = sl_si91x_calendar_set_configuration(CALENDAR_RC_CLOCK);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
   // Calendar is initialized.
   sl_si91x_calendar_init();
 #if defined(ENABLE_SECOND) && (ENABLE_SECOND == ENABLE)
@@ -222,12 +217,7 @@ sl_status_t sli_si91x_power_manager_wdt_init(void)
   sl_status_t status = SL_STATUS_OK;
 #if defined(SL_ENABLE_WDT_WAKEUP_SOURCE) && (SL_ENABLE_WDT_WAKEUP_SOURCE == ENABLE)
   watchdog_timer_config_t wdt_config;
-  watchdog_timer_clock_config_t wdt_clock_config;
   sl_si91x_watchdog_init_timer();
-  status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
   // Configuring watchdog-timer
   status = sl_si91x_watchdog_set_configuration(&wdt_config);
   if (status != SL_STATUS_OK) {
@@ -252,6 +242,20 @@ sl_status_t sli_si91x_power_manager_dst_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 #if defined(SL_ENABLE_DST_WAKEUP_SOURCE) && (SL_ENABLE_DST_WAKEUP_SOURCE == ENABLE)
+
+  // Power-up the RTC and Time period block
+  RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCURTC | SLPSS_PWRGATE_ULP_TIMEPERIOD);
+
+  // Power-up the Deep-sleep timer
+  RSI_PS_PowerSupplyEnable(POWER_ENABLE_DEEPSLEEP_TIMER);
+
+  // by using this API we programmed the RTC timer clock in SOC
+  // MSB 8-bits for the Integer part &
+  // LSB 17-bits for the Fractional part
+  // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
+  /* Time Period Programming */
+  RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
+
   RSI_DST_DurationSet(DST_WAKEUP_TIME);
   status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_DST_WAKEUP, true);
   if (status != SL_STATUS_OK) {

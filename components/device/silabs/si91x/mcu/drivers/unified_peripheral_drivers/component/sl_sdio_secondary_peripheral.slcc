@@ -19,5 +19,3 @@ include:
   - path: inc
     file_list:
       - path: sl_si91x_peripheral_sdio_secondary.h
-define:
-  - name: __SYSTICK

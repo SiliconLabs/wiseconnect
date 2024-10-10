@@ -40,22 +40,22 @@ extern "C" {
 /******************** ADC Peripheral CommonConfiguration **********************/
 
 // <<< Use Configuration Wizard in Context Menu >>>
-// <h>ULP Timer Clock Configuration
+// ULP Timer Clock Configuration
 
-// <o SL_ULP_TIMER_CLK_TYPE> Clock Type
-//   <SL_ULP_TIMER_CLK_TYPE_STATIC=> Static (auto select)
-//   <SL_ULP_TIMER_CLK_TYPE_DYNAMIC=> Dynamic
-// <i> Selection of the Timer CLK Type.
+//  SL_ULP_TIMER_CLK_TYPE> Clock Type
+//  SL_ULP_TIMER_CLK_TYPE_STATIC=> Static (auto select)
+//  SL_ULP_TIMER_CLK_TYPE_DYNAMIC=> Dynamic
+//  Selection of the Timer CLK Type.
 #define SL_ULP_TIMER_CLK_TYPE SL_ULP_TIMER_CLK_TYPE_STATIC
 
-// <q SL_ULP_TIMER_SYNC_TO_ULPSS_PCLK> Sync to ULPSS PCLK
-// <i> Enable or disable sync to ULPSS pclock.
-// <i> Default: 0
+// SL_ULP_TIMER_SYNC_TO_ULPSS_PCLK> Sync to ULPSS PCLK
+// Enable or disable sync to ULPSS pclock.
+// Default: 0
 #define SL_ULP_TIMER_SYNC_TO_ULPSS_PCLK 0
 
-// <q SL_ULP_TIMER_SKIP_SWITCH_TIME> Wait for switching timer clock
-// <i> 1 : Enable waiting for switching timer clk & 0 : Skip waiting for switching timer clk.
-// <i> Default: 0
+//  SL_ULP_TIMER_SKIP_SWITCH_TIME> Wait for switching timer clock
+//  1 : Enable waiting for switching timer clk & 0 : Skip waiting for switching timer clk.
+//  Default: 0
 #define SL_ULP_TIMER_SKIP_SWITCH_TIME 0
 
 // <o SL_ULP_TIMER_CLK_INPUT_SOURCE> clock source
@@ -68,7 +68,6 @@ extern "C" {
 // <i> Selection of the Clock source
 #define SL_ULP_TIMER_CLK_INPUT_SOURCE ULP_TIMER_32MHZ_RC_CLK_SRC //default timer clock input source is ref clock
 
-// </h>
 // <<< end of configuration section >>>
 
 ulp_timer_clk_src_config_t sl_timer_clk_handle = {

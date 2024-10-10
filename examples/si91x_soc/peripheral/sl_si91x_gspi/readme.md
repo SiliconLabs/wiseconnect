@@ -30,7 +30,7 @@
 - With the two data pins, it allows for full-duplex operation with other SPI-compatible devices.
 - It supports full duplex Single-bit SPI master mode.
 - It has support for Mode-0 and Mode-3 (Motorola). Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 3: Clock Polarity is one, Clock Phase is one.
-- It supports both Full speed (upto 58 MHz) and High speed modes (upto 116 MHz).
+- It supports both full-speed mode (up to 58 MHz) and high-speed mode (up to 116 MHz, provided the peripheral clock is set to 220 MHz).
 - The SPI clock is programmable to meet required baud rates.
 - It can generates interrupt for different events like transfer complete, data lost, mode fault.
 - It supports up to 32K bytes of read data from a SPI device in a single read operation.
@@ -95,8 +95,7 @@
 - Si91x
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

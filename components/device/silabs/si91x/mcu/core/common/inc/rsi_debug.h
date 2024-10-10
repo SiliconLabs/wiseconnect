@@ -21,6 +21,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "rsi_ccp_user_config.h"
+#ifdef DEBUG_UART_UC
+#ifndef SL_SI91X_ULP_UART
+#include "sl_si91x_debug_uc_1_config.h"
+#else
+#include "sl_si91x_debug_uc_2_config.h"
+#endif
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +38,7 @@ void Board_Debug_Init(void);
 void Board_UARTPutSTR(const uint8_t *ptr);
 uint8_t Board_UARTGetChar(void);
 void Board_UARTPutChar(uint8_t ch);
+void dummy_printf(const char *fmt, ...);
 
 #ifndef IOSTREAM_USART
 #ifdef DEBUG_UART
@@ -40,8 +48,8 @@ void Board_UARTPutChar(uint8_t ch);
 #define DEBUGIN()     Board_UARTGetChar()
 #else
 #define DEBUGINIT()
-#define DEBUGOUT(...)
-#define DEBUGSTR(str)
+#define DEBUGOUT(...) dummy_printf(__VA_ARGS__)
+#define DEBUGSTR(str) (void)str
 #define DEBUGIN()
 #endif
 #else

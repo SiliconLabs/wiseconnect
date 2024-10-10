@@ -28,7 +28,7 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 
   - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
   - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
-  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-3-0.md) for information on porting your WiSeConnect v3.3.0 application to WiSeConnect v3.3.1
+  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-3-2.md) for information on porting your WiSeConnect v3.3.2 application to WiSeConnect v3.3.3
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
 
@@ -36,7 +36,7 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 
   - [SiWx917 SoC Datasheet](https://www.silabs.com/documents/public/data-sheets/siwg917-datasheet.pdf)
   - [SiWx917 NCP Datasheet](https://www.silabs.com/documents/public/data-sheets/siwx917-ncp-datasheet.pdf)
-  - **SiWx917 Reference Manual:** To access this document, contact the Silicon Labs Sales team by clicking [here](https://www.silabs.com/about-us/contact-sales).
+  - [SiWx917 Reference Manual](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf)
   - [SiWx917 RF Matching and Layout Design Guide](https://www.silabs.com/documents/public/application-notes/an1423-siwx917-rf-matching-guide.pdf)
   - [SiWx917 Gain Offset Calibration](https://www.silabs.com/documents/public/application-notes/an1440-siwx917-gain-offset-calibration.pdf)
   - [SiWx917 QMS Crystal Calibration App Note](https://www.silabs.com/documents/public/application-notes/an1436-siwx917-qms-crystal-calibration-application-note.pdf)

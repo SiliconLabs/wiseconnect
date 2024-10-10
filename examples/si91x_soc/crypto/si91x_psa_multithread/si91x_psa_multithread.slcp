@@ -14,7 +14,7 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.1
+  version: 2024.6.2
 readme:
   - path: readme.md
 source:
@@ -73,7 +73,7 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.2
+    version: 3.3.3
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

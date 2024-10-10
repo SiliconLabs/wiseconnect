@@ -823,13 +823,22 @@
 #define SL_SI91X_EXT_FEAT_WOWLAN_DISABLE BIT(17)
 
 /**
+ * @def SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION
+ * @brief To disable auto correction of XTAL (40MHz crystal)
+ * @details Enabling this bit will disable the automatic compensation for frequency offsets, ensuring error-free calibration.
+ * 
+ * @note This bit should be enabled in the following cases:
+ * @note 1. Always enable it in the Calibration application.
+ * @note 2. Enable it for all applications for the customer hardware with an XTAL part number other than 8Y40070013.
+ */
+#define SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION BIT(18)
+
+/**
  * @def SL_SI91X_EXT_FEAT_LOW_POWER_MODE
  * @brief To enable low power mode in WLAN.
  * @details Enabling this bit activates low power mode for WLAN, Active current will also be reduced.
  * As most of the code which is needed to maintain connection is kept in RAM.
  * There will be minimal execution of code from Flash which in turn results in low average current.
- * 
- * @note Bit 18 is reserved.
  */
 #define SL_SI91X_EXT_FEAT_LOW_POWER_MODE BIT(19)
 
@@ -1053,7 +1062,7 @@
  * @note For 917 radio boards, set `SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE` to 1. For other variants, a value of 2 is recommended.
  */
 
-#ifdef SL_SI91X_MODULE_BOARD
+#ifdef SI91X_32kHz_EXTERNAL_OSCILLATOR
 #define SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(xtal_clk_enable) (xtal_clk_enable << 23)
 #else
 #define SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(xtal_clk_enable) (xtal_clk_enable << 22)

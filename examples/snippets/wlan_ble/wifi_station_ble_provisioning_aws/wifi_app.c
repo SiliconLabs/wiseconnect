@@ -276,7 +276,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   return SL_STATUS_OK;
 }
 
-void rsi_wlan_app_call_backs_init(void)
+void rsi_wlan_app_callbacks_init(void)
 {
   //! Initialize join fail call back
   sl_wifi_set_join_callback(join_callback_handler, NULL);
@@ -392,7 +392,7 @@ int32_t rsi_wlan_mqtt_certs_init(void)
     return status;
   }
 
-  rsi_wlan_app_call_backs_init();
+  rsi_wlan_app_callbacks_init();
 
   return status;
 }

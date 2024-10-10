@@ -92,13 +92,13 @@
  * @param event
  *   Wi-Fi event of type @ref sl_wifi_event_t.
  * @param buffer
- *   Pointer to a Wi-Fi buffer which containing information related to the event, of type @ref sl_wifi_buffer_t
+ *   Pointer to a Wi-Fi buffer contains information related to the event, of type @ref sl_wifi_buffer_t
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
  *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
  * @note
  *   In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in the event.
- *   The data will be of type sl_status_t and data_length can be ignored.
+ *   The data would be of type sl_status_t, and data_length can be ignored.
  */
 typedef sl_status_t (*sl_wifi_event_handler_t)(sl_wifi_event_t event, sl_wifi_buffer_t *buffer);
 
@@ -173,17 +173,39 @@ typedef struct {
   } scan_info[];           ///< Array of scan result data
 } sl_wifi_scan_result_t;
 
+/// Extended Wi-Fi scan result
+typedef struct {
+  uint8_t rf_channel;    ///< Channel number of the AP
+  uint8_t security_mode; ///< Security mode of the AP
+  uint8_t rssi;          ///< RSSI value of the AP
+  uint8_t network_type;  ///< Network type of the AP
+  uint8_t ssid[34];      ///< SSID of the AP
+  uint8_t bssid[6];      ///< BSSID of the AP
+} sl_wifi_extended_scan_result_t;
+
+/// Extended Wi-Fi scan result parameters
+typedef struct {
+  sl_wifi_extended_scan_result_t
+    *scan_results;         ///< Pointer to an array containing scan results of type @ref sl_wifi_extended_scan_result_t
+  uint16_t array_length;   ///< Length of the scan results array provided by the user.
+  uint16_t *result_count;  ///< Pointer to store the total count of scan results returned.
+  uint8_t *channel_filter; ///< Pointer to Channel number (Filter based on Channel number of the AP).
+  uint8_t *security_mode_filter; ///< Pointer to Security mode (Filter based on the Security mode of the AP).
+  uint8_t *rssi_filter; ///< Pointer to RSSI (Filter for APs with an RSSI greater than or equal to given RSSI value).
+  uint8_t *network_type_filter; ///< Pointer to Network type (Filter based on APs network type).
+} sl_wifi_extended_scan_result_parameters_t;
+
 /**
  * @struct sl_wifi_scan_configuration_t
  * @brief Wi-Fi scan configuration structure.
  *
  * Indicates the configuration parameters for a Wi-Fi scan operation.
  *
- * @note The Quick Scan Feature is enabled if a specific channel and SSID to scan is given.
+ * @note The Quick Scan feature is enabled when a specific channel and SSID are given for scanning.
  *       SiWx91x scans for the AP given in the scan API and posts the scan results immediately
  *       after finding the access point.
  * @note The `channel_bitmap_2g4` uses the lower 14 bits to represent channels from 1 to 14,
- *       where channel 1 = (1 << 0), channel 2 = (1 << 1), etc.
+ *       where channel 1 = (1 << 0), channel 2 = (1 << 1), and so on.
  * @note 5GHz is not supported.
  *
  * | Channel Number 2.4 GHz | channel_bitmap_2g4    |
@@ -225,7 +247,7 @@ typedef struct {
   uint16_t passive_channel_time; ///< Time spent on each channel during passive scan (milliseconds)
   uint8_t enable_instant_scan;   ///< Flag to start advanced scan immediately
   uint8_t
-    enable_multi_probe; ///< Flag to send multiple probes to AP. If set to 1, a probe request would be sent to all access points in addition to connected SSID.
+    enable_multi_probe; ///< Flag to send multiple probes to AP. If the value is set to 1, a probe request would be sent to all access points in addition to the connected SSID.
 } sl_wifi_advanced_scan_configuration_t;
 
 /**
@@ -279,12 +301,13 @@ typedef struct {
  * @struct sl_wifi_channel_bitmap_t
  * @brief Channel bitmap for scanning in a set of selective channels.
  *
- * @note A 2.4GHz channel is enabled by setting the bit of the corresponding channel number minus 1.
- *       For example, for channel 1, set bit 0; for channel 2, set bit 1, and so on. @ref sl_wifi_scan_configuration_t
- * @note 5GHz chnannels are not supported.
+ * @note A 2.4 GHz channel is enabled by setting the bit of the corresponding channel number minus 1.
+ * For example, for channel 1, set bit 0; 
+ 				for channel 2, set bit 1, and so on. @ref sl_wifi_scan_configuration_t
+ * @note 5 GHz chnannels are not supported.
  */
 typedef struct {
-  uint16_t channel_bitmap_2_4; ///< Channel bitmap for scanning in a set of selective channels in 2.4 GHz
+  uint16_t channel_bitmap_2_4; ///< Channel bitmap for scanning in a set of selective channels in 2.4 GHz.
   uint32_t
     channel_bitmap_5; ///< Channel bitmap for scanning in a set of selective channels in 5 GHz. (Currently not supported.)
 } sl_wifi_channel_bitmap_t;
@@ -477,10 +500,10 @@ typedef struct {
 typedef struct {
   uint8_t flow_id; ///< TWT session flow ID
   sl_wifi_reschedule_twt_action_t
-    twt_action; ///< Specifies the action to be taken for rescheduling the TWT session. This determines how and when the TWT session will be suspended or adjusted. Refer to @ref sl_wifi_reschedule_twt_action_t for the possible actions.
+    twt_action; ///< Specifies the action need to be taken for rescheduling the TWT session. This determines how and when the TWT session would be suspended or adjusted. See @ref sl_wifi_reschedule_twt_action_t for the possible actions.
   uint16_t reserved1;        ///< Reserved
   uint8_t reserved2;         ///< Reserved
-  uint64_t suspend_duration; ///< Duration to suspend the respective TWT session, in microseconds
+  uint64_t suspend_duration; ///< Duration to suspend the respective TWT session, in microseconds.
 } sl_wifi_reschedule_twt_config_t;
 
 /**
@@ -527,7 +550,7 @@ typedef struct {
   uint8_t ideal_beacon_info[2]; ///< Idle beacon information
   uint8_t busy_beacon_info[2];  ///< Busy beacon information
   uint8_t beacon_interval
-    [2]; ///< Beacon Interval. Indicates the time interval between successive beacons, in time units (TUs).
+    [2]; ///< Beacon Interval. Indicates the time interval between successive beacons, in Time Units (TUs).
 } sl_wifi_operational_statistics_t;
 
 /**
@@ -565,7 +588,7 @@ typedef struct {
  * @brief Wi-Fi Listen interval structure.
  *
  * Specifies the Wi-Fi Listen interval in milliseconds.
- * The listen interval is the time interval between two consecutive target beacon transmission (TBTT) events.
+ * The listen interval is the time interval between two consecutive Target Beacon Transmission (TBTT) events.
  */
 typedef struct {
   uint32_t listen_interval; ///< Wi-Fi Listen interval in millisecs
@@ -575,10 +598,10 @@ typedef struct {
  * @struct sl_wifi_client_info_t
  * @brief Wi-Fi client information structure.
  *
- * Indicates the MAC address and IP address information related to a Wi-Fi client connected to the network. 
+ * Indicates the MAC and IP address information related to a Wi-Fi client connected to the network. 
  */
 typedef struct {
-  sl_mac_address_t mac_adddress; ///< MAC Address of the client
+  sl_mac_address_t mac_adddress; ///< MAC address of the client
   sl_ip_address_t ip_address;    ///< IP address of client
 } sl_wifi_client_info_t;
 
@@ -599,12 +622,12 @@ typedef struct {
  *
  * @note
  * The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
- * maximum supported value for that region or if the specified transmit power exceeds the maximum supported value of the device,
- * the transmission will occur at the maximum supported transmit power.
+ * maximum supported value for that region, or if the specified transmit power exceeds the maximum supported value of the device,
+ * the transmission would occur at the maximum supported transmit power.
  */
 typedef struct {
-  uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1dBm to 31dBm
-  uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1dBm to 31dBm
+  uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1 dBm to 31 dBm
+  uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1 dBm to 31 dBm
 } sl_wifi_max_tx_power_t;
 
 /**
@@ -613,7 +636,7 @@ typedef struct {
  */
 typedef struct {
   sl_wifi_multicast_filter_command_t
-    command_type; ///< Command type for multicast filter operation. Specifies the action to be taken (e.g., add or remove a multicast filter). See @ref sl_wifi_multicast_filter_command_t for possible values
+    command_type; ///< Command type for multicast filter operation. Specifies the action to be taken (for example, add or remove a multicast filter). See @ref sl_wifi_multicast_filter_command_t for possible values.
   sl_mac_address_t mac_address; ///< MAC address to which the filter has to be applied.
 } sl_wifi_multicast_filter_info_t;
 
@@ -639,14 +662,14 @@ typedef struct {
   /// Control flags bit description:
   /// | Bit position | ctrl_flags bit description                                                                                                                     |
   /// |--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-  /// | 0            | Shall be set for 4-address packet or unset for 3-address packet. addr4 is ignored if set to 0.                                                 |
-  /// | 1            | Shall be set for QoS packet. QoS control field shall not be present in the MAC header for non-QoS packet. priority is ignored if set to 0.     |
-  /// | 2            | Shall be set to use the fixed data rate provided in the rate field. If set to 0, rate field is ignored and auto rate shall be used.            |
-  /// | 3            | Shall be set to enable ToDS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                               |
-  /// | 4            | Shall be set to enable FromDS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                             |
-  /// | 5            | Shall be set if host requires TX data status report. Token is used for synchronization between data packets sent and reports received.         |
+  /// | 0            | Should be set for 4-address packet or unset for 3-address packet. addr4 is ignored if set to 0.                                                 |
+  /// | 1            | Should be set for QoS packet. QoS control field shall not be present in the MAC header for non-QoS packet. priority is ignored if set to 0.     |
+  /// | 2            | Should be set to use the fixed data rate provided in the rate field. If set to 0, rate field is ignored and auto rate shall be used.            |
+  /// | 3            | Should be set to enable To DS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                               |
+  /// | 4            | Should be set to enable From DS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                             |
+  /// | 5            | Should be set if host requires TX data status report. Token is used for synchronization between data packets sent and reports received.         |
   /// | 6:7          | Reserved.                                                                                                                                      |
-  /// @note If addr1 is multicast/broadcast, ctrl_flags bit 1 is ignored and the frame is sent as a non-QoS frame, i.e. QoS control field shall not be present in the MAC header.
+  /// @note If addr1 is multicast/broadcast, ctrl_flags bit 1 is ignored, and the frame is sent as a non-QoS frame, that is, QoS control field should not be present in the MAC header.
   uint8_t ctrl_flags;
   uint8_t reserved1; ///< Reserved
   uint8_t reserved2; ///< Reserved
@@ -655,7 +678,7 @@ typedef struct {
   sl_wifi_data_rate_t
     rate; ///< Rates shall be provided as per @ref sl_wifi_data_rate_t. Only 11b/g rates shall be supported
   uint32_t
-    token; ///< Used for synchronization between data packets sent and reports received. Application shall provide token/identifier per PPDU. MAC layer shall send the same token/identifier in status report along with the status of the transmitted packet
+    token; ///< Used for synchronization between data packets sent and reports received. Application shall provide token/identifier as per PPDU. MAC layer sends the same token/identifier in status report along with the status of the transmitted packet
   uint8_t addr1[6]; ///< Receiver MAC address
   uint8_t addr2[6]; ///< Transmitter MAC address
   uint8_t addr3[6]; ///< Destination MAC address
@@ -670,9 +693,9 @@ typedef struct {
  */
 typedef struct {
   uint8_t
-    cwmin; ///< Minimum contention window size. Value is calculated from 2^N - 1 where exponent shall be provided as the input. Valid values for exponent N are 0 - 15
+    cwmin; ///< Minimum contention window size. Value is calculated from 2^N - 1 where exponent is provided as the input. Valid values for exponent N are 0 - 15
   uint8_t
-    cwmax; ///< Maximum contention window size. Value is calculated from 2^N - 1 where exponent shall be provided as the input. Valid values for exponent N are 0 - 15
+    cwmax; ///< Maximum contention window size. Value is calculated from 2^N - 1 where exponent is provided as the input. Valid values for exponent N are 0 - 15
   uint8_t aifsn;    ///< Arbitration Inter-Frame Space Number (AIFSN). Valid range is 0 to 15
   uint8_t reserved; ///< Reserved
 } sl_wifi_transceiver_cw_config_t;
@@ -685,7 +708,7 @@ typedef struct {
  */
 typedef struct {
   uint8_t
-    set; ///< Shall be set to 1 to configure the transceiver config params in MAC layer. Shall be set to 0 to query the transceiver config params from MAC layer
+    set; ///< Set to 1 to configure the transceiver config params in MAC layer. Sets to 0 to query the transceiver config params from MAC layer
   uint8_t
     retransmit_count; ///< Retransmit count. Common across all peers and access categories and valid only for unicast data frames. Valid range is 1 to 15
   uint16_t flags;     ///< Reserved
@@ -748,8 +771,8 @@ typedef struct {
   uint8_t
     flags; ///< Bit 0 is set to 1 to enable filtering for the specified MAC addresses, else set to 0 to disable filtering
   uint8_t
-    num_of_mcast_addr; ///< Number of multicast addresses. Valid values are 1, 2. This field is ignored when disabling filtering
-  uint8_t mac[2][6]; ///< List of multicast addresses. This field is ignored when disabling filtering
+    num_of_mcast_addr; ///< Number of multicast addresses. Valid values are 1, and 2. This field is ignored when filtering is disabled
+  uint8_t mac[2][6]; ///< List of multicast addresses. This field is ignored when filtering is disabled
 } sl_wifi_transceiver_mcast_filter_t;
 
 /**
@@ -791,7 +814,7 @@ typedef struct {
  * @struct sl_wifi_transceiver_rx_data_t
  * @brief Structure for handling received Wi-Fi transceiver data.
  *
- * Contains information about the received Wi-Fi transceiver data, including status, RSSI, data rate, length, and the actual data buffer.
+ * Contains information about the received Wi-Fi transceiver data, which includes status, RSSI, data rate, length, and the actual data buffer.
  */
 typedef struct {
   /// Status code for the received RX packet.

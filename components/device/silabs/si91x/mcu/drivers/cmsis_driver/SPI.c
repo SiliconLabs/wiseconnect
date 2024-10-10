@@ -364,7 +364,15 @@ static SPI_PIN SSI_ULP_MASTER_miso = {SSI_ULP_MASTER_MISO_PORT, SSI_ULP_MASTER_M
 static SPI_PIN SSI_ULP_MASTER_sck  = {SSI_ULP_MASTER_SCK_PORT,  SSI_ULP_MASTER_SCK_PIN, SSI_ULP_MASTER_SCK_MODE, 0};
 #endif
 #ifdef SSI_ULP_MASTER_CS0_SEL
-static SPI_PIN SSI_ULP_MASTER_cs  = {SSI_ULP_MASTER_CS0_PORT,  SSI_ULP_MASTER_CS0_PIN, SSI_ULP_MASTER_CS0_MODE, 0};
+static SPI_PIN SSI_ULP_MASTER_cs0  = {SSI_ULP_MASTER_CS0_PORT,  SSI_ULP_MASTER_CS0_PIN, SSI_ULP_MASTER_CS0_MODE, 0};
+#endif
+#ifdef SPI_MULTI_SLAVE
+#ifdef SSI_ULP_MASTER_CS1_SEL
+static SPI_PIN SSI_ULP_MASTER_cs1  =  {SSI_ULP_MASTER_CS1_PORT,  SSI_ULP_MASTER_CS1_PIN, SSI_ULP_MASTER_CS1_MODE, 0};
+#endif
+#ifdef SSI_ULP_MASTER_CS2_SEL
+static SPI_PIN SSI_ULP_MASTER_cs2  =  {SSI_ULP_MASTER_CS2_PORT,  SSI_ULP_MASTER_CS2_PIN, SSI_ULP_MASTER_CS2_MODE, 0};
+#endif
 #endif
 
 #if defined(SSI_ULP_MASTER_TX_DMA_Instance) && (SSI_ULP_MASTER_TX_DMA_Instance == 1)
@@ -421,18 +429,18 @@ static const SPI_RESOURCES SSI_ULP_MASTER_Resources = {
 				NULL,
 #endif
 #ifdef SSI_ULP_MASTER_CS0_SEL
-				&SSI_ULP_MASTER_cs,
+				&SSI_ULP_MASTER_cs0,
 #else
 				NULL,
 #endif
 #ifdef SPI_MULTI_SLAVE
-#ifdef SSI_SLAVE_CS1_SEL
-                                                          &SSI_SLAVE_cs,
+#ifdef SSI_ULP_MASTER_CS1_SEL
+                                                          &SSI_ULP_MASTER_cs1,
 #else
 				NULL,
 #endif
-#ifdef SSI_SLAVE_CS2_SEL
-                                                          &SSI_SLAVE_cs,
+#ifdef SSI_ULP_MASTER_CS2_SEL
+                                                          &SSI_ULP_MASTER_cs2,
 #else
                                                           NULL,
 #endif

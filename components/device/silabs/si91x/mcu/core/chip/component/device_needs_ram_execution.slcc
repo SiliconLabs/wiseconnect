@@ -10,9 +10,7 @@ quality: production
 provides:
   - name: device_needs_ram_execution
 define:
-  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
-  - name: SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE
-    condition: [wiseconnect_toolchain_psram_linker]   
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION 
 template_contribution:
   - name: ram_execution
     value: true

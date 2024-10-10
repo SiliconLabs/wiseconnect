@@ -256,27 +256,29 @@ bool is_port_available(uint16_t port_number)
 }
 
 /**
- * @brief This function is responsible to copy the SNI information provided by application into socket structure.
+ * @brief This function is responsible to copy the TLS extension information provided by application into socket structure.
  * 
- * @param socket_sni_extensions pointer to SNI extension in socket structure
- * @param sni_extension pointer to the SNI information provided by application
+ * @param socket_tls_extensions pointer to TLS extension in socket structure
+ * @param tls_extension pointer to the TLS information provided by application
  * @return sl_status_t possible return values are SL_STATUS_OK and SL_STATUS_SI91X_MEMORY_ERROR
  */
-sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t *socket_sni_extensions,
-                                                 const si91x_socket_type_length_value_t *sni_extension)
+sl_status_t sli_si91x_add_tls_extension(sli_si91x_tls_extensions_t *socket_tls_extensions,
+                                        const sl_si91x_socket_type_length_value_t *tls_extension)
 {
-  // To check if memory available for new extension in SNI buffer of socket, max 256 Bytes only
-  if (SI91X_MAX_SIZE_OF_EXTENSION_DATA - socket_sni_extensions->current_size_of_extensions
-      < (int)(sizeof(si91x_socket_type_length_value_t) + sni_extension->length)) {
+  // To check if memory available for new extension in buffer of socket, max 256 Bytes only
+  if (SI91X_MAX_SIZE_OF_EXTENSION_DATA - socket_tls_extensions->current_size_of_extensions
+      < (int)(sizeof(sl_si91x_socket_type_length_value_t) + tls_extension->length)) {
     return SL_STATUS_SI91X_MEMORY_ERROR;
   }
 
-  uint8_t sni_size = (uint8_t)(sizeof(si91x_socket_type_length_value_t) + sni_extension->length);
+  uint8_t extension_size = (uint8_t)(sizeof(sl_si91x_socket_type_length_value_t) + tls_extension->length);
 
-  // copies SNI provided by app into SDK socket struct
-  memcpy(&socket_sni_extensions->buffer[socket_sni_extensions->current_size_of_extensions], sni_extension, sni_size);
-  socket_sni_extensions->current_size_of_extensions += sni_size;
-  socket_sni_extensions->total_extensions++;
+  // copies TLS extension provided by app into SDK socket struct
+  memcpy(&socket_tls_extensions->buffer[socket_tls_extensions->current_size_of_extensions],
+         tls_extension,
+         extension_size);
+  socket_tls_extensions->current_size_of_extensions += extension_size;
+  socket_tls_extensions->total_extensions++;
 
   return SL_STATUS_OK;
 }
@@ -306,6 +308,46 @@ static uint16_t get_socket_id_from_socket_command(sl_si91x_packet_t *packet)
 static void si91x_socket_node_free_function(sl_wifi_buffer_t *buffer)
 {
   sl_si91x_host_free_buffer(buffer);
+}
+
+uint8_t sli_si91x_socket_identification_function_based_on_socketid(sl_wifi_buffer_t *buffer, void *user_data)
+{
+  sl_status_t status;
+  sl_si91x_packet_t *packet               = NULL;
+  sli_si91x_queue_packet_t *node          = NULL;
+  sli_si91x_queue_packet_t *response_node = NULL;
+  sl_wifi_buffer_t *response_buffer       = NULL;
+  int32_t socket_id                       = 0xFF;
+  int32_t socket_index                    = *(int32_t *)user_data;
+
+  node   = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = sl_si91x_host_get_buffer_data(node->host_packet, 0, NULL);
+
+  socket_id = get_socket_id_from_socket_command(packet);
+
+  if (socket_id == socket_index) {
+    /* Send response if asked  */
+    if ((node->flags & SI91X_PACKET_RESPONSE_STATUS) == SI91X_PACKET_RESPONSE_STATUS) {
+      status =
+        sl_si91x_host_allocate_buffer(&response_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
+      if (status == SL_STATUS_OK) {
+        response_node = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
+
+        memcpy(response_node, node, sizeof(sli_si91x_queue_packet_t));
+        response_node->frame_status = ENOTCONN;
+        response_node->host_packet  = NULL;
+        response_node->flags        = 0;
+
+        sl_si91x_host_add_to_queue(SI91X_SOCKET_RESPONSE_QUEUE, response_buffer);
+        sl_si91x_host_set_event(NCP_HOST_SOCKET_RESPONSE_EVENT);
+      } else {
+        SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+        BREAKPOINT();
+      }
+    }
+    return true;
+  }
+  return false;
 }
 
 static uint8_t si91x_socket_identification_function(sl_wifi_buffer_t *buffer, void *user_data)
@@ -435,13 +477,13 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const in
     socket_create_request.socket_cert_inx = si91x_bsd_socket->certificate_index;
 
     // Check if extension is provided my application and memcopy until the provided size of extensions
-    if (si91x_bsd_socket->sni_extensions.total_extensions > 0) {
+    if (si91x_bsd_socket->tls_extensions.total_extensions > 0) {
       memcpy(socket_create_request.tls_extension_data,
-             si91x_bsd_socket->sni_extensions.buffer,
-             si91x_bsd_socket->sni_extensions.current_size_of_extensions);
+             si91x_bsd_socket->tls_extensions.buffer,
+             si91x_bsd_socket->tls_extensions.current_size_of_extensions);
 
-      socket_create_request.total_extension_length = si91x_bsd_socket->sni_extensions.current_size_of_extensions;
-      socket_create_request.no_of_tls_extensions   = si91x_bsd_socket->sni_extensions.total_extensions;
+      socket_create_request.total_extension_length = si91x_bsd_socket->tls_extensions.current_size_of_extensions;
+      socket_create_request.no_of_tls_extensions   = si91x_bsd_socket->tls_extensions.total_extensions;
     }
     wait_period = SL_SI91X_WAIT_FOR_RESPONSE(150000); // timeout is 15 sec
   }

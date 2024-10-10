@@ -22,6 +22,8 @@
   - name: hardware_board_rb
   - name: hardware_board_supports_multi_slave
   - name: si91x_b0_board
+  - name: si917_prod_board
+  - name: si917_radio_board
 - recommends:
   - id: brd4002a
   - id: "%extension-wiseconnect3_sdk%psram_aps6404l_sqh"

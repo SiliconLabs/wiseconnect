@@ -60,12 +60,19 @@ osSemaphoreId_t ble_thread_sem;
 osSemaphoreId_t i2c_sem;
 extern volatile int currentLine;
 extern GLIB_Context_t glibContext;
-
+// The following condition enables the front-end internal switch control
+#if (SL_SI91X_ACX_MODULE == 1)
+#define FRONT_END_SWITCH_CTRL SL_SI91X_EXT_FEAT_FRONT_END_INTERNAL_SWITCH
+#define REGION_CODE           IGNORE_REGION
+#else
+#define FRONT_END_SWITCH_CTRL SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#define REGION_CODE           WORLD_DOMAIN
+#endif
 static const sl_wifi_device_configuration_t config = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .region_code = WORLD_DOMAIN,
+  .region_code = REGION_CODE,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_BLE_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1
@@ -83,7 +90,7 @@ static const sl_wifi_device_configuration_t config = {
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #ifdef SLI_SI917
-                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+                      | FRONT_END_SWITCH_CTRL
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),

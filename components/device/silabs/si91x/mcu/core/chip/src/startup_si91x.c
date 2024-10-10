@@ -60,7 +60,7 @@ extern unsigned long _edata;        /*!< End address for the .data section      
 extern unsigned long __bss_start__; /*!< Start address for the .bss section     */
 extern unsigned long __bss_end__;   /*!< End address for the .bss section         */
 
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
 extern unsigned long _slpcode; /*!< Start address for the initialization
                                       values of the .sleep_psram_driver section.            */
 extern unsigned long _scode;   /*!< Start address for the .sleep_psram_driver section     */
@@ -210,7 +210,7 @@ void Copy_Table(void)
   for (pulDest = &_sdata; pulDest < &_edata;) {
     *(pulDest++) = *(pulSrc++);
   }
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
   /* Copy the sleep PSRAM driver segment to SRAM */
   pulSrc = &_slpcode;
   for (pulDest = &_scode; pulDest < &_ecode;) {
@@ -244,11 +244,6 @@ void RSI_Default_Reset_Handler(void)
   /* Zero fill the bss segment */
   Zero_Table();
 
-  /*if C++ compilation required */
-#ifdef SUPPORT_CPLUSPLUS
-  extern void __libc_init_array(void);
-  __libc_init_array();
-#endif
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
   //copying the vector table from flash to ram
   memcpy(ram_vector, (uint32_t *)SCB->VTOR, sizeof(__VECTOR_TABLE));
@@ -257,6 +252,13 @@ void RSI_Default_Reset_Handler(void)
 #endif
   /*Init system level initializations */
   SystemInit();
+  /* This macro enables support for C++ linkage in the startup code. */
+#ifdef SUPPORT_CPLUSPLUS
+  /* Initialize global and static C++ objects. This function must be called after SystemInit() to ensure that the hardware is 
+   properly initialized before any global or static constructors are executed. */
+  extern void __libc_init_array(void);
+  __libc_init_array();
+#endif
   /* Call the application's entry point.*/
   main();
 }

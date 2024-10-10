@@ -15,6 +15,7 @@
  *
  ******************************************************************************/
 
+#include <stdarg.h>
 #include "rsi_debug.h"
 #include "USART.h"
 #include "rsi_ccp_common.h"
@@ -27,33 +28,28 @@ osMutexId_t si91x_prints_mutex = NULL;
 
 void ARM_UART_SignalEvent(uint32_t event);
 extern void cache_uart_rx_data(const char character);
-#ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define M4_UART1_INSTANCE 0U //!Select m4 uart1 for prints
-#if defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)
-#define ULP_UART_INSTANCE 1U //!Select m4 uart2 for prints
-#else
-#define M4_UART2_INSTANCE 1U //!Select ulp uart for prints
-#endif
-#else
-#define M4_UART1_INSTANCE 1U //!Select m4 uart1 for prints
-#define M4_UART2_INSTANCE 0U //!Select m4 uart2 for prints
-#define ULP_UART_INSTANCE 0U //!Select ulp uart for prints
-#endif
-#define BOARD_BAUD_VALUE 115200 //UART baud rate
 
-#if defined(M4_UART1_INSTANCE) && (M4_UART1_INSTANCE == 1)
+#ifdef DEBUG_UART_UC
+#define BOARD_BAUD_VALUE SL_DEBUG_BAUD_RATE //UART baud rate
+
+#if (SL_DEBUG_INSTANCE == SL_M4_USART0_INSTANCE)
+#define M4_UART1_INSTANCE 1U //!Select m4 uart1 for prints. To overcome backward compatibility
 extern ARM_DRIVER_USART Driver_USART0;
 static ARM_DRIVER_USART *UARTdrv = &Driver_USART0;
-#endif
-
-#if defined(M4_UART2_INSTANCE) && (M4_UART2_INSTANCE == 1)
+#elif (SL_DEBUG_INSTANCE == SL_M4_UART1_INSTANCE)
+#define M4_UART2_INSTANCE 1U //!Select m4 uart2 for prints. To overcome backward compatibility
 extern ARM_DRIVER_USART Driver_UART1;
 static ARM_DRIVER_USART *UARTdrv = &Driver_UART1;
-#endif
-
-#if defined(ULP_UART_INSTANCE) && (ULP_UART_INSTANCE == 1)
+#elif (SL_DEBUG_INSTANCE == SL_ULP_UART_INSTANCE)
+#define ULP_UART_INSTANCE 1U //!Select ULP UART for prints. To overcome backward compatibility
 extern ARM_DRIVER_USART Driver_ULP_UART;
 static ARM_DRIVER_USART *UARTdrv = &Driver_ULP_UART;
+#endif
+#else
+#define ULP_UART_INSTANCE 1U     //!Select ULP UART for prints. To overcome backward compatibility
+extern ARM_DRIVER_USART Driver_ULP_UART;
+static ARM_DRIVER_USART *UARTdrv = &Driver_ULP_UART;
+#define BOARD_BAUD_VALUE  115200 //UART baud rate
 #endif
 
 ARM_USART_CAPABILITIES drv_ulp_capabilities;
@@ -463,3 +459,17 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
 #endif
 
 #endif /* defined (__ICCARM__) */
+
+/**
+ * @fn          void dummy_printf(const char *fmt, ...)
+ * @brief       It does nothing but used when DEBUG_UART is not defined, to avoid compilation errors.
+ * @param[in]   fmt: format string
+ * @return      none
+ */
+void dummy_printf(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  // Do Nothing
+  va_end(args);
+}

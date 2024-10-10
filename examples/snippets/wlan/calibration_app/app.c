@@ -167,6 +167,7 @@ static const sl_wifi_device_configuration_t calibration_configuration = {
                    .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+                      | SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION
 #ifdef SLI_SI917B0
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
@@ -277,9 +278,14 @@ void display_calib_cmd_usage()
 
 void validate_input_cmd()
 {
-  if ((strncasecmp((const char *)buffer, (const char *)"sl_", strlen("sl_") != 0))
-      || (strlen(buffer) < MIN_CALIB_COMMAND_LENGTH) || (strlen(buffer) > MAX_CALIB_COMMAND_LENGTH)) {
+  size_t buffer_len = strlen(buffer);
+
+  if ((strncasecmp((const char *)buffer, (const char *)"sl_", strlen("sl_")) != 0)
+      || (buffer_len < MIN_CALIB_COMMAND_LENGTH) || (buffer_len > MAX_CALIB_COMMAND_LENGTH)) {
     cmd_valid = false;
+  } else {
+    // Mark command as valid if all conditions are met.
+    cmd_valid = true;
   }
 }
 

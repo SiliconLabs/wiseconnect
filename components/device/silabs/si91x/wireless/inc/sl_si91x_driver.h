@@ -735,6 +735,12 @@ sl_status_t sl_si91x_frequency_offset(const sl_si91x_freq_offset_t *frequency_ca
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * @note 
+ *   In FCC-certifed module the behavior is as follows
+ *      1. Region configuration is not supported and if triggered will return error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE.
+ *      2. STA mode channels 1 to 11 are actively scanned and 12,13,14 are passively scanned.
+ *      3. AP mode and Concurrent mode supports only 1 to 11 channels.
+ *      4. The AP will not broadcast the Country Information Element (IE).
  ******************************************************************************/
 sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
                                        sl_si91x_band_mode_t band,
@@ -760,6 +766,7 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
  * 
  * @note 
  *   Executing this API will overwrite calibration values in certified modules.
+ *   In FCC-certified modules, this API will trigger an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
  ******************************************************************************/
 sl_status_t sl_si91x_calibration_write(sl_si91x_calibration_write_t calib_write);
 
@@ -808,6 +815,8 @@ sl_status_t sl_si91x_calibration_read(sl_si91x_calibration_read_t target,
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * @note
+ *   In FCC-certified modules, this API will trigger an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
  ******************************************************************************/
 sl_status_t sl_si91x_evm_offset(const sl_si91x_evm_offset_t *evm_offset);
 
@@ -829,6 +838,8 @@ sl_status_t sl_si91x_evm_offset(const sl_si91x_evm_offset_t *evm_offset);
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * @note
+ *   In FCC-certified modules, this API will trigger an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
  ******************************************************************************/
 sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
 
@@ -872,6 +883,8 @@ sl_status_t sl_si91x_efuse_read(const sl_si91x_efuse_read_t *efuse_read, uint8_t
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * @note
+ *   In FCC-certified modules, this API will trigger an errorSL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
  ******************************************************************************/
 sl_status_t sl_si91x_dpd_calibration(const sl_si91x_get_dpd_calib_data_t *dpd_calib_data);
 

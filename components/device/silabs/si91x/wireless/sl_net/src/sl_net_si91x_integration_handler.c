@@ -180,13 +180,32 @@ void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_si91
   if (packet->command == RSI_WLAN_RSP_JOIN || packet->command == RSI_WLAN_RSP_IPV4_CHANGE
       || packet->command == RSI_WLAN_RSP_IPCONFV4
       || ((packet->command == RSI_WLAN_RSP_IPCONFV6) && (data->frame_status))) {
+
     // free all TX queues except BT
-    for (int queue_id = 0; queue_id < SI91X_BT_CMD; queue_id++) {
+    for (int queue_id = 0; queue_id < SI91X_SOCKET_CMD; queue_id++) {
       sli_si91x_flush_queue_based_on_type(queue_id, si91x_node_free_function);
     }
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
-    // Free all allocated sockets
-    sl_si91x_vap_shutdown(SL_SI91X_WIFI_CLIENT_VAP_ID);
+    uint8_t vap_id = packet->desc[7]; // Get vap id from firmware response packet
+
+    // Reset all the sockets that match the vap id
+    for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
+      si91x_socket_t *socket = get_si91x_socket(index);
+      // Check if socket exists
+      if ((socket != NULL) && (socket->vap_id == vap_id)) {
+        socket->state = DISCONNECTED;
+
+        /* Flush the pending tx request packets from the socket command queue */
+        sl_si91x_host_flush_nodes_from_queue(
+          SI91X_SOCKET_CMD_QUEUE,
+          &socket->id,
+          (sl_si91x_compare_function_t)sli_si91x_socket_identification_function_based_on_socketid,
+          si91x_node_free_function);
+      }
+    }
+
+    // Free all the allocated sockets for the given vap id
+    sl_si91x_vap_shutdown(vap_id); // ToDo: Need to discuss on this...
 #endif
   }
 

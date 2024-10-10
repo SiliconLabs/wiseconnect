@@ -2,25 +2,27 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-  - [If compare channel0 or compare channel1 is enabled through UC](#if-compare-channel0-or-compare-channel1-is-enabled-through-uc)
-  - [If capture channel0 is enabled through UC](#if-capture-channel0-is-enabled-through-uc)
-  - [If no channels enabled through UC](#if-no-channels-enabled-through-uc)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Macros for Clock Configurations](#macros-for-clock-configurations)
-  - [Macros for SYSRTC Configurations](#macros-for-sysrtc-configurations)
-- [Test the Application](#test-the-application)
+- [SL SYSRTC](#sl-sysrtc)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+    - [If compare channel0 or compare channel1 is enabled through UC](#if-compare-channel0-or-compare-channel1-is-enabled-through-uc)
+    - [If capture channel0 is enabled through UC](#if-capture-channel0-is-enabled-through-uc)
+    - [If no channels enabled through UC](#if-no-channels-enabled-through-uc)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Macros for SYSRTC Configurations](#macros-for-sysrtc-configurations)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
-- This application demonstrate the LED toggle five times at every 1 second and then stops the timer.
+- This application demonstrates toggling an LED five times at 1-second intervals and then stops the timer.
+    - LED0 for ACx Module boards and LED1 for ICs
 
 ## Overview
 
@@ -32,7 +34,6 @@
 ## About Example Code
 
 - \ref sysrtc_example.c this example file demonstrates how to use sysrtc
-- In this example, first clock is configured with UC values through \ref sl_si91x_sysrtc_configure_clock
 - Initializes SYSRTC module through \ref sl_si91x_sysrtc_init
 - Sets counter start value for counter through \ref sl_si91x_sysrtc_set_count, can change by updating \ref COUNTER_VALUE1 macro in sysrtc_example.c file.
 
@@ -42,7 +43,7 @@
 - Sets compare value for selected group's selected compare channel through \ref sl_si91x_sysrtc_set_compare_channel_value, can change compare value by updating \ref      COMPARE_VALUE macro in sysrtc_example.c file.
 - Then registers sysrtc callback and enabled selected compare channel interrupt, through \ref sl_si91x_sysrtc_register_callback.
 - Starts counter through \ref sl_si91x_sysrtc_start
-- When counter reaches compare-value generates respective channel compare interrupt and toggles LED1 on every second.
+- When counter reaches compare-value generates respective channel compare interrupt and toggles LED on every second.
 - After every interrupt, compare value is updated again through \ref sl_si91x_sysrtc_set_compare_channel_value with sum of current count (read through \ref sl_si91x_sysrtc_get_count) and compare-value.
 - After 10 interrupts sysrtc is stopped through \ref sl_si91x_sysrtc_stop
 - Callbacks are unregistered and interrupts are disabled through \ref sl_si91x_sysrtc_unregister_callback
@@ -55,7 +56,7 @@
 - Then registers sysrtc callback and enabled capture channel interrupt, through \ref sl_si91x_sysrtc_register_callback.
 - Starts counter through \ref sl_si91x_sysrtc_start
 - After starting waits unless counter reaches compare value for 1-second and then sets SYSRTC register capture input high through \ref sl_si91x_sysrtc_sets_register_capture_input API.
-- A capture interrupt is generated and toggles LED1 one time.
+- A capture interrupt is generated and toggles LED one time.
 - And SYSRTC is de-initialized through \ref sl_si91x_sysrtc_deinit
 
 ### If no channels enabled through UC
@@ -65,7 +66,7 @@
 - Sets counter start value for counter through \ref sl_si91x_sysrtc_set_count, can change by updating \ref COUNTER_VALUE2 macro in sysrtc_example.c file.
 - Starts counter through \ref sl_si91x_sysrtc_start
 - After starting waits unless counter reaches overflow value (0xffffffff).
-- Then a overflow interrupt is generated and toggles LED1 one time.
+- Then a overflow interrupt is generated and toggles LED one time.
 
 ## Prerequisites/Setup Requirements
 
@@ -78,8 +79,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -102,20 +102,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Click on **sysrtc** and configure the SYSRTC parameters.
 - After creation of instances separate configuration files are get generated in **config folder**.
 - If project built without selecting configurations, it will take default values from UC.
-- Configure Clock and SYSRTC using UC.
+- Configure SYSRTC using UC.
 
   ![Figure: UC-Screen](resources/uc_screen/sysrtc_uc_screen.png)
   
 - For updating/modifying counter and compare value use \ref COUNTER_VALUE & \ref COMPARE_VALUE_32KHZ (for 32 KHZ clock) macros respectively, present in sysrtc_example.c file.
-
-### Macros for Clock Configurations
-
-- \ref SL_SYSRTC_CLK_INPUT_SOURCE, for possible options \ref sl_clock_sources_t
-- \ref SL_SYSRTC_CLK_DIVISION_FACTOR, for clock division factor
-- To use 32kHZ clock, select 1KHZ clock source from UC and provide division factor value as 0.
-- To use 1kHZ clock, select 1KHZ clock source from UC and provide division factor value as 16.
-- To use other clock frequency change division factor and update \ref CLOCKS_PER_MILLISECONDS macro value accordingly, the macro is present in sysrtc_example.c file.
-- After configuring above macros, their values are passed to \ref sl_sysrtc_clock_config_t structure type variable \ref sl_sysrtc_clk_config_handle which is used to configure clock using API-\ref sl_si91x_sysrtc_configure_clock.
 
 ### Macros for SYSRTC Configurations
 
@@ -132,16 +123,16 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. When the application runs, LED1(GPIO_10) will be toggled five times at 1sec periodic rate.
+2. When the application runs, LED0 (ULP_GPIO_0 for ACx Module boards) or LED1 (GPIO_10 for ICs) will be toggled five times at a 1-second periodic rate.
 3. After successful program execution the prints in serial console looks as shown below.
 
     ![Figure: Output](resources/readme/output.png)
 
 > **Note:**
 >
->- When Compare channels are enabled : Toggles LED1 for ten times every second and timer stops
->- When Capture channel is enabled : Toggles LED1 one time after one second
->- When no channels are enabled then overflow interrupt is enabled : Toggles LED1 one time as counter reaches overflow
+>- When Compare channels are enabled : Toggles LED for ten times every second and timer stops
+>- When Capture channel is enabled : Toggles LED one time after one second
+>- When no channels are enabled, the overflow interrupt is enabled: Toggles LED once when the counter reaches overflow.
 
   ![Figure: Onboard LED-1](resources/readme/image509d.png)
 

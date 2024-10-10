@@ -486,11 +486,6 @@ sl_psram_return_type_t sl_si91x_psram_enable_encry_decry(uint16_t keySize);
  *    - Interface mode
  *     - SPI Mode (Serial IO)
  *     - QPI Mode (Quad IO)
- *    - Operation frequency source
- *     - Interface PLL Clock
- *     - ULP Reference Clock
- *     - SoC PLL Clock
- *     - M4_SOCCLKNOSWLSYNCCLKTREEGATED Clock
  *
  *   ### Linker configurations
  *

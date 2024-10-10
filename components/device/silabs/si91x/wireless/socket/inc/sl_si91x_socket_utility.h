@@ -103,6 +103,14 @@ typedef struct {
 
   uint8_t tcp_rx_window_div_factor; ///< TCP RX window division factor, increases ACK frequency for asynchronous sockets
 } sl_si91x_socket_config_t;
+
+/// SiWx91x specific socket type length value
+typedef struct {
+  uint16_t type;   ///< Socket type
+  uint16_t length; ///< Data length
+  uint8_t value[]; ///< Data
+} sl_si91x_socket_type_length_value_t;
+
 /** @} */
 
 /**
@@ -166,8 +174,8 @@ si91x_socket_t *get_si91x_socket(int socket_id);
  */
 bool is_port_available(uint16_t port_number);
 
-sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t *socket_sni_extensions,
-                                                 const si91x_socket_type_length_value_t *sni_extension);
+sl_status_t sli_si91x_add_tls_extension(sli_si91x_tls_extensions_t *socket_tls_extensions,
+                                        const sl_si91x_socket_type_length_value_t *tls_extension);
 
 sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const int *backlog);
 
@@ -182,6 +190,8 @@ int handle_select_response(const sl_si91x_socket_select_rsp_t *response,
                            fd_set *readfds,
                            fd_set *writefds,
                            fd_set *exception_fd);
+
+uint8_t sli_si91x_socket_identification_function_based_on_socketid(sl_wifi_buffer_t *buffer, void *user_data);
 
 void set_select_callback(select_callback callback);
 

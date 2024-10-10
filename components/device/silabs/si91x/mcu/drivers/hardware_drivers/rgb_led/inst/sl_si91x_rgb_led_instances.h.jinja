@@ -33,9 +33,15 @@
 
 #include "sl_si91x_rgb_led.h"
 
-{% for inst in led_instance -%}
-extern const sl_led_t led_{{ inst | lower }};
-{% endfor %}
+#ifdef SI917_RGB_DRIVER_OLD
+extern const sl_led_t led_red;
+extern const sl_led_t led_green;
+extern const sl_led_t led_blue;
+#else
+{%- for inst in led_instance %}
+  extern const sl_rgb_led_t led_{{ inst | lower }};
+{%- endfor %}
+#endif
 
 void rgb_led_init_instances(void);
 

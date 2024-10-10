@@ -395,6 +395,7 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  *   5. For Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
  *   6. In a 2.4 GHz band, 40 MHz is not supported.
  *   7. Executing this API will overwrite calibration values in certified modules.
+ *   8. In FCC-certified modules, this API will trigger an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
  ******************************************************************************/
 sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *payload, uint16_t payload_len);
 
@@ -439,11 +440,32 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  *      the time is for foreground scan. Otherwise, it is used for background scanning.
  *      If the user needs to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE.
  *      If the user needs to enable Low Power (LP) mode in Passive Scan, user needs to enable lp_mode in sl_wifi_scan_configuration_t.
+ *      Use the SL_WIFI_SCAN_TYPE_EXTENDED to obtain the scan results that exceed the SL_WIFI_MAX_SCANNED_AP. In this scan type, the number of scan results is not restricted; it is only limited by the amount of dynamic memory that the host can provide.
  *      Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
+ *      In case of SL_WIFI_SCAN_TYPE_EXTENDED scan type, use @ref sl_wifi_get_stored_scan_results() API to get the scan results; after the scan status callback is received. 
  ******************************************************************************/
 sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                const sl_wifi_ssid_t *optional_ssid,
                                const sl_wifi_scan_configuration_t *configuration);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Returns the stored scan results of a detailed scan in the user provided scan results array.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in out] extended_scan_parameters
+ *    A pointer to a structure of type @ref sl_wifi_extended_scan_result_parameters_t, where the scan results will be stored.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ * 	This API will only hold scan results if sl_wifi_start_scan is called with scan type as SL_WIFI_SCAN_TYPE_EXTENDED.
+ *  These results are stored until another call to sl_wifi_start_scan is made with scan type as SL_WIFI_SCAN_TYPE_EXTENDED.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
+                                            sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters);
 
 /***************************************************************************/ /**
  * @brief
@@ -539,6 +561,11 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  *   Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
  *   Default Authentication timeout and Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  *   Default Keep Alive timeout is 30 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
+ * @note 
+ *   In FCC certified module the behavior is as follows
+ *      1. Region configuration is not supported and if triggered will return error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE.
+ *      2. STA mode channels 1 to 11 are actively scanned and 12,13,14 are passively scanned.
+ *      3. Concurrent mode supports only 1 to 11 channels.
  ******************************************************************************/
 sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                             const sl_wifi_client_configuration_t *access_point,
@@ -861,6 +888,11 @@ sl_status_t sl_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *
  *   For AP mode with WPA3 security, only SAE-H2E method is supported. SAE hunting and pecking method is not supported.
  *   TKIP encryption mode is not supported. Encryption mode is automatically configured to RSI_CCMP.
  *   PMKSA is not supported in WPA3 AP mode.
+ * @note   
+ *   In FCC-certified modules, 
+ *    1. Region configuration is not supported and if triggered will return error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE.
+ *    2. AP supports only 1 to 11 channels. 
+ *    3. AP will not advertise the Country IE.
  ******************************************************************************/
 sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_configuration_t *configuration);
 

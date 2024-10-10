@@ -28,30 +28,35 @@
  *
  ******************************************************************************/
 #include "sl_si91x_calendar.h"
-#include "sl_si91x_calendar_config.h"
 #include <stdlib.h>
+#include "rsi_time_period.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define TIME_UNIX_EPOCH                  (1970u)                                 // Unix Epoch Year Macro
-#define TIME_NTP_EPOCH                   (1900u)                                 // NTP Epoch Year Macro
-#define TIME_SEC_PER_DAY                 (60u * 60u * 24u)                       // Seconds in one day
-#define TIME_NTP_UNIX_EPOCH_DIFF         (TIME_UNIX_EPOCH - TIME_NTP_EPOCH)      // NTP and Unix Time difference
-#define TIME_DAY_COUNT_NTP_TO_UNIX_EPOCH (TIME_NTP_UNIX_EPOCH_DIFF * 365u + 17u) // Day Count wrt to difference
-#define TIME_NTP_EPOCH_OFFSET_SEC        (TIME_DAY_COUNT_NTP_TO_UNIX_EPOCH * TIME_SEC_PER_DAY) // NTP offset in seconds
-#define TIME_UNIX_TO_NTP_MAX             (0xFFFFFFFF - TIME_NTP_EPOCH_OFFSET_SEC)              // NTP Maximum timestamp
-#define TIME_UNIX_TIMESTAMP_MAX          (0x7FFFFFFF)                                          // Unix Maximum timestamp
-#define TIME_UNIX_YEAR_MAX               (2038u - TIME_NTP_EPOCH)                              // Maximum unix year
-#define TIME_ZONE_DEFAULT                (0u)                                                  // Default time zone
+#define TIME_UNIX_EPOCH                      (1970u)           // Unix Epoch Year Macro
+#define TIME_FIRST_LEAP_YEAR_FROM_UNIX_EPOCH (1972u)           // 1972 is the first leap year since 1970
+#define TIME_NTP_EPOCH                       (1900u)           // NTP Epoch Year Macro
+#define TIME_SEC_PER_DAY                     (60u * 60u * 24u) // Seconds in one day
+#define TIME_DAY_PER_YEAR                    (365u)
+#define TIME_SEC_PER_YEAR                    (TIME_SEC_PER_DAY * TIME_DAY_PER_YEAR)
+#define TIME_NTP_UNIX_EPOCH_DIFF             (TIME_UNIX_EPOCH - TIME_NTP_EPOCH)      // NTP and Unix Time difference
+#define TIME_DAY_COUNT_NTP_TO_UNIX_EPOCH     (TIME_NTP_UNIX_EPOCH_DIFF * 365u + 17u) // Day Count wrt to difference
+#define TIME_NTP_EPOCH_OFFSET_SEC            (TIME_DAY_COUNT_NTP_TO_UNIX_EPOCH * TIME_SEC_PER_DAY) // NTP offset in seconds
+#define TIME_UNIX_TO_NTP_MAX                 (0xFFFFFFFF - TIME_NTP_EPOCH_OFFSET_SEC) // NTP Maximum timestamp
+#define TIME_UNIX_TIMESTAMP_MAX              (0x7FFFFFFF)                             // Unix Maximum timestamp
+#define TIME_UNIX_YEAR_MAX                   (2038u)                                  // Maximum unix year
+#define TIME_ZONE_DEFAULT                    (0u)                                     // Default time zone
 
-#define MINIMUM_DAY          (0u)   // Minimum day in a week
-#define MAXIMUM_HOUR         (23u)  // Maximum hour in a day
-#define MAXIMUM_MINUTE       (59u)  // Maximum minute in an hour
-#define MAXIMUM_SECOND       (59u)  // Maximum second in a minute
-#define MAXIMUM_MILLISECONDS (999u) // Maximum milliseconds in second
-#define MAXIMUM_CENTURY      (4u)   // Maximum supported century
-#define MAXIMUM_YEAR         (99u)  // Maximum year in a century
+#define MINIMUM_DAY                (0u)    // Minimum day in a week
+#define MAXIMUM_DAYS_IN_A_WEEK     (7u)    // Maximum days in a week
+#define MAXIMUM_HOUR               (23u)   // Maximum hour in a day
+#define MAXIMUM_MINUTE             (59u)   // Maximum minute in an hour
+#define MAXIMUM_SECOND             (59u)   // Maximum second in a minute
+#define MAXIMUM_SECONDS_IN_AN_HOUR (3600u) // Maximum seconds in an hour
+#define MAXIMUM_MILLISECONDS       (999u)  // Maximum milliseconds in second
+#define MAXIMUM_CENTURY            (3u)    // Maximum supported century
+#define MAXIMUM_YEAR               (99u)   // Maximum year in a century
 
 #define MAXIMUM_EPOCH_DAY    (19u) // Maximum day in epoch time
 #define MAXIMUM_EPOCH_HOUR   (3u)  // Maximum hour in epoch time
@@ -62,12 +67,19 @@
 #define CALENDAR_SQA_VERSION     (0u) // CALENDAR SQA version
 #define CALENDAR_DEV_VERSION     (2u) // CALENDAR Developer version
 
+#define FUNCTIONALITY_SUPPORTED false
+
+#ifndef UNUSED_VARIABLE
+#define UNUSED_VARIABLE(x) (void)(x)
+#endif // UNUSED_VARIABLE
+
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static const uint8_t days_in_month[12] = {
+static const uint8_t days_in_month[2][12] = {
   /* Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec */
-  31u, 28u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u
+  { 31u, 28u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u },
+  { 31u, 29u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u }
 };
 
 static calendar_callback_t msec_callback  = NULL;
@@ -83,9 +95,9 @@ static calendar_callback_t alarm_callback = NULL;
  ******************************************************************************/
 static bool is_valid_time(uint32_t time, time_conversion_enum format, int32_t time_zone);
 static bool is_valid_date(sl_calendar_datetime_config_t *date);
-static bool is_leap_year(uint16_t year);
+static bool is_leap_year(uint8_t year, uint8_t century);
 static bool is_valid_alarm(sl_calendar_datetime_config_t *alarm);
-
+static uint16_t number_of_leap_days(uint32_t base_year, uint32_t current_year);
 /*******************************************************************************
  ***********************  Global function Prototypes *************************
  ******************************************************************************/
@@ -102,38 +114,16 @@ void SLI_MSEC_SEC_IRQHandler(void);
 
 /*******************************************************************************
  * Calendar Clock Configuration and Initialization
- * It should be called before starting the RTC as it sets the clock for RTC
- * RC, RO and XTAL clock is supported, by default, RC clock is enabled.
+ * This API is no longer supported due to the restriction on peripheral drivers to configure clocks
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type)
 {
-  sl_status_t status;
-  /* CALENDAR_UC is defined by default. when this macro (CALENDAR_UC) is defined, peripheral
-   * configuration is directly taken from the configuration set in the universal configuration (UC).
-   * if the application requires the configuration to be changed in run-time, undefined this macro
-   * and change the peripheral configuration through the sl_si91x_calendar_set_configuration API.
-   */
-#if (CALENDAR_UC == 1)
-  clock_type = configuration.calendar_clock_type;
-#endif
-  do {
-    // To validate the input parameters, if the parameters are not in range, it
-    // returns an error code
-    if ((clock_type != KHZ_RO_CLK_SEL) && (clock_type != KHZ_RC_CLK_SEL) && (clock_type != KHZ_XTAL_CLK_SEL)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    RSI_PS_FsmLfClkSel(clock_type);
-    // To validate the register with the appropriate values, if the values are
-    // incorrect, it returns an error code
-    if (MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.AON_KHZ_CLK_SEL != clock_type) {
-      status = SL_STATUS_FAIL;
-      break;
-    }
-    // If everything is as required, and clock is successfully configured and rtc is started then,
-    // it returns SL_STATUS_OK
-    status = SL_STATUS_OK;
-  } while (false);
+  sl_status_t status = SL_STATUS_OK; // return ok to support backward compatibility
+
+  // FSM LF Clock has already been configured in sl_system_init,
+  // This API is no longer supported due to the restriction on peripheral drivers to configure clocks
+  UNUSED_VARIABLE(clock_type);
+
   return status;
 }
 
@@ -217,6 +207,8 @@ sl_status_t sl_si91x_calendar_get_date_time(sl_calendar_datetime_config_t *confi
 sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *clock_calibration_config)
 {
   sl_status_t status;
+
+#if (FUNCTIONALITY_SUPPORTED)
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -245,6 +237,13 @@ sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *cloc
     // it returns SL_STATUS_OK
     status = SL_STATUS_OK;
   } while (false);
+#else
+  // FSM LF Clock has already been configured in sl_system_init,
+  // This API is no longer supported due to the restriction on peripheral drivers to configure/calibrate clocks
+  UNUSED_VARIABLE(clock_calibration_config);
+  status = SL_STATUS_OK; // return ok to support backward compatibility
+#endif
+
   return status;
 }
 
@@ -260,6 +259,8 @@ sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *cloc
 sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *clock_calibration_config)
 {
   sl_status_t status;
+
+#if (FUNCTIONALITY_SUPPORTED)
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -294,6 +295,13 @@ sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *cloc
     // it returns SL_STATUS_OK
     status = SL_STATUS_OK;
   } while (false);
+#else
+  // FSM LF Clock has already been configured in sl_system_init,
+  // This API is no longer supported due to the restriction on peripheral drivers to configure/calibrate clocks
+  UNUSED_VARIABLE(clock_calibration_config);
+  status = SL_STATUS_OK; // return ok to support backward compatibility
+#endif
+
   return status;
 }
 
@@ -760,6 +768,176 @@ sl_status_t sl_si91x_calendar_convert_ntp_time_to_unix_time(uint32_t ntp_time, u
   return status;
 }
 
+/***************************************************************************/ /**
+ * Convert Unix timestamp to Calendar RTC timestamp.
+ * Timezone is not part of Calendar, assumes and converts in GMT format
+ * 
+ * @param[in] unix_time (uint32_t) Unix timestamp
+ * @param[in] cal_date_time (sl_calendar_datetime_config_t *) Pointer to the Date Configuration Structure
+ * @return  status 0 if successful, else error code as follows:
+ *         - SL_STATUS_OK (0x0000) - Success
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
+ ******************************************************************************/
+sl_status_t sl_si91x_calendar_convert_unix_time_to_calendar_datetime(uint32_t unix_time,
+                                                                     sl_calendar_datetime_config_t *cal_date_time)
+{
+  sl_status_t status        = SL_STATUS_OK;
+  uint16_t full_year        = 0;
+  uint32_t base_year        = TIME_UNIX_EPOCH;
+  uint32_t current_year     = 0;
+  uint16_t leap_day         = 0;
+  uint8_t leap_year_flag    = 0;
+  uint8_t current_month     = 0;
+  uint32_t years_since_1900 = 0;
+
+  do {
+    if (!is_valid_time(unix_time, TIME_FORMAT_UNIX, TIME_ZONE_DEFAULT)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    cal_date_time->MilliSeconds = 0;
+    cal_date_time->Second       = unix_time % (MAXIMUM_SECOND + 1);
+    unix_time /= (MAXIMUM_SECOND + 1);
+    cal_date_time->Minute = unix_time % (MAXIMUM_MINUTE + 1);
+    unix_time /= (MAXIMUM_MINUTE + 1);
+    cal_date_time->Hour = unix_time % (MAXIMUM_HOUR + 1);
+    unix_time /= (MAXIMUM_HOUR + 1); // time is now the number of days since TIME_UNIX_EPOCH
+
+    cal_date_time->DayOfWeek =
+      ((unix_time + Thursday) % MAXIMUM_DAYS_IN_A_WEEK); // January 1st was a Thursday(4) in 1970
+
+    full_year    = unix_time / TIME_DAY_PER_YEAR; // Approximates the number of full years
+    current_year = full_year + base_year;
+
+    // calculate number of leap days since TIME_UNIX_EPOCH
+    if (full_year > (TIME_FIRST_LEAP_YEAR_FROM_UNIX_EPOCH - TIME_UNIX_EPOCH)) {
+      leap_day  = number_of_leap_days(base_year, current_year); // Approximates the number of leap days
+      full_year = (unix_time - leap_day) / TIME_DAY_PER_YEAR;   // Computes the number of year integrating the leap days
+      current_year = full_year + base_year;
+      leap_day =
+        number_of_leap_days(base_year, current_year); // Computes the actual number of leap days of the previous years
+    }
+
+    // no. of years since 1900 to calculate Century
+    years_since_1900       = current_year - TIME_NTP_EPOCH;
+    cal_date_time->Century = ((years_since_1900 / (MAXIMUM_YEAR + 1)) % (MAXIMUM_CENTURY + 1)) + 1;
+
+    // Year in date struct must be based on a 1970 epoch
+    // 1st Century contains only 30 years (1970-1999) in Unix timestamp
+    cal_date_time->Year = current_year % (MAXIMUM_YEAR + 1);
+
+    if (is_leap_year(cal_date_time->Year, cal_date_time->Century)) {
+      leap_year_flag = 1;
+    }
+
+    unix_time = (unix_time - leap_day) - (TIME_DAY_PER_YEAR * full_year); // Subtracts days of previous year
+
+    while (unix_time >= days_in_month[leap_year_flag][current_month]) {
+      unix_time -= days_in_month[leap_year_flag][current_month]; // Subtracts the number of days of the passed month
+      current_month++;
+    }
+    cal_date_time->Month = (RTC_MONTH_T)(current_month + 1);
+    cal_date_time->Day   = unix_time + 1;
+  } while (false);
+
+  return status;
+}
+
+/***************************************************************************/ /**
+ * Convert Calendar RTC timestamp to Unix timestamp.
+ * Timezone is not part of Calendar, converts in GMT format
+ * 
+ * @param[in] cal_date_time (sl_calendar_datetime_config_t *) Pointer to the Date Configuration Structure
+ * @param[in] unix_time (uint32_t *) Pointer to the Unix timestamp variable
+ * @return  status 0 if successful, else error code as follows:
+ *         - SL_STATUS_OK (0x0000) - Success
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
+ *         - SL_STATUS_INVALID_RANGE (0x0028) - Parameters are invalid
+ ******************************************************************************/
+sl_status_t sl_si91x_calendar_convert_calendar_datetime_to_unix_time(sl_calendar_datetime_config_t *cal_date_time,
+                                                                     uint32_t *unix_time)
+{
+  sl_status_t status     = SL_STATUS_OK;
+  uint16_t month_days    = 0;
+  uint16_t full_year     = 0;
+  uint8_t leap_year_flag = 0;
+  uint16_t leap_days     = 0;
+  uint32_t base_year     = TIME_UNIX_EPOCH; // base year 1970 (for 32 bits)
+  uint32_t current_year  = 0;
+
+  do {
+    if (!is_valid_date(cal_date_time)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    // current calendar year
+    current_year = TIME_NTP_EPOCH + ((cal_date_time->Century - 1) * (MAXIMUM_YEAR + 1)) + cal_date_time->Year;
+    if (current_year < TIME_UNIX_EPOCH) {
+      status = SL_STATUS_INVALID_RANGE; // Unix timestamp range starts from 01/Jan/1970
+      break;
+    }
+
+    // years since base year TIME_UNIX_EPOCH
+    full_year = current_year - base_year;
+
+    // convert number of years into seconds for Unix calculation
+    *unix_time = (full_year * (uint64_t)TIME_SEC_PER_YEAR);
+
+    // calculate number of leap days since TIME_UNIX_EPOCH
+    if (full_year > (TIME_FIRST_LEAP_YEAR_FROM_UNIX_EPOCH - TIME_UNIX_EPOCH)) {
+      leap_days  = number_of_leap_days(base_year, current_year);
+      month_days = leap_days;
+    }
+
+    if (is_leap_year(cal_date_time->Year, cal_date_time->Century)) {
+      leap_year_flag = 1;
+    }
+
+    for (int i = 0; i < (cal_date_time->Month - 1); i++) {
+      month_days += days_in_month[leap_year_flag][i]; // Add the number of days of the month of the year
+    }
+
+    month_days += (cal_date_time->Day - 1); // Add full days of the current month
+    // convert number of days into seconds to add up to Unix calculation
+    *unix_time += month_days * TIME_SEC_PER_DAY;
+    // convert time into seconds to add up to Unix calculation
+    *unix_time += (MAXIMUM_SECONDS_IN_AN_HOUR * cal_date_time->Hour) + ((MAXIMUM_SECOND + 1) * cal_date_time->Minute)
+                  + cal_date_time->Second;
+  } while (false);
+
+  return status;
+}
+
+/*******************************************************************************
+ * Checks if the time stamp, format and time zone are
+ *  within the supported range.
+ *
+ * @param base_year Year to start from to compute leap days.
+ * @param current_year Year end at for computing leap days.
+ *
+ * @return leap_days Days number of leap days between base_year and current_year.
+ ******************************************************************************/
+static uint16_t number_of_leap_days(uint32_t base_year, uint32_t current_year)
+{
+  // Regular leap years
+  uint16_t lo_reg    = (base_year - 0) / 4;
+  uint16_t hi_reg    = (current_year - 1) / 4;
+  uint16_t leap_days = hi_reg - lo_reg;
+
+  // Account for non leap years
+  uint16_t lo_century = (base_year - 0) / 100;
+  uint16_t hi_century = (current_year - 1) / 100;
+  leap_days -= hi_century - lo_century;
+
+  // Account for quad century leap years
+  uint16_t lo_quad = (base_year - 0) / 400;
+  uint16_t hi_quad = (current_year - 1) / 400;
+  leap_days += hi_quad - lo_quad;
+
+  return (leap_days);
+}
 /*******************************************************************************
  * Alarm IRQ Handler
  * 
@@ -836,6 +1014,7 @@ static bool is_valid_date(sl_calendar_datetime_config_t *date)
 {
   bool valid_date      = true;
   uint8_t maximum_days = 0;
+  uint16_t current_year;
 
   do {
     if (date == NULL) {
@@ -843,12 +1022,12 @@ static bool is_valid_date(sl_calendar_datetime_config_t *date)
       break;
     }
     // Updates the days in month for the month entered by user
-    // If the month is february and the leap year is there, then the days are 29
+    // If the month is February and the leap year is there, then the days are 29
     // else it is as stored in the (days_in_month) array
-    if (is_leap_year(date->Year) && date->Month == February) {
-      maximum_days = days_in_month[(date->Month) - 1] + 1;
+    if (is_leap_year(date->Year, date->Century) && date->Month == February) {
+      maximum_days = days_in_month[1][(date->Month) - 1] + 1;
     } else {
-      maximum_days = days_in_month[(date->Month) - 1];
+      maximum_days = days_in_month[0][(date->Month) - 1];
     }
     // If the year, month, day, hour, minute, second, millisecond is greater than the maximum
     // then it returns false, else true
@@ -859,10 +1038,14 @@ static bool is_valid_date(sl_calendar_datetime_config_t *date)
       valid_date = false;
       break;
     }
+
+    // calculate current calendar year from inputs year, century
+    current_year = TIME_NTP_EPOCH + ((date->Century - 1) * (MAXIMUM_YEAR + 1)) + date->Year;
+
     // If the year, month, day, hour, minute, second is greater than the unix date supports,
     // then it returns false, else true
     // Unix date is valid until the 19th of January 2038 at 03:14:07
-    if (date->Year == TIME_UNIX_YEAR_MAX) {
+    if (current_year == TIME_UNIX_YEAR_MAX) {
       if (((uint8_t)date->Month > (uint8_t)January) || (date->Day > MAXIMUM_EPOCH_DAY)
           || (date->Hour > MAXIMUM_EPOCH_HOUR) || (date->Minute > MAXIMUM_EPOCH_MINUTE)
           || (date->Second > MAXIMUM_EPOCH_SECOND)) {
@@ -877,18 +1060,22 @@ static bool is_valid_date(sl_calendar_datetime_config_t *date)
 /*******************************************************************************
  * Internal function to validate the leap year
  * 
- * @param year the year which needs to be validated
- * @return leap_year (0 or 1)the entered date is valid or not
+ * @param year the year which needs to be validated (Format 0...99)
+ * @param century the century which needs to be validated (Format 0...3)
+ * @return leap_year (true/false) the entered year is leap or not
  ******************************************************************************/
-static bool is_leap_year(uint16_t year)
+static bool is_leap_year(uint8_t year, uint8_t century)
 {
   // 1900 is not a leap year but 0 % anything is 0.
-  bool leap_year = false;
-  if (year == 0) {
-    leap_year = false;
-  } else {
-    leap_year = (((year % 4u) == 0u) && (((year % 100u) != 0u) || ((year % 400u) == 0u))) ? true : false;
-  }
+  bool leap_year;
+  uint16_t current_year;
+
+  // calculate current calendar year from inputs year, century
+  current_year = TIME_NTP_EPOCH + ((century - 1) * (MAXIMUM_YEAR + 1)) + year;
+
+  leap_year = (((current_year % 4u) == 0u) && (((current_year % 100u) != 0u) || ((current_year % 400u) == 0u))) ? true
+                                                                                                                : false;
+
   return (leap_year);
 }
 

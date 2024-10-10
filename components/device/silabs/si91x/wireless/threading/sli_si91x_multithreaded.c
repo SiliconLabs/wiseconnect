@@ -55,6 +55,12 @@
 #include "rsi_bt_common.h"
 #endif
 
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
+#include "sl_si91x_socket_constants.h"
+#include "sl_si91x_socket_types.h"
+#include "sl_si91x_socket_utility.h"
+#endif
+
 #define BUS_THREAD_EVENTS \
   (SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS | SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT | SL_SI91X_NCP_HOST_BUS_RX_EVENT)
 
@@ -111,7 +117,7 @@ extern sl_status_t sl_create_generic_rx_packet_from_params(sli_si91x_queue_packe
 void sli_submit_rx_buffer(void);
 void si91x_bus_thread(const void *args);
 void sli_handle_dhcp_and_rejoin_failure(sli_si91x_queue_packet_t *node,
-                                        sl_wifi_buffer_t *temp_buffer,
+                                        sl_wifi_buffer_t *response_buffer,
                                         sl_si91x_command_trace_t *command_trace,
                                         uint16_t frame_status);
 void si91x_event_handler_thread(const void *args);
@@ -171,13 +177,21 @@ sl_status_t sl_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **q
 }
 
 void sli_handle_dhcp_and_rejoin_failure(sli_si91x_queue_packet_t *node,
-                                        sl_wifi_buffer_t *temp_buffer,
+                                        sl_wifi_buffer_t *response_buffer,
                                         sl_si91x_command_trace_t *command_trace,
                                         uint16_t frame_status)
 {
-  sl_status_t status      = SL_STATUS_OK;
-  uint32_t response_event = 0;
-  uint32_t response_queue = 0;
+  sl_status_t status            = SL_STATUS_OK;
+  uint32_t response_event       = 0;
+  uint32_t response_queue       = 0;
+  sl_wifi_buffer_t *temp_buffer = NULL;
+  uint16_t length;
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(response_buffer, 0, &length);
+  // Remote Wi-Fi client triggered disconnect
+  if (packet->command == RSI_WLAN_RSP_CLIENT_DISCONNECTED && (get_opermode() == SL_SI91X_CONCURRENT_MODE)) {
+    packet->desc[7] = SL_SI91X_WIFI_AP_VAP_ID;
+  }
 
   for (int queue_id = 0; queue_id < SI91X_BT_CMD; queue_id++) {
     if (command_trace[queue_id].command_in_flight != true) {
@@ -210,9 +224,24 @@ void sli_handle_dhcp_and_rejoin_failure(sli_si91x_queue_packet_t *node,
       response_event = NCP_HOST_NETWORK_RESPONSE_EVENT;
       response_queue = SI91X_NETWORK_RESPONSE_QUEUE;
     } else if (queue_id == SI91X_SOCKET_CMD) {
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
+      for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
+        si91x_socket_t *socket = get_si91x_socket(index);
+        // Send response to specific socket TX packet
+        if ((socket != NULL) && (socket->id == command_trace[queue_id].sl_si91x_socket_id)) {
+          if (socket->vap_id != packet->desc[7]) {
+            continue;
+          }
+        }
+      }
+#endif
       response_event = NCP_HOST_SOCKET_RESPONSE_EVENT;
       response_queue = SI91X_SOCKET_RESPONSE_QUEUE;
     }
+
+    // Update the frame status in error response packet
+    sli_si91x_queue_packet_t *queue_packet = sl_si91x_host_get_buffer_data(temp_buffer, 0, NULL);
+    queue_packet->frame_status             = frame_status;
 
     sl_si91x_host_add_to_queue(response_queue, temp_buffer);
     sl_si91x_host_set_event(response_event); // TODO: additonal checks for async queue, async event
@@ -238,8 +267,7 @@ void sli_handle_dhcp_and_rejoin_failure(sli_si91x_queue_packet_t *node,
   }
 
   mqtt_remote_terminate_packet = sl_si91x_host_get_buffer_data(mqtt_remote_terminate_packet_buffer, 0, NULL);
-
-  memset(mqtt_remote_terminate_packet->desc, 0, sizeof(mqtt_remote_terminate_packet->desc));
+  memcpy(mqtt_remote_terminate_packet->desc, packet->desc, sizeof(packet->desc));
 
   node->frame_status = frame_status;
   node->host_packet  = mqtt_remote_terminate_packet_buffer;
@@ -285,6 +313,11 @@ void si91x_event_handler_thread(const void *args)
           // Call event handler
           if (si91x_event_handler != NULL) {
             wifi_event = convert_si91x_event_to_sl_wifi_event(packet->command, frame_status);
+
+            if (RSI_WLAN_RSP_SCAN_RESULTS == packet->command) {
+              sli_handle_wifi_beacon(packet);
+            }
+
             if (wifi_event != SL_WIFI_INVALID_EVENT) {
               si91x_event_handler(wifi_event, buffer);
             }
@@ -346,7 +379,6 @@ void si91x_bus_thread(const void *args)
   sli_si91x_queue_packet_t *error_node = NULL;
   sl_wifi_buffer_t *packet;
   sl_wifi_buffer_t *error_packet = NULL;
-  sl_wifi_buffer_t *temp_buffer  = NULL;
   sl_wifi_buffer_t *buffer;
   uint8_t tx_queues_empty = 0;
   uint32_t event          = 0;
@@ -438,11 +470,12 @@ void si91x_bus_thread(const void *args)
       }
 #endif
 
+      sl_si91x_packet_t *response = (sl_si91x_packet_t *)data;
       SL_DEBUG_LOG("><<<< Rx -> queueId : %u, frameId : 0x%x, frameStatus: 0x%x, length : %u\n",
                    queue_id,
                    frame_type,
                    frame_status,
-                   length);
+                   (response->length & (~(0xF000))));
 
       switch (queue_id) {
         case RSI_WLAN_MGMT_Q: {
@@ -599,12 +632,12 @@ void si91x_bus_thread(const void *args)
 
               // Check if the frame type indicates a failed join operation or a disconnect
               if (((RSI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK))
-                  || (RSI_WLAN_RSP_DISCONNECT == frame_type)) {
+                  || (RSI_WLAN_RSP_DISCONNECT == frame_type) || (RSI_WLAN_RSP_CLIENT_DISCONNECTED == frame_type)) {
                 // Reset current performance profile and set it to high performance
                 reset_coex_current_performance_profile();
                 current_performance_profile = HIGH_PERFORMANCE;
                 // check for command in flight and create dummy packets for respective queues to be cleared
-                sli_handle_dhcp_and_rejoin_failure(node, temp_buffer, command_trace, frame_status);
+                sli_handle_dhcp_and_rejoin_failure(node, buffer, command_trace, frame_status);
               }
 
               // check if the frame type is valid
@@ -929,7 +962,7 @@ void si91x_bus_thread(const void *args)
                 reset_coex_current_performance_profile();
                 current_performance_profile = HIGH_PERFORMANCE;
                 // check for command in flight and create dummy packets for respective queues to be cleared
-                sli_handle_dhcp_and_rejoin_failure(node, temp_buffer, command_trace, frame_status);
+                sli_handle_dhcp_and_rejoin_failure(node, buffer, command_trace, frame_status);
                 SL_NET_EVENT_DISPATCH_HANDLER(node, (sl_si91x_packet_t *)data);
               }
               break;
@@ -1379,6 +1412,11 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
   }
 
   status = sl_si91x_host_remove_from_queue(queue_type, &buffer);
+  if (status != SL_STATUS_OK) {
+    if (current_performance_profile != HIGH_PERFORMANCE) {
+      sl_si91x_host_clear_sleep_indicator();
+    }
+  }
   VERIFY_STATUS_AND_RETURN(status);
 
   node            = sl_si91x_host_get_buffer_data(buffer, 0, NULL);

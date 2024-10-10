@@ -57,7 +57,13 @@ static uint8_t ulp_ssi_master_rx_buffer[ULP_SSI_MASTER_BUFFER_SIZE] = { '\0' };
 static sl_ssi_handle_t ssi_driver_handle                            = NULL;
 boolean_t ulp_ssi_master_transfer_complete                          = false;
 boolean_t ulp_ssi_master_begin_transmission                         = true;
-static uint32_t ulp_ssi_master_slave_number                         = SSI_SLAVE_0;
+#ifdef SL_SI91X_ACX_MODULE
+//SLAVE_0 is not available, according to the BRD4343A schematic, hence 'SLAVE_1' is set as the slave number in order to choose the CS1 pin mux.
+// It also applies to BRD4343B and BRD4343Q.
+static uint32_t ulp_ssi_master_slave_number = SSI_SLAVE_1;
+#else
+static uint32_t ulp_ssi_master_slave_number = SSI_SLAVE_0;
+#endif
 
 /// @brief Enumeration for different transmission scenarios
 typedef enum {

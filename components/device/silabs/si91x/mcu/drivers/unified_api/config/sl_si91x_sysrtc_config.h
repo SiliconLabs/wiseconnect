@@ -34,18 +34,14 @@
 #include "sl_si91x_sysrtc.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
-// <h>Clock Configuration
-#define CLK_RO_1KHZ    1
-#define CLK_RO_32KHZ   2
+// Clock Configuration
 #define CLK_RC_32KHZ   4
 #define CLK_32KHZ_XTAL 8
-// <o SL_SYSRTC_CLK_SRC> SYSRTC Clock
-//   <CLK_RO_1KHZ=> 1Khz RO CLK
-//   <CLK_RO_32KHZ=> 32khz RO CLK
-//   <CLK_RC_32KHZ=> 32khz RC CLK
-//   <CLK_32KHZ_XTAL=> 32khz XTAL CLK
-// <i> Selection of SYSRTC CLK
-#define SL_SYSRTC_CLK_SRC CLK_RC_32KHZ
+//  SL_SYSRTC_CLK_SRC> SYSRTC Clock
+//  CLK_RC_32KHZ=> 32khz RC CLK
+//  CLK_32KHZ_XTAL=> 32khz XTAL CLK
+//  Selection of SYSRTC CLK
+#define SL_SYSRTC_CLK_SRC CLK_32KHZ_XTAL
 
 #define DIVISION_FACTOR_0  0
 #define DIVISION_FACTOR_2  2
@@ -53,16 +49,15 @@
 #define DIVISION_FACTOR_8  8
 #define DIVISION_FACTOR_16 16
 #define DIVISION_FACTOR_32 32
-// <o SL_SYSRTC_CLOCK_DIVISION_FACTOR> Clock division factor
-//   <DIVISION_FACTOR_0=> 0
-//   <DIVISION_FACTOR_2=> 2
-//   <DIVISION_FACTOR_4=> 4
-//   <DIVISION_FACTOR_8=> 8
-//   <DIVISION_FACTOR_16=> 16
-//   <DIVISION_FACTOR_32=> 32
-// <i> Selection of SYSRTC CLK DIVISION FACTOR
+//  SL_SYSRTC_CLOCK_DIVISION_FACTOR> Clock division factor
+//   DIVISION_FACTOR_0=> 0
+//   DIVISION_FACTOR_2=> 2
+//   DIVISION_FACTOR_4=> 4
+//   DIVISION_FACTOR_8=> 8
+//   DIVISION_FACTOR_16=> 16
+//   DIVISION_FACTOR_32=> 32
+//   Selection of SYSRTC CLK DIVISION FACTOR
 #define SL_SYSRTC_CLOCK_DIVISION_FACTOR DIVISION_FACTOR_0
-// </h>
 
 // <h>SYSRTC Configuration
 // <q SL_SYSRTC_RUN_ENABLE_DURING_DEBUG> Counter0 : Enable SYSRTC run during debug

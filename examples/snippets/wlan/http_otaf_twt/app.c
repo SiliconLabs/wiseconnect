@@ -55,10 +55,11 @@
  *                    Constants
  ******************************************************/
 //! Type of FW update
-#define M4_FW_UPDATE     0
-#define TA_FW_UPDATE     1
-#define TWT_SCAN_TIMEOUT 10000
-#define TWT_AUTO_CONFIG  1
+#define M4_FW_UPDATE       0
+#define TA_FW_UPDATE       1
+#define TWT_SCAN_TIMEOUT   10000
+#define TWT_AUTO_CONFIG    1
+#define COMBINED_FW_UPDATE 2
 
 // Use case based TWT selection params
 #define DEVICE_AVERAGE_THROUGHPUT            20000
@@ -107,7 +108,7 @@
 //! Server port number
 #define HTTP_PORT 443
 //! Server URL
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
 #define HTTP_URL "SiWG917-A.2.9.0.0.16.rps"
 #else
 #define HTTP_URL "wifi_wlan_throughput_isp.bin"
@@ -144,7 +145,7 @@ char *hostname = "si917updates.blob.core.windows.net";
 //! HTTP Server IP address.
 #define HTTP_SERVER_IP_ADDRESS "192.168.0.100"
 //! HTTP resource name
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
 #define HTTP_URL "SiWG917-A.2.9.0.0.16.rps"
 #else
 #define HTTP_URL "wifi_access_point_isp.bin"
@@ -346,7 +347,7 @@ sl_status_t http_otaf_app()
   char server_ip[16];
   sl_wifi_performance_profile_t performance_profile;
 
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
   sl_wifi_firmware_version_t version = { 0 };
   status                             = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
@@ -467,7 +468,7 @@ sl_status_t http_otaf_app()
     printf("\r\nUpdating the firmware...\r\n");
   }
 
-#if FW_UPDATE_TYPE
+#if (FW_UPDATE_TYPE == TA_FW_UPDATE)
   status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while wifi deinit: 0x%lX \r\n", status);

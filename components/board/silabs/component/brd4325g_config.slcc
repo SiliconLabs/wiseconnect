@@ -98,11 +98,6 @@
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
-      instance: led0
-    path: common_config/sl_si91x_pwm_init_led0_config.h
-  - override:
-      component: "%extension-wiseconnect3_sdk%pwm_instance"
-      file_id: pwm_config
       instance: channel_0
     path: common_config/sl_si91x_pwm_init_channel_0_config.h
   - override:
@@ -120,6 +115,16 @@
       file_id: pwm_config
       instance: channel_3
     path: common_config/sl_si91x_pwm_init_channel_3_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: led0
+    path: common_config/sl_si91x_pwm_init_led0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: led1
+    path: common_config/sl_si91x_pwm_init_led1_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%i2c_instance"
       file_id: i2c_config

@@ -193,6 +193,12 @@ void adc_example_process_action(void)
         ulp_adc_current_mode = SL_ULP_ADC_PROCESS_ACTION;
       } else {
         if (!sl_adc_config.operation_mode) {
+          //  stop the adc
+          status = sl_si91x_adc_stop(sl_adc_config);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("sl_si91x_adc_stop: Error Code : %lu \n", status);
+          }
+          DEBUGOUT("ADC stopped successfully \n");
           //  de initializing the adc
           status = sl_si91x_adc_deinit(sl_adc_config);
           if (status != SL_STATUS_OK) {

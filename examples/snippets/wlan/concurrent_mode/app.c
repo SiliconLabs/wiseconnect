@@ -588,14 +588,13 @@ void send_data_to_udp_server(void)
       break;
     }
     total_bytes_sent = total_bytes_sent + sent_bytes;
-
-    printf("\r\nUDP_TX Throughput test finished\r\n");
-    printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-
-    measure_and_print_throughput(total_bytes_sent, (now - start));
-
-    close(client_socket);
   }
+  printf("\r\nUDP_TX Throughput test finished\r\n");
+  printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
+
+  measure_and_print_throughput(total_bytes_sent, (now - start));
+
+  close(client_socket);
 }
 void receive_data_from_udp_client(void)
 {

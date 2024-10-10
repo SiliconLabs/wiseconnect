@@ -33,6 +33,29 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
+// <e>Channel selection
+
+// <o JOYSTICK_ADC_CHANNEL> Joystick ADC channel (make sure to install selected ADC channel/instance)
+//   <SL_ADC_CHANNEL_1=>  channel_1
+//   <SL_ADC_CHANNEL_2=>  channel_2
+//   <SL_ADC_CHANNEL_3=>  channel_3
+//   <SL_ADC_CHANNEL_4=>  channel_4
+//   <SL_ADC_CHANNEL_5=>  channel_5
+//   <SL_ADC_CHANNEL_6=>  channel_6
+//   <SL_ADC_CHANNEL_7=>  channel_7
+//   <SL_ADC_CHANNEL_8=>  channel_8
+//   <SL_ADC_CHANNEL_9=>  channel_9
+//   <SL_ADC_CHANNEL_10=>  channel_10
+//   <SL_ADC_CHANNEL_11=>  channel_11
+//   <SL_ADC_CHANNEL_12=>  channel_12
+//   <SL_ADC_CHANNEL_13=>  channel_13
+//   <SL_ADC_CHANNEL_14=>  channel_14
+//   <SL_ADC_CHANNEL_15=>  channel_15
+//   <SL_ADC_CHANNEL_16=>  channel_16
+#define JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_1
+
+//</e>
+
 // <h>Joystick Voltage value Configuration
 
 // <o REFERENCE_VOLTAGE> Reference voltage <f.d>

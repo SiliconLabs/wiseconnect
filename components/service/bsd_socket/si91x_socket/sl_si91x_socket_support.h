@@ -88,7 +88,7 @@ typedef struct {
  * @param[in]  option_level   
  * Level at which the option is defined. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
  * @param[in]  option_name    
- * Name of the option to be set. Currently, ONLY @ref SO_CERT_INDEX, @ref SO_HIGH_PERFORMANCE_SOCKET, @ref SO_TLS_SNI are supported.
+ * Name of the option to be set. Currently, @ref SO_CERT_INDEX, @ref SO_HIGH_PERFORMANCE_SOCKET, @ref SO_TLS_SNI, and @ref SO_TLS_ALPN only are supported.
  * @param[in]  option_value   
  * Pointer to the value for the option.
  * @param[in]  option_length  

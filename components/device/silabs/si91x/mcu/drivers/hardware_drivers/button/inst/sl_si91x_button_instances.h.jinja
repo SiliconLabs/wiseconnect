@@ -32,6 +32,9 @@
 #define SL_SI91X_BUTTON_INSTANCES_H
 
 #include "sl_si91x_button.h"
+{% for inst in simple_button_instance -%}
+#include "sl_si91x_button_init_{{ inst | lower }}_config.h"
+{% endfor %}
 
 {% for inst in simple_button_instance -%}
 extern const sl_button_t button_{{ inst | lower }};

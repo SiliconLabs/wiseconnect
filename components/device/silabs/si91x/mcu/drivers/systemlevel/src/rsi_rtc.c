@@ -64,12 +64,15 @@ void RSI_RTC_Init(RTC_Type *Cal)
   /* Power-Up RTC Domain */
   RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCURTC | SLPSS_PWRGATE_ULP_TIMEPERIOD);
 
-  /*Wait for RTC-ON pluse synchronization*/
+  /*Wait for RTC-ON pulse synchronization*/
   do {
     RTC->MCU_CAL_ALARM_PROG_1 = 6U;
   } while (RTC->MCU_CAL_ALARM_PROG_1 != 6U);
 
-  //TODO: Update the RTC clock INIT code here
+  // by using this API we programmed the RTC timer clock in SOC
+  // MSB 8-bits for the Integer part &
+  // LSB 17-bits for the Fractional part
+  // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
   /* Time Period Programming */
   RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
   /*Enable power gates*/
@@ -327,7 +330,7 @@ void RSI_RTC_IntrClear(uint32_t intr)
 /*==============================================*/
 /**
  * @fn			void RSI_RTC_CalibInitialization(void)
- * @brief   	This API is used to initilization RTC CALIBRATION
+ * @brief   	This API is used to initialize RTC CALIBRATION
  * @return		none
  */
 

@@ -115,11 +115,20 @@ sl_status_t sl_memlcd_configure(struct sl_memlcd_t *device)
   sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
 
 #if defined(SL_MEMLCD_EXTCOMIN_PORT)
+#if (SL_SI91X_ACX_MODULE == 1)
+  /* Setup GPIOs */
+  sl_gpio_set_pin_mode(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN, SL_GPIO_MODE_0, 0);
+  // Set output direction
+  sl_si91x_gpio_set_pin_direction(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
+  //clearing the GPIO pin
+  sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN);
+#else
   // NPSS GPIO
   sl_si91x_gpio_select_uulp_npss_receiver(SL_MEMLCD_EXTCOMIN_PIN, GPIO_RECEIVER_EN);
   sl_si91x_gpio_set_uulp_npss_pin_mux(SL_MEMLCD_EXTCOMIN_PIN, NPSS_GPIO_PIN_MUX_MODE0);
   sl_si91x_gpio_set_uulp_npss_direction(SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
   sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_CLEAR);
+#endif
 #endif
 
   memlcd_instance = *device;
@@ -139,10 +148,33 @@ sl_status_t sl_memlcd_refresh(const struct sl_memlcd_t *device)
 void sl_memlcd_display_enable(void)
 {
   // Enabling LCD display
+  //enable the display pin in reciever mode
   sl_si91x_gpio_select_uulp_npss_receiver(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_RECEIVER_EN);
+
+  //set the pin mux mode
   sl_si91x_gpio_set_uulp_npss_pin_mux(SL_BOARD_ENABLE_DISPLAY_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+
+  // set the direction of the display pin in UULP GPIO instance
   sl_si91x_gpio_set_uulp_npss_direction(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_OUTPUT);
+
+  //set the display pin in UULP GPIO instance
   sl_si91x_gpio_set_uulp_npss_pin_value(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_PIN_SET);
+}
+
+void sl_memlcd_display_disable(void)
+{
+  // Disabling LCD display
+  //enable the display pin in reciever mode
+  sl_si91x_gpio_select_uulp_npss_receiver(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_RECEIVER_EN);
+
+  //set the pin mux mode
+  sl_si91x_gpio_set_uulp_npss_pin_mux(SL_BOARD_ENABLE_DISPLAY_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+
+  // set the direction of the display pin in UULP GPIO instance
+  sl_si91x_gpio_set_uulp_npss_direction(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_OUTPUT);
+
+  //clear the display pin in UULP GPIO instance
+  sl_si91x_gpio_set_uulp_npss_pin_value(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_PIN_CLEAR);
 }
 
 sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on)
@@ -301,11 +333,20 @@ sl_status_t sl_memlcd_post_wakeup_init(void)
   sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
 
 #if defined(SL_MEMLCD_EXTCOMIN_PORT)
+#if (SL_SI91X_ACX_MODULE == 1)
+  /* Setup GPIOs */
+  sl_gpio_set_pin_mode(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN, SL_GPIO_MODE_0, 0);
+  // Set output direction
+  sl_si91x_gpio_set_pin_direction(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
+  //clearing the GPIO pin
+  sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN);
+#else
   // NPSS GPIO
   sl_si91x_gpio_select_uulp_npss_receiver(SL_MEMLCD_EXTCOMIN_PIN, GPIO_RECEIVER_EN);
   sl_si91x_gpio_set_uulp_npss_pin_mux(SL_MEMLCD_EXTCOMIN_PIN, NPSS_GPIO_PIN_MUX_MODE0);
   sl_si91x_gpio_set_uulp_npss_direction(SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
   sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_CLEAR);
+#endif
 #endif
 
   status = sl_memlcd_power_on(memlcd_post_wakeup_handle, true);
@@ -337,10 +378,25 @@ static void extcomin_toggle(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;
+
+#if (SL_SI91X_ACX_MODULE == 1)
+  /* Setup GPIOs */
+  sl_gpio_set_pin_mode(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN, SL_GPIO_MODE_0, 0);
+  // Set output direction
+  sl_si91x_gpio_set_pin_direction(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
+  if (sl_gpio_get_pin_input(SL_GPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN) == true) {
+    //clearing the GPIO pin
+    sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN);
+  } else {
+    //clearing the GPIO pin
+    sl_gpio_set_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_EXTCOMIN_PIN);
+  }
+#else
   if (sl_si91x_gpio_get_uulp_npss_pin(SL_MEMLCD_EXTCOMIN_PIN) == true) {
     sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_CLEAR);
   } else {
     sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_SET);
   }
+#endif
 }
 #endif

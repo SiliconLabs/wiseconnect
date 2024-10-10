@@ -37,6 +37,10 @@
 #include "socket.h"
 #include "sl_net_si91x.h"
 #include "sl_utility.h"
+#include "sl_si91x_socket_constants.h"
+#include "sl_si91x_socket_types.h"
+#include "sl_si91x_socket_utility.h"
+#include "sl_si91x_socket_support.h"
 
 //include certificates
 #include "cacert.pem.h"
@@ -50,12 +54,15 @@
 
 //! Load certificate to device flash :
 //! Certificate should be loaded once and need not need to load for every boot up
-#define LOAD_CERTIFICATE  1
-#define SERVER_IP         "192.168.0.247"
-#define SERVER_PORT1      5002
-#define SERVER_PORT2      5003
-#define DATA              "Hello from SSL TCP Client\n"
-#define NUMBER_OF_PACKETS 1000
+#define LOAD_CERTIFICATE     1
+#define SERVER_IP            "192.168.0.247"
+#define SERVER_PORT1         5002
+#define SERVER_PORT2         5003
+#define DATA                 "Hello from SSL TCP Client\n"
+#define NUMBER_OF_PACKETS    1000
+#define TLS_EXTENSION_ENABLE 0
+#define TLS_ALPN_EXTENSION   "http/1.1"
+#define TLS_SNI_EXTENSION    "example.com"
 
 /******************************************************
  *               Variable Definitions
@@ -105,6 +112,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
  ******************************************************/
 static void application_start(void *argument);
 sl_status_t send_data_from_tls_socket();
+sl_status_t set_tls_extensions(int client_socket);
 
 /******************************************************
  *               Function Definitions
@@ -184,6 +192,16 @@ sl_status_t send_data_from_tls_socket()
     return SL_STATUS_FAIL;
   }
 
+#if TLS_EXTENSION_ENABLE
+  status = set_tls_extensions(client_socket1);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to set TLS extension: 0x%lx\r\n", status);
+    close(client_socket1);
+    return SL_STATUS_FAIL;
+  }
+  printf("\r\nTLS extension set successfully\r\n");
+#endif
+
   return_value = connect(client_socket1, (struct sockaddr *)&server_address, socket_length);
   if (return_value < 0) {
     printf("\r\nSocket1 connect failed with %s with bsd error: %d\r\n", tls_socket1, errno);
@@ -207,6 +225,17 @@ sl_status_t send_data_from_tls_socket()
     close(client_socket2);
     return SL_STATUS_FAIL;
   }
+
+#if TLS_EXTENSION_ENABLE
+  status = set_tls_extensions(client_socket2);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to set TLS extension: 0x%lx\r\n", status);
+    close(client_socket1);
+    close(client_socket2);
+    return SL_STATUS_FAIL;
+  }
+  printf("\r\nTLS extension set successfully\r\n");
+#endif
 
   server_address.sin_port = SERVER_PORT2;
   return_value            = connect(client_socket2, (struct sockaddr *)&server_address, socket_length);
@@ -245,4 +274,82 @@ sl_status_t send_data_from_tls_socket()
   printf("\r\nSockets closed successfully\r\n");
 
   return status;
+}
+
+sl_status_t set_tls_extensions(int client_socket)
+{
+
+  int socket_return_value = 0;
+
+  // Calculate the length of the SNI data
+  uint16_t sni_length = (uint16_t)strlen(TLS_SNI_EXTENSION);
+
+  // Allocate memory for the sl_si91x_socket_type_length_value_t structure
+  sl_si91x_socket_type_length_value_t *sni_value =
+    (sl_si91x_socket_type_length_value_t *)malloc(sizeof(sl_si91x_socket_type_length_value_t) + sni_length);
+
+  if (sni_value == NULL) {
+    printf("\r\nMemory allocation failed for SNI value\r\n");
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  // Set the type to 1 for SNI extension
+  sni_value->type = SL_SI91X_TLS_EXTENSION_SNI_TYPE;
+
+  // Set the length of the SNI data
+  sni_value->length = sni_length;
+
+  // Copy the SNI data into the value field
+  memcpy(sni_value->value, TLS_SNI_EXTENSION, sni_length);
+
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
+                                                         SOL_SOCKET,
+                                                         SO_TLS_ALPN,
+                                                         sni_value,
+                                                         sizeof(sl_si91x_socket_type_length_value_t) + sni_length);
+
+  if (socket_return_value < 0) {
+    printf("\r\nSet Socket option SNI extension failed with bsd error: %d\r\n", errno);
+    free(sni_value);
+    return SL_STATUS_FAIL;
+  }
+
+  free(sni_value);
+
+  // Calculate the length of the ALPN data
+  uint16_t alpn_length = (uint16_t)strlen(TLS_ALPN_EXTENSION);
+
+  // Allocate memory for the sl_si91x_socket_type_length_value_t  structure
+  sl_si91x_socket_type_length_value_t *alpn_value =
+    (sl_si91x_socket_type_length_value_t *)malloc(sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
+
+  if (alpn_value == NULL) {
+    printf("\r\nMemory allocation failed for ALPN value\r\n");
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  // Set the type to 2 for ALPN extension
+  alpn_value->type = SL_SI91X_TLS_EXTENSION_ALPN_TYPE;
+
+  // Set the length of the ALPN data
+  alpn_value->length = alpn_length;
+
+  // Copy the ALPN data into the value field
+  memcpy(alpn_value->value, TLS_ALPN_EXTENSION, alpn_length);
+
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
+                                                         SOL_SOCKET,
+                                                         SO_TLS_ALPN,
+                                                         alpn_value,
+                                                         sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
+
+  if (socket_return_value < 0) {
+    SL_DEBUG_LOG("\r\nSet Socket option ALPN extension failed with bsd error: %d\r\n", errno);
+    free(alpn_value);
+    return SL_STATUS_FAIL;
+  }
+
+  // Free the allocated memory after usage
+  free(alpn_value);
+  return SL_STATUS_OK;
 }

@@ -75,30 +75,37 @@ typedef struct sl_memlcd_t {
  *         - SL_STATUS_FAIL (0x0001) - Failure.
  ******************************************************************************/
 sl_status_t sl_memlcd_configure(struct sl_memlcd_t *device);
-
 /***************************************************************************/
 /**
- * @brief Enables the memory LCD display.
- * 
- * @details This API enables the memory LCD display. It must be called to enable the MEMLCD display.
- ******************************************************************************/
+ * @brief To enable the memory LCD display.
+ *
+ * @details This API must be called to enable MEMLCD display.
+******************************************************************************/
 void sl_memlcd_display_enable(void);
 
 /***************************************************************************/
 /**
- * @brief Enables or disables the display.
- * 
+ * @brief To disable the memory LCD display.
+ *
+ * @details This API must be called to disable MEMLCD display.
+******************************************************************************/
+void sl_memlcd_display_disable(void);
+
+/***************************************************************************/
+/**
+ * @brief To enable or disable the display.
+ *
  * @details This API enables or disables the display. Disabling the display 
  * does not result in data loss. Note that this API does not control the 
  * DISP pin on the display. This pin is managed by board-specific code.
- * 
- * @param[in] device Memory LCD Display device pointer.
- * @param[in] on Boolean value to enable (true) or disable (false) the display.
- * 
- * @return Status code of the operation:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Failure.
- ******************************************************************************/
+ *
+ * @param[in] device Display device pointer.
+ *
+ * @param[in] on Set this parameter to 'true' to enable the display. Set to 'false' in
+ * order to disable the display.
+ *
+ * @return status code of the operation.
+******************************************************************************/
 
 sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on);
 
@@ -182,20 +189,20 @@ const sl_memlcd_t *sl_memlcd_get(void);
 *
 *  @details
 *
-*   @section MEMLCD_Custom Custom-Memory-LCD
+*  @n @section MEMLCD_Custom Custom-Memory-LCD
 *
-*   - The custom memory LCD module provides a way to add support for an LCD driver
-*   - that is incompatible with existing interfaces. 
-*   - To accomplish this, the following conditions must be fulfilled.
+*   The custom memory LCD module enables the implementation of an
+*   LCD driver that is incompatible with existing interfaces. To
+*   accomplish this, the following conditions must be fulfilled.
 *
 *   The LCD driver and the communication needs to be implemented manually.
 *   However, some APIs must be implemented and the @ref sl_memlcd_t
 *   structure must be initialized for the GLIB library to work properly.
-*   The APIs to implement are [sl_memlcd_init](https://docs.silabs.com/gecko-platform/latest/platform-hardware-driver/memlcd#sl-memlcd-init), @ref sl_memlcd_power_on,
+*   The APIs to implement are [sl_memlcd_init](https://docs.silabs.com/gecko-platform/5.0.1/platform-hardware-driver/memlcd#sl-memlcd-init), @ref sl_memlcd_power_on,
 *   @ref sl_memlcd_draw and @ref sl_memlcd_get and they must follow the same
 *   declaration as shown in the documentation.
 *
-*   In the [sl_memlcd_init](https://docs.silabs.com/gecko-platform/latest/platform-hardware-driver/memlcd#sl-memlcd-init) API, it is important to initialize a
+*   In the [sl_memlcd_init](https://docs.silabs.com/gecko-platform/5.0.1/platform-hardware-driver/memlcd#sl-memlcd-init) API, it is important to initialize a
 *   @ref sl_memlcd_t type variable and fill in the "height" and "width" fields
 *   with the real specifications of the LCD display. This same variable must be
 *   accessible from the @ref sl_memlcd_get API as the GLIB library will
@@ -205,7 +212,6 @@ const sl_memlcd_t *sl_memlcd_get(void);
 *   custom structure needed for the implementation of the driver.
 *
 * @} end group MEMLCD ********************************************************/
-
 #ifdef __cplusplus
 }
 #endif

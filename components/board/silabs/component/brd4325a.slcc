@@ -21,6 +21,8 @@
   - name: hardware_board
   - name: hardware_board_rb
   - name: si91x_a0_board
+  - name: si917_prod_board
+  - name: si917_radio_board
 - recommends:
   - id: brd4002a
 - define:

@@ -83,13 +83,8 @@ void sleeptimer_hal_init_timer(void)
   const rsi_sysrtc_group_channel_compare_config_t group_compare_channel_config =
     SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_DEFAULT_REGMODE;
 
-#if defined(SL_SI91X_MODULE_BOARD)
-  // Enable 32kHz RC clock to SYSRTC peripheral
-  rsi_sysrtc_clk_set(RSI_SYSRTC_CLK_32kHz_RC, 0u);
-#else
   // Enable 32kHz XTAL clock to SYSRTC peripheral
   rsi_sysrtc_clk_set(RSI_SYSRTC_CLK_32kHz_Xtal, 0u);
-#endif // SL_SI91X_MODULE_BOARD
 
   // Initialize SYSRTC module
   rsi_sysrtc_init(&sysrtc_config);
@@ -304,11 +299,7 @@ void SLEEPTIMER_SI91X_INTERRUPT_HANDLER(void)
 uint32_t sleeptimer_hal_get_timer_frequency(void)
 {
   // There is currently no call for in Si91x library to obtain peripheral frequency of SYSRTC.
-#if defined(SL_SI91X_MODULE_BOARD)
-  return DEFAULT_32KHZ_RC_CLOCK;
-#else
   return DEFAULT_32KHZ_XTAL_CLOCK;
-#endif // SL_SI91X_MODULE_BOARD
 }
 
 /*******************************************************************************

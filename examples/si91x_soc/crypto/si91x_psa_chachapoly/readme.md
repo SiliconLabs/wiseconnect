@@ -25,6 +25,7 @@ Before running the application, the user will need the following things to setup
 
   - Windows PC
   - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
+  - For the Wrap Key feature of this application to work, the keys should be programmed and secure boot (ta_secure_boot) should be enabled in the device
 
 ### Software Requirements
 

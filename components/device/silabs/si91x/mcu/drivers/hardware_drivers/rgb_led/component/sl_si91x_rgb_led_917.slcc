@@ -6,6 +6,9 @@ description: >
   This driver supports controlling GPIO-based on/off type RGB LEDs. 
   This component is instantiable, meaning that several named instances can be created. 
   For each instance a configuration is generated along with an initialization struct set according to this configuration.
+  This driver file is now deprecated.
+  To ensure future-proofing and compatibility with upcoming features, 
+  users are encouraged to migrate to the LED driver by taking reference from the sl_si91x_rgb_led application.
 category: Device|Si91x|MCU|Hardware
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/hardware_drivers/rgb_led"
@@ -13,6 +16,7 @@ instantiable:
   prefix: instance
 config_file:
   - path: "config/sl_si91x_rgb_led_config.h"
+    unless: [sl_si91x_led_917]
 include:
   - path: inc
     file_list:
@@ -21,22 +25,33 @@ source:
   - path: src/sl_si91x_rgb_led.c
 requires:
   - name: sl_gpio
+  - name: sleeptimer
 provides:
   - name: sl_si91x_rgb_led_917
+define:
+  - name: SI917_RGB_DRIVER_OLD
+    value: '1'
 template_file:
   - path: "inst/sl_si91x_rgb_led_instances.c.jinja"
+    unless: [sl_si91x_led_917]
   - path: "inst/sl_si91x_rgb_led_instances.h.jinja"
+    unless: [sl_si91x_led_917]
 template_contribution:
   - name: led_instance
     value: "{{instance}}"
+    unless: [sl_si91x_led_917]
   - name: component_catalog
     value: "{{instance}}"
+    unless: [sl_si91x_led_917]
   - name: component_catalog
     value: led
+    unless: [sl_si91x_led_917]
   - name: component_catalog
     value: "led_{{instance}}"
+    unless: [sl_si91x_led_917]
   - name: event_handler
     value:
       event: driver_init
       include: sl_si91x_rgb_led_instances.h
       handler: rgb_led_init_instances
+    unless: [sl_si91x_led_917]

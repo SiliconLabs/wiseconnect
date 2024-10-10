@@ -49,8 +49,8 @@
  *                    Constants
  ******************************************************/
 
-#define SOFT_AP_PSK          "123456789"
-#define SOFT_AP_SSID         "SILICON_LABS_AP"
+#define SOFT_AP_PSK          "MY_AP_PASSPHRASE"
+#define SOFT_AP_SSID         "MY_AP_SSID"
 #define WIFI_CONNECT_TIMEOUT 1000
 #define WIFI_SCAN_TIMEOUT    10000
 #define TWT_SCAN_TIMEOUT     10000
@@ -1128,7 +1128,8 @@ sl_status_t wifi_start_ap_command_handler(console_args_t *arguments)
   sl_status_t status;
   sl_wifi_ap_configuration_t ap_configuration = { 0 };
   sl_wifi_credential_t cred                   = { 0 };
-  char *ssid = GET_OPTIONAL_COMMAND_ARG(arguments, 0, default_wifi_ap_configuration.ssid.value, char *);
+
+  char *ssid = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SOFT_AP_SSID, char *);
 
   memcpy(ap_configuration.ssid.value, ssid, strlen(ssid));
   ap_configuration.ssid.length = (uint8_t)strlen((char *)ap_configuration.ssid.value);

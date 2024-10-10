@@ -2,16 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL ULP Timer](#sl-ulp-timer)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Macros for Timer Configurations:](#macros-for-timer-configurations)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -30,7 +33,7 @@
 ## About Example Code
 
 -	The \ref ulp_timer_example.c example file demonstrates how to use a ULP-timer instance to toggle the onboard LED at a 1-second periodic rate. 
--	In this example, first, the clock and timer are configured with default high-power configuration values from UC through the \ref sl_si91x_ulp_timer_init and \ref sl_si91x_ulp_timer_set_configuration APIs respectively.  
+-	In this example, first, timer is configured with default high-power configuration values from UC through the \ref sl_si91x_ulp_timer_init and \ref sl_si91x_ulp_timer_set_configuration APIs respectively.  
 -	Then, a callback is registered for the timer instance through the \ref sl_si91x_ulp_timer_register_timeout_callback API.  
 -	Next, the timer instance is started using the \ref sl_si91x_ulp_timer_start API.  
 -	The onboard LED-0 is then toggled on every interrupt (timeout value 1 second), and after toggling the LED five times, the timer is stopped using the \ref sl_si91x_ulp_timer_stop API. 
@@ -56,8 +59,7 @@
 - Si91x
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -85,16 +87,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ![Figure: Introduction](resources/uc_screen/ulp_timer_uc_screen.png)
 
-- Configure Clock and timer using following macros, defined in \ref sl_si91x_ulp_timer_inst_config.h file and update/modify following macros if required:
-
-### Macros for Clock Configurations:
-
--	\ref SL_ULP_TIMER_CLK_TYPE: true to enable type-static and false to enable type-dynamic 
--	\ref SL_ULP_TIMER_SYNC_TO_ULPSS_PCLK: true to Enable & false to disable sync to ULPSS pclock 
--	\ref SL_ULP_TIMER_CLK_INPUT_SOURCE: for possible options \ref ulp_timer_clk_input_source_t 
--	\ref SL_ULP_TIMER_DIRECTION: true to enable waiting for switching timer clk & false to skip waiting for switching timer clk. 
--	After configuring the above macros, their values are passed to \ref ulp_timer_clk_src_config_t structure type variable \ref sl_timer_clk_handle which is used to configure the clock using the API-\ref sl_si91x_ulp_timer_init. 
--	To use SOC clock source, use the API \ref sl_si91x_ulp_timer_configure_soc_clock() instead of \ref sl_si91x_ulp_timer_init. Also, comment out the hardware_setup() call from ulp_timer_example.c file as this clock source should be used in high-power mode only. 
+- Configure timer using following macros, defined in \ref sl_si91x_ulp_timer_inst_config.h file and update/modify following macros if required:
 
 ### Macros for Timer Configurations:
 

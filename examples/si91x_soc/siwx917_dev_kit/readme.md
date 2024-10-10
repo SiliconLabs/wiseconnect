@@ -14,9 +14,9 @@ This example collects and processes sensor data from the SiWG917 dev kit board, 
 
 ## Purpose/Scope
 
-The app starts in Wi-Fi access point (AP) mode. User can use their mobile device to connect to the SiWG917 dev kit's AP network and use the Simplicity Connect iOS/Android app to view the sensor data collected by the dev kit board.
+The app starts in provisioning mode over BLE. User can use the Simplicity Connect iOS/Android app to scan for available Wi-Fi networks, select their desired network, enter the network credential, and then transmit the credential over a secure BLE connection.
 
-Additionally, the app also runs a local webserver that enables provisioning of the SiWG917 device onto a Wi-Fi network. User can access the webserver via a browser, scan for available networks, select their desired network and enter the network credential. Once provisioned, the app then proceeds to bring down the AP and switches to Wi-Fi Station mode. The app connects to the selected network and brings up the sensor webserver. Users can then use their browser to view the sensor data collected by the dev kit board.
+Once provisioned, the app then connects to the selected network and brings up the sensor webserver. Users can then use their the Simplicity Connect iOS/Android app to view the sensor data collected by the dev kit board.
 
 All device activities can be observed on the serial terminal prints. You may use a readily available terminal program such as [Tera Term](https://teratermproject.github.io/index-en.html) or [PuTTY](https://www.putty.org/).
 
@@ -37,6 +37,7 @@ All device activities can be observed on the serial terminal prints. You may use
 
 - [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
 - Silicon Labs [Simplicity Connect App (formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app?tab=downloads), the app can be downloaded from Google Play store/Apple App store.
+  > IMPORTANT: This example requires Simplicity Connect version 2.9.3 or later.
 
 ### Setup Diagram
 
@@ -64,59 +65,40 @@ All device activities can be observed on the serial terminal prints. You may use
 
 ## Run the Application
 
-### Viewing Sensor Data
-
-![Viewing Sensor Data Connections](resources/readme/viewing-sensor-data-connections.png)
-
-**Step 1** : The SiWG917 device starts in AP mode. All device activities can be observed on the serial terminal prints.
+**Step 1** : The SiWG917 device starts in provisioning mode. All device activities can be observed on the serial terminal prints.
 
 ![Startup Prints](resources/readme/startup-prints.png)
 
-**Step 2** : Connect your mobile device to the SiWG917 device's AP. The default network name and password are `MY_AP_SSID` and `MY_AP_PASSPHRASE`, respectively.
-
-**Step 3** : Launch the Simplicity Connect app and select the `Wi-Fi Sensors` demo.
+**Step 2** : Launch the Simplicity Connect app and select the `Wi-Fi Sensors` demo.
 
 ![Wi-Fi Sensors Demo](resources/readme/wifi-sensors-demo.png)
 
-**Step 4** : Select one of the options to view sensor data.
+**Step 3** : The Simplicity Connect app starts scanning for the `WIFI_SENSOR` device on BLE. Select the `WIFI_SENSOR` device on the Simplicity Connect app.
+
+![Startup Prints](resources/readme/wifi-sensor-device-selection.png)
+
+**Step 4** : Select your desired network, enter password, and then click `Ok`. The Simplicity Connect app then transmits the network credential securely over BLE connection.
+
+![Selecting a Network](resources/readme/selecting-a-network.png)
+
+![Entering password](resources/readme/entering-password.png)
+
+**Step 5** : The SiWG917 dev kit switches to Wi-Fi Station mode and connects to the selected Wi-Fi network. The Simplicity Connect app then connects to the sensor webserver running on the dev kit board. Wait until connection is established.
+
+![Connected Prints](resources/readme/connected-prints.png)
+
+![Connecting to webserver](resources/readme/connecting-to-webserver.png)
+
+**Step 6** : Select one of the options to view sensor data.
 
 ![Wi-Fi Sensors Data](resources/readme/wifi-sensors-data.png)
 
 ![Temperature](resources/readme/temperature.png)
 
-**Step 5** : Select `LED` to control the LED on the dev kit board.
+**Step 7** : Select `LED` to control the LED on the dev kit board.
 
 ![LED Selection](resources/readme/led-selection.png)
 
-**Step 6** : Select a color and observe the LED on the dev kit changes color. You can also switch the LED on/off.
+**Step 8** : Select a color and observe the LED on the dev kit changes color. You can also switch the LED on/off.
 
 ![LED Control](resources/readme/led-control.png)
-
-### Connecting to a Wi-Fi Network
-
-![Connecting to a Network Connections](resources/readme/connecting-to-a-network-connections.png)
-
-**Step 1** : Make sure that your mobile device is connected to the SiWG917 dev kit's AP network.
-
-**Step 2** : Enter `192.168.10.10` on your browser to open the provisioning webpage.
-
-![Provisioning Webpage](resources/readme/provisioning-webpage.png)
-
-**Step 3** : Click `Scan` to scan for available networks. 
-
-![Scan](resources/readme/scan.png)
-
-**Step 4** : Select your desired network, enter password, and then click `Connect`.
-
-![Selecting a Network](resources/readme/selecting-a-network.png)
-
-**Step 5** : The SiWG917 dev kit switches to Wi-Fi Station mode and connects to the selected Wi-Fi network. 
-
-![Connected Prints](resources/readme/connected-prints.png)
-
-**Step 6** : Connect your mobile device to the same Wi-Fi network that the SiWG917 is connected to. You can access the sensor webpage by entering 
-the device IP address in your browser. The device IP address can be found in the serial terminal prints. If it fails to connect, go back to step 1.
-
-**Step 7** : Click `Refresh` to load and view the latest sensor data
-
-![Sensor Webpage](resources/readme/sensor-webpage.png)

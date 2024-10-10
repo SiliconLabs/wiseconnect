@@ -2,17 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Expected Results](#expected-results)
+- [SL WATCHDOG TIMER](#sl-watchdog-timer)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Macros for Timer Configurations](#macros-for-timer-configurations)
+  - [Test the Application](#test-the-application)
+  - [Expected Results](#expected-results)
 
 ## Purpose/Scope
 
@@ -28,8 +31,7 @@
 - The Processor needs to restart the Timer upon a timeout interrupt if the timer is not intended to reach the system-reset threshold. The timer will be in Closed Mode, as defined above, until the interrupt timer is reached. Once the interrupt timer is reached, it will be in Open Mode until the reset is generated. Also, upon interrupt generation, the timer restarts for the Reset Duration. 
 - It has an independent window watchdog timer. 
 - Interrupts are generated before the system reset is applied, which can be used as a wakeup source. 
-- It generates a system reset upon Lockup indication from the Processor. 
-- Configurable low and high-frequency FSM clock. 
+- It generates a system reset upon Lockup indication from the Processor.
 - Configurable interrupt (timeout), system reset, and window period. 
 - Able to operate when the CPU is in SLEEP state. 
 - Individually controllable power domain for low-power applications. 
@@ -39,7 +41,7 @@
 -	\ref watchdog_timer_example.c This example file demonstrates how to use the Watchdog timer (WDT) to trigger WDT warnings and reset the system after a few warnings. With a WDT timeout interrupt occurring every 1 second, the WDT is restarted (kicked) by the application, and the onboard LED0 toggles. After toggling the LED 6 times, the application does not restart the WDT, then the timer loads the system-reset time (set to 4 seconds). Once that time is over, the WDT resets the system. Afterward, the WDT is started again with new parameters, and LED0 is toggled 6 times. Finally, the WDT is stopped, the callback is unregistered, and the timer is de-initialized. 
 -	In this example, the application first toggles LED0 once and checks whether it's a power-on reset or a WDT system reset through the \ref sl_si91x_watchdog_get_timer_system_reset_status API.  
 -	If it's a power-on reset, then the WDT is initialized by enabling peripheral power, enabling WDT to run during CPU sleep mode, and unmasking its interrupt through the \ref sl_si91x_watchdog_init_timer API.  
--	Then, the clock and timer are configured with default configuration values from UC through the \ref sl_si91x_watchdog_configure_clock and \ref sl_si91x_watchdog_set_configuration APIs, respectively.  
+-	Then, the timer is configured with default configuration values from UC through the \ref sl_si91x_watchdog_set_configuration APIs, respectively.  
 -	Next, the timer timeout callback is registered, and its interrupt is enabled using the \ref sl_si91x_watchdog_register_timeout_callback API.  
 -	The WDT is then started using the \ref sl_si91x_watchdog_start_timer API. The application toggles onboard LED0 and restarts (kicks) the WDT on every interrupt (every 1 second) through the \ref sl_si91x_watchdog_restart_timer.  
 -	Upon the 6th WDT interrupt, the application does not restart the WDT. So when the timer count reaches the system-reset time (4 seconds), it resets the application.  
@@ -68,8 +70,7 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -94,14 +95,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ![Figure: UC](resources/uc_screen/watchdog_uc_screen.png)
 
-- Configure Clock and timer using following macros, defined in \ref sl_si91x_watchdog_timer_config.h file and update/modify following macros if required:
-
-### Macros for Clock Configurations
-
--	\ref SL_LOW_FREQ_FSM_CLK_SRC is used for configuring the low-frequency FSM clock. Refer to \ref low_freq_fsm_clock_t for more information. 
--	\ref SL_ULP_TIMER_CLK_ISL_BG_PMU_CLOCK_SRC is used for configuring the BG-PMU clock. Refer to \ref bg_pmu_clock_t for more information. 
--	\ref SL_ULP_TIMER_DIRECTION is set to true to enable waiting for switching timer clk, and false to skip waiting for switching timer clk. 
--	After configuring the above macros, their values are passed to the \ref watchdog_timer_clock_config_t structure type variable \ref sl_watchdog_timer_clk_config_handle, which is used to configure the clock through the API \ref sl_si91x_watchdog_configure_clock.
+- Configure timer using following macros, defined in \ref sl_si91x_watchdog_timer_config.h file and update/modify following macros if required:
 
 
 ### Macros for Timer Configurations

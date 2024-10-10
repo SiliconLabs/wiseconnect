@@ -109,6 +109,7 @@ typedef enum {
   WORLD_DOMAIN,   ///< Worldwide domain
   KR,             ///< Korea
   SG,             ///< Singapore (not currently supported)
+  CN,             ///< China
   IGNORE_REGION   ///< Do not update region code during initialization
 } sl_si91x_region_code_t;
 

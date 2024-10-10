@@ -23,6 +23,9 @@
 #include "sl_net_dns.h"
 #include "sl_constants.h"
 #include "sl_si91x_constants.h"
+#include "sl_si91x_socket_constants.h"
+#include "sl_si91x_socket_utility.h"
+#include "sl_si91x_socket_types.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_protocol_types.h"
 #include "errno.h"
@@ -42,6 +45,8 @@ osSemaphoreId_t select_sem;
 #define MAX_DNS_REQ_COUNT 5
 #define TLS_SOCKET        2
 #define SL_CERT_INDEX_0   0
+#define MQTT_TLS_PORT 443
+#define ALPN_AMZN_MQTT_CA "x-amzn-mqtt-ca"
 
 /******************************************************
 *               Variable Declarations
@@ -144,7 +149,6 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
   memcpy(&server_addr.sin_addr.s_addr, &addr->ip.v4.value, SL_IPV4_ADDRESS_LENGTH);
   n->socket_id = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
- 
   if (n->socket_id < 0) {
     return sli_si91x_get_aws_error(errno);
   }
@@ -157,6 +161,47 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
     uint8_t certificate_index = SL_CERT_INDEX_0;
     if (sl_si91x_set_custom_sync_sockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
       return sli_si91x_get_aws_error(errno);
+    }
+
+    if(dst_port == MQTT_TLS_PORT) {
+      int socket_return_value = 0;
+
+      // Calculate the length of the ALPN data
+      uint16_t alpn_length = (uint16_t)strlen(ALPN_AMZN_MQTT_CA);
+
+      // Allocate memory for the sl_si91x_socket_type_length_value_t structure
+      sl_si91x_socket_type_length_value_t *alpn_value =
+        (sl_si91x_socket_type_length_value_t *)malloc(sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
+
+      if (alpn_value == NULL) {
+        SL_DEBUG_LOG("\r\nMemory allocation failed for ALPN value\r\n");
+        return FAILURE;
+      }
+
+      // Set the type to 2 for ALPN extension
+      alpn_value->type = SL_SI91X_TLS_EXTENSION_ALPN_TYPE;
+
+      // Set the length of the ALPN data
+      alpn_value->length = alpn_length;
+
+      // Copy the ALPN data into the value field
+      memcpy(alpn_value->value, ALPN_AMZN_MQTT_CA, alpn_length);
+
+      socket_return_value = sl_si91x_set_custom_sync_sockopt(n->socket_id,
+                                                      SOL_SOCKET,
+                                                      SO_TLS_ALPN,
+                                                      alpn_value,
+                                                      sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
+
+      if (socket_return_value < 0) {
+        SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
+        close(n->socket_id);
+        free(alpn_value);
+        return sli_si91x_get_aws_error(errno);
+      }
+
+      // Free the allocated memory after usage
+      free(alpn_value);
     }
   }
   

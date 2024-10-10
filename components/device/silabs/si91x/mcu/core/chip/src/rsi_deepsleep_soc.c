@@ -56,10 +56,6 @@ extern void set_scdc(uint32_t Deepsleep);
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
 #include "sl_si91x_psram_config.h"
-#if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
-extern sl_psram_return_type_t sl_si91x_psram_sleep(void);
-extern sl_psram_return_type_t sl_si91x_psram_wakeup(void);
-#endif
 #endif
 
 uint32_t nvic_enable[MAX_NVIC_REGS] = { 0 };

@@ -28,8 +28,7 @@ This sample app demonstrates the use of the Joystick Driver. It prints the joyst
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -57,6 +56,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   ![Figure: Introduction](resources/uc_screen/sl_joystick_uc_screen.png)
 
 - Using configuration wizard one can configure different parameters like:
+  - **Channel selection**
+  - Joystick ADC channel: The selection of the ADC channel instance for the joystick can be adjusted between channels 1 and channel_16.
+  > **Note:**
+  - Make sure to install selected ADC channel/instance.
+
   - **Joystick Voltage value Configuration**
   - REFERENCE VOLTAGE: Vref magnitude expressed in millivolts. As per Joystick Hardware on Wireless Pro Kit, Vref = AVDD = 3300 mV.
   - CENTER POSITION: Center position value(mV).
@@ -78,12 +82,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. Connect GPIO_26 [P36] (Joystick pin) to ULP_GPIO_1 [P16] for ADC channel input voltage.
-3. Press the Joystick on WPK at any direction (Center, North/Up, South/Down, East/Right, West/Left).
-4. The application should print the pressed position/direction of joystick in console.
-5. After successful program execution the prints in serial console looks as shown below.
+3. If the channel instance has changed, the ADC channel input pin will also change. Verify the pin that is configured on the channel configuration.
+4. Press the Joystick on WPK at any direction (Center, North/Up, South/Down, East/Right, West/Left).
+5. The application should print the pressed position/direction of joystick in console.
+6. After successful program execution the prints in serial console looks as shown below.
 
     ![Figure: Introduction](resources/readme/output.png)
-
 
 > **Note:**
 >

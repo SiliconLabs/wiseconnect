@@ -31,7 +31,16 @@
 #ifndef SL_SI91x_LED_INSTANCES_H
 #define SL_SI91x_LED_INSTANCES_H
 
-#include "sl_si91x_led.h"
+#include <stdint.h>
+{% for inst in simple_led_instance | sort -%}
+#include "sl_si91x_led_init_{{ inst }}_config.h"
+{% endfor %}
+
+typedef struct {
+  uint8_t pin;        ///< Pin number of the LED.
+  uint8_t port;       ///< Port number of the LED.
+  uint8_t led_number; ///< LED number for identification.
+} sl_led_t;
 
 {% for inst in simple_led_instance -%}
 extern const sl_led_t led_{{ inst | lower }};

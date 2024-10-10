@@ -49,8 +49,6 @@
 #define ALARM_SECONDS      15u
 #define ALARM_MILLISECONDS 100u
 
-#define CAL_RC_CLOCK 2u
-
 #define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
 #define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
@@ -90,6 +88,8 @@ void calendar_example_init(void)
 {
   sl_calendar_datetime_config_t datetime_config;
   sl_calendar_datetime_config_t get_datetime;
+  sl_calendar_datetime_config_t datetime_for_unix_demo;
+  uint32_t unix_timestamp;
   sl_status_t status;
 
   // default clock configuration by application common for whole system
@@ -97,14 +97,9 @@ void calendar_example_init(void)
 
   do {
 
-    //Configuration of clock and initialization of calendar
-    status = sl_si91x_calendar_set_configuration(CAL_RC_CLOCK);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_calendar_set_configuration: Invalid Parameters, Error Code : %lu \n", status);
-      break;
-    }
-    DEBUGOUT("Successfully configured Calendar\n");
+    // Initialization of calendar
     sl_si91x_calendar_init();
+
     //Setting datetime for Calendar
     status = sl_si91x_calendar_build_datetime_struct(&datetime_config,
                                                      TEST_CENTURY,
@@ -135,26 +130,29 @@ void calendar_example_init(void)
     }
     DEBUGOUT("Successfully fetched the calendar datetime \n");
     calendar_print_datetime(get_datetime);
-    DEBUGOUT("\n");
 
-#if defined(CLOCK_CALIBRATION) && (CLOCK_CALIBRATION == ENABLE)
-    //Clock Calibration
-    sl_si91x_calendar_calibration_init();
-    clock_calibration_config_t clock_calibration_config;
-    clock_calibration_config.rc_enable_calibration          = true;
-    clock_calibration_config.rc_enable_periodic_calibration = true;
-    clock_calibration_config.rc_trigger_time                = SL_RC_THIRTY_SEC;
-    clock_calibration_config.ro_enable_calibration          = true;
-    clock_calibration_config.ro_enable_periodic_calibration = true;
-    clock_calibration_config.ro_trigger_time                = SL_RO_ONE_SEC;
-    status = sl_si91x_calendar_rcclk_calibration(&clock_calibration_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_calendar_rcclk_calibration: Invalid Parameters, Error Code : %lu \n", status);
-      break;
-    }
-    DEBUGOUT("Successfully performed clock calibration \n");
-    sl_si91x_calendar_rtc_start();
-#endif
+    /** Demo APIs related to Unix timestamp conversions */
+    datetime_for_unix_demo = get_datetime;
+    sl_si91x_calendar_convert_calendar_datetime_to_unix_time(&datetime_for_unix_demo, &unix_timestamp);
+    DEBUGOUT("\nIts equivalent Unix timestamp: %lu\n", unix_timestamp);
+
+    unix_timestamp += 300; // increment by 5min (300 in sec), to demo Unix-to-calendar conversion
+    DEBUGOUT("\nUnix Timestamp incremented by 5min");
+    DEBUGOUT("\nIncremented Unix timestamp: %lu\n", unix_timestamp);
+    sl_si91x_calendar_convert_unix_time_to_calendar_datetime(unix_timestamp, &datetime_for_unix_demo);
+    DEBUGOUT("\nUnix to Calendar datetime conversion:\n");
+    DEBUGOUT("Time Format: hour:%d, min:%d, sec:%d, msec:%d\n",
+             datetime_for_unix_demo.Hour,
+             datetime_for_unix_demo.Minute,
+             datetime_for_unix_demo.Second,
+             datetime_for_unix_demo.MilliSeconds);
+    DEBUGOUT("Date Format: DayOfWeek DD/MM/YY: %.2d %.2d/%.2d/%.2d ",
+             datetime_for_unix_demo.DayOfWeek,
+             datetime_for_unix_demo.Day,
+             datetime_for_unix_demo.Month,
+             datetime_for_unix_demo.Year);
+    DEBUGOUT(" Century: %d in GMT Time Zone\n", datetime_for_unix_demo.Century);
+    /*************************************************************/
 
 #if defined(ALARM_EXAMPLE) && (ALARM_EXAMPLE == ENABLE)
     sl_calendar_datetime_config_t alarm_config;
@@ -274,8 +272,8 @@ static void calendar_print_datetime(sl_calendar_datetime_config_t data)
 {
   DEBUGOUT("\n***Calendar time****\n");
   DEBUGOUT("Time Format: hour:%d, min:%d, sec:%d, msec:%d\n", data.Hour, data.Minute, data.Second, data.MilliSeconds);
-  DEBUGOUT("Date Format: DD/MM/YY: %.2d/%.2d/%.2d ", data.Day, data.Month, data.Year);
-  DEBUGOUT(" Century: %d", data.Century);
+  DEBUGOUT("Date Format: DayOfWeek DD/MM/YY: %.2d %.2d/%.2d/%.2d ", data.DayOfWeek, data.Day, data.Month, data.Year);
+  DEBUGOUT(" Century: %d\n", data.Century);
 }
 
 /*******************************************************************************

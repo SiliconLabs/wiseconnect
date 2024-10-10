@@ -19,6 +19,7 @@
 #include "sl_net_constants.h"
 #include "cmsis_os2.h"
 #include "sl_si91x_socket_types.h"
+#include "sl_si91x_socket_utility.h"
 #include <stdbool.h>
 
 /******************************************************
@@ -250,7 +251,7 @@ typedef struct {
   uint8_t *
     resource; ///< Full URL string for the requested resource, including the scheme (for example, http, https), domain, port, path, query parameters, and fragment. The maximum supported HTTP URL is 2048 bytes when the SL_SI91X_FEAT_LONG_HTTP_URL bit is enabled in the feature_bit_map. If the SL_SI91X_FEAT_LONG_HTTP_URL bit is disabled, then the maximum supported length for the HTTP URL is (872 - (length of username + length of password) - length of hostname - length of IP address) bytes, excludes the delimiters.
   uint16_t port; ///< Port number of the HTTP server.
-  si91x_socket_type_length_value_t *
+  sl_si91x_socket_type_length_value_t *
     sni_extension; ///< SNI (Server Name Indication) extension to specify the hostname for servers hosting multiple domains on the same IP address of type [si91x_socket_type_length_value_t](../wiseconnect-api-reference-guide-sockets/si91x-socket-type-length-value-t).
   uint8_t
     *body; ///< HTTP body to be sent to the server. Setting this to NULL will process the request in chunked encoding.
