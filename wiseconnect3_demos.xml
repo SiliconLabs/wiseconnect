@@ -5,8 +5,8 @@
     <property key="demos.blurb" value="Cli Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4338a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.3/demos/brd4338a/cli_demo_soc.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.3/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4338a/cli_demo_soc.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
     <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
     <property key="readmeFiles" value="examples/snippets/cli_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
@@ -17,8 +17,8 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd2605a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.3/demos/brd2605a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.3/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd2605a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
     <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
@@ -29,8 +29,8 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4338a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.3/demos/brd4338a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.3/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4338a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
     <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
@@ -41,8 +41,8 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4342a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.3/demos/brd4342a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.3/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4342a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
     <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
@@ -53,8 +53,8 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4343a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.3/demos/brd4343a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.3/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4343a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
     <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
@@ -65,8 +65,8 @@
     <property key="demos.blurb" value="Wi-Fi - SiWx917 Dev Kit (BRD2605A)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd2605a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.3/demos/brd2605a/siwx917_dev_kit.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.3/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd2605a/siwx917_dev_kit.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
     <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
     <property key="readmeFiles" value="examples/si91x_soc/siwx917_dev_kit/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
