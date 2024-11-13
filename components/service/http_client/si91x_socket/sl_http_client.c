@@ -159,7 +159,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *client_con
   // Store client configurations into internal configurations
   memcpy(&http_client_handle.configuration, client_configuration, sizeof(sl_http_client_configuration_t));
 
-  sl_net_credential_type_t type;
+  sl_net_credential_type_t type = { 0 };
   uint32_t max_credential_size = sizeof(sl_http_client_credentials_t) + SI91X_MAX_SUPPORTED_HTTP_CREDENTIAL_LENGTH;
 
   http_client_handle.client_credentials = (sl_http_client_credentials_t *)malloc(max_credential_size);

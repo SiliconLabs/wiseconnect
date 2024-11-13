@@ -174,7 +174,7 @@ sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credent
 sl_status_t sl_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t type, sl_wifi_credential_t *cred)
 {
   UNUSED_PARAMETER(type);
-  sl_net_credential_type_t actual_type;
+  sl_net_credential_type_t actual_type = { 0 };
   uint32_t credential_length = sizeof(sl_wifi_credential_t) - offsetof(sl_wifi_credential_t, pmk);
   sl_status_t status         = sl_net_get_credential(id, &actual_type, &cred->pmk, &credential_length);
   VERIFY_STATUS_AND_RETURN(status);
