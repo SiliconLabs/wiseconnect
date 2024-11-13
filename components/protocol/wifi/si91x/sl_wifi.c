@@ -46,6 +46,10 @@
 #define SL_NCP_DEFAULT_COMMAND_WAIT_TIME 3000
 #endif
 
+#ifdef MIN
+#undef MIN
+#endif
+
 #define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
