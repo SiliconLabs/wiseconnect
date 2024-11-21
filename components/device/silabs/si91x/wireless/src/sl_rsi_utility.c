@@ -1099,12 +1099,14 @@ sl_status_t sl_si91x_platform_deinit(void)
 
   // Terminate SI91X bus thread
   if (NULL != si91x_thread) {
+    sl_si91x_host_set_bus_event(SL_SI91X_THREAD_EXIT_EVENT);
     osThreadTerminate(si91x_thread);
     si91x_thread = NULL;
   }
 
   // Terminate SI91X event handler thread
   if (NULL != si91x_event_thread) {
+    sl_si91x_host_set_async_event(NCP_HOST_THREAD_EXIT_EVENT);
     osThreadTerminate(si91x_event_thread);
     si91x_event_thread = NULL;
   }

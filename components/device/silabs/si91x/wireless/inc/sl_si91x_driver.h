@@ -64,6 +64,9 @@
 #define SL_SI91X_NCP_HOST_BUS_RX_EVENT \
   SL_SI91X_RESPONSE_FLAG(SI91X_CMD_MAX) //Triggered by IRQ to indicate something to read
 
+//! Todo check does he interfere with others?
+#define SL_SI91X_THREAD_EXIT_EVENT (1 << 15)
+
 #define SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS                                                           \
   (SL_SI91X_COMMON_TX_PENDING_EVENT | SL_SI91X_WLAN_TX_PENDING_EVENT | SL_SI91X_NETWORK_TX_PENDING_EVENT \
    | SL_SI91X_BT_TX_PENDING_EVENT | SL_SI91X_SOCKET_TX_PENDING_EVENT)

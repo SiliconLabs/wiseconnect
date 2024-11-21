@@ -62,7 +62,7 @@
 #endif
 
 #define BUS_THREAD_EVENTS \
-  (SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS | SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT | SL_SI91X_NCP_HOST_BUS_RX_EVENT)
+  (SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS | SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT | SL_SI91X_NCP_HOST_BUS_RX_EVENT | SL_SI91X_THREAD_EXIT_EVENT)
 
 /******************************************************
  *               Function Declarations
@@ -298,10 +298,14 @@ void si91x_event_handler_thread(const void *args)
   sli_si91x_queue_packet_t *data = NULL;
   uint16_t frame_status          = 0;
   const uint32_t event_mask =
-    (NCP_HOST_WLAN_NOTIFICATION_EVENT | NCP_HOST_NETWORK_NOTIFICATION_EVENT | NCP_HOST_SOCKET_NOTIFICATION_EVENT);
+    (NCP_HOST_WLAN_NOTIFICATION_EVENT | NCP_HOST_NETWORK_NOTIFICATION_EVENT | NCP_HOST_SOCKET_NOTIFICATION_EVENT | NCP_HOST_THREAD_EXIT_EVENT);
 
   while (1) {
     event = si91x_host_wait_for_async_event(event_mask, osWaitForever);
+
+    if ((event & NCP_HOST_THREAD_EXIT_EVENT) != 0) {
+      break;
+    }
 
     if ((event & NCP_HOST_WLAN_NOTIFICATION_EVENT) != 0) {
       // Process WLAN notification events
@@ -416,6 +420,10 @@ void si91x_bus_thread(const void *args)
     if ((tx_queues_empty == 0) && !(event & SL_SI91X_NCP_HOST_BUS_RX_EVENT)) {
       // Wait for an event related to data TX or RX on the bus with an infinite timeout.
       event |= si91x_host_wait_for_bus_event(BUS_THREAD_EVENTS, osWaitForever);
+
+      if(event & SL_SI91X_THREAD_EXIT_EVENT){
+        break;
+      }
     }
 
 #ifndef SLI_SI91X_MCU_INTERFACE

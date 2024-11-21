@@ -57,6 +57,9 @@
   (1 << 9)                                   // Indicates asynchronous RX response received for SOCKET command type
 #define NCP_HOST_BT_RESPONSE_EVENT (1 << 10) // Indicates RX response received for BLE command type
 
+//todo: check does he interfere with others?
+#define NCP_HOST_THREAD_EXIT_EVENT (1 << 15) // Indicates the thread exit event
+
 /// Low Transmit Power Threshold for Wi-Fi.
 #define SI91X_LOW_TRANSMIT_POWER_THRESHOLD 6
 
