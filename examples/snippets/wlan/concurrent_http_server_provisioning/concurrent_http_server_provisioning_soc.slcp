@@ -14,12 +14,13 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version: 2024.6.2
+   version:  "2024.12.0"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.3.4
+   version: 3.4.0
 source:
 -  path: app.c
+-  path: wifi_app.c
 -  path: main.c
 include:
 
@@ -40,7 +41,7 @@ component:
     from: wiseconnect3_sdk
   - id: json_parser
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: wifi
     from: wiseconnect3_sdk

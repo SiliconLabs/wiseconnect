@@ -40,6 +40,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * the demo) are contained in FreeRTOSIPConfig.h.
 *----------------------------------------------------------*/
 
+#include <stdio.h>
 #include "si91x_device.h"
 #if (SL_SI91X_TICKLESS_MODE == 1)
 #include "sl_si91x_m4_ps.h"
@@ -55,24 +56,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //  <i> Default: 51200
 #define configTOTAL_HEAP_SIZE 51200
 
-#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
-#if !defined(SL_SI91X_LWIP_CONFIG)
-//  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
-//  <i> Kernel tick rate in Hz.
-//  <i> Default: 1024
-#define configTICK_RATE_HZ 1024
-#else
 //  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
 //  <i> Kernel tick rate in Hz.
 //  <i> Default: 1000
 #define configTICK_RATE_HZ 1000
-#endif // SL_SI91X_LWIP_CONFIG
-#else
-//  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
-//  <i> Kernel tick rate in Hz.
-//  <i> Default: 1000
-#define configTICK_RATE_HZ 1000
-#endif // SL_SI91X_TICKLESS_MODE
 
 //  <o>Timer task stack depth [words] <0-65535>
 //  <i> Stack for timer task in words.
@@ -246,8 +233,6 @@ extern uint32_t SystemCoreClock;
 unsigned long ulGetRunTimeCounterValue(void);
 void vConfigureTimerForRunTimeStats(void);
 #define configGENERATE_RUN_TIME_STATS 0
-//#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() 	vConfigureTimerForRunTimeStats()
-//#define portGET_RUN_TIME_COUNTER_VALUE()         	ulGetRunTimeCounterValue()
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES           0
@@ -330,7 +315,6 @@ extern void vLoggingPrint(const char *pcMessage);
 #define configPRINT(X) vLoggingPrint(X)
 
 /* Map the logging task's printf to the board specific output function. */
-#include <stdio.h>
 #define configPRINT_STRING(X) printf(X); /* : Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */

@@ -1,25 +1,35 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_usart.h
-* @brief 
+* @brief This files contains functions prototypes related to USART peripheral
+* @section Description :
+* This file contains the list of function prototypes for the usart and low level 
+* function definitions
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
-/**===========================================================================
- * @brief This files contains functions prototypes related to EGPIO peripheral
- * @section Description :
- * This file contains the list of function prototypes for the usart and low level function definitions
- * Following are list of API's which need to be defined in this file.
-============================================================================**/
 
 // Include Files
 
@@ -65,23 +75,23 @@ int32_t USART_Receive_Data(const void *data,
                            UDMA_Channel_Info *chnl_info,
                            RSI_UDMA_HANDLE_T udmaHandle);
 int32_t USART_Transfer(const void *data_out,
-                       void *data_in,
+                       const void *data_in,
                        uint32_t num,
                        USART_RESOURCES *usart,
                        const UDMA_RESOURCES *udma,
                        UDMA_Channel_Info *chnl_info,
                        RSI_UDMA_HANDLE_T udmaHandle);
-uint32_t USART_GetTxCount(USART_RESOURCES *usart);
-uint32_t USART_GetRxCount(USART_RESOURCES *usart);
+uint32_t USART_GetTxCount(const USART_RESOURCES *usart);
+uint32_t USART_GetRxCount(const USART_RESOURCES *usart);
 int32_t USART_Control(uint32_t control,
                       uint32_t arg,
                       uint32_t baseClk,
                       USART_RESOURCES *usart,
                       const UDMA_RESOURCES *udma,
                       RSI_UDMA_HANDLE_T udmaHandle);
-ARM_USART_STATUS USART_GetStatus(USART_RESOURCES *usart);
+ARM_USART_STATUS USART_GetStatus(const USART_RESOURCES *usart);
 int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *usart);
-ARM_USART_MODEM_STATUS USART_GetModemStatus(USART_RESOURCES *usart);
+ARM_USART_MODEM_STATUS USART_GetModemStatus(const USART_RESOURCES *usart);
 uint32_t USART_GetParity_StopBit(uint8_t usart_peripheral); //API to get the parity and stop bit info
 uint32_t USART_GetBaudrate(uint8_t usart_peripheral);       //API to get the USART/UART baudrate
 uint8_t USART_GetInitState(uint8_t usart_peripheral);       //Get the USART Initialized state

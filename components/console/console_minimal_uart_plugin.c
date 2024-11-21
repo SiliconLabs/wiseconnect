@@ -141,7 +141,9 @@ static void post_uart_rx_handler(char character)
         last_char_lf = false;
         if (user_rx_buffer_write_pointer > 0) {
           user_rx_buffer_write_pointer--;
+#ifndef SLI_CONSOLE_SUPPRESS_AUTO_ECHO
           printf("%c", character);
+#endif
         }
         break;
 
@@ -155,7 +157,6 @@ static void post_uart_rx_handler(char character)
           break;
         }
         break;
-        // __attribute__((fallthrough));
 
       case LINEFEED_CHARACTER:
         // check if the last character is a linefeed and set last_char_lf as true.
@@ -185,7 +186,9 @@ static void post_uart_rx_handler(char character)
         last_char_lf                                                       = false;
         user_rx_buffer[current_buffer_index][user_rx_buffer_write_pointer] = character;
         user_rx_buffer_write_pointer++;
+#ifndef SLI_CONSOLE_SUPPRESS_AUTO_ECHO
         printf("%c", character);
+#endif
         break;
     }
   } else {
@@ -203,7 +206,9 @@ static void post_uart_rx_handler(char character)
           current_buffer_index = USER_RX_BUFFER_COUNT - 1;
         }
 
+#ifndef SLI_CONSOLE_SUPPRESS_AUTO_ECHO
         printf("%s", (const char *)&user_rx_buffer[current_buffer_index][0]);
+#endif
       }
       escape_sequence = 0;
     }
@@ -252,7 +257,7 @@ void console_print_command_args(const console_descriptive_command_t *command)
   }
 }
 
-sl_status_t default_help_command_handler(console_args_t *arguments)
+sl_status_t default_help_command_handler(const console_args_t *arguments)
 {
   const console_database_entry_t *entry;
   uint32_t starting_index = 0;
@@ -316,6 +321,6 @@ static void print_command_database(const console_database_t *database, const cha
 
 char *console_get_command_buffer(void)
 {
-  const int index = (current_buffer_index - 1) % USER_RX_BUFFER_COUNT;
+  const int index = (current_buffer_index - 1 + USER_RX_BUFFER_COUNT) % USER_RX_BUFFER_COUNT;
   return (char *)user_rx_buffer[index];
 }

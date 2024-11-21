@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_i2c.c
- * @brief I2C API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_i2c.c
+* @brief I2C API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_peripheral_i2c.h"
 #include "rsi_power_save.h"
 #include "rsi_rom_clks.h"
@@ -36,38 +36,33 @@
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define SS_MIN_SCL_HIGH                 5200 // Standard Speed minimum SCL high
-#define SS_MIN_SCL_LOW                  4700 // Standard Speed minimum SCL low
-#define FS_MIN_SCL_HIGH                 1160 // Fast Speed minimum SCL high
-#define FS_MIN_SCL_LOW                  1300 // Fast Speed minimum SCL low
-#define FPS_MIN_SCL_HIGH_400PF          274  // Fast Plus Speed minimum SCL high
-#define FPS_MIN_SCL_LOW_400PF           333  // Fast Plus Speed minimum SCL low
-#define HS_MIN_SCL_HIGH_100PF           60   // High Speed minimum SCL high
-#define HS_MIN_SCL_LOW_100PF            120  // High Speed minimum SCL low
-#define I2C_RELEASE_VERSION             0    // I2C Release version
-#define I2C_SQA_VERSION                 0    // I2C SQA version
-#define I2C_DEV_VERSION                 2    // I2C Developer version
-#define HIGH_SPEED_HIGH_COUNT_VALUE     8    // High speed mode clock high count value
-#define HIGH_SPEED_LOW_COUNT_VALUE      14   // High speed mode clock high count value
-#define ULP_HIGH_SPEED_HIGH_COUNT_VALUE 14   // High speed mode clock high count value in ulp mode
-#define ULP_HIGH_SPEED_LOW_COUNT_VALUE  43   // High speed mode clock low count value in ulp mode
 
-#define IC_FS_SPKLEN              7    // Spike Length - same for SS, FS, FPS
-#define IC_HS_SPKLEN              2    // Spike Length for HS
-#define SS_DESIRED_SCL_FREQ       100  // 100 kHz
-#define FS_DESIRED_SCL_FREQ       400  // 400 kHz
-#define FPS_DESIRED_SCL_FREQ      1000 // 1 MHz
-#define HS_DESIRED_SCL_FREQ       3400 // 3.4 MHz
-#define SS_MIN_SCL_HIGHtime       4000 // 4000 ns for 100 kbps
-#define FS_MIN_SCL_HIGHtime       600  // 600 ns for 400 kbps
-#define FPS_MIN_SCL_HIGHtime      260  // 260 ns for 1000 kbps
-#define HS_MIN_SCL_HIGHtime_100PF 60   // 60 ns for 3.4 Mbps, bus loading = 100pF
-#define HS_MIN_SCL_HIGHtime_400PF 120  // 120 ns for 3.4 Mbps, bus loading = 400pF
-#define SS_MIN_SCL_LOWtime        4700 // 4700 ns for 100 kbps
-#define FS_MIN_SCL_LOWtime        1300 // 1300 ns for 400 kbps
-#define FPS_MIN_SCL_LOWtime       500  // 500 ns for 1000 kbps
-#define HS_MIN_SCL_LOWtime_100PF  160  // 160 ns for 3.4Mbps, bus loading = 100pF
-#define HS_MIN_SCL_LOWtime_400PF  320  //320 ns for 3.4Mbps, bus loading = 400pF
+#define I2C_RELEASE_VERSION       0       // I2C Release version
+#define I2C_SQA_VERSION           0       // I2C SQA version
+#define I2C_DEV_VERSION           2       // I2C Developer version
+#define IC_SS_SPKLENGTH           7       // Spike Length - same for SS, FS
+#define IC_FS_SPKLENGTH           1       // Spike Length for FPS
+#define IC_HS_SPKLENGTH           1       // Spike Length for HS
+#define SS_DESIRED_SCL_FREQ       100     // 100 kHz
+#define FS_DESIRED_SCL_FREQ       400     // 400 kHz
+#define SS_MIN_SCL_HIGHtime       5200    // 5200 ns for 100 kbps
+#define FS_MIN_SCL_HIGHtime       1160    // 1160 ns for 400 kbps
+#define FPS_MIN_SCL_HIGHtime      500     // 500 ns for 1000 kbps
+#define HS_MIN_SCL_HIGHtime_100PF 132     // 132 ns for 3.4 Mbps, bus loading = 100pF
+#define HS_MIN_SCL_HIGHtime_400PF 274     // 274 ns for 3.4 Mbps, bus loading = 400pF
+#define SS_MIN_SCL_LOWtime        4700    // 4700 ns for 100 kbps
+#define FS_MIN_SCL_LOWtime        1330    // 1330 ns for 400 kbps
+#define FPS_MIN_SCL_LOWtime       500     // 500 ns for 1000 kbps
+#define HS_MIN_SCL_LOWtime_100PF  161     // 161 ns for 3.4Mbps, bus loading = 100pF
+#define HS_MIN_SCL_LOWtime_400PF  333     // 333 ns for 3.4Mbps, bus loading = 400pF
+#define CONVERT_TO_MHZ            1000000 // Mega hertz conversion value
+#define CONVERT_TO_NS             1000    // Conversion value of time period to nanosecond
+#define TOTAL_COUNT_OFFSET        8       // Constant deduction required from total count in FS and SS
+#define HIGHCOUNT_CONSTANT        8       // Constant deduction required from high counts
+#define LOWCOUNT_CONSTANT         1       // Constant deduction required from low counts
+#define HS_HIGHCOUNT_OFFSET       9       // Offset value for high counts in high speed mode
+#define HS_LOWCOUNT_OFFSET        13      // Offset value for low counts in high speed mode
+
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -80,6 +75,7 @@
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static void set_i2c_clock_rate(I2C_TypeDef *i2c, uint8_t speed, uint32_t i2c_Clk);
+static uint8_t get_fast_plus_offset_value(uint32_t clock);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -196,7 +192,7 @@ void sl_si91x_i2c_set_frequency(I2C_TypeDef *i2c, uint32_t ref_freq, uint32_t fr
   UNUSED_VARIABLE(ref_freq);
 
   uint32_t clock;
-  clock = freq_scl / 1000000;
+  clock = freq_scl / CONVERT_TO_MHZ;
 
   switch (clhr) {
     case SL_I2C_STANDARD_BUS_SPEED: // Standard Speed (100kHz)
@@ -249,14 +245,14 @@ static void set_i2c_clock_rate(I2C_TypeDef *i2c, uint8_t speed, uint32_t i2c_Clk
 
   switch (speed) {
     case SL_I2C_STANDARD_BUS_SPEED:
-      total_scl_cnt = ((i2c_Clk * 1000) / SS_DESIRED_SCL_FREQ) - IC_FS_SPKLEN - 8;
+      total_scl_cnt = ((i2c_Clk * CONVERT_TO_NS) / SS_DESIRED_SCL_FREQ) - IC_SS_SPKLENGTH - TOTAL_COUNT_OFFSET;
 
-      ss_scl_low  = (SS_MIN_SCL_LOWtime * i2c_Clk) / 1000;
+      ss_scl_low  = (SS_MIN_SCL_LOWtime * i2c_Clk) / CONVERT_TO_NS;
       ss_scl_high = total_scl_cnt - ss_scl_low;
       if (total_scl_cnt > ss_scl_low) {
         ss_scl_high = total_scl_cnt - ss_scl_low;
       } else {
-        ss_scl_high = (SS_MIN_SCL_HIGHtime * i2c_Clk) / 1000;
+        ss_scl_high = (SS_MIN_SCL_HIGHtime * i2c_Clk) / CONVERT_TO_NS;
       }
 
       // Calculated values are update in the corresponding registers.
@@ -265,13 +261,13 @@ static void set_i2c_clock_rate(I2C_TypeDef *i2c, uint8_t speed, uint32_t i2c_Clk
       break;
 
     case SL_I2C_FAST_BUS_SPEED:
-      total_scl_cnt = ((i2c_Clk * 1000) / FS_DESIRED_SCL_FREQ) - IC_FS_SPKLEN - 8;
+      total_scl_cnt = ((i2c_Clk * CONVERT_TO_NS) / FS_DESIRED_SCL_FREQ) - IC_SS_SPKLENGTH - TOTAL_COUNT_OFFSET;
 
-      fs_scl_low = (FS_MIN_SCL_LOWtime * i2c_Clk) / 1000;
+      fs_scl_low = (FS_MIN_SCL_LOWtime * i2c_Clk) / CONVERT_TO_NS;
       if (total_scl_cnt > fs_scl_low) {
         fs_scl_high = total_scl_cnt - fs_scl_low;
       } else {
-        fs_scl_high = (FS_MIN_SCL_HIGHtime * i2c_Clk) / 1000;
+        fs_scl_high = (FS_MIN_SCL_HIGHtime * i2c_Clk) / CONVERT_TO_NS;
       }
       // Calculated values are update in the corresponding registers.
       i2c->IC_FS_SCL_LCNT_b.IC_FS_SCL_LCNT = fs_scl_low;
@@ -279,42 +275,44 @@ static void set_i2c_clock_rate(I2C_TypeDef *i2c, uint8_t speed, uint32_t i2c_Clk
       break;
 
     case SL_I2C_FAST_PLUS_BUS_SPEED:
-      total_scl_cnt = ((i2c_Clk * 1000) / FPS_DESIRED_SCL_FREQ) - IC_FS_SPKLEN - 8;
+      i2c->IC_FS_SPKLEN_b.IC_FS_SPKLEN = IC_FS_SPKLENGTH;
 
-      fps_scl_low = (FPS_MIN_SCL_LOWtime * i2c_Clk) / 1000;
-      if (total_scl_cnt > fps_scl_low) {
-        fps_scl_high = total_scl_cnt - fps_scl_low;
-      } else {
-        fps_scl_high = (FPS_MIN_SCL_HIGHtime * i2c_Clk) / 1000;
-      }
-
+      uint8_t offset_value = get_fast_plus_offset_value(i2c_Clk);
+      fps_scl_low          = ((FPS_MIN_SCL_LOWtime * i2c_Clk) / CONVERT_TO_NS) - LOWCOUNT_CONSTANT;
+      fps_scl_high         = ((FPS_MIN_SCL_HIGHtime * i2c_Clk) / CONVERT_TO_NS) - HIGHCOUNT_CONSTANT;
       // Calculated values are update in the corresponding registers.
-      i2c->IC_FS_SCL_LCNT_b.IC_FS_SCL_LCNT = fps_scl_low;
-      i2c->IC_FS_SCL_HCNT_b.IC_FS_SCL_HCNT = fps_scl_high;
+      i2c->IC_FS_SCL_LCNT_b.IC_FS_SCL_LCNT = fps_scl_low - offset_value;
+      i2c->IC_FS_SCL_HCNT_b.IC_FS_SCL_HCNT = fps_scl_high - offset_value;
       break;
 
     case SL_I2C_HIGH_BUS_SPEED:
-      if (!RSI_PS_IsPS2State()) {
-        total_scl_cnt = ((i2c_Clk * 1000) / HS_DESIRED_SCL_FREQ) - IC_HS_SPKLEN - 8;
+      i2c->IC_HS_SPKLEN_b.IC_HS_SPKLEN = IC_HS_SPKLENGTH;
 
-        hs_scl_low = (HS_MIN_SCL_LOWtime_100PF * i2c_Clk) / 1000;
-        if (total_scl_cnt > hs_scl_low) {
-          hs_scl_high = total_scl_cnt - hs_scl_low;
-        } else {
-          hs_scl_high = (HS_MIN_SCL_HIGHtime_100PF * i2c_Clk) / 1000;
-        }
-      } else {
-        hs_scl_high = ULP_HIGH_SPEED_HIGH_COUNT_VALUE;
-        hs_scl_low  = ULP_HIGH_SPEED_LOW_COUNT_VALUE;
-      }
+      hs_scl_low  = ((HS_MIN_SCL_LOWtime_100PF * i2c_Clk) / CONVERT_TO_NS) - LOWCOUNT_CONSTANT;
+      hs_scl_high = ((HS_MIN_SCL_HIGHtime_100PF * i2c_Clk) / CONVERT_TO_NS) - HIGHCOUNT_CONSTANT;
       // Calculated values are update in the corresponding registers.
-      i2c->IC_HS_SCL_LCNT_b.IC_HS_SCL_LCNT = hs_scl_low;
-      i2c->IC_HS_SCL_HCNT_b.IC_HS_SCL_HCNT = hs_scl_high;
+      i2c->IC_HS_SCL_LCNT_b.IC_HS_SCL_LCNT = hs_scl_low - HS_LOWCOUNT_OFFSET;
+      i2c->IC_HS_SCL_HCNT_b.IC_HS_SCL_HCNT = hs_scl_high - HS_HIGHCOUNT_OFFSET;
       break;
 
     default:
       break;
   }
+}
+
+/*******************************************************************************
+ * It calculates the offset value of high count and low count according to the 
+ * input clock frequency.
+ ******************************************************************************/
+static uint8_t get_fast_plus_offset_value(uint32_t clock)
+{
+  uint8_t offset = 1;
+  if ((clock >= 32) && (clock < 80)) {
+    offset = (0.083 * clock) - 1.65;
+  } else if (clock >= 80) {
+    offset = (clock * 0.05) + 1;
+  }
+  return offset;
 }
 
 /*******************************************************************************

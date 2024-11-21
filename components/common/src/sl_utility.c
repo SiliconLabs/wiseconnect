@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_utility.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_utility.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -35,6 +47,10 @@
    : ((c >= 'a') && (c <= 'z')) ? (c - 'a' + 10) \
    : ((c >= 'A') && (c <= 'Z')) ? (c - 'A' + 10) \
                                 : -1)
+typedef struct {
+  int base;
+  int len;
+} data_t;
 
 extern char *strtok_r(char *, const char *, char **);
 
@@ -104,10 +120,8 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
 {
   char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"];
   char *tp;
-  struct {
-    int base;
-    int len;
-  } best, cur;
+  data_t best;
+  data_t cur;
   unsigned int words[SL_IPV6_ADDRESS_LENGTH / 2];
   int i;
   unsigned int ip_big_endian[4];

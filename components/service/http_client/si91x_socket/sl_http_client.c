@@ -47,6 +47,10 @@
     }                                                   \
   } while (0)
 
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 /******************************************************
  *                    Constants
  ******************************************************/
@@ -139,7 +143,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *client_con
       break;
     }
     case SL_TLS_V_1_3: {
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
       break;
 #else
       return SL_STATUS_NOT_SUPPORTED;
@@ -335,7 +339,7 @@ sl_status_t sl_http_client_delete_header(sl_http_client_request_t *request, cons
   SL_WIFI_ARGS_CHECK_NULL_POINTER(request);
   SL_WIFI_ARGS_CHECK_NULL_POINTER(key);
 
-  sl_http_client_header_t *current_header = (sl_http_client_header_t *)request->extended_header;
+  sl_http_client_header_t *current_header = request->extended_header;
 
   // Check if linked list is empty
   if (request->extended_header == NULL) {
@@ -421,7 +425,7 @@ static sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_t
   packet_length = sizeof(si91x_sni_for_embedded_socket_request_t) + SI91X_MAX_SIZE_OF_EXTENSION_DATA;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_SNI_EMBEDDED,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         request,
                                         packet_length,
                                         SL_SI91X_WAIT_FOR_RESPONSE(5000),
@@ -518,7 +522,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
         http_client_request->https_enable |= SL_SI91X_TLS_V_1_2;
         break;
       }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
       case SL_TLS_V_1_3: {
         http_client_request->https_enable |= SL_SI91X_TLS_V_1_3;
         break;
@@ -662,7 +666,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
     if (send_request == SL_HTTP_POST) {
       // HTTP Post request
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_POST,
-                                            SI91X_NETWORK_CMD_QUEUE,
+                                            SI91X_NETWORK_CMD,
                                             http_client_request,
                                             packet_length,
                                             SL_SI91X_RETURN_IMMEDIATELY,
@@ -671,7 +675,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
     } else {
       // HTTP Get request
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_GET,
-                                            SI91X_NETWORK_CMD_QUEUE,
+                                            SI91X_NETWORK_CMD,
                                             http_client_request,
                                             packet_length,
                                             SL_SI91X_RETURN_IMMEDIATELY,
@@ -711,7 +715,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
         // HTTP Get request with custom driver command
         status = sl_si91x_custom_driver_send_command(
           RSI_WLAN_REQ_HTTP_CLIENT_GET,
-          SI91X_NETWORK_CMD_QUEUE,
+          SI91X_NETWORK_CMD,
           packet_buffer,
           (sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + chunk_size),
           SL_SI91X_RETURN_IMMEDIATELY,
@@ -722,7 +726,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
         // HTTP POST request with custom driver command
         status = sl_si91x_custom_driver_send_command(
           RSI_WLAN_REQ_HTTP_CLIENT_POST,
-          SI91X_NETWORK_CMD_QUEUE,
+          SI91X_NETWORK_CMD,
           packet_buffer,
           (sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + chunk_size),
           SL_SI91X_RETURN_IMMEDIATELY,
@@ -817,7 +821,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
       packet_length = sizeof(sl_si91x_http_client_put_request_t) - SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH;
 
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_PUT,
-                                            SI91X_NETWORK_CMD_QUEUE,
+                                            SI91X_NETWORK_CMD,
                                             http_put_request,
                                             packet_length,
                                             SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -860,7 +864,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
             http_put_start->https_enable |= SL_SI91X_TLS_V_1_2;
             break;
           }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
           case SL_TLS_V_1_3: {
             http_put_start->https_enable |= SL_SI91X_TLS_V_1_3;
             break;
@@ -918,7 +922,9 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
       // Check for HTTP_V_1.1 and Empty host name
       if (http_client_handle.configuration.http_version == SL_HTTP_V_1_1
           && (strlen((char *)request->host_name) == 0 || request->host_name == NULL)) {
-        strcpy((char *)request->host_name, (char *)request->ip_address);
+        memcpy((char *)request->host_name,
+               (char *)request->ip_address,
+               MIN(strlen((char *)request->host_name), strlen((char *)request->ip_address)) + 1);
       }
 
       // Fill hostname
@@ -965,7 +971,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
         sizeof(sl_si91x_http_client_put_request_t) - SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH + http_buffer_offset;
 
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_PUT,
-                                            SI91X_NETWORK_CMD_QUEUE,
+                                            SI91X_NETWORK_CMD,
                                             http_put_request,
                                             packet_length,
                                             SL_SI91X_RETURN_IMMEDIATELY,
@@ -1020,7 +1026,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
   }
 
   // Check for invalid data length
-  if ((data_length == 0) && (strlen((char *)data) == 0)) {
+  if ((data_length == 0) && (strlen((const char *)data) == 0)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
@@ -1046,7 +1052,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
 
       // Send HTTP Post Data request
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_POST_DATA,
-                                            SI91X_NETWORK_CMD_QUEUE,
+                                            SI91X_NETWORK_CMD,
                                             http_post_data,
                                             packet_length,
                                             SL_SI91X_RETURN_IMMEDIATELY,
@@ -1083,7 +1089,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
 
       // Send HTTP Put Data request
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_PUT,
-                                            SI91X_NETWORK_CMD_QUEUE,
+                                            SI91X_NETWORK_CMD,
                                             http_put_pkt_request,
                                             packet_length,
                                             SL_SI91X_RETURN_IMMEDIATELY,
@@ -1106,7 +1112,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
 static sl_status_t sli_si91x_http_client_abort(void)
 {
   sl_status_t status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_ABORT,
-                                                    SI91X_NETWORK_CMD_QUEUE,
+                                                    SI91X_NETWORK_CMD,
                                                     NULL,
                                                     0,
                                                     SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,

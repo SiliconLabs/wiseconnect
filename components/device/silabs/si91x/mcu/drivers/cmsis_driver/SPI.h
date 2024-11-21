@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------------------
  * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
- *
+ * 
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the License); you may
@@ -30,7 +30,9 @@
 
 #include "UDMA.h"     
 #include "rsi_ulpss_clk.h"
-#ifdef SSI_CONFIG
+#ifdef SSI_INSTANCE_CONFIG
+#include "sl_ssi_common_config.h"
+#elif SSI_CONFIG
 #include "sl_si91x_ssi_common_config.h"
 #endif
 
@@ -83,7 +85,24 @@ void mySPI_callback(uint32_t event);
 
 #if defined(RTE_SSI_MASTER) && (RTE_SSI_MASTER == 1)
 #define  SSI_MASTER						 1U
+// Configuring DMA thresholds based on SSI instances.
+#ifdef SSI_INSTANCE_CONFIG
+#if defined (SL_SSI_PRIMARY_DMA_CONFIG_ENABLE) && (SL_SSI_PRIMARY_DMA_CONFIG_ENABLE == ENABLE)
+#define RTE_SSI_MASTER_RX_DMA 1
+#define RTE_SSI_MASTER_TX_DMA 1
+#endif
 
+#if defined (SL_SSI_SECONDARY_DMA_CONFIG_ENABLE) && (SL_SSI_SECONDARY_DMA_CONFIG_ENABLE == ENABLE)
+#define RTE_SSI_SLAVE_RX_DMA 1
+#define RTE_SSI_SLAVE_TX_DMA 1
+#endif
+
+#if defined (SL_SSI_ULP_PRIMARY_DMA_CONFIG_ENABLE) && (SL_SSI_ULP_PRIMARY_DMA_CONFIG_ENABLE == ENABLE)
+#define RTE_SSI_ULP_MASTER_RX_DMA 1
+#define RTE_SSI_ULP_MASTER_TX_DMA 1
+#endif
+// DMA threshold configuration based on SSI unknown instance name.
+#elif SSI_CONFIG
 #if defined (SL_SSI_MASTER_DMA_CONFIG_ENABLE) && (SL_SSI_MASTER_DMA_CONFIG_ENABLE == ENABLE)
 #define RTE_SSI_MASTER_RX_DMA 1
 #define RTE_SSI_MASTER_TX_DMA 1
@@ -97,6 +116,7 @@ void mySPI_callback(uint32_t event);
 #if defined (SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE) && (SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE == ENABLE)
 #define RTE_SSI_ULP_MASTER_RX_DMA 1
 #define RTE_SSI_ULP_MASTER_TX_DMA 1
+#endif
 #endif
 
 #if defined(RTE_SSI_MASTER_RX_DMA) && (RTE_SSI_MASTER_RX_DMA == 1)

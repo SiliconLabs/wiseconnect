@@ -20,15 +20,12 @@
 #include "rsi_debug.h"
 #include "rsi_rom_table_si91x.h"
 #include "rsi_rom_clks.h"
-#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 #define I2S_BUFFER_SIZE 1024 // Transmit/Receive buffer size
 #define I2S_INSTANCE    0    // I2S instance
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -45,20 +42,9 @@ static sl_i2s_xfer_config_t i2s_xfer_config = { 0 };
 static int32_t clock_configuration_pll(void);
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * I2S example initialization function
  ******************************************************************************/
@@ -73,9 +59,6 @@ void i2s_example_init(void)
   i2s_xfer_config.sampling_rate = SL_I2S0_SAMPLING_RATE;
   i2s_xfer_config.sync          = SL_I2S_ASYNC;
   i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE8;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   // Filling the data out array with integer values
   for (uint32_t i = 0; i < I2S_BUFFER_SIZE; i++) {
@@ -167,6 +150,10 @@ void i2s_example_process_action(void)
       DEBUGOUT("I2S transfer complete\r\n");
       //Compare transmit data and receive data
       compare_loop_back_data();
+      // Aborting the I2S send operation
+      sl_si91x_i2s_end_transfer(i2s_driver_handle, SL_I2S_SEND_ABORT);
+      // Aborting the I2S send operation
+      sl_si91x_i2s_end_transfer(i2s_driver_handle, SL_I2S_RECEIVE_ABORT);
     }
     //reset send and receive complete status flags
     i2s_send_complete    = 0;

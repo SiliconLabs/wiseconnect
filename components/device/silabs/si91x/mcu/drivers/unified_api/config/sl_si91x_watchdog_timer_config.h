@@ -138,16 +138,6 @@
 // </e>
 // <<< end of configuration section >>>
 
-// WDT clock sources and parameters initialization
-
-#if defined(SL_LOW_FREQ_FSM_CLK_SRC)
-watchdog_timer_clock_config_t sl_watchdog_timer_clk_config_handle = {
-  .low_freq_fsm_clock_src  = SL_LOW_FREQ_FSM_CLK_SRC,
-  .high_freq_fsm_clock_src = FSM_32MHZ_RC,
-  .bg_pmu_clock_source     = RO_32KHZ_CLOCK,
-};
-#endif // SL_LOW_FREQ_FSM_CLK_SRC
-
 #if defined(SL_WDT_INTERRUPT_TIME)
 watchdog_timer_config_t sl_watchdog_timer_config_handle = {
   .interrupt_time    = SL_WDT_INTERRUPT_TIME,

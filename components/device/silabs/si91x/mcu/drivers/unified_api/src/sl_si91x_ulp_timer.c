@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_ulp_timer.c
- * @brief ULP TIMER API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licenser of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_ulp_timer.c
+* @brief ULP TIMER API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_ulp_timer.h"
 #include "rsi_timers.h"
 
@@ -39,28 +39,26 @@
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
 #define MINIMUM_MATCH_COUNT     0u       // for validation of timer match count
-#define CLOCKS_PER_SECOND_32MHZ 32000000 // clocks per second for 32mhz clock frequency
+#define CLOCKS_PER_SECOND_MHZ   32000000 // clocks per second for mhz clock frequency
 #define CLOCKS_PER_SECOND_20MHZ 20000000 // clocks per second for 20mhz clock frequency
 #define CLOCKS_PER_SECOND_32KHZ 32000    // clocks per second for 32khz clock frequency
 #define FIRST_INDEX             0        // for start value of iteration variable
 #define LAST_INDEX              3        // for last value of iteration variable
 
-#define INTEGRAL_PART_32MHZ_1US (32 & 0xFFFF) // Integral part of timer clock cycles per us for 32 mhz clock source
+#define INTEGRAL_PART_MHZ_1US   (32 & 0xFFFF) // Integral part of timer clock cycles per us for 32 mhz clock source
 #define INTEGRAL_PART_32KHZ_1US (0 & 0xFFFF)  // Integral part of timer clock cycles per us for 32 khz clock source
 #define INTEGRAL_PART_20MHZ_1US (20 & 0xFFFF) // Integral part of timer clock cycles per us for 20 mhz clock source
 
-#define FRACTIONAL_PART_32MHZ_1US (0 & 0xFF) // Fractional part of timer clock cycles per us for 32 mhz clock source
+#define FRACTIONAL_PART_MHZ_1US   (0 & 0xFF) // Fractional part of timer clock cycles per us for 32 mhz clock source
 #define FRACTIONAL_PART_32KHZ_1US (8 & 0xFF) // Fractional part of timer clock cycles per us for 32 khz clock source
 #define FRACTIONAL_PART_20MHZ_1US (0 & 0xFF) // Fractional part of timer clock cycles per us for 20 mhz clock source
 
-#define INTEGRAL_PART_32MHZ_256US \
-  (8192 & 0xFFFF)                              // Integral part of timer clock cycles per 256us for 32 mhz clock source
+#define INTEGRAL_PART_MHZ_256US   (8192 & 0xFFFF) // Integral part of timer clock cycles per 256us for 32 mhz clock source
 #define INTEGRAL_PART_32KHZ_256US (8 & 0xFFFF) // Integral part of timer clock cycles per 256us for 32 khz clock source
 #define INTEGRAL_PART_20MHZ_256US \
   (5120 & 0xFFFF) // Integral part of timer clock cycles per 256us for 20 mhz clock source
 
-#define FRACTIONAL_PART_32MHZ_256US \
-  (0 & 0xFF) // Fractional part of timer clock cycles per 256us for 32 mhz clock source
+#define FRACTIONAL_PART_MHZ_256US (0 & 0xFF) // Fractional part of timer clock cycles per 256us for 32 mhz clock source
 #define FRACTIONAL_PART_32KHZ_256US \
   (49 & 0xFF) // Fractional part of timer clock cycles per 256us for 32 khz clock source
 #define FRACTIONAL_PART_20MHZ_256US \
@@ -91,12 +89,12 @@ typedef IRQn_Type IRQn_Type_t; ///< Renaming Interrupt numbers type enum
  ******************************************************************************/
 static ulp_timer_callback_t timeout_callback_function_pointers[] = { NULL, NULL, NULL, NULL };
 static clk_int_frac_values_t int_frac_values_1US[]               = {
-                { CLOCKS_PER_SECOND_32MHZ, INTEGRAL_PART_32MHZ_1US, FRACTIONAL_PART_32MHZ_1US },
+                { CLOCKS_PER_SECOND_MHZ, INTEGRAL_PART_MHZ_1US, FRACTIONAL_PART_MHZ_1US },
                 { CLOCKS_PER_SECOND_20MHZ, INTEGRAL_PART_20MHZ_1US, FRACTIONAL_PART_20MHZ_1US },
                 { CLOCKS_PER_SECOND_32KHZ, INTEGRAL_PART_32KHZ_1US, FRACTIONAL_PART_32KHZ_1US }
 };
 static clk_int_frac_values_t int_frac_values_256US[] = {
-  { CLOCKS_PER_SECOND_32MHZ, INTEGRAL_PART_32MHZ_256US, FRACTIONAL_PART_32MHZ_256US },
+  { CLOCKS_PER_SECOND_MHZ, INTEGRAL_PART_MHZ_256US, FRACTIONAL_PART_MHZ_256US },
   { CLOCKS_PER_SECOND_20MHZ, INTEGRAL_PART_20MHZ_256US, FRACTIONAL_PART_20MHZ_256US },
   { CLOCKS_PER_SECOND_32KHZ, INTEGRAL_PART_32KHZ_256US, FRACTIONAL_PART_32KHZ_256US }
 };

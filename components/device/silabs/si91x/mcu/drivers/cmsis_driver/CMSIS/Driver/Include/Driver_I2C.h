@@ -1,4 +1,5 @@
 /* -----------------------------------------------------------------------------
+ * SPDX-License-Identifier: Zlib
  * Copyright (c) 2013-2014 ARM Ltd.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -84,12 +85,12 @@
 \brief I2C Status
 */
 typedef struct _ARM_I2C_STATUS {
-  uint32_t busy             : 1;        ///< Busy flag
-  uint32_t mode             : 1;        ///< Mode: 0=Slave, 1=Master
-  uint32_t direction        : 1;        ///< Direction: 0=Transmitter, 1=Receiver
-  uint32_t general_call     : 1;        ///< General Call indication (cleared on start of next Slave operation)
-  uint32_t arbitration_lost : 1;        ///< Master lost arbitration (cleared on start of next Master operation)
-  uint32_t bus_error        : 1;        ///< Bus error detected (cleared on start of next Master/Slave operation)
+  unsigned int busy             : 1;        ///< Busy flag
+  unsigned int mode             : 1;        ///< Mode: 0=Slave, 1=Master
+  unsigned int direction        : 1;        ///< Direction: 0=Transmitter, 1=Receiver
+  unsigned int general_call     : 1;        ///< General Call indication (cleared on start of next Slave operation)
+  unsigned int arbitration_lost : 1;        ///< Master lost arbitration (cleared on start of next Master operation)
+  unsigned int bus_error        : 1;        ///< Bus error detected (cleared on start of next Master/Slave operation)
 } ARM_I2C_STATUS;
 
 

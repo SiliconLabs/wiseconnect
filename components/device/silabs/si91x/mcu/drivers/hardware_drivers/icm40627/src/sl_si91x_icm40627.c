@@ -560,6 +560,59 @@ sl_status_t sl_si91x_icm40627_set_gyro_full_scale(sl_ssi_handle_t ssi_driver_han
 }
 
 /***************************************************************************/ /**
+ *    Enables or disables the interrupts in the ICM40627 chip
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_enable_interrupt(sl_ssi_handle_t ssi_driver_handle, bool dataReadyEnable, bool womEnable)
+{
+  uint8_t intEnable        = 0;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE1, ssi_data, ssi_data_length);
+
+  /* Enable one or both of the interrupt sources if required */
+  if (womEnable) {
+    intEnable = (ssi_data[ssi_data_length - 1] | SL_ICM40627_BIT_MASK_WOM_X_INT1_EN | SL_ICM40627_BIT_MASK_WOM_Y_INT1_EN
+                 | SL_ICM40627_BIT_MASK_WOM_Z_INT1_EN);
+  }
+  /* Write value to register */
+  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE1, &intEnable, ssi_data_length - 1);
+
+  /* All interrupts are disabled by default */
+  intEnable = 0;
+
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE0, ssi_data, ssi_data_length);
+  if (dataReadyEnable) {
+    intEnable = ssi_data[ssi_data_length - 1] | SL_ICM40627_MASK_UI_DRDY_INT1_EN;
+  }
+  /* Write value to register */
+  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE0, &intEnable, ssi_data_length - 1);
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Checks if new data is available for read
+ ******************************************************************************/
+bool sl_si91x_icm40627_is_data_ready(sl_ssi_handle_t ssi_driver_handle)
+{
+  bool ret;
+  uint8_t status;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  ret = false;
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS, ssi_data, ssi_data_length);
+
+  status = ssi_data[ssi_data_length - 1];
+  if (status & SL_ICM40627_MASK_DATA_RDY_INT) {
+    ret = true;
+  }
+
+  return ret;
+}
+
+/***************************************************************************/ /**
  *    Accelerometer and gyroscope calibration function. Reads the gyroscope
  *    and accelerometer values while the device is at rest and in level. The
  *    resulting values are loaded to the accel and gyro bias registers to cancel

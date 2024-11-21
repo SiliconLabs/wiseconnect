@@ -3,7 +3,7 @@
  * @brief SI70xx sensor API implementation
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -35,6 +35,7 @@ extern "C" {
 #endif
 
 //// Includes
+#include "sl_si91x_si70xx_config.h"
 #include "sl_status.h"
 #include "sl_si91x_i2c.h"
 
@@ -45,15 +46,11 @@ extern "C" {
  * @{
  *
  ******************************************************************************/
-
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SI7006_ADDR 0X40 ///< I2C device address for Si7006
-#define SI7013_ADDR 0x41 ///< I2C device address for Si7013
-#define SI7020_ADDR 0X40 ///< I2C device address for Si7020
-#define SI7021_ADDR 0x40 ///< I2C device address for Si7021
-#define I2C_BASE    I2C2 ///< I2C2 base
+#define SI70XX_I2C_INSTANCE SL_SI70XX_CONFIG_I2C_INSTANCE ///<si70xx I2C Instance
+#define SI70XX_SLAVE_ADDR   SL_SI70XX_CONFIG_SLAVE_ADDR   ///<si70xx Slave Address
 
 /*******************************************************************************
  ********************************   ENUMS   ************************************
@@ -141,9 +138,9 @@ typedef enum sl_si70xx_registers {
  * @param[in] eid Electronic ID of type \ref sl_si70xx_eid_type_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INITIALIZATION (0x0010) - No Si70xx device present.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INITIALIZATION - No Si70xx device present.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -165,8 +162,8 @@ sl_status_t sl_si91x_si70xx_init(sl_i2c_instance_t i2c_instance, uint8_t addr, s
  * @param[in] eid Electronic ID of type \ref sl_si70xx_eid_type_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -185,9 +182,9 @@ sl_status_t sl_si91x_si70xx_is_present(sl_i2c_instance_t i2c_instance, uint8_t a
  * @param[out] temp_data The temperature in degrees Celsius.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -207,9 +204,9 @@ sl_status_t sl_si91x_si70xx_measure_rh_and_temp(sl_i2c_instance_t i2c_instance,
  * @param[out] firmware_revision Pointer to store the internal firmware revision.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -229,9 +226,9 @@ sl_status_t sl_si91x_si70xx_get_firmware_revision(sl_i2c_instance_t i2c_instance
  * @param[out] temp_data The temperature in degrees Celsius.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -253,8 +250,8 @@ sl_status_t sl_si91x_si70xx_read_temp_from_rh(sl_i2c_instance_t i2c_instance,
  * @param[out] data The data read from the sensor.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -274,9 +271,9 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
  * @param[out] humid_data The relative humidity measurement.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -293,9 +290,9 @@ sl_status_t sl_si91x_si70xx_measure_humidity(sl_i2c_instance_t i2c_instance, uin
  * @param[out] temp_data The temperature measurement.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -312,8 +309,8 @@ sl_status_t sl_si91x_si70xx_measure_temperature(sl_i2c_instance_t i2c_instance, 
  * @param[in] addr I2C device address for Si70xx.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -332,9 +329,9 @@ sl_status_t sl_si91x_si70xx_reset(sl_i2c_instance_t i2c_instance, uint8_t addr);
  * @param[out] data The data read from the sensor.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -356,8 +353,8 @@ sl_status_t sl_si91x_si70xx_read_control_register(sl_i2c_instance_t i2c_instance
  * @param[in] value The value to be written into the register.
  * 
  * @return sl_status_t Status code indicating the result: 
- *         - SL_STATUS_OK (0x0000) - Success.  
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument. 
+ *         - SL_STATUS_OK  - Success.  
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

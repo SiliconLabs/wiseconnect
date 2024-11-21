@@ -1,33 +1,32 @@
-/***************************************************************************/
-/**
- * @file sl_si91x_crc.h
- * @brief CRC API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_crc.h
+* @brief CRC API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_CRC_H_
 #define SL_SI91X_CRC_H_
@@ -68,8 +67,8 @@ typedef RSI_CRC_PARAMS_T sl_crc_params_t; ///< Renamed CRC param structure
  * It ensures that the CRC module is in a known state before starting a new operation.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -84,8 +83,8 @@ sl_status_t sl_si91x_crc_set_gen_control(void);
  * @param[out] reg_status Pointer to store the status of the GEN_STS Register.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0021) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -102,8 +101,8 @@ sl_status_t sl_si91x_crc_get_general_status(uint32_t *reg_status);
  * @param[in] pCRCParams Pointer to the CRC parameters structure containing the polynomial value.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_NULL_POINTER (0x0021) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -120,8 +119,8 @@ sl_status_t sl_si91x_crc_polynomial(sl_crc_params_t *pCRCParams);
  * @param[out] reg_status Pointer to store the FIFO status register value.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameters.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameters.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -139,8 +138,8 @@ sl_status_t sl_si91x_crc_polynomial_width(sl_crc_params_t *pCRCParams, uint32_t 
  * @param[in] pCRCParams Pointer to the CRC parameters structure containing the LFSR value.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameters
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameters
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -160,8 +159,8 @@ sl_status_t sl_si91x_crc_lfsr_init(sl_crc_params_t *pCRCParams);
  * @param[out] reg_status Pointer to store the FIFO status register value.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -177,8 +176,8 @@ sl_status_t sl_si91x_crc_use_swapped_init(sl_crc_params_t *pCRCParams, uint32_t 
  * @param[out] oper_status Pointer to store the operation status of the API process.
  * 
  * @return Status code:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -194,8 +193,8 @@ sl_status_t sl_si91x_crc_set_data_width_type(sl_crc_params_t *pCRCParams, uint32
  * @param[out] oper_status Pointer to store the operation status of the API process.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -219,8 +218,8 @@ sl_status_t sl_si91x_crc_set_fifo_thresholds(sl_crc_params_t *pCRCParams, uint32
  * @param[out] oper_status Pointer to store the status of the operation.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -243,8 +242,8 @@ sl_status_t sl_si91x_crc_write_data(sl_crc_params_t *pCRCParams, uint32_t data, 
  * @param[out] crc Pointer to store the calculated CRC value.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -262,8 +261,8 @@ sl_status_t sl_si91x_crc_monitor_crc_calc(sl_crc_params_t *pCRCParams, uint32_t 
  * @param[in] pCRCParams Pointer to the CRC parameters structure containing the LFSR state.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -277,8 +276,8 @@ sl_status_t sl_si91x_crc_lfsr_dynamic_write(sl_crc_params_t *pCRCParams);
  *   @pre Pre-conditions:
  *      - \ref sl_si91x_crc_enable
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_FAIL (0x0001) - Function failed
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_FAIL  - Function failed
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -296,8 +295,8 @@ sl_status_t sl_si91x_crc_reset_fifo(void);
  * @param[out] reg_status Pointer to store the FIFO status register value.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -310,8 +309,8 @@ sl_status_t sl_si91x_crc_get_fifo_status(uint32_t *reg_status);
  * @details This API enables the CRC peripheral by enabling its clock, allowing CRC operations to be performed.
  * 
  * @return Status code indicating the result::
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -327,8 +326,8 @@ sl_status_t sl_si91x_crc_enable(void);
  *      - \ref sl_si91x_crc_enable
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/

@@ -48,7 +48,7 @@ SECTIONS
 	{
 		KEEP(*(.isr_vector))
     
-		  *(EXCLUDE_FILE(*sbrk*.o *libm_a*.o *libc_a*.o *_arm_*.o *libm_a-s_ceil.o *sl_si91x_dma.o *snprintf*.o *sensorhub_aws_app.o *rsi_hal_mcu_m4_rom.o *memcpy*.o *sensorhub.o  *sensorhub_app.o *sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *stream_buffer.o *tasks.o *timers.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o *rsi_ps_ram_func.o *I2C.o *SPI.o *UDMA.o *aux_reference_volt_config.o *rsi_adc.o *rsi_crc.o *rsi_dac.o *rsi_gpdma.o *rsi_i2c.o *rsi_qspi.o *rsi_spi.o *rsi_udma.o *rsi_udma_wrapper.o *sensor_hub.o *rsi_bod.o *rsi_temp_sensor.o *rsi_wwdt *sl_si91x_adc.o *sl_si91x_ssi.o *hub_hal_intf.o *accelerometerSensor_hal.o *adxl345.o *adc_sensor_driver.o *adc_sensor_hal.o *apds9960.o *apds9960Sensor_hal.o *bh1750fvi.o *lightsensor_hal.o *lm75.o *tempSensor_hal.o *cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *power_manager_m4_wireless_example.o *sl_si91x_button.o *sl_si91x_button_instances.o *app.o *main.o *stdio.o *puts.o *wbuf.o *writer.o *memchr.o *memset.o *nano-vfprintf.o *nano-vfprintf_i.o *printf.o *lock.o *fflush.o *rsi_debug.o *rsi_usart.o *syscalls.o *USART.o *sl_si91x_calendar.o *rsi_rtc.o *sl_si91x_ulp_timer.o *rsi_timers.o *sl_si91x_peripheral_gpio.o *sl_si91x_sdc.o *sl_si91x_driver_gpio.o ) .text*)
+		  *(EXCLUDE_FILE(*sl_si91x_dma.o *sl_core_cortexm.o *sl_platform_wireless.o *sl_si91x_power_manager_wakeup_handler.o *sl_wifi.o *sl_si91x_m4_ps.o *rsi_sysrtc.o *sl_sleeptimer_hal_si91x_sysrtc.o *em_core.o *sl_sleeptimer.o *sl_si91x_low_power_tickless_mode.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o  *cmsis_gcc.o *sbrk*.o *libm_a*.o *libc_a*.o *_arm_*.o *libm_a-s_ceil.o *snprintf*.o *sensorhub_aws_app.o *rsi_hal_mcu_m4_rom.o *memcpy*.o *sensorhub.o  *sensorhub_app.o *sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *stream_buffer.o *tasks.o *timers.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o *rsi_ps_ram_func.o *I2C.o *SPI.o *UDMA.o *aux_reference_volt_config.o *rsi_adc.o *rsi_crc.o *rsi_dac.o *rsi_gpdma.o *rsi_i2c.o *rsi_qspi.o *rsi_spi.o *rsi_udma.o *rsi_udma_wrapper.o *sensor_hub.o *rsi_bod.o *rsi_temp_sensor.o *rsi_wwdt *sl_si91x_adc.o *sl_si91x_ssi.o *hub_hal_intf.o *accelerometerSensor_hal.o *adxl345.o *adc_sensor_driver.o *adc_sensor_hal.o *apds9960.o *apds9960Sensor_hal.o *bh1750fvi.o *lightsensor_hal.o *lm75.o *tempSensor_hal.o *cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *power_manager_m4_wireless_example.o *sl_si91x_button.o *sl_si91x_button_instances.o *app.o *main.o *stdio.o *puts.o *wbuf.o *writer.o *memchr.o *memset.o *nano-vfprintf.o *nano-vfprintf_i.o *printf.o *lock.o *fflush.o *rsi_debug.o *rsi_usart.o *syscalls.o *USART.o *sl_si91x_calendar.o *rsi_rtc.o *sl_si91x_ulp_timer.o *rsi_timers.o *sl_si91x_peripheral_gpio.o *sl_si91x_sdc.o *sl_si91x_driver_gpio.o ) .text*)
 
 
 		/* .ctors */
@@ -103,11 +103,11 @@ SECTIONS
 		*(.rodata*)
 		KEEP(*(.init))
 		KEEP(*(.fini))
+		*cmsis_gcc.o(.text*)
 		*_arm_*.o(.text*)
 		*libc_a*.o(.text*)
 		*libm_a*.o(.text*)
 		*sbrk*.o(.text*)
-		*sl_si91x_dma.o(.text*)
 		*libm_a-s_ceil.o(.text*)
 		*cmsis_os2.o(.text*)
 		*port.o(.text*)
@@ -152,7 +152,6 @@ SECTIONS
 		*rsi_ps_ram_func.o(.text*)
 		*I2C.o(.text*)
 		*SPI.o(.text*)
-		*UDMA.o(.text*)
 		*aux_reference_volt_config.o(.text*)
 		*rsi_adc.o(.text*)
 		*rsi_crc.o(.text*)
@@ -199,6 +198,26 @@ SECTIONS
 		*sensorhub_aws_app.o(.text*)
 		*sl_si91x_sdc.o(.text*)
 		*snprintf*.o(.text*)
+        *sl_si91x_power_manager.o(.text*)
+		*sli_si91x_power_manager.o(.text*)
+		*sl_si91x_power_manager_handler.o(.text*)
+		*sl_si91x_power_manager_debug.o(.text*)
+		*sl_si91x_low_power_tickless_mode.o(.text*)
+		*sl_si91x_power_manager_wakeup_handler.o(.text*)
+		*sl_platform_wireless.o(.text*)
+		*UDMA.o(.text*)
+		*sl_sleeptimer.o(.text*)
+		*em_core.o(.text*)
+		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*)
+		*rsi_sysrtc.o(.text*)
+		*sl_si91x_m4_ps.o(.text*)
+		*sl_wifi.o(.text*)
+		*sl_core_cortexm.o(.text*)
+		*sl_si91x_dma.o(.text*)
+		
+ 		/* ipmu calibration data */
+		*(.common_ipmu_ram*)
+
 		. = ALIGN(4);
 		/* preinit data */
 		PROVIDE_HIDDEN (__preinit_array_start = .);

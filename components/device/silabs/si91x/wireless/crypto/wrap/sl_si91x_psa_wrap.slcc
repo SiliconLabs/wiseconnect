@@ -5,19 +5,24 @@ description: >
 label: PSA WRAP
 category: Device|Si91x|MCU|Crypto
 quality: production
+metadata:
+  sbom:
+   license: MSLA
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/wrap
 provides:
 - name: sl_si91x_psa_wrap
 source:
 - path: src/sl_si91x_psa_wrap.c
-define:
-- name: SLI_SECURE_KEY_STORAGE_DEVICE_SI91X
-requires:
-- name: sl_si91x_wrap
-- name: sl_si91x_psa_crypto
-
 include:
+- path: inc
 - path: inc
   file_list:
     - path: sl_si91x_psa_wrap.h
+
+define:
+- name: SLI_SECURE_KEY_STORAGE_DEVICE_SI91X
+
+requires:
+- name: sl_si91x_wrap
+- name: sl_si91x_psa_crypto
 

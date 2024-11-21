@@ -74,7 +74,7 @@ volatile uint16_t rsi_ble_att1_val_hndl;
 volatile uint16_t rsi_ble_att2_val_hndl;
 volatile uint16_t rsi_ble_att3_val_hndl;
 extern void rsi_ui_app_task(void);
-uint16_t rsi_app_resp_max_no_of_supp_adv_sets       = 0;
+uint32_t rsi_app_resp_max_no_of_supp_adv_sets       = 0;
 uint32_t rsi_app_resp_max_adv_data_len              = 0;
 int8_t rsi_app_resp_tx_power                        = 0;
 uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
@@ -123,10 +123,7 @@ static const sl_wifi_device_configuration_t
                .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                .ext_custom_feature_bit_map =
                  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
-#ifdef SLI_SI917
-                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                  | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
+                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
 #ifdef RSI_PROCESS_MAX_RX_DATA
                .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
 #else
@@ -408,7 +405,7 @@ static uint32_t rsi_ble_add_custom_service_serv(void)
                             RSI_BLE_ATT_PROPERTY_READ | RSI_BLE_ATT_PROPERTY_INDICATE,
                             new_serv_resp.start_handle + 2,
                             new_uuid,
-                            SEC_MODE_1_LEVEL_4);
+                            SEC_MODE_1_LEVEL_1);
   //! adding characteristic value attribute to the service
   rsi_ble_att3_val_hndl = new_serv_resp.start_handle + 2;
   new_uuid.size         = 2;
@@ -1548,7 +1545,7 @@ int32_t rsi_ble_dual_role(void)
   if (status != RSI_SUCCESS) {
     LOG_PRINT("get max supported adv sets failed with 0x%lX\n", status);
   } else {
-    LOG_PRINT("Max number of supported Adv sets are %d  \n", rsi_app_resp_max_no_of_supp_adv_sets);
+    LOG_PRINT("Max number of supported Adv sets are %ld  \n", rsi_app_resp_max_no_of_supp_adv_sets);
   }
 
 #if ADV_ENABLED_DEFAULT

@@ -126,7 +126,7 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
                       | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -220,7 +220,6 @@ void send_data_to_tcp_server(void)
   int socket_return_value           = 0;
   int sent_bytes                    = 1;
   uint32_t start                    = 0;
-  uint32_t now                      = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   sl_status_t rc                    = SL_STATUS_FAIL;
@@ -263,27 +262,14 @@ void send_data_to_tcp_server(void)
     while (total_bytes_sent < BYTES_TO_SEND) {
       sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
       if (sent_bytes < 0) {
-        if (errno == 0) {
-          // get the error code returned by the firmware
-          status = sl_si91x_get_saved_firmware_status();
-          if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
-            continue;
-          } else {
-            printf("\r\nTCP recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
-          }
-        } else if (errno == ENOTCONN) {
-          printf("\r\nRemote server terminated\r\n");
-        } else {
-          printf("\r\nTCP recv failed with BSD error = %d\r\n", errno);
-        }
-        close(client_socket);
-        return;
+        if (errno == ENOBUFS)
+          continue;
+        printf("\r\nTCP send failed with BSD error = %d\r\n", errno);
+        break;
       }
-      now = osKernelGetTickCount();
-      if (sent_bytes > 0)
-        total_bytes_sent = total_bytes_sent + sent_bytes;
+      total_bytes_sent = total_bytes_sent + sent_bytes;
 
-      if ((now - start) > TEST_TIMEOUT) {
+      if ((osKernelGetTickCount() - start) > TEST_TIMEOUT) {
         printf("\r\nData transfer has completed\r\n");
         break;
       }

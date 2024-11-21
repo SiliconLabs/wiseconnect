@@ -86,19 +86,36 @@ The SiWx917 clock subsystem facilitates changing the clock source and/or frequen
 
 By default the MCU clock is configured to 40 MHz using the **XTAL_CLK** clock source.
 
-The following example code snippet illustrates setting the SOCPLL clock (1 MHz to 180 MHz) as MCUSOC-Clock:
+The following example code snippet illustrates setting the SOCPLL clock (1 MHz to 180 MHz) as MCUSOC-Clock:
 
 ```C
 #include "sl_si91x_clock_manager.h"
 
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180 MHz default SoC PLL Clock as source to Processor
+#define SOC_PLL_CLK  (180000000UL) // 180 MHz default SoC PLL Clock as source to Processor
 
 // Core Clock runs at 180 MHz SOC PLL Clock
 sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
 ```
-> **Note**
-1. **Clock Manager** component needs to be installed to use this function.
-2. For reference, look into example applications where the MCU clock is reconfigured to 180 MHz in the application using the function **default_clock_configuration();**
+### Custom Sys-Tick Handler
+When using the CMSIS_OS2 wrapper for FreeRTOS, the SysTick handler is provided by default. This handler increments the OS ticks with every SysTick interrupt. However, in tickless mode, the entire RTOS relies on the Sleep timer, and OS ticks are incremented in the Sleep timer IRQ handler. Thus, simultaneously using the SysTick and Sleep timer can affect the OS ticks.
+
+It would be best if you did not use SysTick while in tickless mode is enabled to avoid this issue. If you must use it, you need to override the default SysTick handler in the CMSIS wrapper by writing your handler that does not increment the OS ticks. This way, the OS ticks won't be affected.
+
+EX: This is the way we have to hide the SysTick handler in the cmsis_os2.c file
+
+```C
+#if (USE_CUSTOM_SYSTICK_HANDLER_IMPLIMENTATION == 0)
+  void SysTick_Handler (void) {
+  /* Clear overflow flag */
+  SysTick->CTRL;
+
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    /* Call tick handler */
+    xPortSysTickHandler();
+  }
+}
+#endif /* SysTick */
+```
 
 ### External Oscillator(32 kHz) Usage with UULP_GPIOs
 
@@ -345,13 +362,14 @@ The available PSRAM options depend on the flash configuration of the SiWx917 pac
 
 The following table shows the possible combinations and the available options to add on PSRAM:
 
-| **Modes**    | **Flash type**         | **Flash Size** | **PSRAM (optional)**              
-| -------------|------------------------|----------------|---------------------
-| Common Flash | **Stacked**            | 4MB            | 2 MB (external) or 8 MB (external)  
-|              | **External**           | 8MB            | 2 MB (stacked)                                                  
-| Dual Flash   | **Stacked + External** | 4MB + 8MB      | 2 MB                               
-|              |                        | 4MB + 16MB     | 8 MB                               
+| **Modes**    | **Common flash**    | **External**     |   **PSRAM (Stacked)** |  **PSRAM (External)** |
+| -------------|----------------|------------------|--------------------- |-------------------------|
+| Common Flash | Yes [0:5]      |      Yes[46-51]/[52-57]   |   No            |       Yes[46-51]/[52-57]     |
+|              | Yes [46:51]    |      Yes[52-57]           |  Yes[0-5]       |       Yes[52-57]    |
+| Dual Flash   | Yes [0:5]      |      Yes [46-51]/[52-57]  |         No      |       No             |
+|              | Yes [46:51]    |      Yes [52:57]          |         No      |       Yes [52:57]    |
 
+**Note:** The above flash configurations may vary based on the IC/OPN. Users should select the appropriate configuration according to their specific IC/OPN.
 See the **OPN** section in the datasheet for more information.
 
 ### NVM3
@@ -421,7 +439,7 @@ For example, after updating NVM3_DEFAULT_NVM_SIZE to 51200, the nvm3 region in .
 
 **NVM3 usage in Si91x:**
 
-Wireless initialization needs to be done before using NVM3 APIs in common flash as TA M4 communication is required to perform flash writes/erases.
+Wireless initialization needs to be done before using NVM3 APIs in common flash as TA M4 communication is required to perform flash writes/erases.
 
 1. After successful wireless initialization, nvm3_initDefault() API will open nvm3 instance with default parameters.
 2. Any of the above default nvm3 parameters can be overridden by updating corresponding macros in nvm3_default_config.h.
@@ -443,7 +461,9 @@ Wireless initialization needs to be done before using NVM3 APIs in common flash
 
 The SiWx917 SoC provides a configuration option to enter the in-system programming (ISP) mode by asserting and resetting GPIO_34.
 
-ISP mode enables the programming or re-programming of the flash memory using the security bootloader. It is possible to direct the security bootloader to boot up in ISP mode by pulling down the GPIO_34 pin with a 4.7K ohms resistor. The security bootloader does not initiate the execution of the code when ISP mode is enabled. Also, when the application code uses JTAG pins for functionality, entering ISP mode causes the JTAG to be disabled so that the flash may be re-programmed.
+ISP mode enables the programming or re-programming of the flash memory using the security bootloader. The security bootloader can be directed to boot up in ISP mode by pulling down the GPIO_34 pin with a 100 ohms resistor. When ISP mode is enabled, the security bootloader does not initiate the execution of the code. Additionally, if the application code uses JTAG pins for functionality, entering ISP mode disables the JTAG, allowing the flash to be re-programmed.
+
+JTAG or SWD interface can also be used to flash the binaries if ISP mode is enabled. This is particularly useful when programming fails due to the M4 being in sleep or similar scenarios. In such cases, the SiWx917 can be set to ISP mode, and the binary can be flashed via the Simplicity Commander using the SWD interface.
 
 ISP mode is supported via the following interfaces:
 
@@ -452,6 +472,10 @@ ISP mode is supported via the following interfaces:
 | **UART**      | RX: GPIO_8, TX: GPIO_9    |
 | **SDIO**      | GPIO_25 - GPIO_30         |
 | **HSPI**      | GPIO_25 - GPIO_30         |
+| **JTAG/SWD**  | JTAG_TCK_SWCLK: GPIO_31   | 
+|               | JTAG_TDI: GPIO_32         |
+|               | JTAG_TMS_SWDIO: GPIO_33   |
+|               | JTAG_TDO_SWO: GPIO_34     |
 
 ## Trace and Debug Interfaces
 
@@ -522,10 +546,66 @@ Firmware in the SiWx917 device can be updated using the following mechanisms:
    * M4  as  Host:  Using  host  interfaces  –  SPI/UART/SDIO  or  a  remote  TCP  server  via  Wi-Fi  or  BLE,  the firmware  is  reaching  in  chunks  to  M4.  The  user  can  choose  to  send  the  firmware  to  TA  Bootloader  for upgrade or save in the external flash as per their requirements.
 
 2. Firmware update via Bootloader: In this mechanism firmware in the device can be updated by the following methods.
-   * Kermit:  Firmware  is  updated  using  Kermit  protocol  in  a  serial  terminal  like  Tera  Term  running  in  a Windows/Linux PC connected to the device through UART interface in ISP mode.
-   * Simplicity Commander Tool/ Command Line Interface (CLI): Using the Simplicity Commander tool or by using the CLI commands, the firmware is updated.
+   ### Kermit:
+     * Firmware  is  updated  using  Kermit  protocol  in  a  serial  terminal  like  Tera  Term  running  in  a Windows/Linux PC connected to the device through UART interface in ISP mode.
+   
+   ### External Host Interfaces - SPI/ SDIO	 
+	 
+	 >  The following two methods of firmware update - SPI and SDIO uses two different modes of operation called Master Mode and Slave Mode.
+	 These modes are selected by the Bootloader depending on the secure zone's status. When secure zone is disabled, the device can receive the data in Master mode. If the secure zone is enabled, the device can receive the data only in slave mode.			                                      	       	  
+	 **Master Mode:**      	  
+	  In Master Mode, the Host has direct access to the entire memory and hardware registers of Si917. Host can directly address the hardware register or RAM in Si917 and send a SPI or SDIO read/ write packet to access the register or memory.   
+	 **Slave Mode:**  	  
+	  In slave mode, the host does not have direct access to Si917 registers or memory. So, the FW chunks will have to be sent to Si917 as a proper SPI or SDIO slave packet with commands. The Si917 will parse the packet and use it. This is done using DMA with Linked list transfers. 
+      There is a hardware requirement with DMA which is that the DMA expects extra 256 bytes along with the actual FW chunk. So, the transfer should be 256 bytes of dummy data plus 4096 bytes of actual data.
+      The actual size of data should go to device as part of the address argument to CMD53 of SDIO and the total length for CMD53 to transfer should be 256+4096 bytes.
+	  
+    #### SPI 
+     * The device should be kept in ISP mode. 
+     * Using SPI interface on the Host and read the register 0x4105003C which should read out 0xAB11. This means the TA Bootloader is ready to receive the commands from Host.
+     * Send "Burn" command to device. For TA FW, the command is 'B' and for M4 FW, the command is '4'. This command should be written   on register address 0x41050034. 
+     Incase of M4, the burn command should be OR'ed with value 0x1 to indicate the image number. 
+     * Once the TA BL receives this command, the device will respond with acknowledgement which will be (0xAB | '2') written on register 0x4105003C.
+     * The above response means the device has requested the host to send the RPS file. 
+     * The host now sends the RPS file in chunks of 4096 bytes. 
+     ###### Master Mode:
+	  * The host should first write the 4096 bytes on the PING Address and write 'I' | 0xAB on 0x41050034.
+	  * The device will respond with  0xAB | 'O' on 0x4105003C. The 'I' means the Host indicating the device that valid data is present in the device's PING memory address and the 'O' response from device indicates that the device is now expecting next chunk on PONG address. 
+	  * The next 4096 bytes are written on the PONG address and value 'O' | 0xAB is written on 0x41050034. The response after the device receives the data on 0x4105003C will be 0xAB | 'I'. 
+	  * The PING and PONG addresses is 0x51400 and 0x52400 respectively. 
+	  * When sending the last 4096 bytes of data, the Host should indicate End Of File to the device by writing 'E' | 0xAB on 0x41050034 with the FW chunk. 
+	  * When the device identifies the End Of File command on the Host register, it will save the chunk in the appropriate location in flash and then start the verification of the new received firmware. 
+	  * If the Firmware is verified correctly, the device Bootloader will move the Firmware from download area to execution area and then update the FMC.
+     ###### Slave Mode:  
+	  * In slave mode, the Host would not know the PING and PONG addresses. So the Host would send the FW chunk of 4096 bytes to SPI FIFO register. In slave mode also the Host will have to send FW chunks and indicate PING and PONG valid using the HOST interact registers. For every chunk of data sent, 12 dummy bytes has to be sent in the beginning as the Bootloader expects it. The sending of EOF command is also same in slave mode as in Master mode.
+	 * The response to EOF command will be 0xABAA in case of successful update or 0xABCC incase of verification or update failure.
+   #### SDIO
+      * The device should be kept in ISP mode.
+      * Enable SDIO interface on the Host and read the register 0x4105003C which should read out 0xAB11. 
+      * The TA Bootloader is now ready to receive the commands from Host.
+      * Send "Burn" command to device. For TA FW, the command is 'B' and for M4 FW, the command is '4'. This command should be written  on register address 0x41050034. 
+      * Incase of M4, the burn command should be OR'ed with value 0x1 to indicate the image number.
+      * Once the TA BL receives this command, the device will respond with acknowledgement which will be (0xAB | '2') written on register 0x4105003C. This means the device has requested to send the RPS file.
+      * The host now sends the RPS file in chunks of 4096 bytes. 
+      ###### Master Mode:
+   * The host should first write the 4096 bytes on the PING Address and write 'I' | 0xAB on 0x41050034. 
+   * The device will respond with 0xAB | 'O' on 0x4105003C. The 'I' means the Host indicating the device that valid data is present in the device's PING memory address and the 'O' response from device indicates that the device is now expecting next chunk on PONG address. 
+   * The next 4096 bytes are written on the PONG address and value 'O' | 0xAB is written on 0x41050034. The response after the device receives the data on 0x4105003C will be 0xAB | 'I'.
+   * The PING and PONG addresses is 0x51400 and 0x52400 respectively.
+   * When sending the last 4096 bytes of data, the Host should indicate End Of File to the device by writing 'E' | 0xAB on 0x41050034 with the FW chunk. 
+   * When the device identifies the End Of File command on the Host register, it will save the chunk in the appropriate location in flash and then start the verification of the new received firmware. 
+   * If the Firmware is verified correctly, the device Bootloader will move the Firmware from download area to execution area and then update the FMC.
+    ###### Slave Mode:
+   * In slave mode, the Host would not know the PING and PONG addresses. So the Host would send the FW chunk of 4096 bytes to SDIO FIFO register. In slave mode also the Host will have to send FW chunks and indicate PING and PONG valid using the HOST interact registers. For every chunk of data sent, 256 dummy bytes has to be sent in the beginning as the Bootloader expects it. 
+   * The sending of EOF command is also same in slave mode as in Master mode.
+   * The response to EOF command will be 0xABAA incase of successful update or 0xABCC incase the verification fails.
+
+	  
+   #### Simplicity Commander Tool/ Command Line Interface (CLI)
+   Using the Simplicity Commander tool or by using the CLI commands, the firmware is updated.
 
 > **Note:** SiWx917  also  has  Secure  and  Non-Secure  Firmware  updates.  The  above  mechanisms  are  same  for  both secure and non-secure updates, except that the firmware does security-related integrity checks before loading the device with the new firmware.
+
 
 ### Secure Firmware Update
 

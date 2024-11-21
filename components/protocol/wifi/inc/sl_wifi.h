@@ -294,7 +294,11 @@ sl_status_t sl_wifi_set_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
  *   Set the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
  * @pre Pre-conditions:
  * - 
- *   @ref sl_wifi_init should be called before this API.
+ *   @ref sl_wifi_init should be called before this API. 
+ * -
+ *   In AP mode, this API should be called before sl_net_wifi_ap_up. This configured data rate will be passed as part of the AP configuration while bringing up the AP interface.
+ * -
+ *   In Wi-Fi client mode, this API should be called after @ref sl_wifi_connect.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] rate_protocol
@@ -303,6 +307,8 @@ sl_status_t sl_wifi_set_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
  *   Data rate as identified by @ref sl_wifi_rate_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * @note
+ *   In channel 14 only 1,2 Mbps rates are allowed.
  ******************************************************************************/
 sl_status_t sl_wifi_set_transmit_rate(sl_wifi_interface_t interface,
                                       sl_wifi_rate_protocol_t rate_protocol,
@@ -440,9 +446,12 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  *      the time is for foreground scan. Otherwise, it is used for background scanning.
  *      If the user needs to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE.
  *      If the user needs to enable Low Power (LP) mode in Passive Scan, user needs to enable lp_mode in sl_wifi_scan_configuration_t.
+ *      Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
  *      Use the SL_WIFI_SCAN_TYPE_EXTENDED to obtain the scan results that exceed the SL_WIFI_MAX_SCANNED_AP. In this scan type, the number of scan results is not restricted; it is only limited by the amount of dynamic memory that the host can provide.
  *      Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
  *      In case of SL_WIFI_SCAN_TYPE_EXTENDED scan type, use @ref sl_wifi_get_stored_scan_results() API to get the scan results; after the scan status callback is received. 
+ *      This API is not applicable for ADV_SCAN scan_type in AP mode
+ *      AP scan is supported - to trigger this, send a scan after sl_wifi_start_ap() API with the SL_WIFI_SCAN_TYPE_ACTIVE scan_type.
  ******************************************************************************/
 sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                const sl_wifi_ssid_t *optional_ssid,
@@ -494,6 +503,8 @@ sl_status_t sl_wifi_stop_scan(sl_wifi_interface_t interface);
  *   Set advanced scan configuration as identified by @ref sl_wifi_advanced_scan_configuration_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * @note
+ *   Advance scan is not applicable in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_set_advanced_scan_configuration(const sl_wifi_advanced_scan_configuration_t *configuration);
 
@@ -556,8 +567,8 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  *   If channel, band, and BSSID are provided, this API will attempt to connect without scanning.
- *   If security_type is SL_WIFI_WPA3 then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is enabled internally by SDK.
- *   If security_type is SL_WIFI_WPA3_TRANSITION then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK.
+ *   If security_type is SL_WIFI_WPA3/SL_WIFI_WPA3_ENTERPRISE then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is enabled internally by SDK.
+ *   If security_type is SL_WIFI_WPA3_TRANSITION/SL_WIFI_WPA3_TRANSITION_ENTERPRISE then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK.
  *   Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
  *   Default Authentication timeout and Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  *   Default Keep Alive timeout is 30 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
@@ -711,6 +722,9 @@ sl_status_t sl_wifi_set_certificate_with_index(uint8_t certificate_type,
 
 /***************************************************************************/ /**
 *   Set the advanced configuration options of a client interface.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
 * @param[in] interface
 *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
 * @param[in] configuration
@@ -1565,3 +1579,27 @@ sl_status_t sl_wifi_send_transceiver_data(sl_wifi_interface_t interface,
                                           uint8_t *payload,
                                           uint16_t payload_len);
 /** @} */
+
+/**
+ * @brief Refreshes the Access Point (AP) client information.
+ *
+ * This function fetches the current client details for the specified
+ * AP interface and updates the internal client information structure sl_wifi_client_info_t for all connected clients.
+ *
+ * @return sl_status_t
+ *     - SL_STATUS_OK if the operation is successful.
+ *     - Appropriate error code otherwise.
+ */
+sl_status_t sli_si91x_update_ap_client_info();
+
+/**
+ * @brief Retrieve the IP address of an AP client using its MAC address.
+ *
+ * This function searches through the list of connected clients and returns the IP address
+ * of the client that matches the provided MAC address.
+ *
+ * @param[in] mac_add The MAC address of the client whose IP address is to be retrieved.
+ *
+ * @return A pointer to the IP address of the client if found, otherwise NULL.
+ */
+sl_ip_address_t *sli_si91x_get_ap_client_ip_address_from_mac_address(const sl_mac_address_t mac_add);

@@ -3,7 +3,7 @@
  * @brief ADC configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 /******************************* ADC Channel Configuration **************************/
 
-#define N1_START_LOCATION_PINTOOL 343
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -89,13 +88,44 @@ extern "C" {
 // [ADC_CH1_SL_ADC_CH1]$
 // <<< sl:end pin_tool >>>
 
-#ifdef SL_ADC_CH1_P_LOC
-#define SL_ADC_CHANNEL_1_POS_INPUT_CHNL_SEL SL_ADC_CH1_P_LOC
+// Positive Input Channel Selection
+#ifdef SL_ADC_CH1_P_PIN
+#define SL_ADC_CHANNEL_1_POS_INPUT_CHNL_SEL \
+  ((SL_ADC_CH1_P_PIN == 0)    ? 0           \
+   : (SL_ADC_CH1_P_PIN == 2)  ? 1           \
+   : (SL_ADC_CH1_P_PIN == 4)  ? 2           \
+   : (SL_ADC_CH1_P_PIN == 6)  ? 3           \
+   : (SL_ADC_CH1_P_PIN == 8)  ? 4           \
+   : (SL_ADC_CH1_P_PIN == 10) ? 5           \
+   : (SL_ADC_CH1_P_PIN == 25) ? 6           \
+   : (SL_ADC_CH1_P_PIN == 27) ? 7           \
+   : (SL_ADC_CH1_P_PIN == 29) ? 8           \
+   : (SL_ADC_CH1_P_PIN == 1)  ? 10          \
+   : (SL_ADC_CH1_P_PIN == 3)  ? 11          \
+   : (SL_ADC_CH1_P_PIN == 5)  ? 12          \
+   : (SL_ADC_CH1_P_PIN == 11) ? 13          \
+   : (SL_ADC_CH1_P_PIN == 9)  ? 14          \
+   : (SL_ADC_CH1_P_PIN == 7)  ? 15          \
+   : (SL_ADC_CH1_P_PIN == 26) ? 16          \
+   : (SL_ADC_CH1_P_PIN == 28) ? 17          \
+   : (SL_ADC_CH1_P_PIN == 30) ? 18          \
+                              : -1)
 #else
 #define SL_ADC_CHANNEL_1_POS_INPUT_CHNL_SEL 10
 #endif
-#ifdef SL_ADC_CH1_N_LOC
-#define SL_ADC_CHANNEL_1_NEG_INPUT_CHNL_SEL (SL_ADC_CH1_N_LOC - N1_START_LOCATION_PINTOOL)
+// Negative Input Channel Selection
+#ifdef SL_ADC_CH1_N_PIN
+#define SL_ADC_CHANNEL_1_NEG_INPUT_CHNL_SEL \
+  ((SL_ADC_CH1_N_PIN == 1)    ? 0           \
+   : (SL_ADC_CH1_N_PIN == 3)  ? 1           \
+   : (SL_ADC_CH1_N_PIN == 5)  ? 2           \
+   : (SL_ADC_CH1_N_PIN == 11) ? 3           \
+   : (SL_ADC_CH1_N_PIN == 9)  ? 4           \
+   : (SL_ADC_CH1_N_PIN == 7)  ? 5           \
+   : (SL_ADC_CH1_N_PIN == 26) ? 6           \
+   : (SL_ADC_CH1_N_PIN == 28) ? 7           \
+   : (SL_ADC_CH1_N_PIN == 30) ? 8           \
+                              : -1)
 #else
 #define SL_ADC_CHANNEL_1_NEG_INPUT_CHNL_SEL 7
 #endif

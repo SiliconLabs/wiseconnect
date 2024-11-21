@@ -70,8 +70,12 @@ enum _debugconsole_scanf_flag {
   /*!< Length Mask Flag. */    /*PRINTF_FLOAT_ENABLE */
   kSCANF_TypeSinged = 0x2000U, /*!< TypeSinged Flag. */
 };
+
 void initialise_monitor_handles()
 {
+  // This function is intentionally left empty.
+  // It is required for setting up monitor handles in some environments,
+  // but in this context, it does not need to perform any actions.
 }
 
 int _getpid(void)
@@ -91,7 +95,9 @@ void _exit(int status)
 {
   _kill(status, -1);
   while (1) {
-  } /* Make sure we hang here */
+    // Infinite loop to ensure the program hangs here after exit.
+    // This is intentional to prevent further execution.
+  }
 }
 
 #if !defined SL_UART
@@ -124,24 +130,6 @@ int _write(int file, char *ptr, int len)
   return len;
 }
 #endif // SL_UART
-
-#ifndef SL_WIFI_COMPONENT_INCLUDED
-void *_sbrk(int incr)
-{
-  static char *heap_end = __HeapBase;
-  char *prev_heap_end;
-
-  if ((heap_end + incr) > __HeapLimit) {
-    // Not enough heap
-    return (void *)-1;
-  }
-
-  prev_heap_end = heap_end;
-  heap_end += incr;
-
-  return prev_heap_end;
-}
-#endif
 
 int _close(int file)
 {
@@ -317,7 +305,7 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
       /* Matching strings in input streams and assign to argument. */
       switch (flag & kSCANF_DestMask) {
         case kSCANF_DestChar:
-          s    = (const char *)p;
+          s    = p;
           buff = va_arg(args_ptr, char *);
           while ((field_width--) && (*p)) {
             if (!(flag & kSCANF_Suppress)) {
@@ -356,14 +344,12 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
           n_decode += read_exclude_space(&p);
           s   = p;
           val = 0;
-          if ((base == 0) || (base == 16)) {
-            if ((s[0] == '0') && ((s[1] == 'x') || (s[1] == 'X'))) {
-              base = 16;
-              if (field_width >= 1) {
-                p += 2;
-                n_decode += 2;
-                field_width -= 2;
-              }
+          if ((base == 0 || base == 16) && s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+            base = 16;
+            if (field_width >= 1) {
+              p += 2;
+              n_decode += 2;
+              field_width -= 2;
             }
           }
 
@@ -464,7 +450,7 @@ int _read(char *fmt_ptr, ...)
     }
   }
 
-  if ((i == IO_MAXLINE)) {
+  if (i == IO_MAXLINE) {
     temp_buf[i] = '\0';
   } else {
     temp_buf[i + 1] = '\0';

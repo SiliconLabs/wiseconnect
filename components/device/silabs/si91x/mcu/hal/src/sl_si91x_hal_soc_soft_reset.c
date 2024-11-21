@@ -33,54 +33,14 @@
 
 /*
  *
- * @brief  WDT interrupt handler
- * @param  None
- * @return None
- */
-#ifndef MATTER_WDT_IRQ
-void WDT_IRQHandler(void)
-{
-  /*Clear interrupt */
-  RSI_WWDT_IntrClear();
-}
-#endif
-/*
- *
- * @brief  This API is used to config WDT
- * @param  None
- * @return None
- */
-void sl_si91x_soc_soft_reset(void)
-{
-  RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUWDT);
-  osDelay(2);
-  /*Un mask WDT interrupt */
-  RSI_WWDT_IntrUnMask();
-  /*configure the WDT reset and interrupt counters */
-  RSI_WWDT_ConfigIntrTimer(MCU_WDT, WDT_INTERRUPT_TIMER);
-  /*Configure the WDT reset value*/
-  RSI_WWDT_ConfigSysRstTimer(MCU_WDT, WDT_SYSTEM_RESET_TIMER);
-  /*NVIC interrupt enables*/
-  NVIC_EnableIRQ(NVIC_WDT);
-  /*Start WDT */
-  RSI_WWDT_Start(MCU_WDT);
-
-  /*Upon Reset key size is 16 by default in case of inline  encryption */
-  /*Store key length bit (32 Bytes) in BBFF if device security is with 32 Bytes key*/
-  if (M4_QSPI_AES_CONFIG & AES_QSPI_KEY_SIZE) {
-    M4_BBFF_STORAGE1 |= AES_QSPI_KEY_LENGTH;
-  }
-  while (1)
-    ;
-}
-/*
- *
  * @brief  This API is used to do soc NVIC reset with the debug module disabled.
  * @param  None
  * @return None
  */
 void sl_si91x_soc_nvic_reset(void)
 {
+  /*Changing the lf fsm clock to 32KHz RC */
+  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
   /*Upon Reset key size is 16 by default in case of inline  encryption */
   /*Store key length bit (32 Bytes) in BBFF if device security is with 32 Bytes key*/
   if (M4_QSPI_AES_CONFIG & AES_QSPI_KEY_SIZE) {

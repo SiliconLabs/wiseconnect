@@ -215,7 +215,10 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
     callback_status = *(sl_status_t *)result;
     return SL_STATUS_FAIL;
   }
-  callback_status = show_scan_results(result);
+
+  if (result_length != 0) {
+    callback_status = show_scan_results(result);
+  }
 
   return SL_STATUS_OK;
 }
@@ -257,11 +260,11 @@ int32_t rsi_app_wlan_socket_create()
 #endif
 
 #if HIGH_PERFORMANCE_ENABLE
-  status = sl_si91x_set_custom_sync_sockopt(client_socket,
-                                            SOL_SOCKET,
-                                            SO_HIGH_PERFORMANCE_SOCKET,
-                                            &high_performance_socket,
-                                            sizeof(high_performance_socket));
+  status = setsockopt(client_socket,
+                      SOL_SOCKET,
+                      SL_SO_HIGH_PERFORMANCE_SOCKET,
+                      &high_performance_socket,
+                      sizeof(high_performance_socket));
   if (status < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     status = close(client_socket);
@@ -482,13 +485,15 @@ int32_t rsi_wlan_app_task(void)
         while (bytes_cnt != strlen(httpreq)) {
           status = send(client_socket, (const int8_t *)(httpreq + bytes_cnt), (strlen(httpreq) - bytes_cnt), 0);
           if (status < 0) {
+            if (errno == ENOBUFS)
+              continue;
+            LOG_PRINT("\r\n send failed\n");
             status = close(client_socket);
             if (status != 0) {
               LOG_PRINT("\r\nsocket close failed with status = %ld and BSD error: %d\r\n", status, errno);
             } else {
               LOG_PRINT("\r\nsocket close success\r\n");
             }
-            LOG_PRINT("\r\n send failed\n");
             rsi_wlan_app_cb.state = RSI_WLAN_IPCONFIG_DONE_STATE;
             break;
           }
@@ -504,13 +509,15 @@ int32_t rsi_wlan_app_task(void)
                         (strlen(http_req_str_connection_close) - bytes_cnt),
                         0);
           if (status < 0) {
+            if (errno == ENOBUFS)
+              continue;
+            LOG_PRINT("\r\n send failed\r\n");
             status = close(client_socket);
             if (status != 0) {
               LOG_PRINT("\r\nsocket close failed with status = %d and BSD error: %d\r\n", status, errno);
             } else {
               LOG_PRINT("\r\nsocket close success\r\n");
             }
-            LOG_PRINT("\r\n send failed\r\n");
             rsi_wlan_app_cb.state = RSI_WLAN_IPCONFIG_DONE_STATE;
             break;
           }
@@ -526,6 +533,8 @@ int32_t rsi_wlan_app_task(void)
                         (strlen(http_req_str_end) - bytes_cnt),
                         0);
           if (status < 0) {
+            if (errno == ENOBUFS)
+              continue;
             LOG_PRINT("send failed\n");
             status = close(client_socket);
             if (status != 0) {

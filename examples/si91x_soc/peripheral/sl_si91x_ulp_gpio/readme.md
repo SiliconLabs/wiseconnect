@@ -82,7 +82,7 @@ Please refer to the following APIs which are common for all 3 instances and are 
 
 ## About Example Code
 
-- By default, ULP_GPIO_PIN macro is enabled. ULP GPIO 2(F10) will be toggled when transition takes place from PS4 -> PS2 and from PS2 -> PS4 and finally it de-initializes the GPIO. Connect analyzer to F10 and observe toggles.
+- By default, ULP_GPIO_PIN macro is enabled. For the Si917, ULP GPIO 2 (F10) will toggle during the transition from PS4 to PS2 and from PS2 back to PS4, after which the GPIO is de-initialized. If using the Si915 board, GPIO 10 (F10) will perform the same toggling. Connect an analyzer to F10 to observe the toggles.
 - By enabling UULP_GPIO_PIN macro, UULP_GPIO_0(P14) will be toggled when transition takes place from PS4 -> PS2 and from PS2 -> PS4 and finally it de-initializes the GPIO. Connect analyzer to P14 and observe toggles.
 - By enabling ULP_GPIO_PIN_INTR macro, ULP_GPIO_8(P15) acts as a ULP pin interrupt. Connect P15 to BTN1/BTN0 and trigger interrupt. Interrupt occurs during state transitions only, after that GPIO de-initializes.
 - By enabling ULP_GPIO_GROUP_INTR macro, ULP_GPIO_8(P15) and ULP_GPIO_10(P17) acts as a ULP group interrupt. Connect P15 to BTN1, P17 to BTN0 (or)vice-versa and trigger both interrupts at a time as it is AND event. Interrupt occurs during state transitions only, after that GPIO de-initializes.
@@ -94,6 +94,7 @@ Please refer to the following APIs which are common for all 3 instances and are 
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A/ BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -109,10 +110,11 @@ Please refer to the following APIs which are common for all 3 instances and are 
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -137,8 +139,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. By default, ULP GPIO 2 (LED0) toggles during power transition from PS4 -> PS2 and PS2 -> PS4.
-3. Connect logic analyzer to ULP GPIO 2(F10) on WPK board to observe toggle state.
+2. By default, ULP GPIO 2 (LED0) or GPIO 10 (LED0) on Si915 board toggles during power transition from PS4 -> PS2 and PS2 -> PS4.
+3. Connect logic analyzer to ULP GPIO 2(F10) / GPIO 10(F10)  on WPK board to observe toggle state.
 4. After successful program execution the prints in serial console looks as shown below.
 
   >![output](resources/readme/output_ulp_gpio.png)

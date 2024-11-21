@@ -1,25 +1,37 @@
-/*******************************************************************************
-* @file  sl_si91x_socket_types.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/********************************************************************************
+ * @file  sl_si91x_socket_types.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
 #include <stdint.h>
+#include "sl_si91x_types.h"
 #include "cmsis_os2.h" // CMSIS RTOS2
-
 #include "socket.h"
 #include "select.h"
 #include "sl_si91x_protocol_types.h"
@@ -58,7 +70,7 @@ typedef struct {
 } sl_si91x_socket_metadata_t;
 
 /**
- * @typedef receive_data_callback
+ * @typedef sl_si91x_socket_receive_data_callback_t
  * @brief Callback function reads asynchronous data from the socket.
  *
  * @details
@@ -84,13 +96,13 @@ typedef struct {
  * @return
  *   N/A
  */
-typedef void (*receive_data_callback)(uint32_t socket,
-                                      uint8_t *buffer,
-                                      uint32_t length,
-                                      const sl_si91x_socket_metadata_t *firmware_socket_response);
+typedef void (*sl_si91x_socket_receive_data_callback_t)(uint32_t socket,
+                                                        uint8_t *buffer,
+                                                        uint32_t length,
+                                                        const sl_si91x_socket_metadata_t *firmware_socket_response);
 
 /**
- * @typedef accept_callback
+ * @typedef sl_si91x_socket_accept_callback_t
  * @brief Callback functions for new asynchronous accepted connection.
  *
  * @details
@@ -110,10 +122,10 @@ typedef void (*receive_data_callback)(uint32_t socket,
  * @return
  *   N/A
  */
-typedef void (*accept_callback)(int32_t socket, struct sockaddr *addr, uint8_t ip_version);
+typedef void (*sl_si91x_socket_accept_callback_t)(int32_t socket, struct sockaddr *addr, uint8_t ip_version);
 
 /**
- * @typedef data_transfer_complete_handler
+ * @typedef sl_si91x_socket_data_transfer_complete_handler_t
  * @brief Callback function indicates data transfer status.
  *
  * @details
@@ -129,10 +141,10 @@ typedef void (*accept_callback)(int32_t socket, struct sockaddr *addr, uint8_t i
  * @return
  *   N/A
  */
-typedef void (*data_transfer_complete_handler)(int32_t socket, uint16_t length);
+typedef void (*sl_si91x_socket_data_transfer_complete_handler_t)(int32_t socket, uint16_t length);
 
 /**
- * @typedef select_callback
+ * @typedef sl_si91x_socket_select_callback_t
  * @brief Callback function indicates asynchronous select request result.
  *
  * @details
@@ -154,10 +166,10 @@ typedef void (*data_transfer_complete_handler)(int32_t socket, uint16_t length);
  * @return
  *   N/A
  */
-typedef void (*select_callback)(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status);
+typedef void (*sl_si91x_socket_select_callback_t)(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status);
 
 /**
- * @typedef remote_socket_termination_callback
+ * @typedef sl_si91x_socket_remote_termination_callback_t
  * @brief Callback function indicates termination of the remote socket.
  *
  * @details
@@ -176,7 +188,7 @@ typedef void (*select_callback)(fd_set *fd_read, fd_set *fd_write, fd_set *fd_ex
  * @return
  *  The callback does not returns value.
  */
-typedef void (*remote_socket_termination_callback)(int socket, uint16_t port, uint32_t bytes_sent);
+typedef void (*sl_si91x_socket_remote_termination_callback_t)(int socket, uint16_t port, uint32_t bytes_sent);
 
 /** @} */
 
@@ -189,7 +201,7 @@ typedef enum {
   UDP_UNCONNECTED_READY, // (UDP ONLY STATE) Socket attains this state when sendto() or recvfrom() has been executed successfully prior connect.
   CONNECTED,   // Socket attains this state when connect() has been executed successfully.
   DISCONNECTED // Socket attains this state when underlying connection is lost
-} si91x_bsd_socket_state_t;
+} sli_si91x_bsd_socket_state_t;
 
 #define SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
 
@@ -201,12 +213,20 @@ typedef struct {
   uint16_t current_size_of_extensions;              ///< Current size of extensions
 } sli_si91x_tls_extensions_t;
 
+/// Structure to hold WebSocket host and resource information
+typedef struct {
+  uint8_t host_length;      ///< Length of WebSocket host name
+  uint8_t resource_length;  ///< Length of WebSocket resource name
+  uint8_t websocket_data[]; ///< WebSocket resource name and host name
+} sli_si91x_websocket_info_t;
+
 #pragma pack()
 
 /// Internal si91x socket handle
 typedef struct {
   int32_t id;                                ///< Socket ID
   int32_t type;                              ///< Socket type
+  int32_t index;                             ///< Socket index
   int role;                                  ///< Socket role
   int32_t protocol;                          ///< Protocol
   uint16_t tcp_keepalive_initial_time;       ///< TCP keepalive intial time
@@ -217,32 +237,27 @@ typedef struct {
   uint16_t mss;                              ///< Maximum segment size (MSS) value
   struct sockaddr_in6 local_address;         ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
   struct sockaddr_in6 remote_address;        ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
-  si91x_bsd_socket_state_t state;            ///< BSD socket state (used for internal tracking)
+  sli_si91x_bsd_socket_state_t state;        ///< BSD socket state (used for internal tracking)
   sli_si91x_tls_extensions_t tls_extensions; ///< TLS Extension
   bool is_waiting_on_ack;                    ///< Boolean flag to check if socket is waiting for an ack.
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   uint32_t ssl_bitmap;                       ///< SSL bitmap
   uint32_t max_retransmission_timeout_value; ///< Max retransmission timeout value
   uint32_t tos;                              ///< TOS
 #else
   uint8_t ssl_bitmap; ///< SSL Bitmap
 #endif
-
-  receive_data_callback recv_data_callback;              ///< Receive data callback
-  data_transfer_complete_handler data_transfer_callback; ///< Data transfer callback
-  accept_callback user_accept_callback;                  ///< Async Accept callback
-  osEventFlagsId_t socket_events;                        ///< Event Flags for sockets
-  int32_t client_id;                                     ///< Client Socket Id for accept
-  uint8_t socket_bitmap;                                 ///< Socket Bitmap
-} si91x_socket_t;
-
-/// SiWx91x select context
-typedef struct {
-  int nfds; ///< no of FDs
-
-  fd_set *read_fd;      ///< Read FD set
-  fd_set *write_fd;     ///< Write FD set
-  fd_set *exception_fd; ///< Exception FD set
-
-  select_callback callback; ///< Select callback
-} sl_si91x_select_context;
+  uint8_t opcode;                                                          ///< Opcode used in websocket
+  sli_si91x_websocket_info_t *websocket_info;                              ///< Pointer to WebSocket info
+  sl_si91x_socket_receive_data_callback_t recv_data_callback;              ///< Receive data callback
+  sl_si91x_socket_data_transfer_complete_handler_t data_transfer_callback; ///< Data transfer callback
+  sl_si91x_socket_accept_callback_t user_accept_callback;                  ///< Async Accept callback
+  osEventFlagsId_t socket_events;                                          ///< Event Flags for sockets
+  int32_t client_id;                                                       ///< Client Socket Id for accept
+  uint8_t socket_bitmap;                                                   ///< Socket Bitmap
+  uint8_t data_buffer_count;               ///< Number of queued data buffers allocated by this socket
+  uint8_t data_buffer_limit;               ///< Maximum number of queued data buffers permitted for this socket
+  sli_si91x_command_queue_t command_queue; ///< Command queue
+  sl_si91x_buffer_queue_t tx_data_queue;   ///< Transmit data queue
+  sl_si91x_buffer_queue_t rx_data_queue;   ///< Receive data queue
+} sli_si91x_socket_t;

@@ -1,10 +1,10 @@
 /**************************************************************************/ /**
- * @file
- * @brief CMSIS Cortex-M Peripheral Access Layer for Silicon Laboratories
- *        microcontroller devices
+ * @file em_device.h
+ * @brief Device-specific header file inclusion based on the defined part number.
  *
- * This is a convenience header file for defining the part number on the
- * build command line, instead of specifying the part specific header file.
+ * This section of the code includes the appropriate device-specific header files
+ * based on the defined part number. If the part number is not defined, it generates
+ * a preprocessor error.
  *
  * @verbatim
  * Example: Add "-DEFM32G890F128" to your build options, to define part
@@ -44,10 +44,17 @@
 
 #define EXT_IRQ_COUNT SI91X_EXT_IRQ_COUNT
 
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #include "si91x_device.h"
+
+#ifdef SLI_SI917
+#include "RTE_Device_917.h"
+#else
+#include "RTE_Device_915.h"
+#endif
+
 #else
 #error "em_device.h: PART NUMBER undefined"
-#endif
+#endif /* SLI_SI917 || SLI_SI915 */
 
 #endif /* EM_DEVICE_H */

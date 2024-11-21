@@ -159,7 +159,7 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
     }
 
     uint8_t certificate_index = SL_CERT_INDEX_0;
-    if (sl_si91x_set_custom_sync_sockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
+    if (setsockopt(n->socket_id, SOL_SOCKET, SL_SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
       return sli_si91x_get_aws_error(errno);
     }
 
@@ -187,9 +187,9 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
       // Copy the ALPN data into the value field
       memcpy(alpn_value->value, ALPN_AMZN_MQTT_CA, alpn_length);
 
-      socket_return_value = sl_si91x_set_custom_sync_sockopt(n->socket_id,
+      socket_return_value = setsockopt(n->socket_id,
                                                       SOL_SOCKET,
-                                                      SO_TLS_ALPN,
+                                                      SL_SO_TLS_ALPN,
                                                       alpn_value,
                                                       sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
 

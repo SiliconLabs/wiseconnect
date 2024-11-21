@@ -38,6 +38,11 @@ The SiWx91x as a Soft Access Point allows stations to connect and later gets con
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+<<<<<<< HEAD
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+=======
+    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
+>>>>>>> 7d3b91a08746e4c9f313555d8ccf00a9762be318
   	
 - **NCP Mode**:
   - Standalone
@@ -46,6 +51,7 @@ The SiWx91x as a Soft Access Point allows stations to connect and later gets con
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
@@ -53,6 +59,7 @@ The SiWx91x as a Soft Access Point allows stations to connect and later gets con
      - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045C)
       - (BRD4357A + BRD8045C)
+      - (BRD4353A + BRD8045A)
   - Interface and Host MCU Supported
     - SPI - EFR32 & STM32
 
@@ -112,6 +119,8 @@ The application can be configured to suit user requirements and development envi
   	```c
   	#define DEFAULT_WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 
 - Configure the following parameters in `app.c` to test throughput app as per requirements

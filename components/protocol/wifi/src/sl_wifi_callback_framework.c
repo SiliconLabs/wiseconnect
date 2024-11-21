@@ -1,25 +1,38 @@
-/*******************************************************************************
-* @file  sl_wifi_callback_framework.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_wifi_callback_framework.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_wifi_callback_framework.h"
 #include "sl_si91x_host_interface.h"
 #include "sl_constants.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_driver.h"
+#include "sl_wifi.h"
 
 /// Entry in the callback table
 typedef struct {
@@ -59,7 +72,7 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
     sl_status_t status = convert_and_save_firmware_status(get_si91x_frame_status(packet));
     if (packet->command == RSI_WLAN_RSP_JOIN) {
       sl_status_t temp_status = sl_si91x_driver_send_command(RSI_WLAN_REQ_INIT,
-                                                             SI91X_WLAN_CMD_QUEUE,
+                                                             SI91X_WLAN_CMD,
                                                              NULL,
                                                              0,
                                                              SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -69,6 +82,9 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
     }
 
     return entry->function(event, &status, 0, entry->arg);
+  }
+  if (RSI_WLAN_RSP_CLIENT_CONNECTED == packet->command) {
+    sli_si91x_update_ap_client_info();
   }
 
   if (event == SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB) {
@@ -102,7 +118,11 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
     return entry->function(event, &rx_cb_data, 0, entry->arg);
   }
 
-  return entry->function(event, packet->data, packet->length, entry->arg);
+  if (packet->length) {
+    return entry->function(event, packet->data, packet->length, entry->arg);
+  } else {
+    return entry->function(event, NULL, packet->length, entry->arg);
+  }
 }
 
 static sl_wifi_callback_entry_t *get_callback_entry(sl_wifi_event_group_t group)
@@ -126,7 +146,7 @@ static sl_wifi_event_group_t get_event_group_from_event(sl_wifi_event_t event)
     return SL_WIFI_TWT_RESPONSE_EVENTS;
   }
   // for STATS Events
-  else if (event == SL_WIFI_STATS_EVENT || event == SL_WIFI_STATS_AYSNC_EVENT || event == SL_WIFI_STATS_ADVANCE_EVENT
+  else if (event == SL_WIFI_STATS_EVENT || event == SL_WIFI_STATS_ASYNC_EVENT || event == SL_WIFI_STATS_ADVANCE_EVENT
            || event == SL_WIFI_STATS_TEST_MODE_EVENT || event == SL_WIFI_STATS_MODULE_STATE_EVENT) {
     return SL_WIFI_STATS_RESPONSE_EVENTS;
   } else if (event == SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB || event == SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB) {

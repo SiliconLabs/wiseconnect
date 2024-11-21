@@ -43,7 +43,7 @@
 /******************************************************
 *                    Constants
 ******************************************************/
-#define POWER_SAVE_PROFILE STANDBY_POWER_SAVE
+#define POWER_SAVE_PROFILE DEEP_SLEEP_WITHOUT_RAM_RETENTION
 
 /******************************************************
  *               Function Declarations
@@ -86,7 +86,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -147,13 +147,13 @@ static void application_start(void *argument)
 #else
   osDelay(30000);
 
-  if (POWER_SAVE_PROFILE == STANDBY_POWER_SAVE_WITH_RAM_RETENTION) {
+  if (POWER_SAVE_PROFILE == DEEP_SLEEP_WITH_RAM_RETENTION) {
 
     // Brings the NWP out of power save mode
     enable_high_performance();
     printf("\r\nNWP comes out of power save mode\r\n");
 
-  } else if (POWER_SAVE_PROFILE == STANDBY_POWER_SAVE) {
+  } else if (POWER_SAVE_PROFILE == DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
 
     // Initialize the Wi-Fi client interface
     status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);

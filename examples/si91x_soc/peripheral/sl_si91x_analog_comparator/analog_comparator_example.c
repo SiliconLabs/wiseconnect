@@ -23,7 +23,6 @@
 #include "sl_si91x_analog_comparator.h"
 #include "sl_si91x_analog_comparator_init.h"
 #include <stdint.h>
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -80,6 +79,7 @@
 // macros for gpio pins
 #define PORT_4           4 // For GPIO port 4
 #define PIN_1            1 // For ULP GPIO 1
+#define PIN_4            4 // For ULP GPIO 4
 #define PIN_5            5 // For ULP GPIO 5
 #define PIN_MODE         0 // Pin mode
 #define PIN_OUTPUT_VALUE 1 // Pin output value
@@ -91,9 +91,6 @@
 #define MAX_DAC_INPUT_SAMPLE_VALUE 1023
 #define DAC_INPUT_SAMPLE_VALUE     1023
 #endif
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -111,8 +108,6 @@ static void opamp_init(uint8_t opamp_instance);
 static void dac_callback(uint8_t event);
 static void dac_init();
 #endif
-
-static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -123,25 +118,12 @@ sl_analog_comparator_threshold_values_t threshold_value;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 void analog_comparator_example_init(void)
 {
   // Updating scale factor variable as per SCALE_FACTOR_VALUE macro value
   scale_factor_value = SCALE_FACTOR_VALUE;
   // Updating threshold value variable as per THRESHOLD_VALUE macro value
   threshold_value = THRESHOLD_VALUE;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
     // Initializing analog comparator module
@@ -331,10 +313,17 @@ static void on_comparator1_callback(void)
  ******************************************************************************/
 static void on_comparator2_callback(void)
 {
+#ifndef SLI_SI915
   // Toggling ULP_GPIO_1 on interrupt
   sl_gpio_t port_pin = { PORT_4, PIN_1 };
   sl_gpio_driver_set_pin_mode(&port_pin, PIN_MODE, PIN_OUTPUT_VALUE);
   sl_si91x_gpio_driver_set_pin_direction(PORT_4, PIN_1, PIN_DIRECTION);
+#else
+  // Toggling ULP_GPIO_4 on interrupt
+  sl_gpio_t port_pin = { PORT_4, PIN_4 };
+  sl_gpio_driver_set_pin_mode(&port_pin, PIN_MODE, PIN_OUTPUT_VALUE);
+  sl_si91x_gpio_driver_set_pin_direction(PORT_4, PIN_4, PIN_DIRECTION);
+#endif
   sl_gpio_driver_set_pin(&port_pin);
   sl_gpio_driver_clear_pin(&port_pin);
   DEBUGOUT("Comparator-2 non-inverting input voltage is greater\n");

@@ -8,10 +8,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 source:
   - path: adc_static_mode_example.c
   - path: app.c
@@ -26,15 +26,21 @@ component:
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: sl_adc
     from: wiseconnect3_sdk
   - id: adc_instance
-    instance:
-      - channel_1
+    instance: [channel_1]
+    condition: ["device_is_module"]
     from: wiseconnect3_sdk
-  - id: sl_clock_manager
+  - id: adc_instance
+    instance: [channel_1]
+    condition: ["device_has_chip"]
+    from: wiseconnect3_sdk
+  - id: adc_instance
+    instance: [channel_2]
+    condition: ["device_has_915chip"]
     from: wiseconnect3_sdk
 define:
   - name: GAIN_OFFSET_CAL_EN
@@ -42,6 +48,8 @@ configuration:
   - name: SL_ADC_OPERATION_MODE
     value: SL_ADC_STATIC_MODE
   - name: SL_ADC_CHANNEL_1_SAMPLE_LENGTH
+    value: 1
+  - name: SL_ADC_CHANNEL_2_SAMPLE_LENGTH
     value: 1
 other_file:
   - path: resources/readme/setupdiagram.png

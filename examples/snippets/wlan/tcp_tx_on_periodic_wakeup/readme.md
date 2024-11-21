@@ -94,6 +94,9 @@ The application can be configured to suit your requirements and development envi
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+
 **TCP Configuration**
 
 - In the Project Explorer pane, open the **app.c** file. 

@@ -99,6 +99,35 @@ typedef	struct fd_set {
 
 #if !defined (__INSIDE_CYGWIN_NET__)
 
+/**
+ * @brief
+ * The select function is used to monitor multiple file descriptors for readiness to
+ * perform I/O operations.  The file descriptors in the sets are monitored to
+ * see if they are ready for reading, ready for writing, or have an error
+ * condition pending.  The timeout parameter specifies the maximum time to
+ * wait for the file descriptors to become ready.  If the timeout parameter
+ * is NULL, select will block until a file descriptor becomes ready.  If the
+ * timeout parameter is not NULL, select will return after the specified time
+ * has elapsed, even if no file descriptors are ready.
+ * @param __n
+ *   The highest file descriptor number in any of the sets plus one.
+ * @param __readfds
+ *      The set of file descriptors to check for being ready to read.
+ * @param __writefds
+ *     The set of file descriptors to check for being ready to write.
+ * @param __exceptfds
+ *    The set of file descriptors to check for error conditions pending.
+ * @param __timeout
+ *   The maximum time to wait for the file descriptors to become ready.
+ * @return
+ *   On succcess returns total number of file descriptors contained in the three returned descriptor sets, which may be zero if the timeout expires.
+ *   On error, -1 is returned, and errno is set appropriately.
+ * @note
+ * The select function modifies the sets passed to it, so if the function
+ * is to be called again, the sets must be reinitialized.
+ * The exceptfds parameter is not currently supported.
+ */
+
 int select(int __n, fd_set *__readfds, fd_set *__writefds,
 		 fd_set *__exceptfds, const struct timeval *__timeout);
 

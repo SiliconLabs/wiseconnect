@@ -1,22 +1,31 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_rom_power_save.h
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
-/*************************************************************************
- *
- */
 
 // Includes
 
@@ -119,13 +128,13 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
     if (M4RamRetEnable) {
       MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |= HPSRAM_RET_ULP_MODE_EN;
       MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |= M4SS_RAM_RETENTION_MODE_EN;
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
       M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
       for (uint8_t x = 0; x < 10; x++) {
         __ASM("NOP");
       }
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
       M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
     }
@@ -171,7 +180,7 @@ STATIC INLINE void RSI_PS_ClrWkpUpStatus(uint32_t wakeUpIntrClear)
 #endif
 }
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 
 STATIC INLINE void RSI_PS_RetentionSleepConfig_bypass(uint32_t stack_address,
                                                       uint32_t jump_cb_address,
@@ -227,7 +236,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
                                                uint32_t mode)
 {
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   //!write magic numbers in retention ram content ulp memory start ,end addresses (work around for jtag mode powersave)
   RETEN_RAM_CONTENT_START_LOCATION = 0xBEAFBEAF;
   RETEN_RAM_CONTENT_END_LOCATION   = 0xBEADBEAD;

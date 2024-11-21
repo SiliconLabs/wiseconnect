@@ -11,6 +11,9 @@ description: >
     - Data Width
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: config/sl_si91x_uart_config.h

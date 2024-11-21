@@ -52,6 +52,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -67,10 +68,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -93,11 +95,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Pin Configuration 
 
-| GPIO pin           |Description|
-| ------------------ | --------- |
-| ULP_GPIO_11  [F6]  | TX (VCOM) |
-| ULP_GPIO_9   [F7]  | RX (VCOM) |
-| ULP_GPIO_8 [P15]  |GPIO_Toggle|
+| 917 GPIO           | 915 GPIO          | Explorer kit GPIO |Description|
+| ------------------ | ----------------- | ----------------- | --------- |
+| ULP_GPIO_11  [F6]  | ULP_GPIO_7  [F6]  | ULP_GPIO_7  [TX]  | TX (VCOM) |
+| ULP_GPIO_9   [F7]  | ULP_GPIO_6  [F7]  | ULP_GPIO_6  [RX]  | RX (VCOM) |
+| ULP_GPIO_8 [P15]   | ULP_GPIO_4  [P36] | ULP_GPIO_8  [EXP_HEADER-2]  |GPIO_Toggle|
 
 ## Test the Application
 
@@ -109,7 +111,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 Follow the steps below for successful execution of the application:
 
 1. When the application runs, ULP_UART sends and receives data in full duplex mode
-2. When tx and rx data both are matching ULP_GPIO_8 should be toggled, connect logic analyzer to observe the toggle state. 
+2. When TX and RX data match, ULP_GPIO_8 should be toggled for the Si917. For the Si915, ULP_GPIO_4 should be toggled instead.Connect logic analyzer to observe the toggle state. 
 3. Here the same pins which are used to send and receive the data are used for data transfer. As a result, we cannot observe prints. Instead, we can use GPIO toggling method as shown below.
 
 - when use send disabled:

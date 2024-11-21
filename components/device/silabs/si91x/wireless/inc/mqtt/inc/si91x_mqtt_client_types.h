@@ -76,7 +76,7 @@ typedef struct SL_ATTRIBUTE_PACKED {
   uint8_t encrypt;
   // MQTT  Client port
   uint32_t client_port;
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   //! Capping tcp retransmission timeout
   uint8_t tcp_max_retransmission_cap_for_emb_mqtt;
 #endif

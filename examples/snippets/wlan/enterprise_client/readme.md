@@ -37,6 +37,8 @@ Before running the application, the user will need the following things to setup
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+   - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+   - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
   	
 - **NCP Mode**:
   - Standalone
@@ -45,6 +47,7 @@ Before running the application, the user will need the following things to setup
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Interface and Host MCU Supported
     - SPI - EFR32
 
@@ -97,6 +100,9 @@ The application can be configured to suit your requirements and development envi
       ```c
       .config.encryption                                          SL_WIFI_EAP_TLS_ENCRYPTION
       ```
+
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 >  **NOTE:**
 > 1. Application shall load the certificates using **[sl_net_set_credential](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API.

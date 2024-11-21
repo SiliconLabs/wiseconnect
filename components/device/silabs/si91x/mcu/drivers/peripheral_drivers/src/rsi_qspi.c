@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_qspi.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -375,7 +387,7 @@ uint32_t qspi_flash_reg_read(qspi_reg_t *qspi_reg, uint8_t reg_read_cmd, uint32_
   (void)spi_config;
   uint32_t rd_config;
   uint32_t read_len = 1;
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   rd_config = 0;
 #endif
   if (cs_no & BIT(31)) {
@@ -394,7 +406,7 @@ uint32_t qspi_flash_reg_read(qspi_reg_t *qspi_reg, uint8_t reg_read_cmd, uint32_
     // wait till the fifo empty is deasserted
     while (qspi_reg->QSPI_STATUS_REG & QSPI_FIFO_EMPTY_RFIFO_S)
       ;
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     // This is a bug fix as this func is returning 0th byte as 0 always in readl_len=2
     // This Fix is required for Giga flash only and Not necessary for Macronix
     rd_config <<= 8;
@@ -1399,7 +1411,7 @@ void qspi_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
                  | (spi_config->spi_config_1.read_cmd << 16)     //< read cmd is used for wrap reads too
                  | (spi_config->spi_config_3.dummys_4_jump << 4) //< no. of dummy bytes in case of jump reads
                  | (spi_config->spi_config_1.dummy_W_or_R << 3); //< dummy writes or reads
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (spi_config->spi_config_1.flash_type != MX_QUAD_FLASH) {
     *auto_2_ptr |= (spi_config->spi_config_1.continuous << 2); //< continuous read mode enable
   }
@@ -1750,7 +1762,7 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
       // spi_config->spi_config_2.cs_no, 0, flash_type);
       // Set QUAD ENABLE bit in status register(BIT(9))
       status = qspi_wait_flash_status_Idle(qspi_reg, spi_config, wr_reg_delay_ms);
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
       status <<= 8;
       status |= (is_quad_mode << 1);
 
@@ -1785,7 +1797,7 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
                             0,
                             flash_type);
         // Set read parameters. Setting number of dummy bytes and Wrap bytes.
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
         // This is to fix the dummy cycles configuration which was not happening properly
         uint32_t total_dummy_bytes =
           spi_config->spi_config_1.no_of_dummy_bytes + spi_config->spi_config_1.extra_byte_en;
@@ -1817,7 +1829,7 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
       }
       break;
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     case ADESTO_QUAD_FLASH:
       //Writing control reg for quad mode
       if (is_quad_mode) {
@@ -2635,7 +2647,7 @@ void qspi_spi_read(qspi_reg_t *qspi_reg,
 void RSI_QSPI_TIMER_Config(void)
 {
   // Timer clock config 32Mhz clock
-  ulpss_time_clk_config(ULPCLK, ENABLE_STATIC_CLK, 0, ULP_TIMER_32MHZ_RC_CLK, 1);
+  ulpss_time_clk_config(ULPCLK, ENABLE_STATIC_CLK, 0, ULP_TIMER_MHZ_RC_CLK, 1);
   // Sets periodic mode
   RSI_TIMERS_SetTimerMode(TIMERS, PERIODIC_TIMER, TIMER_0);
   // Sets timer in 1 Micro second mode
@@ -2665,8 +2677,8 @@ void qspi_usleep(uint32_t delay)
     ;
 }
 
-#ifdef SLI_SI917
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 void qspi_qspiload_key(qspi_reg_t *qspi_reg,
                        uint8_t mode,
                        uint32_t *key1,
@@ -2822,7 +2834,7 @@ void qspi_seg_sec_en(qspi_reg_t *qspi_reg, uint32_t seg_no, uint32_t start_addr,
   qspi_reg->QSPI_AES_SEC_SEG_ADDR[(6 - seg_no)] = end_addr;
 }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
 /*==============================================*/
 /** 

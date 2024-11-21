@@ -44,6 +44,7 @@
 #include "sl_net_si91x.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_power_manager.h"
 #include "sl_si91x_m4_ps.h"
 #endif
 /******************************************************
@@ -90,7 +91,7 @@ static const sl_wifi_device_configuration_t twt_client_configuration = {
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -246,7 +247,7 @@ void application_start()
 #ifdef SLI_SI91X_MCU_INTERFACE
 
 #if (SL_SI91X_TICKLESS_MODE == 0)
-  sl_si91x_m4_sleep_wakeup();
+  sl_si91x_power_manager_sleep();
 #else
   osSemaphoreId_t wait_semaphore;
   wait_semaphore = osSemaphoreNew(1, 0, NULL);
@@ -304,6 +305,8 @@ sl_status_t send_data(void)
   while (packet_count < NUMBER_OF_PACKETS) {
     sent_bytes = send(client_socket, DATA, strlen(DATA), 0);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       PRINT_STATUS(ERROR_TAG, SL_STATUS_FAIL);
       close(client_socket);
       return SL_STATUS_FAIL;

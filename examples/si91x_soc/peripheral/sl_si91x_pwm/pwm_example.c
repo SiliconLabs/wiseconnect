@@ -29,23 +29,21 @@
 #include "sl_si91x_pwm.h"
 #include "sl_pwm_instances.h"
 #include "sl_si91x_peripheral_gpio.h"
-#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 #define EVENT_COUNT       10    // Count of events that can generate
 #define PRESCALE_A        0x100 // PWM Prescale_A value
 #define DEADTIME_A        0x08  // PWM deadtime_A
-#define FAULT_A_ENABLE    0x11  // Fault A enable for channel 0
 #define DT_COUNTER_A      0x00  // Dead time counter A enable
-#define DT_ENABLE         0x01  // Dead time enable for channel 0
-#define INTR_EVENT        0x01  // Rise PWM time period match channel 0 event
 #define DUTY_CYCLE_UPDATE 0x01  // Enable duty cycle updating bit in register
 #define OUTPUT_VALUE      1     // Output value set
 #define SL_ULP_PORT       4     // GPIO ULP port
 
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+#define INTR_EVENT     0x01 // Rise PWM time period match channel 0 event
+#define FAULT_A_ENABLE 0x11 // Fault A enable for channel 0
+#define DT_ENABLE      0x01 // Dead time enable for channel 0
 /*******************************************************************************
  **********************  GLOBAL variables   ************************************
  ******************************************************************************/
@@ -53,7 +51,6 @@
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void pwm_callback_function(uint16_t event);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
  **********************  Local variables   *************************************
@@ -63,16 +60,6 @@ static boolean_t event_flag = 1;
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * PWM Example Initialization function
  ******************************************************************************/
@@ -80,9 +67,6 @@ void pwm_example_init(void)
 {
   sl_status_t status;
   sl_pwm_version_t version;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   // Get PWM version
   version = sl_si91x_pwm_get_version();

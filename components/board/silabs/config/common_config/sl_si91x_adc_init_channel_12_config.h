@@ -3,7 +3,7 @@
  * @brief ADC configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 /**************************** ADC Channel Configuration ***********************/
 
-#define P12_START_LOCATION_PINTOOL 191
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -78,8 +77,27 @@ extern "C" {
 // [ADC_CH12_SL_ADC_CH12]$
 // <<< sl:end pin_tool >>>
 
-#ifdef SL_ADC_CH12_P_LOC
-#define SL_ADC_CHANNEL_12_POS_INPUT_CHNL_SEL (SL_ADC_CH12_P_LOC - P12_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH12_P_PIN
+#define SL_ADC_CHANNEL_12_POS_INPUT_CHNL_SEL \
+  ((SL_ADC_CH12_P_PIN == 0)    ? 0           \
+   : (SL_ADC_CH12_P_PIN == 2)  ? 1           \
+   : (SL_ADC_CH12_P_PIN == 4)  ? 2           \
+   : (SL_ADC_CH12_P_PIN == 6)  ? 3           \
+   : (SL_ADC_CH12_P_PIN == 8)  ? 4           \
+   : (SL_ADC_CH12_P_PIN == 10) ? 5           \
+   : (SL_ADC_CH12_P_PIN == 25) ? 6           \
+   : (SL_ADC_CH12_P_PIN == 27) ? 7           \
+   : (SL_ADC_CH12_P_PIN == 29) ? 8           \
+   : (SL_ADC_CH12_P_PIN == 1)  ? 10          \
+   : (SL_ADC_CH12_P_PIN == 3)  ? 11          \
+   : (SL_ADC_CH12_P_PIN == 5)  ? 12          \
+   : (SL_ADC_CH12_P_PIN == 11) ? 13          \
+   : (SL_ADC_CH12_P_PIN == 9)  ? 14          \
+   : (SL_ADC_CH12_P_PIN == 7)  ? 15          \
+   : (SL_ADC_CH12_P_PIN == 26) ? 16          \
+   : (SL_ADC_CH12_P_PIN == 28) ? 17          \
+   : (SL_ADC_CH12_P_PIN == 30) ? 18          \
+                               : -1)
 #else
 #define SL_ADC_CHANNEL_12_POS_INPUT_CHNL_SEL 10
 #endif

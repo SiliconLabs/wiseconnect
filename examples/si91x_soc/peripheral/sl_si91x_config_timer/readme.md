@@ -21,7 +21,7 @@
 
 - This Config Timer example demonstrates two use cases of timer :
   - First as free running timer with GPIO toggle functionality. Counter-0 is configured to generate interrupts every millisecond and toggles GPIO.
-  - Second as waveform generator producing two PWM outputs, counter-1 generates a square wave (50%-duty cycle) and counter-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
+  - Second as waveform generator producing two PWM outputs, counter-1 generates a square wave (50%-duty cycle) and counter-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1%.
 
 ## Overview
 
@@ -48,14 +48,13 @@
   - Config Timer is initialized using \ref sl_si91x_ct_init() API.
   - After initialization, the desired counter parameters are configured using \ref sl_si91x_ct_set_configuration() API, the parameters are set through UC.
   - Match count for both the counters are configured using same @ref sl_si91x_ct_set_match_count() API.
-  - Initial duty cycle is set for PWM channels \ref RSI_MCPWM_SetDutyCycle() API.
   - The desired OCU parameters are configured using \ref sl_si91x_ct_set_ocu_configuration() API.
   - The desired OCU controls for both counters, are configured using API \ref sl_si91x_config_timer_set_ocu_control(), by changing the counter number.
   - Registers callback for enabling peak interrupt, for counter-1 using \ref sl_si91x_ct_register_callback() API.
   - Starts both the counters using API \ref sl_si91x_ct_start_on_software_trigger(), by changing the counter number.
   - After enabling OCU mode, a continuous loop for pwm output is performed.
   - It creates 2 independent PWM Outputs - CT output-0 and CT output-1.
-  - CT Output-1 will produce a square wave and CT Output-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
+  - CT Output-1 will produce a square wave and CT Output-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1%.
   - Connect logic analyzer to Evaluation kit board's GPIO-29 & GPIO-30 for output-0 and output-1 respectively and observe the PWM waveforms.
 - If **CT_COUNTER_MODE_USECASE** is enabled:
   - First Configuring ULP_GPIO_1 pin mux mode and direction as output.
@@ -75,6 +74,7 @@
 
 - Windows PC.
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ].
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -90,10 +90,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -115,16 +116,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   > ![Figure: Time Period Configuration](resources/readme/time_period_config.png)
 
-   **Note:**
-  > As currently Config Timer is supporting only 16-bit mode, we can configure match value to a maximum of 65535.
-  > CT match value depends on the M4 SoC clock configured. Use the following formula for configuring match value against desired time period:
-   match value = (M4_SOC_CLK x time_period_in_us) / (2 x 1000000);
-
-   For example, if M4 SoC clock is configured at 180MHz, and desired time period is 200us then,
-      match value = (180000000 * 200) / (2 x 1000000) = 18000
-      
-   The match value is automatically calculated based on the time period value. Users do not need to concern themselves with match value calculation, as it is handled by the get match value API.
-   
 - Use following CT configurations to run application in Normal counter mode use case (using Counter-0 or Counter-1).
 
   > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
@@ -139,12 +130,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
 
+   **Note:**
+  > As currently Config Timer is supporting only 16-bit mode, we can configure match value to a maximum of 65535.
+  
 ### Pin Configuration for pwm-mode use case
 
-|  Discription  | GPIO    | Connector     |
-| ------------- | ------- | ------------- |
-|    output-0   | GPIO_29 |     P33       |
-|    output-1   | GPIO_30 |     P35       |
+|  Discription  | GPIO    | Breakout pin  | Explorer kit Breakout pin| 
+| ------------- | ------- | ------------- | ------------------------ |
+|    output-0   | GPIO_29 |     P33       |        [AN]              |
+|    output-1   | GPIO_30 |     P35       |        [RST]             |
 
 > ![Figure: Pin configuration](resources/readme/image502e.png)
 
@@ -171,7 +165,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Run the application in PWM mode
 
 - CT Output-1 will produce a square wave (50% duty cycle).
-- CT Output-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
+- CT Output-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1%.
 - Connect logic analyzer to evaluation kit board's GPIO-29 & GPIO-30 for output-0 and output-1 respectively and observe the PWM waveforms.
 - Following prints will be observed on console:
 

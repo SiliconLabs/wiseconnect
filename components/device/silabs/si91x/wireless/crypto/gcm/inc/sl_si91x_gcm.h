@@ -139,7 +139,7 @@ typedef union {
  */
 typedef struct {
   sl_si91x_gcm_type_t encrypt_decrypt; ///< Encryption or decryption
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_gcm_mode_t gcm_mode; ///< GCM or CMAC mode
 #endif
   sl_si91x_gcm_dma_use_t dma_use;       ///< DMA Disable or Enable

@@ -109,6 +109,7 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.isr_vector))
+		. = ALIGN(32);
 		{%- if not power_manager_ps2 %}
 			{%- if ram_execution %}
      	  	KEEP(*(.reset_handler))
@@ -121,7 +122,7 @@ SECTIONS
 	{% endif %}		
      	  	
 		{% if power_manager_ps2 %}
-		  *(EXCLUDE_FILE(  *cmsis_gcc.o *cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *rsi_hal_mcu_m4_rom.o *rsi_hal_mcu_m4_ram.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o *sli_si91x_power_manager_wakeup_init.o *sl_si91x_power_manager_wakeup_handler.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *sl_core_cortexm.o *UDMA.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
+		  *(EXCLUDE_FILE(  *cmsis_gcc.o *cmsis_os2.o *sl_wifi.o *timers.o *heap_4.o *list.o *sl_si91x_m4_ps.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o *sli_si91x_power_manager_wakeup_init.o *sl_si91x_power_manager_wakeup_handler.o *sl_si91x_clock_manager.o *sli_si91x_clock_manager.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *sl_core_cortexm.o *UDMA.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
 	
 		{%- endif %}
 
@@ -240,8 +241,8 @@ SECTIONS
 		*tasks.o(.text*)
 		*clock_update.o(.text*)
 		*rsi_deepsleep_soc.o(.text*)
-		*rsi_hal_mcu_m4_ram.o(.text*)
 		*rsi_hal_mcu_m4_rom.o(.text*)
+		*rsi_hal_mcu_m4_ram.o(.text*)
 		*rsi_egpio.o(.text*)
 		*rsi_ipmu.o(.text*)
 		*ipmu_apis.o(.text*)
@@ -254,12 +255,19 @@ SECTIONS
 		*system_si91x.o(.text*)
 		*sl_slist.o(.text*)
 		*strcmp.o(.text*)
+		*sl_wifi.o(.text*)
+		*timers.o(.text*)
+		*heap_4.o(.text*)
+		*list.o(.text*)
+		*sl_si91x_m4_ps.o(.text*)
 		*sl_si91x_power_manager.o(.text*)
 		*sli_si91x_power_manager.o(.text*)
 		*sl_si91x_power_manager_handler.o(.text*)
 		*sl_si91x_power_manager_debug.o(.text*)
 		*sli_si91x_power_manager_wakeup_init.o(.text*)
 		*sl_si91x_power_manager_wakeup_handler.o(.text*)
+		*sl_si91x_clock_manager.o(.text*)
+		*sli_si91x_clock_manager.o(.text*)
 		*sl_sleeptimer.o(.text*)
 		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
 		*rsi_sysrtc.o(.text*)
@@ -286,6 +294,8 @@ SECTIONS
 		{% endfor %}{% for c in user_files_ps2 %}*{{c}}(.text*)
 		{% endfor %}
 		{% endif %}
+		/* ipmu calibration data */
+		*(.common_ipmu_ram*)
 		
 		. = ALIGN(4);
 		/* preinit data */
@@ -368,6 +378,7 @@ SECTIONS
 {%- endif %}	
 {% endif %}
 
+{%- if flash_present %}
 {%- if nvm3_enable %}
   __ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};
   {%- if app_flash_size >= nvm3_app_max_flash_size %}
@@ -393,8 +404,10 @@ SECTIONS
   linker_storage_size = SIZEOF(.internal_storage1);
   ASSERT((linker_storage_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
  
-{%- endif %}
- 
+{%- endif %}  /* nvm3 enable*/
+{%- endif %}  /* Flash Present*/
+
+{%- if flash_present %}
 {%- if littlefs_enable %}
 {%- if nvm3_enable %}
   __main_flash_end__ = linker_nvm_begin;
@@ -421,5 +434,6 @@ SECTIONS
   linker_storage2_size = SIZEOF(.internal_storage2);
   ASSERT((linker_storage2_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
  
-{%- endif %}   
+{%- endif %}  /* littlefs_enable */
+{%- endif %}  /* Flash Present */
 }

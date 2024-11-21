@@ -111,6 +111,7 @@
  * - Maximum length should be 872 bytes, which includes user_name, password, host_name, ip_address, resource, and extended_header.
  * - If username, password, hostname and extended http headers are not required, user should send empty string separated by delimiter.
  * - If content of any field contains a comma then NULL delimiter should be used.
+ * - This API will wait until the response is received from NWP.
  ******************************************************************************/
 sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint16_t flags,

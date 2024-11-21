@@ -5,6 +5,9 @@
 - description: Board support for BRD4325A.
 - category: Board|Radio Board
 - quality: production
+- metadata:
+    sbom:
+      license: Zlib
 - root_path: components/board/silabs/config/brd4325a
 - ui_hints:
     visibility: never
@@ -41,34 +44,34 @@
     value: 136388608 # 0x0821 2000
     priority: -1
     condition:
-      - si917_mem_config_1
+      - si91x_mem_config_1
   - name: device_flash_size
     value: 524288 # 0x0008 0000
     priority: -1
     condition:
-      - si917_mem_config_1
+      - si91x_mem_config_1
   # Medium Memory configuration
   - name: device_flash_addr
     value: 136388608 # 0x0821 2000
     priority: -1
     condition:
-      - si917_mem_config_2
+      - si91x_mem_config_2
   - name: device_flash_size
     value: 524288 # 0x0008 0000
     priority: -1
     condition:
-      - si917_mem_config_2
+      - si91x_mem_config_2
   # Advanced Memory configuration
   - name: device_flash_addr
     value: 136388608 # 0x0821 2000
     priority: -1
     condition:
-      - si917_mem_config_3
+      - si91x_mem_config_3
   - name: device_flash_size
     value: 524288 # 0x0008 0000
     priority: -1
     condition:
-      - si917_mem_config_3
+      - si91x_mem_config_3
 - tag:
   - board:pn:BRD4325
   - board:variant:A

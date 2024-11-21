@@ -73,7 +73,7 @@ sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_size)
   request.timeout   = CONVERT_TO_SI91X_PING_TIMEOUT(PING_RESPONSE_TIMEOUT_MS); // Copy Ping timeout
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_PING_PACKET,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &request,
                                         sizeof(sl_si91x_ping_request_t),
                                         SL_SI91X_RETURN_IMMEDIATELY,

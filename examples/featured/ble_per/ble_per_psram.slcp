@@ -13,10 +13,10 @@ filter:
     value: ["Beginner"]
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.4  
+  version: 3.4.0
 source:
   - path: app.c
   - path: main.c
@@ -27,9 +27,7 @@ include:
       - path: ble_config.h
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
-  - name: SL_SI91X_MCU_ALARM_BASED_WAKEUP
   - name: SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-  - name: SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 template_contribution:
   - name: event_handler
     condition: [sli_si91x_mcu_interface]
@@ -37,7 +35,7 @@ template_contribution:
       event: platform_init
       include: rsi_wisemcu_hardware_setup.h
       handler: sl_si91x_hardware_setup
-    priority: -9995
+    priority: -9994
 component:
   - id: sl_system
   - id: freertos
@@ -58,8 +56,6 @@ component:
     from: wiseconnect3_sdk
   - id: basic_network_config_manager
     from: wiseconnect3_sdk
-  - id: sllib_m4_power_save
-    from: wiseconnect3_sdk
   - id: psram_core
     from: wiseconnect3_sdk
   - id: psram_aps6404l_sqh
@@ -67,10 +63,8 @@ component:
   - id: text_segment_in_psram
     from: wiseconnect3_sdk
   - id: data_segment_in_psram
-    from: wiseconnect3_sdk    
-  - id: rsilib_dcache
     from: wiseconnect3_sdk     
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: syscalls
     from: wiseconnect3_sdk
@@ -79,7 +73,11 @@ component:
   - id: sl_si91x_mem_pool_buffers_with_quota
     from: wiseconnect3_sdk
   - id: sl_power_manager
-    from: wiseconnect3_sdk    
+    from: wiseconnect3_sdk
+  - id: wireless_wakeup_ulp_component
+    from: wiseconnect3_sdk
+  - id: calendar_ulp_component
+    from: wiseconnect3_sdk   
 requires:
   - name: device_needs_ram_execution
     condition:
@@ -90,6 +88,12 @@ toolchain_settings:
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
     value: '1'
+  - name: SL_ENABLE_CALENDAR_WAKEUP_SOURCE
+    value: '1'
+  - name: ENABLE_ALARM
+    value: '1'
+  - name: ALARM_TIME_MSEC
+    value: '1000'
 readme:
   - path: readme.md
 other_file:

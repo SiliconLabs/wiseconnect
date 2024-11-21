@@ -76,7 +76,7 @@ UDMA_Channel_Info udma1_chnl_info[12] = { 0U } ;
 #ifdef RTE_UDMA0
 /* I2C0 Resources */
 UDMA_RESOURCES UDMA0_Resources = {
-    (UDMA0_Type *)UDMA0,
+    UDMA0,
     UDMA0_IRQn,
     UDMA0_Table          // SRAM base address
 };
@@ -86,7 +86,7 @@ UDMA_RESOURCES UDMA0_Resources = {
 
 /* I2C1 Resources */
 UDMA_RESOURCES UDMA1_Resources = {
-    (UDMA0_Type *)UDMA1,
+    UDMA1,
     UDMA1_IRQn,
     UDMA1_Table          // SRAM base address
 };

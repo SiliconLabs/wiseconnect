@@ -80,7 +80,12 @@ uint8_t ascii_to_dec(uint8_t *num);
 
 #define BLE_DYNAMIC_BUFF_CONFIGURATION_BASED_ON_INTERVAL 0
 
+//! BLE Tx Power Index On Air
+#ifdef SLI_SI915
+#define RSI_BLE_PWR_INX 75 //  HP chain for Si915
+#else
 #define RSI_BLE_PWR_INX 30
+#endif
 
 /*#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20

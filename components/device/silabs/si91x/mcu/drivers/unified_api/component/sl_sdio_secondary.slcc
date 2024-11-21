@@ -7,6 +7,9 @@ description: >
   sdio secondary  initialization, transmitting and receiving the data to and from the sdio primary and secondary. 
 category: Device|Si91x|MCU|Peripheral|SDIO Slave Driver
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 provides:
   - name: sl_sdio_secondary

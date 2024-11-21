@@ -5,6 +5,9 @@ description: >
   This component provides access to the SDIO Slave driver. 
 category: Device|Si91x|MCU|Peripheral|SDIO Slave Driver
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 ui_hints:
   visibility: never

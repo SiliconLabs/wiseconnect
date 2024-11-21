@@ -49,6 +49,7 @@
 #include "sl_si91x_socket.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_power_manager.h"
 #include "sl_si91x_m4_ps.h"
 #include "rsi_rom_clks.h"
 #endif
@@ -110,7 +111,7 @@ static const sl_wifi_device_configuration_t twt_client_configuration = {
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -193,11 +194,6 @@ sl_si91x_timeout_t timeout_configuration = { .keep_alive_timeout_value       = K
 
 volatile sl_status_t callback_status = SL_STATUS_OK;
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
-#endif
-
 /******************************************************
   *               Function Declarations
   ******************************************************/
@@ -213,19 +209,6 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
 /******************************************************
   *               Function Definitions
   ******************************************************/
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-void switch_m4_frequency(void)
-{
-  /*Switch M4 SOC clock to Reference clock*/
-  /*Default keep M4 in reference clock*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-  /*Configure the PLL frequency*/
-  RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-  /*Switch M4 clock to PLL clock for speed operations*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-}
-#endif
 
 void data_callback(uint32_t sock_no,
                    uint8_t *buffer,
@@ -293,13 +276,6 @@ void application_start()
     return;
   }
   printf("Wi-Fi Client Connected\r\n");
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-  switch_m4_frequency();
-#if (SL_SI91X_TICKLESS_MODE == 0)
-  SysTick_Config(SystemCoreClock / (1000));
-#endif
-#endif
 
   status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
   if (status != SL_STATUS_OK) {
@@ -407,6 +383,8 @@ sl_status_t send_udp_data(void)
                     (struct sockaddr *)&server_address,
                     socket_length);
     if (status < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nFailed to send data to UDP Server, Error Code : 0x%lX\r\n", status);
       close(udp_client_socket);
     }
@@ -430,11 +408,11 @@ sl_status_t create_tcp_socket(void)
   }
   printf("\r\nTCP Client Socket ID : %d\r\n", tcp_client_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(tcp_client_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(tcp_client_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nTCP Set Socket option failed with BSD error: %d\r\n", errno);
     close(tcp_client_socket);
@@ -561,6 +539,8 @@ sl_status_t receive_and_send_data(void)
                           (struct sockaddr *)&server_address,
                           sizeof(struct sockaddr_in));
           if (status < 0) {
+            if (errno == ENOBUFS)
+              continue;
             printf("\r\nFailed to send data to UDP Server, Error Code : 0x%lX\r\n", status);
             close(udp_client_socket);
           }
@@ -571,6 +551,8 @@ sl_status_t receive_and_send_data(void)
         while (packet_count < NUMBER_OF_PACKETS) {
           status = send(tcp_client_socket, (int8_t *)"Door lock opened", (sizeof("Door lock opened") - 1), 0);
           if (status < 0) {
+            if (errno == ENOBUFS)
+              continue;
             printf("\r\nFailed to send data to TCP Server, Error Code : 0x%lX\r\n", status);
             close(tcp_client_socket);
           }
@@ -584,7 +566,7 @@ sl_status_t receive_and_send_data(void)
 #ifdef SLI_SI91X_MCU_INTERFACE
 #if (SL_SI91X_TICKLESS_MODE == 0)
     printf("M4 in Sleep\r\n");
-    sl_si91x_m4_sleep_wakeup();
+    sl_si91x_power_manager_sleep();
     printf("M4 wake up\r\n");
 #endif
 #endif

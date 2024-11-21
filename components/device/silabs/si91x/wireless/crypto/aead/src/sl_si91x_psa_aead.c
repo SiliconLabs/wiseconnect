@@ -138,7 +138,7 @@ static void sli_si91x_set_input_config_ccm(const psa_key_attributes_t *attribute
                                            const uint8_t *key_buffer,
                                            size_t key_buffer_size)
 {
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   /* Fetch key type from attributes */
   psa_key_location_t location_ccm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
   if (location_ccm == 0) {
@@ -178,7 +178,7 @@ static void sli_si91x_set_input_config_gcm(const psa_key_attributes_t *attribute
                                            const uint8_t *key_buffer,
                                            size_t key_buffer_size)
 {
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   /* Fetch key type from attributes */
   psa_key_location_t location_gcm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
   if (location_gcm == 0) {
@@ -218,7 +218,7 @@ static void sli_si91x_set_input_config_chachapoly(const psa_key_attributes_t *at
                                                   sl_si91x_chachapoly_config_t *config_chachapoly,
                                                   const uint8_t *key_buffer)
 {
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   /* Fetch key type from attributes */
   psa_key_location_t location_chachapoly = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
   if (location_chachapoly == 0) {
@@ -302,7 +302,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       /* Calling sl_si91x_ccm() for CCM encryption */
       si91x_status = sl_si91x_ccm(&config_ccm, ciphertext);
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
       free(config_ccm.key_config.a0.key);
 #endif
       /* gets the si91x error codes and returns its equivalent psa_status codes */
@@ -327,7 +327,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       /* Calling sl_si91x_gcm() for GCM encryption */
       si91x_status = sl_si91x_gcm(&config_gcm, ciphertext);
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
       free(config_gcm.key_config.a0.key);
 #endif
       /* gets the si91x error codes and returns its equivalent psa_status codes */
@@ -434,7 +434,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       /* Calling sl_si91x_ccm() for CCM decryption */
       si91x_status = sl_si91x_ccm(&config_ccm, plaintext);
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
       free(config_ccm.key_config.a0.key);
 #endif
       status = convert_si91x_error_code_to_psa_status(si91x_status);
@@ -457,7 +457,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       /* Calling sl_si91x_gcm() for GCM decryption */
       si91x_status = sl_si91x_gcm(&config_gcm, plaintext);
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
       free(config_gcm.key_config.a0.key);
 #endif
       status = convert_si91x_error_code_to_psa_status(si91x_status);

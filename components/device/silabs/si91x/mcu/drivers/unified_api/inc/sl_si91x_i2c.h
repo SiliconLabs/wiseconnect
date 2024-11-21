@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_i2c.h
- * @brief I2C API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_i2c.h
+* @brief I2C API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 //// Includes
 #ifndef SL_SI91X_I2C_H
 #define SL_SI91X_I2C_H
@@ -69,13 +69,14 @@ extern "C" {
 
 // -----------------------------------------------------------------------------
 // Macros for i2c parameters
-#define ULP_I2C                SL_I2C2 ///< defining ULP_I2C instance
-#define SL_I2C0_DMA_TX_CHANNEL 31      ///< I2C0 DMA TX channel number
-#define SL_I2C0_DMA_RX_CHANNEL 30      ///< I2C0 DMA RX channel number
-#define SL_I2C1_DMA_TX_CHANNEL 3       ///< I2C1 DMA TX channel number
-#define SL_I2C1_DMA_RX_CHANNEL 2       ///< I2C1 DMA RX channel number
-#define SL_I2C2_DMA_TX_CHANNEL 5       ///< ULP_I2C DMA TX channel number
-#define SL_I2C2_DMA_RX_CHANNEL 4       ///< ULP_I2C DMA RX channel number
+#define SL_I2C0_DMA_TX_CHANNEL    31                        ///< I2C0 DMA TX channel number
+#define SL_I2C0_DMA_RX_CHANNEL    30                        ///< I2C0 DMA RX channel number
+#define SL_I2C1_DMA_TX_CHANNEL    3                         ///< I2C1 DMA TX channel number
+#define SL_I2C1_DMA_RX_CHANNEL    2                         ///< I2C1 DMA RX channel number
+#define SL_ULP_I2C_DMA_TX_CHANNEL 5                         ///< ULP_I2C DMA TX channel number
+#define SL_ULP_I2C_DMA_RX_CHANNEL 4                         ///< ULP_I2C DMA RX channel number
+#define SL_I2C2_DMA_TX_CHANNEL    SL_ULP_I2C_DMA_TX_CHANNEL ///< ULP_I2C DMA TX channel number for backward compatibility
+#define SL_I2C2_DMA_RX_CHANNEL    SL_ULP_I2C_DMA_RX_CHANNEL ///< ULP_I2C DMA RX channel number for backward compatibility
 
 // -----------------------------------------------------------------------------
 // Data Types
@@ -86,10 +87,11 @@ extern "C" {
  * This enumeration defines the different I2C instances available in the system.
  */
 typedef enum {
-  SL_I2C0,     ///< I2C Instance 0.
-  SL_I2C1,     ///< I2C Instance 1.
-  SL_I2C2,     ///< I2C Instance 2 (ULP_I2C).
-  SL_I2C_LAST, ///< Last member of enum for validation.
+  SL_I2C0,              ///< I2C Instance 0.
+  SL_I2C1,              ///< I2C Instance 1.
+  SL_I2C2,              ///< I2C Instance 2 (ULP_I2C).
+  SL_ULP_I2C = SL_I2C2, ///< ULP_I2C Instance
+  SL_I2C_LAST,          ///< Last member of enum for validation.
 } sl_i2c_instance_t;
 
 /**
@@ -114,6 +116,7 @@ typedef enum {
   SL_I2C_CALLBACK_BUSY,            ///< I2C instance callback already registered.
   SL_I2C_DMA_TRANSFER_ERROR,       ///< I2C DMA transfer error.
   SL_I2C_INVALID_PARAMETER,        ///< Invalid parameter.
+  SL_I2C_TIMEOUT,                  ///< I2C timeout for blocking calls.
 } sl_i2c_status_t;
 
 /**
@@ -122,9 +125,10 @@ typedef enum {
  * This enumeration defines the different transfer types that can be used by the I2C driver.
  */
 typedef enum {
-  SL_I2C_USING_INTERRUPT,   ///< The driver will use interrupts to perform I2C transfer.
-  SL_I2C_USING_DMA,         ///< The driver will use DMA to perform I2C transfer.
-  SL_I2C_TRANFER_TYPE_LAST, ///< Last member for validation purposes.
+  SL_I2C_USING_NON_DMA,                          ///< The driver will use polling to perform I2C transfer
+  SL_I2C_USING_INTERRUPT = SL_I2C_USING_NON_DMA, ///< Same as SL_I2C_USING_NON_DMA, retained for backward compatibility.
+  SL_I2C_USING_DMA,                              ///< The driver will use DMA to perform I2C transfer
+  SL_I2C_TRANFER_TYPE_LAST,                      ///< For Validation
 } sl_i2c_transfer_type_t;
 
 /**
@@ -232,9 +236,9 @@ typedef enum {
  * @param[in] p_user_config A pointer to the I2C configuration structure. See \ref sl_i2c_config_t.
  *
  * @return sl_i2c_status_t Status of the initialization:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Initialization was successful.
- *         - \ref SL_I2C_CALLBACK_BUSY (0x000D) - The driver is currently busy and cannot process the request.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - One or more parameters are invalid.
+ *         - \ref SL_I2C_SUCCESS  - Initialization was successful.
+ *         - \ref SL_I2C_CALLBACK_BUSY - The driver is currently busy and cannot process the request.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - One or more parameters are invalid.
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_config_t *p_user_config);
 
@@ -255,8 +259,8 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
  * @param[in] address The follower's own address (supports 7-Bit and 10-Bit addressing) between the range of 1-1023.
  * 
  * @return sl_i2c_status_t Status code indicating the result of the operation:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_set_follower_address(sl_i2c_instance_t i2c_instance, uint16_t address);
@@ -277,8 +281,8 @@ sl_i2c_status_t sl_i2c_driver_set_follower_address(sl_i2c_instance_t i2c_instanc
  * @param[in] rx_threshold_value The RX FIFO threshold value, which must be between 0 and 255.
  * 
  * @return sl_i2c_status_t Status code indicating the result of the operation:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_configure_fifo_threshold(sl_i2c_instance_t i2c_instance,
@@ -298,8 +302,8 @@ sl_i2c_status_t sl_i2c_driver_configure_fifo_threshold(sl_i2c_instance_t i2c_ins
  * @param[out] frequency Pointer to a variable where the current system core clock frequency will be stored.
  * 
  * @return sl_i2c_status_t Status code indicating the result of the operation:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_get_frequency(sl_i2c_instance_t i2c_instance, uint32_t *frequency);
@@ -318,7 +322,7 @@ sl_i2c_status_t sl_i2c_driver_get_frequency(sl_i2c_instance_t i2c_instance, uint
  *      - \ref sl_i2c_driver_configure_fifo_threshold.
  * 
  * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
- * @param[in] address Follower address (7-bit: 0-127, 10-bit: 0-1023). Ignored in follower mode.
+ * @param[in] address Follower address (7-bit: 0-0x7F, 10-bit: 0-0x3FF). Ignored in follower mode.
  * @param[in] tx_buffer Pointer to the transmit data buffer.
  * @param[in] tx_len Data length in bytes (range: 1-80,000).
  * 
@@ -326,8 +330,8 @@ sl_i2c_status_t sl_i2c_driver_get_frequency(sl_i2c_instance_t i2c_instance, uint
  * but this limit may vary depending on the available RAM size.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_send_data_blocking(sl_i2c_instance_t i2c_instance,
@@ -349,12 +353,14 @@ sl_i2c_status_t sl_i2c_driver_send_data_blocking(sl_i2c_instance_t i2c_instance,
  *      - Here transfer-type should be set as DMA-type
  *      - \ref sl_i2c_driver_set_follower_address, if used in salve application
  * @param[in] i2c_instance I2C Instance.
- * @param[in] address Follower address can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023).
+ * @param[in] address Follower address can be provided in 7-bit length (0-0x7F)
+ * or in 10-bit length(0-0x3FF).
  * @param[in] tx_buffer A pointer to transmit data buffer
  * @param[in] tx_len Data length in number of bytes in the range of 1-30000 bytes.
  * @param[in] p_dma_config A pointer to DMA configuration structure \ref sl_i2c_dma_config_t.
  * @note Maximum tx_len values can be 30000 (receives back in around 4 seconds)
+ * @note The `tx_buffer` parameter is of type `uint32_t`. It is recommended to use 8-bit (0-7 bits) data in the buffer,
+ * with the remaining bits filled in by the driver internally.
  * @return status 0 if successful, else error code as follow
  *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
  *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid 
@@ -380,7 +386,7 @@ sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_insta
  *      - \ref sl_i2c_driver_configure_fifo_threshold.
  * 
  * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
- * @param[in] address Follower address (7-bit: 0-127, 10-bit: 0-1023). Ignored in follower mode.
+ * @param[in] address Follower address (7-bit: 0-0x7F, 10-bit: 0-0x3FF). Ignored in follower mode.
  * @param[in] rx_buffer Pointer to the receive data buffer.
  * @param[in] rx_len Data length in bytes (range: 1-80,000).
  * 
@@ -388,8 +394,8 @@ sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_insta
  * but this limit may vary depending on the available RAM size.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instance,
@@ -412,7 +418,7 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
  *      - \ref sl_i2c_driver_set_follower_address if used in follower application.
  * 
  * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
- * @param[in] address Follower address, which can be in 7-bit (0-127) or 10-bit (0-1023) format.
+ * @param[in] address Follower address, which can be in 7-bit (0-0x7F) or 10-bit (0-0x3FF) format.
  * @param[in] rx_buffer Pointer to the receive data buffer.
  * @param[in] rx_len Data length in bytes, ranging from 1 to 30,000.
  * @param[in] p_dma_config Pointer to the DMA configuration structure. See \ref sl_i2c_dma_config_t.
@@ -445,7 +451,7 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
  *      - \ref sl_i2c_driver_set_follower_address if used in follower application.
  * 
  * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
- * @param[in] address Follower address, which can be in 7-bit (0-127) or 10-bit (0-1023) format.
+ * @param[in] address Follower address, which can be in 7-bit (0-0x7F) or 10-bit (0-0x3FF) format.
  * @param[in] p_transfer_config Pointer to the transfer configuration structure. See \ref sl_i2c_transfer_config_t.
  * 
  * @note 
@@ -454,8 +460,8 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
  *       - The default values cannot be any of the reserved address locations: 0x00 to 0x07, or 0x78 to 0x7f.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_transfer_data(sl_i2c_instance_t i2c_instance,
@@ -474,8 +480,8 @@ sl_i2c_status_t sl_i2c_driver_transfer_data(sl_i2c_instance_t i2c_instance,
  * @param[in] i2c_instance The I2C instance to be de-initialized. See \ref sl_i2c_instance_t.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  * @note When the I2C module is used in combination with other peripherals, refer to the following notes:
  *   1. When `sl_i2c_driver_deinit()` is called, it will disable the clock for the peripheral. To power off the peripheral, 
@@ -499,8 +505,8 @@ sl_i2c_status_t sl_i2c_driver_deinit(sl_i2c_instance_t i2c_instance);
  * @param[in] pin_init Pointer to the pin initialization structure. See \ref sl_i2c_pin_init_t.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init);
@@ -521,8 +527,8 @@ sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init);
  * @param[in] new_power_mode New power state to switch to. See \ref sl_i2c_power_modes_t.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Success.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_modes_t new_power_mode);
@@ -542,8 +548,8 @@ sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_
  * @param[in] enable_rep_start Boolean value: true to enable, false to disable repeated start.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - \ref SL_I2C_SUCCESS  - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Invalid parameters were provided.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_enable_repeated_start(sl_i2c_instance_t i2c_instance, boolean_t enable_rep_start);
@@ -558,8 +564,8 @@ sl_i2c_status_t sl_i2c_driver_enable_repeated_start(sl_i2c_instance_t i2c_instan
  * @param[in] i2c_instance The I2C instance to be checked. See \ref sl_i2c_instance_t.
  * 
  * @return sl_i2c_status_t Status code indicating the result:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success.
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid.
+ *         - \ref SL_I2C_SUCCESS  - Success.
+ *         - \ref SL_I2C_INVALID_PARAMETER  - Parameters are invalid.
  * 
  ******************************************************************************/
 sl_i2c_status_t sl_si91x_i2c_wait_till_i2c_is_idle(sl_i2c_instance_t i2c_instance);

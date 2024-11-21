@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_i2s.h
- * @brief I2S API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_i2s.h
+* @brief I2S API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_I2S_H
 #define SL_SI91X_I2S_H
@@ -77,7 +77,6 @@ typedef enum {
  ******************************************************************************/
 typedef enum {
   SL_I2S_POWER_OFF  = ARM_POWER_OFF, ///< Power mode OFF.
-  SL_I2S_LOW_POWER  = ARM_POWER_LOW, ///< Low power mode.
   SL_I2S_FULL_POWER = ARM_POWER_FULL ///< Full power mode.
 } sl_i2s_power_state_t;
 
@@ -158,7 +157,8 @@ typedef enum {
   SL_I2S_RESOLUTION_12 = 12, ///< 12-bit resolution.
   SL_I2S_RESOLUTION_16 = 16, ///< 16-bit resolution.
   SL_I2S_RESOLUTION_20 = 20, ///< 20-bit resolution.
-  SL_I2S_RESOLUTION_24 = 24  ///< 24-bit resolution.
+  SL_I2S_RESOLUTION_24 = 24, ///< 24-bit resolution.
+  SL_I2S_RESOLUTION_32 = 32  ///< 32-bit resolution.
 } sl_i2s_data_resolution_t;
 
 /***************************************************************************/
@@ -227,10 +227,10 @@ typedef struct {
  * @param[in] i2s_handle    Double pointer to the I2S driver handle.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation successful.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
+ *         - SL_STATUS_OK  - Operation successful.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
+ *         - SL_STATUS_BUSY  - Driver is busy.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -249,9 +249,9 @@ sl_status_t sl_si91x_i2s_init(uint32_t i2s_instance, sl_i2s_handle_t *i2s_handle
  * @param[in] i2s_handle Pointer to the I2S driver handle.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation successful.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Operation successful.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
@@ -286,9 +286,9 @@ sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle);
  * @param[in] state Power state, either SL_I2S_POWER_OFF or SL_I2S_FULL_POWER.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -310,9 +310,9 @@ sl_status_t sl_si91x_i2s_configure_power_mode(sl_i2s_handle_t i2s_handle, sl_i2s
  * @param[in] xfer_config Pointer to the structure that stores transfer parameters.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation successful.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Operation successful.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -336,9 +336,9 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
  * @param[in] size Size of the data to be transmitted.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -362,9 +362,9 @@ sl_status_t sl_si91x_i2s_transmit_data(sl_i2s_handle_t i2s_handle, const void *d
  * @param[in] size Size of the data to be received.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -385,9 +385,9 @@ sl_status_t sl_si91x_i2s_receive_data(sl_i2s_handle_t i2s_handle, const void *da
  * @param[in] callback_event Pointer to the function to be called at the time of interrupt.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -406,9 +406,9 @@ sl_status_t sl_si91x_i2s_register_event_callback(sl_i2s_handle_t i2s_handle, sl_
  * @param[in] i2s_handle Pointer to the I2S driver handle.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -504,9 +504,9 @@ sl_i2s_status_t sl_si91x_i2s_get_status(sl_i2s_handle_t i2s_handle);
  * @param[in] abort_type Abort type, either ARM_SAI_ABORT_SEND or ARM_SAI_ABORT_RECEIVE.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as an argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

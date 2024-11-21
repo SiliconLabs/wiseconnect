@@ -38,8 +38,6 @@ sl_net_wifi_lwip_context_t *wifi_client_context = NULL;
 sl_net_wifi_lwip_context_t *wifi_ap_context     = NULL;
 uint32_t gOverrunCount                          = 0;
 
-extern sys_thread_t lwip_thread;
-
 /******************************************************************************
                                 Static Functions
 ******************************************************************************/
@@ -300,7 +298,7 @@ static void set_sta_link_down(void)
 ******************************************************************************/
 sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
                                 const void *configuration,
-                                void *workspace,
+                                const void *workspace,
                                 sl_net_event_handler_t event_handler)
 {
   UNUSED_PARAMETER(interface);
@@ -350,14 +348,6 @@ sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
   struct sys_timeo **list_head = NULL;
-
-  if (lwip_thread.thread_handle != NULL) {
-    osStatus_t thread_status = osThreadTerminate(lwip_thread.thread_handle);
-    if (thread_status != osOK) {
-      SL_DEBUG_LOG("\n\r TCP-IP thread terminate status : %d \r\n", thread_status);
-      return SL_STATUS_FAIL;
-    }
-  }
 
   //! Free all timers
   for (int i = 0; i < lwip_num_cyclic_timers; i++) {
@@ -433,4 +423,22 @@ sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_w
   }
 
   return SL_STATUS_OK;
+}
+
+sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
+                                const sl_net_ip_configuration_t *ip_config,
+                                uint32_t timeout)
+{
+  UNUSED_PARAMETER(interface);
+  UNUSED_PARAMETER(ip_config);
+  UNUSED_PARAMETER(timeout);
+  return SL_STATUS_WIFI_UNSUPPORTED;
+}
+
+sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_address_t *ip_address, uint32_t timeout)
+{
+  UNUSED_PARAMETER(interface);
+  UNUSED_PARAMETER(ip_address);
+  UNUSED_PARAMETER(timeout);
+  return SL_STATUS_WIFI_UNSUPPORTED;
 }

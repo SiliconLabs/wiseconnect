@@ -35,6 +35,7 @@ Before running the application, the user will need the following things to setup
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
@@ -43,6 +44,7 @@ Before running the application, the user will need the following things to setup
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - Interface and Host MCU Supported
@@ -212,6 +214,10 @@ int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
                                                        uint8_t req_type)
 ```
 ---
+
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+
 **Note!**
 * This command must be used immediately after opermode request
 * Internally, the firmware maintains two tables

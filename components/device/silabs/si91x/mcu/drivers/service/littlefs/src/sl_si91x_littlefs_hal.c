@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 #include "sl_si91x_littlefs_hal.h"
+#include "sl_si91x_peripheral_gpio.h"
 #include "rsi_qspi.h"
 #include "rsi_rom_qspi.h"
 #include "rsi_rom_egpio.h"
@@ -35,9 +36,9 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-//#define COMMON_FLASH  // Macro to configure the External flash configs in common flash mode
 
-#ifdef COMMON_FLASH
+#ifdef SI91X_LITTLEFS_EXT_FLASH_PRESENT // Macro to configure the External flash configs in common flash mode
+#include "sl_si91x_littlefs_ext_flash_config.h"
 #define PAD_SELECTION_ENABLE_CLK  10
 #define PAD_SELECTION_ENABLE_D0   11
 #define PAD_SELECTION_ENABLE_D1   12
@@ -49,12 +50,15 @@
 #define QSPI_MODE 11
 
 /*M4 QSPI  pin set */
-#define M4SS_QSPI_CLK  46
-#define M4SS_QSPI_D0   47
-#define M4SS_QSPI_D1   48
-#define M4SS_QSPI_CSN0 49
-#define M4SS_QSPI_D2   50
-#define M4SS_QSPI_D3   51
+#define M4SS_QSPI_CLK      46
+#define M4SS_QSPI_D0       47
+#define M4SS_QSPI_D1       48
+#define M4SS_QSPI_CSN0     49
+#define M4SS_QSPI_D2       50
+#define M4SS_QSPI_D3       51
+#define LITTLEFS_QSPI_ADDR M4_QSPI_2_BASE_ADDRESS //QSPI base address for common flash parts
+
+#define LITTLEFS_BASE SL_LITTLEFS_BASE_EXT //Littlefs base address for external flash
 #else
 #define PAD_SELECTION_ENABLE_CLK  10 // Pad no for qspi clock pin
 #define PAD_SELECTION_ENABLE_D0   11 // Pad no for qspi D0 pin
@@ -63,23 +67,31 @@
 #define PAD_SELECTION_ENABLE_D2   14 // Pad no for qspi D2 pin
 #define PAD_SELECTION_ENABLE_D3   15 // Pad no for qspi D3 pin
 
-#define QSPI_MODE      1  //Mode to configure the gpio in QSPI mode
+#define QSPI_MODE          1         //Mode to configure the gpio in QSPI mode
 
 /*M4 QSPI  pin set */
-#define M4SS_QSPI_CLK  46 // Clock Pin
-#define M4SS_QSPI_D0   47 // Data line 0 pin
-#define M4SS_QSPI_D1   48 // Data line 1 pin
-#define M4SS_QSPI_CSN0 49 // Chip select 0 pin
-#define M4SS_QSPI_D2   50 // Data line 2 pin
-#define M4SS_QSPI_D3   51 // Data line 3 pin
-#endif
-
-#define MAX_FREQUENCY 33000000
+#define M4SS_QSPI_CLK      46        // Clock Pin
+#define M4SS_QSPI_D0       47        // Data line 0 pin
+#define M4SS_QSPI_D1       48        // Data line 1 pin
+#define M4SS_QSPI_CSN0     49        // Chip select 0 pin
+#define M4SS_QSPI_D2       50        // Data line 2 pin
+#define M4SS_QSPI_D3       51        // Data line 3 pin
+#define LITTLEFS_QSPI_ADDR QSPI_BASE //QSPI base address for dual flash parts
 
 extern char linker_littlefs_begin;
 
 __attribute__((used)) uint8_t littlefs_default_storage[LITTLEFS_DEFAULT_MEM_SIZE] __attribute__((section(".ltfs")));
-#define LITTLEFS_BASE (&linker_littlefs_begin)
+#define LITTLEFS_BASE      (&linker_littlefs_begin)
+#endif
+
+#define MAX_FREQUENCY             33000000 // Max clock frequency for read ID command
+#define FLASH_INIT_REQUEST_ENABLE 1        // QSPI init request
+#define WRITE_REG_DELAY_NONE      0 // delay in ms provided after a register write operation is performed on flash
+#define FIFO_THRESHOLD_NONE       0 // FIFO threshold 0 level 0
+#define ODD_DIV_DISABLE           0 // Disable odd div functionality. See user manual for more info
+#define SWALLOEN_DISABLE          0 // Disable the swallo functionality. See user manual for more info
+#define EGPIO_PORT                0 // EGPIO port number
+#define DISABLE_HW_CTRL           1 // Disable hw ctrl, while waiting for flash to go idle
 
 /******************************************************************************
  * Configurations for QSPI module
@@ -154,28 +166,28 @@ void set_qspi_configs(spi_config_t *spi_config)
 static void si91x_qspi_pin_mux_init(void)
 {
   /*Pad selection enable */
-  RSI_EGPIO_PadSelectionEnable(PAD_SELECTION_ENABLE_CLK);
-  RSI_EGPIO_PadSelectionEnable(PAD_SELECTION_ENABLE_D0);
-  RSI_EGPIO_PadSelectionEnable(PAD_SELECTION_ENABLE_D1);
-  RSI_EGPIO_PadSelectionEnable(PAD_SELECTION_ENABLE_CSN0);
-  RSI_EGPIO_PadSelectionEnable(PAD_SELECTION_ENABLE_D2);
-  RSI_EGPIO_PadSelectionEnable(PAD_SELECTION_ENABLE_D3);
+  sl_si91x_gpio_enable_pad_selection(PAD_SELECTION_ENABLE_CLK);
+  sl_si91x_gpio_enable_pad_selection(PAD_SELECTION_ENABLE_D0);
+  sl_si91x_gpio_enable_pad_selection(PAD_SELECTION_ENABLE_D1);
+  sl_si91x_gpio_enable_pad_selection(PAD_SELECTION_ENABLE_CSN0);
+  sl_si91x_gpio_enable_pad_selection(PAD_SELECTION_ENABLE_D2);
+  sl_si91x_gpio_enable_pad_selection(PAD_SELECTION_ENABLE_D3);
 
   /*Receive enable for QSPI GPIO*/
-  RSI_EGPIO_PadReceiverEnable(M4SS_QSPI_CLK);
-  RSI_EGPIO_PadReceiverEnable(M4SS_QSPI_CSN0);
-  RSI_EGPIO_PadReceiverEnable(M4SS_QSPI_D0);
-  RSI_EGPIO_PadReceiverEnable(M4SS_QSPI_D1);
-  RSI_EGPIO_PadReceiverEnable(M4SS_QSPI_D2);
-  RSI_EGPIO_PadReceiverEnable(M4SS_QSPI_D3);
+  sl_si91x_gpio_enable_pad_receiver(M4SS_QSPI_CLK);
+  sl_si91x_gpio_enable_pad_receiver(M4SS_QSPI_CSN0);
+  sl_si91x_gpio_enable_pad_receiver(M4SS_QSPI_D0);
+  sl_si91x_gpio_enable_pad_receiver(M4SS_QSPI_D1);
+  sl_si91x_gpio_enable_pad_receiver(M4SS_QSPI_D2);
+  sl_si91x_gpio_enable_pad_receiver(M4SS_QSPI_D3);
 
   /*Set GPIO pin MUX for QSPI*/
-  RSI_EGPIO_SetPinMux(EGPIO, 0, M4SS_QSPI_CLK, QSPI_MODE);
-  RSI_EGPIO_SetPinMux(EGPIO, 0, M4SS_QSPI_CSN0, QSPI_MODE);
-  RSI_EGPIO_SetPinMux(EGPIO, 0, M4SS_QSPI_D0, QSPI_MODE);
-  RSI_EGPIO_SetPinMux(EGPIO, 0, M4SS_QSPI_D1, QSPI_MODE);
-  RSI_EGPIO_SetPinMux(EGPIO, 0, M4SS_QSPI_D2, QSPI_MODE);
-  RSI_EGPIO_SetPinMux(EGPIO, 0, M4SS_QSPI_D3, QSPI_MODE);
+  sl_gpio_set_pin_mode(EGPIO_PORT, M4SS_QSPI_CLK, QSPI_MODE, CLR);
+  sl_gpio_set_pin_mode(EGPIO_PORT, M4SS_QSPI_CSN0, QSPI_MODE, CLR);
+  sl_gpio_set_pin_mode(EGPIO_PORT, M4SS_QSPI_D0, QSPI_MODE, CLR);
+  sl_gpio_set_pin_mode(EGPIO_PORT, M4SS_QSPI_D1, QSPI_MODE, CLR);
+  sl_gpio_set_pin_mode(EGPIO_PORT, M4SS_QSPI_D2, QSPI_MODE, CLR);
+  sl_gpio_set_pin_mode(EGPIO_PORT, M4SS_QSPI_D3, QSPI_MODE, CLR);
 }
 
 /******************************************************************************
@@ -193,7 +205,11 @@ void sl_si91x_littlefs_qspi_init()
     clkDivFactor = (system_clock_value / MAX_FREQUENCY);
   }
   /*Clock Initialization*/
-  RSI_CLK_QspiClkConfig(M4CLK, QSPI_ULPREFCLK, 0, 0, clkDivFactor);
+#ifndef SI91X_LITTLEFS_EXT_FLASH_PRESENT
+  RSI_CLK_QspiClkConfig(M4CLK, QSPI_ULPREFCLK, SWALLOEN_DISABLE, ODD_DIV_DISABLE, clkDivFactor);
+#else
+  RSI_CLK_Qspi2ClkConfig(M4CLK, QSPI_ULPREFCLK, SWALLOEN_DISABLE, ODD_DIV_DISABLE, clkDivFactor);
+#endif
 
   /*set the QSPI configuration structures*/
   set_qspi_configs(&spi_configs_init);
@@ -202,7 +218,11 @@ void sl_si91x_littlefs_qspi_init()
   si91x_qspi_pin_mux_init();
 
   /* initializes QSPI  */
-  RSI_QSPI_SpiInit((qspi_reg_t *)QSPI_BASE, &spi_configs_init, 1, 0, 0);
+  RSI_QSPI_SpiInit((qspi_reg_t *)LITTLEFS_QSPI_ADDR,
+                   &spi_configs_init,
+                   FLASH_INIT_REQUEST_ENABLE,
+                   WRITE_REG_DELAY_NONE,
+                   FIFO_THRESHOLD_NONE);
 }
 
 /******************************************************************************
@@ -225,7 +245,7 @@ int si91x_block_device_read(const struct lfs_config *cfg,
   if (flash_read_addr == 0) {
     status = QSPI_ERROR;
   }
-  RSI_QSPI_ManualRead((qspi_reg_t *)QSPI_BASE,
+  RSI_QSPI_ManualRead((qspi_reg_t *)LITTLEFS_QSPI_ADDR,
                       &spi_configs_program,
                       flash_read_addr,
                       (uint8_t *)buffer,
@@ -258,7 +278,7 @@ int si91x_block_device_prog(const struct lfs_config *cfg,
     status = QSPI_ERROR;
   }
   //Call QSPI write API
-  status = RSI_QSPI_SpiWrite((qspi_reg_t *)QSPI_BASE,
+  status = RSI_QSPI_SpiWrite((qspi_reg_t *)LITTLEFS_QSPI_ADDR,
                              &spi_configs_program,
                              0x2,
                              flash_prog_addr,
@@ -294,7 +314,12 @@ int si91x_block_device_erase(const struct lfs_config *cfg, lfs_block_t block)
 
   set_qspi_configs(&spi_configs_erase);
   //Call QSPI erase API
-  RSI_QSPI_SpiErase((qspi_reg_t *)QSPI_BASE, &spi_configs_erase, SECTOR_ERASE, flash_erase_addr, 1, 0);
+  RSI_QSPI_SpiErase((qspi_reg_t *)LITTLEFS_QSPI_ADDR,
+                    &spi_configs_erase,
+                    SECTOR_ERASE,
+                    flash_erase_addr,
+                    DISABLE_HW_CTRL,
+                    WRITE_REG_DELAY_NONE);
 
   return status;
 }

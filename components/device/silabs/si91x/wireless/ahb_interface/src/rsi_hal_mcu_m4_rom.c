@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  rsi_hal_mcu_m4_rom.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  rsi_hal_mcu_m4_rom.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_si91x_types.h"
 #include "sl_constants.h"
@@ -92,30 +104,52 @@ void sli_si91x_set_xtal_in_use_by_m4(void)
 }
 
 /**
+ * @fn          void sli_si91x_clear_xtal_in_use_by_m4(void);
+ * @brief       This API is used to clear XTAL usage by M4 or any of HP peripherals
+ */
+void sli_si91x_clear_xtal_in_use_by_m4(void)
+{
+  m4_using_xtal = false;
+}
+/**
+ * @fn          void sli_si91x_xtal_turn_off_request_from_m4_to_TA(void);
+ * @brief       This API is used to Notify NWP that M4 doesn't requires XTAL clock source
+ */
+void sli_si91x_xtal_turn_off_request_from_m4_to_TA(void)
+{
+  if (sli_si91x_is_xtal_in_use_by_m4() == true) {
+    /* If M4 is using XTAL then request NWP to turn OFF XTAL as M4 is going to sleep */
+    sli_si91x_raise_xtal_interrupt_to_ta(TURN_OFF_XTAL_REQUEST);
+    sli_si91x_clear_xtal_in_use_by_m4();
+  }
+}
+/**
  * @fn          void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void);
  * @brief       This API is used to Notify NWP that M4 requires XTAL clock source 
  */
 void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void)
 {
-  if ((TASS_P2P_INTR_CLEAR_REG & TURN_ON_XTAL_REQUEST)) {
-    clear_ta_to_m4_interrupt(TURN_ON_XTAL_REQUEST);
-  } else {
+  if (sli_si91x_is_xtal_in_use_by_m4() == false) {
+    if (TASS_P2P_INTR_CLEAR_REG & TURN_ON_XTAL_REQUEST) {
+      clear_ta_to_m4_interrupt(TURN_ON_XTAL_REQUEST);
+    } else {
+
+      /* Confirm if the NWP has completed its initialization process */
+      if (sl_si91x_is_device_initialized()) {
+        /* Raise the turn ON xtal interrupt to NWP */
+        sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
+        /* If M4 is using XTAL then notify NWP to turn ON XTAL during programing common flash*/
+        sli_si91x_raise_xtal_interrupt_to_ta(M4_IS_USING_XTAL_REQUEST);
+      }
+      /*If the 'M4 Enabled XTAL without NWP Notification,
+* then after net initialization (NWP device initialization), a request to turn on the XTAL will be sent to the NWP*/
+      else {
+        /* set  XTAL is enabled by M4 without notifying NWP */
+        sli_si91x_set_m4_is_using_xtal();
+      }
+    }
     /* Set M4 XTAL usage flag */
     sli_si91x_set_xtal_in_use_by_m4();
-
-    /* Confirm if the NWP has completed its initialization process */
-    if (sl_si91x_is_device_initialized()) {
-      /* Raise the turn ON xtal interrupt to NWP */
-      sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
-      /* If M4 is using XTAL then notify NWP to turn ON XTAL during programing common flash*/
-      sli_si91x_raise_xtal_interrupt_to_ta(M4_IS_USING_XTAL_REQUEST);
-    }
-    /*If the 'M4 Enabled XTAL without NWP Notification,
-* then after net initialization (NWP device initialization), a request to turn on the XTAL will be sent to the NWP*/
-    else {
-      /* set  XTAL is enabled by M4 without notifying NWP */
-      sli_si91x_set_m4_is_using_xtal();
-    }
   }
 }
 
@@ -239,8 +273,16 @@ sl_status_t sli_m4_interrupt_isr(void)
     // Clear the interrupt
     clear_ta_to_m4_interrupt(RX_PKT_TRANSFER_DONE_INTERRUPT);
 
+  } else if (TASS_P2P_INTR_CLEAR & TA_RSI_BUFFER_FULL_CLEAR_EVENT) {
+
+    mask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
+
+    sli_si91x_set_event(SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT);
+
+    // Clear the interrupt
+    clear_ta_to_m4_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
   }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   else if (TASS_P2P_INTR_CLEAR & TA_WRITING_ON_COMM_FLASH) {
     //! moves m4 app to RAM and polls for NWP done
     sl_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
@@ -285,12 +327,13 @@ sl_status_t sli_receive_from_ta_done_isr(void)
 {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
   extern sl_wifi_buffer_t *rx_pkt_buffer;
+  extern sl_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
   // Add to rx packet to CCP queue
-  sl_status_t status = sl_si91x_host_add_to_queue(CCP_M4_TA_RX_QUEUE, rx_pkt_buffer);
+  sl_status_t status = sli_si91x_add_to_queue(&sli_ahb_bus_rx_queue, rx_pkt_buffer);
   VERIFY_STATUS_AND_RETURN(status);
 
   //! Set event RX pending event to host
-  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
 #endif
 
   return SL_STATUS_OK;

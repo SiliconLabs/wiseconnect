@@ -96,7 +96,7 @@ bool rsi_wlan_running;
 #if ENABLE_POWER_SAVE
 bool powersave_cmd_given;
 osMutexId_t power_cmd_mutex;
-sl_wifi_performance_profile_t wifi_profile = { .profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION };
+sl_wifi_performance_profile_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
 #endif
 
 // TCP IP BYPASS feature check
@@ -120,7 +120,7 @@ static const sl_wifi_device_configuration_t config = {
                    .custom_feature_bit_map =
                      (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
 #if ENABLE_POWER_SAVE

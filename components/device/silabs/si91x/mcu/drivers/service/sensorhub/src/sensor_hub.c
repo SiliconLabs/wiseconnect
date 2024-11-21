@@ -48,17 +48,17 @@
 #include "sensorhub_error_codes.h"
 #include "rsi_ps_ram_func.h"
 #include "rsi_m4.h"
-#include "Driver_Common.h"
-#include "Driver_I2C.h"
-#include "Driver_SPI.h"
-#include "rsi_pll.h"
-#include "rsi_rom_power_save.h"
-#include "rsi_rom_ulpss_clk.h"
+#include "sl_si91x_m4_ps.h"
 #include "rsi_rom_clks.h"
-#include "SPI.h"
-#include "rsi_adc.h"
-#include "rsi_rtc.h"
-#include "aux_reference_volt_config.h"
+#include "rsi_power_save.h"
+#include "sl_si91x_host_interface.h"
+#include "sl_si91x_power_manager.h"
+#include "sl_si91x_button_instances.h"
+#include "sl_si91x_power_manager_wakeup_source_config.h"
+#include "sl_si91x_gpio_common.h"
+#include "sl_si91x_gpio.h"
+#include "sl_gpio_board.h"
+#include "sl_si91x_driver_gpio.h"
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -73,15 +73,34 @@
 #define SL_SH_SOCLDOTURNONWAITTIME  31
 #define SL_SH_PMUBUCKTURNONWAITTIME 31
 #define SL_PWR_STATE_SWICTH_DONE    1
+#define SL_SH_BUTTON_ENABLE         1
 /*******************************************************************************
  ********************* Sleep&Wakeup Defines / Macros  **************************
  ******************************************************************************/
-#define STACK_ADDRESS 0 //< Application Stack Start address
+#define PS_EVENT_MASK                                                                                           \
+  (SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS4   \
+   | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS3 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS3 \
+   | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS2 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS2 \
+   | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_SLEEP) // Ored value of event for which callback is subscribed
+#define STACK_ADDRESS 0                                     //< Application Stack Start address
 #define JUMP_CB_ADDRESS \
   (uint32_t) RSI_PS_RestoreCpuContext //< Restore the current CPU processing content from the (POP) stack
 #define VECTOR_OFFSET 0               //< Vector offset address
 #define MODE          3               //< Sleep/wakeup mode
-
+#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#define IVT_OFFSET_ADDR 0x8202000 /*<!Application IVT location VTOR offset for B0>  */
+#else
+#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset for A0>  */
+#endif
+#else
+#define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset for dual flash A0 and B0>  */
+#endif
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#define WKP_RAM_USAGE_LOCATION 0x24061EFC /*<!Bootloader RAM usage location upon wake up  for B0 */
+#else
+#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
+#endif
 /*******************************************************************************
  ******************* Event acknowledge Defines / Macros  ***********************
  ******************************************************************************/
@@ -89,6 +108,9 @@
 #define CLEAR_EVENT_ACK 0 ///< Clear the event acknowledgment bit after getting the callback event from the application
 #define EM_POST_TIME    osWaitForever ///< Time out(TICKS) for the EM post-event
 
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_UULP_GPIO_2_PORT, SL_SI91X_UULP_GPIO_2_PIN },
+                                                          GPIO_INPUT };
+#define AVL_INTR_NO 0 // available interrupt number
 /*******************************************************************************
  ********************  Extern variables/structures   ***************************
  ******************************************************************************/
@@ -97,16 +119,11 @@ extern ARM_DRIVER_I2C Driver_I2C2;                             //< I2C driver st
 extern ARM_DRIVER_SPI Driver_SSI_ULP_MASTER;                   //< SPI driver structure
 extern sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS]; //< Sensor configuration structure
 extern sl_bus_intf_config_t bus_intf_info;                     //< Bus interface configuration structure
-osSemaphoreId_t sl_semaphore_power_task_id;                    //< Power task semaphore id
 osSemaphoreAttr_t sl_semaphore_attr_st;                        //< Power task semaphore attributes
 sl_sh_power_state_t sl_power_state_enum;                       //< Power state structure
-extern osSemaphoreId_t sl_semaphore_aws_task_id;
-uint32_t sl_ps4_ps2_done;                   //< Variable to check power switch status
-uint32_t sl_ps2_ps4_done;                   //< Variable to check power switch status
-osSemaphoreId_t sl_semaphore_em_task_id;    //< EM task semaphore
-osSemaphoreId_t sl_semaphore_power_task_id; //< Power task semaphore id
-extern osSemaphoreId_t sl_semaphore_app_task_id_2;
-extern osSemaphoreId_t sl_semaphore_aws_task_id; // AWS task semaphore
+uint32_t sl_ps4_ps2_done;                                      //< Variable to check power switch status
+uint32_t sl_ps2_ps4_done;                                      //< Variable to check power switch status
+osSemaphoreId_t sl_semaphore_em_task_id;                       //< EM task semaphore
 
 extern uint8_t sdc_intr_done;
 
@@ -121,7 +138,7 @@ sl_sensorhub_errors_t bus_errors; //< structure to track the status of the senso
  ******************************************************************************/
 ARM_DRIVER_I2C *I2Cdrv       = &Driver_I2C2;           //< I2C driver operations
 ARM_DRIVER_SPI *SPIdrv       = &Driver_SSI_ULP_MASTER; //< ULP SSI driver operations
-uint8_t sl_sensor_wait_flags = 0x1;                    //< Store the sensor event bits
+uint8_t sl_sensor_wait_flags = 0;                      //< Store the sensor event bits
 static RTC_TIME_CONFIG_T rtcConfig, alarmConfig, rtc_get_Time;
 /*TODO: the sensor_data_ram must be mapped to ULP RAM*/
 uint8_t sensor_data_ram[SENSORS_RAM_SIZE] __attribute__((aligned(4))); //< Ram using for the sensor data storage
@@ -134,6 +151,13 @@ extern uint16_t *adc_data_ptrs[];
  **************************  Callback function ***********************************
  ******************************************************************************/
 sl_sensor_cb_info_t cb_info; //< sensor call back handler
+
+/*******************************************************************************
+ **************************  Power Manager Variables ***************************
+ ******************************************************************************/
+static void transition_callback(sl_power_state_t from, sl_power_state_t to);
+sl_power_manager_ps_transition_event_handle_t handle;
+sl_power_manager_ps_transition_event_info_t info = { .event_mask = PS_EVENT_MASK, .on_event = transition_callback };
 
 /*******************************************************************************
  ******************  CMSIS OS handlers/Variables   *****************************
@@ -151,7 +175,6 @@ EventGroupHandle_t sl_event_group = NULL;   //< Event group handler
 
 osSemaphoreId_t sl_semaphore_power_task_id; //< Power task semaphore id
 osSemaphoreAttr_t sl_semaphore_attr_st;     //< Power task semaphore attributes
-
 /*******************************************************************************
  **************  Sensor Task Attributes structure for thread   *****************
  ******************************************************************************/
@@ -182,20 +205,6 @@ const osThreadAttr_t EM_thread_attributes = {
   .reserved   = 0,
 };
 
-/*******************************************************************************
- **************** Power Task Attributes structure for thread   *****************
- ******************************************************************************/
-const osThreadAttr_t Power_save_thread_attributes = {
-  .name       = "Power_save Task", //< Name of thread
-  .attr_bits  = 0,
-  .cb_mem     = 0,
-  .cb_size    = 0,
-  .stack_mem  = 0,
-  .stack_size = SL_SH_POWER_SAVE_TASK_STACK_SIZE, //< Stack size of power task
-  .priority   = osPriorityLow3,                   //< Priority of power task
-  .tz_module  = 0,
-  .reserved   = 0,
-};
 /** @addtogroup SOC26
  * @{
  */
@@ -383,6 +392,65 @@ void sli_si91x_config_wakeup_source(uint16_t sleep_time)
   NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
 #endif
 }
+/* *******************************************************************************
+ * Callback function for state transition.
+ * Prints the state transition with the parameters from and to.
+ ******************************************************************************/
+static void transition_callback(sl_power_state_t from, sl_power_state_t to)
+{
+  // DEBUGINIT needs ULP Uart to be enabled in low power states.
+  // This is a demonstration and it is not necessary to have debugout in callback function.
+  // This callback function can be used to perform any activities after state transitions.
+  DEBUGINIT();
+  switch (from) {
+    case SL_SI91X_POWER_MANAGER_PS4:
+      // Previous state was PS4
+      DEBUGOUT("Leaving PS4 State \n");
+      break;
+    case SL_SI91X_POWER_MANAGER_PS3:
+      // Previous state was PS3
+      DEBUGOUT("Leaving PS3 State \n");
+      break;
+    case SL_SI91X_POWER_MANAGER_PS2:
+      // Previous state was PS2
+      DEBUGOUT("Leaving PS2 State \n");
+      break;
+    case SL_SI91X_POWER_MANAGER_PS1:
+      // Wakeup from PS1
+      DEBUGOUT("Leaving PS1 State \n");
+      break;
+    case SL_SI91X_POWER_MANAGER_SLEEP:
+      // Wakeup from sleep
+      bus_errors.peripheral_global_status = 1;
+      bus_errors.adc                      = false;
+      bus_errors.i2c                      = false;
+      bus_errors.spi                      = false;
+      break;
+    case SL_SI91X_POWER_MANAGER_STANDBY:
+      // Wakeup from standby
+      DEBUGOUT("Leaving Standby State \n");
+      break;
+    default:
+      break;
+  }
+
+  switch (to) {
+    case SL_SI91X_POWER_MANAGER_PS4:
+      // Current state is PS4
+      //      DEBUGOUT("Entering PS4 State \n");
+      break;
+    case SL_SI91X_POWER_MANAGER_PS3:
+      // Current state is PS3
+      DEBUGOUT("Entering PS3 State \n");
+      break;
+    case SL_SI91X_POWER_MANAGER_PS2:
+      // Current state is PS2
+      DEBUGOUT("Entering PS2 State \n");
+      break;
+    default:
+      break;
+  }
+}
 /**************************************************************************/ /**
  * @fn           void sli_si91x_sleep_wakeup(void)
  * @brief        This function configures sleep/wakeup sources.
@@ -410,27 +478,23 @@ void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
   DEBUGOUT("\r\n idle_sleep_time:%u \r\n", sh_sleep_time);
   sli_si91x_config_wakeup_source(sh_sleep_time);
 #endif
-  RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
-  RSI_PS_SkipXtalWaitTime(1);  /* XTAL wait time is skipped since RC_32MHZ Clock is used for Processor on wakeup */
-
-  RSI_PS_SetRamRetention(
-    M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN | /* TA_RAM_RETENTION_MODE_EN |*/
-    M4ULP_RAM_RETENTION_MODE_EN /*| M4SS_RAM_RETENTION_MODE_EN | HPSRAM_RET_ULP_MODE_EN*/); /* Enable SRAM Retention of 16KB during Sleep */
+  /* Trigger M4 Sleep*/
+  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
+                         DISABLE_LF_MODE,
+                         WKP_RAM_USAGE_LOCATION,
+                         (uint32_t)RSI_PS_RestoreCpuContext,
+                         IVT_OFFSET_ADDR,
+                         RSI_WAKEUP_FROM_FLASH_MODE);
 
   // by using this API we programmed the RTC timer clock in SOC
   // MSB 8-bits for the Integer part &
   // LSB 17-bits for the Fractional part
   // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
-  /* Time Period Programming */
-  RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
+  /* Enable M4_TA interrupt */
+  sli_m4_ta_interrupt_init();
 
-  RSI_PS_RetentionSleepConfig(STACK_ADDRESS, JUMP_CB_ADDRESS, VECTOR_OFFSET, MODE);
-
-  /*Goto Sleep with retention */
-  RSI_PS_EnterDeepSleep(SLEEP_WITH_RETENTION, DISABLE_LF_MODE);
-
-  /*Power state transition from PS2 to PS4. */
-  sli_si91x_sensorhub_ps2tops4_state();
+  /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
+  sl_si91x_host_clear_sleep_indicator();
 
 #ifdef SLI_SI91X_ENABLE_OS
   /*  Setup the systick timer */
@@ -460,36 +524,6 @@ void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
 *******************************************************************************/
 void sli_si91x_sensorhub_ps4tops2_state(void)
 {
-  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
-
-  RSI_CLK_PeripheralClkDisable3(M4CLK,
-                                M4_SOC_CLK_FOR_OTHER_ENABLE); /* Disable OTHER_CLK which is enabled at Start-up */
-  RSI_ULPSS_TimerClkDisable(ULPCLK);                          /* Disable Timer clock which is enabled in Bootloader */
-
-  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RO_CLK_EN); /* Disabling LF_RC Clocks */
-
-  RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2); /* Disable PTAT for Analog Peripherals */
-
-  RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config2); /* Disable PTAT for Brown-Out Detection Clocks */
-
-  /* Power-Down Domains in NPSS */
-  RSI_PS_NpssPeriPowerDown(SLPSS_PWRGATE_ULP_MCUWDT | SLPSS_PWRGATE_ULP_MCUPS | SLPSS_PWRGATE_ULP_MCUTS
-                           | SLPSS_PWRGATE_ULP_MCUSTORE2 | SLPSS_PWRGATE_ULP_MCUSTORE3);
-
-  RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);
-
-  RSI_PS_SocPllSpiDisable(); /* Power-Down High-Frequency PLL Domain */
-
-  RSI_PS_QspiDllDomainDisable(); /* Power-Down QSPI-DLL Domain */
-
-  RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
-
-  // by using this API we programmed the RTC timer clock in SOC
-  // MSB 8-bits for the Integer part &
-  // LSB 17-bits for the Fractional part
-  // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
-  /* Time Period Programming */
-  RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
   /* tass_ref_clk_mux_ctr in NWP Control */
   RSI_Set_Cntrls_To_TA();
   __disable_irq();
@@ -663,61 +697,75 @@ void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer)
 }
 
 /**************************************************************************/ /**
- *  @fn          void NPSS_GPIO_IRQHandler(void)
+ *  @fn          void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
  *  @brief       NPSS GPIO IRQ handler
 *******************************************************************************/
-void NPSS_GPIO_IRQHandler(void)
+void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
 {
   volatile uint32_t intrStatus = 0;
-
-  intrStatus = RSI_NPSSGPIO_GetIntrStatus();
+  intrStatus                   = pin_intr;
   for (uint8_t idx = 0; idx < int_list_map.map_index; idx++) {
-    if (BIT(int_list_map.map_table[idx].intr) == intrStatus) {
+    if (int_list_map.map_table[idx].intr == intrStatus) {
       RSI_NPSSGPIO_ClrIntr(BIT(int_list_map.map_table[idx].intr));
       RSI_NPSSGPIO_IntrMask(BIT(int_list_map.map_table[idx].intr));
       osEventFlagsSet(sl_event_group, (0x01 << int_list_map.map_table[idx].sensor_list_index));
     }
   }
 }
-
+void sl_si91x_button_isr(uint8_t pin, int8_t state)
+{
+  (void)state;
+  gpio_uulp_pin_interrupt_callback(pin);
+}
 /**************************************************************************/ /**
  *  @fn          void sl_si91x_gpio_interrupt_config(uint16_t gpio_pin,sl_gpio_intr_type intr_type)
  *  @brief       Configuring the different types of NPSS GPIO interrupts.
  *  @param[in]   gpio_pin     GPIO pin number
  *  @param[in]   intr_type    type of interrupt.
 *******************************************************************************/
-sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_gpio_intr_type_t intr_type)
+sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type)
 {
-  /* Enable NPSS GPIO input buffer */
-  RSI_NPSSGPIO_InputBufferEn((uint8_t)gpio_pin, 1);
 
-  /* Set the NPSS GPIO pin MUX */
-  RSI_NPSSGPIO_SetPinMux((uint8_t)gpio_pin, 2);
+  sl_status_t status;
+  uulp_pad_config_t uulp_pad;
+  do {
+    uulp_pad.gpio_padnum = gpio_pin; // UULP GPIO pin number 2 is selected
+    uulp_pad.pad_select  = SET;      // UULP GPIO PAD is selected
+    uulp_pad.mode        = CLR;      // UULP GPIO mode 0 is selected
+    uulp_pad.direction   = SET;      // UULP GPIO direction is selected
+    uulp_pad.receiver    = SET;      // UULP GPIO receiver is enabled
 
-  /* Set the direction of the NPSS GPIO */
-  RSI_NPSSGPIO_SetDir((uint8_t)gpio_pin, NPSS_GPIO_DIR_INPUT);
+    // Initialize the GPIOs by clearing all interrupts initially
+    status = sl_gpio_driver_init();
+    if (status != SL_STATUS_OK) {
+      // Prints GPIO initialization fails
+      DEBUGOUT("sl_gpio_driver_init, Error code: %lu", status);
+      break; // breaks if error occurs
+    }
 
-  /* Clear GPIO Rise edge interrupt (it is enabled by default) */
-  RSI_NPSSGPIO_ClrIntRiseEdgeEnable(BIT(gpio_pin));
+    status = sl_gpio_set_configuration(sl_gpio_pin_config1);
+    if (status != SL_STATUS_OK) {
+      // Prints if pin configuration fails
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      break; // breaks if error occurs
+    }
 
-  /*Program interrupt type */
-  switch (intr_type) {
-    case SL_SH_RISE_EDGE:
-      RSI_NPSSGPIO_SetIntRiseEdgeEnable(BIT(gpio_pin));
+    // Configure the UULP GPIO pin mode, receiver enable, direction and polarity.
+    status = sl_si91x_gpio_driver_set_uulp_pad_configuration(&uulp_pad);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_gpio_driver_set_uulp_pad_configuration, Error code: %lu", status);
       break;
-    case SL_SH_FALL_EDGE:
-      RSI_NPSSGPIO_SetIntFallEdgeEnable(BIT(gpio_pin));
+    }
+    status = sl_gpio_driver_configure_interrupt(&sl_gpio_pin_config1.port_pin,
+                                                gpio_pin,
+                                                (sl_gpio_interrupt_flag_t)intr_type,
+                                                (sl_gpio_irq_callback_t)&gpio_uulp_pin_interrupt_callback,
+                                                AVL_INTR_NO);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_gpio_configure_interrupt, Error code: %lu", status);
       break;
-    case SL_SH_LOW_LEVEL:
-      RSI_NPSSGPIO_SetIntLevelLowEnable(BIT(gpio_pin));
-      break;
-    case SL_SH_HIGH_LEVEL:
-      RSI_NPSSGPIO_SetIntLevelHighEnable(BIT(gpio_pin));
-      break;
-    default:
-      return SL_SH_INTERRUPT_TYPE_CONFIG_FAIL;
-      break;
-  }
+    }
+  } while (false);
   return SL_STATUS_OK;
 }
 
@@ -728,14 +776,17 @@ sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_gpio_intr_type_
 *******************************************************************************/
 void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin)
 {
-  /* unmask the NPSS GPIO interrupt */
-  RSI_NPSSGPIO_IntrUnMask(BIT(gpio_pin));
+  if (gpio_pin != 2) {
 
-  /* Set NVIC priority less than syscall priority */
-  NVIC_SetPriority(NPSS_TO_MCU_GPIO_INTR_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY - 1);
+    /* unmask the NPSS GPIO interrupt */
+    RSI_NPSSGPIO_IntrUnMask(BIT(gpio_pin));
 
-  /*  NVIC Enable */
-  NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
+    /* Set NVIC priority less than syscall priority */
+    NVIC_SetPriority(NPSS_TO_MCU_GPIO_INTR_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY - 1);
+
+    /*  NVIC Enable */
+    NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
+  }
 }
 
 /**************************************************************************/ /**
@@ -856,7 +907,7 @@ sl_status_t sli_si91x_adc_init(void)
     NVIC_DisableIRQ(ADC_IRQn);
   }
 
-  DEBUGOUT("\r\n ADC Initialization Success\r\n");
+  //  DEBUGOUT("\r\n ADC Initialization Success\r\n");
 
   return SL_STATUS_OK;
 }
@@ -998,6 +1049,7 @@ sl_status_t sl_si91x_sensorhub_init()
   if (!bus_errors.i2c && !bus_errors.spi && !bus_errors.adc && !bus_errors.sdc) {
     return SL_ALL_PERIPHERALS_INIT_FAILED;
   }
+  bus_errors.peripheral_global_status = 0;
   return SL_STATUS_OK;
 }
 
@@ -1009,15 +1061,22 @@ sl_status_t sl_si91x_sensorhub_init()
 sl_status_t sl_si91x_sensor_hub_start()
 {
   osThreadId_t status = 0;
-#ifdef SL_SH_POWER_STATE_TRANSITIONS
+  sl_status_t pm_subs_status;
 
-  status = osThreadNew((osThreadFunc_t)sl_si91x_power_state_task, NULL, &Power_save_thread_attributes);
-  if (status == NULL) {
-    DEBUGOUT("\r\n Power_state_Task create fail \r\n");
-    return SL_SH_POWER_TASK_CREATION_FAILED;
+  // Subscribe the state transition callback events, the ored value of flag and function pointer is passed in this API.
+  pm_subs_status = sl_si91x_power_manager_subscribe_ps_transition_event(&handle, &info);
+  if (pm_subs_status != SL_STATUS_OK) {
+    // If status is not OK, return with the error code.
+    DEBUGOUT("Power Manager transition event subscription failed, Error Code: 0x%lX \n", pm_subs_status);
+    return SL_STATUS_FAIL;
   }
-  DEBUGOUT("\r\n Power_state_Task:%p \r\n", status);
-#endif //change
+  DEBUGOUT("Power Manager transition event is subscribed \n");
+
+  RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
+  RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
+  RSI_PS_SkipXtalWaitTime(1);  /* XTAL wait time is skipped since RC_MHZ Clock is used for Processor on wakeup */
+  RSI_PS_SetRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN
+                         | M4ULP_RAM_RETENTION_MODE_EN); /* Enable SRAM Retention of 16KB during Sleep */
   status = osThreadNew((osThreadFunc_t)sl_si91x_sensor_task, NULL, &sensor_thread_attributes);
   if (status == NULL) {
     DEBUGOUT("\r\n Sensor_Task create fail \r\n");
@@ -1120,6 +1179,7 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
   sensor_list.sl_sensors_st[sensor_index].sensor_event_bit     = sensor_index;
   sensor_list.sl_sensors_st[sensor_index].config_st            = local_info;
   sensor_list.sl_sensors_st[sensor_index].config_st->sensor_id = sensor_id;
+  sl_sensor_wait_flags |= (uint8_t)(0x1 << sensor_list.sl_sensors_st[sensor_index].sensor_event_bit);
 
   /*Allocate a data RAM for the sensor to store the sampling data*/
   // if (sensor_list.sensors[sensor_index].config_st->sens_data_ptr == NULL) {
@@ -1244,11 +1304,13 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
         int_list_map.map_table[int_list_map.map_index].sensor_list_index = sensor_index;
         int_list_map.map_index++;
       } else {
-        status =
-          sl_si91x_gpio_interrupt_config(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin,
-                                         sensor_list.sl_sensors_st[sensor_index].config_st->sensor_intr_type);
-        if (status != SL_STATUS_OK) {
-          return status;
+        if (sensor_list.sl_sensors_st[sensor_index].config_st->sensor_id != SL_GPIO_SENSE_BUTTON_ID) {
+          status =
+            sl_si91x_gpio_interrupt_config(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin,
+                                           sensor_list.sl_sensors_st[sensor_index].config_st->sensor_intr_type);
+          if (status != SL_STATUS_OK) {
+            return status;
+          }
         }
         int_list_map.map_table[int_list_map.map_index].intr =
           sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin;
@@ -1379,8 +1441,6 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
       sl_si91x_em_post_event(sensor_id, SL_SENSOR_CNFG_INVALID, NULL, EM_POST_TIME);
       return SL_SH_INVALID_MODE;
   }
-
-  sl_sensor_wait_flags |= (uint8_t)(0x1 << sensor_list.sl_sensors_st[sensor_index].sensor_event_bit);
 
   /* update sensor status into sensor list */
   sensor_list.sl_sensors_st[sensor_index].sensor_status = SL_SENSOR_START;
@@ -1542,17 +1602,9 @@ void sl_si91x_em_task(void)
 #ifdef SL_SH_POWER_STATE_TRANSITIONS
       if (em_event.event == SL_SENSOR_DATA_READY) {
         if (sl_ps4_ps2_done == SL_PWR_STATE_SWICTH_DONE) {
-          sl_ps4_ps2_done     = 0;
-          sl_power_state_enum = SL_SH_PS2TOPS4;
-          sl_semrel_status    = osSemaphoreRelease(sl_semaphore_power_task_id);
-          if (sl_semrel_status != osOK) {
-            DEBUGOUT("\r\n PS2TOPS4 Semaphore Release fail :%d \r\n", sl_semrel_status);
-          }
+          sl_ps4_ps2_done = 0;
+          sli_si91x_sensorhub_ps2tops4_state();
           sl_ps2_ps4_done = 1;
-          sl_semcq_status = osSemaphoreAcquire(sl_semaphore_em_task_id, osWaitForever);
-          if (sl_semcq_status != osOK) {
-            DEBUGOUT("\r\n emaphore Acquire fail :%d \r\n", sl_semcq_status);
-          }
         }
       }
 #endif
@@ -1573,30 +1625,13 @@ void sl_si91x_em_task(void)
       if (sl_em_mutex_rel_status != osOK) {
         DEBUGOUT("\r\n Mutex Release fail:%d\r\n", sl_em_mutex_rel_status);
       }
-#if SH_AWS_ENABLE
-      sl_semrel_status = osSemaphoreRelease(sl_semaphore_aws_task_id);
-      if (sl_semrel_status != osOK) {
-        DEBUGOUT("\r\n event post osSemaphoreRelease failed :%d \r\n", sl_semrel_status);
-      }
 
-      sl_semcq_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
-      if (sl_semcq_status != osOK) {
-        DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semcq_status);
-      }
-#endif
 #ifdef SL_SH_POWER_STATE_TRANSITIONS
       if (em_event.event == SL_SENSOR_DATA_READY) {
         if (sl_ps4_ps2_done != SL_PWR_STATE_SWICTH_DONE) {
           sl_power_state_enum = SL_SH_PS4TOPS2;
-          sl_semrel_status    = osSemaphoreRelease(sl_semaphore_power_task_id);
-          if (sl_semrel_status != osOK) {
-            DEBUGOUT("\r\n PS4TOPS2 Semaphore Release fail :%d \r\n", sl_semrel_status);
-          }
+          sli_si91x_sensorhub_ps4tops2_state();
           sl_ps4_ps2_done = 1;
-          sl_semcq_status = osSemaphoreAcquire(sl_semaphore_em_task_id, osWaitForever);
-          if (sl_semcq_status != osOK) {
-            DEBUGOUT("\r\n EM task Semaphore Acquire fail :%d \r\n", sl_semcq_status);
-          }
         }
       }
 #endif
@@ -1679,6 +1714,23 @@ void sl_si91x_sensor_task(void)
             sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr->number = 0;
           }
           if (sensor_list.sl_sensors_st[i].config_st->sensor_mode == SL_SH_POLLING_MODE) {
+            if ((sensor_list.sl_sensors_st[i].config_st->sensor_bus == SL_SH_I2C) && !bus_errors.i2c) {
+              sli_si91x_i2c_init();
+              bus_errors.i2c = true;
+            }
+            if ((sensor_list.sl_sensors_st[i].config_st->sensor_bus == SL_SH_SPI) && !bus_errors.spi) {
+              sli_si91x_spi_init();
+              bus_errors.spi = true;
+            }
+            if ((sensor_list.sl_sensors_st[i].config_st->sensor_bus == SL_SH_ADC) && !bus_errors.adc) {
+              sli_si91x_adc_init();
+              sl_status_t ret =
+                sl_si91x_adc_channel_init(&bus_intf_info.adc_config.adc_ch_cfg, &bus_intf_info.adc_config.adc_cfg);
+              if (ret != SL_STATUS_OK) {
+                DEBUGOUT("\r\n ADC sensor channel init failed after wakeup \r\n");
+              }
+              bus_errors.adc = true;
+            }
             status =
               sensor_list.sl_sensors_st[i].sensor_impl->sample(sensor_list.sl_sensors_st[i].sensor_handle,
                                                                sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr);
@@ -1787,56 +1839,6 @@ void sl_si91x_sensor_task(void)
 } //end of sensor task
 
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_power_state_task(void)
- *  @brief       Task to handle the system power operations.
-*******************************************************************************/
-void sl_si91x_power_state_task(void)
-{
-  osStatus_t sl_semacq_status = 0, sl_semrel_status = 0;
-  sl_power_state_enum            = SL_SH_PS4TOPS2;
-  sl_semaphore_attr_st.attr_bits = 0U;
-  sl_semaphore_attr_st.cb_mem    = NULL;
-  sl_semaphore_attr_st.cb_size   = 0U;
-  sl_semaphore_attr_st.name      = NULL;
-
-  sl_semaphore_power_task_id = osSemaphoreNew(1U, 0U, &sl_semaphore_attr_st);
-  /*Wait for the Event on Queue*/
-  while (1) {
-    sl_semacq_status = osSemaphoreAcquire(sl_semaphore_power_task_id, osWaitForever);
-    if (sl_semacq_status != osOK) {
-      DEBUGOUT("\r\n Semaphore Acquire fail :%d \r\n", sl_semacq_status);
-    }
-    switch (sl_power_state_enum) {
-      case SL_SH_PS4TOPS2:
-        DEBUGOUT("\r\n PS2 Mode \r\n");
-        sli_si91x_sensorhub_ps4tops2_state();
-        sl_semrel_status = osSemaphoreRelease(sl_semaphore_em_task_id);
-        if (sl_semrel_status != osOK) {
-          DEBUGOUT("\r\nPower task Semaphore Release fail :%d \r\n", sl_semrel_status);
-        }
-        break;
-      case SL_SH_PS2TOPS4:
-        DEBUGOUT("\r\n PS4 Mode \r\n");
-        sli_si91x_sensorhub_ps2tops4_state();
-        sl_semrel_status = osSemaphoreRelease(sl_semaphore_em_task_id);
-        if (sl_semrel_status != osOK) {
-          DEBUGOUT("\r\n Power task Semaphore Release fail :%d \r\n", sl_semrel_status);
-        }
-        break;
-      case SL_SH_SLEEP_WAKEUP:
-        DEBUGOUT("\r\n Sleep Mode \r\n");
-#ifdef SL_SH_PS1_STATE
-        sli_si91x_sleep_wakeup();
-        DEBUGOUT("\r\n Wake-up Mode \r\n");
-#endif
-        break;
-      default:
-        DEBUGOUT("\r\n Invalid power state \r\n");
-        break;
-    }
-  }
-}
-/**************************************************************************/ /**
 * @fn       void mySPI_callback(uint32_t event)
 * @brief  SPI callback handler
 * @param[in]event SPI transmit and receive events
@@ -1844,8 +1846,6 @@ void sl_si91x_power_state_task(void)
 *******************************************************************************/
 void mySPI_callback(uint32_t event)
 {
-  // Clearing the instance number to evaluate the event
-  event &= SSI_INSTANCE_MASK;
   switch (event) {
     case ARM_SPI_EVENT_TRANSFER_COMPLETE:
       break;
@@ -1908,7 +1908,7 @@ int32_t sli_si91x_spi_init(void)
     DEBUGOUT("\r\n Failed to Set Configuration Parameters to SPI, Error Code : %ld \r\n", status);
     return status;
   }
-  DEBUGOUT("\r\n SPI Initialization Success\r\n");
+  //  DEBUGOUT("\r\n SPI Initialization Success\r\n");
   return SL_STATUS_OK;
 }
 
@@ -1977,7 +1977,7 @@ int32_t sli_si91x_i2c_init(void)
   } else {
     //DEBUGOUT("\r\n Set Control mode to I2C is Success\r\n");
   }
-  DEBUGOUT("\r\n I2C Initialization Success \r\n");
+  // DEBUGOUT("\r\n I2C Initialization Success \r\n");
   return status;
 }
 

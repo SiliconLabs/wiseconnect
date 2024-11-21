@@ -27,7 +27,6 @@
 #include "sl_si91x_peripheral_sdio_secondary.h"
 #include "rsi_debug.h"
 #include "rsi_rom_clks.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -50,9 +49,6 @@
 #define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
 #define PS4_SOC_FREQ          150000000 // PLL out clock 150MHz
 #endif                                  // SW_CORE_CLK
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -83,7 +79,6 @@ boolean_t receive_data_flag      = true;
  ******************************************************************************/
 void gdpma_callbak(uint8_t dma_ch);
 void application_callback(uint8_t events);
-static void default_clock_configuration(void);
 
 /***************************************************************************/ /**
  * @brief       
@@ -119,25 +114,12 @@ uint32_t throughput   = 0;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * SDIO Secondary initialization function
  ******************************************************************************/
 void sdio_secondary_example_init(void)
 {
   sl_status_t status;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   SysTick_Config(SystemCoreClock / 1000);
 

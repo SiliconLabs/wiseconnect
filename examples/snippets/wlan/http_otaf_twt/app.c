@@ -196,7 +196,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -264,7 +264,9 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
                                         sl_si91x_twt_response_t *result,
                                         uint32_t result_length,
                                         void *arg);
+#if LOAD_CERTIFICATE
 static sl_status_t clear_and_load_certificates_in_flash(void);
+#endif
 
 /******************************************************
  *               Function Definitions
@@ -312,6 +314,7 @@ void application_start(const void *unused)
   printf("\r\nFirmware update is successful\r\n");
 }
 
+#if LOAD_CERTIFICATE
 sl_status_t clear_and_load_certificates_in_flash(void)
 {
   sl_status_t status;
@@ -339,6 +342,7 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 
   return status;
 }
+#endif
 
 sl_status_t http_otaf_app()
 {

@@ -1,22 +1,34 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_qei.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
 // Include Files
-
+#include "rsi_qei.h"
 #include "rsi_ccp_common.h"
 
 /** @addtogroup SOC25
@@ -29,9 +41,9 @@
  * @param[in]   pstcQei - Pointer to the QEI register instance
  * @return 	    none
  */
-void RSI_QEI_Enable(volatile QEI_Type *pstcQei)
+void RSI_QEI_Enable(QEI_Type *pstcQei)
 {
-  (void)pstcQei;
+  UNUSED_PARAMETER(pstcQei);
   // QEI Direction pin mux
   if (RTE_QEI_DIR_PIN >= 25 && RTE_QEI_DIR_PIN <= 30) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_QEI_DIR_PIN);
@@ -98,9 +110,9 @@ void RSI_QEI_Enable(volatile QEI_Type *pstcQei)
  * @param[in]   pstcQei - Pointer to the QEI register instance
  * @return 	    none
  */
-void RSI_QEI_Disable(volatile QEI_Type *pstcQei)
+void RSI_QEI_Disable(QEI_Type *pstcQei)
 {
-  (void)pstcQei;
+  UNUSED_PARAMETER(pstcQei);
   // clock disable to QEI module
   RSI_CLK_PeripheralClkDisable2(M4CLK, QE_PCLK_ENABLE);
   return;

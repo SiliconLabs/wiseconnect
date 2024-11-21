@@ -94,10 +94,11 @@ After transmission the data is compared and result is printed on the console.
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -107,10 +108,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ```C
     #define I2C_INSTANCE    2    // I2C Instance for Pin configuration
-    #define I2C             I2C2 // I2C Instance 
+    #define I2C             ULP_I2C // I2C Instance 
   ```
 
-- `Available Configurations`: Apart from I2C2, other configurations are given below.
+- `Available Configurations`: Apart from ULP_I2C, other configurations are given below.
  
   ```C
     #define I2C_INSTANCE    1    // I2C Instance for Pin configuration
@@ -142,7 +143,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 | SCL |   GPIO_50 [P32]   | Connect to Leader SCL pin |
 | SDA |   GPIO_51 [P34]   | Connect to Leader SDA pin |
 
-**I2C2:**
+**ULP_I2C:**
 
 | PIN |   ULP GPIO PIN             |   Description             |
 | --- | -------------------------- | ------------------------- |
@@ -172,7 +173,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. After running this application below console output can be observed.
-3. Connect ULP_GPIO_6 and ULP_GPIO_7 with the leader device for I2C2. Connect TX pin(GPIO_30) to RX pin(GPIO_29) forming a loopback.
+3. Connect ULP_GPIO_6 and ULP_GPIO_7 with the leader device for ULP_I2C. Connect TX pin(GPIO_30) to RX pin(GPIO_29) forming a loopback.
 4. When the application runs, it receives and sends data.
 5. After the transfer is completed, it validates the data and prints on the console.
 6. Will get "Test Case Passed" print on console.

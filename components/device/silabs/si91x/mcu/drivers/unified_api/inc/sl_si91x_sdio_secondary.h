@@ -1,19 +1,31 @@
-/*******************************************************************************
- * @file  sl_si91x_sdio_secondary.h
- * @brief
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/primary-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file  sl_si91x_sdio_secondary.h
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #ifndef __SL_SI91X_SDIO_SECONDARY_H_
 #define __SL_SI91X_SDIO_SECONDARY_H_
 
@@ -102,8 +114,8 @@ typedef void (*sl_sdio_secondary_gpdma_callback_t)(uint8_t dma_ch);
  * This API gives the pin access to M4, selects the SDIO mode, and enables the SDIO primary interrupts.
  * 
  * @return sl_status_t Initialization status:
-*         - SL_STATUS_OK (0x0000) - Initialization successful.
-*         - SL_STATUS_FAIL (0x0001) - Initialization failed.
+*         - SL_STATUS_OK  - Initialization successful.
+*         - SL_STATUS_FAIL  - Initialization failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -146,9 +158,9 @@ void sl_si91x_sdio_secondary_receive(uint8_t *data_buf);
  * @param[in] flag Interrupt flag to be registered.
  * 
  * @return sl_status_t Registration status:
-*         - SL_STATUS_OK (0x0000) - Success.
-*         - SL_STATUS_BUSY (0x0004) - Driver is busy.
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+*         - SL_STATUS_OK  - Success.
+*         - SL_STATUS_BUSY  - Driver is busy.
+*         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -182,9 +194,9 @@ void sl_si91x_sdio_secondary_unregister_event_callback(uint32_t flag);
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt.
  * 
  * @return sl_status_t Registration status:
-*         - SL_STATUS_OK (0x0000) - Success.
-*         - SL_STATUS_BUSY (0x0004) - Driver is busy.
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+*         - SL_STATUS_OK  - Success.
+*         - SL_STATUS_BUSY  - Driver is busy.
+*         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

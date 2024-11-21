@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  rsi_m4.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  rsi_m4.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #ifndef _RSI_M4_HAL_H_
 #define _RSI_M4_HAL_H_
@@ -30,7 +42,7 @@
 #define M4_ISR_IRQ 74
 
 #define TA_MEMORY_OFFSET_ADDRESS 0x00400000
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define M4_MEMORY_OFFSET_ADDRESS 0x00500000
 #else
 #define M4_MEMORY_OFFSET_ADDRESS 0x00200000
@@ -93,7 +105,7 @@
 #define RX_BUFFER_VALID          BIT(1)
 #define TX_PKT_PENDING_INTERRUPT BIT(2)
 #define UPGRADE_M4_IMAGE         BIT(5)
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define M4_WAITING_FOR_TA_TO_WR_ON_FLASH BIT(6)
 #endif
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -109,7 +121,7 @@
 #define M4_IMAGE_UPGRADATION_PENDING_INTERRUPT BIT(4)
 //! This interrupt is raised by NWP to M4 when there is a TX packet from M4 to read
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 //! This interrupt is raised by NWP to M4 when there is a flash write request from M4 to NWP in common flash mode
 #define TA_WRITING_ON_COMM_FLASH BIT(5)
 #endif
@@ -119,7 +131,10 @@
 #endif
 #define NWP_DEINIT_IN_COMM_FLASH BIT(7)
 
-#ifdef SLI_SI917
+//! This interrupt is received from TA when RSI_BUFFER_FULL is clear in TA
+#define TA_RSI_BUFFER_FULL_CLEAR_EVENT BIT(8)
+
+#if defined(SLI_SI917) || defined(SLI_SI915)
 //! Option value for m4 app from flash to ram API
 #define UPGRADE_M4_IMAGE_OTA    1
 #define TA_WRITES_ON_COMM_FLASH 2
@@ -230,7 +245,9 @@ bool sli_si91x_is_xtal_in_use_by_m4(void);
 void sli_si91x_set_m4_is_using_xtal(void);
 void sli_si91x_set_xtal_in_use_by_m4(void);
 void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void);
+void sli_si91x_xtal_turn_off_request_from_m4_to_TA(void);
 void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t xtal_enable);
 void sli_si91x_send_m4_xtal_usage_notification_to_ta(void);
+void sli_si91x_clear_xtal_in_use_by_m4(void);
 #endif
 #endif

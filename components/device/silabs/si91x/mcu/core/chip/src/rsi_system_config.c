@@ -27,7 +27,7 @@
 #define V1P20_IPMU_CHANGES
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #include "iPMU_prog/iPMU_dotc/rsi_system_config_917.c"
 #endif
 #include "iPMU_prog/iPMU_dotc/ipmu_apis.c"

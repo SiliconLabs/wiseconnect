@@ -110,12 +110,12 @@ void sleeptimer_hal_reset_prs_signal(void);
  ******************************************************************************/
 void sleeptimer_hal_init_timer(void)
 {
-  //Enable RC clock of 32MHz
+  //Enable RC clock
   //Todo: Ideally this frequency should be configured for 32kHz. But due to ULP timer
   //register read time constrain (Read time for ULP timer registers with 32kHz timer
   //frequency is significantly high (i.e) around 100usec), this is temporarily configured
-  //as 32MHz for ble stack application test purpose.
-  RSI_ULPSS_TimerClkConfig(ULPCLK, ENABLE_STATIC_CLK, 0, ULP_TIMER_32MHZ_RC_CLK, 0);
+  //as RCMHz for ble stack application test purpose.
+  RSI_ULPSS_TimerClkConfig(ULPCLK, ENABLE_STATIC_CLK, 0, ULP_TIMER_MHZ_RC_CLK, 0);
 
   //Configure periodic timer with count down mode, this timer will be always running
   //and taken as a reference for sleeptimer

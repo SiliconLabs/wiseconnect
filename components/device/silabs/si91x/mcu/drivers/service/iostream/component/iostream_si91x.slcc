@@ -8,6 +8,9 @@ description: >
   This component provides an IO Stream implementation for the Si91x.
 category: Device|Si91x|MCU|Service
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: components/device/silabs/si91x/mcu/drivers/service/iostream
 include:
   - path: inc
@@ -44,4 +47,3 @@ provides:
 requires:
   - name: sl_usart_iostream
   - name: iostream_retarget_stdio
-  - name: sl_clock_manager

@@ -55,7 +55,7 @@ static sl_status_t sli_si91x_ccm_config_check(sl_si91x_ccm_config_t *config)
   return SL_STATUS_OK;
 }
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 static void sli_si91x_ccm_get_key_info(sl_si91x_ccm_request_t *request, const sl_si91x_ccm_config_t *config)
 {
   request->key_info.key_type                         = config->key_config.b0.key_type;
@@ -110,7 +110,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   memcpy(request->nonce, config->nonce, config->nonce_length);
   memcpy(request->tag, config->tag, config->tag_length);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sli_si91x_ccm_get_key_info(request, config);
 
 #else
@@ -120,7 +120,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
 
   status = sl_si91x_driver_send_command(
     RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD_QUEUE,
+    SI91X_COMMON_CMD,
     request,
     (sizeof(sl_si91x_ccm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM + chunk_length),
     SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -210,7 +210,7 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
 
   if (((config->msg == NULL) && (config->msg_length != 0)) || ((config->ad == NULL) && (config->ad_length != 0))
       || (config->nonce == NULL) || (config->tag == NULL) || ((output == NULL) && (config->msg_length != 0))
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
       || (config->key_config.a0.key == NULL)
 #endif
   ) {

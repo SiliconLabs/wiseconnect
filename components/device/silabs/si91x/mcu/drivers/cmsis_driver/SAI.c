@@ -36,7 +36,7 @@ extern uint32_t dma_rom_buff0[30], dma_rom_buff1[30];     //we can keep wrapeers
 
 #define I2S0_CLK_SRC      ULP_I2S_PLL_CLK
 #define I2S0_CLK_DIV_FACT 0
-#define I2S1_CLK_SRC      ULP_I2S_REF_CLK
+#define I2S1_CLK_SRC      ULP_I2S_ULP_MHZ_RC_CLK
 #define I2S1_CLK_DIV_FACT 0
 
 /* IAR support */
@@ -221,7 +221,11 @@ static I2S_RESOURCES I2S0_Resources = {
 #endif
 		I2S0_TX_FIFO_LEVEL,
 		I2S0_RX_FIFO_LEVEL,
+#ifdef SL_I2S0_CHANNEL
 		SL_I2S0_CHANNEL,
+#else
+		0,
+#endif
 		&I2S0_Info,
 		0,
 		I2S_PROTOCOL,  
@@ -382,7 +386,7 @@ static ARM_SAI_CAPABILITIES I2S0_GetCapabilities (void)
 
 static int32_t I2S0_Initialize (ARM_SAI_SignalEvent_t cb_event) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_Initialize (cb_event, &I2S0_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
 #else
 	return I2S_Initialize (cb_event, &I2S0_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0); 	
@@ -400,7 +404,7 @@ static int32_t I2S0_Uninitialize (void)
 
 static int32_t I2S0_PowerControl (ARM_POWER_STATE state) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_PowerControl (state, &I2S0_Resources,&UDMA0_Resources,udmaHandle0);
 #else
 	return I2S_PowerControl (state, &I2S0_Resources,&UDMA0_Resources,udmaHandle0);
@@ -427,7 +431,7 @@ static int32_t I2S0_Receive (void *data, uint32_t num)
 
 static uint32_t I2S0_GetTxCount (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_GetTxCount (&I2S0_Resources); 	 				
 #else
 	return I2S_GetTxCount (&I2S0_Resources); 	
@@ -436,7 +440,7 @@ static uint32_t I2S0_GetTxCount (void)
 
 static uint32_t I2S0_GetRxCount (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_GetRxCount (&I2S0_Resources); 	 
 #else
 	return I2S_GetRxCount (&I2S0_Resources);
@@ -454,7 +458,7 @@ static int32_t I2S0_Control (uint32_t control, uint32_t arg1, uint32_t arg2)
 
 static ARM_SAI_STATUS I2S0_GetStatus (void) 
 {
-#if  defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if  defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_GetStatus (&I2S0_Resources);	
 #else
 	return I2S_GetStatus (&I2S0_Resources); 	
@@ -463,7 +467,7 @@ static ARM_SAI_STATUS I2S0_GetStatus (void)
 
 void IRQ064_Handler (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	ROMAPI_I2S_API-> I2S_IRQHandler (&I2S0_Resources);
 #else
 	I2S_IRQHandler (&I2S0_Resources); 	
@@ -473,7 +477,7 @@ void IRQ064_Handler (void)
 #if (RTE_I2S0_CHNL_UDMA_TX_EN == 1)
 void I2S0_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	ROMAPI_I2S_API->I2S_UDMA_Tx_Event(event,dmaCh,&I2S0_Resources);
 #else
 	I2S_UDMA_Tx_Event(event,(uint8_t)dmaCh,&I2S0_Resources);
@@ -484,7 +488,7 @@ void I2S0_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh)
 #if (RTE_I2S0_CHNL_UDMA_RX_EN == 1)
 void I2S0_UDMA_Rx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	ROMAPI_I2S_API->I2S_UDMA_Rx_Event (event,dmaCh, &I2S0_Resources);
 #else
 	I2S_UDMA_Rx_Event (event,(uint8_t)dmaCh, &I2S0_Resources);
@@ -517,7 +521,7 @@ static ARM_SAI_CAPABILITIES I2S1_GetCapabilities (void)
 
 static int32_t I2S1_Initialize (ARM_SAI_SignalEvent_t cb_event) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_Initialize (cb_event, &I2S1_Resources,&UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);
 #else
 	return I2S_Initialize (cb_event, &I2S1_Resources,&UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);
@@ -536,7 +540,7 @@ static int32_t I2S1_Uninitialize (void)
 
 static int32_t I2S1_PowerControl (ARM_POWER_STATE state) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_PowerControl (state, &I2S1_Resources,&UDMA1_Resources,udmaHandle1); 	 
 #else
 	return I2S_PowerControl (state, &I2S1_Resources,&UDMA1_Resources,udmaHandle1);
@@ -563,7 +567,7 @@ static int32_t I2S1_Receive (void *data, uint32_t num)
 
 static uint32_t I2S1_GetTxCount (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_GetTxCount (&I2S1_Resources); 	 
 #else
 	return I2S_GetTxCount (&I2S1_Resources); 	
@@ -572,7 +576,7 @@ static uint32_t I2S1_GetTxCount (void)
 
 static uint32_t I2S1_GetRxCount (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_GetRxCount (&I2S1_Resources); 	 	
 #else
 	return I2S_GetRxCount (&I2S1_Resources);
@@ -590,7 +594,7 @@ static int32_t I2S1_Control (uint32_t control, uint32_t arg1, uint32_t arg2)
 
 static ARM_SAI_STATUS I2S1_GetStatus (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	return ROMAPI_I2S_API->I2S_GetStatus (&I2S1_Resources);
 #else
 	return I2S_GetStatus (&I2S1_Resources);
@@ -599,7 +603,7 @@ static ARM_SAI_STATUS I2S1_GetStatus (void)
 
 void I2S1_IRQHandler (void) 
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	ROMAPI_I2S_API->I2S_IRQHandler (&I2S1_Resources);		
 #else
 	I2S_IRQHandler (&I2S1_Resources); 
@@ -609,7 +613,7 @@ void I2S1_IRQHandler (void)
 #if (RTE_I2S1_CHNL_UDMA_TX_EN == 1)
 void I2S1_UDMA_Tx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	ROMAPI_I2S_API->I2S_UDMA_Tx_Event (event, dmaCh,&I2S1_Resources);	
 #else
 	I2S_UDMA_Tx_Event (event,(uint8_t)dmaCh,&I2S1_Resources);
@@ -620,7 +624,7 @@ void I2S1_UDMA_Tx_Event (uint32_t event,uint32_t dmaCh)
 #if (RTE_I2S1_CHNL_UDMA_RX_EN == 1)
 void I2S1_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
+#if defined(A11_ROM)
 	ROMAPI_I2S_API->I2S_UDMA_Rx_Event (event, dmaCh, &I2S1_Resources);
 #else
 	I2S_UDMA_Rx_Event (event,(uint8_t)dmaCh, &I2S1_Resources);

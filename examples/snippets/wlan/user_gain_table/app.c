@@ -174,7 +174,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .mode        = 0,
   .channel     = 1,
   .aggr_enable = 0,
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,

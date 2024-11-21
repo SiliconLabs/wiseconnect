@@ -93,7 +93,8 @@
 - Si91x
 - Simplicity Studio
 - Serial console Setup
-  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -103,10 +104,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 ## Application Build Environment
 
@@ -116,7 +118,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
    ![Figure: Introduction](resources/uc_screen/ssi_uc_screen.png)
 
-  - **SSI Configuration**
+  - **SSI ULP Primary(ULP_Master) Configuration**
     - Frame Format: SSI Frame Format can be configured, i.e.,
       - Mode 0: Clock Polarity is zero and Clock Phase is zero.
       - Mode 1: Clock Polarity is zero, Clock Phase is one.
@@ -124,14 +126,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
       - Mode 3: Clock Polarity is one and Clock Phase is one.
       - Mode-4: TEXAS_INSTRUMENTS SSI.
       - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
-    - Bit Rate: The speed of transfer is configurable. The configuration range is from 500Kbps to 10Mbps in low power mode.
+    - Bit Rate: The speed of transfer is configurable. The configuration range is from 500Kbps to 5Mbps in low power mode.
     - Data Width: The size of data packet. The configuration range from 4 to 16.
-    - Mode: SSI mode/instance can be configurable, it can be configured Master/SLave/ULP Master.
+    - Mode: SSI mode/instance can be configurable, it can be configured ULP Primary.
     - Rx Sample Delay: Receive Data (rxd) Sample Delay, this to delay the sample of the rxd input signal. Each value represents a single SSI clock delay on the sample of the rxd signal. the configuration range from 0 to 63.
-  - **DMA Configuration**
-    - Master DMA: DMA enable for SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
-    - Slave DMA: DMA enable for SSI slave mode. it will interface with a DMA Controller using an optional set of DMA signals.
-    - ULP Master DMA: DMA enable for ULP SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
+  - **SSI ULP Primary(ULP_Master) DMA Configuration**
+    - ULP Primary DMA: DMA enable for ULP SSI Primary mode. it will interface with a DMA Controller using an optional set of DMA signals.
     - Tx FIFO Threshold: Transmit FIFO Threshold. Controls the level of entries (or below) at which the transmit FIFO controller triggers an interrupt. The configuration range from 0 to 15.
     - Rx FIFO Threshold: Receive FIFO Threshold. Controls the level of entries (or below) at which the receive FIFO controller triggers an interrupt. The configuration range from 0 to 15.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
@@ -141,7 +141,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ```C
 #define ULP_SSI_MASTER_TRANSFER ENABLE    // To use the transfer API
 #define ULP_SSI_MASTER_SEND     DISABLE   // To use the send API
-#define ULP_SSI_MASTER_RECEIVE  DISABLE   // To use the receive API
+#define ULP_SSI_MASTER_RECEIVE  DISABLE   // To use the receive(Click Lock symbol to allow editing and add documentation here) API
 ```
 
 ## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board
@@ -153,7 +153,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
 | ULP_GPIO_2  [F10]  | ULP_SSI_MASTER_MISO_PIN  |
 
-## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4343A/BRD4343B/BRD4343Q radio board
+## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4343A radio board
 
 | GPIO pin           | Description              |
 | ------------------ | ------------------------ |
@@ -173,8 +173,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps below for successful execution of the application:
 
-1. Connect ULP SSI Master SCK, CS0, MOSI, MISO pins with the SSI Slave device.
-2. In the ssi slave example, enable slave DMA and set the slave's baud rate to match the ULP master's.
+1. Connect ULP SSI Master SCK, CS, MOSI, MISO pins with the SSI Slave device.
+2. In the ssi slave example, enable slave DMA.
 3. When the application runs, it transfers the data.
 4. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
 5. Then again reset SSI slave once application switches to ULP mode and observe "Test Case Passed" print on console.
@@ -193,6 +193,7 @@ Follow the steps below for successful execution of the application:
 > **Note:**
 >
 >- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
+>- The SSI slave example side files should be executed in RAM if wish to test the non-DMA full duplex mode with SSI Slave example.
 >
 - To Erase the chip follow the below procedure
   - **Press ISP and RESET button at same time and then release, now perform Chip erase through commander.**

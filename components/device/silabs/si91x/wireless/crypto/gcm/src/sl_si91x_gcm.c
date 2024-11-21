@@ -39,7 +39,7 @@
 #endif
 #include <string.h>
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 static void sli_si91x_gcm_get_key_info(sl_si91x_gcm_request_t *request, const sl_si91x_gcm_config_t *config)
 {
   request->gcm_mode                                  = config->gcm_mode;
@@ -75,7 +75,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
       return SL_STATUS_INVALID_PARAMETER;
   }
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SL_SI91X_GCM_IV_SIZE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
@@ -99,7 +99,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   memcpy(request->nonce, config->nonce, config->nonce_length);
   memcpy(request->msg, config->msg, chunk_length);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sli_si91x_gcm_get_key_info(request, config);
 
 #else
@@ -109,7 +109,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
 
   status =
     sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD_QUEUE,
+                                 SI91X_COMMON_CMD,
                                  request,
                                  (sizeof(sl_si91x_gcm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -196,7 +196,7 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
   if ((config->msg == NULL) || (output == NULL) ||
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
       (config->gcm_mode == SL_SI91X_GCM_MODE && config->nonce == NULL)
 #else
       (config->key_config.a0.key == NULL) || (config->nonce == NULL)

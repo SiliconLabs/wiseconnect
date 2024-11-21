@@ -69,14 +69,13 @@
 
 #define ONE_SEC_MATCH_VALUE_1US_TYPE 1000000 // Timer match value for 1-sec, in 1us type
 
-#define SL_TIMER_MATCH_VALUE_32MHZ \
-  ((CLOCKS_PER_MICROSECONDS_32MHZ) * (TIME_IN_MICROSECONDS)) /*Timer match value for down-counter type with 32mhz
+#define SL_TIMER_MATCH_VALUE_MHZ \
+  ((CLOCKS_PER_MICROSECONDS_32MHZ) * (TIME_IN_MICROSECONDS)) /*Timer match value for down-counter type with mhz
                                                               clock */
 
-#define ONE_SEC_MATCH_VALUE_256US_TYPE_32MHZ \
-  3906 // Timer match value for 1-sec, in 256us type for 32 mhz clock frequency
+#define ONE_SEC_MATCH_VALUE_256US_TYPE_MHZ 3906 // Timer match value for 1-sec, in 256us type for 32 mhz clock frequency
 
-#define ONE_SEC_MATCH_VALUE_1US_TYPE_32MHZ \
+#define ONE_SEC_MATCH_VALUE_1US_TYPE_MHZ \
   1000000 /* Timer match value for 1-sec, in 1us type for 32 mhz clock
            frequency */
 
@@ -144,7 +143,7 @@ void ulp_timer_example_init(void)
     if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
       DEBUGOUT("Timer executing at PS4 state \n");
       // Updating timer match-value with 32 mhz
-      SL_ULP_TIMER_HANDLE.timer_match_value = SL_TIMER_MATCH_VALUE_32MHZ;
+      SL_ULP_TIMER_HANDLE.timer_match_value = SL_TIMER_MATCH_VALUE_MHZ;
       // Configuring timer instance parameters: mode-periodic, type-1us,
       // match-value: 1second
       status = sl_si91x_ulp_timer_set_configuration(&(SL_ULP_TIMER_HANDLE));
@@ -154,7 +153,7 @@ void ulp_timer_example_init(void)
                  status);
         break;
       }
-      DEBUGOUT("Successfully Configured ULP-timer parameters with 32mhz "
+      DEBUGOUT("Successfully Configured ULP-timer parameters with mhz "
                "parameters \n");
     } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS2) {
       // Updating timer match-value with 20 mhz
@@ -238,7 +237,7 @@ void ulp_timer_example_process_action(void)
           }
           // Changing timer-instance match value to number of ticks required for
           // 1sec time-out, in 256us mode ( 1000000/256)
-          status = sl_si91x_ulp_timer_set_count(ULP_TIMER_INSTANCE, ONE_SEC_MATCH_VALUE_256US_TYPE_32MHZ);
+          status = sl_si91x_ulp_timer_set_count(ULP_TIMER_INSTANCE, ONE_SEC_MATCH_VALUE_256US_TYPE_MHZ);
           if (status != SL_STATUS_OK) {
             DEBUGOUT("sl_si91x_ulp_timer_set_count : Invalid Parameters Error "
                      "Code : %lu \n",

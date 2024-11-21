@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_additional_status.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/********************************************************************************
+ * @file  sl_additional_status.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 #pragma once
 
 #define SL_STATUS_SI91X_SUBSPACE ((sl_status_t)0x00010000)
@@ -359,6 +371,8 @@
   ((sl_status_t)0x100F9)                                                ///< Calibration data verification failed.
 #define SL_STATUS_SI91X_SNMP_INTERNAL_ERROR      ((sl_status_t)0x10100) ///< SNMP internal error.
 #define SL_STATUS_SI91X_SNMP_INVALID_IP_PROTOCOL ((sl_status_t)0x10104) ///< SNMP invalid IP protocol error.
+#define SL_STATUS_SI91X_UNSUPPORTED_PWR_IDX_915  ((sl_status_t)0x10105) ///< Unsupported power index for 915
+#define SL_STATUS_SI91x_EFUSE_DATA_INVALID       ((sl_status_t)0x10106) ///< Efuse data is invalid.
 #define SL_STATUS_SI91X_NO_DATA_RECEIVED_OR_RECEIVE_TIMEOUT \
   ((sl_status_t)0x1BB01) ///< No data received or receive timeout.
 #define SL_STATUS_SI91X_INSUFFICIENT_DATA_FOR_TIME_CONVERSION \
@@ -391,7 +405,7 @@
 #define SL_STATUS_SI91X_NO_FREE_PORT       ((sl_status_t)0x1BB45) ///< No free port available.
 #define SL_STATUS_SI91X_INVALID_PORT       ((sl_status_t)0x1BB46) ///< Invalid port specified.
 #define SL_STATUS_SI91X_CORRUPTED_RPS_HEADER \
-  ((sl_status_t)0x1BB49) ///< Corrupted RPS header encountered during firmware update.
+  ((sl_status_t)0x1BB49) ///< Corrupted RPS header encountered or Received empty RPS file(no data) during firmware update.
 #define SL_STATUS_SI91X_FEATURE_UNSUPPORTED ((sl_status_t)0x1BB4B) ///< Feature not supported.
 #define SL_STATUS_SI91X_SOCKET_IN_UNCONNECTED_STATE \
   ((sl_status_t)0x1BB50) ///< Socket is not in a connected state. Disconnected from the server. In the case of FTP, the user needs to issue a destroy command after receiving this error.
@@ -456,6 +470,15 @@
   ((sl_status_t)0x1BBF2)                                               ///< MQTT command sent in incorrect state.
 #define SL_STATUS_SI91X_MQTT_ACK_TIMEOUT        ((sl_status_t)0x1BBF3) ///< MQTT ACK timeout error.
 #define SL_STATUS_SI91X_POP3_INVALID_MAIL_INDEX ((sl_status_t)0x1BBFF) ///< POP3 error for invalid mail index.
+#define SL_STATUS_SI91X_FW_UPDATE_DONE          ((sl_status_t)0x1DD03) ///< Firmware update successful.
+#define SL_STATUS_SI91X_FW_UPDATE_FAILED        ((sl_status_t)0x1DD04) ///< Firmware update failed.
+#define SL_STATUS_SI91X_ALLOCATION_FAILED \
+  ((sl_status_t)0x1DD3D) ///< Memory allocation failed in NWP during firmware upgradation.
+#define SL_STATUS_SI91X_INSUFFICIENT_FLASH_MEMORY \
+  ((sl_status_t)0x1DD3E) ///< Insufficient space in NWP flash memory during firmware upgradation.
+#define SL_STATUS_SI91X_FW_UP_WRONG_PACKET_INFO ((sl_status_t)0x1DD40) ///< Wrong packet info.
+#define SL_STATUS_SI91X_INVALID_LENGTH \
+  ((sl_status_t)0x1DD41) ///< All payload chunks length together can't be greater than total image size in header, during firmware upgradation.
 #define SL_STATUS_SI91X_SOCKET_NOT_CONNECTED \
   ((sl_status_t)0x1FFFF) ///< Listening TCP socket in device is not connected to the remote peer, or the LTCP socket is not yet opened in the device.
 #define SL_STATUS_SI91X_SOCKET_LIMIT_EXCEEDED \
@@ -550,6 +573,8 @@
 #define SL_STATUS_SI91X_PUF_IN_ERROR_STATE           ((sl_status_t)0x1CC33) ///< The PUF is in an error state.
 #define SL_STATUS_SI91X_PUF_OPERATION_NOT_ALLOWED    ((sl_status_t)0x1CC34) ///< The PUF operation is not allowed.
 #define SL_STATUS_SI91X_PUF_OPERATION_FAILED         ((sl_status_t)0x1CC35) ///< The PUF operation failed.
+#define SL_STATUS_SI91X_CRYPTO_INPUT_MSG_LENGTH_EXCEEDED \
+  ((sl_status_t)0x1CC9F) ///< Input message length exceed the expected length.
 #define SL_STATUS_SI91X_AUTO_JOIN_IN_PROGRESS \
   ((sl_status_t)0x15A5A) ///< Auto join or user store configuration is in progress.
 #define SL_STATUS_SI91X_RSNIE_FROM_AP_INVALID \

@@ -1,4 +1,5 @@
 /* -----------------------------------------------------------------------------
+ * SPDX-License-Identifier: Zlib
  * Copyright (c) 2013-2014 ARM Ltd.
  *
  * This software is provided 'as-is', without any express or implied warranty.

@@ -76,7 +76,7 @@ static sl_status_t sli_sntp_client_get_time_date(uint8_t *data,
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SNTP_CLIENT,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &client_req,
                                         sizeof(client_req),
                                         wait_time,
@@ -185,7 +185,7 @@ sl_status_t sl_sntp_client_start(sl_sntp_client_config_t *config, uint32_t timeo
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SNTP_CLIENT,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &client_req,
                                         sizeof(client_req),
                                         wait_time,
@@ -239,7 +239,7 @@ sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SNTP_CLIENT,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &client_req,
                                         sizeof(client_req),
                                         wait_time,
@@ -290,7 +290,7 @@ sl_status_t sl_sntp_client_stop(uint32_t timeout)
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SNTP_CLIENT,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &client_req,
                                         sizeof(client_req),
                                         wait_time,

@@ -5,6 +5,15 @@ description: >
 label: AZURE FreeRTOS Middleware
 category: Third Party
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: AZURE FreeRTOS Middleware
+      version: 1.1.0
+      supplier: Azure
+      url: https://github.com/Azure/azure-iot-middleware-freertos
+      package_url: pkg:github/Azure/azure-iot-middleware-freertos@1.1.0
 component_root_path: ./third_party/azure_freertos_middleware
 provides:
 - name: azure_freertos_middleware
@@ -27,14 +36,9 @@ source:
 - path: libraries/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_sas.c
 - path: libraries/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_telemetry.c
 - path: libraries/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_twin.c
-define:
-- name: AZURE_IOT_NO_CUSTOM_CONFIG
-requires:
-- name: bsd_socket
-- name: mqtt
-- name: coreMQTT
-
 include:
+- path: source/include
+- path: source/interface
 - path: source/include
   file_list:
     - path: azure_iot.h
@@ -102,4 +106,12 @@ include:
     - path: az_http_private.h
     - path: az_json_private.h
     - path: az_span_private.h
+
+define:
+- name: AZURE_IOT_NO_CUSTOM_CONFIG
+
+requires:
+- name: bsd_socket
+- name: mqtt
+- name: coreMQTT
 

@@ -1,9 +1,9 @@
-/***************************************************************************/ /**
+/******************************************************************************
 * @file sl_si91x_bjt_temperature_sensor.h
 * @brief BJT temperature sensor API implementation
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -87,11 +87,11 @@ typedef enum {
  * @param[in] sl_bjt_temperature_sensor_config BJT configuration structure containing the operation mode and number of channels.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Fail.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
- *         - SL_STATUS_INVALID_RANGE (0x0028) - Invalid range.
- *         - SL_STATUS_INVALID_COUNT (0x002B) - Invalid count.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Fail.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
+ *         - SL_STATUS_INVALID_RANGE  - Invalid range.
+ *         - SL_STATUS_INVALID_COUNT  - Invalid count.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -110,11 +110,11 @@ sl_status_t sl_si91x_bjt_temperature_sensor_init(adc_ch_config_t sl_bjt_temperat
  * @param[out] temp_data Pointer to the variable where the converted temperature data will be stored.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Fail.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Fail.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE  - Mismatch Range.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -135,8 +135,8 @@ sl_status_t sl_si91x_bjt_temperature_sensor_read_data(double *temp_data);
  *                  - SL_BJT_TEMPERATURE_SENSOR_DISABLE (0) - Disable
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -154,10 +154,10 @@ sl_status_t sl_si91x_bjt_temperature_sensor_state(sl_bjt_temperature_sensor_stat
  * @param[in] sl_bjt_temperature_sensor_channel_config BJT channel configuration structure containing the positive input to BJT value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch range.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE  - Mismatch range.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -176,10 +176,10 @@ sl_status_t sl_si91x_bjt_temperature_sensor_set_channel_configuration(
  * @param[in] sl_bjt_temperature_sensor_channel_config Band gap channel configuration structure containing the positive input to OPAMP value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch range.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE  - Mismatch range.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -200,10 +200,10 @@ sl_status_t sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration(
  * @param[in] current_temperature_mode Current temperature mode @ref sl_bjt_temperature_sensor_enum_t
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Fail.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Fail.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *****************************************************************************/
@@ -222,8 +222,8 @@ sl_status_t sl_si91x_get_bjt_temperature_sensor_conversion(double *temp_data,
  * @param[in] sl_bjt_temperature_sensor_config Configuration structure used for de-initializing the BJT temperature sensor.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Fail.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Fail.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

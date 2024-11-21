@@ -89,6 +89,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -105,10 +106,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -158,12 +160,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration
 
-|   GPIO Pin    |      Description        |
-| ------------- | ----------------------- |
-| GPIO_25 [P25] | RTE_GSPI_MASTER_CLK_PIN  |
-| GPIO_28 [P31] | RTE_GSPI_MASTER_CS0_PIN  |
-| GPIO_27 [P29] | RTE_GSPI_MASTER_MOSI_PIN |
-| GPIO_26 [P27] | RTE_GSPI_MASTER_MISO_PIN |
+|   GPIO Pin    | Explorer kit GPIO|      Description        |
+| ------------- | ---------------- | ----------------------- |
+| GPIO_25 [P25] |   GPIO_25 [SCK]  |RTE_GSPI_MASTER_CLK_PIN  |
+| GPIO_28 [P31] |   GPIO_28 [CS]   |RTE_GSPI_MASTER_CS0_PIN  |
+| GPIO_27 [P29] |   GPIO_27 [MOSI] |RTE_GSPI_MASTER_MOSI_PIN |
+| GPIO_26 [P27] |   GPIO_26 [MISO] |RTE_GSPI_MASTER_MISO_PIN |
 
 ### Pin Description
 
@@ -174,7 +176,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. Connect GPIO_26 [P27] to GPIO_27 [P29] for loopback connection.
+2. Connect GPIO_26 to GPIO_27 for loopback connection.
 3. Enable the macro in `gspi_example.h` file as per requirement.
 
     - #define SL_USE_TRANSFER ENABLE

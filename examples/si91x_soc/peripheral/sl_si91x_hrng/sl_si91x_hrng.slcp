@@ -1,0 +1,46 @@
+project_name: sl_si91x_hrng
+label: Si91x - HRNG
+description: |
+  Demonstrates how to Generate a Random Number.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.0
+source:
+  - path: app.c
+  - path: main.c
+  - path: hrng_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: hrng_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: sl_hrng
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output_hrng.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -30,6 +30,7 @@ This application demonstrates how to configure SiWx91x device as an HTTP client 
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Interface and Host MCU Supported
     - SPI - EFR32 
 
@@ -46,10 +47,11 @@ This application demonstrates how to configure SiWx91x device as an HTTP client 
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -81,6 +83,9 @@ The application can be configured to suit user requirements and development envi
       ```
   
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
+  
+  > Note: 
+  > User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
   - Configure the following parameters in ``app.c`` to test HTTP Client app as per requirements
 

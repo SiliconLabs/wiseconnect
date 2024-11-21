@@ -55,11 +55,11 @@ extern "C" {
  * @param[in] adc_ch_cfg : ADC channel configuration
  * @param[in] adc_cfg : ADC configuration
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_channel_init(sl_adc_channel_config_t *adc_ch_cfg, sl_adc_config_t *adc_cfg);
 
@@ -70,11 +70,11 @@ sl_status_t sl_si91x_adc_channel_init(sl_adc_channel_config_t *adc_ch_cfg, sl_ad
  *
  * @param[in] adc_cfg : ADC configuration
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_de_init(sl_adc_config_t *adc_cfg);
 
@@ -85,11 +85,11 @@ sl_status_t sl_si91x_adc_de_init(sl_adc_config_t *adc_cfg);
  *
  * @param[in] channel : ADC channel number
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_chnl_enable(uint8_t channel);
 
@@ -100,11 +100,11 @@ sl_status_t sl_si91x_adc_chnl_enable(uint8_t channel);
  *
  * @param[in] channel : ADC channel number
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_chnl_disable(uint8_t channel);
 
@@ -119,11 +119,11 @@ sl_status_t sl_si91x_adc_chnl_disable(uint8_t channel);
  * @param[in] adc_cfg : ADC configuration
  * @param[in] adc_value :  memory pointer to store ADC data
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_read_static_sample(sl_adc_channel_config_t *adc_ch_cfg,
                                             sl_adc_config_t *adc_cfg,
@@ -138,11 +138,11 @@ sl_status_t sl_si91x_adc_read_static_sample(sl_adc_channel_config_t *adc_ch_cfg,
  * @param[in] ADC channle number
  *
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_channel_read_sample(sl_adc_channel_config_t *adc_ch_cfg, uint8_t channl_num);
 

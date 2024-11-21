@@ -5,14 +5,17 @@ description: >
 label: Basic Network Configuration Manager
 category: Service|Network Management|Configuration
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 component_root_path: ./components/service/network_manager
 provides:
 - name: basic_network_config_manager
 - name: network_config_manager
 source:
-- path: src/sl_net_basic_credentials.c
+- path: src/sl_net_credentials.c
 - path: src/sl_net_basic_profiles.c
-include:
 requires:
 - name: network_manager
+- name: basic_credential_manager
 

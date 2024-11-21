@@ -14,10 +14,10 @@ filter:
       - Advanced
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 source:
   - path: app.c
   - path: main.c
@@ -82,6 +82,12 @@ readme:
 other_file:
   - path: resources/readme/wifi_throughput_ble_throughput_app_soc_ncp.png
   - path: resources/readme/output1.png
+  - path: resources/readme/remote_screen4.png
+  - path: resources/readme/remote_screen5.png
+  - path: resources/readme/remote_screen6.png
+  - path: resources/readme/remote_screen7.png
+  - path: resources/readme/remote_screen8.png
+  - path: resources/readme/remote_screen9.png
 ui_hints:
   highlight:
     - path: readme.md

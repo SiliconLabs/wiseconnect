@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_egpio.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -335,7 +347,7 @@ void egpio_set_pin_mux(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t mu
  */
 void egpio_ulp_soc_gpio_mode(ULPCLK_Type *pULPCLK, uint8_t gpio, uint8_t mode)
 {
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_MODE_REG_b.ULP_SOC_GPIO_MODE_REG = (unsigned int)(mode & 0x07);
 #else
   pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_0_MODE_REG_b.ULP_SOCGPIO_N_MODE = (mode);
@@ -788,7 +800,7 @@ void egpio_pad_selection_enable(uint8_t padNum)
 	A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
     PADSELECTION |= BIT(padNum);
   }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   else {
     /*(tass_m4ss_gpio_sel)PAD selection (22 t0 33) 
 	A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
@@ -811,7 +823,7 @@ void egpio_pad_selection_disable(uint8_t padNum)
 	A value of 0 on this gives control to TASS(by default it is 0 means NWP control) */
     PADSELECTION &= ~BIT(padNum);
   }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   else {
     /*(tass_m4ss_gpio_sel)PAD selection (22 t0 33) 
 	A value of 0 on this gives control to TASS(by default it is 0 means NWP control) */

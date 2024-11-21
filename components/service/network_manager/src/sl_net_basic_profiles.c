@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_net_basic_profiles.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_net_basic_profiles.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_net.h"
 #include "sl_net_ip_types.h"
@@ -39,7 +51,7 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
         return SL_STATUS_INVALID_INDEX;
       }
       memcpy(&wifi_client_profiles[profile_id],
-             (sl_net_wifi_client_profile_t *)profile,
+             (const sl_net_wifi_client_profile_t *)profile,
              sizeof(sl_net_wifi_client_profile_t));
       return SL_STATUS_OK;
 
@@ -47,7 +59,9 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
       if (profile_id >= MAX_WIFI_AP_PROFILES) {
         return SL_STATUS_INVALID_INDEX;
       }
-      memcpy(&wifi_ap_profiles[profile_id], (sl_net_wifi_ap_profile_t *)profile, sizeof(sl_net_wifi_ap_profile_t));
+      memcpy(&wifi_ap_profiles[profile_id],
+             (const sl_net_wifi_ap_profile_t *)profile,
+             sizeof(sl_net_wifi_ap_profile_t));
       return SL_STATUS_OK;
 #endif
     default:

@@ -15,10 +15,10 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4    
+    version: 3.4.0
 source:
   - path: app.c
   - path: main.c
@@ -35,15 +35,13 @@ component:
   - id: freertos_heap_4
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: wiseconnect3_common
     from: wiseconnect3_sdk
   - id: text_segment_in_psram
     from: wiseconnect3_sdk
   - id: data_segment_in_psram
-    from: wiseconnect3_sdk    
-  - id: rsilib_dcache
     from: wiseconnect3_sdk     
   - id: udma_linker_config
     from: wiseconnect3_sdk
@@ -62,8 +60,6 @@ component:
   - id: basic_network_config_manager
     from: wiseconnect3_sdk
   - id: bsd_socket
-    from: wiseconnect3_sdk
-  - id: sllib_m4_power_save
     from: wiseconnect3_sdk
   - id: sl_si91x_mem_pool_buffers_with_quota
     from: wiseconnect3_sdk

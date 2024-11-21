@@ -108,6 +108,23 @@ extern "C" {
 #define SL_ICM40627_REG_INTF_CONFIG0               (SL_ICM40627_BANK_0 | 0x4C) /**< FIFO/Sense Configuration Register */
 #define SL_ICM40627_INTF_CONFIG0_SHIFT_UI_SIFS_CFG (0x00)
 
+#define SL_ICM40627_BIT_UI_FSYNC_INT \
+  6 /**< This bit automatically sets to 1 when a UI FSYNC interrupt is generated. The bit clears to 0 after the register has been read. >**/
+#define SL_ICM40627_BIT_PLL_RDY_INT \
+  5 /**< This bit automatically sets to 1 when a PLL Ready interrupt is generated. The bit clears to 0 after the register has been read. >**/
+#define SL_ICM40627_BIT_RESET_DONE_INT \
+  4 /**< This bit automatically sets to 1 when software reset is complete. The bit clears to 0 after the register has been read. >**/
+#define SL_ICM40627_BIT_DATA_RDY_INT \
+  3 /**< This bit automatically sets to 1 when a Data Ready interrupt is generated.The bit clears to 0 after the register has been read. >**/
+#define SL_ICM40627_BIT_FIFO_THS_INT \
+  2 /**< This bit automatically sets to 1 when the FIFO buffer reaches the thresholdvalue. The bit clears to 0 after the register has been read. >**/
+#define SL_ICM40627_BIT_FIFO_FULL_INT \
+  1 /**< This bit automatically sets to 1 when the FIFO buffer is full. The bit clears to 0after the register has been read. >**/
+#define SL_ICM40627_BIT_AGC_RDY_INT \
+  0 /**< This bit automatically sets to 1 when an AGC Ready interrupt is generated.The bit clears to 0 after the register has been read. >**/
+#define SL_ICM40627_MASK_DATA_RDY_INT   (1 << SL_ICM40627_BIT_DATA_RDY_INT)
+#define SL_ICM40627_MASK_RESET_DONE_INT (1 << SL_ICM40627_BIT_RESET_DONE_INT)
+
 #define SL_ICM40627_INTF_CONFIG0_MASK_UI_SIFS_CFG (0x03)
 
 #define SL_ICM40627_INTF_CONFIG0_BIT_UI_SIFS_CFG_DISABLE_SPI (0x02)
@@ -163,6 +180,31 @@ extern "C" {
 #define SL_ICM40627_REG_SELF_TEST_CONFIG   (SL_ICM40627_BANK_0 | 0x70) /**< Device Self-Test Register */
 #define SL_ICM40627_REG_WHO_AM_I           (SL_ICM40627_BANK_0 | 0x75) /**< Device Identity Register */
 #define SL_ICM40627_REG_BANK_SEL           (SL_ICM40627_BANK_0 | 0x76) /**< Register Bank Selection Register */
+
+#define SL_ICM40627_REG_INT_SOURCE0        (SL_ICM40627_BANK_0 | 0x65) /**< INT_SOURCE0 >**/
+#define SL_ICM40627_BIT_UI_FSYNC_INT1_EN   6                           /**< UI FSYNC interrupt >**/
+#define SL_ICM40627_BIT_PLL_RDY_INT1_EN    5                           /**< PLL ready interrupt >**/
+#define SL_ICM40627_BIT_RESET_DONE_INT1_EN 4                           /**< Reset done interrupt >**/
+#define SL_ICM40627_BIT_UI_DRDY_INT1_EN    3                           /**<  UI data ready interrupt >**/
+#define SL_ICM40627_MASK_UI_DRDY_INT1_EN \
+  (1 << SL_ICM40627_BIT_UI_DRDY_INT1_EN)     /**<  UI data ready interrupt Bit Mask >**/
+#define SL_ICM40627_BIT_FIFO_THS_INT1_EN   2 /**<  FIFO threshold interrupt >**/
+#define SL_ICM40627_BIT_FIFO_FULL_INT1_EN  1 /**< FIFO full interrupt >**/
+#define SL_ICM40627_BIT_UI_AGC_RDY_INT1_EN 0 /**< UI AGC ready interrupt >**/
+
+#define SL_ICM40627_REG_INT_SOURCE1   (SL_ICM40627_BANK_0 | 0x66) /**< INT_SOURCE1 >**/
+#define SL_ICM40627_BIT_SMD_INT1_EN   3                           /**< SMD interrupt >**/
+#define SL_ICM40627_BIT_WOM_Z_INT1_EN 2                           /**< Z-axis WOM interrupt >**/
+#define SL_ICM40627_BIT_WOM_Y_INT1_EN 1                           /**< Y-axis WOM interrupt >**/
+#define SL_ICM40627_BIT_WOM_X_INT1_EN 0                           /**< X-axis WOM interrupt >**/
+#define SL_ICM40627_BIT_MASK_SMD_INT1_EN \
+  (1 << SL_ICM40627_BIT_SMD_INT1_EN) /**< SMD Bitmask interrupt routed to INT1 >**/
+#define SL_ICM40627_BIT_MASK_WOM_Z_INT1_EN \
+  (1 << SL_ICM40627_BIT_WOM_Z_INT1_EN) /**< Z-axis WOM interrupt routed to INT1 >**/
+#define SL_ICM40627_BIT_MASK_WOM_Y_INT1_EN \
+  (1 << SL_ICM40627_BIT_WOM_Y_INT1_EN) /**< Y-axis WOM interrupt routed to INT1 >**/
+#define SL_ICM40627_BIT_MASK_WOM_X_INT1_EN \
+  (1 << SL_ICM40627_BIT_WOM_X_INT1_EN) /**< X-axis WOM interrupt routed to INT1 >**/
 
 /***********************/
 /* Bank 1 Register map */
@@ -278,6 +320,9 @@ extern "C" {
 /***************************************************************************/ /**
  * @brief
  *    Select the desired Register bank.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[in] bank
  *    The address of the Register bank (0..3)
@@ -287,37 +332,49 @@ sl_status_t icm40627_select_register_bank(sl_ssi_handle_t ssi_driver_handle, uin
 /***************************************************************************/ /**
  * @brief
  *    Perform soft reset on the ICM40627 chip.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_software_reset(sl_ssi_handle_t ssi_driver_handle);
 
 /***************************************************************************/ /**
  * @brief
  *    Set the bandwidth of the gyroscope.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[in] gyro_ODR
  *    The desired ODR value. Use the ICM40627_GYRO_BW_xHZ macros, which
  *    are defined in the icm40627.h file. The value of x can be
  *    6, 12, 24, 51, 120, 150, 200, 360 or 12100.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t gyro_ODR);
 
 /***************************************************************************/ /**
  * @brief
  *    Set the bandwidth of the accelerometer.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[in] accel_ODR
  *    The desired ODR value. Use the ICM40627_ACCEL_BW_yHZ macros, which
  *    are defined in the icm40627.h file. The value of y can be
  *    6, 12, 24, 50, 111, 246, 470 or 1210.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t accel_ODR);
 
@@ -325,13 +382,17 @@ sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_han
  * @brief
  *    Read the raw acceleration value and convert to g value based on
  *    the actual resolution.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] accel
  *    A 3-element array of float numbers containing the acceleration values
  *    for the x, y and z axes in g units.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_accel_data(sl_ssi_handle_t ssi_driver_handle, float accel[3]);
 
@@ -339,71 +400,125 @@ sl_status_t sl_si91x_icm40627_get_accel_data(sl_ssi_handle_t ssi_driver_handle, 
  * @brief
  *    Read the raw gyroscope value and convert to deg/sec value based on
  *    the actual resolution.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] gyro
  *    A 3-element array of float numbers containing the gyroscope values
  *    for the x, y and z axes in deg/sec units.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_gyro_data(sl_ssi_handle_t ssi_driver_handle, float gyro[3]);
 
 /***************************************************************************/ /**
  * @brief
  *    Get the actual resolution of the accelerometer.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] accelRes
  *    The resolution in g/bit units
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_accel_resolution(sl_ssi_handle_t ssi_driver_handle, float *accel_res);
 
 /***************************************************************************/ /**
  * @brief
  *    Get the actual resolution of the gyroscope.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] gyroRes
  *    The actual resolution in (deg/sec)/bit units
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_gyro_resolution(sl_ssi_handle_t ssi_driver_handle, float *gyro_res);
 
 /***************************************************************************/ /**
  * @brief
  *    Set the full scale value of the accelerometer.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[in] accelFs
  *    The desired full scale value. Use the ICM40627_ACCEL_FULLSCALE_xG
  *    macros, which are defined in the icm40627.h file. The value of x can be
  *    2, 4, 8 or 16.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_accel_full_scale(sl_ssi_handle_t ssi_driver_handle, uint8_t accelFs);
 
 /***************************************************************************/ /**
  * @brief
  *    Set the full scale value of the gyroscope.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[in] gyroFs
  *    The desired full scale value. Use the ICM40627_GYRO_FULLSCALE_yDPS
  *    macros, which are defined in the icm40627.h file. The value of y can be
  *    250, 500, 1000 or 2000.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_gyro_full_scale(sl_ssi_handle_t ssi_driver_handle, uint8_t accelFs);
 
 /***************************************************************************/ /**
  * @brief
+ *    Enable or disable the interrupts in the ICM40627 chip.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
+ *
+ * @param[in] data_ready_enable
+ *    If true, enables the Raw Data Ready interrupt, otherwise disables.
+ *
+ * @param[in] wom_enable
+ *    If true, enables the Wake-up On Motion interrupt, otherwise disables.
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_enable_interrupt(sl_ssi_handle_t ssi_driver_handle, bool dataReadyEnable, bool womEnable);
+
+/***************************************************************************/ /**
+ * @brief
+ *    Check if new data is available to read.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
+ *
+ * @return
+ *    Returns true if the Raw Data Ready interrupt bit set, false otherwise
+ ******************************************************************************/
+bool sl_si91x_icm40627_is_data_ready(sl_ssi_handle_t ssi_driver_handle);
+
+/***************************************************************************/ /**
+ * @brief
  *    Enable or disable the sensors in the ICM40627 chip.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[in] accel
  *    If true, enables the acceleration sensor
@@ -414,8 +529,9 @@ sl_status_t sl_si91x_icm40627_set_gyro_full_scale(sl_ssi_handle_t ssi_driver_han
  * @param[in] temp
  *    If true, enables the temperature sensor
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, bool accel, bool gyro, bool temp);
 
@@ -424,9 +540,13 @@ sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, b
  *    Initialize the ICM40627 sensor. Enable the power supply and SPI lines,
  *    set up the host SPI controller, configure the chip control interface,
  *    clock generator, and interrupt line.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_init(sl_ssi_handle_t ssi_driver_handle);
 
@@ -435,8 +555,9 @@ sl_status_t sl_si91x_icm40627_init(sl_ssi_handle_t ssi_driver_handle);
  *    De-initialize the ICM40627 sensor by disconnecting the supply and SPI
  *    lines.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_deinit(void);
 
@@ -446,6 +567,9 @@ sl_status_t sl_si91x_icm40627_deinit(void);
  *    and accelerometer values while the device is at rest and in level. The
  *    resulting values are loaded to the accel and gyro bias Registers to cancel
  *    the static offset error.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] accelBiasScaled
  *    The mesured acceleration sensor bias in mg
@@ -453,8 +577,9 @@ sl_status_t sl_si91x_icm40627_deinit(void);
  * @param[out] gyroBiasScaled
  *    The mesured gyro sensor bias in deg/sec
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_driver_handle,
                                                        float *accel_bias_scaled,
@@ -463,24 +588,32 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
 /***************************************************************************/ /**
  * @brief
  *    Read the temperature sensor raw value and convert to Celsius.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] temperature
  *    The mesured temperature in Celsius
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_temperature_data(sl_ssi_handle_t ssi_driver_handle, float *temp_data);
 
 /***************************************************************************/ /**
  * @brief
  *    Read the device ID of the ICM40627.
+ * 
+ * @param[in] ssi_driver_handle
+ *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
  * @param[out] devID
  *    The ID of the device read from the WHO_AM_I Register. Expected value 0xE0.
  *
- * @return
- *    Returns zero on OK, non-zero otherwise
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_device_id(sl_ssi_handle_t ssi_driver_handle, uint8_t *dev_id);
 

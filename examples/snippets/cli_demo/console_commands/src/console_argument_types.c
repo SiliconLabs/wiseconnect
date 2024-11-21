@@ -40,13 +40,13 @@ const char *ip_protocol_type[]          = { "tcp", "udp", NULL };
 const char *ipv4_or_ipv6_type[]         = { "ipv4", "ipv6", NULL };
 const char *net_interface_type[]        = { "ap", "bluetooth", "client", "ethernet", "thread", "zwave", NULL };
 const char *operating_band_type[]       = { "2.4g", "5g", "dual", NULL };
-const char *option_name_type[]          = { "SO_CERT_INDEX", "SO_KEEPALIVE", "SO_MAX_RETRANSMISSION_TIMEOUT_VALUE",
-                                            "SO_RCVTIMEO",   "TCP_ULP",      NULL };
+const char *option_name_type[]          = { "SL_SO_CERT_INDEX", "SO_KEEPALIVE", "SO_MAX_RETRANSMISSION_TIMEOUT_VALUE",
+                                            "SO_RCVTIMEO",      "TCP_ULP",      NULL };
 const char *performance_mode_type[]     = { "high_performance",
                                             "power_save",
                                             "power_save_low_latency",
-                                            "standby_power_save",
-                                            "standby_power_save_with_ram_retention",
+                                            "deep_sleep_without_ram_retention",
+                                            "deep_sleep_with_ram_retention",
                                             NULL };
 const char *rate_protocol_type[]        = { "802.11ax", "802.11b", "802.11g", "802.11n", "auto", NULL };
 const char *set_option_id_type[]        = { "fionbio", "keepalivetimeout", "recvtimeout", "sendtimeout", NULL };
@@ -54,20 +54,30 @@ const char *sl_ip_address_type_t_type[] = { "ipv4", "ipv6", "ipv6_global", "ipv6
 const char *sl_ip_management_t_type[]   = { "dhcp", "static", NULL };
 const char *sl_net_dns_resolution_ip_type_t_type[] = { "ipv4", "ipv6", NULL };
 const char *socket_domain_type[]                   = { "af_inet", "af_inet6", NULL };
-const char *socket_protocol_type[] = { "ip_icmp", "ip_proto", "ip_raw", "ip_tcp", "ip_udp", "ip_udp_lite", NULL };
-const char *socket_type_type[]     = { "dgram", "stream", NULL };
-const char *wifi_ap_flag_type[]    = { "hidden_ssid", NULL };
-const char *wifi_band_type[]       = { "2.4g", "5g", "60g", "6g", "900m", "auto", NULL };
-const char *wifi_bandwidth_type[]  = { "10m", "160m", "20m", "40m", "80m", NULL };
-const char *wifi_encryption_type[] = { "ccmp", "fast", "open", "peap", "tkip", "tls", "ttls", "wep", NULL };
-const char *wifi_init_mode_type[]  = {
-   "ap", "apsta", "ble_coex", "client", "client_ipv6", "eap", "transmit_test", NULL
-};
-const char *wifi_interface_type[] = { "ap", "ap_5g", "client", "client_5g", NULL };
-const char *wifi_security_type[]  = {
-   "open", "wep", "wpa", "wpa2", "wpa2_enterprise", "wpa3", "wpa3_transition", "wpa_enterprise", "wpa_wpa2_mixed", NULL
-};
-const char *wps_mode_type[] = { "pin", "push_button", NULL };
+const char *socket_protocol_type[]  = { "ip_icmp", "ip_proto", "ip_raw", "ip_tcp", "ip_udp", "ip_udp_lite", NULL };
+const char *socket_type_type[]      = { "dgram", "stream", NULL };
+const char *wifi_ap_flag_type[]     = { "hidden_ssid", NULL };
+const char *wifi_band_type[]        = { "2.4g", "5g", "60g", "6g", "900m", "auto", NULL };
+const char *wifi_bandwidth_type[]   = { "10m", "160m", "20m", "40m", "80m", NULL };
+const char *wifi_encryption_type[]  = { "ccmp", "fast", "open", "peap", "tkip", "tls", "ttls", "wep", NULL };
+const char *wifi_init_mode_type[]   = { "ap",  "apsta",         "ble_coex", "client", "client_ipv6",
+                                        "eap", "transmit_test", "ble",      NULL };
+const char *wifi_init_region_type[] = { "default", "us", "eu", "jp", "world", "kr", "sg", NULL };
+const char *ble_user_gain_table_region_type[] = { "FCC", "ETSI", "TELEC", "WORLD_WIDE", "KCC", NULL };
+const char *wifi_interface_type[]             = { "ap", "ap_5g", "client", "client_5g", NULL };
+const char *wifi_security_type[]              = { "open",
+                                                  "wep",
+                                                  "wpa",
+                                                  "wpa2",
+                                                  "wpa2_enterprise",
+                                                  "wpa3",
+                                                  "wpa3_transition",
+                                                  "wpa_enterprise",
+                                                  "wpa_wpa2_mixed",
+                                                  "wpa3_enterprise",
+                                                  "wpa3_transition_enterprise",
+                                                  NULL };
+const char *wps_mode_type[]                   = { "pin", "push_button", NULL };
 
 const arg_list_t console_argument_types[] = {
   [CONSOLE_TYPE(ap_client_deauth)]                = ap_client_deauth_type,
@@ -99,6 +109,8 @@ const arg_list_t console_argument_types[] = {
   [CONSOLE_TYPE(wifi_bandwidth)]                  = wifi_bandwidth_type,
   [CONSOLE_TYPE(wifi_encryption)]                 = wifi_encryption_type,
   [CONSOLE_TYPE(wifi_init_mode)]                  = wifi_init_mode_type,
+  [CONSOLE_TYPE(wifi_init_region)]                = wifi_init_region_type,
+  [CONSOLE_TYPE(ble_user_gain_table_region)]      = ble_user_gain_table_region_type,
   [CONSOLE_TYPE(wifi_interface)]                  = wifi_interface_type,
   [CONSOLE_TYPE(wifi_security)]                   = wifi_security_type,
   [CONSOLE_TYPE(wps_mode)]                        = wps_mode_type,
@@ -136,8 +148,8 @@ const value_list_t console_argument_values[] = {
   [CONSOLE_TYPE(performance_mode)] = (const uint32_t[]){ HIGH_PERFORMANCE,
                                                          ASSOCIATED_POWER_SAVE,
                                                          ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                         STANDBY_POWER_SAVE,
-                                                         STANDBY_POWER_SAVE_WITH_RAM_RETENTION },
+                                                         DEEP_SLEEP_WITHOUT_RAM_RETENTION,
+                                                         DEEP_SLEEP_WITH_RAM_RETENTION },
   [CONSOLE_TYPE(rate_protocol)]    = (const uint32_t[]){ SL_WIFI_RATE_PROTOCOL_AX_ONLY,
                                                          SL_WIFI_RATE_PROTOCOL_B_ONLY,
                                                          SL_WIFI_RATE_PROTOCOL_G_ONLY,
@@ -151,42 +163,46 @@ const value_list_t console_argument_values[] = {
   [CONSOLE_TYPE(socket_domain)]                   = (const uint32_t[]){ 2, 0 },
   [CONSOLE_TYPE(socket_protocol)] =
     (const uint32_t[]){ IPPROTO_ICMP, IPPROTO_IP, IPPROTO_RAW, IPPROTO_TCP, IPPROTO_UDP, IPPROTO_UDPLITE },
-  [CONSOLE_TYPE(socket_type)]     = (const uint32_t[]){ IOT_SOCKET_SOCK_DGRAM, IOT_SOCKET_SOCK_STREAM },
-  [CONSOLE_TYPE(wifi_ap_flag)]    = (const uint32_t[]){ SL_WIFI_HIDDEN_SSID },
-  [CONSOLE_TYPE(wifi_band)]       = (const uint32_t[]){ SL_WIFI_BAND_2_4GHZ,
-                                                        SL_WIFI_BAND_5GHZ,
-                                                        SL_WIFI_BAND_60GHZ,
-                                                        SL_WIFI_BAND_6GHZ,
-                                                        SL_WIFI_BAND_900MHZ,
-                                                        SL_WIFI_AUTO_BAND },
-  [CONSOLE_TYPE(wifi_bandwidth)]  = (const uint32_t[]){ SL_WIFI_BANDWIDTH_10MHz,
-                                                        SL_WIFI_BANDWIDTH_160MHz,
-                                                        SL_WIFI_BANDWIDTH_20MHz,
-                                                        SL_WIFI_BANDWIDTH_40MHz,
-                                                        SL_WIFI_BANDWIDTH_80MHz },
-  [CONSOLE_TYPE(wifi_encryption)] = (const uint32_t[]){ SL_WIFI_CCMP_ENCRYPTION,
-                                                        SL_WIFI_EAP_FAST_ENCRYPTION,
-                                                        SL_WIFI_NO_ENCRYPTION,
-                                                        SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION,
-                                                        SL_WIFI_TKIP_ENCRYPTION,
-                                                        SL_WIFI_EAP_TLS_ENCRYPTION,
-                                                        SL_WIFI_EAP_TTLS_ENCRYPTION,
-                                                        SL_WIFI_WEP_ENCRYPTION },
-  [CONSOLE_TYPE(wifi_init_mode)]  = (const uint32_t[]){ 1, 2, 4, 0, 5, 3, 6 },
-  [CONSOLE_TYPE(wifi_interface)]  = (const uint32_t[]){ SL_WIFI_AP_2_4GHZ_INTERFACE,
-                                                        SL_WIFI_AP_5GHZ_INTERFACE,
-                                                        SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
-                                                        SL_WIFI_CLIENT_5GHZ_INTERFACE },
-  [CONSOLE_TYPE(wifi_security)]   = (const uint32_t[]){ SL_WIFI_OPEN,
-                                                        SL_WIFI_WEP,
-                                                        SL_WIFI_WPA,
-                                                        SL_WIFI_WPA2,
-                                                        SL_WIFI_WPA2_ENTERPRISE,
-                                                        SL_WIFI_WPA3,
-                                                        SL_WIFI_WPA3_TRANSITION,
-                                                        SL_WIFI_WPA_ENTERPRISE,
-                                                        SL_WIFI_WPA_WPA2_MIXED },
-  [CONSOLE_TYPE(wps_mode)]        = (const uint32_t[]){ SL_WIFI_WPS_PIN_MODE, SL_WIFI_WPS_PUSH_BUTTON_MODE },
+  [CONSOLE_TYPE(socket_type)]                = (const uint32_t[]){ IOT_SOCKET_SOCK_DGRAM, IOT_SOCKET_SOCK_STREAM },
+  [CONSOLE_TYPE(wifi_ap_flag)]               = (const uint32_t[]){ SL_WIFI_HIDDEN_SSID },
+  [CONSOLE_TYPE(wifi_band)]                  = (const uint32_t[]){ SL_WIFI_BAND_2_4GHZ,
+                                                                   SL_WIFI_BAND_5GHZ,
+                                                                   SL_WIFI_BAND_60GHZ,
+                                                                   SL_WIFI_BAND_6GHZ,
+                                                                   SL_WIFI_BAND_900MHZ,
+                                                                   SL_WIFI_AUTO_BAND },
+  [CONSOLE_TYPE(wifi_bandwidth)]             = (const uint32_t[]){ SL_WIFI_BANDWIDTH_10MHz,
+                                                                   SL_WIFI_BANDWIDTH_160MHz,
+                                                                   SL_WIFI_BANDWIDTH_20MHz,
+                                                                   SL_WIFI_BANDWIDTH_40MHz,
+                                                                   SL_WIFI_BANDWIDTH_80MHz },
+  [CONSOLE_TYPE(wifi_encryption)]            = (const uint32_t[]){ SL_WIFI_CCMP_ENCRYPTION,
+                                                                   SL_WIFI_EAP_FAST_ENCRYPTION,
+                                                                   SL_WIFI_NO_ENCRYPTION,
+                                                                   SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION,
+                                                                   SL_WIFI_TKIP_ENCRYPTION,
+                                                                   SL_WIFI_EAP_TLS_ENCRYPTION,
+                                                                   SL_WIFI_EAP_TTLS_ENCRYPTION,
+                                                                   SL_WIFI_WEP_ENCRYPTION },
+  [CONSOLE_TYPE(wifi_init_mode)]             = (const uint32_t[]){ 1, 2, 4, 0, 5, 3, 6, 7 },
+  [CONSOLE_TYPE(wifi_init_region)]           = (const uint32_t[]){ DEFAULT_REGION, US, EU, JP, WORLD_DOMAIN, KR, SG },
+  [CONSOLE_TYPE(ble_user_gain_table_region)] = (const uint32_t[]){ FCC, ETSI, TELEC, WORLD_WIDE, KCC },
+  [CONSOLE_TYPE(wifi_interface)]             = (const uint32_t[]){ SL_WIFI_AP_2_4GHZ_INTERFACE,
+                                                                   SL_WIFI_AP_5GHZ_INTERFACE,
+                                                                   SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
+                                                                   SL_WIFI_CLIENT_5GHZ_INTERFACE },
+  [CONSOLE_TYPE(wifi_security)]              = (const uint32_t[]){ SL_WIFI_OPEN,
+                                                                   SL_WIFI_WEP,
+                                                                   SL_WIFI_WPA,
+                                                                   SL_WIFI_WPA2,
+                                                                   SL_WIFI_WPA2_ENTERPRISE,
+                                                                   SL_WIFI_WPA3,
+                                                                   SL_WIFI_WPA3_TRANSITION,
+                                                                   SL_WIFI_WPA_ENTERPRISE,
+                                                                   SL_WIFI_WPA_WPA2_MIXED,
+                                                                   SL_WIFI_WPA3_ENTERPRISE,
+                                                                   SL_WIFI_WPA3_TRANSITION_ENTERPRISE },
+  [CONSOLE_TYPE(wps_mode)]                   = (const uint32_t[]){ SL_WIFI_WPS_PIN_MODE, SL_WIFI_WPS_PUSH_BUTTON_MODE },
 };
 
 #ifdef __cplusplus

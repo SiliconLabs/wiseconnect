@@ -25,10 +25,10 @@ include:
       - path: psa_ccm_app.h
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 component:
   - id: sl_system
   - id: freertos
@@ -39,7 +39,7 @@ component:
   - id: psa_crypto_trng
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: wifi
     from: wiseconnect3_sdk

@@ -453,7 +453,7 @@
 #define RSI_TX_TEST_NUM_PKTS 0
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #ifndef RSI_11AX_ENABLE
 //11AX_ENABLE 0-disable, 1-enable
 #define RSI_11AX_ENABLE 0
@@ -575,7 +575,7 @@
 
 #define RSI_SSL_RELEASE_2_0 RSI_ENABLE
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #ifndef RSI_SSL_EXT_CIPHERS
 #define RSI_SSL_EXT_CIPHERS SSL_TLSV1_3_ALL_CIPHERS
 #endif

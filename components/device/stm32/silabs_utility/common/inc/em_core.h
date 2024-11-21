@@ -34,7 +34,7 @@
  * @addtogroup core
  * @{
  ******************************************************************************/
-
+#include "stdint.h"
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
@@ -51,69 +51,27 @@ extern "C" {
 //  CRITICAL section macro API.
 //
 
-/** Allocate storage for PRIMASK or BASEPRI value for use by
- *  CORE_ENTER/EXIT_ATOMIC() and CORE_ENTER/EXIT_CRITICAL() macros. */
-#define CORE_DECLARE_IRQ_STATE
+ 
+/** Storage for PRIMASK or BASEPRI value. */
+typedef uint32_t CORE_irqState_t;
 
-/** CRITICAL style interrupt disable. */
-#define CORE_CRITICAL_IRQ_DISABLE()
+#define CORE_DECLARE_IRQ_STATE      CORE_irqState_t irqState
 
-/** CRITICAL style interrupt enable. */
-#define CORE_CRITICAL_IRQ_ENABLE()
+/// Enter CRITICAL section. Assumes that a @ref CORE_DECLARE_IRQ_STATE exist in
+/// scope.
+#define CORE_ENTER_CRITICAL() irqState = CORE_EnterCritical()
+ 
+/// Exit CRITICAL section. Assumes that a @ref CORE_DECLARE_IRQ_STATE exist in
+/// scope.
+#define CORE_EXIT_CRITICAL()  CORE_ExitCritical(irqState)
+ 
+CORE_irqState_t CORE_EnterAtomic(void);
 
-/** Convenience macro for implementing a CRITICAL section. */
-#define CORE_CRITICAL_SECTION(yourcode) \
-  {                                     \
-    CORE_DECLARE_IRQ_STATE;             \
-    CORE_ENTER_CRITICAL();              \
-    {                                   \
-      yourcode                          \
-    }                                   \
-    CORE_EXIT_CRITICAL();               \
-  }
+void CORE_ExitAtomic(CORE_irqState_t irqState);
 
-/** Enter CRITICAL section. Assumes that a @ref CORE_DECLARE_IRQ_STATE exist in
- *  scope. */
-#define CORE_ENTER_CRITICAL()
+CORE_irqState_t CORE_EnterCritical(void);
 
-/** Exit CRITICAL section. Assumes that a @ref CORE_DECLARE_IRQ_STATE exist in
- *  scope. */
-#define CORE_EXIT_CRITICAL()
-
-/** CRITICAL style yield. */
-#define CORE_YIELD_CRITICAL()
-
-//
-//  ATOMIC section macro API.
-//
-
-/** ATOMIC style interrupt disable. */
-#define CORE_ATOMIC_IRQ_DISABLE()
-
-/** ATOMIC style interrupt enable. */
-#define CORE_ATOMIC_IRQ_ENABLE()
-
-/** Convenience macro for implementing an ATOMIC section. */
-#define CORE_ATOMIC_SECTION(yourcode) \
-  {                                   \
-    CORE_DECLARE_IRQ_STATE;           \
-    CORE_ENTER_ATOMIC();              \
-    {                                 \
-      yourcode                        \
-    }                                 \
-    CORE_EXIT_ATOMIC();               \
-  }
-
-/** Enter ATOMIC section. Assumes that a @ref CORE_DECLARE_IRQ_STATE exist in
- *  scope. */
-#define CORE_ENTER_ATOMIC()
-
-/** Exit ATOMIC section. Assumes that a @ref CORE_DECLARE_IRQ_STATE exist in
- *  scope. */
-#define CORE_EXIT_ATOMIC()
-
-/** ATOMIC style yield. */
-#define CORE_YIELD_ATOMIC()
+void CORE_ExitCritical(CORE_irqState_t irqState);
 
 #ifdef __cplusplus
 }

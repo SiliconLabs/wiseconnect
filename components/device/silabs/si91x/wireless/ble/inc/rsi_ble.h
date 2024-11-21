@@ -1,19 +1,31 @@
 /*******************************************************************************
-* @file  rsi_ble.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ * @file  rsi_ble.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #ifndef RSI_BLE_H
 #define RSI_BLE_H
@@ -24,6 +36,9 @@
 /******************************************************
  * *                      Macros
  * ******************************************************/
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 /// Represents the BLE state when there is no active connection.
 #define RSI_BLE_STATE_NONE 0x00
@@ -71,7 +86,7 @@
 /******************************************************
  * *                   Enumerations
  * ******************************************************/
-/// enumeration for BLE advertising extension command request codes
+/// Enumeration for BLE advertising extension command request codes
 typedef enum RSI_BLE_CMD_AE_opcode_e {
   RSI_BLE_GET_AE_MAX_NO_OF_ADV_SETS  = 0x0001,
   RSI_BLE_GET_AE_MAX_ADV_DATA_LEN    = 0x0002,
@@ -90,7 +105,7 @@ typedef enum RSI_BLE_CMD_AE_opcode_e {
   RSI_BLE_AE_EXTENDED_CREATE_CONNECT = 0x000F,
 } RSI_BLE_CMD_AE_opcode_t;
 
-/// enumeration for BLE command request codes
+/// Enumeration for BLE command request codes
 typedef enum rsi_ble_cmd_request_e {
   RSI_BLE_REQ_HCI_RAW                                = 0x0050,
   RSI_BLE_REQ_ADV                                    = 0x0075,
@@ -184,7 +199,7 @@ typedef enum rsi_ble_cmd_request_e {
   RSI_BLE_REQ_CONN_ENHANCE                           = 0x1FFF, // Please add new cmd ids above this cmd id.
 } rsi_ble_cmd_request_t;
 
-/// enumeration for BLE command response codes
+/// Enumeration for BLE command response codes
 typedef enum rsi_ble_cmd_resp_e {
   RSI_BLE_RSP_ADVERTISE                     = 0x0075,
   RSI_BLE_RSP_SCAN                          = 0x0076,
@@ -278,7 +293,7 @@ typedef enum rsi_ble_cmd_resp_e {
   RSI_BLE_RSP_WRITE_RF_PATH_COMP  = 0x0174,
 } rsi_ble_cmd_resp_t;
 
-/// enumeration for BLE event codes
+/// Enumeration for BLE event codes
 typedef enum rsi_ble_event_e {
   RSI_BLE_EVENT_DISCONNECT                   = 0x1006,
   RSI_BLE_EVENT_GATT_ERROR_RESPONSE          = 0x1500,
@@ -342,13 +357,14 @@ typedef enum rsi_ble_event_e {
   RSI_BLE_EVENT_RCP_DATA_RCVD               = 0x15FF,
 } rsi_ble_event_t;
 
+/// Enumerations for smp failure error
 typedef enum {
   RSI_SMP_PAIRING_NOT_SUPPORTED = 0x05,
   RSI_SMP_UNSPECIFIED_REASON    = 0x08,
   RSI_SMP_REPEATED_ATTEMPTS     = 0x09,
 } smp_failure_error;
 
-/// enumerations for call back types
+/// Enumerations for call back types
 typedef enum rsi_ble_callback_id_e {
   RSI_BLE_ON_CTKD                                    = 1,
   RSI_BLE_ON_ADV_EXT_ADVERTISE_REPORT_EVENT          = 2,
@@ -359,7 +375,7 @@ typedef enum rsi_ble_callback_id_e {
   RSI_BLE_ON_ADV_EXT_ADVERTISE_SET_TERMINATED_EVENT  = 7,
   RSI_BLE_ON_ADV_EXT_SCAN_REQUEST_RECEIVED_EVENT     = 8,
 } rsi_ble_callback_id_t;
-
+/** @} */
 /********************************************************
  * *                 Structure Definitions
  * ******************************************************/
@@ -528,9 +544,8 @@ typedef struct rsi_ble_req_acceptlist_using_payload_s {
   uint8_t adv_data_payload[31];
 } rsi_ble_req_acceptlist_using_payload_t;
 
-/**
- * \addtogroup ble_macros
- * @{
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
  */
 /// BLE protocol identifier.
 #define BLE_PROTOCOL 0x01
@@ -547,6 +562,7 @@ typedef struct rsi_ble_req_acceptlist_using_payload_s {
 /// Connection role identifier.
 #define CONN_ROLE 0x04
 /** @} */
+
 // Set BLE tx power cmd_ix=0x012D
 
 /**
@@ -762,6 +778,9 @@ typedef struct rsi_ble_req_enhance_conn_s {
 typedef struct rsi_ble_req_disconnect_s {
   /** Address of the device to disconnect */
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 /// Indicates compatibility mode for BLE operations.
 #define COMPATABILITY 0
@@ -769,7 +788,7 @@ typedef struct rsi_ble_req_disconnect_s {
 #define BLE_CONNECT_CANCEL 1
 /// Command to disconnect an established BLE connection.
 #define BLE_DISCONNECT 2
-
+  /** @} */
   /** Type of the disconnect operation */
   uint8_t type;
 } rsi_ble_req_disconnect_t;
@@ -1043,7 +1062,6 @@ typedef struct rsi_ble_cbfc_conn_req_s {
   /** Protocol/Service Multiplexer (PSM) value */
   uint8_t psm;
 } rsi_ble_cbfc_conn_req_t;
-/** @} */
 
 //LE cbfc connection resp command structure, cmd_ix - 0x00B6
 
@@ -1114,10 +1132,7 @@ typedef struct rsi_ble_rx_test_mode_s {
   uint8_t modulation;
 } rsi_ble_rx_test_mode_t;
 
-/** @addtogroup BT_BLE_TYPES 
-  * @{ */
 //LE TX test mode (cmd), cmd_ix = 0x00BC
-
 /**
  * @brief Structure representing the BLE TX test mode parameters.
  *
@@ -1639,6 +1654,9 @@ typedef struct rsi_ble_set_local_irk_s {
 } rsi_ble_set_local_irk_t;
 
 // BLE GAP extended callback ids
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 /**
  * 
@@ -1653,12 +1671,6 @@ typedef enum rsi_ble_gap_extended_callbacks_s {
   /** Callback type for RCP (Remote Control Protocol) events */
   RSI_BLE_ON_RCP_EVENT = 2,
 } rsi_ble_gap_extended_callbacks_t;
-
-/**
- * \addtogroup ble_macros
- * @{
- */
-
 //attribute codes
 /// Attribute Protocol (ATT) Exchange MTU request.
 #define RSI_BLE_ATT_EXCHANGE_MTU_REQUEST 0x02
@@ -1682,7 +1694,6 @@ typedef enum rsi_ble_gap_extended_callbacks_s {
 #define RSI_BLE_ATT_PREPARE_WRITE_REQUEST 0x16
 /// Attribute Protocol (ATT) Execute Write request.
 #define RSI_BLE_ATT_EXECUTE_WRITE_REQUEST 0x18
-
 /** @} */
 
 // Att error response cmd = 0x00C1
@@ -1901,13 +1912,13 @@ typedef struct ae_adv_params_s {
  */
 typedef struct rsi_ble_ae_data_s {
 
-/**
- * \addtogroup ble_macros
- * @{
+  /** @addtogroup BT_BLE_CONSTANTS
+ *  @{
  */
-/// Advertising Extension (AE) advertising data.
+
+  /// Advertising Extension (AE) advertising data.
 #define AE_ADV_DATA 0x01
-/// Advertising Extension (AE) scan response data.
+  /// Advertising Extension (AE) scan response data.
 #define AE_SCAN_RSP_DATA 0x02
   /** @} */
   /** uint8_t AE_ADV_DATA_TYPE 1, AE_PERIODIC_ADV_DATA_TYPE 2, AE_SCAN_RSP_DATA_TYPE 3 */
@@ -2034,14 +2045,12 @@ typedef struct ae_scan_params_s {
 } SL_ATTRIBUTE_PACKED ae_scan_params_t;
 
 //AE set sacn params
-/**
- * \addtogroup ble_macros
- * @{
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
  */
 /// Indicates the number of supported scanning physical channels.
 #define SUPPORTED_SCNNING_PHYS 2
 /** @} */
-
 /**
  * @brief Structure to set the scan parameters for BLE Active Scanning.
  */
@@ -2161,7 +2170,6 @@ typedef struct rsi_ble_ae_set_periodic_adv_create_sync_s {
   /** Reserved for future use */
   uint8_t reserved;
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_set_periodic_adv_create_sync_t;
-
 /**
  * 
  * @brief Structure to set periodic advertising and terminate synchronization.
@@ -2181,13 +2189,17 @@ typedef struct rsi_ble_ae_set_periodic_adv_terminate_sync_s {
  * for Advertising Extension in a BLE device.
  */
 typedef struct rsi_ble_ae_set_periodic_sync_s {
-/// Command to create a periodic synchronization for Advertising Extension.
-#define BLE_AE_PERIODIC_SYNC_CREATE 0x01
-/// Command to cancel the creation of a periodic synchronization for Advertising Extension.
-#define BLE_AE_PERIODIC_SYNC_CREATE_CANCEL 0x02
-/// Command to terminate a periodic synchronization for Advertising Extension.
-#define BLE_AE_PERIODIC_SYNC_TERMINATE 0x03
+  /** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
+  /// Command to create a periodic synchronization for Advertising Extension.
+#define BLE_AE_PERIODIC_SYNC_CREATE 0x01
+  /// Command to cancel the creation of a periodic synchronization for Advertising Extension.
+#define BLE_AE_PERIODIC_SYNC_CREATE_CANCEL 0x02
+  /// Command to terminate a periodic synchronization for Advertising Extension.
+#define BLE_AE_PERIODIC_SYNC_TERMINATE 0x03
+  /** @} */
   uint8_t type; ///< Type of the periodic synchronization command.
   union {
     rsi_ble_ae_set_periodic_adv_create_sync_t create_sync; ///< Parameters for creating periodic synchronization.
@@ -2391,9 +2403,15 @@ typedef struct rsi_ble_ae_pdu {
 
 /** @} */
 
-// Driver BLE control block
 /**
+ * \addtogroup rsi_ble_cb_s_group rsi_ble_cb_s Driver BLE control block
+ * @brief Driver BLE control block group
  * 
+ * @ingroup BT_BLE_TYPES
+ * @{
+ */
+
+/**
  * @brief Structure representing the BLE control block.
  *
  * This structure contains various callback functions for handling BLE events,
@@ -2401,122 +2419,383 @@ typedef struct rsi_ble_ae_pdu {
  */
 struct rsi_ble_cb_s {
 
-  /// GAP Callbacks
-  rsi_ble_on_adv_report_event_t
-    ble_on_adv_report_event;                       ///< ble_on_adv_report_event: Advertising report event callback.
-  rsi_ble_on_connect_t ble_on_conn_status_event;   ///< ble_on_conn_status_event: Connection status event callback.
-  rsi_ble_on_disconnect_t ble_on_disconnect_event; ///< ble_on_disconnect_event: Disconnect event callback.
-  rsi_ble_on_le_ping_payload_timeout_t
-    ble_on_le_ping_time_expired_event; ///< ble_on_le_ping_time_expired_event: LE ping payload timeout event callback.
-  rsi_ble_on_conn_update_complete_t
-    ble_on_conn_update_complete_event; ///< ble_on_conn_update_complete_event: Connection update complete event callback.
-  rsi_ble_on_remote_features_t
-    ble_on_remote_features_event; ///< ble_on_remote_features_event: Remote features event callback.
-  rsi_ble_on_remote_device_info_t
-    ble_on_remote_device_info_event; ///< ble_on_remote_device_info_event: Remote device info event callback.
-  rsi_ble_on_le_more_data_req_t
-    ble_on_le_more_data_req_event; ///< ble_on_le_more_data_req_event: LE more data request event callback.
-  rsi_ble_on_remote_conn_params_request_t
-    ble_on_remote_conn_params_request_event; ///< ble_on_remote_conn_params_request_event: Remote connection parameters request event callback.
+  /**
+     * \addtogroup gap_callbacks_group GAP Callbacks Group
+     * @brief Group for GAP callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
 
-  /// SMP Callbacks
-  rsi_ble_on_smp_request_t ble_on_smp_request_event;   ///< ble_on_smp_request_event: SMP request event callback.
-  rsi_ble_on_smp_response_t ble_on_smp_response_event; ///< ble_on_smp_response_event: SMP response event callback.
-  rsi_ble_on_smp_response_t
-    ble_on_cli_smp_response_event; ///< ble_on_cli_smp_response_event: Client SMP response event callback.
-  rsi_ble_on_smp_passkey_t ble_on_smp_passkey_event; ///< ble_on_smp_passkey_event: SMP passkey event callback.
-  rsi_ble_on_smp_failed_t ble_on_smp_fail_event;     ///< ble_on_smp_fail_event: SMP failed event callback.
-  rsi_ble_on_encrypt_started_t
-    ble_on_smp_encrypt_started;                  ///< ble_on_smp_encrypt_started: SMP encryption started event callback.
-  rsi_ble_on_sc_method_t ble_on_sc_method_event; ///< ble_on_sc_method_event: Secure connections method event callback.
+  /**
+   * @brief Advertising report event callback.
+   */
+  rsi_ble_on_adv_report_event_t ble_on_adv_report_event;
 
-  /// GATT Callbacks
-  rsi_ble_on_profiles_list_resp_t
-    ble_on_profiles_list_resp;                   ///< ble_on_profiles_list_resp: Profiles list response callback.
-  rsi_ble_on_profile_resp_t ble_on_profile_resp; ///< ble_on_profile_resp: Profile response callback.
-  rsi_ble_on_char_services_resp_t
-    ble_on_char_services_resp; ///< ble_on_char_services_resp: Characteristic services response callback.
-  rsi_ble_on_inc_services_resp_t
-    ble_on_inc_services_resp;                       ///< ble_on_inc_services_resp: Included services response callback.
-  rsi_ble_on_att_desc_resp_t ble_on_att_desc_resp;  ///< ble_on_att_desc_resp: Attribute description response callback.
-  rsi_ble_on_read_resp_t ble_on_read_resp;          ///< ble_on_read_resp: Read response callback.
-  rsi_ble_on_write_resp_t ble_on_write_resp;        ///< ble_on_write_resp: Write response callback.
-  rsi_ble_on_gatt_write_event_t ble_on_gatt_events; ///< ble_on_gatt_events: GATT write event callback.
-  rsi_ble_on_gatt_prepare_write_event_t
-    ble_on_prepare_write_event; ///< ble_on_prepare_write_event: Prepare write event callback.
-  rsi_ble_on_execute_write_event_t
-    ble_on_execute_write_event;                      ///< ble_on_execute_write_event: Execute write event callback.
-  rsi_ble_on_read_req_event_t ble_on_read_req_event; ///< ble_on_read_req_event: Read request event callback.
-  rsi_ble_on_mtu_event_t ble_on_mtu_event;           ///< ble_on_mtu_event: MTU event callback.
-  rsi_ble_on_gatt_error_resp_t
-    ble_on_gatt_error_resp_event; ///< ble_on_gatt_error_resp_event: GATT error response event callback.
-  rsi_ble_on_gatt_desc_val_event_t
-    ble_on_gatt_desc_val_resp_event; ///< ble_on_gatt_desc_val_resp_event: GATT descriptor value response event callback.
-  rsi_ble_on_event_profiles_list_t
-    ble_on_profiles_list_event; ///< ble_on_profiles_list_event: Profiles list event callback.
-  rsi_ble_on_event_profile_by_uuid_t
-    ble_on_profile_by_uuid_event; ///< ble_on_profile_by_uuid_event: Profile by UUID event callback.
-  rsi_ble_on_event_read_by_char_services_t
-    ble_on_read_by_char_services_event; ///< ble_on_read_by_char_services_event: Read by characteristic services event callback.
-  rsi_ble_on_event_read_by_inc_services_t
-    ble_on_read_by_inc_services_event; ///< ble_on_read_by_inc_services_event: Read by included services event callback.
-  rsi_ble_on_event_read_att_value_t
-    ble_on_read_att_value_event; ///< ble_on_read_att_value_event: Read attribute value event callback.
-  rsi_ble_on_event_read_resp_t ble_on_read_resp_event;   ///< ble_on_read_resp_event: Read response event callback.
-  rsi_ble_on_event_write_resp_t ble_on_write_resp_event; ///< ble_on_write_resp_event: Write response event callback.
-  rsi_ble_on_event_indicate_confirmation_t
-    ble_on_indicate_confirmation_event; ///< ble_on_indicate_confirmation_event: Indicate confirmation event callback.
-  rsi_ble_on_event_prepare_write_resp_t
-    ble_on_prepare_write_resp_event; ///< ble_on_prepare_write_resp_event: Prepare write response event callback.
+  /**
+   * @brief Connection status event callback.
+   */
+  rsi_ble_on_connect_t ble_on_conn_status_event;
 
-  rsi_ble_on_mtu_exchange_info_t
-    ble_on_mtu_exchange_info_event; ///< ble_on_mtu_exchange_info_event: MTU exchange info event callback.
+  /**
+   * @brief Disconnect event callback.
+   */
+  rsi_ble_on_disconnect_t ble_on_disconnect_event;
 
-  rsi_ble_on_phy_update_complete_t
-    ble_on_phy_update_complete_event; ///< ble_on_phy_update_complete_event: PHY update complete event callback.
-  rsi_ble_on_data_length_update_t
-    rsi_ble_on_data_length_update_event; ///< rsi_ble_on_data_length_update_event: Data length update event callback.
+  /**
+   * @brief LE ping payload timeout event callback.
+   */
+  rsi_ble_on_le_ping_payload_timeout_t ble_on_le_ping_time_expired_event;
 
-  rsi_ble_on_enhance_connect_t
-    ble_on_enhance_conn_status_event; ///< ble_on_enhance_conn_status_event: Enhanced connection status event callback.
-  rsi_ble_on_directed_adv_report_event_t
-    ble_on_directed_adv_report_event; ///< ble_on_directed_adv_report_event: Directed advertising report event callback.
-  rsi_ble_on_le_ltk_req_event_t ble_on_le_ltk_req_event; ///< ble_on_le_ltk_req_event: LE LTK request event callback.
-  rsi_ble_on_smp_passkey_display_t
-    ble_on_smp_passkey_display;              ///< ble_on_smp_passkey_display: SMP passkey display event callback.
-  rsi_ble_on_sc_passkey_t ble_on_sc_passkey; ///< ble_on_sc_passkey: Secure connections passkey event callback.
-  rsi_ble_on_le_security_keys_t
-    ble_on_le_security_keys_event; ///< ble_on_le_security_keys_event: LE security keys event callback.
+  /**
+   * @brief PHY update complete event callback.
+   */
+  rsi_ble_on_phy_update_complete_t ble_on_phy_update_complete_event;
 
-  /// L2CAP CBFC callbacks
-  rsi_ble_on_cbfc_conn_req_event_t
-    ble_on_cbfc_conn_req_event; ///< ble_on_cbfc_conn_req_event: CBFC connection request event callback.
-  rsi_ble_on_cbfc_conn_complete_event_t
-    ble_on_cbfc_conn_complete_event; ///< ble_on_cbfc_conn_complete_event: CBFC connection complete event callback.
-  rsi_ble_on_cbfc_rx_data_event_t
-    ble_on_cbfc_rx_data_event; ///< ble_on_cbfc_rx_data_event: CBFC receive data event callback.
-  rsi_ble_on_cbfc_disconn_event_t
-    ble_on_cbfc_disconn_event; ///< ble_on_cbfc_disconn_event: CBFC disconnect event callback.
-  chip_ble_buffers_stats_handler_t
-    ble_on_chip_memory_status_event; ///< ble_on_chip_memory_status_event: Chip memory status event callback.
+  /**
+   * @brief Data length update event callback.
+   */
+  rsi_ble_on_data_length_update_t rsi_ble_on_data_length_update_event;
 
-  /// AE events callbacks
-  rsi_ble_ae_report_complete_t
-    ble_ae_report_complete_event; ///< ble_ae_report_complete_event: AE report complete event callback.
-  rsi_ble_ae_per_adv_sync_estbl_t
-    ble_ae_per_adv_sync_estbl_event; ///< ble_ae_per_adv_sync_estbl_event: AE periodic advertising sync established event callback.
-  rsi_ble_ae_per_adv_report_t
-    ble_ae_per_adv_report_event; ///< ble_ae_per_adv_report_event: AE periodic advertising report event callback.
-  rsi_ble_ae_per_adv_sync_lost_t
-    ble_ae_per_adv_sync_lost_event; ///< ble_ae_per_adv_sync_lost_event: AE periodic advertising sync lost event callback.
-  rsi_ble_ae_scan_timeout_t ble_ae_scan_timeout_event; ///< ble_ae_scan_timeout_event: AE scan timeout event callback.
-  rsi_ble_ae_adv_set_terminated_t
-    ble_ae_adv_set_terminated_event; ///< ble_ae_adv_set_terminated_event: AE advertising set terminated event callback.
-  rsi_ble_ae_scan_req_recvd_t
-    ble_ae_scan_req_recvd_event; ///< ble_ae_scan_req_recvd_event: AE scan request received event callback.
-  rsi_ble_on_rcp_resp_rcvd_t
-    ble_on_rcp_resp_rcvd_event; ///< ble_on_rcp_resp_rcvd_event: RCP response received event callback.
+  /**
+   * @brief Enhanced connection status event callback.
+   */
+  rsi_ble_on_enhance_connect_t ble_on_enhance_conn_status_event;
+
+  /**
+   * @brief Directed advertising report event callback.
+   */
+  rsi_ble_on_directed_adv_report_event_t ble_on_directed_adv_report_event;
+
+  /**
+   * @brief Connection update complete event callback.
+   */
+  rsi_ble_on_conn_update_complete_t ble_on_conn_update_complete_event;
+
+  /**
+   * @brief Remote connection parameters request event callback.
+   */
+  rsi_ble_on_remote_conn_params_request_t ble_on_remote_conn_params_request_event;
+
+  /** @} */ // end of gap_callbacks_group
+
+  /**
+     * \addtogroup gap_extended_callbacks_group GAP Extended Callbacks Group 
+     * @brief Group for GAP Extended callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+  /**
+   * @brief Remote device info event callback.
+   */
+  rsi_ble_on_remote_device_info_t ble_on_remote_device_info_event;
+
+  /**
+   * @brief Remote features event callback.
+   */
+  rsi_ble_on_remote_features_t ble_on_remote_features_event;
+
+  /**
+   * @brief LE more data request event callback.
+   */
+  rsi_ble_on_le_more_data_req_t ble_on_le_more_data_req_event;
+
+  /** @} */ // end of gap_extended_callbacks_group
+
+  /**
+     * \addtogroup smp_callbacks_group SMP Callbacks Group
+     * @brief Group for SMP callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+  /**
+   * @brief SMP request event callback.
+   */
+  rsi_ble_on_smp_request_t ble_on_smp_request_event;
+
+  /**
+   * @brief SMP response event callback.
+   */
+  rsi_ble_on_smp_response_t ble_on_smp_response_event;
+
+  /**
+   * @brief SMP passkey event callback.
+   */
+  rsi_ble_on_smp_passkey_t ble_on_smp_passkey_event;
+
+  /**
+   * @brief SMP failed event callback.
+   */
+  rsi_ble_on_smp_failed_t ble_on_smp_fail_event;
+
+  /**
+   * @brief SMP encryption started event callback.
+   */
+  rsi_ble_on_encrypt_started_t ble_on_smp_encrypt_started;
+
+  /**
+   * @brief SMP passkey display event callback.
+   */
+  rsi_ble_on_smp_passkey_display_t ble_on_smp_passkey_display;
+
+  /**
+   * @brief Secure connections passkey event callback.
+   */
+  rsi_ble_on_sc_passkey_t ble_on_sc_passkey;
+
+  /**
+   * @brief LE LTK request event callback.
+   */
+  rsi_ble_on_le_ltk_req_event_t ble_on_le_ltk_req_event;
+
+  /**
+   * @brief LE security keys event callback.
+   */
+  rsi_ble_on_le_security_keys_t ble_on_le_security_keys_event;
+
+  /**
+   * @brief Client SMP response event callback.
+   */
+  rsi_ble_on_smp_response_t ble_on_cli_smp_response_event;
+
+  /**
+   * @brief Secure connections method event callback.
+   */
+  rsi_ble_on_sc_method_t ble_on_sc_method_event;
+
+  /** @} */ // end of smp_callbacks_group
+
+  /**
+     * \addtogroup gatt_callbacks_group GATT Callbacks Group
+     * @brief Group for GATT callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+  /**
+   * @brief Profiles list response callback.
+   */
+  rsi_ble_on_profiles_list_resp_t ble_on_profiles_list_resp;
+
+  /**
+   * @brief Profile response callback.
+   */
+  rsi_ble_on_profile_resp_t ble_on_profile_resp;
+
+  /**
+   * @brief Characteristic services response callback.
+   */
+  rsi_ble_on_char_services_resp_t ble_on_char_services_resp;
+
+  /**
+   * @brief Included services response callback.
+   */
+  rsi_ble_on_inc_services_resp_t ble_on_inc_services_resp;
+
+  /**
+   * @brief Attribute description response callback.
+   */
+  rsi_ble_on_att_desc_resp_t ble_on_att_desc_resp;
+
+  /**
+   * @brief Read response callback.
+   */
+  rsi_ble_on_read_resp_t ble_on_read_resp;
+
+  /**
+   * @brief Write response callback.
+   */
+  rsi_ble_on_write_resp_t ble_on_write_resp;
+
+  /**
+   * @brief GATT write event callback.
+   */
+  rsi_ble_on_gatt_write_event_t ble_on_gatt_events;
+
+  /**
+   * @brief Prepare write event callback.
+   */
+  rsi_ble_on_gatt_prepare_write_event_t ble_on_prepare_write_event;
+
+  /**
+   * @brief Execute write event callback.
+   */
+  rsi_ble_on_execute_write_event_t ble_on_execute_write_event;
+
+  /**
+   * @brief Read request event callback.
+   */
+  rsi_ble_on_read_req_event_t ble_on_read_req_event;
+
+  /**
+   * @brief MTU event callback.
+   */
+  rsi_ble_on_mtu_event_t ble_on_mtu_event;
+
+  /**
+   * @brief GATT error response event callback.
+   */
+  rsi_ble_on_gatt_error_resp_t ble_on_gatt_error_resp_event;
+
+  /**
+   * @brief GATT descriptor value response event callback.
+   */
+  rsi_ble_on_gatt_desc_val_event_t ble_on_gatt_desc_val_resp_event;
+
+  /**
+   * @brief Profiles list event callback.
+   */
+  rsi_ble_on_event_profiles_list_t ble_on_profiles_list_event;
+
+  /**
+   * @brief Profile by UUID event callback.
+   */
+  rsi_ble_on_event_profile_by_uuid_t ble_on_profile_by_uuid_event;
+
+  /**
+   * @brief Read by characteristic services event callback.
+   */
+  rsi_ble_on_event_read_by_char_services_t ble_on_read_by_char_services_event;
+
+  /**
+   * @brief Read by included services event callback.
+   */
+  rsi_ble_on_event_read_by_inc_services_t ble_on_read_by_inc_services_event;
+
+  /**
+   * @brief Read attribute value event callback.
+   */
+  rsi_ble_on_event_read_att_value_t ble_on_read_att_value_event;
+
+  /**
+   * @brief Read response event callback.
+   */
+  rsi_ble_on_event_read_resp_t ble_on_read_resp_event;
+
+  /**
+   * @brief Write response event callback.
+   */
+  rsi_ble_on_event_write_resp_t ble_on_write_resp_event;
+
+  /**
+   * @brief Indicate confirmation event callback.
+   */
+  rsi_ble_on_event_indicate_confirmation_t ble_on_indicate_confirmation_event;
+
+  /**
+   * @brief Prepare write response event callback.
+   */
+  rsi_ble_on_event_prepare_write_resp_t ble_on_prepare_write_resp_event;
+
+  /** @} */ // end of gatt_callbacks_group
+
+  /**
+     * \addtogroup gatt_extended_callbacks_group GATT Extended Callbacks Group
+     * @brief Group for GATT extended callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+
+  /**
+   * @brief MTU exchange info event callback.
+   * @note extended
+   */
+  rsi_ble_on_mtu_exchange_info_t ble_on_mtu_exchange_info_event;
+
+  /** @} */ // end of gatt_extended_callbacks_group
+
+  /**
+     * \addtogroup l2cap_callbacks_group L2CAP Callbacks Group
+     * @brief Group for L2CAP callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+  /**
+   * @brief CBFC connection request event callback.
+   */
+  rsi_ble_on_cbfc_conn_req_event_t ble_on_cbfc_conn_req_event;
+
+  /**
+   * @brief CBFC connection complete event callback.
+   */
+  rsi_ble_on_cbfc_conn_complete_event_t ble_on_cbfc_conn_complete_event;
+
+  /**
+   * @brief CBFC receive data event callback.
+   */
+  rsi_ble_on_cbfc_rx_data_event_t ble_on_cbfc_rx_data_event;
+
+  /**
+   * @brief CBFC disconnect event callback.
+   */
+  rsi_ble_on_cbfc_disconn_event_t ble_on_cbfc_disconn_event;
+
+  /** @} */ // end of l2cap_callbacks_group
+
+  /**
+     * \addtogroup chip_memory_status_callbacks_group Chip Memory Status Callbacks Group
+     * @brief Group for Chip memory status callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+
+  /**
+   * @brief Chip memory status event callback.
+   * @note rsi_ble_on_chip_memory_status_callbacks_register
+   */
+  chip_ble_buffers_stats_handler_t ble_on_chip_memory_status_event;
+
+  /** @} */ // end of chip_memory_status_callbacks_group
+
+  /**
+     * \addtogroup ae_callbacks_group AE Callbacks Group
+     * @brief Group for AE callbacks.
+     * @ingroup rsi_ble_cb_s_group
+     * @{
+     */
+  /**
+   * @brief AE report complete event callback.
+   */
+  rsi_ble_ae_report_complete_t ble_ae_report_complete_event;
+
+  /**
+   * @brief AE periodic advertising sync established event callback.
+   */
+  rsi_ble_ae_per_adv_sync_estbl_t ble_ae_per_adv_sync_estbl_event;
+
+  /**
+   * @brief AE periodic advertising report event callback.
+   */
+  rsi_ble_ae_per_adv_report_t ble_ae_per_adv_report_event;
+
+  /**
+   * @brief AE periodic advertising sync lost event callback.
+   */
+  rsi_ble_ae_per_adv_sync_lost_t ble_ae_per_adv_sync_lost_event;
+
+  /**
+   * @brief AE scan timeout event callback.
+   */
+  rsi_ble_ae_scan_timeout_t ble_ae_scan_timeout_event;
+
+  /**
+   * @brief AE advertising set terminated event callback.
+   */
+  rsi_ble_ae_adv_set_terminated_t ble_ae_adv_set_terminated_event;
+
+  /**
+   * @brief AE scan request received event callback.
+   */
+  rsi_ble_ae_scan_req_recvd_t ble_ae_scan_req_recvd_event;
+
+  /**
+   * @brief RCP response received event callback.
+   * 
+   */
+  rsi_ble_on_rcp_resp_rcvd_t ble_on_rcp_resp_rcvd_event;
+
+  /** @} */ // end of ae_callbacks_group
 };
+
+/** @} */ // end of rsi_ble_cb_s_group
 
 /******************************************************
  * * BLE internal function declarations

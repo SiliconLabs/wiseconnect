@@ -51,7 +51,6 @@
 #define RSI_NUMBER_OF_LTCP_SOCKETS 0
 
 //! Default number of sockets supported,max 10 sockets are supported
-//#define RSI_NUMBER_OF_SOCKETS (2 + RSI_NUMBER_OF_LTCP_SOCKETS)
 #define RSI_NUMBER_OF_SOCKETS (6 + RSI_NUMBER_OF_LTCP_SOCKETS)
 
 //! Default number of sockets supported,max 10 selects are supported

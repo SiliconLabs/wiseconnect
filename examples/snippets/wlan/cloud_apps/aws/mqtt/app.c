@@ -46,6 +46,7 @@
 #include "sl_si91x_socket.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_power_manager.h"
 #include "sl_si91x_m4_ps.h"
 #include "sl_si91x_driver_gpio.h"
 #endif
@@ -176,7 +177,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
                       | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -608,7 +609,7 @@ sl_status_t start_aws_mqtt(void)
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #if (SL_SI91X_TICKLESS_MODE == 0)
-          sl_si91x_m4_sleep_wakeup();
+          sl_si91x_power_manager_sleep();
 #else
           printf("\rM4 going to power save state..\r\n");
           printf("\rselect_given before sleep: %d\r\n", select_given);

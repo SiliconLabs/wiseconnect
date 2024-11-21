@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_dac.c
- * @brief DAC API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_dac.c
+* @brief DAC API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_dac.h"
 #include "clock_update.h"
 #include "aux_reference_volt_config.h"
@@ -61,7 +61,7 @@
 #define DAC_RELEASE_VERSION           0 // DAC Release version
 #define DAC_SQA_VERSION               0 // DAC SQA version
 #define DAC_DEV_VERSION               1 // DAC Developer version
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 //DAC1 with OPAMP1
 #define OPAMP_OUT_MUX_SEL      1 /* set 1 to send OpAmp output at GPIO_30 */
 #define OPAMP_DYN_MODE_EN      0 /*OPAMP Dynamic mode*/
@@ -187,7 +187,7 @@ sl_status_t sl_si91x_dac_set_configuration(sl_dac_config_t dac_config, float vre
     DAC_Init(dac_config.operating_mode, dac_config.dac_sample_rate, dac_callback_event_handler);
     DAC_PinMux_config(dac_config.dac_pin, dac_config.dac_port);
     if (dac_config.operating_mode != SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC) {
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
       // Setting up the DAC output to be an input for OPAMP1.
       RSI_OPAMP1_UGB(DAC_OUTPUT_INPUT_OPAMP,
                      ENABLE,

@@ -9,6 +9,9 @@ description: >
   The application default points to M4 instance, in which toggling of gpio is performed.
 category: Device|Si91x|MCU|Peripheral|Register-Level API
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_peripheral_drivers"
 source:
   - path: "src/sl_si91x_peripheral_gpio.c"

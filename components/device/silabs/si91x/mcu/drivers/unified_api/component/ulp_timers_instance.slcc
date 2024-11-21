@@ -16,6 +16,9 @@ description: >
   ULP Timer Supports instances.
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 instantiable:
   prefix: inst
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

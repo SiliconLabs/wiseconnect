@@ -71,8 +71,9 @@ typedef struct sl_memlcd_t {
  * @param[in] device Memory LCD Display device pointer.
  * 
  * @return Status code of the operation:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Failure.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Failure.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_memlcd_configure(struct sl_memlcd_t *device);
 /***************************************************************************/
@@ -105,6 +106,9 @@ void sl_memlcd_display_disable(void);
  * order to disable the display.
  *
  * @return status code of the operation.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Failure.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 
 sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on);
@@ -117,8 +121,9 @@ sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on);
  * from a low-power state.
  * 
  * @return Status code of the operation:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Failure.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Failure.
+ *  For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_memlcd_post_wakeup_init(void);
 
@@ -130,6 +135,7 @@ sl_status_t sl_memlcd_post_wakeup_init(void);
  * @param[in] device Memory LCD Display device pointer.
  *
  * @return Status code of the operation.
+ *  For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_memlcd_clear(const struct sl_memlcd_t *device);
 
@@ -148,6 +154,7 @@ sl_status_t sl_memlcd_clear(const struct sl_memlcd_t *device);
  * @param[in] row_count Number of rows to draw.
  * 
  * @return SL_STATUS_OK if there are no errors.
+ *  For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_memlcd_draw(const struct sl_memlcd_t *device,
                            const void *data,
@@ -164,8 +171,9 @@ sl_status_t sl_memlcd_draw(const struct sl_memlcd_t *device,
  * @param[in] device Memory LCD Display device pointer.
  * 
  * @return Status code of the operation:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Failure.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Failure.
+ *  For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_memlcd_refresh(const struct sl_memlcd_t *device);
 
@@ -189,7 +197,7 @@ const sl_memlcd_t *sl_memlcd_get(void);
 *
 *  @details
 *
-*  @n @section MEMLCD_Custom Custom-Memory-LCD
+*   @section MEMLCD_Custom Custom-Memory-LCD
 *
 *   The custom memory LCD module enables the implementation of an
 *   LCD driver that is incompatible with existing interfaces. To
@@ -198,11 +206,11 @@ const sl_memlcd_t *sl_memlcd_get(void);
 *   The LCD driver and the communication needs to be implemented manually.
 *   However, some APIs must be implemented and the @ref sl_memlcd_t
 *   structure must be initialized for the GLIB library to work properly.
-*   The APIs to implement are [sl_memlcd_init](https://docs.silabs.com/gecko-platform/5.0.1/platform-hardware-driver/memlcd#sl-memlcd-init), @ref sl_memlcd_power_on,
+*   The APIs to implement are [sl_memlcd_init](https://docs.silabs.com/gecko-platform/latest/platform-hardware-driver/memlcd#sl-memlcd-init), @ref sl_memlcd_power_on,
 *   @ref sl_memlcd_draw and @ref sl_memlcd_get and they must follow the same
 *   declaration as shown in the documentation.
 *
-*   In the [sl_memlcd_init](https://docs.silabs.com/gecko-platform/5.0.1/platform-hardware-driver/memlcd#sl-memlcd-init) API, it is important to initialize a
+*   In the [sl_memlcd_init](https://docs.silabs.com/gecko-platform/latest/platform-hardware-driver/memlcd#sl-memlcd-init) API, it is important to initialize a
 *   @ref sl_memlcd_t type variable and fill in the "height" and "width" fields
 *   with the real specifications of the LCD display. This same variable must be
 *   accessible from the @ref sl_memlcd_get API as the GLIB library will

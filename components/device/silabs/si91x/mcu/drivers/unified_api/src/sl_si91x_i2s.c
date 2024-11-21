@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_i2s.c
- * @brief I2S API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_i2s.c
+* @brief I2S API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #include "rsi_i2s.h"
 #include "rsi_rom_clks.h"
@@ -39,12 +39,14 @@
  ******************************************************************************/
 #define I2S0_INSTANCE           0  //I2S0 instance number
 #define I2S1_INSTANCE           1  //I2S1 instance number
-#define I2S_RESOLUTION_COUNT    4  //Number of supported I2S resolutions
+#define I2S_RESOLUTION_COUNT    5  //Number of supported I2S resolutions
 #define I2S_SAMPLING_RATE_COUNT 11 //Number of supported I2S sampling rates
 
-#define I2S_RELEASE_VERSION 1 // GSPI Release version
-#define I2S_SQA_VERSION     0 // GSPI SQA version
-#define I2S_DEV_VERSION     0 // GSPI Developer version
+#define I2S_RELEASE_VERSION  1 // GSPI Release version
+#define I2S_SQA_VERSION      0 // GSPI SQA version
+#define I2S_DEV_VERSION      0 // GSPI Developer version
+#define I2S_MASTER_CONFIG    1 // Device is configured as I2S master
+#define I2S_MASTER_CONFIG_TX 3 // Device is configured as I2S master and transmit is enabled
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -205,7 +207,8 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
   uint8_t i2s_resolution[I2S_RESOLUTION_COUNT]        = { SL_I2S_RESOLUTION_12,
                                                           SL_I2S_RESOLUTION_16,
                                                           SL_I2S_RESOLUTION_20,
-                                                          SL_I2S_RESOLUTION_24 };
+                                                          SL_I2S_RESOLUTION_24,
+                                                          SL_I2S_RESOLUTION_32 };
   uint32_t i2s_sampling_rate[I2S_SAMPLING_RATE_COUNT] = {
     SL_I2S_SAMPLING_RATE_8000,  SL_I2S_SAMPLING_RATE_11025, SL_I2S_SAMPLING_RATE_16000, SL_I2S_SAMPLING_RATE_22050,
     SL_I2S_SAMPLING_RATE_24000, SL_I2S_SAMPLING_RATE_32000, SL_I2S_SAMPLING_RATE_44100, SL_I2S_SAMPLING_RATE_48000,
@@ -295,34 +298,13 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
     if (xfer_config->mode == SL_I2S_MASTER) {
       if (i2s_handle == &Driver_SAI0) {
         //Transfer is configuring for I2S0 master
-        master_mode_i2s0 = 1;
+        master_mode_i2s0 = I2S_MASTER_CONFIG;
       } else {
         //Transfer is configuring for ULP_I2S master
-        master_mode_ulp_i2s = 1;
+        master_mode_ulp_i2s = I2S_MASTER_CONFIG;
       }
     }
 #endif
-    if (xfer_config->transfer_type == SL_I2S_TRANSMIT) {
-      if (i2s_handle == &Driver_SAI0) {
-        //Disable I2S0 Tx channel and reset the Tx FIFO
-        I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_TER_b.TXCHEN = 0;
-        I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_TFF_b.TXCHFR = 1;
-      } else {
-        //Disable ULP_I2S Tx channel and reset the Tx FIFO
-        I2S1->CHANNEL_CONFIG[0].I2S_TER_b.TXCHEN = 0;
-        I2S1->CHANNEL_CONFIG[0].I2S_TFF_b.TXCHFR = 1;
-      }
-    } else {
-      if (i2s_handle == &Driver_SAI0) {
-        //Disable I2S0 Rx channel and reset the Rx FIFO
-        I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_RER_b.RXCHEN = 0;
-        I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_RFF_b.RXCHFR = 1;
-      } else {
-        //Disable ULP_I2S Rx channel and reset the Rx FIFO
-        I2S1->CHANNEL_CONFIG[0].I2S_RER_b.RXCHEN = 0;
-        I2S1->CHANNEL_CONFIG[0].I2S_RFF_b.RXCHFR = 1;
-      }
-    }
     // CMSIS API for Tx/Rx config is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_i2s_driver_t *)i2s_handle)
@@ -371,7 +353,11 @@ sl_status_t sl_si91x_i2s_transmit_data(sl_i2s_handle_t i2s_handle, const void *d
     }
     //fetch the resolution from TCR register
     if (i2s_handle == &Driver_SAI0) {
+#ifdef SL_I2S0_CHANNEL
       resolution = I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_TCR_b.WLEN;
+#else
+      resolution                               = I2S0->CHANNEL_CONFIG[0].I2S_TCR_b.WLEN;
+#endif
     } else {
       resolution = I2S1->CHANNEL_CONFIG[0].I2S_TCR_b.WLEN;
     }
@@ -382,6 +368,35 @@ sl_status_t sl_si91x_i2s_transmit_data(sl_i2s_handle_t i2s_handle, const void *d
         status = SL_STATUS_INVALID_PARAMETER;
         break;
       }
+    }
+    if (i2s_handle == &Driver_SAI0) {
+      //Disable I2S0 Tx channel and reset the Tx FIFO
+#ifdef SL_I2S0_CHANNEL
+      I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_TER_b.TXCHEN = 0;
+      I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_TFF_b.TXCHFR = 1;
+#else
+      I2S0->CHANNEL_CONFIG[0].I2S_TER_b.TXCHEN = 0;
+      I2S0->CHANNEL_CONFIG[0].I2S_TFF_b.TXCHFR = 1;
+#endif
+#ifndef I2S_LOOP_BACK
+      if (master_mode_i2s0 == I2S_MASTER_CONFIG) {
+        master_mode_i2s0 = I2S_MASTER_CONFIG_TX;
+      }
+#endif
+    } else {
+      //Disable ULP_I2S Tx channel and reset the Tx FIFO
+      I2S1->CHANNEL_CONFIG[0].I2S_TER_b.TXCHEN = 0;
+      I2S1->CHANNEL_CONFIG[0].I2S_TFF_b.TXCHFR = 1;
+#ifdef SL_I2S0_CHANNEL
+      I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_TFF_b.TXCHFR = 1;
+#else
+      I2S0->CHANNEL_CONFIG[0].I2S_TFF_b.TXCHFR = 1;
+#endif
+#ifndef I2S_LOOP_BACK
+      if (master_mode_ulp_i2s == I2S_MASTER_CONFIG) {
+        master_mode_ulp_i2s = I2S_MASTER_CONFIG_TX;
+      }
+#endif
     }
     // CMSIS API for I2S send/receive is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
@@ -417,7 +432,11 @@ sl_status_t sl_si91x_i2s_receive_data(sl_i2s_handle_t i2s_handle, const void *da
     }
     //fetch the resolution from RCR register
     if (i2s_handle == &Driver_SAI0) {
+#ifdef SL_I2S0_CHANNEL
       resolution = I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_RCR_b.WLEN;
+#else
+      resolution                               = I2S0->CHANNEL_CONFIG[0].I2S_RCR_b.WLEN;
+#endif
     } else {
       resolution = I2S1->CHANNEL_CONFIG[0].I2S_RCR_b.WLEN;
     }
@@ -428,6 +447,20 @@ sl_status_t sl_si91x_i2s_receive_data(sl_i2s_handle_t i2s_handle, const void *da
         status = SL_STATUS_INVALID_PARAMETER;
         break;
       }
+    }
+    if (i2s_handle == &Driver_SAI0) {
+      //Disable I2S0 Rx channel and reset the Rx FIFO
+#ifdef SL_I2S0_CHANNEL
+      I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_RER_b.RXCHEN = 0;
+      I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_RFF_b.RXCHFR = 1;
+#else
+      I2S0->CHANNEL_CONFIG[0].I2S_RER_b.RXCHEN = 0;
+      I2S0->CHANNEL_CONFIG[0].I2S_RFF_b.RXCHFR = 1;
+#endif
+    } else {
+      //Disable ULP_I2S Rx channel and reset the Rx FIFO
+      I2S1->CHANNEL_CONFIG[0].I2S_RER_b.RXCHEN = 0;
+      I2S1->CHANNEL_CONFIG[0].I2S_RFF_b.RXCHFR = 1;
     }
     // CMSIS API for I2S send/receive is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
@@ -656,9 +689,10 @@ static void i2s0_callback_event_handler(uint32_t event)
 {
 #ifndef I2S_LOOP_BACK
   if (event == SL_I2S_SEND_COMPLETE) {
-    if (master_mode_i2s0) {
+    if (master_mode_i2s0 == I2S_MASTER_CONFIG_TX) {
       //Flush out the remaining bytes in Transmit FIFO by writing 0s to
       //LTHR and RTHR registers before disabling WSCLK
+#ifdef SL_I2S0_CHANNEL
       I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_LTHR_b.LTHR = 0;
       I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_RTHR_b.RTHR = 0;
       I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_LTHR_b.LTHR = 0;
@@ -666,7 +700,16 @@ static void i2s0_callback_event_handler(uint32_t event)
       //Wait for Tx FIFO empty status flag
       while (!I2S0->CHANNEL_CONFIG[SL_I2S0_CHANNEL].I2S_ISR_b.TXFE)
         ;
-      master_mode_i2s0 = 0;
+#else
+      I2S0->CHANNEL_CONFIG[0].I2S_LTHR_b.LTHR = 0;
+      I2S0->CHANNEL_CONFIG[0].I2S_RTHR_b.RTHR = 0;
+      I2S0->CHANNEL_CONFIG[0].I2S_LTHR_b.LTHR = 0;
+      I2S0->CHANNEL_CONFIG[0].I2S_RTHR_b.RTHR = 0;
+      //Wait for Tx FIFO empty status flag
+      while (!I2S0->CHANNEL_CONFIG[0].I2S_ISR_b.TXFE)
+        ;
+#endif
+      master_mode_i2s0 = I2S_MASTER_CONFIG;
     }
   }
 #endif
@@ -685,7 +728,7 @@ static void i2s1_callback_event_handler(uint32_t event)
 {
 #ifndef I2S_LOOP_BACK
   if (event == SL_I2S_SEND_COMPLETE) {
-    if (master_mode_ulp_i2s) {
+    if (master_mode_ulp_i2s == I2S_MASTER_CONFIG_TX) {
       //Flush out the remaining bytes in Transmit FIFO by writing 0s to
       //LTHR and RTHR registers before disabling WSCLK
       I2S1->CHANNEL_CONFIG[0].I2S_LTHR_b.LTHR = 0;
@@ -695,7 +738,7 @@ static void i2s1_callback_event_handler(uint32_t event)
       //Wait for Tx FIFO empty status flag
       while (!I2S1->CHANNEL_CONFIG[0].I2S_ISR_b.TXFE)
         ;
-      master_mode_ulp_i2s = 0;
+      master_mode_ulp_i2s = I2S_MASTER_CONFIG;
     }
   }
 #endif

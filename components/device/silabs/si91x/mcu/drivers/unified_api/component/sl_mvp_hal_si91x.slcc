@@ -7,6 +7,9 @@ description: >
   The API of this component is marked as internal.
 category: Device|Si91x|MCU|Compute
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: components/device/silabs/si91x/mcu/drivers/unified_api
 config_file:
   - path: config/sl_si91x_mvp_config.h

@@ -9,9 +9,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version: 2024.6.2}
+sdk: {id: simplicity_sdk, version:  "2024.12.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.4}
+- {id: wiseconnect3_sdk, version: 3.4.0}
 source:
   - path: app.c
   - path: main.c
@@ -20,7 +20,7 @@ include:
     file_list:
       - path: app.h
 component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_memory_default_config}
 - {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: syscalls}
 requires:

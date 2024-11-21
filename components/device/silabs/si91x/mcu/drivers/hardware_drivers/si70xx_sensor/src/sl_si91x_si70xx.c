@@ -3,7 +3,7 @@
  * @brief SI70xx Sensor API implementation
  *******************************************************************************
  * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -44,7 +44,8 @@
 static sl_status_t si70xx_send_command(sl_i2c_instance_t i2c_instance, uint8_t addr, uint32_t *data, uint8_t command);
 static float si70xx_get_celcius_temperature(int32_t temp_data);
 static float si70xx_get_percent_relative_humidity(uint32_t rh_data);
-static void wait_till_i2c_gets_idle(I2C_TypeDef *i2c);
+static void wait_till_i2c_gets_idle(sl_i2c_instance_t i2c_instance);
+static void *si70xx_get_i2c_base_address(sl_i2c_instance_t i2c_instance);
 
 /*******************************************************************************
  * Delay function for 1ms
@@ -101,13 +102,13 @@ sl_status_t sl_si91x_si70xx_get_firmware_revision(sl_i2c_instance_t i2c_instance
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   // Read firmware command response from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, read_buffer_size);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   *firmware_revision = i2c_read_data[0];
   return SL_STATUS_OK;
 }
@@ -142,7 +143,7 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   // Adding delay as No-Hold sensor command requires some time to respond to the command sent.
   delay(20);
   // Receive no hold master mode response from sensor
@@ -150,7 +151,7 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   *data = (uint32_t)((i2c_read_data[0] << 8) | (i2c_read_data[1]));
   if (i2c_write_data[0] == SL_HUMIDITY_NHM) {
     // Convert relative humidity measurement to percent relative humidity
@@ -274,13 +275,13 @@ sl_status_t sl_si91x_si70xx_is_present(sl_i2c_instance_t i2c_instance, uint8_t a
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   // Receive response on EID byte command from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, read_buffer_size);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   return SL_STATUS_OK;
 }
 
@@ -348,13 +349,13 @@ static sl_status_t si70xx_send_command(sl_i2c_instance_t i2c_instance, uint8_t a
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   // Receive response from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, read_buffer_size);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   *data = (uint32_t)((i2c_read_data[0] << 8) | (i2c_read_data[1]));
   return SL_STATUS_OK;
 }
@@ -403,7 +404,7 @@ sl_status_t sl_si91x_si70xx_reset(sl_i2c_instance_t i2c_instance, uint8_t addr)
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   return SL_STATUS_OK;
 }
 
@@ -441,13 +442,13 @@ sl_status_t sl_si91x_si70xx_read_control_register(sl_i2c_instance_t i2c_instance
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   // Receive response for user register 1/ heater control register command from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, read_buffer_size);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   *data = i2c_read_data[0];
   return SL_STATUS_OK;
 }
@@ -482,7 +483,7 @@ sl_status_t sl_si91x_si70xx_write_control_register(sl_i2c_instance_t i2c_instanc
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   return SL_STATUS_OK;
 }
 
@@ -492,9 +493,34 @@ sl_status_t sl_si91x_si70xx_write_control_register(sl_i2c_instance_t i2c_instanc
  * @param i2c (I2C_TypeDef) Pointer to the I2C base address.
  * @return none
  ******************************************************************************/
-static void wait_till_i2c_gets_idle(I2C_TypeDef *i2c)
+static void wait_till_i2c_gets_idle(sl_i2c_instance_t i2c_instance)
 {
-  // waiting for I2C to be in idle state
+  I2C0_Type *i2c;
+
+  // Updating i2c pointer as per instance number
+  i2c = (I2C0_Type *)si70xx_get_i2c_base_address(i2c_instance);
+  // Checking I2C ACTIVITY bit status
   while (i2c->IC_STATUS_b.ACTIVITY)
     ;
+}
+
+/*******************************************************************************
+ * Function to return pointer to I2C instance base address as per I2C instance
+ *number
+ *
+ * @param i2c_instance   I2C Instance \ref sl_i2c_instance_t
+ * @return Pointer(void*) to i2c instance base address
+ ******************************************************************************/
+static void *si70xx_get_i2c_base_address(sl_i2c_instance_t i2c_instance)
+{
+  I2C0_Type *i2c = NULL;
+  // Updating i2c pointer as per instance number
+  if (i2c_instance == SL_I2C0) {
+    i2c = ((I2C0_Type *)I2C0_BASE);
+  } else if (i2c_instance == SL_I2C1) {
+    i2c = ((I2C0_Type *)I2C1_BASE);
+  } else if (i2c_instance == SL_ULP_I2C) {
+    i2c = ((I2C0_Type *)I2C2_BASE);
+  }
+  return i2c;
 }

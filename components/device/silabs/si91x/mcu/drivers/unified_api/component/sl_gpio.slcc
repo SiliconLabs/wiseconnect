@@ -9,6 +9,9 @@ description: >
   In GPIO one can use HP (High power), ULP (Ultra Low Power) or UULP (Ultra Ultra Low Power) pins.
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers"
 source:
   - path: "unified_api/src/sl_si91x_driver_gpio.c"

@@ -42,10 +42,6 @@
 #include "math.h"
 #include "Driver_SPI.h"
 
-//TODO:We need to turn off the macros and test the sensor's operation.
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-
 /*******************************************************************************
  ************************ APDS Defines / Macros  ******************************
  ******************************************************************************/
@@ -358,12 +354,11 @@ void write(uint8_t address, uint8_t value)
 *               reading the Number of Bytes
 *  @return      NULL
 *******************************************************************************/
-void read(uint8_t address, uint32_t len, uint8_t buffer[])
+void read(uint8_t address, uint32_t len, uint8_t *buffer)
 {
   int32_t status = 0;
   uint8_t data[len + 1];
-  address = address | 0x80;
-  address = address | 0x40;
+  address = address | 0xC0;
   data[0] = address;
   for (uint32_t i = 1; i < len + 1; ++i)
     data[i] = 0;
@@ -399,7 +394,7 @@ void sl_si91x_adxl345_gain(void)
 *******************************************************************************/
 void sl_si91x_adxl345_read_acceleration_value(int *xyz)
 {
-  sl_si91x_adxl345_read_acceleration(xyz, xyz + 1, xyz + 2);
+  sl_si91x_adxl345_read_acceleration((int16_t *)xyz, (int16_t *)(xyz + 1), (int16_t *)(xyz + 2));
 }
 
 /*******************************************************************************
@@ -444,9 +439,11 @@ void sl_si91x_adxl345_get_Gxyz(double *xyz)
 *******************************************************************************/
 void sl_si91x_adxl345_get_range_setting(uint8_t *rangeSetting)
 {
-  uint8_t _b;
-  read(SL_ADXL345_DATA_FORMAT, 1, &_b);
-  *rangeSetting = _b & 0x03;
+  uint8_t _b[2];
+  uint32_t temp = 0;
+  read(SL_ADXL345_DATA_FORMAT, 1, _b);
+  temp          = _b[0] | (_b[1] << 8);
+  *rangeSetting = (uint8_t)temp & 0x03;
 }
 
 /*******************************************************************************
@@ -458,7 +455,8 @@ void sl_si91x_adxl345_get_range_setting(uint8_t *rangeSetting)
 void sl_si91x_adxl345_set_range_setting(int val)
 {
   uint8_t _s;
-  uint8_t _b;
+  uint8_t _b[2];
+  uint32_t temp;
 
   switch (val) {
     case 2:
@@ -477,8 +475,9 @@ void sl_si91x_adxl345_set_range_setting(int val)
       _s = 0x00;
   }
 
-  read(SL_ADXL345_DATA_FORMAT, 1, &_b);
-  _s |= (_b & 0xEC);
+  read(SL_ADXL345_DATA_FORMAT, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  _s |= (uint8_t)(temp & 0xEC);
   write(SL_ADXL345_DATA_FORMAT, _s);
 }
 
@@ -624,9 +623,11 @@ void sl_si91x_adxl345_set_tapthreshold(int tapThreshold)
 *******************************************************************************/
 int sl_si91x_adxl345_get_tapthreshold()
 {
-  uint8_t _b;
-  read(SL_ADXL345_THRESH_TAP, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_THRESH_TAP, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -680,13 +681,17 @@ void sl_si91x_adxl345_set_axisoffset(uint8_t x, uint8_t y, uint8_t z)
 *******************************************************************************/
 void sl_si91x_adxl345_get_axisoffset(int *x, int *y, int *z)
 {
-  uint8_t _b;
-  read(SL_ADXL345_OFSX, 1, &_b);
-  *x = (int)(_b);
-  read(SL_ADXL345_OFSY, 1, &_b);
-  *y = (int)(_b);
-  read(SL_ADXL345_OFSZ, 1, &_b);
-  *z = (int)(_b);
+  uint8_t _b[2];
+  int temp;
+  read(SL_ADXL345_OFSX, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  *x   = (temp);
+  read(SL_ADXL345_OFSY, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  *y   = (temp);
+  read(SL_ADXL345_OFSZ, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  *z   = (temp);
 }
 
 /*******************************************************************************
@@ -713,9 +718,11 @@ void sl_si91x_adxl345_set_tapduration(int tapDuration)
 *******************************************************************************/
 int sl_si91x_adxl345_get_tapduration()
 {
-  uint8_t _b;
-  read(SL_ADXL345_DUR, 1, &_b);
-  return (int)(_b);
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_DUR, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -743,9 +750,11 @@ void sl_si91x_adxl345_set_doubletaplatency(int doubleTapLatency)
 *******************************************************************************/
 int sl_si91x_adxl345_get_doubletaplatency()
 {
-  uint8_t _b;
-  read(SL_ADXL345_LATENT, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_LATENT, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -774,9 +783,11 @@ void sl_si91x_adxl345_set_doubletapwindow(int doubleTapWindow)
 *******************************************************************************/
 int sl_si91x_adxl345_get_doubletapwindow()
 {
-  uint8_t _b;
-  read(SL_ADXL345_WINDOW, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_WINDOW, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -806,9 +817,11 @@ void sl_si91x_adxl345_set_activitythreshold(int activityThreshold)
 *******************************************************************************/
 int sl_si91x_adxl345_get_activitythreshold()
 {
-  uint8_t _b;
-  read(SL_ADXL345_THRESH_ACT, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_THRESH_ACT, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -838,9 +851,11 @@ void sl_si91x_adxl345_set_inactivitythreshold(int inactivityThreshold)
 *******************************************************************************/
 int sl_si91x_adxl345_get_inactivitythreshold()
 {
-  uint8_t _b;
-  read(SL_ADXL345_THRESH_INACT, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_THRESH_INACT, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -868,9 +883,11 @@ void sl_si91x_adxl345_set_timeinactivity(int timeInactivity)
 *******************************************************************************/
 int sl_si91x_adxl345_get_timeinactivity()
 {
-  uint8_t _b;
-  read(SL_ADXL345_TIME_INACT, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_TIME_INACT, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -899,9 +916,11 @@ void sl_si91x_adxl345_set_freefallthreshold(int freeFallThreshold)
 *******************************************************************************/
 int sl_si91x_adxl345_get_freefallthreshold()
 {
-  uint8_t _b;
-  read(SL_ADXL345_THRESH_FF, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_THRESH_FF, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -930,9 +949,11 @@ void sl_si91x_adxl345_set_freefallduration(int freeFallDuration)
 *******************************************************************************/
 int sl_si91x_adxl345_get_freefallduration()
 {
-  uint8_t _b;
-  read(SL_ADXL345_TIME_FF, 1, &_b);
-  return (int)_b;
+  uint8_t _b[2];
+  int temp = 0;
+  read(SL_ADXL345_TIME_FF, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  return temp;
 }
 
 /*******************************************************************************
@@ -1356,10 +1377,12 @@ void sl_si91x_adxl345_set_lowpower(bool state)
 *******************************************************************************/
 double sl_si91x_adxl345_get_rate()
 {
-  uint8_t _b;
-  read(SL_ADXL345_BW_RATE, 1, &_b);
-  _b &= 0x0F;
-  return (pow(2, ((int)_b) - 6)) * 6.25;
+  uint8_t _b[2];
+  uint32_t temp = 0;
+  read(SL_ADXL345_BW_RATE, 1, _b);
+  temp = _b[0] | (_b[1] << 8);
+  temp &= 0x0F;
+  return (pow(2, (temp)-6)) * 6.25;
 }
 
 /*******************************************************************************
@@ -1370,15 +1393,17 @@ double sl_si91x_adxl345_get_rate()
 *******************************************************************************/
 void sl_si91x_adxl345_set_rate(double rate)
 {
-  uint8_t _b, _s;
-  int v = (int)(rate / 6.25);
-  int r = 0;
+  uint8_t _b[2], _s;
+  uint32_t temp = 0;
+  int v         = (int)(rate / 6.25);
+  int r         = 0;
   while (v >>= 1) {
     r++;
   }
   if (r <= 9) {
-    read(SL_ADXL345_BW_RATE, 1, &_b);
-    _s = (uint8_t)(r + 6) | (_b & 0xF0);
+    read(SL_ADXL345_BW_RATE, 1, _b);
+    temp = _b[0] | (_b[1] << 8);
+    _s   = (uint8_t)(r + 6) | (temp & 0xF0);
     write(SL_ADXL345_BW_RATE, _s);
   }
 }
@@ -1433,7 +1458,7 @@ bool sl_si91x_adxl345_triggered(uint8_t interrupts_triggered, int mask)
 uint8_t sl_si91x_adxl345_get_interrupt_source_val()
 {
   uint8_t _b;
-  read(SL_ADXL345_INT_SOURCE, 1, &_b);
+  read(SL_ADXL345_INT_SOURCE, 0, &_b);
   return _b;
 }
 
@@ -1632,7 +1657,7 @@ void sl_si91x_adxl345_inactivity_interrupt(bool status)
 void sl_si91x_adxl345_set_registerbit(uint8_t regAdress, uint8_t bitPos, bool state)
 {
   uint8_t _b;
-  read(regAdress, 1, &_b);
+  read(regAdress, 0, &_b);
   if (state) {
     _b |= (1 << bitPos); // Forces nth Bit of _b to 1. Other Bits Unchanged.
   } else {
@@ -1652,6 +1677,6 @@ void sl_si91x_adxl345_set_registerbit(uint8_t regAdress, uint8_t bitPos, bool st
 bool sl_si91x_adxl345_get_registerbit(uint8_t regAdress, uint8_t bitPos)
 {
   uint8_t _b;
-  read(regAdress, 1, &_b);
+  read(regAdress, 0, &_b);
   return ((_b >> bitPos) & 1);
 }

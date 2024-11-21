@@ -1,19 +1,31 @@
 /*******************************************************************************
-* @file  rsi_ble_apis.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ * @file  rsi_ble_apis.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #ifndef RSI_BLE_APIS_H
 #define RSI_BLE_APIS_H
@@ -24,18 +36,25 @@
  * *                      Macros
  * ******************************************************/
 
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 /// Maximum number of response list for BLE.
 #define RSI_BLE_MAX_RESP_LIST 0x05
 /// Maximum size of an advertising report.
 #define RSI_MAX_ADV_REPORT_SIZE 31
 /// Size of the BLE passkey.
 #define BLE_PASSKEY_SIZE 6
+
 /// Defines the output power front end loss for BLE
 #ifndef BLE_OUTPUT_POWER_FRONT_END_LOSS
 #define BLE_OUTPUT_POWER_FRONT_END_LOSS 0 /* db */
 #endif
+
 /// Host descriptor length
 #define RSI_HOST_DESC_LENGTH 16
+
+/** @} */
 
 /******************************************************
  * *                    Constants
@@ -1026,6 +1045,11 @@ typedef struct rsi_ble_event_write_s {
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
   /** Reserved for future use */
   uint8_t reserved;
+
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
+
 /// BLE write command event
 #define RSI_BLE_WRITE_CMD_EVENT 0x01
 /// BLE write request event
@@ -1034,6 +1058,7 @@ typedef struct rsi_ble_event_write_s {
 #define RSI_BLE_NOTIFICATION_EVENT 0x03
 /// BLE indication event
 #define RSI_BLE_INDICATION_EVENT 0x04
+  /** @} */
   /**Type of the event received from the remote device 
 -
      RSI_BLE_WRITE_CMD_EVENT     0x01 
@@ -1115,11 +1140,13 @@ typedef struct rsi_ble_event_mtu_s {
   /**MTU size*/
   uint16_t mtu_size;
 } rsi_ble_event_mtu_t;
-
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 #define PEER_DEVICE_INITATED_MTU_EXCHANGE  0x1 ///< Indicates that the MTU exchange was initiated by the peer device.
 #define LOCAL_DEVICE_INITATED_MTU_EXCHANGE 0x2 ///< Indicates that the MTU exchange was initiated by the local device.
+/** @} */
 //MTU Exchange Information event structure
-
 /**
  * @brief Structure to hold the MTU exchange information for a BLE event.
  */
@@ -1404,9 +1431,11 @@ typedef struct rsi_ble_per_transmit_s {
 -
        8  500 Kbps Coded */
   uint8_t phy_rate;
-  /** Rx channel number (0 - 39) */
+  /** Rx channel number (0 - 39) 
+     @note Removed the BLE packet transmission on channel-39 (2480MHz) at a 2Mbps data rate */
   uint8_t rx_chnl_num;
-  /** Tx channel number (0 - 39) */
+  /** Tx channel number (0 - 39) 
+     @note Removed the BLE packet transmission on channel-39 (2480MHz) at a 2Mbps data rate */
   uint8_t tx_chnl_num;
   /** Initial seed to be used for whitening. It should be set to 0 in order to disable whitening. 
 -
@@ -1697,11 +1726,15 @@ typedef struct rsi_ble_per_receive_s {
   uint8_t duty_cycling_en;
 } rsi_ble_per_receive_t;
 /** @} */
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
+
 ///The maximum length of advertising data.
 #define ADV_DATA_LEN 210
 ///Length of the device address in bytes.
 #define DEVICE_ADDR_LEN 6
-
+/** @} */
 //! ae adv report event
 typedef struct rsi_ble_ae_adv_report_s {
   /**
@@ -1948,7 +1981,7 @@ uint8_t rsi_convert_db_to_powindex(int8_t tx_power_in_dBm);
  * @fn         int32_t rsi_ble_set_random_address(void)
  * @brief      Request the local device to set a random address. This is a blocking API.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @return The following values are returned:
  *     *             - 0 - Success 
  *             Non-Zero Value - Failure 
@@ -1963,7 +1996,7 @@ int32_t rsi_ble_set_random_address(void);
  * @fn         int32_t rsi_ble_set_random_address_with_value(uint8_t *random_addr)
  * @brief      Request the local device to set a given random address. This is a blocking API.
  * @pre Pre-condition:
- *      - Call rsi_wireless_init() before calling this API.
+ *      - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  random_addr - random address of the device to be set
  * @return The following values are returned:
  *           *             - 0 - Success 
@@ -1980,7 +2013,7 @@ int32_t rsi_ble_set_random_address_with_value(uint8_t *random_addr);
  * @brief      Request the local device to start advertising. This is a blocking API.
  *             A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates remote device given ble connect command and got connected
  * @pre Pre-condition:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @return The following values are returned:
  *     *             - 0 - Success 
  *     Non-Zero Value - Failure 
@@ -1999,7 +2032,7 @@ int32_t rsi_ble_start_advertising(void);
  * @brief      Request the local device to start advertising with specified values. This is a blocking API.
  *     A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates remote device given ble connect command and got connected
  * @pre Pre-condition:
- *        Call rsi_wireless_init() before calling this API, this is a blocking API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API, this is a blocking API.
  * @param[in]  rsi_ble_adv - This structure pointer holds the information of advertising values. This variable is the pointer of the \ref rsi_ble_req_adv_s structure.
  * @return The following values are returned:
  *     *             - 0 - Success 
@@ -2017,7 +2050,7 @@ int32_t rsi_ble_start_advertising_with_values(const void *rsi_ble_adv);
  * @fn         int32_t rsi_ble_encrypt(const uint8_t *key, const uint8_t *data, uint8_t *resp)
  * @brief      Encrypt the plain text data fed by the user using the key provided, it uses the AES-128 bit block cypher a logo to generate encrypted data, refer to Bluetooth Spec 5.0 for further details.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API. This is a blocking API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API, this is a blocking API.
  * @param[in]  key - 16 Bytes key for Encryption of data.
  * @param[in]  data - 16 Bytes of Data request to encrypt.
  * @param[out] resp - Encrypted data
@@ -2052,7 +2085,7 @@ int32_t rsi_ble_stop_advertising(void);
  * @fn         int32_t rsi_ble_set_advertise_data(const uint8_t *data, uint16_t data_len)
  * @brief      Set the advertising data. This is a blocking API.
  * @pre Pre-condition:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  data - Advertising data.
  * @param[in]  data_len - Total length of advertising data.
  * @return The following values are returned:
@@ -2071,7 +2104,7 @@ int32_t rsi_ble_set_advertise_data(const uint8_t *data, uint16_t data_len);
  * @fn         int32_t rsi_ble_set_scan_response_data(const uint8_t *data, uint16_t data_len);
  * @brief      Request the local device to set the scan response data, this is a Blocking API
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API. This is a blocking API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API, this is a Blocking API.
  * @param[in]  data - Data about to be sent
  * @param[in]  data_len - Length of data, which is about to be sent
  * @return The following values are returned:
@@ -2089,7 +2122,7 @@ int32_t rsi_ble_set_scan_response_data(const uint8_t *data, uint16_t data_len);
  * @brief      Start scanning, this is a Blocking API
  *             A received event \ref rsi_ble_on_adv_report_event_t indicates advertise report of remote device received.
  * @pre Pre-condition:
- *        Call rsi_wireless_init() before calling this API. This is a Blocking API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API, this is a Blocking API.
  * @return The following values are returned:
  *     *             - 0 - Success 
  *     Non-Zero Value - Failure 
@@ -2106,7 +2139,7 @@ int32_t rsi_ble_start_scanning(void);
  * @fn         int32_t rsi_ble_start_scanning_with_values(void *rsi_ble_scan_params)
  * @brief      Start scanning with values. This is a blocking API. A received event \ref rsi_ble_on_adv_report_event_t indicates the advertise report of a remote device received.
  * @pre Pre-condition:
- *      - Call rsi_wireless_init() before calling this API.
+ *      - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  rsi_ble_scan_params - BLE scan parameters structure
  *             please refer rsi_ble_req_scan_s structure for more info
  * @return The following values are returned:
@@ -2148,7 +2181,7 @@ int32_t rsi_ble_stop_scanning(void);
  * a received event \ref rsi_ble_on_enhance_connect_t / \ref rsi_ble_on_connect_t indicates that the connection successful and 
  * a received event \ref rsi_ble_on_disconnect_t indicates that connection failures have occurred.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  remote_dev_addr_type - AddressType - Specifies the type of the address mentioned in BD Address 
  *                                  - 0 - Public Address 
  *                                  - 1 - Random Address
@@ -2215,7 +2248,7 @@ int32_t rsi_ble_connect_with_params(uint8_t remote_dev_addr_type,
  * a received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates that the connection successful and 
  * a received event \ref rsi_ble_on_disconnect_t indicates that connection failures have occurred.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  remote_dev_addr_type - This parameter describes the address type of the remote device
  * @param[in]  remote_dev_addr - This parameter describes the device address of the remote device
  * @return The following values are returned:
@@ -2236,7 +2269,7 @@ int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, const int8_t *remote_dev_a
  * @fn         int32_t rsi_ble_enhance_connect_with_params(void* ble_enhance_conn_params)
  * @brief      Connect to the remote BLE device with the user configured parameters.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  ble_enhance_conn_params - BLE enhance connection parameter structure. See notes for the fields in this structure.
  * @return The following values are returned:
  * *             - 0 - Success 
@@ -2330,7 +2363,7 @@ int32_t rsi_ble_disconnect(const int8_t *remote_dev_address);
  * @fn         int32_t rsi_ble_get_device_state(uint8_t *resp)
  * @brief      Get the local device state. This is a blocking API. The state value is filled in "resp".
  * @pre Pre-conditions:
- *        - Call rsi_wireless_init() before calling this API.
+ *        - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[out] resp - This is an output parameter which consists of local device state. 
  * This is a 1-byte value. The possible states are described below: 
  * BIT(0)    Advertising state 
@@ -2354,7 +2387,7 @@ int32_t rsi_ble_get_device_state(uint8_t *resp);
  * @fn         int32_t rsi_ble_set_smp_pairing_cap_data(rsi_ble_set_smp_pairing_capabilty_data_t *smp_pair_cap_data)
  * @brief      Set the SMP Pairing Capability of local device. This is a blocking API.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  smp_pair_cap_data - This structure pointer holds the information of the SMP capability data values 
  * please refer rsi_ble_set_smp_pairing_capabilty_data structure for more info
  * @return The following values are returned:
@@ -2371,7 +2404,7 @@ int32_t rsi_ble_set_smp_pairing_cap_data(rsi_ble_set_smp_pairing_capabilty_data_
  * @fn         int32_t rsi_ble_set_local_irk_value(const uint8_t *l_irk)
  * @brief      Set the IRK value to the local device. This is a blocking API.
  * @pre Pre-conditions:
- *        - Call rsi_wireless_init() before calling this API.
+ *        - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  l_irk -  l_irk  Pointer to local_irk
  * @return The following values are returned:
  * - 0 - Success 
@@ -2582,7 +2615,7 @@ int32_t rsi_ble_set_le_ping_timeout(uint8_t *remote_dev_address, uint16_t time_o
  * @fn         int32_t rsi_ble_clear_acceptlist(void)
  * @brief      Clear all the BD address present in accept list. This is a blocking API.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @return The following values are returned:
  * - 0 - Success 
  * - Non-Zero Value - Failure 
@@ -2597,7 +2630,7 @@ int32_t rsi_ble_clear_acceptlist(void);
  * @fn         int32_t rsi_ble_addto_acceptlist(const int8_t *dev_address, uint8_t dev_addr_type)
  * @brief      Add BD address to accept list. This is a blocking API.
  * @pre Pre-conditions:
- *        - Call rsi_wireless_init() before calling this API.
+ *        - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  dev_address - Address of the device which is going to add in accept list
  * @param[in]  dev_addr_type - address type of BD address
  * @return The following values are returned:
@@ -2635,7 +2668,7 @@ int32_t rsi_ble_deletefrom_acceptlist(const int8_t *dev_address, uint8_t dev_add
  *                                      const uint8_t *local_irk)
  * @brief     Resolvlist API used for multiple purposes based on the process type. It will be used to add/remove/clear a device to/from the list. This is a blocking API.
  * @pre Pre-conditions:
- *       Call rsi_wireless_init() before calling this API.
+ *       Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in] process_type - Indicates which type of process this is, as follows: 
  *                          1 - add a device to the resolve list 
  *                          2 - remove a device from the resolve list 
@@ -2664,7 +2697,7 @@ int32_t rsi_ble_resolvlist(uint8_t process_type,
  * @fn         int32_t rsi_ble_get_resolving_list_size(uint8_t *resp)
  * @brief      Request to get resolving list size. This is a blocking API.
  * @pre Pre-conditions:
- *       - Call rsi_wireless_init() before calling this API.
+ *       - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[out] resp - output parameter which consists of supported resolving the list size.
  * @return The following values are returned:
  *            - 0 - Success 
@@ -2679,7 +2712,7 @@ int32_t rsi_ble_get_resolving_list_size(uint8_t *resp);
  * @fn         int32_t rsi_ble_set_addr_resolution_enable(uint8_t enable, uint16_t tout)
  * @brief      Request to enable address resolution, and to set resolvable private address timeout. This is a blocking API.
  * @pre Pre-conditions:
- *        - Call rsi_wireless_init() before calling this API.
+ *        - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  enable - value to enable/disable address resolution 
  *		- 1 - enables address resolution 
  *    - 0 - disables address resolution
@@ -2698,7 +2731,7 @@ int32_t rsi_ble_set_addr_resolution_enable(uint8_t enable, uint16_t tout);
  *                                              uint8_t *remote_dev_address, uint8_t privacy_mode)
  * @brief      Request to set privacy mode for particular device, this is a Blocking API
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  remote_dev_addr_type - type of the remote device address 
  *                                    0 - Public Identity Address 
  *                                    1 - Random (static) Identity Address
@@ -2912,7 +2945,7 @@ int32_t rsi_ble_end_test_mode(uint16_t *num_of_pkts);
  * @fn         int32_t rsi_ble_per_transmit(struct rsi_ble_per_transmit_s *rsi_ble_per_tx)
  * @brief      Initiate the BLE transmit PER mode in the controller. This is a blocking API.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  rsi_ble_per_tx - This parameter is the buffer to hold the structure values 
  *                            This is a structure variable of struct \ref rsi_ble_per_transmit_s
  * @return The following values are returned:
@@ -2927,7 +2960,7 @@ int32_t rsi_ble_per_transmit(struct rsi_ble_per_transmit_s *rsi_ble_per_tx);
  * @fn         int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx)
  * @brief      Initiate the BLE receive PER mode in the controller. This is a blocking API.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  rsi_ble_per_rx - This parameter is the buffer to hold the structure values 
  *             This is a structure variable of struct \ref rsi_ble_per_receive_s
  * @return The following values are returned:
@@ -2950,7 +2983,7 @@ int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx);
  * @brief      Give vendor-specific command to set the acceptlist feature based on
  *             the advertisers advertising payload, this is a Blocking API
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  enable - enable/disable
  * @param[in]  data_compare_index - the starting index of the data to compare
  * @param[in]  len_for_compare_data - total length of data to compare
@@ -2973,7 +3006,7 @@ int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
  * @fn         void BT_LE_ADPacketExtract(uint8_t *remote_name, const uint8_t *pbuf, uint8_t buf_len);
  * @brief      Used to extract remote Bluetooth device name from the received advertising report.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  remote_name - device name
  * @param[in]  pbuf -  advertise data packet buffer pointer
  * @param[in]  buf_len - buffer length
@@ -3021,6 +3054,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  *              - 0x4046 - Invalid arguments
  *              - 0x4D04	- BLE not connected 
  *              - 0x4D14	- BLE parameter out of mandatory range
+ *              - 0x4D15  - Unsuported power index for 915
  * @note        This is a Blocking API.
  * @note        Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  * @note        The higher power will be backed off based on country region.
@@ -3516,7 +3550,7 @@ int32_t rsi_ble_execute_write(uint8_t *dev_addr, uint8_t exe_flag);
  * @fn         int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp_serv)
  * @brief      Add a new service to the local GATT Server. This is a blocking API.
  * @pre Pre-conditions:
- *        - Call rsi_wireless_init() before calling this API.
+ *        - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  service_uuid 	- new service UUID value, please refer uuid_s structure for more info.
  * @param[out] p_resp_serv 	- new service handler filled in this structure, please refer rsi_ble_resp_add_serv_s structure for more info.
  * @return The following values are returned:
@@ -3533,7 +3567,7 @@ int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp
  * @fn         int32_t rsi_ble_add_attribute(rsi_ble_req_add_att_t *p_attribute)
  * @brief      Add a new attribute to a specific service. This is a blocking API.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  p_attribute - add a new attribute to the service, please refer rsi_ble_req_add_att_s structure for more info. 
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -4914,7 +4948,7 @@ void rsi_ble_gap_register_callbacks(rsi_ble_on_adv_report_event_t ble_on_adv_rep
 /**
  * @brief      Register GAP Extended responses/events callbacks.
  * @pre Pre-conditions:
- *        Call rsi_wireless_init() before calling this API.
+ *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
  * @param[in]  ble_on_remote_features_event  - Call back function for Remote feature request
  * @param[in]  ble_on_le_more_data_req_event - Call back function for LE More data request
  * @note        For more information about each callback, see the GAP Extended callbacks description section.

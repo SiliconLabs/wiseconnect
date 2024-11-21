@@ -105,7 +105,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         attest,
                                         sizeof(sl_si91x_rsi_token_req_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(600000),

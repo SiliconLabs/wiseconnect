@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_net.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_net.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_net.h"
 #include "sl_net_constants.h"
@@ -40,6 +52,10 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
         configuration = (const void *)&sl_wifi_default_client_configuration;
       }
 
+      sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
+                            default_wifi_client_credential.type,
+                            (const void *)default_wifi_client_credential.data,
+                            default_wifi_client_credential.data_length);
       sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE,
                          SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
                          &DEFAULT_WIFI_CLIENT_PROFILE);
@@ -51,6 +67,10 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
         configuration = (const void *)&sl_wifi_default_ap_configuration;
       }
 
+      sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
+                            default_wifi_ap_credential.type,
+                            (const void *)default_wifi_ap_credential.data,
+                            default_wifi_ap_credential.data_length);
       sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE,
                          SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
                          &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
@@ -152,14 +172,14 @@ sl_status_t sl_net_down(sl_net_interface_t interface)
 sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value)
 {
   uint8_t ip_bytes[5] = { 0 };
-  int i, j, digits;
+  int i;
+  int digits;
+  int j;
 
   if ((NULL == addr) || (NULL == value)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  i      = 0;
-  j      = 0;
   digits = 0;
 
   // Iterate through the characters in the IP address string

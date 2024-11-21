@@ -42,6 +42,7 @@ If a message is published onto the topic from a MQTT client application [https:/
   - Kits
     - SiWG917 Dev Kit [BRD2605A]
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 - Android Phone or iPhone with Simplicity Connect App (formerly EFR Connect App), which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
 
 ### Software Requirements
@@ -82,6 +83,9 @@ To view the application prints on the console, refer [here](https://docs.silabs.
 - The SiWG917 dev kit comes pre-programmed with the SiWG917 demo v2.0. If the pro kit used, please check if the messages being displayed on the LCD display on WPK or the serial terminal prints do not indicate the application binary version (as shown in the following image):
   
     ![OOB initialization screen v1.0](resources/readme/status_lcd1_v1_0.png)
+
+    > Note:
+    > Dev Kit(BRD2605A) and Explorer Kits(BRD2708A, BRD2911A) do not support display functionality.
 
     It implies that an older version of OOB demo binary (older than v2.0) is running on the SiWG917 board. 
     

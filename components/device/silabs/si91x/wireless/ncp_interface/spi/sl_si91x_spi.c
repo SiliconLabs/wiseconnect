@@ -218,6 +218,45 @@ sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint
   return status;
 }
 
+sl_status_t sli_si91x_bus_write_slave(uint32_t data_length, const uint8_t *buffer)
+{
+  uint32_t temp32;
+  uint32_t temp16;
+  sl_status_t status;
+
+  // Send C1/C2 control information to initiate the memory write operation
+  status = send_c1c2(RSI_C1FRMWR16BIT4BYTE | (C2_READ_WRITE_SIZE << 8));
+  VERIFY_STATUS(status);
+
+  // Send C3/C4 control information with the length of data to be written. 16 extra bytes are expected by SPI.
+  temp16 = htole16(data_length + 16);
+  status = sl_si91x_host_spi_transfer(&temp16, NULL, sizeof(uint16_t));
+  VERIFY_STATUS(status);
+
+  // Send the 4-byte actual data length
+  temp32 = htole32(data_length);
+  status = sl_si91x_host_spi_transfer(&temp32, NULL, sizeof(uint32_t));
+  VERIFY_STATUS(status);
+
+  // Send the data
+  // Si917 Bootloader receives the data in DMA mode with descriptor where the first
+  // descriptor expects dummy 12 bytes
+  status = sl_si91x_host_spi_transfer(buffer, NULL, 12);
+  VERIFY_STATUS(status);
+  if (data_length > 1024) {
+    // SPI master cannot send more than 1024 bytes. So, the data is split.
+    for (unsigned int i = 0; i < (data_length / 1024); i++) {
+      status = sl_si91x_host_spi_transfer(&buffer[(i * 1024)], NULL, 1024);
+      VERIFY_STATUS(status);
+    }
+  } else {
+    status = sl_si91x_host_spi_transfer(buffer, NULL, 1024);
+    VERIFY_STATUS(status);
+  }
+
+  return status;
+}
+
 sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer)
 {
   //  uint8_t rx_buffer[4];
@@ -432,7 +471,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
 
 sl_status_t sl_si91x_bus_rx_irq_handler(void)
 {
-  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   return SL_STATUS_OK;
 }
 

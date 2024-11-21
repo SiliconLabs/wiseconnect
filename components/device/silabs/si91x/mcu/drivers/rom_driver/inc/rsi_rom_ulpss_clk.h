@@ -1,22 +1,31 @@
 /*******************************************************************************
 * @file  rsi_rom_ulpss_clk.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
-/*************************************************************************
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
- */
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 // Includes
 
@@ -52,6 +61,10 @@ extern "C" {
 #else
 #include "rsi_rom_table_RS1xxxx.h"
 #endif
+#if SL_WIFI_COMPONENT_INCLUDED
+#include "sl_rsi_utility.h"
+#include "rsi_m4.h"
+#endif
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_ULPSS_RefClkConfig(ULPSS_REF_CLK_SEL_T clkSource)
@@ -61,6 +74,12 @@ extern "C" {
  */
 STATIC INLINE rsi_error_t RSI_ULPSS_RefClkConfig(ULPSS_REF_CLK_SEL_T clkSource)
 {
+#if SL_WIFI_COMPONENT_INCLUDED
+  if (clkSource == ULPSS_40MHZ_CLK) {
+    /*  Notify NWP that M4 requires XTAL clock source  */
+    sli_si91x_xtal_turn_on_request_from_m4_to_TA();
+  }
+#endif
   return ulpss_ref_clk_config(clkSource);
 }
 
@@ -295,7 +314,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpDynClkDisable(ULPCLK_Type *pULPCLK, uint3
  *              -  1: \ref ulp_32khz_ro_clk
  *              -  2: \ref ulp_32khz_rc_clk
  *              -  3: \ref ulp_32khz_xtal_clk  #refer NOTE
- *              -  4: \ref ulp_32mhz_rc_clk
+ *              -  4: \ref ulp_mhz_rc_clk
  *              -  5: \ref ulp_20mhz_ro_clk
  *              -  6: \ref soc_clk             #refer NOTE
  * @param[in]   divFactor : To divide the clock
@@ -329,7 +348,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpSsiClkConfig(ULPCLK_Type *pULPCLK,
  *               - 1: \ref ulp_32khz_ro_clk
  *               - 2: \ref ulp_32khz_rc_clk
  *               - 3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *               - 4: \ref ulp_32mhz_rc_clk
+ *               - 4: \ref ulp_mhz_rc_clk
  *               - 5: \ref ulp_20mhz_ro_clk
  *               - 6: \ref soc_clk                #refer NOTE
  *               - 7: \ref ulp_doubler_clk
@@ -367,7 +386,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpI2sClkConfig(ULPCLK_Type *pULPCLK,
  *               -  1: \ref ulp_32khz_ro_clk
  *               -  2: \ref ulp_32khz_rc_clk
  *               -  3: \ref ulp_32khz_xtal_clk    #refer NOTE
- *               -  4: \ref ulp_32mhz_rc_clk
+ *               -  4: \ref ulp_mhz_rc_clk
  *               -  5: \ref ulp_20mhz_ro_clk
  *               -  6: \ref soc_clk               #refer NOTE
  * @param[in]    divFactor : To divide the clock
@@ -404,7 +423,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpUartClkConfig(ULPCLK_Type *pULPCLK,
  *                -  1: \ref ulp_32khz_ro_clk
  *                -  2: \ref ulp_32khz_rc_clk
  *                -  3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *                -  4: \ref ulp_32mhz_rc_clk
+ *                -  4: \ref ulp_mhz_rc_clk
  *                -  5: \ref ulp_20mhz_ro_clk
  *                -  6: \ref soc_clk                #refer NOTE
  *                -  7: \ref ulp_doubler_clk
@@ -458,7 +477,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_TimerClkDisable(ULPCLK_Type *pULPCLK)
  *                -  1: \ref ulp_32khz_ro_clk
  *                -  2: \ref ulp_32khz_rc_clk
  *                -  3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *                -  4: \ref ulp_32mhz_rc_clk
+ *                -  4: \ref ulp_mhz_rc_clk
  *                -  5: \ref ulp_20mhz_ro_clk
  *                -  6: \ref soc_clk                #refer NOTE
  *                -  7: \ref ulp_doubler_clk
@@ -496,7 +515,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_AuxClkConfig(ULPCLK_Type *pULPCLK,
  * @param[in]	   FclkSource : Ulp vad Fast clock select. Please refer #ULP_VAD_FCLK_SELECT_T for more info
  *               -  0: ulpss processor clock     #refer NOTE
  *               -  1: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *               -  2: \ref ulp_32mhz_rc_clk
+ *               -  2: \ref ulp_mhz_rc_clk
  *               -  3: \ref ulp_20mhz_ro_clk
  *               -  4: \ref soc_clk                 #refer NOTE
  * @param[in]    divFactor : To divide the clock
@@ -529,7 +548,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_VadClkConfig(ULPCLK_Type *pULPCLK,
  *                         -  1: \ref ulp_32khz_ro_clk
  *                         -  2: \ref ulp_32khz_rc_clk
  *                         -  3: \ref ulp_32khz_xtal_clk    #refer NOTE
- *                         -  4: \ref ulp_32mhz_rc_clk
+ *                         -  4: \ref ulp_mhz_rc_clk
  *                         -  5: \ref ulp_20mhz_ro_clk
  *                         -  6: \ref soc_clk               #refer NOTE
  * @param[in]    divFactor : To divide the clock

@@ -195,9 +195,7 @@ static const sl_wifi_device_configuration_t config = {
                    .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP),
 #ifdef RSI_PROCESS_MAX_RX_DATA
@@ -437,6 +435,10 @@ void read_user_packet(void)
 
 void ARM_USART_SignalEvent(uint32_t event)
 {
+  // Mask to get only the usart events,
+  // bits 30-31 gives the instance from which this event occurred
+  event &= (USART_EVENT_MASK);
+
   switch (event) {
     case SL_USART_EVENT_SEND_COMPLETE:
       read_tx_cnt         = USARTdrv->GetTxCount();
@@ -501,7 +503,7 @@ static void core_and_pll_clock_update(void)
 
   // All peripherals' source to be set to Interface PLL Clock
   // and it runs at 80MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+  sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
 }
 
 /*******************************************************************************
@@ -611,7 +613,7 @@ void rsi_ble_hci_raw_task(void *argument)
                   RSI_FW_TASK_PRIORITY,
                   &fw_log_task_handle);
 #endif
-#if RSI_SET_REGION_SUPPORT
+#if RSI_SET_REGION_SUPPORT && !SL_SI91X_ACX_MODULE
   status = sl_si91x_set_device_region(0, 0, 4);
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\r\nSet Region Failed, Error Code : %ld\r\n", status);

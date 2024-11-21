@@ -52,7 +52,11 @@
 //   <SL_ADC_CHANNEL_14=>  channel_14
 //   <SL_ADC_CHANNEL_15=>  channel_15
 //   <SL_ADC_CHANNEL_16=>  channel_16
+#ifndef SLI_SI915
 #define JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_1
+#else
+#define JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_2
+#endif
 
 //</e>
 

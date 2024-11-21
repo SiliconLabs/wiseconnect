@@ -1,6 +1,6 @@
 {%- if existsIn(command, "handler") -%}
 extern sl_status_t {{command.handler}}( console_args_t* arguments );
-static const char* {{prefix}}_{{name}}_arg_help[] = { {%- for arg in command.arguments %}{% if isObject(arg) and existsIn(arg, "help") %}  "{{arg.help}}",{% else %}  0,{% endif -%}{% endfor %} };
+static const char* const {{prefix}}_{{name}}_arg_help[] = { {%- for arg in command.arguments %}{% if isObject(arg) and existsIn(arg, "help") %}  "{{arg.help}}",{% else %}  0,{% endif -%}{% endfor %} };
 {%- endif %}
 {%- if existsIn(command, "handler") %}
 static const console_descriptive_command_t {{prefix}}_{{name}}_command = { .description={%- if existsIn(command, "description") %}"{{command.description}}"{% else if existsIn(command, "help") %}"{{command.help}}"{% endif %}, .argument_help={{prefix}}_{{name}}_arg_help, .handler={{command.handler}}, .argument_list={ {%- for arg in command.arguments -%}

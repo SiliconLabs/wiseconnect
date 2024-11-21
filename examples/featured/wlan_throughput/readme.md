@@ -47,6 +47,8 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
   	
 - **NCP Mode**:
   - Standalone
@@ -55,6 +57,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
@@ -62,6 +65,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
      - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045C)
       - (BRD4357A + BRD8045C)
+      - (BRD4353A + BRD8045A)
   - Interface and Host MCU Supported
     - SPI - EFR32 & STM32
     - UART - EFR32
@@ -78,6 +82,13 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 
   ![Figure: Setup Diagram SoC and NCP Mode for WLAN Throughput Example](resources/readme/setup_soc_ncp.png)
 
+  Here 
+
+1. The development environment refers to either Simplicity Studio or Keil IDE (NCP with STM32 host).
+2. After the application is flashed onto the SiWx91x module, it connects to a Wireless Access Point (WAP).
+3. To operate as a server, another device connects to this AP.
+4. The data transfer is facilitated by an iperf application running on a third-party device.
+
 ## Getting Started
 
 ### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
@@ -89,7 +100,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
 - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following steps:
   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-  - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
+  - Mount the NCP Radio board (BRD4346A/BRD4357A/BRD4353A) onto the radio board socket available on the base board (BRD8045C).
   - After connecting all the boards, the setup should look like the image shown:
   
   ![Figure: Setup](resources/readme/stm32_setup.png)
@@ -143,9 +154,16 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+
 **Path for app.c in Keil IDE:**
 
 - Expand the **Application/User/Core** folder and open **app.c** file.
+
+**Path for app.c in Simplicity Studio IDE:**
+
+- app.c file will be located at **wifi_wlan_throughput_soc**
 
 Configure the following parameters in `app.c` to test throughput app as per requirements
 
@@ -193,23 +211,6 @@ Configure the following parameters in `app.c` to test throughput app as per requ
       ```c
       #define PLL_MODE      1
       ```
-      
-  - Configure the TCP RX window size and TCP RX window division factor to 44 in the socket configuration in **app.c** to achieve high throughput for TCP_RX and TLS_RX.
-   
-    ```c
-    static sl_si91x_socket_config_t socket_config = {
-      1,  // Total sockets
-      1,  // Total TCP sockets
-      0,  // Total UDP sockets
-      0,  // TCP TX only sockets
-      1,  // TCP RX only sockets
-      0,  // UDP TX only sockets
-      0,  // UDP RX only sockets
-      1,  // TCP RX high performance sockets
-      44, // TCP RX window size
-      44  // TCP RX window division factor
-    };
-    ```  
 
 ## Test the application
 
@@ -246,7 +247,11 @@ The iPerf command to start the UDP server on the PC is:
   >
   > `C:\> iperf.exe -s -u -p 5001 -i 1`
 
-  ![Figure: UDP_TX](resources/readme/image217b.png)
+#####  For SOC:
+  ![Figure: UDP_TX](resources/readme/UDP_TX.png)
+
+##### For NCP with EFR host:
+  ![Figure: UDP_TX](resources/readme/UDP_TX_NCP.png)
 
 #### UDP Rx Throughput
 
@@ -259,33 +264,45 @@ The iPerf command to start the UDP client is:
   >
   > `C:\> iperf.exe -c 192.168.0.100 -u -p 5001 -i 1 -b 70M -t 30`  
 
-  ![Figure: UDP_RX](resources/readme/image217a.png)
+#####  For SOC:
+  ![Figure: UDP_RX](resources/readme/UDP_RX.png)
+
+##### For NCP with EFR host:
+  ![Figure: UDP_RX](resources/readme/UDP_RX_NCP.png)
 
 #### TCP Tx Throughput
 
 To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
 The iPerf command to start the TCP server is:
   
-  > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`
+  > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1 -S 0xC8`
   >
   > For example ...
   >
-  > `C:\> iperf.exe -s -p 5001 -i 1`
+  > `C:\> iperf.exe -s -p 5001 -i 1 -S 0xC8`
 
-  ![Figure: TCP_TX](resources/readme/image217d.png)
+#####  For SOC:
+  ![Figure: TCP_TX](resources/readme/TCP_TX.png)
+
+##### For NCP with EFR host:
+  ![Figure: TCP_TX](resources/readme/TCP_TX_NCP.png)
 
 #### TCP Rx Throughput
 
 To measure TCP Rx throughput, configure the SiWx91x as TCP server and start a TCP client on the remote PC.
 The iPerf command to start the TCP client is:
 
-  > `C:\> iperf.exe -c <Module_IP> -p <LISTENING_PORT> -i 1 -t <time interval in sec>`
+  > `C:\> iperf.exe -c <Module_IP> -p <LISTENING_PORT> -i 1 -t <time interval in sec> -S 0xC8`
   >
   > For example ...
   >
-  > `C:\> iperf.exe -c 192.168.0.100 -p 5001 -i 1 -t 30`  
+  > `C:\> iperf.exe -c 192.168.0.100 -p 5001 -i 1 -t 30 -S 0xC8`  
 
-  ![Figure: TCP_RX](resources/readme/image217c.png)
+#####  For SOC:
+  ![Figure: TCP_RX](resources/readme/TCP_RX.png)
+
+##### For NCP with EFR host:
+  ![Figure: TCP_RX](resources/readme/TCP_RX_NCP.png)
 
 #### TLS Tx Throughput
 
@@ -299,7 +316,11 @@ To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a 
 
     >   The TLSv1_3 works for python version greater than 3.6.
 
-  ![Figure: TLS_TX](resources/readme/image217f.png)
+#####  For SOC:
+  ![Figure: TLS_TX](resources/readme/TLS_TX.png)
+
+##### For NCP with EFR host:
+  ![Figure: TLS_TX](resources/readme/TLS_TX_NCP.png)
 
 #### TLS Rx Throughput
 
@@ -313,4 +334,11 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
 
     >   The TLSv1_3 works for python version greater than 3.6.
 
-  ![Figure: TLS_RX](resources/readme/image217e.png)
+#####  For SOC:
+  ![Figure: TLS_RX](resources/readme/TLS_RX.png)
+
+##### For NCP with EFR host:
+  ![Figure: TLS_RX](resources/readme/TLS_RX_NCP.png)
+
+**Note:**
+>  The captured reference images are measured in an isolated chamber. However, variations can be observed if Throughputs measured in dense environments, ie. in a dense environment we can observe less throughput.

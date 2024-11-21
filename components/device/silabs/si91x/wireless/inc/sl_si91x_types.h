@@ -50,43 +50,10 @@ typedef enum {
   SI91X_COMMON_CMD  = 0, ///< SI91X Common Command
   SI91X_WLAN_CMD    = 1, ///< SI91X Wireless LAN Command
   SI91X_NETWORK_CMD = 2, ///< SI91X Network Command
-  SI91X_SOCKET_CMD  = 3, ///< SI91X Socket Command
-  SI91X_BT_CMD      = 4, ///< SI91X Bluetooth Command
-  SI91X_SOCKET_DATA = 5, ///< SI91X Socket Data Command
-  SI91X_CMD_MAX          ///< SI91X Maximum Command value
+  SI91X_BT_CMD      = 3, ///< SI91X Bluetooth Command
+  SI91X_SOCKET_CMD  = 4, ///< SI91X Socket Command
+  SI91X_CMD_MAX,         ///< SI91X Maximum Command value
 } sl_si91x_command_type_t;
-
-/// Si91x queue types
-typedef enum {
-  // SI91X command queue types
-  // Note: The values of the command queue type should be
-  //       in sync with that of sl_si91x_command_type_t
-  SI91X_COMMON_CMD_QUEUE  = 0, ///< SI91X Common Command queue
-  SI91X_WLAN_CMD_QUEUE    = 1, ///< SI91X Wireless LAN Command queue
-  SI91X_NETWORK_CMD_QUEUE = 2, ///< SI91X Network Command queue
-  SI91X_SOCKET_CMD_QUEUE  = 3, ///< SI91X Socket Command queue
-  SI91X_BT_CMD_QUEUE      = 4, ///< SI91X Bluetooth Command queue
-  SI91X_SOCKET_DATA_QUEUE = 5, ///< SI91X Socket Command queue
-
-  // SI91X response queue types
-  SI91X_COMMON_RESPONSE_QUEUE  = 6,  ///< SI91X Common Command response queue
-  SI91X_WLAN_RESPONSE_QUEUE    = 7,  ///< SI91X Wireless LAN Command response queue
-  SI91X_NETWORK_RESPONSE_QUEUE = 8,  ///< SI91X Network Command response queue
-  SI91X_SOCKET_RESPONSE_QUEUE  = 9,  ///< SI91X Socket Command response queue
-  SI91X_BT_RESPONSE_QUEUE      = 10, ///< SI91X Bluetooth Command response queue
-
-  // All SI91X WLAN Async Events use this queue
-  SI91X_WLAN_EVENT_QUEUE = 11, ///< SI91X Wireless LAN Asynchronous response queue
-  // All SI91X Network Async Events use this queue
-  SI91X_NETWORK_EVENT_QUEUE = 12, ///< SI91X Network Asynchronous response queue
-
-  SI91X_SOCKET_EVENT_QUEUE = 13, ///< SI91X Asynchronous Sockets events queue
-
-  // ALL SOC rx packets use this queue
-  CCP_M4_TA_RX_QUEUE = 14, ///< SI91X M4 Receive queue
-
-  SI91X_QUEUE_MAX ///< SI91X Maximum queue type
-} sl_si91x_queue_type_t;
 
 /** \addtogroup SL_SI91X_CONSTANTS 
  * @{
@@ -237,12 +204,10 @@ typedef struct {
   sl_wifi_buffer_t *host_packet;        ///< Si91x host buffer
   uint8_t firmware_queue_id;            ///< Si91x firmware queue id
   sl_si91x_command_type_t command_type; ///< Si91x command type
-  uint16_t packet_id;                   ///< Packet id, used internally to track packets
-  uint8_t flags;                        ///< One of the values from Si91x packet response flags
-  uint16_t frame_status;                ///< Si91x command status
-  void *sdk_context;                    ///< SDK context, unused internally to invoke user callbacks
-  int32_t
-    sl_si91x_socket_id; ///< socket_id, used only for SI91X_SOCKET_CMD queue to update socket_id in command trace of bus thread.
+  //  uint16_t packet_id;                   ///< Packet id, used internally to track packets
+  uint8_t flags;              ///< One of the values from Si91x packet response flags
+  uint16_t frame_status;      ///< Si91x command status
+  void *sdk_context;          ///< SDK context, unused internally to invoke user callbacks
   uint32_t command_timeout;   ///< Si91x command timeout
   uint32_t command_tickcount; ///< command_tickcount stores the tickcount when the command is given to the bus thread.
 } sli_si91x_queue_packet_t;
@@ -260,3 +225,23 @@ typedef struct {
   uint8_t rx_ratio_in_buffer_pool;     ///< rx ratio
   uint8_t global_ratio_in_buffer_pool; ///< global ratio
 } sl_si91x_dynamic_pool;
+
+/// Structure to represent a command queue
+typedef struct {
+  sl_si91x_buffer_queue_t tx_queue;    ///< TX queue
+  sl_si91x_buffer_queue_t rx_queue;    ///< RX queue
+  sl_si91x_buffer_queue_t event_queue; ///< Event queue
+  void *mutex;                         ///< Pointer to mutex
+  uint32_t flag;                       ///< Flags
+  bool sequential;                     ///< Indicates if the commands are sequential
+  bool command_in_flight;              ///< Indicates if a command is currently being processed
+  uint16_t frame_type;                 ///< Type of the frame associated with the command
+  uint8_t firmware_queue_id;           ///< ID of the firmware queue for the command
+  uint32_t rx_counter;                 ///< Counter for received packets
+  uint32_t tx_counter;                 ///< Counter for transmitted packets
+  uint16_t packet_id;                  ///< ID of the packet associated with the command
+  uint8_t flags;                       ///< Flags associated with the command
+  uint32_t command_tickcount;          ///< Command tick count
+  uint32_t command_timeout;            ///< Command timeout
+  void *sdk_context;                   ///< Context data associated with the command
+} sli_si91x_command_queue_t;

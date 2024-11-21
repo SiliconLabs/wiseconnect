@@ -34,6 +34,8 @@ The coex application has WLAN and BLE tasks and acts as an interface between Sma
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
   	
 - **NCP Mode**:
   - Standalone
@@ -42,6 +44,7 @@ The coex application has WLAN and BLE tasks and acts as an interface between Sma
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - Interface and Host MCU Supported
@@ -68,10 +71,11 @@ The coex application has WLAN and BLE tasks and acts as an interface between Sma
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -91,6 +95,9 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 #define SECURITY_TYPE  SL_WIFI_WPA2     // Wi-Fi Security Type: SL_WIFI_OPEN / SL_WIFI_WPA / RSI_WPA2
 ```
 
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+
 **Client/Server IP Settings**
 
 ```c
@@ -103,7 +110,7 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 
 **Throughput Measurement Types**
 
-The application may be configured to measure throughput using UDP, TCP, SSL packets. Choose the measurement type using the `THROUGHPUT_TYPE` macro.
+The application may be configured to measure throughput using UDP, TCP, TLS packets. Choose the measurement type using the `THROUGHPUT_TYPE` macro.
 
 ```
 #define THROUGHPUT_TYPE  TCP_TX     // Selects the throughput option; see the following diagrams. 
@@ -111,8 +118,8 @@ The application may be configured to measure throughput using UDP, TCP, SSL pack
 #define TCP_RX           1			// SiWx91x receives packets from remote TCP server
 #define UDP_TX           2			// SiWx91x transmits packets to remote UDP client
 #define UDP_RX           3			// SiWx91x receives packets from remote UDP server
-#define SSL_TX 			 4          // SiWx91x transmits packets to remote SSL client
-#define SSL_RX           5          // SiWx91x receives packets from remote SSL server
+#define TLS_TX 			 4          // SiWx91x transmits packets to remote TLS client
+#define TLS_RX           5          // SiWx91x receives packets from remote TLS server
 ```
 
 To Load certificate to device flash.(Certificate could be loaded once and need not be loaded for every boot up)
@@ -183,6 +190,79 @@ RSI_BLE_ATT_PROPERTY_NOTIFY is used to set the NOTIFY property to an attribute v
 ```c
 #define  RSI_BLE_ATT_PROPERTY_NOTIFY                     0x10
 ```
+### Common Steps
+
+### WLAN throughputs: UDP/TCP/TLS unidirectional
+
+1. Compile the project and flash the binary onto STM32
+
+2. To measure **WLAN throughput** , run the below iPerf commands or tls scripts
+
+- To measure **UDP Tx** throughput, configure module as UDP client and open UDP server in remote port using below command. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+
+  ```sh
+           iperf.exe -s -u -p <SERVER_PORT> -i 1
+  ```
+
+  ex: iperf.exe -s -u -p 5001 -i 1
+    
+    ![](resources/readme/remote_screen4.png)
+
+- To measure **UDP Rx** througput, configure module as UDP server and open UDP client in remote port using below command
+
+  ```sh
+           iperf.exe -c <Module_IP> -u -p <DEVICE_PORT> -i 1 -b<Bandwidth> -t <duration in sec>
+  ```
+  
+  ex: iperf.exe -c 192.168.0.1 -u -p 5001 -i 1 -b50M -t 100
+    
+    ![](resources/readme/remote_screen5.png)
+
+- To measure **TCP Tx** throughput, configure module as TCP client and open TCP server in remote port using below command. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+
+  ```sh
+           iperf.exe -s -p <SERVER_PORT> -i 1
+  ```
+  
+  ex: iperf.exe -s -p 5001 -i 1
+    
+    ![](resources/readme/remote_screen6.png)
+
+- To measure **TCP Rx** througput, configure module as TCP server and open TCP client in remote port using below command
+
+  ```sh
+           iperf.exe -c <Module_IP> -p <DEVICE_PORT> -i 1 -t <duration in sec>
+  ```
+  ex: iperf.exe -c 192.168.0.1 -p 5001 -i 1 -t 100
+      
+    ![](resources/readme/remote_screen7.png)
+
+- To measure **TLS Tx** throughput, configure module in TLS client and follow below steps to run TLS server in windows
+
+  - Copy SSL_Server_throughput_d.py from release/resources/scripts/ to release/resources/certificates/
+
+  - Open command prompt in folder release/resources/certificates/ and run below command
+
+  ```sh
+           python SSL_Server_throughput_d.py
+  ```   
+    ![](resources/readme/remote_screen8.png)
+
+- To measure **TLS Rx** throughput, configure module in TLS client and follow below steps to run TLS server in windows
+
+  - Copy SSL_tx_throughput.py from release/resources/scripts/ to release/resources/certificate
+
+  - Change port no. from "5001" to the value configured in "TLS_RX_SERVER_PORT"
+
+  - Open command prompt in folder release/resources/certificates/ and run below command
+  > **Note:**
+  > Python version: 3.9.0
+
+  ```sh
+      python SSL_tx_throughput.py
+   ```
+   
+   ![](resources/readme/remote_screen9.png)
 
 ## Test the Application
 

@@ -68,7 +68,7 @@ static const sl_wifi_device_configuration_t transmit_test_configuration = {
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -109,7 +109,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .channel     = 1,
   .aggr_enable = 0,
   .no_of_pkts  = 0,
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,
@@ -268,7 +268,7 @@ sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uin
     return SL_STATUS_FAIL;
   }
 
-  if (event == SL_WIFI_STATS_AYSNC_EVENT) {
+  if (event == SL_WIFI_STATS_ASYNC_EVENT) {
     sl_si91x_async_stats_response_t *result = (sl_si91x_async_stats_response_t *)reponse;
 
     printf("\r\n%s: WIFI STATS Recieved packet# %d\n", __func__, stats_count);

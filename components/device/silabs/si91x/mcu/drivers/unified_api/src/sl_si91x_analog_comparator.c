@@ -1,32 +1,31 @@
-/***************************************************************************/ /**
- * @file
- * @brief ULP TIMER API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_analog_comparator.c
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_analog_comparator.h"
 #include "rsi_comparator.h"
 #include "rsi_rom_ulpss_clk.h"
@@ -65,7 +64,7 @@ void ANALOG_COMPARATOR2_IRQHandler(void);
 * @brief:Initializes Analog comparator peripheral
 
 * @details: 
-* Enables system core clock and Auxiliary clock with 32MHZ RC clock
+* Enables system core clock and Auxiliary clock with MHZ RC clock
 * Configures reference LDO voltage as 2.8v
 *******************************************************************************/
 void sl_si91x_analog_comparator_init(void)
@@ -73,7 +72,7 @@ void sl_si91x_analog_comparator_init(void)
   float vref_value = LDO_REF_VOLTAGE; // Reference voltage to LDO, Min is 1.8V and Max is 3.3V
 
   // Configure the AUX clock source
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
 
   // Configure the reference LDO voltage as 3.3v
   RSI_AUX_RefVoltageConfig(vref_value, CHIP_REF_VOLTAGE);

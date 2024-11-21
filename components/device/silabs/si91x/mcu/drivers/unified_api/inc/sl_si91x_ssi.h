@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
+/******************************************************************************
 * @file sl_si91x_ssi.h
 * @brief SSI Peripheral API implementation
-* *******************************************************************************
-* * # License
-* * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-* *******************************************************************************
-* *
-* * SPDX-License-Identifier: Zlib
-* *
-* * The licensor of this software is Silicon Laboratories Inc.
-* *
-* * This software is provided 'as-is', without any express or implied
-* * warranty. In no event will the authors be held liable for any damages
-* * arising from the use of this software.
-* *
-* * Permission is granted to anyone to use this software for any purpose,
-* * including commercial applications, and to alter it and redistribute it
-* * freely, subject to the following restrictions:
-* *
-* * 1. The origin of this software must not be misrepresented; you must not
-* *    claim that you wrote the original software. If you use this software
-* *    in a product, an acknowledgment in the product documentation would be
-* *    appreciated but is not required.
-* * 2. Altered source versions must be plainly marked as such, and must not be
-* *    misrepresented as being the original software.
-* * 3. This notice may not be removed or altered from any source distribution.
-* *
-*******************************************************************************/
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_SSI_H
 #define SL_SI91X_SSI_H
@@ -122,10 +122,13 @@ typedef enum {
  * @brief Enumeration for different SSI peripheral device modes.
  */
 typedef enum {
-  SL_SSI_MASTER_ACTIVE = ARM_SPI_MODE_MASTER, ///< Primary mode is active.
-  SL_SSI_SLAVE_ACTIVE  = ARM_SPI_MODE_SLAVE,  ///< Secondary mode is active.
-  SL_SSI_ULP_MASTER_ACTIVE,                   ///< ULP primary mode is active.
-  SL_SSI_INSTANCE_LAST,                       ///< Last member of enum for validation.
+  SL_SSI_MASTER_ACTIVE    = ARM_SPI_MODE_MASTER,        ///< For the purpose of migration
+  SL_SSI_PRIMARY_ACTIVE   = SL_SSI_MASTER_ACTIVE,       ///< Primary mode is active.
+  SL_SSI_SLAVE_ACTIVE     = ARM_SPI_MODE_SLAVE,         ///< For the purpose of migration
+  SL_SSI_SECONDARY_ACTIVE = SL_SSI_SLAVE_ACTIVE,        ///< Secondary mode is active.
+  SL_SSI_ULP_MASTER_ACTIVE,                             ///< For the purpose of migration
+  SL_SSI_ULP_PRIMARY_ACTIVE = SL_SSI_ULP_MASTER_ACTIVE, ///< ULP primary mode is active.
+  SL_SSI_INSTANCE_LAST,                                 ///< Last member of enum for validation.
 } sl_ssi_instance_t;
 
 /***************************************************************************/
@@ -175,11 +178,11 @@ typedef enum {
  * @param[in] clock_config Pointer to the clock configuration structure \ref sl_ssi_clock_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success, timer clock-source parameters configured properly.
- *         - SL_STATUS_FAIL (0x0001)              - Generic error.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011)   - Clock is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success, timer clock-source parameters configured properly.
+ *         - SL_STATUS_FAIL               - Generic error.
+ *         - SL_STATUS_NOT_INITIALIZED    - Clock is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -198,9 +201,9 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config);
  * @param[in] ssi_handle Double pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
  *
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_BUSY (0x0004)              - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -215,8 +218,8 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
  * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
  *
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *
@@ -250,15 +253,15 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
  * @param[in] slave_number In the current implementation, the variable slave_number is unused ( \ref sl_ssi_slave_number_t).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_FAIL (0x0001)              - Function failed.
- *         - SL_STATUS_BUSY (0x0004)              - Driver is busy.
- *         - SL_STATUS_NOT_SUPPORTED (0x000F)     - Parameter is not supported.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_MODE (0x0024)      - Slave select mode is invalid.
- *         - SL_STATUS_INVALID_TYPE (0x0026)      - SPI frame format is not valid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Data bits (frame length) are not in range.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_NOT_SUPPORTED      - Parameter is not supported.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_MODE       - Slave select mode is invalid.
+ *         - SL_STATUS_INVALID_TYPE       - SPI frame format is not valid.
+ *         - SL_STATUS_INVALID_RANGE      - Data bits (frame length) are not in range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -284,11 +287,11 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
  * @param[in] data_length (uint32_t) Number of data items to receive.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_FAIL (0x0001)              - Function failed.
- *         - SL_STATUS_BUSY (0x0004)              - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -312,11 +315,11 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
  * @param[in] data_length (uint32_t) Number of data items to send.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_FAIL (0x0001)              - Function failed.
- *         - SL_STATUS_BUSY (0x0004)              - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -342,11 +345,11 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
  * @param[in] data_length (uint32_t) Number of data items to receive.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_FAIL (0x0001)              - Function failed.
- *         - SL_STATUS_BUSY (0x0004)              - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -437,9 +440,9 @@ uint32_t sl_si91x_ssi_get_tx_data_count(sl_ssi_handle_t ssi_handle);
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)           - Success.
- *         - SL_STATUS_BUSY (0x0004)         - The callback is already registered, unregister the previous callback before registering a new one.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK            - Success.
+ *         - SL_STATUS_BUSY          - The callback is already registered, unregister the previous callback before registering a new one.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -466,7 +469,7 @@ void sl_si91x_ssi_unregister_event_callback(void);
  * 
  * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
  * 
- * @return uint32_t The value of the clock division factor.
+ * @return uint32_t The value of the clock division factor in the range of 0 - 127.
  ******************************************************************************/
 uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle);
 
@@ -530,8 +533,8 @@ uint32_t sl_si91x_ssi_get_receiver_sample_delay(sl_ssi_handle_t ssi_handle);
  * @param[in] number Secondary number ( \ref sl_ssi_slave_number_t )
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter
+ *         - SL_STATUS_OK                 - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

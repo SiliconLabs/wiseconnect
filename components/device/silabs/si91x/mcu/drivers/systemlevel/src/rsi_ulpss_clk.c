@@ -1,22 +1,31 @@
 /*******************************************************************************
 * @file  rsi_ulpss_clk.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
-/*************************************************************************
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
- */
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 // Includes
 
@@ -180,10 +189,10 @@ rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_XTAL_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_SEL = clkSource;
       break;
-      /*4: ulp_32mhz_rc_clk*/
-    case ULP_SSI_ULP_32MHZ_RC_CLK:
+      /*4: ulp_mhz_rc_clk*/
+    case ULP_SSI_ULP_MHZ_RC_CLK:
       /*Enable clock*/
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
       pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_SEL = clkSource;
       break;
@@ -202,8 +211,8 @@ rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
       return INVALID_PARAMETERS;
   }
 
-  /*Wait for clock switched */
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_SSI_b != 1))
+  /* Wait for clock switched */
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_SSI_b != 1)
     ;
 
   /*Update the division factor */
@@ -258,10 +267,10 @@ rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T 
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_XTAL_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLK_SEL_b = clkSource;
       break;
-      /*4: ulp_32mhz_rc_clk*/
-    case ULP_I2S_ULP_32MHZ_RC_CLK:
+      /*4: ulp_mhz_rc_clk*/
+    case ULP_I2S_ULP_MHZ_RC_CLK:
       /*Enable clock*/
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
       pULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLK_SEL_b = clkSource;
       break;
@@ -297,8 +306,8 @@ rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T 
       return INVALID_PARAMETERS;
   }
 
-  /*Wait for clock switched */
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_I2S_CLK_b != 1U))
+  /* Wait for clock switched */
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_I2S_CLK_b != 1U)
     ;
 
   /*Set the division factor */
@@ -367,10 +376,10 @@ rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_XTAL_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLK_SEL = clkSource;
       break;
-      /*4: ulp_32mhz_rc_clk*/
-    case ULP_UART_ULP_32MHZ_RC_CLK:
+      /*4: ulp_mhz_rc_clk*/
+    case ULP_UART_ULP_MHZ_RC_CLK:
       /*Enable clock*/
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
       pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLK_SEL = clkSource;
       break;
@@ -395,8 +404,8 @@ rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
       return INVALID_PARAMETERS;
   }
 
-  /*Wait for clock switched */
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_UART_CLK_b != 1U))
+  /* Wait for clock switched */
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_UART_CLK_b != 1U)
     ;
 
   pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLKDIV_FACTOR = (unsigned int)(divFactor & 0x07);
@@ -467,9 +476,9 @@ rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
 
       pULPCLK->ULP_TIMER_CLK_GEN_REG_b.ULP_TIMER_CLK_SEL = clkSource;
       break;
-      /*4: ulp_32mhz_rc_clk*/
-    case ULP_TIMER_32MHZ_RC_CLK:
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      /*4: ulp_mhz_rc_clk*/
+    case ULP_TIMER_MHZ_RC_CLK:
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
 
       pULPCLK->ULP_TIMER_CLK_GEN_REG_b.ULP_TIMER_CLK_SEL = clkSource;
       break;
@@ -488,8 +497,8 @@ rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
       return INVALID_PARAMETERS;
   }
   if (skipSwitchTime == 1) {
-    /*Wait for clock switched */
-    while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_TIMER_b != 1U))
+    /* Wait for clock switched */
+    while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_TIMER_b != 1U)
       ;
   }
   ulpss_peripheral_enable(pULPCLK, ULP_TIMER_CLK, clkType);
@@ -543,10 +552,10 @@ rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_XTAL_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_AUXADC_CLK_GEN_REG_b.ULP_AUX_CLK_SEL = clkSource;
       break;
-      /*4: ulp_32mhz_rc_clk*/
-    case ULP_AUX_32MHZ_RC_CLK:
+      /*4: ulp_mhz_rc_clk*/
+    case ULP_AUX_MHZ_RC_CLK:
       /*Enable clock*/
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
       pULPCLK->ULP_AUXADC_CLK_GEN_REG_b.ULP_AUX_CLK_SEL = clkSource;
       break;
@@ -582,8 +591,8 @@ rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP
       return INVALID_PARAMETERS;
   }
 
-  /*wait for clock switched */
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_AUXADC_b != 1U))
+  /* wait for clock switched */
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_AUXADC_b != 1U)
     ;
 
   ulpss_peripheral_enable(pULPCLK, ULP_AUX_CLK, clkType);
@@ -610,9 +619,9 @@ rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
                                  ULP_VAD_FCLK_SELECT_T FclkSource,
                                  uint16_t divFactor)
 {
-  /*Parameter validation */
-  if (((pULPCLK == NULL) || (divFactor >= ULP_VAD_MAX_DIVISION_FACTOR) || (clkSource > ULP_VAD_MAX_SEL)
-       || (FclkSource > ULP_VAD_FCLK_MAX_SEL))) {
+  /* Parameter validation */
+  if (pULPCLK == NULL || divFactor >= ULP_VAD_MAX_DIVISION_FACTOR || clkSource > ULP_VAD_MAX_SEL
+      || FclkSource > ULP_VAD_FCLK_MAX_SEL) {
     return INVALID_PARAMETERS;
   }
 
@@ -648,10 +657,10 @@ rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
       ulpss_enable_ref_clks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_FCLK_SEL = FclkSource;
       break;
-    case ULP_VAD_32MHZ_RC_CLK:
-      /*2: ulp_32mhz_rc_clk*/
+    case ULP_VAD_MHZ_RC_CLK:
+      /*2: ulp_mhz_rc_clk*/
       /*Enable clock*/
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_FCLK_SEL = FclkSource;
       break;
     case ULP_VAD_20MHZ_RO_CLK:
@@ -661,7 +670,6 @@ rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
       break;
     case ULP_VAD_ULP_SOC_CLK:
       /*4: soc_clk*/
-      //	M4CLK->CLK_ENABLE_SET_REG1_b.ULPSS_CLK_ENABLE_b = 1;
       pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_FCLK_SEL = FclkSource;
       break;
     default:
@@ -669,11 +677,11 @@ rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
   }
 
   /*wait for clock switched */
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_FCLK_VAD_b != 1U))
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_FCLK_VAD_b != 1U)
     ;
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_SCLK_VAD_b != 1U))
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_SCLK_VAD_b != 1U)
     ;
-  while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_VAD_b != 1U))
+  while (pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_VAD_b != 1U)
     ;
   /*Set VAD clock division factor */
   pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_CLKDIV_FACTOR = (uint8_t)divFactor;
@@ -728,10 +736,10 @@ rsi_error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T 
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_XTAL_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLK_SEL = clkSource;
       break;
-      /*4: ulp_32mhz_rc_clk*/
-    case ULP_TOUCH_32MHZ_RC_CLK:
+      /*4: ulp_mhz_rc_clk*/
+    case ULP_TOUCH_MHZ_RC_CLK:
       /*Enable clock*/
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
       pULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLK_SEL = clkSource;
       break;
@@ -1002,44 +1010,49 @@ rsi_error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK)
 
 rsi_error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
 {
-
   switch (clkSource) {
     case ULPSS_REF_BYP_CLK:
-      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = 0x01;
-      system_clocks.ulp_ref_clock_source                 = ULPSS_REF_BYP_CLK;
+      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = clkSource;
+      system_clocks.ulp_ref_clock_source                 = clkSource;
       system_clocks.ulpss_ref_clk                        = system_clocks.byp_rc_ref_clock;
       break;
-    case ULPSS_ULP_32MHZ_RC_CLK:
-      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = 0x02;
-      system_clocks.ulp_ref_clock_source                 = ULPSS_ULP_32MHZ_RC_CLK;
-      system_clocks.ulpss_ref_clk                        = system_clocks.rc_32mhz_clock;
+
+    case ULPSS_ULP_MHZ_RC_CLK:
+      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = clkSource;
+      system_clocks.ulp_ref_clock_source                 = clkSource;
+      system_clocks.ulpss_ref_clk                        = system_clocks.rc_mhz_clock;
       break;
-    case ULPSS_RF_REF_CLK:
-      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = 0x03;
-      system_clocks.ulp_ref_clock_source                 = ULPSS_RF_REF_CLK;
+
+    case ULPSS_40MHZ_CLK:
+      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = clkSource;
+      system_clocks.ulp_ref_clock_source                 = clkSource;
       system_clocks.ulpss_ref_clk                        = system_clocks.rf_ref_clock;
       break;
+
     case ULPSS_MEMS_REF_CLK:
       TASS_PLL_CTRL_SET_REG(AFEPLLCTRLREG1)              = MEMS_REF_CLK_ENABLE;
-      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = 0x04;
-      system_clocks.ulp_ref_clock_source                 = ULPSS_MEMS_REF_CLK;
+      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = clkSource;
+      system_clocks.ulp_ref_clock_source                 = clkSource;
       system_clocks.ulpss_ref_clk                        = system_clocks.mems_ref_clock;
       break;
+
     case ULPSS_ULP_20MHZ_RINGOSC_CLK:
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
-      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = 0x05;
-      system_clocks.ulp_ref_clock_source                 = ULPSS_ULP_20MHZ_RINGOSC_CLK;
+      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = clkSource;
+      system_clocks.ulp_ref_clock_source                 = clkSource;
       system_clocks.ulpss_ref_clk                        = system_clocks.ro_20mhz_clock;
       break;
+
     case ULPSS_ULP_DOUBLER_CLK:
-      /*7: ulp_doubler_clk*/
+      /*6: ulp_doubler_clk*/
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_DOUBLER_CLK_EN, ULP_PERIPHERAL_CLK, 0);
-      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = 0x06;
-      system_clocks.ulp_ref_clock_source                 = ULPSS_ULP_DOUBLER_CLK;
+      MCU_FSM->MCU_FSM_REF_CLK_REG_b.ULPSS_REF_CLK_SEL_b = clkSource;
+      system_clocks.ulp_ref_clock_source                 = clkSource;
       system_clocks.ulpss_ref_clk                        = system_clocks.doubler_clock;
       break;
+
     default:
       return INVALID_PARAMETERS;
   }
@@ -1106,13 +1119,13 @@ rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
       SystemCoreClock                                = system_clocks.xtal_32khz_clock;
       break;
 
-    case ULP_PROC_ULP_32MHZ_RC_CLK:
+    case ULP_PROC_ULP_MHZ_RC_CLK:
       /*Enable clock*/
       RSI_SetRegSpiDivision(0U);
-      ulpss_enable_ref_clks(MCU_ULP_32MHZ_RC_CLK_EN, ULP_PROCESSOR_CLK, delayFn);
+      ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PROCESSOR_CLK, delayFn);
       /*Select clock MUX */
       pULPCLK->ULP_TA_CLK_GEN_REG_b.ULP_PROC_CLK_SEL = clkSource;
-      SystemCoreClock                                = system_clocks.rc_32mhz_clock;
+      SystemCoreClock                                = system_clocks.rc_mhz_clock;
       break;
 
     case ULP_PROC_ULP_20MHZ_RO_CLK:
@@ -1156,25 +1169,3 @@ rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
   return RSI_OK;
 }
 /** @} */
-
-/*ROM API structure
-const ROM_ULPSS_CLK_API_T ulpssclk_api = {
-		&ulpss_clock_config ,
-		&ulpss_ulp_peri_clk_enable,
-		&ulpss_ulp_peri_clk_disable,
-		&ulpss_ulp_dyn_clk_enable,
-		&ulpss_ulp_dyn_clk_disable,
-		&ulpss_ulp_ssi_clk_config,
-		&ulpss_ulp_i2s_clk_config,
-		&ulpss_ulp_uar_clk_config,
-		&ulpss_time_clk_disable,	
-		&ulpss_time_clk_config,
-		&ulpss_aux_clk_config,
-		&ulpss_vad_clk_config,
-		&ulpss_touch_clk_config,
-		&ulpss_slp_sensor_clk_config,
-		&ulpss_peripheral_enable,
-		&ulpss_peripheral_disable
-};
- */
-/*End of file not truncated*/

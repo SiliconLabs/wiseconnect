@@ -7,8 +7,6 @@ quality: production
 provides:
   - name: external_psram_4mb
   - name: external_psram_implementation
-define:
-  - name: SLI_SI91X_MCU_PSRAM_PRESENT
 template_contribution:
     - name: psram_present
       value: 1
@@ -20,9 +18,5 @@ template_contribution:
       value: 4194304
 
 metadata:
-    device:
-      memory:
-      - name: External PSRAM
-        size: 4194304
-        start: 167772160
-        type: volatile
+    sbom:
+      license: Zlib

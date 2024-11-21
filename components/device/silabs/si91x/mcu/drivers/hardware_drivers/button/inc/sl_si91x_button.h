@@ -19,6 +19,7 @@
 #define SL_SI91X_BUTTON_H
 
 #include <stdint.h>
+#include "sl_si91x_peripheral_gpio.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,16 +50,18 @@ extern "C" {
 /**
  * @brief To configure or to trigger the interrupt based on logic levels (LOW, HIGH, or both) or edge changes (rising, falling, or both).
  */
-#define HIGH_LEVEL_INTERRUPT 1U ///< Interrupt on level high/released button state.
-#define LOW_LEVEL_INTERRUPT  2U ///< Interrupt on level low/pressed button state can be configured.
+#define HIGH_LEVEL_INTERRUPT SL_GPIO_INTERRUPT_HIGH ///< Interrupt on level high/released button state.
+#define LOW_LEVEL_INTERRUPT  SL_GPIO_INTERRUPT_LOW  ///< Interrupt on level low/pressed button state can be configured.
 #define HIGH_LEVEL_AND_LOW_LEVEL_INTERRUPT \
-  3U ///< Interrupt on level low/pressed and high/released button state can be configured.
-#define RISE_EDGE_INTERRUPT               4U  ///< Interrupt on level rising edge of the button press.
-#define FALL_EDGE_INTERRUPT               8U  ///< Interrupt on level falling edge of the button press.
-#define RISE_EDGE_AND_FALL_EDGE_INTERRUPT 12U ///< Interrupt on level rising edge and falling edge of the button press.
-#define BUTTON_PRESSED                    1   ///< Button state is pressed.
-#define BUTTON_RELEASED                   0   ///< Button state is released.
-#define BUTTON_STATE_INVALID              -1  ///< Button state is invalid.
+  (HIGH_LEVEL_INTERRUPT                    \
+   | LOW_LEVEL_INTERRUPT) ///< Interrupt on level low/pressed and high/released button state can be configured.
+#define RISE_EDGE_INTERRUPT SL_GPIO_INTERRUPT_RISING_EDGE  ///< Interrupt on level rising edge of the button press.
+#define FALL_EDGE_INTERRUPT SL_GPIO_INTERRUPT_FALLING_EDGE ///< Interrupt on level falling edge of the button press.
+#define RISE_EDGE_AND_FALL_EDGE_INTERRUPT \
+  SL_GPIO_INTERRUPT_RISE_FALL_EDGE ///< Interrupt on level rising edge and falling edge of the button press.
+#define BUTTON_PRESSED       1     ///< Button state is pressed.
+#define BUTTON_RELEASED      0     ///< Button state is released.
+#define BUTTON_STATE_INVALID -1    ///< Button state is invalid.
 
 /** @} END Macros */
 

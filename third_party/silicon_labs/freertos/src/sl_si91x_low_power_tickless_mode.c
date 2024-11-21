@@ -20,10 +20,13 @@
 #include "FreeRTOSConfig.h"
 #include "sl_rsi_utility.h"
 #include "sl_sleeptimer.h"
+#include "sli_sleeptimer_hal.h"
 #include "projdefs.h"
 #include "portmacro.h"
 #include "sl_atomic.h"
 #include "sl_core.h"
+#include "rsi_sysrtc.h"
+#include "sli_si91x_clock_manager.h"
 
 #if (configUSE_TICKLESS_IDLE == 1)
 /*******************************************************************************
@@ -57,6 +60,8 @@ typedef enum {
   sl_eStandardSleep,        /* Enter a sleep mode that will not last any longer than the expected idle time. */
   sl_eNoTasksWaitingTimeout /* No tasks are waiting for a timeout so it is safe to enter a sleep mode that can only be exited by an external interrupt. */
 } eSleepModeStatus;
+
+#define SLEEPTIMER_EVENT_COMP (0x02)
 
 /*******************************************************************************
  **************************** Local functions  *********************************
@@ -110,6 +115,10 @@ extern uint32_t frontend_switch_control;
 sl_status_t sl_si91x_power_manager_sleep(void);
 boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 
+#define DEFAULT_TICK_FREQUENCY 32000 // Default frequency
+#define SLEEP_TRANSITION_DELAY 96    // This is the post sleep transition delay
+static uint32_t lf_tick_frequency = 0;
+static uint32_t XTAL_SleepStart = 0, XTAL_SleepStop = 0;
 /***************************************************************************
  * Sets up sleeptimer timer for constant ticking.
  ******************************************************************************/
@@ -124,10 +133,19 @@ void vPortSetupTimerInterrupt(void)
   sleeptimer_freq = sl_sleeptimer_get_timer_frequency();
 
   lfticks_per_os_ticks = (sleeptimer_freq + (configTICK_RATE_HZ - 1)) / configTICK_RATE_HZ;
-  max_sleep_os_ticks   = (0xFFFFFFFF / lfticks_per_os_ticks) - 10;
+
+  max_sleep_os_ticks = (0xFFFFFFFF / lfticks_per_os_ticks) - 10;
 
   last_update_lftick = sl_sleeptimer_get_tick_count();
 
+  // Reading the frequency from the sleep timer and utilizing it for tick calculation
+  if (sleeptimer_freq == DEFAULT_32KHZ_XTAL_CLOCK) {
+    lf_tick_frequency = DEFAULT_32KHZ_XTAL_CLOCK;
+  } else if (sleeptimer_freq == DEFAULT_32KHZ_RC_CLOCK) {
+    lf_tick_frequency = DEFAULT_32KHZ_XTAL_CLOCK;
+  } else {
+    lf_tick_frequency = DEFAULT_TICK_FREQUENCY;
+  }
   /* Schedule a wakeup in one tick. */
   sli_os_schedule_wakeup(1);
 }
@@ -150,7 +168,7 @@ SL_WEAK void sli_iot_power_set_expected_idle(TickType_t expected_idle)
 
 void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
 {
-
+  //Disable the NVIC interrupts.
   __asm volatile("cpsid i" ::: "memory");
   __asm volatile("dsb");
   __asm volatile("isb");
@@ -158,13 +176,48 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
   // Checking the pre-sleep conditions. If these conditions are met, the core does not enter sleep mode.
   if ((eTaskConfirmSleepModeStatus() == sl_eAbortSleep) || (sl_si91x_power_manager_is_ok_to_sleep() == false)) {
     xExpectedIdleTime = 0;
+    // Enable the NVIC interrupts.
     __asm volatile("cpsie i" ::: "memory");
   } else {
+    // Disable the chip level interrupt
+    sleeptimer_hal_disable_int(SLEEPTIMER_EVENT_COMP);
+
+    // Enable the NVIC interrupts to handle sleep timer pending interrupt
+    __asm volatile("cpsie i" ::: "memory");
+
+    XTAL_SleepStart = rsi_sysrtc_get_counter();
+    // Switch Subsystems' Ref clocks to MHz RC,Set M4 SOC and QSPI/QSPI2 clock to Ref clock
+    sli_si91x_config_clocks_to_mhz_rc();
+
+#if SL_WIFI_COMPONENT_INCLUDED
+    /* Check's if SOC is in PS2 state. If so, skip writing to PLL registers as they are unavailable in this state. */
+    if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+      if (sl_si91x_is_device_initialized()) {
+        /* If M4 is using XTAL then request NWP to turn OFF XTAL as M4 is going to sleep */
+        sli_si91x_xtal_turn_off_request_from_m4_to_TA();
+      }
+    }
+#endif
+
     sl_atomic_store(is_sleeping, true);
 
-    /* Schedule a wakeup for expected idle end time. */
+    // Schedule a wakeup for expected idle end time.
     sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
+
+    // The calculation below shows the time taken for the XTAL handshake between TA and M4
+    XTAL_SleepStop = rsi_sysrtc_get_counter() - XTAL_SleepStart;
+
+    /* To ensure the new compare value can be updated and prevent unwanted immediate interrupts,
+    the SYSRTC compare value is temporarily set to its maximum value before updating the idle sleep time.
+    This guarantees that the minimum compare drift condition is satisfied in the sleep timer HAL layer. */
+    SYSRTC0->GRP0_CMP0VALUE = 0xFFFFFFF0;
+
     sli_os_schedule_wakeup(xExpectedIdleTime);
+
+    // Disable the NVIC interrupts.
+    __asm volatile("cpsid i" ::: "memory");
+    __asm volatile("dsb");
+    __asm volatile("isb");
 
     configPRE_SLEEP_PROCESSING(xExpectedIdleTime);
 
@@ -175,28 +228,25 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
 
     sl_si91x_power_manager_sleep();
 
-    sl_atomic_store(is_sleeping, false);
-    sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
-    sli_os_schedule_wakeup(1);
-
-    __asm volatile("cpsie i" ::: "memory");
-
     sl_power_manager_sleep_on_isr_exit();
 
     configPOST_SLEEP_PROCESSING(total_slept_os_ticks);
 
+    sl_atomic_store(is_sleeping, false);
+    // Enable the NVIC interrupts.
+    __asm volatile("cpsie i" ::: "memory");
+
     sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
     sli_os_schedule_wakeup(1);
 
-    if (frontend_switch_control != 0) {
-      sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);
+    //Checking for PS2 state status
+    if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+      if (frontend_switch_control != 0) {
+        sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);
+      }
+      sl_si91x_host_clear_sleep_indicator();
+      sli_si91x_m4_ta_wakeup_configurations();
     }
-
-    sl_si91x_host_clear_sleep_indicator();
-
-    sli_si91x_m4_ta_wakeup_configurations();
-
-    MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE &= ~WIRELESS_BASED_WAKEUP;
   }
 }
 
@@ -210,27 +260,23 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
 
   (void)handle;
   (void)data;
-
   uint32_t originalMask = portSET_INTERRUPT_MASK_FROM_ISR();
   /* If system was not sleeping, update lfticks counter. */
 
   bool sched = false;
-
-  /* Increment the RTOS tick. */
-  while ((current_tick_count - last_update_lftick) > lfticks_per_os_ticks) {
-    sched |= xTaskIncrementTick();
-    last_update_lftick += lfticks_per_os_ticks;
-  }
-
   if (!is_sleeping) {
+    /* Increment the RTOS tick. */
+    while ((current_tick_count - last_update_lftick) >= lfticks_per_os_ticks) {
+      sched |= xTaskIncrementTick();
+      last_update_lftick += lfticks_per_os_ticks;
+    }
     if (sched != pdFALSE) {
       /* A context switch is required.  Context switching is performed in
       the PendSV interrupt.  Pend the PendSV interrupt. */
       portYIELD();
     }
+    sli_os_schedule_wakeup(1);
   }
-  sli_os_schedule_wakeup(1);
-
   portCLEAR_INTERRUPT_MASK_FROM_ISR(originalMask);
 }
 /***************************************************************************
@@ -238,6 +284,7 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
  *
  * @param os_ticks Delay, in os ticks, before next wakeup/tick.
  ******************************************************************************/
+
 static void sli_os_schedule_wakeup(TickType_t os_ticks)
 {
   sl_status_t status;
@@ -250,13 +297,19 @@ static void sli_os_schedule_wakeup(TickType_t os_ticks)
 
   /* This function implements a correction mechanism that corrects any drift that can */
   /* occur between the sleep timer time and the tick count in FreeRTOS. */
-  lf_ticks_to_sleep = os_ticks_to_sleep * lfticks_per_os_ticks;
+  lf_ticks_to_sleep = (uint32_t)(((float)os_ticks_to_sleep / configTICK_RATE_HZ) * lf_tick_frequency);
+
+  // Before entering sleep, the sleep time is adjusted based on the XTAL handshake and post-sleep delay
+  if (is_sleeping) {
+    lf_ticks_to_sleep -= SLEEP_TRANSITION_DELAY + XTAL_SleepStop;
+  }
+
   if (lf_ticks_to_sleep <= (current_tick_count - last_update_lftick)) {
     lf_ticks_to_sleep = 1;
   } else {
     lf_ticks_to_sleep -= (current_tick_count - last_update_lftick);
+    lf_ticks_to_sleep += 1;
   }
-
   status = sl_sleeptimer_start_timer(&schedule_wakeup_timer_handle,
                                      lf_ticks_to_sleep,
                                      sli_schedule_wakeup_timer_expire_handler,
@@ -291,15 +344,15 @@ bool sl_power_manager_is_ok_to_sleep()
  ******************************************************************************/
 void sl_power_manager_sleep_on_isr_exit()
 {
-  CORE_DECLARE_IRQ_STATE;
   uint32_t slept_lf_ticks;
   uint32_t slept_os_ticks;
 
-  CORE_ENTER_CRITICAL();
   /* Determine how long we slept. */
-  slept_lf_ticks = sl_sleeptimer_get_tick_count() - last_update_lftick;
-  slept_os_ticks = slept_lf_ticks / lfticks_per_os_ticks;
-  last_update_lftick += slept_os_ticks * lfticks_per_os_ticks;
+  slept_lf_ticks = (sl_sleeptimer_get_tick_count() - last_update_lftick);
+
+  slept_os_ticks = (uint32_t)(((float)slept_lf_ticks / lf_tick_frequency) * configTICK_RATE_HZ);
+
+  last_update_lftick += (uint32_t)(((float)slept_os_ticks * lf_tick_frequency) / configTICK_RATE_HZ);
 
   /* Notify FreeRTOS of how long we slept. */
   if ((total_slept_os_ticks + slept_os_ticks) < expected_sleep_ticks) {
@@ -309,6 +362,5 @@ void sl_power_manager_sleep_on_isr_exit()
     vTaskStepTick(expected_sleep_ticks - total_slept_os_ticks);
     total_slept_os_ticks = expected_sleep_ticks;
   }
-  CORE_EXIT_CRITICAL();
 }
 #endif

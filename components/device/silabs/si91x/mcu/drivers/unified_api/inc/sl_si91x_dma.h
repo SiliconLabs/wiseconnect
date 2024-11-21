@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_dma.h
- * @brief DMA API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_dma.h
+* @brief DMA API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_DMA_
 #define SL_SI91X_DMA_
@@ -261,8 +261,8 @@ extern sl_channel_data_t sl_ulp_dma_channel_allocation_data_t[SL_ULP_DMA_CHANNEL
  *                     - dma_init->dma_number: 0 for UDMA0, 1 for ULP_DMA.
  * 
  * @return sl_status_t Initialization status:
-*         - SL_STATUS_OK (0x0000) - Initialization success.
-*         - SL_STATUS_NOT_INITIALIZED (0x0001) - Initialization failed.
+*         - SL_STATUS_OK  - Initialization success.
+*         - SL_STATUS_NOT_INITIALIZED - Initialization failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -281,9 +281,9 @@ sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init);
  * @param[in] dma_number 0 for UDMA0, 1 for ULP_DMA.
  * 
  * @return sl_status_t De-initialization status:
- *         - SL_STATUS_OK (0x0000) - De-initialization success.
- *         - SL_STATUS_BUSY (0x0002) - Cannot de-initialize the peripheral due to an ongoing transfer.
- *         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
+*         - SL_STATUS_OK  - De-initialization success.
+*         - SL_STATUS_BUSY  - Cannot de-initialize the peripheral due to an ongoing transfer.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -312,11 +312,11 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number);
  *                     - 1: High priority.
  * 
  * @return sl_status_t Channel allocation status:
-*         - SL_STATUS_OK (0x0000) - Channel allocated.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
-*         - SL_STATUS_DMA_NO_CHANNEL_AVAILABLE (0x0046) - All DMA channels are allocated.
-*         - SL_STATUS_DMA_CHANNEL_ALLOCATED (0x0045) - The desired channel is already allocated.
+*         - SL_STATUS_OK  - Channel allocated.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
+*         - SL_STATUS_DMA_NO_CHANNEL_AVAILABLE  - All DMA channels are allocated.
+*         - SL_STATUS_DMA_CHANNEL_ALLOCATED - The desired channel is already allocated.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -341,10 +341,10 @@ sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel
  *                       - 1-12 for ULP_DMA.
  * 
  * @return sl_status_t Channel deallocation status:
-*         - SL_STATUS_OK (0x0000) - Channel deallocated.
-*         - SL_STATUS_BUSY (0x0002) - Cannot deallocate channel due to an ongoing transfer.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
+*         - SL_STATUS_OK  - Channel deallocated.
+*         - SL_STATUS_BUSY  - Cannot deallocate channel due to an ongoing transfer.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -371,9 +371,9 @@ sl_status_t sl_si91x_dma_deallocate_channel(uint32_t dma_number, uint32_t channe
  * @param[in] callback_t Pointer to the structure containing callback functions.
  * 
  * @return sl_status_t Callback registration status:
-*         - SL_STATUS_OK (0x0000) - Callback registered successfully.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Invalid channel number.
+*         - SL_STATUS_OK  - Callback registered successfully.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid channel number.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -404,9 +404,9 @@ sl_status_t sl_si91x_dma_register_callbacks(uint32_t dma_number, uint32_t channe
  *                          - SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB: Unregister both transfer complete and error callbacks.
  * 
  * @return sl_status_t Callback unregistration status:
-*         - SL_STATUS_OK (0x0000) - Callback unregistered successfully.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Invalid channel number.
+*         - SL_STATUS_OK  - Callback unregistered successfully.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid channel number.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -436,10 +436,10 @@ sl_status_t sl_si91x_dma_unregister_callbacks(uint32_t dma_number, uint32_t chan
  * @param[in] dma_transfer_t Pointer to the channel transfer data structure containing the channel descriptor and other basic DMA parameters.
  * 
  * @return sl_status_t DMA transfer status:
-*         - SL_STATUS_OK (0x0000) - Transfer started successfully.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_SUSPENDED (0x0004) - Transfer initialization failed.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
+*         - SL_STATUS_OK  - Transfer started successfully.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_SUSPENDED - Transfer initialization failed.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -469,10 +469,10 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
  * @param[in] data_size Transfer size in bytes.
  * 
  * @return sl_status_t DMA transfer status:
-*         - SL_STATUS_OK (0x0000) - Transfer success.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_SUSPENDED (0x0004) - Transfer initialization failed.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
+*         - SL_STATUS_OK  - Transfer success.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_SUSPENDED - Transfer initialization failed.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -502,10 +502,10 @@ sl_status_t sl_si91x_dma_simple_transfer(uint32_t dma_number,
  *                       - 1-12 for ULP_DMA.
  * 
  * @return sl_status_t DMA transfer status:
-*         - SL_STATUS_OK (0x0000) - Transfer stopped successfully.
-*         - SL_STATUS_IDLE (0x0001) - There is no active transfer on the channel.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Invalid channel number.
+*         - SL_STATUS_OK  - Transfer stopped successfully.
+*         - SL_STATUS_IDLE  - There is no active transfer on the channel.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid channel number.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -531,11 +531,11 @@ sl_status_t sl_si91x_dma_stop_transfer(uint32_t dma_number, uint32_t channel_no)
  *                       - 1-12 for ULP_DMA.
  * 
  * @return sl_status_t Channel status:
-*         - SL_STATUS_IDLE (0x0001) - Channel is not allocated.
-*         - SL_STATUS_BUSY (0x0002) - Channel is allocated and busy.
-*         - SL_STATUS_DMA_CHANNEL_ALREADY_ALLOCATED (0x0003) - Channel is already allocated and idle.
-*         - SL_STATUS_NOT_INITIALIZED (0x0004) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
+*         - SL_STATUS_IDLE  - Channel is not allocated.
+*         - SL_STATUS_BUSY  - Channel is allocated and busy.
+*         - SL_STATUS_DMA_CHANNEL_ALREADY_ALLOCATED - Channel is already allocated and idle.
+*         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -561,9 +561,9 @@ sl_status_t sl_si91x_dma_channel_status_get(uint32_t dma_number, uint32_t channe
  *                       - 1-12 for ULP_DMA.
  * 
  * @return sl_status_t Channel enable status:
-*         - SL_STATUS_OK (0x0000) - Channel enabled successfully.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
+*         - SL_STATUS_OK  - Channel enabled successfully.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -587,9 +587,9 @@ sl_status_t sl_si91x_dma_channel_enable(uint32_t dma_number, uint32_t channel_no
  *                       - 1-12 for ULP_DMA.
  * 
  * @return sl_status_t Channel disable status:
-*         - SL_STATUS_OK (0x0000) - Channel disabled successfully.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
-*         - SL_STATUS_INVALID_PARAMETER (0x000F) - Channel number is invalid.
+*         - SL_STATUS_OK  - Channel disabled successfully.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
+*         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -610,8 +610,8 @@ sl_status_t sl_si91x_dma_channel_disable(uint32_t dma_number, uint32_t channel_n
  *                       - 1 for ULP_DMA.
  * 
  * @return sl_status_t DMA enable status:
-*         - SL_STATUS_OK (0x0000) - DMA enabled successfully.
-*         - SL_STATUS_NOT_INITIALIZED (0x0003) - DMA peripheral not initialized.
+*         - SL_STATUS_OK  - DMA enabled successfully.
+*         - SL_STATUS_NOT_INITIALIZED  - DMA peripheral not initialized.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

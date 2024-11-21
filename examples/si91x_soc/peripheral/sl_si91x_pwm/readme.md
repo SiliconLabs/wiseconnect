@@ -84,6 +84,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -99,10 +100,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -112,16 +114,31 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure the following macros in pwm_example.c file and update/modify following macros if required.
 
-  ```C
-    #define EVENT_COUNT       10    // Count of events that can generate
-    #define PRESCALE_A        0x100 // PWM Prescale_A value
-    #define DEADTIME_A        0x08  // PWM deadtime_A
-    #define FAULT_A_ENABLE    0x11  // Fault A enable for channel 0
-    #define DT_COUNTER_A      0x00  // Dead time counter A enable
-    #define DT_ENABLE         0x01  // Dead time enable for channel 0
-    #define INTR_EVENT        0x01  // Rise PWM time period match channel 0 event
-    #define DUTY_CYCLE_UPDATE 0x01  // Enable duty cycle updating bit in register
-  ```
+  - Global Parameters
+    ```C
+      #define EVENT_COUNT       10    // Count of events that can generate interrupt. 
+      #define PRESCALE_A        0x100 // PWM Prescale_A value
+      #define DEADTIME_A        0x08  // PWM deadtime_A
+      #define DT_COUNTER_A      0x00  // Dead time counter A enable
+      #define DUTY_CYCLE_UPDATE 0x01  // Enable duty cycle updating bit in register
+    ```
+  
+  - Channel-specific Parameters
+    ```C
+    #define INTR_EVENT       0x01  /* Set channel-specific interrupts for time match and fault events.
+                                      Use bitwise OR to combine flags for multiple channels. */
+    ```
+
+    ```C
+    #define FAULT_A_ENABLE   0x11  /* Configure fault mode and output polarity per channel.
+                                      Combine options with bitwise OR for desired channel settings. */
+    ```
+
+    ```C
+    #define DT_ENABLE        0x01  /* Enable dead time per channel
+                                      Use OR logic to set for multiple channels. */
+    ```
+
 
 - Configure UC from the slcp component.
 - Open **sl_si91x_pwm.slcp** project file select **software component** tab and search for **PWM** in search bar.
@@ -129,7 +146,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Using configuration wizard, one can configure different parameters:
 
   - **Common Configuration for all PWM Channels**
-    - Base Timer Selection: There are two base timers. Timer for each channel and Timer for all channels. If Timer (All Channels) is selected, make sure PWM channel-0 is installed.
+    - Base Timer Selection: The application provides two base timer options—one for each channel individually and one shared across all channels. If using only Channel 0, select the **Timer (All Channels)** option and ensure PWM Channel 0 is installed. If using any channel other than Channel 0, select the **Timer (Each Channel)** option to configure individual timers per channel.
 
   - **General Configuration for individual PWM Channel**
     - Frequency: Frequency changes from 500Hz to 200Khz. By default 25Khz is considered.
@@ -148,37 +165,38 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### PWM Pin Configuration
 
-Tested on WPK Base board - 4002A and Radio board - BRD4338A.
-
 - PWM channel-0 pin configuration.
 
-  | Description   | GPIO    | Connector    |
-  | ------------- | ------- | ------------ |
-  | PWM_H         | GPIO_7  | P20          |
-  | PWM_L         | GPIO_6  | P19          |
+  | Description  | GPIO    | 917 Breakout pin | 915 Breakout pin | Explorer kit Breakout pin | 
+  | ------------ | ------- | ---------------- | ---------------  | ------------------------- |
+  | PWM_H        | GPIO_7  |     P20          |    EXP_15        |            [SCL]          |
+  | PWM_L        | GPIO_6  |     P19          |    EXP_16        |            [SDA]          |
+
 
 - PWM channel-1 pin configuration.
 
-  | Description   | GPIO    | Connector    |
-  | ------------- | ------- | ------------ |
-  | PWM_H         | GPIO_9  | F9           |
-  | PWM_L         | GPIO_8  | F8           |
+  | Description   | GPIO    | 917 Breakout pin | 915 Breakout pin |
+  | ------------- | ------- | ---------------- | ---------------- |
+  | PWM_H         | GPIO_9  |     F9           |     F9           |
+  | PWM_L         | GPIO_8  |     F8           |     F8           |
 
 - PWM channel-2 pin configuration.
 
-  | Description   | GPIO    | Connector    |
-  | ------------- | ------- | ------------ |
-  | PWM_H         | GPIO_11 | F13          |
-  | PWM_L         | GPIO_10 | F11          |
+  | Description   | GPIO    | 917 Breakout pin | 915 Breakout pin |
+  | ------------- | ------- | ---------------- | ---------------  |
+  | PWM_H         | GPIO_11 |     F13          | EXP_5            |
+  | PWM_L         | GPIO_10 |     F11          | F10              |
 
 - PWM channel-3 pin configuration.
 
-  | Description   | GPIO        | Connector   |
-  | ------------- | -------     | ----------- |
-  | PWM_H         | ULP_GPIO_7  | P12         |
-  | PWM_L         | ULP_GPIO_6  | P13         |
+  | Description   | GPIO        | 917 Breakout pin | 915 Breakout pin | Explorer kit Breakout pin|
+  | ------------- | -------     | ---------------- | ---------------- | ------------------------ |
+  | PWM_H         | ULP_GPIO_7  |       P12        |      F6          |          [TX]            |
+  | PWM_L         | ULP_GPIO_6  |       P13        |      F7          |          [RX]            |
 
-> **Note:** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
+>**Note:** Make sure pin configuration in RTE_Device_xxx.h file 
+> - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
+> - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
 ## Test the Application
 

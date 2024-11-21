@@ -1,19 +1,31 @@
 /*******************************************************************************
 * @file  rsi_pll.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 /**
  * Includes
@@ -42,7 +54,7 @@ typedef void (*cdDelay)(uint32_t delay);
 #define USART1_SCLK_ENABLE BIT(1) /*  Enables USART1_SCLK_ENABLE */
 #define USART2_PCLK_ENABLE BIT(2) /*  Enables USART2_PCLK_ENABLE */
 #define USART2_SCLK_ENABLE BIT(3) /*  Enables USART2_SCLK_ENABLE */
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 #define QSPI_2_CLK_ENABLE        BIT(4) /*  Enables QSPI_CLK_ENABLE */
 #define QSPI_2_HCLK_ENABLE       BIT(5) /*  Enables QSPI_HCLK_ENABLE */
 #define QSPI_2_M4_SOC_SYNC       BIT(6) /*  Enables QSPI_M4_SOC_SYNC */
@@ -393,7 +405,7 @@ typedef void (*cdDelay)(uint32_t delay);
 #define MCU_ULP_40MHZ_CLK_EN_TRUN_ON_DELAY          10   /*  delay to enable the ULP 40MHZ  CLK*/
 #define MCU_ULP_DOUBLER_CLK_EN_TRUN_ON_DELAY        10   /*  delay to enable the ULP DOUBLER CLK*/
 #define MCU_ULP_20MHZ_RING_OSC_CLK_EN_TRUN_ON_DELAY 10   /*  delay to enable the ULP 20MHZ_RING_OSC CLK*/
-#define MCU_ULP_32MHZ_RC_CLK_EN_TRUN_ON_DELAY       2    /*  delay to enable the ULP 32MHZ_RC CLK*/
+#define MCU_ULP_MHZ_RC_CLK_EN_TRUN_ON_DELAY         2    /*  delay to enable the ULP MHZ_RC CLK*/
 #define MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_1   500  /*  delay to enable the ULP 32KHZ_XTAL CLK*/
 #define MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_2   1500 /*  delay to enable the ULP 32KHZ_XTAL CLK*/
 #define MCU_ULP_32KHZ_RO_CLK_EN_TRUN_ON_DELAY       250  /*  delay to enable the ULP 32KHZ_RO CLK*/
@@ -406,7 +418,7 @@ typedef enum REF_CLK_ENABLE {
   MCU_ULP_40MHZ_CLK_EN,          /*!< Enables ULP_40MHZ_CLK when it is passed */
   MCU_ULP_DOUBLER_CLK_EN,        /*!< Enables ULP_DOUBLER_CLK when it is passed */
   MCU_ULP_20MHZ_RING_OSC_CLK_EN, /*!< Enables ULP_20MHZ_RING_OSC_CLK when it is passed */
-  MCU_ULP_32MHZ_RC_CLK_EN,       /*!< Enables ULP_32MHZ_RC_CLK when it is passed */
+  MCU_ULP_MHZ_RC_CLK_EN,         /*!< Enables ULP_MHZ_RC_CLK when it is passed */
   MCU_ULP_32KHZ_XTAL_CLK_EN,     /*!< Enables ULP_32KHZ_XTAL_CLK when it is passed */
   MCU_ULP_32KHZ_RO_CLK_EN,       /*!< Enables ULP_32KHZ_RO_CLK when it is passed */
   MCU_ULP_32KHZ_RC_CLK_EN        /*!< Enables ULP_32KHZ_RC_CLK when it is passed */
@@ -433,7 +445,7 @@ typedef enum PERIPHERALS_CLK {
   MCUCLKOUT_CLK, /*!< Enables or Disables MCUCLKOUT Peripheral clock when it is passed */
   HWRNG_CLK,     /*!< Enables or Disables HWRNG Peripheral clock when it is passed */
   I2SM_CLK,      /*!< Enables or Disables I2SM Peripheral clock when it is passed */
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   QSPI_2_CLK, /*!< Enables or Disables QSPI 2 Peripheral clock when it is passed */
 #endif
 } PERIPHERALS_CLK_T;
@@ -442,9 +454,10 @@ typedef enum PERIPHERALS_CLK {
  *@brief PLL selection types
  **/
 typedef enum PLL_TYPE {
-  SOC_PLL,  /*!<SOC_PLL type selection*/
-  INFT_PLL, /*!<INFT_PLL type selection*/
-  I2S_PLL   /*!<I2S_PLL type selection*/
+  SOC_PLL,             /*!<SOC_PLL type selection*/
+  INFT_PLL,            /*!<INFT_PLL type selection, maintaining for backward compatibility*/
+  INTF_PLL = INFT_PLL, /*!<INTF_PLL type selection*/
+  I2S_PLL              /*!<I2S_PLL type selection*/
 } PLL_TYPE_T;
 /**
  *@brief list of possible values of UART instances
@@ -474,7 +487,7 @@ typedef enum SRC_TYPE {
  **/
 typedef enum M4_SOC_CLK_SRC_SEL {
   M4_ULPREFCLK    = 0, /*!< M4_ULPREFCLK selection*/
-  M4_RESERVED     = 1, /*!<RESERVED*/
+  M4_RESERVED     = 1, /*!< RESERVED*/
   M4_SOCPLLCLK    = 2, /*!< M4_SOCPLLCLK selection*/
   M4_MODEMPLLCLK1 = 3, /*!< M4_MODEMPLLCLK1 selection*/
   M4_INTFPLLCLK   = 4, /*!< M4_INTFPLLCLK selection*/
@@ -563,7 +576,7 @@ typedef enum GSPI_CLK_SRC_SEL {
  **/
 
 typedef enum MCU_CLKOUT_SRC_SEL {
-  MCUCLKOUT_ULP_32MHZ_RC_CLK,      /*!< MCUCLKOUT_ULP_32MHZ_RC_CLK selection*/
+  MCUCLKOUT_ULP_MHZ_RC_CLK,        /*!< MCUCLKOUT_ULP_MHZ_RC_CLK selection*/
   MCUCLKOUT_RF_REF_CLK,            /*!< MCUCLKOUT_RF_REF_CLK selection*/
   MCUCLKOUT_MEMS_REF_CLK,          /*!< MCUCLKOUT_MEMS_REF_CLK selection*/
   MCUCLKOUT_ULP_20MHZ_RINGOSC_CLK, /*!< MCUCLKOUT_ULP_20MHZ_RINGOSC_CLK selection*/
@@ -622,9 +635,9 @@ typedef enum I2S_CLK_SRC_SEL {
  *@brief M4ss Reference Input clock source selection
  **/
 typedef enum M4SS_REF_CLK_SEL {
-  ULP_32MHZ_RC_BYP_CLK  = 1, /*!< ULP_32MHZ_RC_BYP_CLK selection*/
-  ULP_32MHZ_RC_CLK      = 2, /*!< ULP_32MHZ_RC_CLK selection*/
-  RF_REF_CLK            = 3, /*!< RF_REF_CLK selection*/
+  ULP_MHZ_RC_BYP_CLK    = 1, /*!< ULP_MHZ_RC_BYP_CLK selection*/
+  ULP_MHZ_RC_CLK        = 2, /*!< ULP_MHZ_RC_CLK selection*/
+  EXT_40MHZ_CLK         = 3, /*!< EXT_40MHZ_CLK selection*/
   MEMS_REF_CLK          = 4, /*!< MEMS_REF_CLK selection*/
   ULP_20MHZ_RINGOSC_CLK = 5, /*!< ULP_20MHZ_RINGOSC_CLK selection*/
   ULP_DOUBLER_CLK       = 6, /*!< ULP_DOUBLER_CLK selection*/
@@ -740,7 +753,7 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
                                 boolean_t swalloEn,
                                 boolean_t OddDivEn,
                                 uint32_t divFactor);
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
                                   QSPI_CLK_SRC_SEL_T clkSource,
                                   boolean_t swalloEn,

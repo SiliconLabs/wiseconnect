@@ -55,7 +55,7 @@
 
 // Max packet length of common command responses
 //changed cmd len for crypto and PUF
-#if defined(RSI_PUF_ENABLE) || (defined RSI_CRYPTO_ENABLE)
+#if defined(SLI_PUF_ENABLE) || (defined RSI_CRYPTO_ENABLE)
 #define RSI_COMMON_CMD_LEN 1600
 #else
 #define RSI_COMMON_CMD_LEN 100
@@ -254,7 +254,7 @@ typedef enum rsi_common_cmd_response_e {
   RSI_COMMON_RSP_TA_M4_COMMANDS        = 0xB0,
   RSI_COMMON_RSP_DEBUG_LOG             = 0x26
 
-#ifdef RSI_PUF_ENABLE
+#ifdef SLI_PUF_ENABLE
   ,
   RSI_COMMON_RSP_PUF_ENROLL      = 0xD0,
   RSI_COMMON_RSP_PUF_DIS_ENROLL  = 0xD1,
@@ -287,7 +287,9 @@ typedef enum rsi_common_cmd_response_e {
 #endif
   ,
   RSI_COMMON_RSP_SET_RTC_TIMER = 0xE9,
-  RSI_COMMON_RSP_GET_RTC_TIMER = 0xF2
+  RSI_COMMON_RSP_GET_RTC_TIMER = 0xF2,
+  RSI_COMMON_RSP_SET_CONFIG    = 0xBA,
+  RSI_COMMON_RSP_GET_CONFIG    = 0x0C
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_RSP_GPIO_CONFIG = 0x28
@@ -318,7 +320,7 @@ typedef enum rsi_common_cmd_request_e {
   RSI_COMMON_REQ_IAP_GENERATE_SIGATURE = 0xB8
 #endif
 
-#ifdef RSI_PUF_ENABLE
+#ifdef SLI_PUF_ENABLE
   ,
   RSI_COMMON_REQ_PUF_ENROLL      = 0xD0,
   RSI_COMMON_REQ_PUF_DIS_ENROLL  = 0xD1,
@@ -345,7 +347,8 @@ typedef enum rsi_common_cmd_request_e {
   ,
   RSI_COMMON_REQ_SET_RTC_TIMER = 0xE9,
   RSI_COMMON_REQ_GET_RTC_TIMER = 0xF2,
-  RSI_COMMON_REQ_SET_CONFIG    = 0xBA
+  RSI_COMMON_REQ_SET_CONFIG    = 0xBA,
+  RSI_COMMON_REQ_GET_CONFIG    = 0x0C
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_REQ_GPIO_CONFIG = 0x28
@@ -356,7 +359,7 @@ typedef enum rsi_common_cmd_request_e {
 #endif
 } rsi_common_cmd_request_t;
 
-#ifdef RSI_PUF_ENABLE
+#ifdef SLI_PUF_ENABLE
 // enumeration for Common control block for PUF state machine
 typedef enum rsi_puf_state_e {
   RSI_PUF_STATE_NONE = 0,
@@ -376,7 +379,7 @@ typedef enum ta_m4_commands_e {
   SL_SI91X_WRITE_TA_REGISTER           = 4,
   // This enum varibale added for M4 has to give indication to NWP, for Configure the Clock switching between 1.3V to 3.3V.
   SL_SI91X_ENABLE_XTAL = 5,
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
 #endif
 } sl_si91x_ta_m4_commands_t;
@@ -390,7 +393,7 @@ typedef struct ta_m4_handshake_param {
   uint8_t *input_data;
 } sl_si91x_ta_m4_handshake_parameters_t;
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define RSI_MAX_CHUNK_SIZE 1400
 
 // TA2M4 handshake request structure.
@@ -509,7 +512,7 @@ typedef struct rsi_common_cb_s {
   // buffer length given by application to driver
   uint32_t app_buffer_length;
 
-#ifdef RSI_PUF_ENABLE
+#ifdef SLI_PUF_ENABLE
   // PUF state variable
   volatile rsi_puf_state_t puf_state;
 #endif

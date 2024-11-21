@@ -33,6 +33,7 @@
 #if (configUSE_TICKLESS_IDLE == 1)
 #include "sl_wifi.h"
 #endif
+#include "sli_si91x_clock_manager.h"
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -44,9 +45,10 @@
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static sl_power_state_t current_state                          = SL_SI91X_POWER_MANAGER_PS4;
+static sl_power_state_t current_state                          = SL_SI91X_POWER_MANAGER_PS3;
 static boolean_t is_initialized                                = false;
 static sl_slist_node_t *power_manager_ps_transition_event_list = NULL;
+static sl_clock_scaling_t clock_scaling_mode                   = SL_SI91X_POWER_MANAGER_POWERSAVE;
 
 // Table of power state counters. Each counter indicates the presence (not zero)
 // or absence (zero) of requirements on a given power state.
@@ -97,7 +99,7 @@ sl_status_t sl_si91x_power_manager_init(void)
     // and requirement table.
     sl_slist_init(&power_manager_ps_transition_event_list);
     memset(requirement_ps_table, 0, sizeof(requirement_ps_table));
-    // Configures the clock to 100 MHz
+    // Configures the clock to power save mode
     sli_si91x_power_manager_init_hardware();
     is_initialized = true;
 
@@ -239,15 +241,15 @@ sl_status_t sl_si91x_power_manager_sleep(void)
     if (status != SL_STATUS_OK) {
       return status;
     }
-    // Notifies the state transition who has subscribed to it.
-    notify_power_state_transition(SL_SI91X_POWER_MANAGER_SLEEP, current_state);
   } while (sl_si91x_power_manager_sleep_on_isr_exit());
 
   // After wakeup, clock is set to the particular PS4/PS3/PS2 mode.
-  status = sl_si91x_power_manager_set_clock_scaling(SL_SI91X_POWER_MANAGER_POWERSAVE);
+  status = sl_si91x_power_manager_set_clock_scaling(clock_scaling_mode);
   if (status != SL_STATUS_OK) {
     return status;
   }
+  // Notifies the state transition who has subscribed to it.
+  notify_power_state_transition(SL_SI91X_POWER_MANAGER_SLEEP, current_state);
   // If it reaches here, then returns SL_STATUS_OK
   return SL_STATUS_OK;
 }
@@ -325,23 +327,31 @@ sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode)
   if (mode == SL_SI91X_POWER_MANAGER_POWERSAVE) {
     SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
     // For powersave current state with false flag is passed as parameter
+    clock_scaling_mode = SL_SI91X_POWER_MANAGER_POWERSAVE;
     // to the internal function.
-    status = sli_si91x_power_manager_configure_clock(current_state, false);
+    status = sli_si91x_clock_manager_config_clks_on_ps_change(current_state, clock_scaling_mode);
     SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
     return status;
   }
   if (mode == SL_SI91X_POWER_MANAGER_PERFORMANCE) {
     SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
     // For performance current state with true flag is passed as parameter
+    clock_scaling_mode = SL_SI91X_POWER_MANAGER_PERFORMANCE;
     // to the internal function.
-    status = sli_si91x_power_manager_configure_clock(current_state, true);
+    status = sli_si91x_clock_manager_config_clks_on_ps_change(current_state, clock_scaling_mode);
     SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
     return status;
   }
   // If it reaches here, then the entered mode is invalid.
   return SL_STATUS_INVALID_PARAMETER;
 }
-
+/*******************************************************************************
+ * Returns the current clock scaling mode of power state which is stored in static variable.
+ ******************************************************************************/
+sl_clock_scaling_t sl_si91x_power_manager_get_clock_scaling(void)
+{
+  return clock_scaling_mode;
+}
 /*******************************************************************************
  * Returns the current power state of SoC which is stored in static variable.
  ******************************************************************************/
@@ -404,8 +414,8 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
   if ((current_state != state) && (state != SL_SI91X_POWER_MANAGER_SLEEP)) {
 #if (configUSE_TICKLESS_IDLE == 1)
     if ((state == SL_SI91X_POWER_MANAGER_PS2)
-        && ((pm_ta_performance_profile.profile != STANDBY_POWER_SAVE)
-            && (pm_ta_performance_profile.profile != STANDBY_POWER_SAVE_WITH_RAM_RETENTION))) {
+        && ((pm_ta_performance_profile.profile != DEEP_SLEEP_WITHOUT_RAM_RETENTION)
+            && (pm_ta_performance_profile.profile != DEEP_SLEEP_WITH_RAM_RETENTION))) {
       // Only add requirement effects the state transition.
       return SL_STATUS_INVALID_STATE;
     }
@@ -524,7 +534,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
 #if (configUSE_TICKLESS_IDLE == 1)
   sl_wifi_performance_profile_t pm_ta_performance_profile;
   sl_wifi_get_performance_profile(&pm_ta_performance_profile);
-  if (pm_ta_performance_profile.profile != STANDBY_POWER_SAVE) {
+  if (pm_ta_performance_profile.profile != DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
     if ((SL_SI91X_POWER_MANAGER_SLEEP == sl_si91x_get_lowest_ps()) && (sli_si91x_is_sdk_ok_to_sleep())
         && (sli_si91x_ta_packet_initiated_to_m4())) {
       is_sleep_ready = true;

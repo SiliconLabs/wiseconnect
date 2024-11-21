@@ -63,7 +63,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
   if (config->chachapoly_mode > 3)
     return SL_STATUS_INVALID_PARAMETER;
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
   if (config->chachapoly_mode == SL_SI91X_CHACHAPOLY_POLY1305_KEYR_KEYS_MODE
       || config->chachapoly_mode == SL_SI91X_POLY1305_MODE) {
     if ((config->key_config.a0.keyr_in == NULL) || (config->key_config.a0.keys_in == NULL)) {
@@ -91,7 +91,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
   memcpy(request->header_input, config->ad, config->ad_length);
   memcpy(request->msg, config->msg, chunk_length);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   request->key_info.key_type                         = config->key_config.b0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
@@ -122,7 +122,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
 
   status = sl_si91x_driver_send_command(
     RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD_QUEUE,
+    SI91X_COMMON_CMD,
     request,
     (sizeof(sl_si91x_chachapoly_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY + chunk_length),
     SL_SI91X_WAIT_FOR_RESPONSE(32000),

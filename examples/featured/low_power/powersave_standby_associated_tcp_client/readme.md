@@ -37,6 +37,8 @@ The application also demonstrates SiWx91x to connect to a remote server to send 
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
   	
 - **NCP Mode**:
   - Standalone
@@ -45,6 +47,7 @@ The application also demonstrates SiWx91x to connect to a remote server to send 
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
@@ -100,6 +103,9 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
     ```
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
+
+> Note: 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 - Configure the following parameters in **app.c** to test throughput app as per requirements
   - `SERVER_PORT` is the remote TCP server port number on the PC running iPerf.

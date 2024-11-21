@@ -5,16 +5,20 @@ description: >
 label: WRAP
 category: Device|Si91x|MCU|Crypto
 quality: production
+metadata:
+  sbom:
+   license: Zlib
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/wrap
 provides:
 - name: sl_si91x_wrap
 source:
 - path: src/sl_si91x_wrap.c
-requires:
-- name: sl_si91x_crypto
-
 include:
+- path: inc
 - path: inc
   file_list:
     - path: sl_si91x_wrap.h
+
+requires:
+- name: sl_si91x_crypto
 

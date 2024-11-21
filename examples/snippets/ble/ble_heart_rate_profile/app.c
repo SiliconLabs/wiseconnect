@@ -51,6 +51,7 @@
 
 #if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
+#include "sl_si91x_power_manager.h"
 #endif
 //! BLE attribute service types uuid values
 #define RSI_BLE_CHAR_SERV_UUID   0x2803
@@ -203,10 +204,7 @@ static const sl_wifi_device_configuration_t
                .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                .ext_custom_feature_bit_map =
                  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
-#ifdef SLI_SI917
-                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                  | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
+                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
                .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                .bt_feature_bit_map         = ((SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)),
                //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
@@ -801,9 +799,6 @@ void ble_heart_rate_gatt_server(void *argument)
 #else
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
-#if (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
-  sl_si91x_hardware_setup();
-#endif /* SLI_SI91X_MCU_INTERFACE */
 
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
@@ -940,7 +935,7 @@ void ble_heart_rate_gatt_server(void *argument)
 
       if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;
-        sl_si91x_m4_sleep_wakeup();
+        sl_si91x_power_manager_sleep();
 #if (defined SL_SI91X_MCU_ALARM_BASED_WAKEUP && (GATT_ROLE == CLIENT))
         check_wakeup_source();
 #endif

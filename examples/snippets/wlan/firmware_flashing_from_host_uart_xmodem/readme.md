@@ -36,6 +36,7 @@ This application demonstrates to flash the firmware on the Si91x Device from the
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
     - SoC
       - Silicon Labs [BRD4338A]
   - Kits
@@ -70,7 +71,19 @@ The application can be configured to suit your requirements and development envi
 ### App Configuration
 
 - By deafult the application does Fast Firmware upgrade
-- For Safe Firmware upgrade, Delete this preprocessor macro in preprocessor settings, **SL_SI91X_FAST_FW_UP==1**        
+- For Safe Firmware upgrade, Delete this preprocessor macro in preprocessor settings, **SL_SI91X_FAST_FW_UP==1**  
+- For NCP, only NWP Firmware update is supported.
+- For SoC, both NWP and M4 Firmware updates are supported. 
+- For SoC slave mode transfer, add SLAVE_MODE_TRANSFER in preprocessor settings.
+- By default, the application is configured to update the NWP firmware: 
+    ```c
+     #define FW_UPDATE_TYPE NWP_FW_UPDATE
+    ```
+
+- For M4 update, please change it as shown below:
+    ```c
+    #define FW_UPDATE_TYPE M4_FW_UPDATE
+    ```
 
 ## Test the Application
 
@@ -79,10 +92,19 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application
 - Flash, run and debug the application.
 - Open teraterm application, Set the baud rate to 115200 in teraterm by navigating to the Setup>Serial port>speed and click on New setting
-  
-![Figure: Teraterm serial port settings](resources/readme/serial_port_settings.png)
-
-- Then send the firmware file(.rps) by navigating to the path, file -> transfer -> xmodem -> send and select fimware file. 
+ ![Figure: Teraterm serial port settings](resources/readme/serial_port_settings.png)
+- To minimize the firmware update process time, set the baud rate to 921600 
+![Figure: Teraterm serial port settings](resources/readme/serial_port_settings_921600.png)
+- Configure the following parameter in `app.c` to test firmware flashing through xmodem app as per requirement
+  ```c
+    init.baudrate = 926100;
+  ```
+- In launch console set the vcom port baudrate to 921600 using below command
+  ```c
+    serial vcom config speed 921600
+  ```
+- Then send the firmware file(.rps) by navigating to the path, file -> transfer -> xmodem -> send and select fimware file.
+- For the SoC board, press and hold both the Reset and ISP buttons. Release the Reset button first, followed by the ISP button.
 - The duration for completing a firmware update can vary depending on the size of the chunks processed.
 - To see application prints, follow the [Console prints](console_prints) section
 

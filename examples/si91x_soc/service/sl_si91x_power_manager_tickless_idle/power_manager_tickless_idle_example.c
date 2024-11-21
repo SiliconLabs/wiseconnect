@@ -106,7 +106,7 @@ static void application_start(void *argument)
   // Initialize the wireless interface and put the NWP in Standby with RAM retention mode.
   status = initialize_wireless();
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("Wireless API initialization failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -115,7 +115,7 @@ static void application_start(void *argument)
   // Subscribe the state transition callback events, the ored value of flag and function pointer is passed in this API.
   status = sl_si91x_power_manager_subscribe_ps_transition_event(&handle, &info);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("Power Manager transition event subscription failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -206,20 +206,20 @@ static void wireless_sleep(boolean_t sleep_with_retention)
 
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
     return;
   }
   if (sleep_with_retention) {
     // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
-    ta_performance_profile.profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION;
+    ta_performance_profile.profile = DEEP_SLEEP_WITH_RAM_RETENTION;
   } else {
-    ta_performance_profile.profile = STANDBY_POWER_SAVE;
+    ta_performance_profile.profile = DEEP_SLEEP_WITHOUT_RAM_RETENTION;
   }
   // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -235,22 +235,28 @@ void power_manager_example_process_action(void)
     case ADD_REQ:
       if (change_state) {
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
-        if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS4) {
-          status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
-          if (status != SL_STATUS_OK) {
-            // If status is not OK, return with the error code.
-            DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
-          }
-        } else {
+        if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS2) {
           status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
           if (status != SL_STATUS_OK) {
-            // If status is not OK, return with the error code.
+            // If status is not OK, display the error info.
+            DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+          }
+        } else if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS4) {
+          status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+          if (status != SL_STATUS_OK) {
+            // If status is not OK, display the error info.
+            DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+          }
+        } else if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS3) {
+          status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+          if (status != SL_STATUS_OK) {
+            // If status is not OK, display the error info.
             DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
           }
         }
-        change_state = false;
         // Next transition is from PS3 to PS4 state.
-        transition = REM_REQ;
+        transition   = REM_REQ;
+        change_state = false;
       }
       break;
     case REM_REQ:
@@ -258,7 +264,7 @@ void power_manager_example_process_action(void)
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
         status = sl_si91x_power_manager_remove_ps_requirement(sl_si91x_power_manager_get_current_state());
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         change_state = false;

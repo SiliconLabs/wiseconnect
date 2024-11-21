@@ -1,33 +1,32 @@
-/***************************************************************************/
-/**
- * @file sl_si91x_calendar.h
- * @brief Calendar API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_calendar.h
+* @brief Calendar API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_CALENDAR_H_
 #define SL_SI91X_CALENDAR_H_
@@ -142,7 +141,7 @@ typedef struct {
  * @param[in] clock_type (sl_calendar_clock_t) Enum for RTC Clock Type (RC or XTAL)
  *
  * @return status, error code as follows:
- *         - SL_STATUS_OK (0x0000) -  return ok to support backward compatibility.
+ *         - SL_STATUS_OK -  return ok to support backward compatibility.
  *
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -172,8 +171,8 @@ sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type);
  * @param[in] config Pointer to the Date Configuration Structure (sl_calendar_datetime_config_t).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -204,8 +203,8 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
  * @param[in] config Pointer to the Date Configuration Structure (sl_calendar_datetime_config_t).
  * 
  * @return status Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -220,7 +219,7 @@ sl_status_t sl_si91x_calendar_get_date_time(sl_calendar_datetime_config_t *confi
  * @param[in] clock_calibration_config Pointer to the clock calibration structure (\ref clock_calibration_config_t).
  *
  * @return status, error code as follows:
- *         - SL_STATUS_OK (0x0000) -  return ok to support backward compatibility.
+ *         - SL_STATUS_OK -  return ok to support backward compatibility.
  *
  * For more information on the status documentation, please refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -235,7 +234,7 @@ sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *cloc
  * @param[in] clock_calibration_config Pointer to the clock calibration structure (\ref clock_calibration_config_t).
  *
  * @return status, error code as follows:
- *         - SL_STATUS_OK (0x0000) -  return ok to support backward compatibility.
+ *         - SL_STATUS_OK -  return ok to support backward compatibility.
  *
  * For more information on the status documentation, please refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -254,10 +253,10 @@ sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *cloc
  * interrupt is triggered.
  *
  * @return Status code indicating the results:
- *         - SL_STATUS_OK (0x0000) - Success. 
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered. 
+ *         - SL_STATUS_OK  - Success. 
+ *         - SL_STATUS_BUSY  - The callback is already registered. 
  *           Deregister the previous callback before registering a new one.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -276,10 +275,10 @@ sl_status_t sl_si91x_calendar_register_msec_trigger_callback(calendar_callback_t
  * interrupt is triggered.
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered. 
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_BUSY  - The callback is already registered. 
  *           Deregister the previous callback before registering a new one.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -298,10 +297,10 @@ sl_status_t sl_si91x_calendar_register_sec_trigger_callback(calendar_callback_t 
  * interrupt is triggered.
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered. 
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_BUSY  - The callback is already registered. 
  *           Deregister the previous callback before registering a new one.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -317,8 +316,8 @@ sl_status_t sl_si91x_calendar_register_alarm_trigger_callback(calendar_callback_
  *      - \ref sl_si91x_calendar_register_msec_trigger_callback
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - The function failed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - The function failed.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -334,8 +333,8 @@ sl_status_t sl_si91x_calendar_unregister_msec_trigger_callback(void);
  *      - \ref sl_si91x_calendar_register_sec_trigger_callback
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -351,8 +350,8 @@ sl_status_t sl_si91x_calendar_unregister_sec_trigger_callback(void);
  *      - \ref sl_si91x_calendar_register_alarm_trigger_callback
  * 
  * @return Status code indicating the results:
- *         - SL_STATUS_OK (0x0000) - Success. 
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_OK  - Success. 
+ *         - SL_STATUS_FAIL  - Function failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -382,8 +381,8 @@ sl_status_t sl_si91x_calendar_unregister_alarm_trigger_callback(void);
  * @param[in] alarm Pointer to the Date Configuration Structure (\ref sl_calendar_datetime_config_t). 
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid. 
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid. 
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -415,8 +414,8 @@ sl_status_t sl_si91x_calendar_set_alarm(sl_calendar_datetime_config_t *alarm);
  * @param[in] alarm Pointer to the Date Configuration Structure (\ref sl_calendar_datetime_config_t).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid. 
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid. 
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -441,9 +440,9 @@ sl_status_t sl_si91x_calendar_get_alarm(sl_calendar_datetime_config_t *alarm);
  * @param[in] Milliseconds (uint16_t) Milliseconds (0-999)
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -470,9 +469,9 @@ sl_status_t sl_si91x_calendar_build_datetime_struct(sl_calendar_datetime_config_
  * @param[out] ntp_time Pointer to a variable to store the NTP timestamp (uint32_t)
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -488,9 +487,9 @@ sl_status_t sl_si91x_calendar_convert_unix_time_to_ntp_time(uint32_t time, uint3
  * @param[out] time Variable to store the Unix timestamp.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -545,8 +544,8 @@ boolean_t sl_si91x_calendar_is_alarm_trigger_enabled(void);
  * @param[in] unix_time (uint32_t) Unix timestamp
  * @param[in] cal_date_time (sl_calendar_datetime_config_t *) Pointer to the Date Configuration Structure
  * @return  status 0 if successful, else error code as follows:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -560,9 +559,9 @@ sl_status_t sl_si91x_calendar_convert_unix_time_to_calendar_datetime(uint32_t un
  * @param[in] cal_date_time (sl_calendar_datetime_config_t *) Pointer to the Date Configuration Structure
  * @param[in] unix_time (uint32_t *) Pointer to the Unix timestamp variable
  * @return  status 0 if successful, else error code as follows:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         - SL_STATUS_INVALID_RANGE (0x0028) - Parameters are invalid
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         - SL_STATUS_INVALID_RANGE  - Parameters are invalid
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

@@ -93,6 +93,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -108,10 +109,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -125,7 +127,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   
    ![Figure: UC image](resources/uc_screen/ssi_uc_screen.png)
 
-  - **SSI Configuration**
+  - **SSI Primary(Master) Configuration**
     - Frame Format: SSI Frame Format can be configured, i.e.,
       - Mode 0: Clock Polarity is zero and Clock Phase is zero.
       - Mode 1: Clock Polarity is zero, Clock Phase is one.
@@ -135,12 +137,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
       - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
     - Bit Rate: The speed of transfer is configurable. The configuration range is from 500Kbps to 40Mbps in high power mode.
     - Data Width: The size of data packet. The configuration range from 4 to 16.
-    - Mode: SSI mode/instance can be configurable, it can be configured Master/SLave/ULP Master.
+    - Mode: SSI mode/instance can be configurable, it can be configured Primary.
     - Rx Sample Delay: Receive Data (rxd) Sample Delay, this to delay the sample of the rxd input signal. Each value represents a single SSI clock delay on the sample of the rxd signal. the configuration range from 0 to 63.
-  - **DMA Configuration**
-    - Master DMA: DMA enable for SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
-    - Slave DMA: DMA enable for SSI slave mode. it will interface with a DMA Controller using an optional set of DMA signals.
-    - ULP Master DMA: DMA enable for ULP SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
+  - **SSI Primary(Master) DMA Configuration**
+    - Primary DMA: DMA enable for SSI Primary mode. it will interface with a DMA Controller using an optional set of DMA signals.
     - Tx FIFO Threshold: Transmit FIFO Threshold. Controls the level of entries (or below) at which the transmit FIFO controller triggers an interrupt. The configuration range from 0 to 15.
     - Rx FIFO Threshold: Receive FIFO Threshold. Controls the level of entries (or below) at which the receive FIFO controller triggers an interrupt. The configuration range from 0 to 15.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
@@ -172,16 +172,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration
 
-| GPIO pin       | Description             |
-| -------------- | ----------------------- |
-|  GPIO_25 [P25] | RTE_SSI_MASTER_SCK_PIN  |
-|  GPIO_28 [P31] | RTE_SSI_MASTER_CS0_PIN  |
-|  GPIO_26 [P27] | RTE_SSI_MASTER_MOSI_PIN |
-|  GPIO_27 [P29] | RTE_SSI_MASTER_MISO_PIN |
+| GPIO pin       | Explorer kit GPIO |  Description             |
+| -------------- | ----------------- | ----------------------- |
+|  GPIO_25 [P25] |   GPIO_25 [SCK]   | RTE_SSI_MASTER_SCK_PIN  |
+|  GPIO_28 [P31] |   GPIO_28 [CS]    | RTE_SSI_MASTER_CS0_PIN  |
+|  GPIO_26 [P27] |   GPIO_26 [MISO]  | RTE_SSI_MASTER_MOSI_PIN |
+|  GPIO_27 [P29] |   GPIO_27 [MOSI]  | RTE_SSI_MASTER_MISO_PIN |
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image510d.png)
 
->**Note:** Make sure pin configuration in RTE_Device_917.h file. (path: /$project/config/RTE_Device_917.h)
+>**Note:** Make sure pin configuration in RTE_Device_xxx.h file 
+> - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
+> - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
 ## Test the Application
 

@@ -213,9 +213,13 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   memset(scan_result, 0, scanbuf_size);
   memcpy(scan_result, result, scanbuf_size);
 
-  callback_status = show_scan_results();
+  if (result_length != 0) {
+    callback_status = show_scan_results();
+  }
 
-  //  scan_complete = true;
+  // Send wlan scan result to BLE module
+  wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
+
   return SL_STATUS_OK;
 }
 
@@ -289,10 +293,8 @@ void wifi_app_task()
           LOG_PRINT("\r\nWLAN Scan Wait Failed, Error Code : 0x%lX\r\n", status);
           wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
-        } else {
-          // update wlan application state
-          wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
+
         osSemaphoreRelease(wlan_thread_sem);
       } break;
 

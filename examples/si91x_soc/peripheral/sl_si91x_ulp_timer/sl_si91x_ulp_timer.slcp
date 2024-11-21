@@ -16,10 +16,10 @@ source:
   - path: app.h
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -28,7 +28,7 @@ component:
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: sllib_wireless_shutdown
     from: wiseconnect3_sdk
@@ -50,6 +50,7 @@ component:
     from: wiseconnect3_sdk
 define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION 
+  - name: SL_SI91X_ULP_STATE_ENABLE
 template_contribution:
   - name: user_files_ps2
     value: ulp_timer_example.o

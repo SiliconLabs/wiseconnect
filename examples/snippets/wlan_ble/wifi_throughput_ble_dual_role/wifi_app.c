@@ -201,7 +201,9 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
     return SL_STATUS_FAIL;
   }
 
-  callback_status = show_scan_results(result);
+  if (result_length != 0) {
+    callback_status = show_scan_results(result);
+  }
 
   return SL_STATUS_OK;
 }

@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_config-timer.c
- * @brief CONFIG TIMER API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_config-timer.c
+* @brief CONFIG TIMER API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_config_timer.h"
 #include "sl_si91x_config_timer_config.h"
 #include "rsi_rom_ct.h"
@@ -1061,7 +1061,7 @@ static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_
     if (ocu_config_handle_ptr->is_counter1_ocu_dma_enabled) {
       *ocu_config_value |= SL_COUNTER1_OCU_DMA_ENABLE;
     }
-    if (ocu_config_handle_ptr->is_counter1_ocu_mode_enabled) {
+    if (ocu_config_handle_ptr->is_counter1_ocu_8bit_mode_enabled) {
       *ocu_config_value |= SL_COUNTER1_OCU_8BIT_ENABLE;
     }
     if (ocu_config_handle_ptr->is_counter1_ocu_sync_enabled) {

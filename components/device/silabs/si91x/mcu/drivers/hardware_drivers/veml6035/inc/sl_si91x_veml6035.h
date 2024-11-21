@@ -31,6 +31,7 @@
 #ifndef SL_SI91X_VEML6035_H
 #define SL_SI91X_VEML6035_H
 
+#include "sl_si91x_veml6035_config.h"
 #include "sl_si91x_i2c.h"
 #include "sl_status.h"
 #include "sl_enum.h"
@@ -42,8 +43,9 @@ extern "C" {
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define VEML6035_ADDR 0x29 ///< I2C device address for VEML6035
-#define I2C_BASE      I2C2 ///< I2C2 base
+#define VEML6035_ADDR         VEML6035_SLAVE_ADDR             ///< I2C device address for VEML6035
+#define VEML6035_I2C_INSTANCE SL_VEML6035_CONFIG_I2C_INSTANCE ///<veml6035 I2C Instance
+
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/

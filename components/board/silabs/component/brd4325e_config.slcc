@@ -5,6 +5,9 @@
 - package: platform
 - category: Board|Configuration
 - quality: production
+- metadata:
+    sbom:
+      license: Zlib
 - ui_hints:
     visibility: never
 - root_path: "components/board/silabs/config"
@@ -141,6 +144,36 @@
       instance: i2c2
     path: common_config/sl_si91x_i2c_init_i2c2_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_common_config
+      instance: primary
+    path: common_config/sl_si91x_ssi_primary_common_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_common_config
+      instance: secondary
+    path: common_config/sl_si91x_ssi_secondary_common_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_common_config
+      instance: ulp_primary
+    path: common_config/sl_si91x_ssi_ulp_primary_common_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: primary
+    path: common_config/sl_si91x_ssi_primary_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: secondary
+    path: common_config/sl_si91x_ssi_secondary_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: ulp_primary
+    path: common_config/sl_si91x_ssi_ulp_primary_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
       file_id: ulp_timer_config
       instance: timer0
@@ -168,3 +201,13 @@
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_control
     path: brd4325e/sl_board_control.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%i2s_instance"
+      file_id: i2s_config
+      instance: i2s0
+    path: common_config/sl_si91x_i2s_init_i2s0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%i2s_instance"
+      file_id: i2s_config
+      instance: ulp_i2s
+    path: common_config/sl_si91x_i2s_init_ulp_i2s_config.h

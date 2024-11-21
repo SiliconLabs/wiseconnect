@@ -1,19 +1,31 @@
 /*******************************************************************************
-* @file  rsi_bt_ble.c
-* @brief
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ * @file  rsi_bt_ble.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 #include "ble_config.h"
 
 #include "rsi_common.h"
@@ -28,10 +40,10 @@
 
 #include "sl_si91x_host_interface.h"
 
-sl_status_t sl_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
-                                             void **buffer,
-                                             uint32_t requested_buffer_size,
-                                             uint32_t wait_duration_ms);
+sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
+                                              void **buffer,
+                                              uint32_t requested_buffer_size,
+                                              uint32_t wait_duration_ms);
 uint32_t rsi_get_bt_state(const rsi_bt_cb_t *bt_cb);
 
 #define BT_SEM     0x1
@@ -200,10 +212,10 @@ void rsi_bt_common_tx_done(sl_si91x_packet_t *pkt)
 {
 
   SL_PRINTF(SL_RSI_BT_COMMON_TX_DONE, BLUETOOTH, LOG_INFO);
-  uint8_t *host_desc    = NULL;
-  uint8_t protocol_type = 0;
-  uint16_t rsp_type     = 0;
-  rsi_bt_cb_t *bt_cb    = NULL;
+  const uint8_t *host_desc = NULL;
+  uint8_t protocol_type    = 0;
+  uint16_t rsp_type        = 0;
+  rsi_bt_cb_t *bt_cb       = NULL;
 
   // Get Host Descriptor
   host_desc = pkt->desc;
@@ -383,9 +395,9 @@ int32_t rsi_driver_process_bt_resp(
   UNUSED_PARAMETER(protocol_type);
 
   SL_PRINTF(SL_RSI_DRIVER_PROCESS_BT_RESPONSE_TRIGGER, BLUETOOTH, LOG_INFO, "PROTOCOL_TYPE: %2x", protocol_type);
-  uint16_t rsp_type  = 0;
-  int16_t status     = RSI_SUCCESS;
-  uint8_t *host_desc = NULL;
+  uint16_t rsp_type        = 0;
+  int16_t status           = RSI_SUCCESS;
+  const uint8_t *host_desc = NULL;
   uint8_t *payload;
   uint16_t payload_length;
   uint16_t expected_resp = 0;
@@ -456,20 +468,16 @@ int32_t rsi_driver_process_bt_resp(
       }
       // Signal the bt semaphore
       osSemaphoreRelease(bt_cb->bt_sem);
-    } else {
-      if (rsi_bt_async_callback_handler != NULL) {
+    } else if (rsi_bt_async_callback_handler != NULL) {
 
-        bt_cb->async_status = status;
-        // Call callbacks handler
-        rsi_bt_async_callback_handler(bt_cb, rsp_type, payload, payload_length);
-      }
-    }
-  } else {
-    if (rsi_bt_async_callback_handler != NULL) {
       bt_cb->async_status = status;
       // Call callbacks handler
       rsi_bt_async_callback_handler(bt_cb, rsp_type, payload, payload_length);
     }
+  } else if (rsi_bt_async_callback_handler != NULL) {
+    bt_cb->async_status = status;
+    // Call callbacks handler
+    rsi_bt_async_callback_handler(bt_cb, rsp_type, payload, payload_length);
   }
 
   return status;
@@ -487,7 +495,7 @@ uint16_t rsi_driver_process_bt_resp_handler(void *rx_pkt)
 
   SL_PRINTF(SL_RSI_DRIVER_PROCESS_BT_RESP_HANDLER_TRIGGER, BLUETOOTH, LOG_INFO);
   sl_si91x_packet_t *pkt                      = (sl_si91x_packet_t *)rx_pkt;
-  uint8_t *host_desc                          = NULL;
+  const uint8_t *host_desc                    = NULL;
   uint8_t protocol_type                       = 0;
   uint16_t rsp_type                           = 0;
   int16_t status                              = RSI_SUCCESS;
@@ -2134,10 +2142,10 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   }
 
   // Allocate command buffer from ble pool
-  status = sl_si91x_allocate_command_buffer(&buffer,
-                                            (void **)&pkt,
-                                            sizeof(sl_si91x_packet_t) + RSI_BT_COMMON_CMD_LEN,
-                                            calculate_timeout_ms);
+  status = sli_si91x_allocate_command_buffer(&buffer,
+                                             (void **)&pkt,
+                                             sizeof(sl_si91x_packet_t) + RSI_BT_COMMON_CMD_LEN,
+                                             calculate_timeout_ms);
   // If allocation of packet fails
   if (pkt == NULL) {
     osSemaphoreRelease(bt_cb->bt_cmd_sem);
@@ -2215,7 +2223,7 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
     bt_cb->sync_rsp               = 1;
   }
 
-  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD_QUEUE, buffer, bt_cb->sync_rsp);
+  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD, buffer, bt_cb->sync_rsp);
 
   if (bt_cb->bt_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_sem, calculate_timeout_ms) != osOK)) {
     rsi_bt_set_status(bt_cb, RSI_ERROR_RESPONSE_TIMEOUT);

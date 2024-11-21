@@ -47,6 +47,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -62,10 +63,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -80,23 +82,23 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Pin Configuration
 
-  | UART PINS     | GPIO    | WPK Connector Pin     | UART-TTL cable |
-  | ------------- | ------- | ------------------    | -------------- |
-  | UART1_TX_PIN  | GPIO_7  |        P20            | RX pin         |
-  | UART1_RX_PIN  | GPIO_6  |        P19            | TX Pin         | 
+  | UART PINS     |  GPIO   |  917 Breakout pin |  915 Breakout pin | Explorer kit Breakout pin |  UART-TTL cable |
+  | ------------- | ------- | ----------------- | ----------------- | ------------------------- |---------------- |
+  | UART1_TX_PIN  | GPIO_7  |          P20      |       EXP15       |             [SCL]         |    RX pin       |
+  | UART1_RX_PIN  | GPIO_6  |          P19      |       EXP16       |             [SDA]         |    TX Pin       | 
 
 ## Flow Control Configuration
 
 - Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable UART flow control.
-- Make the following two macros in RTE_Device_917.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
+- Make the following two macros in RTE_Device_917.h or RTE_Device_915.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
   ```C
   #define RTE_UART1_CTS_PORT_ID    1
   #define RTE_UART1_RTS_PORT_ID    1
   ```
-  | USART PINS     | GPIO    | Connector(B0) |
-  | -------------- | ------- | ------------- |
-  | UART_CTS_PIN   | GPIO_28 |     P31       |
-  | UART_RTS_PIN   | GPIO_27 |     P29       |
+  | USART PINS     | GPIO    |   Breakout pin  | Explorer kit Breakout pin|
+  | -------------- | ------- | --------------- | ------------------------ |
+  | UART_CTS_PIN   | GPIO_28 |     P31         |           [CS]           |
+  | UART_RTS_PIN   | GPIO_27 |     P29         |           [MOSI]         |
 
 ## Test the Application
 

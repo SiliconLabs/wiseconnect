@@ -22,7 +22,7 @@
 #include "ssi_slave_example.h"
 #include "sl_ulp_timer_instances.h"
 #include "sl_si91x_ulp_timer_common_config.h"
-#include "sl_si91x_clock_manager.h"
+
 #include "rsi_rom_clks.h"
 
 /*******************************************************************************
@@ -42,12 +42,6 @@
 #define TIMER_FREQUENCY                   32000     // Timer frequency for delay
 #define INITIAL_COUNT                     7000      // Count configured at timer init
 #define SYNC_TIME                         5000      // Delay to sync master and slave
-
-#define SOC_PLL_CLK          ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK         ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
-#define QSPI_ODD_DIV_ENABLE  0                       // Odd division enable for QSPI clock
-#define QSPI_SWALLO_ENABLE   0                       // Swallo enable for QSPI clock
-#define QSPI_DIVISION_FACTOR 0                       // Division factor for QSPI clock
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -56,7 +50,6 @@ static void ssi_slave_callback_event_handler(uint32_t event);
 static void ssi_slave_compare_loopback_data(void);
 static void init_timer_for_sync(void);
 static void wait_for_sync(uint16_t time_ms);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
  **********************  Local variables   *************************************
@@ -80,23 +73,6 @@ static ssi_mode_enum_t ssi_slave_current_mode = SSI_SLAVE_TRANSFER_DATA;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-
-  // Configure QSPI clock as input source
-  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
-                                           QSPI_INTFPLLCLK,
-                                           QSPI_SWALLO_ENABLE,
-                                           QSPI_ODD_DIV_ENABLE,
-                                           QSPI_DIVISION_FACTOR);
-}
 /*******************************************************************************
  * @fn         ssi_slave_example_init()
  * @brief      Main Application Function
@@ -114,9 +90,6 @@ void ssi_slave_example_init(void)
   ssi_slave_config.device_mode = SL_SSI_SLAVE_ACTIVE;
   ssi_slave_config.clock_mode  = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
   ssi_slave_config.baud_rate   = SSI_SLAVE_BAUDRATE;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   // Filled data into input buffer
   for (i = 0; i < SSI_SLAVE_BUFFER_SIZE; i++) {

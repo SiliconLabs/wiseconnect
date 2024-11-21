@@ -67,7 +67,7 @@ static inline uint8_t parse_enum_arg(const char *line, const char *const *option
 
 char *string_token(register char *s, register const char *delim, char **lasts);
 sl_status_t console_tokenize(char *start,
-                             char *end,
+                             const char *end,
                              char **token,
                              char **token_end,
                              sl_console_tokenize_options_t options);
@@ -376,7 +376,7 @@ static inline uint8_t parse_enum_arg(const char *line, const char *const *option
   return 0xFF;
 }
 
-static bool escape(char *i, char *end)
+static bool escape(char *i, const char *end)
 {
   // Check if next character is one of the escaped ones
   if (i[1] == '"' || i[1] == '{' || i[1] == '\\') {
@@ -390,7 +390,7 @@ static bool escape(char *i, char *end)
 }
 
 sl_status_t console_tokenize(char *start,
-                             char *end,
+                             const char *end,
                              char **token,
                              char **token_end,
                              sl_console_tokenize_options_t options)

@@ -3,7 +3,7 @@
  * @brief ADC configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,8 +37,6 @@ extern "C" {
 /******************************************************************************/
 /**************************** ADC Channel Configuration ***********************/
 
-#define P6_START_LOCATION_PINTOOL 95
-#define N6_START_LOCATION_PINTOOL 388
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -66,15 +64,15 @@ extern "C" {
 #define SL_ADC_CH6_PERIPHERAL ADC_CH6
 #endif
 
-// ADC_CH6 P on ULP_GPIO_10/GPIO_74
+// ADC_CH6 P on ULP_GPIO_5/GPIO_69
 #ifndef SL_ADC_CH6_P_PORT
 #define SL_ADC_CH6_P_PORT ULP
 #endif
 #ifndef SL_ADC_CH6_P_PIN
-#define SL_ADC_CH6_P_PIN 10
+#define SL_ADC_CH6_P_PIN 5
 #endif
 #ifndef SL_ADC_CH6_P_LOC
-#define SL_ADC_CH6_P_LOC 100
+#define SL_ADC_CH6_P_LOC 56
 #endif
 
 // ADC_CH6 N on ULP_GPIO_7/GPIO_71
@@ -90,13 +88,44 @@ extern "C" {
 // [ADC_CH6_SL_ADC_CH6]$
 // <<< sl:end pin_tool >>>
 
-#ifdef SL_ADC_CH6_P_LOC
-#define SL_ADC_CHANNEL_6_POS_INPUT_CHNL_SEL (SL_ADC_CH6_P_LOC - P6_START_LOCATION_PINTOOL)
+// Positive Input Channel Selection
+#ifdef SL_ADC_CH6_P_PIN
+#define SL_ADC_CHANNEL_6_POS_INPUT_CHNL_SEL \
+  ((SL_ADC_CH6_P_PIN == 0)    ? 0           \
+   : (SL_ADC_CH6_P_PIN == 2)  ? 1           \
+   : (SL_ADC_CH6_P_PIN == 4)  ? 2           \
+   : (SL_ADC_CH6_P_PIN == 6)  ? 3           \
+   : (SL_ADC_CH6_P_PIN == 8)  ? 4           \
+   : (SL_ADC_CH6_P_PIN == 10) ? 5           \
+   : (SL_ADC_CH6_P_PIN == 25) ? 6           \
+   : (SL_ADC_CH6_P_PIN == 27) ? 7           \
+   : (SL_ADC_CH6_P_PIN == 29) ? 8           \
+   : (SL_ADC_CH6_P_PIN == 1)  ? 10          \
+   : (SL_ADC_CH6_P_PIN == 3)  ? 11          \
+   : (SL_ADC_CH6_P_PIN == 5)  ? 12          \
+   : (SL_ADC_CH6_P_PIN == 11) ? 13          \
+   : (SL_ADC_CH6_P_PIN == 9)  ? 14          \
+   : (SL_ADC_CH6_P_PIN == 7)  ? 15          \
+   : (SL_ADC_CH6_P_PIN == 26) ? 16          \
+   : (SL_ADC_CH6_P_PIN == 28) ? 17          \
+   : (SL_ADC_CH6_P_PIN == 30) ? 18          \
+                              : -1)
 #else
 #define SL_ADC_CHANNEL_6_POS_INPUT_CHNL_SEL 5
 #endif
-#ifdef SL_ADC_CH6_N_LOC
-#define SL_ADC_CHANNEL_6_NEG_INPUT_CHNL_SEL (SL_ADC_CH6_N_LOC - N6_START_LOCATION_PINTOOL)
+// Negative Input Channel Selection
+#ifdef SL_ADC_CH6_N_PIN
+#define SL_ADC_CHANNEL_6_NEG_INPUT_CHNL_SEL \
+  ((SL_ADC_CH6_N_PIN == 1)    ? 0           \
+   : (SL_ADC_CH6_N_PIN == 3)  ? 1           \
+   : (SL_ADC_CH6_N_PIN == 5)  ? 2           \
+   : (SL_ADC_CH6_N_PIN == 11) ? 3           \
+   : (SL_ADC_CH6_N_PIN == 9)  ? 4           \
+   : (SL_ADC_CH6_N_PIN == 7)  ? 5           \
+   : (SL_ADC_CH6_N_PIN == 26) ? 6           \
+   : (SL_ADC_CH6_N_PIN == 28) ? 7           \
+   : (SL_ADC_CH6_N_PIN == 30) ? 8           \
+                              : -1)
 #else
 #define SL_ADC_CHANNEL_6_NEG_INPUT_CHNL_SEL 5
 #endif

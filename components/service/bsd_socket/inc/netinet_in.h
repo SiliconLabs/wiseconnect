@@ -373,6 +373,23 @@ struct ip_opts {
 
 #define IP_RTABLE		0x1021	/* int; routing table, see SO_RTABLE */
 
+/**
+ * @addtogroup BSD_SOCKET_TOS_DEFINES
+ * @{ 
+ */
+#define IPTOS_PREC_MASK		0xE0              ///< Mask to extract the precedence field from the TOS byte.
+#define IPTOS_PREC(tos)		((tos)&IPTOS_PREC_MASK)  ///< Extract the precedence field from the TOS byte.
+
+#define IPTOS_PREC_NETCONTROL           0xe0  ///< Indicates that the packet is designated for network control purposes, such as voice communications.
+#define IPTOS_PREC_INTERNETCONTROL      0xc0  ///< Indicates that the packet is intended for internet control purposes, such as voice communications.
+#define IPTOS_PREC_CRITIC_ECP           0xa0  ///< Indicates that the packet is for critical applications like video communications.
+#define IPTOS_PREC_FLASHOVERRIDE        0x80  ///< Indicates that the packet should override other traffic, used for urgent applications such as time-sensitive video streaming.
+#define IPTOS_PREC_FLASH                0x60  ///< Indicates that the packet is of high priority, used for important but non-urgent background data.
+#define IPTOS_PREC_IMMEDIATE            0x40  ///< Indicates that the packet should be delivered as soon as possible, suitable for background tasks.
+#define IPTOS_PREC_PRIORITY             0x20  ///< Indicates that the packet has a higher priority than routine data but is less urgent than immediate delivery.
+#define IPTOS_PREC_ROUTINE              0x00  ///< Indicates that the packet is of routine and has the lowest priority, suitable for best-effort data.
+/** @} */
+
 #if __BSD_VISIBLE
 /*
  * Security levels - IPsec, not IPSO
@@ -802,7 +819,6 @@ struct ip_mreqn {
 
 /* INET6 stuff */
 #define __KAME_NETINET_IN_H_INCLUDED_
-//#include <netinet6/in6.h>
 #include "netinet6_in6.h"
 #undef __KAME_NETINET_IN_H_INCLUDED_
 

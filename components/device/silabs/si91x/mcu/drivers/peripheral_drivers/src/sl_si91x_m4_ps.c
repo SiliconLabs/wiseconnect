@@ -1,17 +1,30 @@
-/***************************************************************************/ /**
+/******************************************************************************
 * @file sl_si91x_m4_ps.c
 * @brief  M4 power save
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licenser of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 #include "sl_si91x_m4_ps.h"
@@ -67,7 +80,7 @@
 #define WIRELESS_WAKEUP_IRQHandler_Priority 8
 
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 #ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
 #define IVT_OFFSET_ADDR 0x8172000 /*<!Application IVT location VTOR offset for B0>  */
 #else
@@ -79,7 +92,7 @@
 #else
 #define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset for dual flash A0 and B0>  */
 #endif
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 #define WKP_RAM_USAGE_LOCATION 0x24061EFC /*<!Bootloader RAM usage location upon wake up  for B0 */
 #else
 #define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
@@ -92,7 +105,9 @@ static uint8_t m4_alarm_initialization_done;
 #endif
 #endif
 RTC_TIME_CONFIG_T sl_rtc_get_Time;
-uint32_t sl_bf_rtc_ticks, sl_af_rtc_ticks, sl_rtc_ticks;
+uint32_t sl_bf_rtc_ticks;
+uint32_t sl_af_rtc_ticks;
+uint32_t sl_rtc_ticks;
 
 void set_alarm_interrupt_timer(uint16_t interval);
 void wakeup_source_config(void);
@@ -292,111 +307,6 @@ void initialize_m4_alarm(void)
 }
 #endif /* SL_SI91X_MCU_ALARM_BASED_WAKEUP */
 
-/**************************************************************************
- * @fn           void sl_si91x_m4_sleep_wakeup()
- * @brief        Keeps the M4 In the Sleep
- * @param[in]    None
- * @param[out]   None
- *******************************************************************************/
-void sl_si91x_m4_sleep_wakeup(void)
-{
-#if SL_SI91X_MCU_ALARM_BASED_WAKEUP
-  /* Initialize the M4 alarm for the first time*/
-  if (m4_alarm_initialization_done == false) {
-    initialize_m4_alarm();
-  }
-  /* Update the alarm time interval, when to get next interrupt  */
-  set_alarm_interrupt_timer(ALARM_PERIODIC_TIME);
-
-#endif
-#ifdef SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
-  /* Configure Wakeup-Source */
-  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-#endif
-#if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
-  /*Configure the UULP GPIO 2 as wakeup source */
-  wakeup_source_config();
-#endif
-
-#if SL_SI91X_MCU_WATCHDOG_TIMER
-  // Un-masking WDT interrupt
-  RSI_WWDT_IntrUnMask();
-  // Initializing watchdog-timer (powering up WDT and enabling it to run during CPU sleep mode)
-  RSI_WWDT_Init(MCU_WDT);
-  // Configure the WDT system reset value
-  RSI_WWDT_ConfigSysRstTimer(MCU_WDT, 19);
-  // configure the WDT timeout interrupt time
-  RSI_WWDT_ConfigIntrTimer(MCU_WDT, 18);
-  NVIC_EnableIRQ(NVIC_WDT);
-  RSI_WWDT_Start(MCU_WDT);
-#endif
-
-#ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         0,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         0,
-                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-#else
-
-#if (configUSE_TICKLESS_IDLE == 1)
-  sl_bf_rtc_ticks = sl_si91x_get_rtc_ticks();
-#endif // configUSE_TICKLESS_IDLE == 1
-
-#if SL_SI91X_SI917_RAM_MEM_CONFIG == 1
-  /* Configure 192K RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-#elif SL_SI91X_SI917_RAM_MEM_CONFIG == 2
-  /* Configure 256K RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_256KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-#elif SL_SI91X_SI917_RAM_MEM_CONFIG == 3
-  /* Configure 320K RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_320KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-#endif
-  /*Enable first boot up*/
-  RSI_PS_EnableFirstBootUp(1);
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-
-#if (configUSE_TICKLESS_IDLE == 1)
-
-  sl_af_rtc_ticks = sl_si91x_get_rtc_ticks();
-  if (sl_af_rtc_ticks > sl_bf_rtc_ticks) {
-    sl_rtc_ticks = sl_af_rtc_ticks - sl_bf_rtc_ticks;
-  }
-  *idle_sleep_time = 0;
-#endif // configUSE_TICKLESS_IDLE == 1
-
-#endif
-
-  /* Clear M4_wakeup_TA bit so that NWP will go to sleep after M4 wakeup*/
-  sl_si91x_host_clear_sleep_indicator();
-
-#if (configUSE_TICKLESS_IDLE == 0)
-  P2P_STATUS_REG |= M4_is_active;
-  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
-#endif // configUSE_TICKLESS_IDLE == 0
-  /*  Setup the systick timer */
-  vPortSetupTimerInterrupt();
-}
 #endif // #if (configUSE_TICKLESS_IDLE == 0)
 
 #if (configUSE_TICKLESS_IDLE == 1)
@@ -441,34 +351,37 @@ bool sli_si91x_ta_packet_initiated_to_m4(void)
 {
   boolean_t sli_p2p_status = true;
 
-  // Indicate M4 is Inactive
-  P2P_STATUS_REG &= ~M4_is_active;
+  if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
 
-  // Wait one more clock cycle to ensure the M4 hardware register is updated
-  P2P_STATUS_REG;
+    // Indicate M4 is Inactive
+    P2P_STATUS_REG &= ~M4_is_active;
 
-  // This delay is introduced to synchronize between the M4 and the NWP.
-  for (uint8_t delay = 0; delay < 10; delay++) {
-    __ASM("NOP");
-  }
+    // Wait one more clock cycle to ensure the M4 hardware register is updated
+    P2P_STATUS_REG;
 
-  // Verify if the NWP has already initiated a packet to the M4
-  // The NWP will clear RX_BUFFER_VALID if a packet has been triggered
-  if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
-      || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
-    P2P_STATUS_REG |= M4_is_active;
-    sli_p2p_status = false;
-  } else {
-    //Clearing the RX_Buffer valid bit
-    M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
-    M4SS_P2P_INTR_CLR_REG;
+    // This delay is introduced to synchronize between the M4 and the NWP.
+    for (uint8_t delay = 0; delay < 10; delay++) {
+      __ASM("NOP");
+    }
 
-    TASS_P2P_INTR_MASK_SET = (TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
-                              | NWP_DEINIT_IN_COMM_FLASH
+    // Verify if the NWP has already initiated a packet to the M4
+    // The NWP will clear RX_BUFFER_VALID if a packet has been triggered
+    if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
+        || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
+      P2P_STATUS_REG |= M4_is_active;
+      sli_p2p_status = false;
+    } else {
+      //Clearing the RX_Buffer valid bit
+      M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
+      M4SS_P2P_INTR_CLR_REG;
+
+      TASS_P2P_INTR_MASK_SET = (TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT
+                                | TA_WRITING_ON_COMM_FLASH | NWP_DEINIT_IN_COMM_FLASH
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-                              | SIDE_BAND_CRYPTO_DONE
+                                | SIDE_BAND_CRYPTO_DONE
 #endif
-    );
+      );
+    }
   }
   return sli_p2p_status;
 }
@@ -487,7 +400,7 @@ void sli_si91x_m4_ta_wakeup_configurations(void)
   //indicate M4 buffer availability to NWP
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   //! Unmask the P2P interrupts
   unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
                       | NWP_DEINIT_IN_COMM_FLASH

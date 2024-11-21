@@ -1,10 +1,31 @@
-/*
- * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
- * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
- * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
- * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
- * (c) Copyright 2024, Silicon Laboratories Inc.  All rights reserved.
- */
+/********************************************************************************
+ * @file  sl_wifi_types.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
@@ -65,21 +86,21 @@
 
 /** @addtogroup SL_WIFI_CONSTANTS
   * @{ */
-#define SL_CHANNEL_NO            14 ///< Wi-Fi transceiver default channel
-#define SL_TX_POWER              20 ///< Wi-Fi transceiver default TX power
-#define DEFAULT_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
-#define DEFAULT_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
-#define DEFAULT_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
-#define DEFAULT_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
-#define DEFAULT_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
-#define DEFAULT_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
-#define DEFAULT_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
-#define DEFAULT_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
-#define DEFAULT_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
-#define DEFAULT_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
-#define DEFAULT_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
-#define DEFAULT_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
-#define DEFAULT_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
+#define SL_TRANSCEIVER_CHANNEL_NO            14 ///< Wi-Fi transceiver default channel
+#define SL_TRANSCEIVER_TX_POWER              20 ///< Wi-Fi transceiver default TX power
+#define DEFAULT_TRANSCEIVER_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
+#define DEFAULT_TRANSCEIVER_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
+#define DEFAULT_TRANSCEIVER_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
+#define DEFAULT_TRANSCEIVER_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
+#define DEFAULT_TRANSCEIVER_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
+#define DEFAULT_TRANSCEIVER_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
+#define DEFAULT_TRANSCEIVER_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
+#define DEFAULT_TRANSCEIVER_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
+#define DEFAULT_TRANSCEIVER_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
+#define DEFAULT_TRANSCEIVER_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
+#define DEFAULT_TRANSCEIVER_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
+#define DEFAULT_TRANSCEIVER_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
+#define DEFAULT_TRANSCEIVER_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
 /** @} */
 
 /** @addtogroup SL_WIFI_TYPES Types
@@ -624,6 +645,17 @@ typedef struct {
  * The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
  * maximum supported value for that region, or if the specified transmit power exceeds the maximum supported value of the device,
  * the transmission would occur at the maximum supported transmit power.
+ *
+ * @note
+ * There are three available configurations for join_tx_power: low, medium, and high, which correspond to the values 0, 1, and 2, respectively.
+ * Each configuration has a specified power level.
+ *     Low power (7 +/- 1) dBm
+ *     Medium power (10 +/- 1) dBm
+ *     High power (18 +/- 2) dBm
+ * An absolute power level can be set using the most significant bit (MSB) of an 8-bit value. This is achieved by setting the MSB to 128 (binary: 1000 0000).
+ * To configure the absolute transmission power, add the desired Tx power to 128.
+ * For example, setting the parameter to 148 (128 + 20) configures the transmission power to 20 dBm.
+ *
  */
 typedef struct {
   uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1 dBm to 31 dBm

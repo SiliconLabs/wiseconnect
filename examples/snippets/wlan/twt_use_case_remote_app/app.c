@@ -88,7 +88,7 @@ static const sl_wifi_device_configuration_t twt_client_configuration = {
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -241,11 +241,8 @@ sl_status_t create_tcp_server(void)
   }
   printf("\r\nTCP Server Socket ID : %d\r\n", tcp_server_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(tcp_server_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_MAXRETRY,
-                                                  &max_tcp_retry,
-                                                  sizeof(max_tcp_retry));
+  socket_return_value =
+    sl_si91x_setsockopt(tcp_server_socket, SOL_SOCKET, SL_SI91X_SO_MAXRETRY, &max_tcp_retry, sizeof(max_tcp_retry));
   if (socket_return_value < 0) {
     printf("TCP Set Socket option failed with BSD error: %d\r\n", errno);
     close(tcp_server_socket);

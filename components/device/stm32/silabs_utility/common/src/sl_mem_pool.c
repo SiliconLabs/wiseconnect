@@ -74,14 +74,13 @@ void sli_mem_pool_create(sli_mem_pool_handle_t *mem_pool,
  ******************************************************************************/
 void* sli_mem_pool_alloc(sli_mem_pool_handle_t *mem_pool)
 {
-  CORE_DECLARE_IRQ_STATE;
 
   EFM_ASSERT(mem_pool != NULL);
 
-  CORE_ENTER_ATOMIC();
+  CORE_irqState_t irqState = CORE_EnterAtomic();
 
   if ((uint32_t)mem_pool->free_block_addr == SLI_MEM_POOL_OUT_OF_MEMORY) {
-    CORE_EXIT_ATOMIC();
+      CORE_ExitAtomic(irqState);
     return NULL;
   }
 
@@ -91,7 +90,7 @@ void* sli_mem_pool_alloc(sli_mem_pool_handle_t *mem_pool)
   // Update the next free block using the address saved in that block
   mem_pool->free_block_addr = (void *)*(uint32_t *)block_addr;
 
-  CORE_EXIT_ATOMIC();
+  CORE_ExitAtomic(irqState);
 
   return block_addr;
 }
@@ -101,18 +100,17 @@ void* sli_mem_pool_alloc(sli_mem_pool_handle_t *mem_pool)
  ******************************************************************************/
 void sli_mem_pool_free(sli_mem_pool_handle_t *mem_pool, void *block)
 {
-  CORE_DECLARE_IRQ_STATE;
 
   EFM_ASSERT(mem_pool != NULL);
 
   // Validate that the provided address is in the buffer range
   EFM_ASSERT((block >= mem_pool->data) && ((uint32_t)block <= ((uint32_t)mem_pool->data + (mem_pool->block_size * mem_pool->block_count))));
 
-  CORE_ENTER_ATOMIC();
+   CORE_irqState_t irqState = CORE_EnterAtomic();
 
   // Save the current free block addr in this block
   *(uint32_t *)block = (uint32_t)mem_pool->free_block_addr;
   mem_pool->free_block_addr = block;
 
-  CORE_EXIT_ATOMIC();
+  CORE_ExitAtomic(irqState);
 }

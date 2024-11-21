@@ -9,6 +9,9 @@ description: >
   which is the watchdog tiemr driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: "config/sl_si91x_watchdog_timer_config.h"

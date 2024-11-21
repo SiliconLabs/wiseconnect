@@ -13,6 +13,9 @@ category: Device|Si91x|MCU|Peripheral
 ui_hints:
   visibility: never
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers"
 source:
   - path: "unified_api/src/sl_si91x_pwm.c"

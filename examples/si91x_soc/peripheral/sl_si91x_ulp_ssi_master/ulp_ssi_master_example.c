@@ -30,12 +30,12 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define ULP_SSI_MASTER_BUFFER_SIZE          1024     // Length of data to be sent through SPI
-#define ULP_SSI_MASTER_BIT_WIDTH            8        // SSI bit width
-#define ULP_SSI_MASTER_BAUDRATE             10000000 // SSI baudrate
-#define ULP_SSI_MASTER_MAX_BIT_WIDTH        16       // Maximum Bit width
-#define ULP_SSI_MASTER_RECEIVE_SAMPLE_DELAY 0        // By default sample delay is 0
-#define ULP_SSI_MASTER_BANK_OFFSET          0x800    // ULP Memory bank offset value.
+#define ULP_SSI_MASTER_BUFFER_SIZE          1024    // Length of data to be sent through SPI
+#define ULP_SSI_MASTER_BIT_WIDTH            8       // SSI bit width
+#define ULP_SSI_MASTER_BAUDRATE             5000000 // SSI baudrate
+#define ULP_SSI_MASTER_MAX_BIT_WIDTH        16      // Maximum Bit width
+#define ULP_SSI_MASTER_RECEIVE_SAMPLE_DELAY 0       // By default sample delay is 0
+#define ULP_SSI_MASTER_BANK_OFFSET          0x800   // ULP Memory bank offset value.
 #define ULP_SSI_MASTER_TX_BUF_MEMORY        (ULP_SRAM_START_ADDR + (1 * ULP_SSI_MASTER_BANK_OFFSET))
 #define ULP_SSI_MASTER_RX_BUF_MEMORY        (ULP_SRAM_START_ADDR + (2 * ULP_SSI_MASTER_BANK_OFFSET))
 #define TIMER_FREQUENCY                     32000 // Timer frequency for delay

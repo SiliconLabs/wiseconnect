@@ -1,5 +1,8 @@
 id: si91x_debug_uc
 package: wiseconnect3_sdk
+metadata:
+  sbom:
+    license: MIT
 description: >
   "Provides application prints functionality to the Si91x, configuration options for Debug UART instance and the baudrate"
 label: Debug UC

@@ -33,6 +33,8 @@ Please refer Datasheet for current consumption values without RAM retention.
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
   	
 - **NCP Mode**:
   - Standalone
@@ -48,6 +50,7 @@ Please refer Datasheet for current consumption values without RAM retention.
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045C)
       - (BRD4357A + BRD8045C)
+      - (BRD4353A + BRD8045A)
   - Interface and Host MCU Supported
     - SPI - EFR32 & STM32
     - UART - EFR32
@@ -82,7 +85,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
+   - Mount the NCP Radio board (BRD4346A/BRD4357A/BRD4353A) onto the radio board socket available on the base board (BRD8045C).
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.

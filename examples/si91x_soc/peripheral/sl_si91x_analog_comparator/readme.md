@@ -75,6 +75,7 @@ Compare internal voltages.
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -90,10 +91,11 @@ Compare internal voltages.
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -179,11 +181,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   
 ### Pin Configuration
 
-|GPIO pin (A0) |GPIO pin (B0 1.2)|GPIO pin (B0 2.0)| Description|
-|--- | --- | --- | --- |
-|ULP_GPIO_0 [EXP_HEADER-9] |GPIO_27 [EXP_HEADER-10]|GPIO_27 [P29] |Non-inverting input|
-|ULP_GPIO_1(P16) |GPIO_28 [EXP_HEADER-8]|GPIO_28 [P31]          |Inverting input    |
-|ULP_GPIO_5 [EXP_HEADER-13] |ULP_GPIO_1 [P16]|ULP_GPIO_1 [P16]|Output Pin         |
+|917 GPIO |915 GPIO |Explorer kit GPIO | Description|
+| --- | --- | --- | --- |
+|GPIO_27 [P29]|GPIO_27 [P29] |GPIO_27 [MOSI]|Non-inverting input|
+|GPIO_28 [P31]|GPIO_28 [P31] |GPIO_28 [CS]  |Inverting input    |
+|ULP_GPIO_1 [P16]|ULP_GPIO_4 [P36]|ULP_GPIO_1 [EXP_5]|Output Pin   |
 
 ## Test Application
 
@@ -237,11 +239,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     ![Figure: Comparator1_output](resources/readme/comparator1_output2.png)
 
 ### For Comparator-2:
-  - If Applied Non-inverting input supply >= Applied Inverting input supply, then the comparator output will be high, interrupt will hit & ULP_GPIO_1 will toggles unless comparator output is high. Also below debug prints will be observed. Observe the ULP_GPIO_1 status by using a logic analyzer.                
+  - If the voltage at the non-inverting input is greater than or equal to the voltage at the inverting input, the comparator output will go high, triggering an interrupt. This will cause ULP_GPIO_1 on the Si917 board or ULP_GPIO_4 on the Si915 board to toggle, as long as the comparator output remains high. Additionally, the following debug prints will be observed. Use a logic analyzer to monitor the status of ULP_GPIO_1 on the Si917 board or ULP_GPIO_4 on the Si915 board.             
 
     ![Figure: Comparator2_output](resources/readme/comparator2_output1.png)
 
-  - If Applied Non-inverting input supply < Applied Inverting input supply, then comparator output will be low, interrupt will not hit, ULP_GPIO_1 will not toggle and below debugs will be there on console.Observe the ULP_GPIO_1 status by using a logic analyzer.
+  - If the voltage at the non-inverting input is less than the voltage at the inverting input, the comparator output will be low, and no interrupt will be triggered. As a result, ULP_GPIO_1 on the Si917 board or ULP_GPIO_4 on the Si915 board will not toggle, and the following debug messages will appear on the console. Use a logic analyzer to monitor the status of ULP_GPIO_1 on the Si917 board or ULP_GPIO_4 on the Si915 board.
 
     ![Figure: Comparator2_output](resources/readme/comparator2_output2.png)
 

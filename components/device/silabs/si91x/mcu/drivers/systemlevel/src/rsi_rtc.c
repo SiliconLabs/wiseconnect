@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_rtc.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -36,7 +48,7 @@
 
 void RSI_RTC_Start(RTC_Type *Cal)
 {
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (0x1 == STATIC_COMBI_RTC_PG_ENABLE) {
     /* Enable static combi rtc powergate */
     Cal->MCU_CAL_POWERGATE_REG_b.DISABLE_COMBI_DYN_PWRGATE_EN = 0x1;
@@ -68,7 +80,6 @@ void RSI_RTC_Init(RTC_Type *Cal)
   do {
     RTC->MCU_CAL_ALARM_PROG_1 = 6U;
   } while (RTC->MCU_CAL_ALARM_PROG_1 != 6U);
-
   // by using this API we programmed the RTC timer clock in SOC
   // MSB 8-bits for the Integer part &
   // LSB 17-bits for the Fractional part
@@ -336,10 +347,6 @@ void RSI_RTC_IntrClear(uint32_t intr)
 
 void RSI_RTC_CalibInitilization(void)
 {
-  /* Uncomment below 2 lines of code if it is MCU only mode */
-  //	RF_AFE_PWRCTRL_REG |= BIT(4);
-  //	XO_PROG_REG =0xA95A ;  // Dummy Read
-  //	XO_PROG_REG |= BIT(1); // Calin Clk EN in XO BG
   ULP_SPI_MEM_MAP(0x106) |= (BIT(21) | BIT(19));
 }
 

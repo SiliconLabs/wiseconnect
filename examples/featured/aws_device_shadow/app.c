@@ -105,7 +105,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
 #if ENABLE_POWER_SAVE
                       | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),

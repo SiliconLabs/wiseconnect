@@ -1,19 +1,31 @@
 /*******************************************************************************
-* @file  rsi_bt_common.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ * @file  rsi_bt_common.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #ifndef RSI_BT_COMMON_H
 #define RSI_BT_COMMON_H
@@ -25,8 +37,9 @@
 /******************************************************
  * *                      Macros
  * ******************************************************/
-/** @addtogroup BT_BLE_TYPES
-  * @{ */
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 /// Specifies that packet type is Bluetooth HCI command packet.
 #define RSI_BT_HCI_CMD_PKT 0x1
@@ -107,7 +120,7 @@
 #define RSI_BT_STATE_OPERMODE_DONE 1
 ///Mask to extract the lower nibble of a byte.
 #define LOWERNIBBLE 0x0F
-
+/** @} */
 /******************************************************
  * *                    Constants
  * ******************************************************/
@@ -115,14 +128,16 @@
 /******************************************************
  * *                 Type Definitions
  * ******************************************************/
-
-typedef struct rsi_ble_cb_s rsi_ble_cb_t;               ///< Typedef for the BLE control block structure.
+/** @addtogroup BT_BLE_TYPES
+  * @{ */
+typedef struct rsi_ble_cb_s
+  rsi_ble_cb_t; ///< Typedef for the BLE control block structure refer \ref rsi_ble_cb_s_group  for complete information of Driver BLE control block.
 typedef struct rsi_bt_classic_cb_s rsi_bt_classic_cb_t; ///< Typedef for the Bluetooth Classic control block structure.
 typedef struct rsi_bt_common_specific_cb_s
   rsi_bt_common_specific_cb_t; ///< Typedef for the Bluetooth common specific control block structure.
 typedef int32_t (*rsi_bt_get_ber_pkt_t)(uint8_t *pkt,
                                         uint16_t pkt_len); ///<  Typedef for a function pointer to get BER packet.
-
+/** @} */
 /******************************************************
  * *                   Enumerations
  * ******************************************************/
@@ -130,6 +145,9 @@ typedef int32_t (*rsi_bt_get_ber_pkt_t)(uint8_t *pkt,
 /******************************************************
  * *                   Enumerations
  * ******************************************************/
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 /**
  * 
@@ -197,15 +215,15 @@ typedef enum rsi_bt_common_cmd_resp_e {
   RSI_BLE_RSP_PWRMODE        = 0x8015, ///< Response for requesting BLE power mode.
   RSI_BLE_RSP_SOFTRESET      = 0x801C  ///< Response for requesting BLE soft reset.
 } rsi_bt_common_cmd_resp_t;
-
+/** @} */
 /******************************************************
  * *                    Structures
  * ******************************************************/
+/** @addtogroup BT_BLE_TYPES
+  * @{ */
 /// Driver control block
 struct rsi_driver_cb_s;
-
 // Driver BT Common control block
-
 /**
  * @brief Structure representing the Bluetooth common specific callback.
  *
@@ -262,7 +280,6 @@ typedef struct rsi_remote_ble_info_s {
   /** Mutex handle for avail_buf_info update */
   osMutexId_t ble_buff_mutex;
 } rsi_remote_ble_info_t;
-/** @} */
 // Driver BT/BLE/PROP_PROTOCOL control block
 /**
  * @brief Structure representing the Bluetooth control block.
@@ -297,9 +314,13 @@ typedef struct rsi_bt_cb_s {
   rsi_bt_global_cb_t *bt_global_cb;
   /** Address of the device to which directed advertising has to be done in ll privacy mode */
   uint8_t directed_addr[RSI_DEV_ADDR_LEN];
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 /** Maximum number of remote BLE devices */
 #define MAX_REMOTE_BLE_DEVICES 10
+  /** @} */
   /** Structure holding remote LE device info (BD address and controller buffer availability) */
   rsi_remote_ble_info_t remote_ble_info[MAX_REMOTE_BLE_DEVICES];
   /** Variable indicating buffer full/empty status --> 0 -> Empty, 1 -> Full */
@@ -358,6 +379,7 @@ typedef struct rsi_bt_resp_get_local_name_s {
   /** Reserved variable */
   uint8_t _reserved;
 } rsi_bt_resp_get_local_name_t;
+/** @} */
 
 /** @addtogroup BT-BLE Common
   * @{ */
@@ -371,7 +393,6 @@ typedef struct rsi_bt_resp_get_bt_stack_version_s {
   /** Bluetooth stack version */
   int8_t stack_version[10];
 } rsi_bt_resp_get_bt_stack_version_t;
-/** @} */
 
 // Set antenna structure
 /**
@@ -437,10 +458,7 @@ typedef struct rsi_bt_set_antenna_tx_power_level_s {
   int8_t tx_power;
 } rsi_bt_set_antenna_tx_power_level_t;
 
-/** @addtogroup BT-BLE Common
-  * @{ */
 // BT PER Stats
-
 /**
  * @brief Structure representing the Bluetooth Packet Error Rate (PER) statistics.
  *
@@ -472,8 +490,6 @@ typedef struct rsi_bt_per_stats_s {
   uint16_t dummy[5];
 } rsi_bt_per_stats_t;
 
-/** @} */
-
 /**
  * @brief Structure representing the Bluetooth set local Bluetooth Device (BD) address.
  *
@@ -497,7 +513,7 @@ typedef struct rsi_bt_cmd_update_gain_table_offset_or_maxpower_s {
   /** gain table payload data */
   uint8_t payload[128];
 } rsi_bt_cmd_update_gain_table_offset_or_maxpower_t;
-
+/** @} */
 /******************************************************
  * * BT/BLE common function declarations
  * ******************************************************/
@@ -509,10 +525,13 @@ uint16_t rsi_bt_global_cb_init(struct rsi_driver_cb_s *driver_cb, uint8_t *buffe
 uint16_t rsi_driver_process_bt_resp_handler(void *rx_pkt);
 uint16_t rsi_bt_get_proto_type(uint16_t rsp_type, rsi_bt_cb_t **bt_cb);
 
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 #define HCI_BT_PER_STATS_CMD_ID 0x08 ///< HCI command ID for Bluetooth Packet Error Rate (PER) statistics.
 #define HCI_BLE_TRANSMIT_CMD_ID 0x13 ///< HCI command ID for BLE transmit command.
 #define HCI_BLE_RECEIVE_CMD_ID  0x14 ///< HCI command ID for BLE receive command.
 #define HCI_BT_TRANSMIT_CMD_ID  0x15 ///< HCI command ID for Bluetooth transmit command.
 #define HCI_BT_RECEIVE_CMD_ID   0x16 ///< HCI command ID for Bluetooth receive command.
-
+/** @} */
 #endif

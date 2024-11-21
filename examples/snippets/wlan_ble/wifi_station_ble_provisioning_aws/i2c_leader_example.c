@@ -111,20 +111,20 @@ static void handle_leader_receive_irq(void);
  ******************************************************************************/
 void i2c_leader_example_init(void)
 {
-  i2c_clock_init(I2C2);
+  i2c_clock_init(ULP_I2C);
   // For aborting, I2C instance should be enabled.
-  sl_si91x_i2c_enable(I2C2);
+  sl_si91x_i2c_enable(ULP_I2C);
   // It aborts if any existing activity is there.
-  sl_si91x_i2c_abort_transfer(I2C2);
-  sl_si91x_i2c_disable(I2C2);
+  sl_si91x_i2c_abort_transfer(ULP_I2C);
+  sl_si91x_i2c_disable(ULP_I2C);
   NVIC_SetPriority(I2C2_IRQn, 15);
   sl_i2c_init_params_t config;
   // Filling the structure with default values.
   config.clhr = SL_I2C_STANDARD_BUS_SPEED;
-  config.freq = sl_si91x_i2c_get_frequency(I2C2);
+  config.freq = sl_si91x_i2c_get_frequency(ULP_I2C);
   config.mode = SL_I2C_LEADER_MODE;
   // Passing the structure and i2c instance for the initialization.
-  sl_si91x_i2c_init(I2C2, &config);
+  sl_si91x_i2c_init(ULP_I2C, &config);
   // Pin is configured here.
   pin_configurations();
   // Generating a buffer with values that needs to be sent.
@@ -156,7 +156,7 @@ void i2c_leader_example_process_action(void)
 {
   if (send_data_flag) {
     uint8_t a[5] = "\0";
-    sl_si91x_i2c_set_follower_address(I2C2, 0x48, 0);
+    sl_si91x_i2c_set_follower_address(ULP_I2C, 0x48, 0);
     // Validation for executing the API only once.
     a[0] = (uint8_t)(0x00 & 0xFF);
     a[1] = (uint8_t)(0x01 & 0xFF);
@@ -221,28 +221,28 @@ static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t fo
 {
   bool is_10bit_addr = false;
   // Disables the interrupts.
-  sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
+  sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
   // Updates the variables which are required for trasmission.
   write_data   = (uint8_t *)data;
   write_count  = 0;
   write_number = data_length;
   // Disables the I2C peripheral.
-  sl_si91x_i2c_disable(I2C2);
+  sl_si91x_i2c_disable(ULP_I2C);
   // Checking is address is 7-bit or 10bit
   if (follower_address > MAX_7BIT_ADDRESS) {
     is_10bit_addr = true;
   }
   // Setting the follower address recevied in parameter structure.
-  sl_si91x_i2c_set_follower_address(I2C2, follower_address, is_10bit_addr);
+  sl_si91x_i2c_set_follower_address(ULP_I2C, follower_address, is_10bit_addr);
   // Configures the FIFO threshold.
-  sl_si91x_i2c_set_tx_threshold(I2C2, FIFO_THRESHOLD);
+  sl_si91x_i2c_set_tx_threshold(ULP_I2C, FIFO_THRESHOLD);
   // Enables the I2C peripheral.
-  sl_si91x_i2c_enable(I2C2);
+  sl_si91x_i2c_enable(ULP_I2C);
   // Sets the direction to write.
   // Configures the transmit empty interrupt.
-  sl_si91x_i2c_set_interrupts(I2C2, SL_I2C_EVENT_TRANSMIT_EMPTY);
+  sl_si91x_i2c_set_interrupts(ULP_I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
   // Enables the interrupt.
-  sl_si91x_i2c_enable_interrupts(I2C2, ZERO_FLAG);
+  sl_si91x_i2c_enable_interrupts(ULP_I2C, ZERO_FLAG);
 }
 
 /*******************************************************************************
@@ -257,29 +257,29 @@ static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follo
 {
   bool is_10bit_addr = false;
   // Disables the interrupts.
-  sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
+  sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
   // Updates the variables which are required for trasmission.
   read_data   = (uint8_t *)data;
   read_count  = 0;
   read_number = data_length;
   // Disables the I2C peripheral.
-  sl_si91x_i2c_disable(I2C2);
+  sl_si91x_i2c_disable(ULP_I2C);
   // Configures the FIFO threshold.
   // Checking is address is 7-bit or 10bit
   if (follower_address > MAX_7BIT_ADDRESS) {
     is_10bit_addr = true;
   }
   // Setting the follower address recevied in parameter structure.
-  sl_si91x_i2c_set_follower_address(I2C2, follower_address, is_10bit_addr);
-  sl_si91x_i2c_set_rx_threshold(I2C2, FIFO_THRESHOLD);
+  sl_si91x_i2c_set_follower_address(ULP_I2C, follower_address, is_10bit_addr);
+  sl_si91x_i2c_set_rx_threshold(ULP_I2C, FIFO_THRESHOLD);
   // Enables the I2C peripheral.
-  sl_si91x_i2c_enable(I2C2);
+  sl_si91x_i2c_enable(ULP_I2C);
   // Sets the direction to read.
-  sl_si91x_i2c_control_direction(I2C2, SL_I2C_READ_MASK);
+  sl_si91x_i2c_control_direction(ULP_I2C, SL_I2C_READ_MASK);
   // Configures the receive full interrupt.
-  sl_si91x_i2c_set_interrupts(I2C2, SL_I2C_EVENT_RECEIVE_FULL);
+  sl_si91x_i2c_set_interrupts(ULP_I2C, SL_I2C_EVENT_RECEIVE_FULL);
   // Enables the interrupt.
-  sl_si91x_i2c_enable_interrupts(I2C2, ZERO_FLAG);
+  sl_si91x_i2c_enable_interrupts(ULP_I2C, ZERO_FLAG);
 }
 
 /*******************************************************************************
@@ -292,7 +292,7 @@ static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follo
 static void i2c_clock_init(I2C_TypeDef *i2c)
 {
   if ((uint32_t)i2c == I2C2_BASE) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -303,7 +303,7 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
     RSI_CLK_I2CClkConfig(M4CLK, 1, I2C1_INSTAN);
   }
   if ((uint32_t)i2c == I2C2_BASE) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -350,15 +350,15 @@ static void handle_leader_transmit_irq(void)
 {
   if (write_number > LAST_DATA_COUNT) {
     if (write_number == DATA_COUNT) {
-      I2C2->IC_DATA_CMD = (uint32_t)write_data[write_count] | (BIT_SET << STOP_BIT);
+      ULP_I2C->IC_DATA_CMD = (uint32_t)write_data[write_count] | (BIT_SET << STOP_BIT);
     } else {
-      sl_si91x_i2c_tx(I2C2, write_data[write_count]);
+      sl_si91x_i2c_tx(ULP_I2C, write_data[write_count]);
     }
     write_count++;
     write_number--;
   } else {
-    sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_TRANSMIT_EMPTY);
-    sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
+    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
+    sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
     i2c_send_complete = 1;
   }
 }
@@ -374,32 +374,32 @@ static void handle_leader_transmit_irq(void)
 static void handle_leader_receive_irq(void)
 {
   if (read_number > LAST_DATA_COUNT) {
-    read_data[read_count] = I2C2->IC_DATA_CMD_b.DAT;
+    read_data[read_count] = ULP_I2C->IC_DATA_CMD_b.DAT;
     read_count++;
     read_number--;
     if (read_number == DATA_COUNT) {
       // If the last byte is there to receive, and in leader mode, it needs to send
       // the stop byte.
-      I2C2->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT) | (BIT_SET << STOP_BIT);
+      ULP_I2C->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT) | (BIT_SET << STOP_BIT);
     }
     if (read_number > DATA_COUNT) {
-      I2C2->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT);
+      ULP_I2C->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT);
     }
   }
   if (read_number == LAST_DATA_COUNT) {
-    sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_RECEIVE_FULL);
-    sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
+    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_RECEIVE_FULL);
+    sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
     i2c_receive_complete = 1;
   }
 }
 
 /*******************************************************************************
- * IRQ handler for I2C2.
+ * IRQ handler for I2C2 (ULP_I2C).
  ******************************************************************************/
 void I2C2_IRQHandler(void)
 {
   uint32_t status = 0;
-  status          = I2C2->IC_INTR_STAT;
+  status          = ULP_I2C->IC_INTR_STAT;
   if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
     handle_leader_transmit_irq();
   }

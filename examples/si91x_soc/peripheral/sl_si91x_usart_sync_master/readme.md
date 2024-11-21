@@ -50,6 +50,9 @@
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A / BRD4342A / BRD4343A ]- Master
 - Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A / BRD4342A / BRD4343A ] - Slave
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A] - Master
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A] - Slave
+
 ### Software Requirements
 
 - Simplicity Studio
@@ -64,10 +67,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -80,32 +84,48 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   > ![Figure: Selecting UC](resources/uc_screen/usart_uc.png)
 
-- Enable RTE_USART_MODE and RTE_CONTINUOUS_CLOCK_MODE in RTE_Device_917.h(path: /$project/config/RTE_Device_917.h)
+- Enable RTE_USART_MODE and RTE_CONTINUOUS_CLOCK_MODE in RTE_Device_917.h(path: /$project/config/RTE_Device_917.h) or in RTE_Device_915.h(path: /$project/config/RTE_Device_915.h)
 - Connect Master and slave as per pin configurations i.e Connect USART master clock pin(GPIO_8) to USART slave clock pin, Master TX pin(GPIO_30) to Slave RX pin, Master RX pin(GPIO_29) to Slave TX pin
 - The Application has been configured to run in Synchronous Master mode.
 
-## Pin Configuration
-  | USART PINS              | GPIO    | Connector     | 
+## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board
+  | USART PINS              | GPIO    | Breakout pin  | 
   | ----------------------- | ------- | ------------- | 
   | USART_MASTER_CLOCK_PIN  | GPIO_8  |     F8        |
+  | USART_MASTER_TX_PIN     | GPIO_30 |     P35       | 
+  | USART_MASTER_RX_PIN     | GPIO_29 |     P33       |  
+
+## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4343A radio board
+
+  | USART PINS              | GPIO    | Breakout pin  | 
+  | ----------------------- | ------- | ------------- | 
+  | USART_MASTER_CLOCK_PIN  | GPIO_25 |     P25       |
   | USART_MASTER_TX_PIN     | GPIO_30 |     P35       | 
   | USART_MASTER_RX_PIN     | GPIO_29 |     P33       |  
 
 
  > ![Figure: Build run and Debug](resources/readme/image513d.png)
 
+## Pin Configuration of the AC1 Module Explorer Kit
+
+  | USART PINS              | GPIO    | Explorer kit Breakout pin  | 
+  | ----------------------- | ------- | ------------- | 
+  | USART_MASTER_CLOCK_PIN  | GPIO_25 |     [SCK]     |
+  | USART_MASTER_TX_PIN     | GPIO_30 |     [RST]     | 
+  | USART_MASTER_RX_PIN     | GPIO_29 |     [AN]      | 
+
 ## Flow Control Configuration
 
 - Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable USART flow control.
-- Make the following two macros in RTE_Device_917.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
+- Make the following two macros in RTE_Device_917.h or RTE_Device_915.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
   ```C
   #define RTE_USART0_CTS_PORT_ID    1
   #define RTE_USART0_RTS_PORT_ID    1
   ```
-  | USART PINS     | GPIO    | Connector(B0) |
-  | -------------- | ------- | ------------- |
-  | USART0_CTS_PIN | GPIO_26 |     P27       |
-  | USART0_RTS_PIN | GPIO_28 |     P31       |
+  | USART PINS     | GPIO    | Breakout pin  | Explorer kit Breakout pin|
+  | -------------- | ------- | ------------- | ------------------------ |
+  | USART0_CTS_PIN | GPIO_26 |     P27       |           [MISO]         |
+  | USART0_RTS_PIN | GPIO_28 |     P31       |           [CS]           |
 
 ## Test the Application
 

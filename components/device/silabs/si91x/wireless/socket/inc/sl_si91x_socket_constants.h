@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_si91x_socket_constants.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/********************************************************************************
+ * @file  sl_si91x_socket_constants.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
@@ -61,6 +73,7 @@
 #define SI91X_SOCKET_FEAT_SSL                BIT(0) // SAPI maps both SSL and synchronous to BIT(0)
 #define SI91X_SOCKET_FEAT_SYNCHRONOUS        BIT(0)
 #define SI91X_SOCKET_FEAT_LTCP_ACCEPT        BIT(1)
+#define SI91X_WEBSOCKET_FEAT                 BIT(1)
 #define SI91X_SOCKET_FEAT_TCP_ACK_INDICATION BIT(2)
 #define SI91X_SOCKET_FEAT_TCP_RX_WINDOW      BIT(4)
 #define SI91X_SOCKET_FEAT_CERT_INDEX         BIT(5)
@@ -116,14 +129,14 @@
    | BIT_TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 | BIT_TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256              \
    | BIT_TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256)
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define SSL_EXT_CIPHERS SSL_TLSV1_3_ALL_CIPHERS
 #endif
 
 #define SSL_ALL_CIPHERS SSL_RELEASE_2_0_ALL_CIPHERS
 
 //TLSv1.3 configurable ciphers
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define SSL_TLSV1_3_ALL_CIPHERS                                                                     \
   (BIT_TLS13_AES_128_GCM_SHA256 | BIT_TLS13_AES_256_GCM_SHA384 | BIT_TLS13_CHACHA20_POLY1305_SHA256 \
    | BIT_TLS13_AES_128_CCM_SHA256 | BIT_TLS13_AES_128_CCM_8_SHA256)
@@ -163,7 +176,7 @@
 #define SSL_NEW_CIPHERS                                   BIT(31)
 
 // TLSv1.3 supported ciphers
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define BIT_TLS13_AES_128_GCM_SHA256       BIT(0)
 #define BIT_TLS13_AES_256_GCM_SHA384       BIT(1)
 #define BIT_TLS13_CHACHA20_POLY1305_SHA256 BIT(2)

@@ -44,10 +44,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 ## Application Build Environment
 
@@ -58,7 +59,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   ```C
   #define DELAY_PERIODIC_MS1 2000    // sleeptimer1 periodic timeout in ms
   ```
+- `I2C instance`: Select I2C instance for communication through UC from the VEML6035 slcp component.
+ By default I2C2 is selected.
 
+   ![Figure: Veml6035 UC](resources/uc_screen/veml6035_uc_screen.png)
+   
 ### Pin Configuration
 
 - Tested on SWG917 Dev kit board

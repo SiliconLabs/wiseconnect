@@ -18,9 +18,13 @@ description: >
   For further details on buffer allocation, please refer to the ULP I2S example.
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
-  - path: config/sl_si91x_i2s_config.h
+  - path: config/sl_i2s_config/sl_si91x_i2s_config.h
+    file_id: sl_i2s_config
 source:
   - path: "src/sl_si91x_i2s.c"
 include:
@@ -38,3 +42,5 @@ requires:
 documentation:
     docset: wiseconnect
     document: wiseconnect-api-reference-guide-si91x-peripherals/i2-s
+ui_hints:
+  visibility: never

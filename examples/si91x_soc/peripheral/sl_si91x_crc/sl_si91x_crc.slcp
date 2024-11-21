@@ -7,10 +7,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -30,14 +30,13 @@ component:
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: sl_crc
     from: wiseconnect3_sdk
   - id: sl_dma
     from: wiseconnect3_sdk
-  - id: sl_clock_manager
-    from: wiseconnect3_sdk
+
 other_file:
   - path: resources/readme/crc_result_console.png
   - path: resources/readme/setupdiagram.png

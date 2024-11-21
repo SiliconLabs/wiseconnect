@@ -66,7 +66,7 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
 
   status =
     sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD_QUEUE,
+                                 SI91X_COMMON_CMD,
                                  request,
                                  (sizeof(sl_si91x_wrap_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),

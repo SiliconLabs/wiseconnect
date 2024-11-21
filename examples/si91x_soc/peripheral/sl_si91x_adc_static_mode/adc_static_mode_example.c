@@ -19,7 +19,7 @@
 #include "sl_adc_instances.h"
 #include "sl_si91x_adc.h"
 #include "sl_si91x_adc_common_config.h"
-#include "sl_si91x_clock_manager.h"
+
 #include "rsi_rom_clks.h"
 
 /*******************************************************************************
@@ -29,12 +29,6 @@
 #define ADC_MAX_OP_VALUE 4095   // Maximum output value get from adc data register
 #define ADC_DATA_CLEAR   0xF7FF // Clear the data if 12th bit is enabled
 #define VREF_VALUE       3.3    // reference voltage
-
-#define SOC_PLL_CLK          ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK         ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
-#define QSPI_ODD_DIV_ENABLE  0                       // Odd division enable for QSPI clock
-#define QSPI_SWALLO_ENABLE   0                       // Swallo enable for QSPI clock
-#define QSPI_DIVISION_FACTOR 0                       // Division factor for QSPI clock
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -46,28 +40,10 @@ static int16_t adc_output[1];
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void callback_event(uint8_t event_channel, uint8_t event);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-
-  // Configure QSPI clock as input source
-  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
-                                           QSPI_INTFPLLCLK,
-                                           QSPI_SWALLO_ENABLE,
-                                           QSPI_ODD_DIV_ENABLE,
-                                           QSPI_DIVISION_FACTOR);
-}
 /*******************************************************************************
  * ADC example initialization function
  ******************************************************************************/
@@ -75,10 +51,11 @@ void adc_static_mode_example_init(void)
 {
   sl_adc_version_t version;
   sl_status_t status;
+#ifdef SLI_SI915
+  sl_adc_channel_config.channel = SL_ADC_CHANNEL_2;
+#else
   sl_adc_channel_config.channel = 0;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
+#endif
 
   do {
     // Version information of ADC driver

@@ -101,6 +101,9 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
 
 void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
+  if (buffer == NULL) {
+    return;
+  }
   osMutexAcquire(malloc_free_mutex, 0xFFFFFFFFUL);
   free((void *)buffer);
   osMutexRelease(malloc_free_mutex);

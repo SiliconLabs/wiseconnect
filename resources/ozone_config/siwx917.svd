@@ -68579,8 +68579,8 @@ When set, indicates that current request is for CSA window register. This is onl
               <name>M4SS_REF_CLK_SEL</name>
               <description>Dynamic Reference Clock Mux select of M4SS
                            0 - Clock will be gated at dynamic mux output of M4SS
-                           1 - ulp_32mhz_rc_byp_clk
-                           2 - ulp_32mhz_rc_clk
+                           1 - ulp_mhz_rc_byp_clk
+                           2 - ulp_mhz_rc_clk
                            3 - rf_ref_clk
                            4 - mems_ref_clk
                            5 - ulp_20mhz_ringosc_clk
@@ -68622,8 +68622,8 @@ When set, indicates that current request is for CSA window register. This is onl
               <name>TASS_REF_CLK_SEL</name>
               <description>Dynamic Reference Clock Mux select of TASS controlled by M4.
                            0 : Clock will be gated at dynamic mux output of TASS
-                           1 : ulp_32mhz_rc_byp_clk
-                           2 : ulp_32mhz_rc_clk
+                           1 : ulp_mhz_rc_byp_clk
+                           2 : ulp_mhz_rc_clk
                            3 : rf_ref_clk
                            4 : mems_ref_clk
                            5 : ulp_20mhz_ringosc_clk
@@ -68643,8 +68643,8 @@ When set, indicates that current request is for CSA window register. This is onl
               <name>ULPSS_REF_CLK_SEL_b</name>
               <description>Dynamic Reference Clock Mux select of TASS controlled by M4.
                            0 : Clock will be gated at dynamic mux output of TASS
-                           1 : ulp_32mhz_rc_byp_clk
-                           2 : ulp_32mhz_rc_clk
+                           1 : ulp_mhz_rc_byp_clk
+                           2 : ulp_mhz_rc_clk
                            3 : rf_ref_clk
                            4 : mems_ref_clk
                            5 : ulp_20mhz_ringosc_clk
@@ -68795,9 +68795,9 @@ When set, indicates that current request is for CSA window register. This is onl
               <bitRange>[18:18]</bitRange>
               <access>read-write</access>
             </field>
-            <!--MCU_ULP_32MHZ_RC_CLK_EN_b-->
+            <!--MCU_ULP_MHZ_RC_CLK_EN_b-->
             <field>
-              <name>MCU_ULP_32MHZ_RC_CLK_EN_b</name>
+              <name>MCU_ULP_MHZ_RC_CLK_EN_b</name>
               <description>Enables ULP 32MHz RC Clock.</description>
               <bitRange>[19:19]</bitRange>
               <access>read-write</access>
@@ -72045,9 +72045,9 @@ When set, indicates that current request is for CSA window register. This is onl
               <bitRange>[4:4]</bitRange>
               <access>read-write</access>
             </field>
-            <!--ulp 32mhz rc clock enable prog-->
+            <!--ulp mhz rc clock enable prog-->
             <field>
-              <name>ULP_32MHZ_RC_CLK_EN_PROG_b</name>
+              <name>ULP_MHZ_RC_CLK_EN_PROG_b</name>
               <description>Static Clock enable to iPMU for 32MHz RC Clock,if bit is one(set) then clock
 			                enable else not enable.
 			   </description>
@@ -86969,7 +86969,7 @@ This is done by firmware after coming out of sleep. It is used for ULP Mode Stat
               </enumeratedValues>
             </field>
             <field>
-              <name>RC_32MHZ_CLK_EN</name>
+              <name>RC_MHZ_CLK_EN</name>
               <description>1-Enable RC 32Mhz clock, 0-disable RC 32 Mhz clock</description>
               <bitRange>[19:19]</bitRange>
               <access>read-write</access>

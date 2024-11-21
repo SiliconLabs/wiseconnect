@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file  sl_si91x_watchdog_timer.h
- * @brief Watchdog-Timer API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licenser of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file  sl_si91x_watchdog_timer.h
+* @brief Watchdog-Timer API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_WATCHDOG_TIMER_
 #define SL_SI91X_WATCHDOG_TIMER_
@@ -172,7 +172,7 @@ void sl_si91x_watchdog_init_timer(void);
  * @param[in] timer_clk_config_ptr Pointer to the timer clock configuration structure.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) -  return ok to support backward compatibility.
+ *         - SL_STATUS_OK -  return ok to support backward compatibility.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -192,10 +192,10 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
  * @param[in] timer_config_ptr Pointer to the timer configuration structure \ref watchdog_timer_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer configuration structure members have invalid values.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer configuration structure member 'interrupt_time' is less than or equal to 'window_time'. It should be greater than the window time of the timer.
+ *         - SL_STATUS_OK  - Success, timer parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Timer configuration structure members have invalid values.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_CONFIGURATION  - Timer configuration structure member 'interrupt_time' is less than or equal to 'window_time'. It should be greater than the window time of the timer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -212,9 +212,9 @@ sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_c
  * @param[in] on_timeout_callback Function pointer to the callback function to be called when the timer timeout interrupt occurs.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully registered the timer timeout callback.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered; the user must unregister the previous callback before registering again.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The callback function pointer parameter is a null pointer.
+ *         - SL_STATUS_OK  - Successfully registered the timer timeout callback.
+ *         - SL_STATUS_BUSY  - The callback is already registered; the user must unregister the previous callback before registering again.
+ *         - SL_STATUS_NULL_POINTER  - The callback function pointer parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -238,9 +238,9 @@ sl_status_t sl_si91x_watchdog_register_timeout_callback(watchdog_timer_callback_
  *                           Number of clock pulses = 2^(interrupt_time).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the Watchdog Timer timeout value.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'interrupt_time' parameter has an invalid value.
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - The 'interrupt_time' value is less than the window time.
+ *         - SL_STATUS_OK  - Successfully set the Watchdog Timer timeout value.
+ *         - SL_STATUS_INVALID_PARAMETER  - The 'interrupt_time' parameter has an invalid value.
+ *         - SL_STATUS_INVALID_CONFIGURATION  - The 'interrupt_time' value is less than the window time.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -272,9 +272,9 @@ uint8_t sl_si91x_watchdog_get_interrupt_time(void);
  *                              Number of clock pulses = 2^(system_reset_time).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the Watchdog Timer system reset time value.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'system_reset_time' parameter has an invalid value.
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - The 'system_reset_time' value is less than the window time.
+ *         - SL_STATUS_OK  - Successfully set the Watchdog Timer system reset time value.
+ *         - SL_STATUS_INVALID_PARAMETER  - The 'system_reset_time' parameter has an invalid value.
+ *         - SL_STATUS_INVALID_CONFIGURATION  - The 'system_reset_time' value is less than the window time.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -310,9 +310,9 @@ uint8_t sl_si91x_watchdog_get_system_reset_time(void);
  *                        Number of clock pulses = 2^(window_time).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the Watchdog Timer window time value.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'window_time' parameter has an invalid value.
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - The 'window_time' value is greater than the interrupt time or system reset time.
+ *         - SL_STATUS_OK  - Successfully set the Watchdog Timer window time value.
+ *         - SL_STATUS_INVALID_PARAMETER  - The 'window_time' parameter has an invalid value.
+ *         - SL_STATUS_INVALID_CONFIGURATION  - The 'window_time' value is greater than the interrupt time or system reset time.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/

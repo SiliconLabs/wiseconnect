@@ -6,10 +6,18 @@ description: >
   For modifying the Configuration options click on the configure button in the configuration WIzard and modify the Configuration.
   For more information related to the configurations and usage please refer https://www.freertos.org/.
 quality: production
+metadata:
+  sbom:
+    license: MIT
 root_path: "components/device/silabs/si91x/mcu/core/common/freertos_config"
 category: RTOS|FreeRTOS|Configuration
 config_file:
   - path: "FreeRTOSConfig.h"
     file_id: freertos_config
+    unless: [freertos]
+  - override:
+      component: freertos
+      file_id: freertos_config
+    path: "FreeRTOSConfig.h"
 provides:
   - name: freertos_config

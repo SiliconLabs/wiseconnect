@@ -56,11 +56,21 @@ typedef enum {
   CONSOLE_TYPE(wifi_bandwidth),
   CONSOLE_TYPE(wifi_encryption),
   CONSOLE_TYPE(wifi_init_mode),
+  CONSOLE_TYPE(wifi_init_region),
+  CONSOLE_TYPE(ble_user_gain_table_region),
   CONSOLE_TYPE(wifi_interface),
   CONSOLE_TYPE(wifi_security),
   CONSOLE_TYPE(wps_mode),
   CONSOLE_TYPE_COUNT // Equals the number of different types
 } console_type_t;
+
+typedef enum { ///< Factory default region
+  FCC,         ///< United States
+  ETSI,        ///< European Union
+  TELEC,       ///< Japan
+  WORLD_WIDE,  ///< World wide domain
+  KCC          ///< Korea             ///< Singapore (not currently supported)
+} sl_si91x_user_gain_table_region_code_t;
 
 /******************************************************
  *                 Global Variables
@@ -95,6 +105,8 @@ extern const char *wifi_band_type[];
 extern const char *wifi_bandwidth_type[];
 extern const char *wifi_encryption_type[];
 extern const char *wifi_init_mode_type[];
+extern const char *wifi_init_region_type[];
+extern const char *ble_user_gain_table_region_type[];
 extern const char *wifi_interface_type[];
 extern const char *wifi_security_type[];
 extern const char *wps_mode_type[];

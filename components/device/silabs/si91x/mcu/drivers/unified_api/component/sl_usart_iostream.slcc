@@ -9,6 +9,9 @@ description: >
   I/O stream service. The example will echo back any charaters it receives over the serial connection.
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 define:
    - name: IOSTREAM_USART

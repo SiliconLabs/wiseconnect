@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_gspi.c
- * @brief GSPI API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_gspi.c
+* @brief GSPI API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #include "rsi_gspi.h"
 #include "rsi_debug.h"
@@ -62,7 +62,7 @@
 static sl_gspi_signal_event_t user_callback = NULL;
 static const void *local_gspi_handle        = NULL;
 extern sl_gspi_driver_t Driver_GSPI_MASTER;
-
+static volatile boolean_t dummy_flag = false;
 /*******************************************************************************
  ***************************  Local Types  ********************************
  ******************************************************************************/
@@ -291,6 +291,13 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
     // Updating the registers according to the value of swap read and write.
     error_status = GSPI_SwapReadWriteByte(control_configuration->swap_read, control_configuration->swap_write);
     status       = convert_arm_to_sl_error_code(error_status);
+    // This is used to perform a dummy write operation on the GSPI.
+    // In the first SPI transaction after out of reset, two sampling clock cycles are taken to synchronize the reset.
+    // This dummy write is particularly useful to ensure that the sampling FIFOs are correctly synchronized after a reset.
+    if (!dummy_flag) {
+      dummy_flag = true;
+      GSPI_WriteDummyByte();
+    }
   } while (false);
   return status;
 }

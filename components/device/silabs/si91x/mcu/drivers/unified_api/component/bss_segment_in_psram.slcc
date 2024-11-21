@@ -5,6 +5,9 @@ description: >
   This component puts BSS segment in PSRAM memory region
 category: Device|Si91x|MCU|Peripheral|PSRAM Driver|PSRAM Linker Configurations
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 provides:
   - name: bss_segment_in_psram
 requires:

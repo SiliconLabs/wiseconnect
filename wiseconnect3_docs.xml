@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/ContentItem.ecore">
 
-  <contentItemData label="WiSeConnect 3 SDK NCP Getting Started Guide" itemURI="https://docs.silabs.com/wiseconnect/3.3.4/wiseconnect-getting-started/getting-started-with-ncp-mode-with-efr32" category="Quick Start Guides" priority="1">
+  <contentItemData label="WiSeConnect 3 SDK NCP Getting Started Guide" itemURI="https://docs.silabs.com/wiseconnect/3.4.0/wiseconnect-getting-started/getting-started-with-ncp-mode-with-efr32" category="Quick Start Guides" priority="1">
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="1"/>
     <property key="core.boardCompatibility" value="brd4346a brd4357a"/>
@@ -9,7 +9,7 @@
     <description>Get started with developing an application for the SiWx91x™ chipset family using the WiSeConnect™ SDK v3.x with an EFR32™ host in Network Co-Processor (NCP) mode, where the application runs on the EFR32 host and the connectivity stack runs on the SiWx91x chipset.</description>
   </contentItemData>
 
-  <contentItemData label="WiSeConnect 3 SDK NCP Release Notes" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.3.4/docs/release-notes/index_ncp.md" category="Release Notes" priority="3">
+  <contentItemData label="WiSeConnect 3 SDK NCP Release Notes" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.4.0/docs/release-notes/index_ncp.md" category="Release Notes" priority="3">
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="3"/>
     <property key="core.boardCompatibility" value="brd4346a brd4357a"/>
@@ -17,7 +17,7 @@
     <description>Release Notes for the WiSeConnect 3 SDK for NCP mode development. These release notes provide information on the release including part compatibility, changes, and supported features.</description>
   </contentItemData>
 
-  <contentItemData label="WiSeConnect 3 SDK SoC Getting Started Guide" itemURI="https://docs.silabs.com/wiseconnect/3.3.4/wiseconnect-getting-started/getting-started-with-soc-mode" category="Quick Start Guides" priority="1">
+  <contentItemData label="WiSeConnect 3 SDK SoC Getting Started Guide" itemURI="https://docs.silabs.com/wiseconnect/3.4.0/wiseconnect-getting-started/getting-started-with-soc-mode" category="Quick Start Guides" priority="1">
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="1"/>
     <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a"/>
@@ -35,7 +35,7 @@
     <description>Glossary of commonly used terms in the SiWx91x™ documentation.</description>
   </contentItemData>
 
-  <contentItemData label="WiSeConnect 3 SDK SoC Release Notes" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.3.4/docs/release-notes/index_soc.md" category="Release Notes" priority="3">
+  <contentItemData label="WiSeConnect 3 SDK SoC Release Notes" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.4.0/docs/release-notes/index_soc.md" category="Release Notes" priority="3">
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="3"/>
     <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a"/>
@@ -107,7 +107,16 @@
     <description>Guide for updating an existing application using the WiSeConnect™ SDK v3.3.2 to a v3.3.3 application. This guide describes the naming and interface changes in v3.3.3, mostly in order to standardize the names and improve the overall usage experience of the application programming interface (API). Migration requires the names everywhere to be updated in the existing code of an application.</description>
   </contentItemData>
 
-  <contentItemData label="SiWx917 Software Reference Manual" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.3.4/docs/software-reference/manuals/siwx91x-software-reference-manual.md" category="Reference Manuals" priority="9">
+  <contentItemData label="WiSeConnect SDK Migration Guide from v3.3.4 to v3.4.0" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/master/docs/software-reference/developer-guides/migrating-from-v3-3-4.md" category="Quick Start Guides" priority="8">
+    <property key="core.category" value="Quick Start Guides"/>
+    <property key="core.priority" value="8"/>
+    <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a brd4357a"/>
+    <property key="core.partCompatibility" value=".*"/>
+    <property key="core.sdkAndProtocolTags" value="WiSeConnect 3"/>
+    <description>Guide for updating an existing application using the WiSeConnect™ SDK v3.3.4 to a v3.4.0 application. This guide describes the naming and interface changes in v3.4.0, mostly in order to standardize the names and improve the overall usage experience of the application programming interface (API). Migration requires the names everywhere to be updated in the existing code of an application.</description>
+  </contentItemData>
+
+  <contentItemData label="SiWx917 Software Reference Manual" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.4.0/docs/software-reference/manuals/siwx91x-software-reference-manual.md" category="Reference Manuals" priority="9">
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="9"/>
     <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a brd4357a"/>
@@ -116,7 +125,7 @@
     <description>This reference manual provides information about the software on the SiWx917™, the first chip in the SiWx91x™ chipset family. It is intended to provide all the details required for a smooth developer experience.</description>
   </contentItemData>
 
-  <contentItemData label="WiSeConnect 3 SDK API Reference" itemURI="https://docs.silabs.com/wiseconnect/3.3.4/wiseconnect-api-reference-guide-summary" category="Software API Documentation" priority="11">
+  <contentItemData label="WiSeConnect 3 SDK API Reference" itemURI="https://docs.silabs.com/wiseconnect/3.4.0/wiseconnect-api-reference-guide-summary" category="Software API Documentation" priority="11">
     <property key="core.category" value="Software API Documentation"/>
     <property key="core.priority" value="11"/>
     <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a  brd4357a"/>
@@ -125,7 +134,7 @@
     <description>Guide to the application programming interface (API) of the WiSeConnect™ SDK v3.x, providing details of the functions, data types, constants, and callback frameworks within the various categories of APIs provided by the WiSeConnect™ SDK v3.x.</description>
   </contentItemData>
 
-  <contentItemData label="WiSeConnect 3 SDK Developer Documentation" itemURI="https://docs.silabs.com/wiseconnect/3.3.4/wiseconnect-developing-with-wiseconnect-sdk/" category="Software" priority="12">
+  <contentItemData label="WiSeConnect 3 SDK Developer Documentation" itemURI="https://docs.silabs.com/wiseconnect/3.4.0/wiseconnect-developing-with-wiseconnect-sdk/" category="Software" priority="12">
     <property key="core.category" value="Software"/>
     <property key="core.priority" value="12"/>
     <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a brd4357a"/>

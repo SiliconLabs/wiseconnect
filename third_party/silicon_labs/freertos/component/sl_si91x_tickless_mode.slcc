@@ -4,6 +4,9 @@ package: platform
 description: Free RTOS low power tickless mode with sleep timer. 
 category: Device|Si91x|MCU|Service
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 component_root_path: "third_party/silicon_labs/freertos"
 source:
   - path: "src/sl_si91x_low_power_tickless_mode.c"

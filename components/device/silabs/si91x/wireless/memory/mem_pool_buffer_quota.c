@@ -35,6 +35,7 @@
 #include "cmsis_os2.h"
 #include "em_core.h"
 #include <string.h>
+#include "sl_rsi_utility.h"
 
 #define BUFFER_TYPE    4
 #define WATERMARKLEVEL 10
@@ -43,6 +44,10 @@ static const sl_wifi_buffer_configuration_t *configuration;
 void *allocated_wifi_buffer                   = NULL;
 static uint8_t buffer_allocation[BUFFER_TYPE] = { 0, 0, 0, 0 };
 static uint8_t quota[BUFFER_TYPE];
+
+#ifndef SL_WIFI_BUFFERS_FREE_WAIT_TIME
+#define SL_WIFI_BUFFERS_FREE_WAIT_TIME 1000 // wait for 1 second to free all the wi-fi buffer
+#endif
 
 /*---------------Static Function Declaration---------------------------------------*/
 static void sl_si91x_convert_config_structure_to_array(const sl_wifi_buffer_configuration_t *config);
@@ -79,17 +84,32 @@ sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration
 
 sl_status_t sl_si91x_host_deinit_buffer_manager(void)
 {
-  // Ensuring that there are no buffers left to be deallocated from any buffer type
-  bool result = sl_si91x_check_for_buffer_empty();
+  // Get the current tick count to track elapsed time for deinit
+  uint32_t start = osKernelGetTickCount();
+  bool result;
+
+  // Ensure all buffer types have been deallocated (buffers are empty)
+  do {
+    result = sl_si91x_check_for_buffer_empty(); // Check if buffers are empty
+  } while ((result == false) && (sl_si91x_host_elapsed_time(start) < SL_WIFI_BUFFERS_FREE_WAIT_TIME)
+           && (osDelay(2) == 0)); // Retry until all buffers are deallocated or timeout occurs
+
+  // If some buffers are still not freed, log an error and return failure
   if (!result) {
-    SL_DEBUG_LOG("\r\n Invalid operation some buffers are not freed");
+    SL_DEBUG_LOG("\r\n Invalid operation, some buffers are not freed");
     return SL_STATUS_FAIL;
   }
+
+  // If allocated_wifi_buffer is not NULL, free it and set the pointer to NULL
   if (allocated_wifi_buffer != NULL) {
     free(allocated_wifi_buffer);
     allocated_wifi_buffer = NULL;
   }
+
+  // Clear the memory pool structure to reset all entries
   memset(&mem_pool, 0, sizeof(mem_pool));
+
+  // Return success if buffer deinitialization completed successfully
   return SL_STATUS_OK;
 }
 
@@ -104,7 +124,7 @@ sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
   do {
     // Ensuring that buffers are allocated as per the quota set.
     result = sl_si91x_check_for_buffer_availability(type);
-  } while (result == SL_STATUS_FULL);
+  } while (result == SL_STATUS_FULL && osDelay(1) == 0);
   uint32_t start = osKernelGetTickCount();
   do {
     *buffer = sli_mem_pool_alloc(&mem_pool);
@@ -139,6 +159,9 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
 
 void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
+  if (buffer == NULL) {
+    return;
+  }
   sli_mem_pool_free(&mem_pool, buffer);
   // Decreasing the count of the current allocation of the buffer type
   sl_si91x_buffer_type_deallocation(buffer->type);
@@ -194,7 +217,9 @@ static void sl_si91x_buffer_type_deallocation(sl_wifi_buffer_type_t type)
 {
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_CRITICAL();
-  buffer_allocation[type]--;
+  if (buffer_allocation[type] > 0) {
+    buffer_allocation[type]--;
+  }
   CORE_EXIT_CRITICAL();
   return;
 }

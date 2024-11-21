@@ -3,7 +3,7 @@
  * @brief si70xx example APIs
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -19,20 +19,19 @@
 #include "si70xx_example.h"
 #include "sl_sleeptimer.h"
 #include "sl_si91x_driver_gpio.h"
-#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define TX_THRESHOLD       0       // tx threshold value
-#define RX_THRESHOLD       0       // rx threshold value
-#define I2C                SL_I2C2 // I2C 2 instance
-#define USER_REG_1         0xBA    // writing data into user register
-#define DELAY_PERIODIC_MS1 2000    //sleeptimer1 periodic timeout in ms
-#define MODE_0             0       // Initializing GPIO MODE_0 value
-#define OUTPUT_VALUE       1       // GPIO output value
 
-#define SOC_PLL_CLK  ((uint32_t)(32000000))  // 32MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+#define TX_THRESHOLD       0                   // tx threshold value
+#define RX_THRESHOLD       0                   // rx threshold value
+#define I2C                SI70XX_I2C_INSTANCE // I2C instance
+#define USER_REG_1         0xBA                // writing data into user register
+#define DELAY_PERIODIC_MS1 2000                //sleeptimer1 periodic timeout in ms
+#define MODE_0             0                   // Initializing GPIO MODE_0 value
+#define OUTPUT_VALUE       1                   // GPIO output value
+
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -49,20 +48,9 @@ static void i2c_leader_callback(sl_i2c_instance_t i2c_instance, uint32_t status)
 //Sleeptimer timeout callbacks
 static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle, void *data);
 void delay(uint32_t idelay);
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 32MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * RHT example initialization function
  ******************************************************************************/
@@ -75,12 +63,9 @@ void si70xx_example_init(void)
   int32_t temperature;
   uint8_t value;
   i2c_config.mode           = SL_I2C_LEADER_MODE;
-  i2c_config.transfer_type  = SL_I2C_USING_INTERRUPT;
+  i2c_config.transfer_type  = SL_I2C_USING_NON_DMA;
   i2c_config.operating_mode = SL_I2C_STANDARD_MODE;
   i2c_config.i2c_callback   = i2c_leader_callback;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
 #if defined(SENSOR_ENABLE_GPIO_MAPPED_TO_UULP)
@@ -188,7 +173,7 @@ void si70xx_example_init(void)
       DEBUGOUT("Successfully configured i2c TX & RX FIFO thresholds\n");
     }
     // reset the sensor
-    status = sl_si91x_si70xx_reset(I2C, SI7021_ADDR);
+    status = sl_si91x_si70xx_reset(I2C, SI70XX_SLAVE_ADDR);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor reset un-successful, Error Code: 0x%ld \n", status);
       break;
@@ -196,7 +181,7 @@ void si70xx_example_init(void)
       DEBUGOUT("Successfully reset sensor\n");
     }
     // Initializes sensor and reads electronic ID 1st byte
-    status = sl_si91x_si70xx_init(I2C, SI7021_ADDR, SL_EID_FIRST_BYTE);
+    status = sl_si91x_si70xx_init(I2C, SI70XX_SLAVE_ADDR, SL_EID_FIRST_BYTE);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor initialization un-successful, Error Code: 0x%ld \n", status);
       break;
@@ -204,7 +189,7 @@ void si70xx_example_init(void)
       DEBUGOUT("Successfully initialized sensor\n");
     }
     // Initializes sensor and reads electronic ID 2nd byte
-    status = sl_si91x_si70xx_init(I2C, SI7021_ADDR, SL_EID_SECOND_BYTE);
+    status = sl_si91x_si70xx_init(I2C, SI70XX_SLAVE_ADDR, SL_EID_SECOND_BYTE);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor initialization un-successful, Error Code: 0x%ld \n", status);
       break;
@@ -212,7 +197,7 @@ void si70xx_example_init(void)
       DEBUGOUT("Successfully reset sensor\n");
     }
     // Get sensor internal firmware version of sensor
-    status = sl_si91x_si70xx_get_firmware_revision(I2C, SI7021_ADDR, &firm_rev);
+    status = sl_si91x_si70xx_get_firmware_revision(I2C, SI70XX_SLAVE_ADDR, &firm_rev);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor firmware version un-successful, Error Code: 0x%ld \n", status);
       break;
@@ -221,7 +206,7 @@ void si70xx_example_init(void)
     }
     DEBUGOUT("firmware version:%x\n", firm_rev);
     // write register data into sensor
-    status = sl_si91x_si70xx_write_control_register(I2C, SI7021_ADDR, SL_RH_T_USER_REG, USER_REG_1);
+    status = sl_si91x_si70xx_write_control_register(I2C, SI70XX_SLAVE_ADDR, SL_RH_T_USER_REG, USER_REG_1);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor user register 1 write data failed, Error Code: 0x%ld \n", status);
       break;
@@ -229,7 +214,7 @@ void si70xx_example_init(void)
       DEBUGOUT("Sensor user register 1 write data is successful\n");
     }
     // Reads register data from sensor
-    status = sl_si91x_si70xx_read_control_register(I2C, SI7021_ADDR, SL_RH_T_USER_REG, &value);
+    status = sl_si91x_si70xx_read_control_register(I2C, SI70XX_SLAVE_ADDR, SL_RH_T_USER_REG, &value);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor user register 1 read failed, Error Code: 0x%ld \n", status);
       break;
@@ -238,7 +223,7 @@ void si70xx_example_init(void)
     }
     DEBUGOUT("user register data:%x\n", value);
     // Reads temperature from humidity from sensor
-    status = sl_si91x_si70xx_read_temp_from_rh(I2C, SI7021_ADDR, &humidity, &temperature);
+    status = sl_si91x_si70xx_read_temp_from_rh(I2C, SI70XX_SLAVE_ADDR, &humidity, &temperature);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor temperature read failed, Error Code: 0x%ld \n", status);
       break;
@@ -248,7 +233,7 @@ void si70xx_example_init(void)
     DEBUGOUT("sensor humidity :%ld\n", humidity);
     DEBUGOUT("sensor temperature :%ld\n", temperature);
     // measure humidity data from sensor
-    status = sl_si91x_si70xx_measure_humidity(I2C, SI7021_ADDR, &humidity);
+    status = sl_si91x_si70xx_measure_humidity(I2C, SI70XX_SLAVE_ADDR, &humidity);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor humidity read failed, Error Code: 0x%ld \n", status);
       break;
@@ -257,7 +242,7 @@ void si70xx_example_init(void)
     }
     DEBUGOUT("sensor humidity :%ld\n", humidity);
     // measure temperature data from sensor
-    status = sl_si91x_si70xx_measure_temperature(I2C, SI7021_ADDR, &temperature);
+    status = sl_si91x_si70xx_measure_temperature(I2C, SI70XX_SLAVE_ADDR, &temperature);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor temperature read failed, Error Code: 0x%ld \n", status);
       break;
@@ -280,7 +265,7 @@ void si70xx_example_process_action(void)
   if (delay_timeout == true) {
     delay_timeout = false;
     // Reads humidity(hold master mode) measurement from sensor
-    status = sl_si91x_si70xx_measure_rh_and_temp(I2C, SI7021_ADDR, &humidity, &temperature);
+    status = sl_si91x_si70xx_measure_rh_and_temp(I2C, SI70XX_SLAVE_ADDR, &humidity, &temperature);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("Sensor temperature read failed, Error Code: 0x%ld \n", status);
     } else {

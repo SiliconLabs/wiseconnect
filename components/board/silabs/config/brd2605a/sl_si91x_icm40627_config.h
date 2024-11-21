@@ -36,8 +36,8 @@ extern "C" {
 #endif
 
 // <<< sl:start pin_tool >>>
-// <ssi signal=MOSI_,MISO_,SCK_,CS0_> SL_SI91X_ICM40627
-// $[SSI_SL_SI91X_ICM40627]
+// <ulp_ssi signal=MOSI_,MISO_,SCK_,CS0_> SL_SI91X_ICM40627
+// $[ULP_SSI_SL_SI91X_ICM40627]
 #ifndef SL_SI91X_ICM40627_PERIPHERAL
 #define SL_SI91X_ICM40627_PERIPHERAL ULP_SSI
 #endif
@@ -85,7 +85,7 @@ extern "C" {
 #ifndef SL_SI91X_ICM40627_CS0_LOC
 #define SL_SI91X_ICM40627_CS0_LOC 9
 #endif
-// [SSI_SL_SI91X_ICM40627]$
+// [ULP_SSI_SL_SI91X_ICM40627]$
 // <<< sl:end pin_tool >>>
 
 #ifdef __cplusplus

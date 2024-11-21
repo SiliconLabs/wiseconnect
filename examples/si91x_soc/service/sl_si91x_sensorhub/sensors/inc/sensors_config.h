@@ -43,8 +43,8 @@
 #define SL_SENSOR_ID_MASK            0XF0
 #define SL_SENSOR_ID_OFFSET          4
 #define SL_SENSOR_DATA_GROUP_MAX_NUM 6
-#define SL_MAX_NUM_SENSORS           5 ///< Max number of sensors used in the sensor hub
-
+#define SL_MAX_NUM_SENSORS           4 ///< Max number of sensors used in the sensor hub
+#define SH_BUTTON_PIN                2
 typedef enum { SL_SH_I2C = 1, SL_SH_SPI, SL_SH_UART, SL_SH_ADC, SL_SH_GPIO } sl_sensor_bus_t;
 //Type of sensors
 typedef enum {
@@ -108,7 +108,8 @@ typedef enum {
 #ifdef SL_CONFIG_SENSOR_ADXL345
   SL_SENSOR_ADXL345_ID = (SL_ACCELEROMETER_SENSOR_ID << SL_SENSOR_ID_OFFSET) | SL_ADXL345_ID, ///< ADXL345 sensor id
 #endif
-  SL_GPIO_SENSE_BUTTON_ID = (SL_GPIO_SENSOR_ID << SL_SENSOR_ID_OFFSET) | SL_SH_GPIO_0, ///< GPIOs id
+  SL_GPIO_SENSE_GPIO_ID   = (SL_GPIO_SENSOR_ID << SL_SENSOR_ID_OFFSET) | SL_SH_GPIO_1, ///< GPIOs id
+  SL_GPIO_SENSE_BUTTON_ID = (SL_GPIO_SENSOR_ID << SL_SENSOR_ID_OFFSET) | SL_SH_GPIO_0, ///< Button id
 #ifdef SL_CONFIG_SENSOR_ADC
   SL_SENSOR_ADC_JOYSTICK_ID  = (SL_ADC_SENSOR_ID << SL_SENSOR_ID_OFFSET) | SL_ADC_JOYSTICK_ID,  ///< ADC joystick id
   SL_SENSOR_ADC_GUVA_S12D_ID = (SL_ADC_SENSOR_ID << SL_SENSOR_ID_OFFSET) | SL_ADC_GUVA_S12D_ID, ///< ADC GUVA sensor id

@@ -5,6 +5,15 @@ description: >
 label: AWS IoT Device SDK
 category: Third Party
 quality: production
+metadata:
+  sbom:
+    license: MSLA AND MIT
+    upstream:
+      name: aws sdk
+      version: 3.1.0
+      supplier: aws
+      url: https://github.com/aws/aws-iot-device-sdk-embedded-C
+      package_url: pkg:github/aws/aws-iot-device-sdk-embedded-C@v3.1.0
 component_root_path: ./third_party/aws_sdk
 provides:
 - name: aws_sdk
@@ -28,10 +37,9 @@ source:
 - path: src/jsmn.c
 - path: platform/silabs/src/network_sl_api_wrapper.c
 - path: platform/silabs/src/timer.c
-requires:
-- name: bsd_socket
-
 include:
+- path: include
+- path: platform/silabs/inc
 - path: include
   file_list:
     - path: aws_iot_error.h
@@ -57,4 +65,7 @@ include:
     - path: timer_platform.h
     - path: timer_interface.h
     - path: network_interface.h
+
+requires:
+- name: bsd_socket
 

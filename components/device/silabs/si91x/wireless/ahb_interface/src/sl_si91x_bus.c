@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file
-* @brief
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_si91x_bus.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 #include "sl_status.h"
 #include "sl_si91x_types.h"
 #include "system_si91x.h"
@@ -28,6 +40,7 @@
 
 rsi_m4ta_desc_t tx_desc[2];
 rsi_m4ta_desc_t rx_desc[2];
+sl_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
 
 /******************************************************
  * *               Function Declarations
@@ -35,6 +48,14 @@ rsi_m4ta_desc_t rx_desc[2];
 sl_status_t sli_si91x_submit_rx_pkt(void);
 void sli_submit_rx_buffer(void);
 void sli_si91x_raise_pkt_pending_interrupt_to_ta(void);
+
+sl_status_t sl_si91x_bus_init(void)
+{
+  sli_ahb_bus_rx_queue.head = NULL;
+  sli_ahb_bus_rx_queue.tail = NULL;
+  mask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
+  return RSI_SUCCESS;
+}
 
 /**
  * @fn          sl_status_t sli_si91x_submit_rx_pkt(void)
@@ -84,7 +105,7 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
 
 sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 {
-  sl_status_t status = sl_si91x_host_remove_from_queue(CCP_M4_TA_RX_QUEUE, buffer);
+  sl_status_t status = sli_si91x_remove_from_queue(&sli_ahb_bus_rx_queue, buffer);
   VERIFY_STATUS_AND_RETURN(status);
 
   return SL_STATUS_OK;
@@ -144,14 +165,13 @@ void sli_submit_rx_buffer(void)
 
 void rsi_update_tx_dma_desc(uint8_t skip_dma_valid)
 {
-  if (!skip_dma_valid) {
+  if (!skip_dma_valid
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-    if (!(M4_ULP_SLP_STATUS_REG & MCU_ULP_WAKEUP))
+      && !(M4_ULP_SLP_STATUS_REG & MCU_ULP_WAKEUP)
 #endif
-    {
-      while (M4_TX_DMA_DESC_REG & DMA_DESC_REG_VALID)
-        ;
-    }
+  ) {
+    while (M4_TX_DMA_DESC_REG & DMA_DESC_REG_VALID)
+      ;
   }
   M4_TX_DMA_DESC_REG = (uint32_t)&tx_desc;
 }

@@ -29,7 +29,7 @@ The SDIO Secondary application shows how to read and write data in SDIO Secondar
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- An external SDIO host/master device - This example verified with EFM32GG11B SDIO Master
+- An external SDIO host/master device.
 
 ### Software Requirements
 
@@ -45,10 +45,12 @@ The SDIO Secondary application shows how to read and write data in SDIO Secondar
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -81,18 +83,16 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration
 
-|SiWx917 GPIO pin  | 1.0/1.2 EXP Header Connection  | 2.0 Connection |  Description|
-|--- | --- | ---  | --- |
-|GPIO_25  | 15 | P25 | SDIO_CLK|
-|GPIO_26  | 16 | P27 | SDIO_CMD |
-|GPIO_27  | 10 | P29 | SDIO_DATA0 |
-|GPIO_28  | 8 | P31 | SDIO_DATA1 |
-|GPIO_29  | 6 | P33 | SDIO_DATA2 |
-|GPIO_30  | 4 | P35 | SDIO_DATA3 |
+| GPIO pin  |  Connection |  Description|
+|---  | ---  | --- |
+|GPIO_25   | P25 | SDIO_CLK|
+|GPIO_26   | P27 | SDIO_CMD |
+|GPIO_27   | P29 | SDIO_DATA0 |
+|GPIO_28   | P31 | SDIO_DATA1 |
+|GPIO_29   | P33 | SDIO_DATA2 |
+|GPIO_30   | P35 | SDIO_DATA3 |
 
 NOTE: pin configuration for SDIO Master.
-
->![Figure: Introduction](resources/readme/image_sdio_master.png)
 
 ## Test the Application
 

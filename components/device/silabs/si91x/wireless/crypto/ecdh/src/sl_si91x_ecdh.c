@@ -154,7 +154,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         request,
                                         sizeof(sl_si91x_ecdh_add_sub_request_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -290,7 +290,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         request,
                                         (sizeof(sl_si91x_ecdh_mul_request_t)),
                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -392,7 +392,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         request,
                                         (sizeof(sl_si91x_ecdh_double_request_t)),
                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -490,7 +490,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         request,
                                         (sizeof(sl_si91x_ecdh_affine_request_t)),
                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),

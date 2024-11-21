@@ -21,7 +21,11 @@
 #include "glib.h"
 #include "sl_memlcd.h"
 #include "dmd.h"
+#if defined(SLI_SI917) || defined(SLI_SI917B0)
 #include "RTE_Device_917.h"
+#else
+#include "RTE_Device_915.h"
+#endif
 #include "sl_status.h"
 #include "rsi_ccp_user_config.h"
 

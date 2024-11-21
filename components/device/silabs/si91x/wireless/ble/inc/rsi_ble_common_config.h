@@ -1,35 +1,38 @@
-
 /*******************************************************************************
-* @file  rsi_ble_common_config.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
-/**
- * @file         rsi_ble_common_config.h
- * @version      0.1
- * @date         15 Aug 2018
+ * @file  rsi_ble_common_config.h
+ * @brief : This file contains user configurable details to configure the device  
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
+ * SPDX-License-Identifier: Zlib
  *
+ * The licensor of this software is Silicon Laboratories Inc.
  *
- *  @brief : This file contains user configurable details to configure the device  
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
- *  @section Description  This file contains user configurable details to configure the device 
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- */
+ ******************************************************************************/
+
 #ifndef RSI_BLE_COMMON_CONFIG_H
 #define RSI_BLE_COMMON_CONFIG_H
+/** @addtogroup BT_BLE_CONSTANTS
+ *  @{
+ */
 
 #ifndef RSI_BLE_SET_RESOLVABLE_PRIV_ADDR_TOUT
 #define RSI_BLE_SET_RESOLVABLE_PRIV_ADDR_TOUT 120 ///< BLE Resolvable Private Address timeout value (in seconds)
@@ -230,9 +233,13 @@
 #define RSI_BLE_ADV_CHANNEL_MAP \
   0x07 ///< Defines the advertising channel map for BLE. Setting all bits to 1 (0x07) enables advertising on all three channels.
 #endif
-
+///< BLE Tx Power Index On Air
 #ifndef RSI_BLE_PWR_INX
-#define RSI_BLE_PWR_INX 30 ///< BLE Tx Power Index On Air
+#ifdef SLI_SI915
+#define RSI_BLE_PWR_INX 75 ///< HP chain for Si915
+#else
+#define RSI_BLE_PWR_INX 30 ///< LP chain
+#endif
 #endif
 
 #ifndef RSI_BLE_PWR_INX_DBM
@@ -746,3 +753,4 @@
 #ifndef RSI_BLE_AE_MAX_ADV_SETS
 #define RSI_BLE_AE_MAX_ADV_SETS 2 ///< default number of Advertising sets in extended advertising (Max value = 3)
 #endif
+/** @} */

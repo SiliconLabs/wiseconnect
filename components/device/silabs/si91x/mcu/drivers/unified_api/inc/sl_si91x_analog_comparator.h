@@ -1,33 +1,32 @@
-/***************************************************************************/
-/**
- * @file  sl_si91x_analog_comparator.h
- * @brief Analog Comparator API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file  sl_si91x_analog_comparator.h
+* @brief Analog Comparator API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_ANALOG_COMPARATOR_H
 #define SL_SI91X_ANALOG_COMPARATOR_H
@@ -52,6 +51,17 @@ extern "C" {
 // Macros for analog comparator parameters
 // -----------------------------------------------------------------------------
 
+//Macros over enum used for preprocessing stage comparison in config.h
+#define SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0        0 ///< External GPIO input 0
+#define SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1        1 ///< External GPIO input 1
+#define SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT        2 ///< Input from DAC output.
+#define SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT 3 ///< Input from reference buffer output.
+#define SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT 4 ///< Input from reference scaler output.
+#define SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT   5 ///< Input from resistor bank output.
+#define SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT     6 ///< Input from OPAMP1 output.
+#define SL_COMPARATOR_INPUT_FROM_OPAMP2_OUTPUT     7 ///< Input from OPAMP2 output.
+#define SL_COMPARATOR_INPUT_FROM_OPAMP3_OUTPUT     8 ///< Input from OPAMP3 output.
+
 // Data Types
 /***************************************************************************/
 /**
@@ -72,16 +82,21 @@ typedef enum {
  * @brief Enumeration to represent the types of analog comparator inputs.
  */
 typedef enum {
-  SL_COMPARATOR_GPIO_INPUT_0,            ///< Select GPIO input for comparator non-inverting input
-  SL_COMPARATOR_GPIO_INPUT_1,            ///< Select GPIO input for comparator non-inverting input
-  SL_COMPARATOR_DAC_OUTPUT,              ///< Selects DAC output as comparator input
-  SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT, ///< Selects reference buffer output as comparator input
-  SL_COMPARATOR_REFERENCE_SCALER_OUTPUT, ///< Selects reference scaler output as comparator input
-  SL_COMPARATOR_RESISTOR_BANK_OUTPUT,    ///< Selects resistor bank output as comparator input
-  SL_COMPARATOR_OPAMP1_OUTPUT,           ///< Selects OPAMP1 output as comparator input
-  SL_COMPARATOR_OPAMP2_OUTPUT,           ///< Selects OPAMP2 output as comparator input
-  SL_COMPARATOR_OPAMP3_OUTPUT,           ///< Selects OPAMP3 output as comparator input
-  SL_COMPARATOR_INPUT_LAST,              ///< Last member of enum for validation
+  SL_COMPARATOR_GPIO_INPUT_0 =
+    SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0, ///< Select GPIO input for comparator non-inverting input
+  SL_COMPARATOR_GPIO_INPUT_1 =
+    SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1, ///< Select GPIO input for comparator non-inverting input
+  SL_COMPARATOR_DAC_OUTPUT = SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT, ///< Selects DAC output as comparator input
+  SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT =
+    SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT, ///< Selects reference buffer output as comparator input
+  SL_COMPARATOR_REFERENCE_SCALER_OUTPUT =
+    SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT, ///< Selects reference scaler output as comparator input
+  SL_COMPARATOR_RESISTOR_BANK_OUTPUT =
+    SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT, ///< Selects resistor bank output as comparator input
+  SL_COMPARATOR_OPAMP1_OUTPUT = SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT, ///< Selects OPAMP1 output as comparator input
+  SL_COMPARATOR_OPAMP2_OUTPUT = SL_COMPARATOR_INPUT_FROM_OPAMP2_OUTPUT, ///< Selects OPAMP2 output as comparator input
+  SL_COMPARATOR_OPAMP3_OUTPUT = SL_COMPARATOR_INPUT_FROM_OPAMP3_OUTPUT, ///< Selects OPAMP3 output as comparator input
+  SL_COMPARATOR_INPUT_LAST,                                             ///< Last member of enum for validation
 } sl_analog_comparator_inputs_t;
 
 /**
@@ -175,7 +190,7 @@ typedef struct {
 /**
  * @brief  To initialize the Analog Comparator and configure the necessary clocks and reference voltage.
  * 
- * @details This API enables the system core clock and auxiliary clock with a 32MHz RC clock.
+ * @details This API enables the system core clock and auxiliary clock with a MHz RC clock.
  *          It also configures the reference LDO voltage to 3.3V.
  *
  * @note This function must be called before using any other analog comparator functions.
@@ -197,8 +212,8 @@ void sl_si91x_analog_comparator_init(void);
  * @param[in] comparator_config_ptr Pointer to analog comparator configuration structure \ref sl_analog_comparator_config_t
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, analog comparator parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Analog comparator configuration structure member has an invalid value.
+ *         - SL_STATUS_OK  - Success, analog comparator parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Analog comparator configuration structure member has an invalid value.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -219,10 +234,10 @@ sl_status_t sl_si91x_analog_comparator_set_configurations(sl_analog_comparator_c
  * @param[in] on_comparator_callback Callback function pointer @ref sl_analog_comparator_callback_t, to be invoked when a comparator interrupt occurs.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully registered comparator interrupt callback.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered. Unregister the existing callback before registering a new one.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - @ref sl_analog_comparator_callback_t comparator_number parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - @ref sl_analog_comparator_callback_t on_comparator_callback parameter is a null pointer.
+ *         - SL_STATUS_OK  - Successfully registered comparator interrupt callback.
+ *         - SL_STATUS_BUSY  - The callback is already registered. Unregister the existing callback before registering a new one.
+ *         - SL_STATUS_INVALID_PARAMETER  - @ref sl_analog_comparator_callback_t comparator_number parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - @ref sl_analog_comparator_callback_t on_comparator_callback parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -243,8 +258,8 @@ sl_status_t sl_si91x_analog_comparator_register_callback(sl_analog_comparator_nu
  * @param[in] comp_number For comparator number, see \ref sl_analog_comparator_number_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully unregistered comparator interrupt callback.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - comparator_number parameter has an invalid value.
+ *         - SL_STATUS_OK  - Successfully unregistered comparator interrupt callback.
+ *         - SL_STATUS_INVALID_PARAMETER  - comparator_number parameter has an invalid value.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -265,8 +280,8 @@ sl_status_t sl_si91x_analog_comparator_unregister_callback(sl_analog_comparator_
  * @param[in] threshold_value For comparator resistor bank, see \ref sl_analog_comparator_threshold_values_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully configured the resistor bank threshold.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - threshold_value parameter has an invalid value.
+ *         - SL_STATUS_OK  - Successfully configured the resistor bank threshold.
+ *         - SL_STATUS_INVALID_PARAMETER  - threshold_value parameter has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -290,9 +305,9 @@ sl_status_t sl_si91x_analog_comparator_set_resistor_bank_threshold(
  * @param[in] scale_factor_value For comparator's reference scale, see \ref sl_analog_comparator_scale_factor_values_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully configured the reference scaler output.
+ *         - SL_STATUS_OK  - Successfully configured the reference scaler output.
  *           For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - scale_factor_value parameter has an invalid value.
+ *         - SL_STATUS_INVALID_PARAMETER  - scale_factor_value parameter has an invalid value.
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_analog_comparator_set_reference_scaler_output(

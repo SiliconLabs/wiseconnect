@@ -85,7 +85,7 @@ bool rsi_ble_running, rsi_wlan_running;
 bool powersave_cmd_given;
 #if ENABLE_POWER_SAVE
 osMutexId_t power_cmd_mutex;
-sl_wifi_performance_profile_t wifi_profile = { .profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION };
+sl_wifi_performance_profile_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
 #endif
 
 const osThreadAttr_t thread_attributes = {
@@ -129,7 +129,7 @@ static const sl_wifi_device_configuration_t config = {
 #if ENABLE_POWER_SAVE
                                                   | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),

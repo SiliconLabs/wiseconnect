@@ -236,9 +236,9 @@ void app_init(const void *unused)
 
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000);             // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
-  result         = (result / 1000000);                  // bps to Mbps
+  float duration = ((test_timeout) / 1000);                    // ms to sec
+  float result   = ((float)total_num_of_bytes * 8) / duration; // bytes to bps
+  result         = (result / 1000000);                         // bps to Mbps
   printf("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 
@@ -457,6 +457,8 @@ void send_data_to_tcp_server(void)
     now        = osKernelGetTickCount();
 
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;
@@ -498,11 +500,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(server_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(server_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -511,7 +513,7 @@ void receive_data_from_tcp_client(void)
 
 #if LISTEN_ON_AP_INTERFACE
   socket_return_value =
-    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
 #endif
   server_address.sin_family = AF_INET;
   server_address.sin_port   = LISTENING_PORT;
@@ -583,6 +585,8 @@ void send_data_to_udp_server(void)
       break;
     }
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;
@@ -614,7 +618,7 @@ void receive_data_from_udp_client(void)
 
 #if LISTEN_ON_AP_INTERFACE
   socket_return_value =
-    sl_si91x_setsockopt_async(client_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(client_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
 #endif
 
   server_address.sin_family = AF_INET;

@@ -62,8 +62,6 @@
 #define FW_HEADER_SIZE   64
 #define CHUNK_SIZE       1024
 
-#define SI91X_STATUS_FW_UPDATE_DONE 0x10003
-
 /******************************************************
  *               Global Variable
  ******************************************************/
@@ -96,7 +94,7 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
 #else
                                                   | SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -206,6 +204,8 @@ sl_status_t m4_firmware_update_app()
     // Send firmware upgrade request to remote peer
     int data_length = send(client_socket, (int8_t *)send_buffer, 3, 0);
     if (data_length < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nFailed to Send data, BSD Error Code: %d\r\n", errno);
       close(client_socket);
       return SL_STATUS_FAIL;
@@ -247,7 +247,7 @@ sl_status_t m4_firmware_update_app()
     }
 
     if (status != SL_STATUS_OK) {
-      if (status == SI91X_STATUS_FW_UPDATE_DONE) {
+      if (status == SL_STATUS_SI91X_FW_UPDATE_DONE) {
         // Close the socket
         close(client_socket);
         printf("\r\nM4 Firmware update complete\r\n");

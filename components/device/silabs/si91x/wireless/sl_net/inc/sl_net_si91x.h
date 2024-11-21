@@ -29,8 +29,10 @@
  ******************************************************************************/
 #pragma once
 
+#include "sl_net_types.h"
 #include "sl_net_ip_types.h"
 #include "sl_net_constants.h"
+#include "sl_wifi_host_interface.h"
 
 /** \addtogroup SI91X_NETWORK_FUNCTIONS 
  * \ingroup SL_SI91X_API
@@ -56,6 +58,34 @@
  */
 sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, uint8_t virtual_ap_id);
 /** @} */
+
+/***************************************************************************/ /**
+ * @brief
+ *   Register a event handler for network events.
+ * @param[in] function
+ *   Function pointer to callback.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_si91x_driver_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_register_event_handler(sl_net_event_handler_t function);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Default event handler for all events.
+ * @param[in] event
+ *   [sl_net_event_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) Asynchronous event received.
+ * @param[in] buffer
+ *   [sl_wifi_buffer_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-buffer-t) Buffer containing data related to asynchronous event.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_si91x_driver_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer);
 
 //! @cond Doxygen_Suppress
 /// Enumerate multicast address command types

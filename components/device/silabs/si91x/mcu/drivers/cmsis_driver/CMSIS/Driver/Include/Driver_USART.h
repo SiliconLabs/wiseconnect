@@ -1,4 +1,5 @@
 /* -----------------------------------------------------------------------------
+ * SPDX-License-Identifier: Zlib
  * Copyright (c) 2013-2014 ARM Ltd.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -149,13 +150,13 @@
 \brief USART Status
 */
 typedef struct _ARM_USART_STATUS {
-  uint32_t tx_busy          : 1;        ///< Transmitter busy flag
-  uint32_t rx_busy          : 1;        ///< Receiver busy flag
-  uint32_t tx_underflow     : 1;        ///< Transmit data underflow detected (cleared on start of next send operation)
-  uint32_t rx_overflow      : 1;        ///< Receive data overflow detected (cleared on start of next receive operation)
-  uint32_t rx_break         : 1;        ///< Break detected on receive (cleared on start of next receive operation)
-  uint32_t rx_framing_error : 1;        ///< Framing error detected on receive (cleared on start of next receive operation)
-  uint32_t rx_parity_error  : 1;        ///< Parity error detected on receive (cleared on start of next receive operation)
+  unsigned int tx_busy          : 1;        ///< Transmitter busy flag
+  unsigned int rx_busy          : 1;        ///< Receiver busy flag
+  unsigned int tx_underflow     : 1;        ///< Transmit data underflow detected (cleared on start of next send operation)
+  unsigned int rx_overflow      : 1;        ///< Receive data overflow detected (cleared on start of next receive operation)
+  unsigned int rx_break         : 1;        ///< Break detected on receive (cleared on start of next receive operation)
+  unsigned int rx_framing_error : 1;        ///< Framing error detected on receive (cleared on start of next receive operation)
+  unsigned int rx_parity_error  : 1;        ///< Parity error detected on receive (cleared on start of next receive operation)
 } ARM_USART_STATUS;
 
 /**
@@ -172,10 +173,10 @@ typedef enum _ARM_USART_MODEM_CONTROL {
 \brief USART Modem Status
 */
 typedef struct _ARM_USART_MODEM_STATUS {
-  uint32_t cts : 1;                     ///< CTS state: 1=Active, 0=Inactive
-  uint32_t dsr : 1;                     ///< DSR state: 1=Active, 0=Inactive
-  uint32_t dcd : 1;                     ///< DCD state: 1=Active, 0=Inactive
-  uint32_t ri  : 1;                     ///< RI  state: 1=Active, 0=Inactive
+  unsigned int cts : 1;                     ///< CTS state: 1=Active, 0=Inactive
+  unsigned int dsr : 1;                     ///< DSR state: 1=Active, 0=Inactive
+  unsigned int dcd : 1;                     ///< DCD state: 1=Active, 0=Inactive
+  unsigned int ri  : 1;                     ///< RI  state: 1=Active, 0=Inactive
 } ARM_USART_MODEM_STATUS;
 
 
@@ -281,27 +282,27 @@ typedef void (*ARM_USART_SignalEvent_t) (uint32_t event);  ///< Pointer to \ref 
 \brief USART Device Driver Capabilities.
 */
 typedef struct _ARM_USART_CAPABILITIES {
-  uint32_t asynchronous       : 1;      ///< supports UART (Asynchronous) mode 
-  uint32_t synchronous_master : 1;      ///< supports Synchronous Master mode
-  uint32_t synchronous_slave  : 1;      ///< supports Synchronous Slave mode
-  uint32_t single_wire        : 1;      ///< supports UART Single-wire mode
-  uint32_t irda               : 1;      ///< supports UART IrDA mode
-  uint32_t smart_card         : 1;      ///< supports UART Smart Card mode
-  uint32_t smart_card_clock   : 1;      ///< Smart Card Clock generator available
-  uint32_t flow_control_rts   : 1;      ///< RTS Flow Control available
-  uint32_t flow_control_cts   : 1;      ///< CTS Flow Control available
-  uint32_t event_tx_complete  : 1;      ///< Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
-  uint32_t event_rx_timeout   : 1;      ///< Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
-  uint32_t rts                : 1;      ///< RTS Line: 0=not available, 1=available
-  uint32_t cts                : 1;      ///< CTS Line: 0=not available, 1=available
-  uint32_t dtr                : 1;      ///< DTR Line: 0=not available, 1=available
-  uint32_t dsr                : 1;      ///< DSR Line: 0=not available, 1=available
-  uint32_t dcd                : 1;      ///< DCD Line: 0=not available, 1=available
-  uint32_t ri                 : 1;      ///< RI Line: 0=not available, 1=available
-  uint32_t event_cts          : 1;      ///< Signal CTS change event: \ref ARM_USART_EVENT_CTS
-  uint32_t event_dsr          : 1;      ///< Signal DSR change event: \ref ARM_USART_EVENT_DSR
-  uint32_t event_dcd          : 1;      ///< Signal DCD change event: \ref ARM_USART_EVENT_DCD
-  uint32_t event_ri           : 1;      ///< Signal RI change event: \ref ARM_USART_EVENT_RI
+  unsigned int asynchronous       : 1;      ///< supports UART (Asynchronous) mode 
+  unsigned int synchronous_master : 1;      ///< supports Synchronous Master mode
+  unsigned int synchronous_slave  : 1;      ///< supports Synchronous Slave mode
+  unsigned int single_wire        : 1;      ///< supports UART Single-wire mode
+  unsigned int irda               : 1;      ///< supports UART IrDA mode
+  unsigned int smart_card         : 1;      ///< supports UART Smart Card mode
+  unsigned int smart_card_clock   : 1;      ///< Smart Card Clock generator available
+  unsigned int flow_control_rts   : 1;      ///< RTS Flow Control available
+  unsigned int flow_control_cts   : 1;      ///< CTS Flow Control available
+  unsigned int event_tx_complete  : 1;      ///< Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
+  unsigned int event_rx_timeout   : 1;      ///< Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+  unsigned int rts                : 1;      ///< RTS Line: 0=not available, 1=available
+  unsigned int cts                : 1;      ///< CTS Line: 0=not available, 1=available
+  unsigned int dtr                : 1;      ///< DTR Line: 0=not available, 1=available
+  unsigned int dsr                : 1;      ///< DSR Line: 0=not available, 1=available
+  unsigned int dcd                : 1;      ///< DCD Line: 0=not available, 1=available
+  unsigned int ri                 : 1;      ///< RI Line: 0=not available, 1=available
+  unsigned int event_cts          : 1;      ///< Signal CTS change event: \ref ARM_USART_EVENT_CTS
+  unsigned int event_dsr          : 1;      ///< Signal DSR change event: \ref ARM_USART_EVENT_DSR
+  unsigned int event_dcd          : 1;      ///< Signal DCD change event: \ref ARM_USART_EVENT_DCD
+  unsigned int event_ri           : 1;      ///< Signal RI change event: \ref ARM_USART_EVENT_RI
 } ARM_USART_CAPABILITIES;
 
 

@@ -139,7 +139,7 @@ AWS_IoT_Client mqtt_client = { 0 };
 volatile uint8_t check_for_recv_data;
 extern osSemaphoreId_t select_sem;
 extern volatile uint8_t pub_state, qos1_publish_handle, select_given;
-int32_t status = SL_STATUS_OK;
+int32_t sh_aws_status = SL_STATUS_OK;
 
 const osThreadAttr_t thread_attributes = {
   .name       = "app",
@@ -191,7 +191,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
                       | SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -306,16 +306,16 @@ void sl_si91x_aws_task(void)
   print_sl_ip_address(&ip_address);
   printf("\r\n");
 
-  status = load_certificates_in_flash();
-  if (status != SL_STATUS_OK) {
-    printf("\r\Error while loading certificates: 0x%lx\r\n", status);
+  sh_aws_status = load_certificates_in_flash();
+  if (sh_aws_status != SL_STATUS_OK) {
+    printf("\r\Error while loading certificates: 0x%lx\r\n", sh_aws_status);
     return;
   }
   printf("\r\nLoaded certificates\r\n");
 
-  status = start_aws_mqtt();
-  if (status != SL_STATUS_OK) {
-    printf("\r\nUnexpected error occurred in AWS connection: 0x%lx\r\n", status);
+  sh_aws_status = start_aws_mqtt();
+  if (sh_aws_status != SL_STATUS_OK) {
+    printf("\r\nUnexpected error occurred in AWS connection: 0x%lx\r\n", sh_aws_status);
     return;
   }
 }
@@ -384,9 +384,9 @@ sl_status_t start_aws_mqtt(void)
   printf("\r\n client_id:%s \r\n", mac_id);
 
   sl_wifi_firmware_version_t fw_version = { 0 };
-  status                                = sl_wifi_get_firmware_version(&fw_version);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  sh_aws_status                         = sl_wifi_get_firmware_version(&fw_version);
+  if (sh_aws_status != SL_STATUS_OK) {
+    printf("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", sh_aws_status);
   } else {
     print_firmware_version(&fw_version);
   }
@@ -490,10 +490,10 @@ sl_status_t start_aws_mqtt(void)
             FD_SET(mqtt_client.networkStack.socket_id, &read_fds);
             printf("\rSocket ID: %d\n", mqtt_client.networkStack.socket_id);
 
-            status =
+            sh_aws_status =
               sl_si91x_select(mqtt_client.networkStack.socket_id + 1, &read_fds, NULL, NULL, NULL, async_socket_select);
 
-            printf("\rSelect status: 0x%lX\r\n", status);
+            printf("\rSelect status: 0x%lX\r\n", sh_aws_status);
           }
 
           // waiting for the semaphore release

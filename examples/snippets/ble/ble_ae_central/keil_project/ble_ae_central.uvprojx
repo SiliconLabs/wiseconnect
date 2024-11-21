@@ -10,7 +10,7 @@
       <TargetName>ble_ae_central</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\Arm_Compiler_5.06u7</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -338,7 +338,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--c99  --reduce_paths</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F411xE, __Keil, SLI_SI917, SLI_SI917B0, SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2, configUSE_POSIX_ERRNO, configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS=1, SL_CATALOG_FREERTOS_KERNEL_PRESENT, SL_CATALOG_KERNEL_PRESENT, SLI_SI91X_OFFLOAD_NETWORK_STACK, SL_SI91X_SPI_HIGH_SPEED_ENABLE, SL_NET_COMPONENT_INCLUDED, SL_WIFI_COMPONENT_INCLUDED, SLI_SI91X_ENABLE_BLE, SL_SI91X_PRINT_DBG_LOG, SL_SI91X_ENABLE_LITTLE_ENDIAN</Define>
+              <Define>USE_HAL_DRIVER, STM32F411xE, __Keil, SLI_SI917, SLI_SI917B0, SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2, configUSE_POSIX_ERRNO, configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS=2, SL_CATALOG_FREERTOS_KERNEL_PRESENT, SL_CATALOG_KERNEL_PRESENT, SL_SI91X_SPI_HIGH_SPEED_ENABLE, SL_NET_COMPONENT_INCLUDED, SL_WIFI_COMPONENT_INCLUDED, SLI_SI91X_ENABLE_BLE, SL_SI91X_PRINT_DBG_LOG, SL_SI91X_ENABLE_LITTLE_ENDIAN</Define>
               <Undefine></Undefine>
               <IncludePath>../../../../../examples/snippets/ble/ble_ae_central;../../../../../components/service/network_manager/inc;../../../../../resources/defaults/;../../../../../components/device/silabs/si91x/wireless/errno/inc;../../../../../components/common/inc;../../../../../components/device/silabs/si91x/wireless/spi_interface/inc;../../../../../components/device/silabs/si91x/wireless/sl_net/inc;../../../../../components/device/stm32/silabs_utility/common/inc;../../../../../components/device/silabs/si91x/wireless/ble/inc;../../../../../components/device/silabs/si91x/wireless/inc;../../../../../components/protocol/wifi/inc;../../../../../components/device/stm32/board;../../../../../components/device/stm32/Core/Inc;../../../../../components/device/stm32/Drivers/STM32F4xx_HAL_Driver/Inc;../../../../../components/device/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/include;../../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../../../../../components/device/stm32/Drivers/CMSIS/Device/ST/STM32F4xx/Include;../../../../../components/device/stm32/Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
@@ -585,9 +585,9 @@
           <GroupName>components/service</GroupName>
           <Files>
             <File>
-              <FileName>sl_net_basic_credentials.c</FileName>
+              <FileName>sl_net_credentials.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../components/service/network_manager/src/sl_net_basic_credentials.c</FilePath>
+              <FilePath>../../../../../components/service/network_manager/src/sl_net_credentials.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -675,9 +675,9 @@
               <FilePath>../../../../../components/device/silabs/si91x/wireless/src/sl_si91x_driver.c</FilePath>
             </File>
             <File>
-              <FileName>sl_si91x_callback_framework.c</FileName>
+              <FileName>sl_net_si91x_callback_framework.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../components/device/silabs/si91x/wireless/src/sl_si91x_callback_framework.c</FilePath>
+              <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_net_si91x_callback_framework.c</FilePath>
             </File>
             <File>
               <FileName>sl_net_rsi_utility.c</FileName>
@@ -698,6 +698,11 @@
               <FileName>sl_rsi_utility.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/device/silabs/si91x/wireless/src/sl_rsi_utility.c</FilePath>
+            </File>
+            <File>
+              <FileName>sl_wifi_basic_credentials.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\protocol\wifi\src\sl_wifi_basic_credentials.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -723,6 +728,11 @@
               <FileName>sli_cmsis_os2_ext_task_register.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/device/stm32/silabs_utility/common/src/sli_cmsis_os2_ext_task_register.c</FilePath>
+            </File>
+            <File>
+              <FileName>m4_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\device\stm32\silabs_utility\common\src\m4_core.c</FilePath>
             </File>
           </Files>
         </Group>

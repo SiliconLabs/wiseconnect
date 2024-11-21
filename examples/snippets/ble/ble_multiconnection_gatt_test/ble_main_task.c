@@ -51,6 +51,9 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
+#if (SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE))
+#include "sl_si91x_power_manager.h"
+#endif
 /*=======================================================================*/
 //   ! MACROS
 /*=======================================================================*/
@@ -1684,7 +1687,7 @@ void rsi_common_sleep_task()
     //! if events are not received loop will be continued.
     if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && !(check_pending_events())) {
       P2P_STATUS_REG &= ~M4_wakeup_TA;
-      sl_si91x_m4_sleep_wakeup();
+      sl_si91x_power_manager_sleep();
     }
   }
 }

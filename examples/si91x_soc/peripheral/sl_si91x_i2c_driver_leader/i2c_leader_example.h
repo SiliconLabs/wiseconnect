@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
  * @file i2c_leader_example.h
- * @brief I2C Leader examples functions
+ * @brief I2C Leader Blocking example functions
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>

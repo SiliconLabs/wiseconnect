@@ -1,22 +1,31 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_usart.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
-/*************************************************************************
- *
- */
 
 /**
  * Includes
@@ -79,15 +88,13 @@ void UartIrqHandler(USART_RESOURCES *usart)
   // Check which uart instance irq got triggered and update the usart instance
   if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
     usart_instance = USART_0;
-  }
-  // Check for UART1 and update the instance
-  if (usart->pREGS == UART1) {
+  } else if (usart->pREGS == UART1) {
     usart_instance = UART_1;
-  }
-  // Check for ULP_UART and update the instance
-  if (usart->pREGS == ULP_UART)
+  } else if (usart->pREGS == ULP_UART) {
     usart_instance = ULPUART;
-  // Update the usart_instance in event flag
+  }
+
+  // Set the usart instance in event flag
   event |= (usart_instance << USART_INSTANCE_BIT);
 
   int_status = usart->pREGS->IIR;
@@ -142,7 +149,7 @@ void UartIrqHandler(USART_RESOURCES *usart)
   }
   if (((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) && (usart->info->cb_event)) {
     //check if receiver contains atleast one char in RBR reg
-    if ((usart->pREGS->LSR_b.DR)) {
+    if (usart->pREGS->LSR_b.DR) {
       usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
       usart->info->xfer.rx_cnt++;
 
@@ -221,19 +228,9 @@ void UartIrqHandler(USART_RESOURCES *usart)
  */
 void USART_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 {
-  uint8_t usart_instance = 0;
   UNUSED_PARAMETER(dmaCh);
-  // Check which uart instance irq got triggered and update the usart instance
-  if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-    usart_instance = USART_0;
-  }
-  // Check for UART1 and update the instance
-  if (usart->pREGS == UART1) {
-    usart_instance = UART_1;
-  }
-  // Check for ULP_UART and update the instance
-  if (usart->pREGS == ULP_UART)
-    usart_instance = ULPUART;
+  uint8_t usart_instance = 0;
+  uint32_t tx_event      = 0;
 
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
@@ -242,14 +239,33 @@ void USART_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
       // Clear TX busy flag
       usart->info->xfer.send_active = 0U;
 
-      event |= ARM_USART_EVENT_SEND_COMPLETE;
-      // Set the usart instance bit in event flag
-      event |= (usart_instance << USART_INSTANCE_BIT);
-      // Set Send Complete event for asynchronous transfers
-      usart->info->cb_event(event);
+      // Set the usart tx complete in event flag
+      tx_event |= ARM_USART_EVENT_SEND_COMPLETE;
+
       break;
     case UDMA_EVENT_ERROR:
       break;
+    default:
+      // Handle unexpected events
+      break;
+  }
+
+  // Check if event flag is updated and callback is registered
+  if ((tx_event != 0U) && (usart->info->cb_event != NULL)) {
+    // Check which uart instance irq got triggered and update the usart instance
+    if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
+      usart_instance = USART_0;
+    } else if (usart->pREGS == UART1) {
+      usart_instance = UART_1;
+    } else if (usart->pREGS == ULP_UART) {
+      usart_instance = ULPUART;
+    }
+
+    // Set the usart instance in tx_event flag
+    tx_event |= (usart_instance << USART_INSTANCE_BIT);
+
+    // call the registered callback function
+    usart->info->cb_event(tx_event);
   }
 }
 /**
@@ -263,22 +279,10 @@ void USART_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 void USART_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 {
   UNUSED_PARAMETER(dmaCh);
-  uint32_t evt1 = 0U;
   uint32_t val;
   uint8_t usart_instance = 0;
-  // Check which uart instance irq got triggered and update the usart instance
-  if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-    usart_instance = USART_0;
-  }
-  // Check for UART1 and update the instance
-  if (usart->pREGS == UART1) {
-    usart_instance = UART_1;
-  }
-  // Check for ULP_UART and update the instance
-  if (usart->pREGS == ULP_UART)
-    usart_instance = ULPUART;
+  uint32_t rx_event      = 0;
 
-  evt1 |= (usart_instance << USART_INSTANCE_BIT);
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       usart->info->xfer.rx_cnt       = usart->info->xfer.rx_num;
@@ -289,27 +293,45 @@ void USART_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
         usart->info->xfer.sync_mode = 0U;
         switch (val) {
           case USART_SYNC_MODE_TX:
-            evt1 |= ARM_USART_EVENT_SEND_COMPLETE;
+            rx_event |= ARM_USART_EVENT_SEND_COMPLETE;
             break;
           case USART_SYNC_MODE_RX:
-            evt1 |= ARM_USART_EVENT_RECEIVE_COMPLETE;
+            rx_event |= ARM_USART_EVENT_RECEIVE_COMPLETE;
             break;
           case USART_SYNC_MODE_TX_RX:
-            evt1 |= ARM_USART_EVENT_TRANSFER_COMPLETE;
+            rx_event |= ARM_USART_EVENT_TRANSFER_COMPLETE;
             break;
           default:
             break;
         }
       } else {
-        evt1 |= ARM_USART_EVENT_RECEIVE_COMPLETE;
+        rx_event |= ARM_USART_EVENT_RECEIVE_COMPLETE;
       }
 
       break;
     case UDMA_EVENT_ERROR:
       break;
+    default:
+      // Handle unexpected events
+      break;
   }
-  if ((evt1 != 0U) && (usart->info->cb_event != NULL)) {
-    usart->info->cb_event(evt1);
+
+  // Check if event flag is updated and callback is registered
+  if ((rx_event != 0U) && (usart->info->cb_event != NULL)) {
+    // Check which uart instance irq got triggered and update the usart instance
+    if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
+      usart_instance = USART_0;
+    } else if (usart->pREGS == UART1) {
+      usart_instance = UART_1;
+    } else if (usart->pREGS == ULP_UART) {
+      usart_instance = ULPUART;
+    }
+
+    // Set the usart instance in rx_event flag
+    rx_event |= (usart_instance << USART_INSTANCE_BIT);
+
+    // call the registered callback function
+    usart->info->cb_event(rx_event);
   }
 }
 
@@ -323,14 +345,15 @@ void USART_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
  */
 int32_t USART_SetBaudrate(uint32_t baudrate, uint32_t baseClk, USART_RESOURCES *usart)
 {
-  uint16_t baud_divisor      = 0, dlf;
+  uint16_t baud_divisor = 0;
+  uint16_t dlf;
   uint32_t baud_divisor_frac = 0;
 
   if ((usart == NULL) || (baudrate > 7372800)) {
     return ERROR_UART_INVALID_ARG;
   } else {
     // Get the baud divisor
-    baud_divisor_frac = ((baseClk * 4) / (baudrate));
+    baud_divisor_frac = (baseClk * 4) / baudrate;
     dlf               = (baud_divisor_frac & 0x3F);
     baud_divisor      = (uint16_t)(baud_divisor_frac >> 6);
 
@@ -409,7 +432,7 @@ int32_t USART_Initialize(ARM_USART_SignalEvent_t cb_event,
   usart->info->xfer.tx_def_val            = 0U;
 
   if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
@@ -422,7 +445,7 @@ int32_t USART_Initialize(ARM_USART_SignalEvent_t cb_event,
                            usart->clock.divfact);
   }
   if (usart->pREGS == UART1) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
@@ -572,7 +595,7 @@ int32_t USART_PowerControl(ARM_POWER_STATE state,
         }
       }
       if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
         RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
         RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI1);
@@ -836,7 +859,7 @@ int32_t USART_Receive_Data(const void *data,
   usart->info->rx_status.rx_parity_error  = 0U;
 
   // Save receive buffer info
-  usart->info->xfer.rx_buf = (uint8_t *)data;
+  usart->info->xfer.rx_buf = (uint8_t *)(const void *)data;
   usart->info->xfer.rx_cnt = 0U;
 
   // DMA mode
@@ -948,7 +971,7 @@ int32_t USART_Receive_Data(const void *data,
  * @return      \ref execution_status
  */
 int32_t USART_Transfer(const void *data_out,
-                       void *data_in,
+                       const void *data_in,
                        uint32_t num,
                        USART_RESOURCES *usart,
                        const UDMA_RESOURCES *udma,
@@ -994,7 +1017,7 @@ int32_t USART_Transfer(const void *data_out,
  * @param[in]   usart     Pointer to USART resources
  * @return      number of data items transmitted
  */
-uint32_t USART_GetTxCount(USART_RESOURCES *usart)
+uint32_t USART_GetTxCount(const USART_RESOURCES *usart)
 {
   uint32_t cnt;
   cnt = usart->info->xfer.tx_cnt;
@@ -1007,7 +1030,7 @@ uint32_t USART_GetTxCount(USART_RESOURCES *usart)
  * @param[in]   usart     Pointer to USART resources
  * @return      number of data items received
  */
-uint32_t USART_GetRxCount(USART_RESOURCES *usart)
+uint32_t USART_GetRxCount(const USART_RESOURCES *usart)
 {
   uint32_t cnt;
   cnt = usart->info->xfer.rx_cnt;
@@ -1037,8 +1060,10 @@ int32_t USART_Control(uint32_t control,
   (void)udma;
   (void)udmaHandle;
 #endif
-  uint32_t mode = 0;
-  uint16_t fcr = 0, lcr = 0, lcr_ext = 0;
+  uint32_t mode    = 0;
+  uint16_t fcr     = 0;
+  uint16_t lcr     = 0;
+  uint16_t lcr_ext = 0;
   if ((usart->info->flags & USART_FLAG_POWERED) == 0U) {
     // USART not powered
     return ARM_DRIVER_ERROR;
@@ -1133,18 +1158,16 @@ int32_t USART_Control(uint32_t control,
       usart->pREGS->FCR = fcr;
 
       // If DMA mode - disable DMA channel
-      if ((usart->dma_tx) && (usart->info->xfer.send_active != 0U)) {
+      if (usart->dma_tx && usart->info->xfer.send_active != 0U
+          && (usart->pREGS == UART0 || usart->pREGS == USART0 || usart->pREGS == UART1 || usart->pREGS == ULP_UART)) {
         //DISABLE DMa
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)
-            || (usart->pREGS == ULP_UART)) {
 #ifdef SL_SI91X_USART_DMA
-          if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
-            return ARM_DRIVER_ERROR;
-          }
-#else
-          UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
-#endif
+        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
+          return ARM_DRIVER_ERROR;
         }
+#else
+        UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
+#endif
       }
       // Clear Send active flag
       usart->info->xfer.send_active = 0U;
@@ -1164,18 +1187,16 @@ int32_t USART_Control(uint32_t control,
       usart->pREGS->FCR = fcr;
 
       // If DMA mode - disable DMA channel
-      if ((usart->dma_rx) && (usart->info->rx_status.rx_busy)) {
+      if (usart->dma_rx && usart->info->rx_status.rx_busy
+          && (usart->pREGS == UART0 || usart->pREGS == USART0 || usart->pREGS == UART1 || usart->pREGS == ULP_UART)) {
         //DISABLE DMa
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)
-            || (usart->pREGS == ULP_UART)) {
 #ifdef SL_SI91X_USART_DMA
-          if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
-            return ARM_DRIVER_ERROR;
-          }
-#else
-          UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
-#endif
+        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
+          return ARM_DRIVER_ERROR;
         }
+#else
+        UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
+#endif
       }
       // Clear RX busy status
       usart->info->rx_status.rx_busy = 0U;
@@ -1189,31 +1210,27 @@ int32_t USART_Control(uint32_t control,
       usart->pREGS->IER &= (uint32_t)(~(USART_INTR_THRE | USART_INTR_RX_DATA));
 
       // If DMA mode - disable DMA channel
-      if ((usart->dma_tx != NULL) && (usart->info->xfer.send_active)) {
+      if (usart->dma_tx != NULL && usart->info->xfer.send_active
+          && (usart->pREGS == UART0 || usart->pREGS == USART0 || usart->pREGS == UART1 || usart->pREGS == ULP_UART)) {
         //DISABLE DMa
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)
-            || (usart->pREGS == ULP_UART)) {
 #ifdef SL_SI91X_USART_DMA
-          if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
-            return ARM_DRIVER_ERROR;
-          }
-#else
-          UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
-#endif
+        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
+          return ARM_DRIVER_ERROR;
         }
+#else
+        UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
+#endif
       }
-      if ((usart->dma_rx) && (usart->info->rx_status.rx_busy)) {
+      if (usart->dma_rx && usart->info->rx_status.rx_busy
+          && (usart->pREGS == UART0 || usart->pREGS == USART0 || usart->pREGS == UART1 || usart->pREGS == ULP_UART)) {
         //DISABLE DMa
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)
-            || (usart->pREGS == ULP_UART)) {
 #ifdef SL_SI91X_USART_DMA
-          if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_rx->channel + 1)) {
-            return ARM_DRIVER_ERROR;
-          }
-#else
-          UDMAx_ChannelDisable(usart->dma_rx->channel, udma, udmaHandle);
-#endif
+        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_rx->channel + 1)) {
+          return ARM_DRIVER_ERROR;
         }
+#else
+        UDMAx_ChannelDisable(usart->dma_rx->channel, udma, udmaHandle);
+#endif
       }
       // Set trigger level
       if (usart->dma_rx || usart->dma_tx) {
@@ -1278,37 +1295,33 @@ int32_t USART_Control(uint32_t control,
 
       break;
     case ARM_USART_MODE_SYNCHRONOUS_SLAVE:
-      if (usart->sync_mode.en_usart_mode) {
-        if (usart->pREGS == USART0) {
-          if (usart->capabilities.synchronous_slave) {
-            if (usart->io.clock->pin > 63) {
-              RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.clock->pin - 64));
-              RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.clock->pin - 64), 6);
-            }
-            if (usart->io.clock->pad_sel != 0) {
-              RSI_EGPIO_PadSelectionEnable(usart->io.clock->pad_sel);
-            }
-            if (usart->io.clock->pin >= 25 && usart->io.clock->pin <= 30) {
-              RSI_EGPIO_HostPadsGpioModeEnable(usart->io.clock->pin);
-            }
-            RSI_EGPIO_PadReceiverEnable(usart->io.clock->pin);
-            //configure clock pin
-            RSI_EGPIO_SetPinMux(EGPIO, usart->io.clock->port, usart->io.clock->pin, usart->io.clock->mode);
-
-            //enable sync mode
-            usart->pREGS->SMCR_b.SYNC_MODE = 1;
-
-            //enable slave mode
-            usart->pREGS->SMCR_b.MST_MODE = 0;
-            //SYNC CKLCOK ENABLE
-            if (usart->sync_mode.continuous_clock) {
-              usart->pREGS->SMCR_b.CONTI_CLK_MODE = 1U;
-            } else {
-              usart->pREGS->SMCR_b.CONTI_CLK_MODE = 0U;
-            }
-            usart->pREGS->SMCR_b.START_STOP_EN = 1;
-          }
+      if (usart->pREGS == USART0 && usart->capabilities.synchronous_slave) {
+        if (usart->io.clock->pin > 63) {
+          RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.clock->pin - 64));
+          RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.clock->pin - 64), 6);
         }
+        if (usart->io.clock->pad_sel != 0) {
+          RSI_EGPIO_PadSelectionEnable(usart->io.clock->pad_sel);
+        }
+        if (usart->io.clock->pin >= 25 && usart->io.clock->pin <= 30) {
+          RSI_EGPIO_HostPadsGpioModeEnable(usart->io.clock->pin);
+        }
+        RSI_EGPIO_PadReceiverEnable(usart->io.clock->pin);
+        // Configure clock pin
+        RSI_EGPIO_SetPinMux(EGPIO, usart->io.clock->port, usart->io.clock->pin, usart->io.clock->mode);
+
+        // Enable sync mode
+        usart->pREGS->SMCR_b.SYNC_MODE = 1;
+
+        // Enable slave mode
+        usart->pREGS->SMCR_b.MST_MODE = 0;
+        // SYNC CLOCK ENABLE
+        if (usart->sync_mode.continuous_clock) {
+          usart->pREGS->SMCR_b.CONTI_CLK_MODE = 1U;
+        } else {
+          usart->pREGS->SMCR_b.CONTI_CLK_MODE = 0U;
+        }
+        usart->pREGS->SMCR_b.START_STOP_EN = 1;
       } else {
         return ARM_USART_ERROR_MODE;
       }
@@ -1467,43 +1480,31 @@ int32_t USART_Control(uint32_t control,
     }
   }
   if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-    switch (RTE_USART0_TX_FIFO_THRESHOLD) {
+    if (RTE_USART0_TX_FIFO_THRESHOLD == USART_TRIGGER_TX_EMPTY) {
       // Set the TX FIFO threshold level
-      case USART_TRIGGER_TX_EMPTY:
-        fcr |= USART_FIFO_TX_EMPTY;
-        break;
+      fcr |= USART_FIFO_TX_EMPTY;
     }
-    switch (RTE_USART0_RX_FIFO_THRESHOLD) {
+    if (RTE_USART0_RX_FIFO_THRESHOLD == USART_TRIGGER_RX_AEMPTY) {
       // Set the RX FIFO threshold level
-      case USART_TRIGGER_RX_AEMPTY:
-        fcr |= USART_FIFO_RX_AEMPTY;
-        break;
+      fcr |= USART_FIFO_RX_AEMPTY;
     }
   } else if (usart->pREGS == UART1) {
-    switch (RTE_UART1_TX_FIFO_THRESHOLD) {
+    if (RTE_UART1_TX_FIFO_THRESHOLD == USART_TRIGGER_TX_EMPTY) {
       // Set the TX FIFO threshold level
-      case USART_TRIGGER_TX_EMPTY:
-        fcr |= USART_FIFO_TX_EMPTY;
-        break;
+      fcr |= USART_FIFO_TX_EMPTY;
     }
-    switch (RTE_UART1_RX_FIFO_THRESHOLD) {
+    if (RTE_UART1_RX_FIFO_THRESHOLD == USART_TRIGGER_RX_AEMPTY) {
       // Set the RX FIFO threshold level
-      case USART_TRIGGER_RX_AEMPTY:
-        fcr |= USART_FIFO_RX_AEMPTY;
-        break;
+      fcr |= USART_FIFO_RX_AEMPTY;
     }
   } else if (usart->pREGS == ULP_UART) {
-    switch (RTE_ULP_UART_TX_FIFO_THRESHOLD) {
+    if (RTE_ULP_UART_TX_FIFO_THRESHOLD == USART_TRIGGER_TX_EMPTY) {
       // Set the TX FIFO threshold level
-      case USART_TRIGGER_TX_EMPTY:
-        fcr |= USART_FIFO_TX_EMPTY;
-        break;
+      fcr |= USART_FIFO_TX_EMPTY;
     }
-    switch (RTE_ULP_UART_RX_FIFO_THRESHOLD) {
+    if (RTE_ULP_UART_RX_FIFO_THRESHOLD == USART_TRIGGER_RX_AEMPTY) {
       // Set the RX FIFO threshold level
-      case USART_TRIGGER_RX_AEMPTY:
-        fcr |= USART_FIFO_RX_AEMPTY;
-        break;
+      fcr |= USART_FIFO_RX_AEMPTY;
     }
   }
   // USART Flow control (RTS and CTS lines are only available on USART0)
@@ -1630,7 +1631,7 @@ int32_t USART_Control(uint32_t control,
       return ARM_USART_ERROR_CPHA;
     }
   }
-  if ((RTE_USART0_LOOPBACK) || (RTE_UART1_LOOPBACK) || (RTE_ULP_UART_LOOPBACK)) {
+  if (RTE_USART0_LOOPBACK || RTE_UART1_LOOPBACK || RTE_ULP_UART_LOOPBACK) {
     /* Set Loop back flag if loop back is enabled */
     usart->pREGS->MCR |= (USART_MODEM_LOOP_BACK_ENABLE);
   } else {
@@ -1650,7 +1651,6 @@ int32_t USART_Control(uint32_t control,
   usart->pREGS->LCR_EXT = lcr_ext;
 
   usart->pREGS->TCR_b.XFER_MODE = 1;
-  //usart->pREGS->TCR_b.RS485_EN  = 1;
 
   // Set configured flag
   usart->info->flags |= USART_FLAG_CONFIGURED;
@@ -1664,10 +1664,10 @@ int32_t USART_Control(uint32_t control,
  * @param[in]   usart     Pointer to USART resources
  * @return      USART status \ref ARM_USART_STATUS
  */
-ARM_USART_STATUS USART_GetStatus(USART_RESOURCES *usart)
+ARM_USART_STATUS USART_GetStatus(const USART_RESOURCES *usart)
 {
   ARM_USART_STATUS stat;
-  stat.tx_busy          = (unsigned int)((usart->pREGS->LSR & USART_LCR_TEMT ? (0U) : (1U)) & 0x01);
+  stat.tx_busy          = (usart->pREGS->LSR & USART_LCR_TEMT ? 0 : 1) & 0x01;
   stat.rx_busy          = (unsigned int)((usart->info->rx_status.rx_busy) & 0x01);
   stat.tx_underflow     = 0U;
   stat.rx_overflow      = (unsigned int)((usart->info->rx_status.rx_overflow) & 0x01);
@@ -1741,7 +1741,7 @@ int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *
  * @param[in]   usart     Pointer to USART resources
  * @return      modem status \ref ARM_USART_MODEM_STATUS
  */
-ARM_USART_MODEM_STATUS USART_GetModemStatus(USART_RESOURCES *usart)
+ARM_USART_MODEM_STATUS USART_GetModemStatus(const USART_RESOURCES *usart)
 {
   ARM_USART_MODEM_STATUS modem_status;
   uint32_t msr;
@@ -1795,27 +1795,6 @@ ARM_USART_MODEM_STATUS USART_GetModemStatus(USART_RESOURCES *usart)
 }
 /** @} */
 
-/*ROM API Structure
-const ROM_USART_API_T usart_api = {
-    &USART_Initialize,
-    &USART_Uninitialize,
-    &USART_PowerControl,
-    &USART_SetBaudrate,
-    &USART_Send_Data,
-    &USART_Receive_Data,
-    &USART_Transfer,
-    &USART_GetTxCount,
-    &USART_GetRxCount,
-    &USART_Control ,
-    &USART_GetStatus ,
-    &USART_SetModemControl ,
-    &USART_GetModemStatus ,
-    &UartIrqHandler   ,
-    &USART_UDMA_Tx_Event,
-    &USART_UDMA_Rx_Event,
-};
-
-*/
 #else
 typedef int dummy; // To remove empty translation unit warning.
 #endif //A11_ROM || USART_ROMDRIVER_PRESENT

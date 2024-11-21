@@ -47,7 +47,7 @@ typedef sl_status_t (*console_handler_t)(console_args_t *arguments);
 
 typedef struct {
   const char *description;
-  const char **argument_help;
+  const char *const *argument_help;
   union {
     console_handler_t handler;
     const void *sub_command_database;

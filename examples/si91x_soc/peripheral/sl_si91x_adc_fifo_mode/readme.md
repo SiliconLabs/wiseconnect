@@ -60,6 +60,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
 
 ### Software Requirements
 
@@ -75,10 +76,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -108,14 +110,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Apply the different voltages(1.8V to Vref) to ADC input and observe console outputs as per input.
 - Provided input voltage and console output data should match.
 
-### Pin Configuration
+### Pin Configuration of the WPK[BRD4002A] Base Board, and with radio board
 
-- Here mentioned pin numbers for BRD4338a (B0 2.0v boards), if user want to use different radio board, refer to board specific user guide.
+- Here mentioned pin numbers for radio board, if user want to use different radio board, refer to board specific user guide.
 
   | CHANNEL | PIN TO ADCP | PIN TO ADCN |
   | --- | --- | --- |
   | 1 | ULP_GPIO_1 [P16] | GPIO_28 [P31]  |
-  | 2 | ULP_GPIO_10 [P17] | GPIO_30 [P35] |
+  | 2 | GPIO_27 [P29] | GPIO_30 [P35] |
   | 3 | ULP_GPIO_8 [P15] | GPIO_26 [P27] |
   | 4 | GPIO_25 [P25] | ULP_GPIO_7 [EXP_HEADER-15] |
   | 5 | ULP_GPIO_8 [P15] | ULP_GPIO_1 [P16] |
@@ -139,14 +141,34 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | TEMP_SENSOR_OUT       |         23    |     --        |
   | DAC_OUT               |         24    |     13        |
 
+### Pin Configuration of the AC1 Module Explorer Kit
+ | CHANNEL | PIN TO ADCP | PIN TO ADCN |
+  | --- | --- | --- |
+  | 1 | ULP_GPIO_1 [EXP_HEADER-5] | GPIO_28 [CS]  |
+  | 2 | GPIO_27 [MOSI] | GPIO_30 [RST] |
+  | 3 | ULP_GPIO_8 [EXP_HEADER-2] | GPIO_26 [MISO] |
+  | 4 | GPIO_25 [SCK] | ULP_GPIO_7 [TX] |
+  | 5 | ULP_GPIO_8 [EXP_HEADER-2] | ULP_GPIO_1 [EXP_HEADER-5] |
+  | 6 | ULP_GPIO_5 [EXP_HEADER-9] | ULP_GPIO_7 [TX] |
+  | 7 | GPIO_25 [SCK] | GPIO_26 [MISO] |
+  | 8 | GPIO_27 [MOSI] | GPIO_28 [CS] |
+  | 9 | GPIO_29 [AN] | GPIO_30 [RST] |
+  | 10 | GPIO_29 [AN] | GPIO_30 [RST] |
+  | 11 | ULP_GPIO_1 [EXP_HEADER-5] | GPIO_30 [RST] |
+  | 12 | ULP_GPIO_1 [EXP_HEADER-5] | GPIO_28 [CS] |
+  | 13 | ULP_GPIO_7 [TX] | GPIO_26 [MISO] |
+  | 14 | GPIO_26 [MISO] | ULP_GPIO_7 [TX] |
+  | 15 | GPIO_28 [CS] | GPIO_26 [MISO] |
+  | 16 | GPIO_30 [RST] | ULP_GPIO_7 [TX] |
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. While generating the project by default channel_1 instance will create for this channel_1 follow below two sub-points on B0 board.
-   - Single ended mode give the positive analog input to ULP_GPIO_1
-   - Differential mode give positive analog input to ULP_GPIO_1 and negative input to GPIO_28
+2. When the project is generated, the ADC channel by default configured with the channel_1 instance for Si917 and the channel_2 instance for Si915. For further details, please refer to the two sub-points below for the Si917 board and Si915 board.
+   - Single ended mode the positive analog input to ULP_GPIO_1 for Si917 and GPIO_27 for Si915.
+   - Differential mode the positive analog input to ULP_GPIO_1 and the negative input to GPIO_28. For Si915  the positive analog input to GPIO_27 and the negative input to GPIO_30.
 3. When the application runs, the ADC configure the settings as per the user and start ADC conversion.
 4. After completion of conversion ADC input, it will print all the captured samples data in console by connecting serial console.
 5. After successful program execution the prints in serial console looks as shown below when the input voltage provided is 3.25v(approx).

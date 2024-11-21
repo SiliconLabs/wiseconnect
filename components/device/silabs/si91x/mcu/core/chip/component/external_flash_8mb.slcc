@@ -18,10 +18,5 @@ template_contribution:
     - name: device_flash_page_size
       value: 256
 metadata:
-    device:
-      memory:
-      - name: External Flash
-        page_size: 256
-        size: 8388608
-        start: 136323072 # 0x0820 2000
-        type: non-volatile
+    sbom:
+      license: Zlib
