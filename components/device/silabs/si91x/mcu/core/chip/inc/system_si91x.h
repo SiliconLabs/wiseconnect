@@ -208,6 +208,11 @@ extern void SystemInit(void);
 
 extern void SystemCoreClockUpdate(void);
 
+static inline uint32_t SystemCoreClockGet(void)
+{
+  return SystemCoreClock;
+}
+
 void RSI_Set_Cntrls_To_M4(void);
 void RSI_Set_Cntrls_To_TA(void);
 

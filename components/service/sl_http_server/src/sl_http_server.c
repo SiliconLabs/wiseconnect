@@ -32,7 +32,7 @@
 
 #define BACK_LOG                      1 ///< As we are processing one request at a time, the backlog is set to one.
 #define SL_HIGH_PERFORMANCE_SOCKET    BIT(7)
-#define HTTP_MAX_HEADER_LENGTH        (MAX_HEADER_BUFFER_LENGTH - 1)
+#define HTTP_MAX_HEADER_LENGTH        (SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH - 1)
 #define HTTP_CONNECTION_STATUS_HEADER "Connection: close\r\n\r\n"
 
 #define HTTP_SERVER_START_SUCCESS   BIT(0)
@@ -154,7 +154,7 @@ static sl_status_t sli_parse_http_headers(sl_http_server_t *handle, int length)
     char *value = NULL;
 
     query = target;
-    for (int i = 0; i < MAX_QUERY_PARAMETERS; i++) {
+    for (int i = 0; i < SL_HTTP_SERVER_MAX_QUERY_PARAMETERS; i++) {
       handle->request.uri.query_parameters[i].query = query;
       query                                         = strchr(query, '&');
       if (NULL != query) {
@@ -215,7 +215,7 @@ static void sli_process_request(sl_http_server_t *handle, int client_socket)
 
   handle->request.request_data_length = 0;
   handle->response_sent               = false;
-  rem_length                          = (MAX_HEADER_BUFFER_LENGTH - 1);
+  rem_length                          = (SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH - 1);
   recv_buffer                         = handle->request_buffer;
 
   // Loop until Complete headers are received
@@ -509,7 +509,7 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
   handle->config.handlers_count   = config->handlers_count;
   handle->config.client_idle_time = config->client_idle_time;
 
-  memset(handle->request_buffer, 0, sizeof(MAX_HEADER_BUFFER_LENGTH));
+  memset(handle->request_buffer, 0, sizeof(SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH));
   handle->http_server_id = osEventFlagsNew(NULL);
 
   memset(&(handle->request), 0, sizeof(sl_http_server_request_t));

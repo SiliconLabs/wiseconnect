@@ -93,7 +93,8 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -176,8 +177,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 | -------------- | ----------------- | ----------------------- |
 |  GPIO_25 [P25] |   GPIO_25 [SCK]   | RTE_SSI_MASTER_SCK_PIN  |
 |  GPIO_28 [P31] |   GPIO_28 [CS]    | RTE_SSI_MASTER_CS0_PIN  |
-|  GPIO_26 [P27] |   GPIO_26 [MISO]  | RTE_SSI_MASTER_MOSI_PIN |
-|  GPIO_27 [P29] |   GPIO_27 [MOSI]  | RTE_SSI_MASTER_MISO_PIN |
+|  GPIO_26 [P27] |   GPIO_26 [MOSI]  | RTE_SSI_MASTER_MOSI_PIN |
+|  GPIO_27 [P29] |   GPIO_27 [MISO]  | RTE_SSI_MASTER_MISO_PIN |
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image510d.png)
 

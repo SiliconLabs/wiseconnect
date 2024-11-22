@@ -315,7 +315,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
           ```
 6. **Button Configurations as a wakeup source**:          
-          To set GPIO as wakeup source configure as following slcp
+          To set GPIO as wakeup source configure following in slcp-> software components -> PM Wakeup Source Configuration 
     ![Figure: Introduction](resources/readme/wakeup.png)
    
 ### AWS Configuration

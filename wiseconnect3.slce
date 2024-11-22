@@ -80,6 +80,7 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/wdt_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/sl_si91x_etm/component
   - path: components/device/silabs/si91x/mcu/drivers/service/littlefs/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/cpc/component
   - path: components/device/silabs/si91x/mcu/core/chip/component
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/core/cmsis/component
@@ -87,14 +88,6 @@ component_path:
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/hal/component
   - path: components/segger_sysview
-  - path: tests/test_agent
-  - path: third_party/amazon_expresslink_sdk
-  - path: third_party/amazon_expresslink_sdk/libraries/coreJSON
-  - path: third_party/amazon_expresslink_sdk/libraries/coreMQTT2
-  - path: third_party/amazon_expresslink_sdk/libraries/mbedtls
-  - path: third_party/amazon_expresslink_sdk/libraries/ota_for_aws_iot_embedded_sdk
-  - path: third_party/amazon_expresslink_sdk/libraries/tinycbor
-  - path: third_party/amazon_expresslink_sdk/libraries/backoffAlgorithm
   - path: third_party/aws_sdk
   - path: third_party/json_parser
   - path: third_party/azure_freertos_middleware

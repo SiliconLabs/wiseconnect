@@ -74,7 +74,8 @@
 
 - Windows PC.
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ].
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -156,7 +157,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Run the application in counter mode
 
-- Evaluation kit board's ULP_GPIO_1 (Connector - P16) will be toggled ten times at every millisecond.
+- Evaluation kit board's ULP_GPIO_1 (Breakout pin - P16) will be toggled ten times at every millisecond.
 - After toggling GPIO for 10 times, interrupt callback is unregistered and counter is de-initialized.
 - Following prints will be observed on console:
 

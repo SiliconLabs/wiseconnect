@@ -111,11 +111,11 @@ typedef enum {
 
 /// Capture input edge select.
 typedef enum {
-  RSI_SYSRTC_CLK_NONE       = 0, ///< No Clk selec.
-  RSI_SYSRTC_CLK_1kHz_clk   = 1, ///< 1Khz  clk select.
-  RSI_SYSRTC_CLK_32KHz_RO   = 2, ///< 32Khz RO clk select.
-  RSI_SYSRTC_CLK_32kHz_RC   = 4, ///< 32Khz RC clk select.
-  RSI_SYSRTC_CLK_32kHz_Xtal = 8, ///< 32Khz Xtal clk select.
+  RSI_SYSRTC_CLK_NONE       = 0, ///< No Clk select.
+  RSI_SYSRTC_CLK_1kHz_clk   = 1, ///< 1khz  clk select.
+  RSI_SYSRTC_CLK_32KHz_RO   = 2, ///< 32khz RO clk select.
+  RSI_SYSRTC_CLK_32kHz_RC   = 4, ///< 32khz RC clk select.
+  RSI_SYSRTC_CLK_32kHz_Xtal = 8, ///< 32khz XTAL or External Oscillator clk select.
 
 } rsi_sysrtc_clk_inp_t;
 

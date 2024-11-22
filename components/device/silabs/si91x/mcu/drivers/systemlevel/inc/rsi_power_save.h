@@ -1625,6 +1625,20 @@ STATIC INLINE void RSI_PS_PS4SetRegisters(void)
 }
 
 /**
+ *@fn         void RSI_PS_PS4ClearRegisters(void)
+ *@brief      This API is used to clear the MISC registers for clock less than 120 MHz for core
+ *@return     none
+ */
+STATIC INLINE void RSI_PS_PS4ClearRegisters(void)
+{
+  // Clears the prefetch and registering when SOC clock is less than 120 MHz
+  ICACHE2_ADDR_TRANSLATE_1_REG &= ~BIT(21); // Clearing Icache registering when clock frequency is less than 120 MHz
+  // When set, enables registering in M4-NWP AHB2AHB. This will have performance penalty. This has to be set above 100 MHz
+  MISC_CFG_SRAM_REDUNDANCY_CTRL &= ~BIT(4);
+  MISC_CONFIG_MISC_CTRL1 &= ~BIT(4); // Disable Register ROM as clock frequency is less than 120 MHz
+}
+
+/**
  *@fn         void RSI_PS_PS2UpdateClockVariable(void)
  *@brief      This API is used update the global clock variable after clock setting in PS2
  *@return     none

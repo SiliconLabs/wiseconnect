@@ -31,7 +31,7 @@ void test_psa_sha_1()
                                  0x4a, 0xa1, 0xf9, 0x51, 0x29, 0xe5, 0xe5, 0x46, 0x70, 0xf1 };
 
   //! Hash Buffer
-  uint8_t hash_buf[SL_SI91x_SHA_1_DIGEST_LEN] = { 0 };
+  uint8_t hash_buf[SL_SI91X_SHA_1_DIGEST_LEN] = { 0 };
 
   //! Hash length
   size_t hash_len;
@@ -74,7 +74,7 @@ void test_psa_sha_224()
                                    0x01, 0x50, 0xb0, 0xc6, 0x45, 0x5c, 0xb4, 0xf5, 0x8b, 0x19, 0x52, 0x52, 0x25, 0x25 };
 
   //! Hash Buffer
-  uint8_t hash_buf[SL_SI91x_SHA_224_DIGEST_LEN] = { 0 };
+  uint8_t hash_buf[SL_SI91X_SHA_224_DIGEST_LEN] = { 0 };
 
   //! Hash length
   size_t hash_len;
@@ -118,7 +118,7 @@ void test_psa_sha_256()
                                    0x21, 0x67, 0xf6, 0xec, 0xed, 0xd4, 0x19, 0xdb, 0x06, 0xc1 };
 
   //! Hash Buffer
-  uint8_t hash_buf[SL_SI91x_SHA_256_DIGEST_LEN] = { 0 };
+  uint8_t hash_buf[SL_SI91X_SHA_256_DIGEST_LEN] = { 0 };
 
   //! Hash length
   size_t hash_len;
@@ -163,7 +163,7 @@ void test_psa_sha_384()
                                    0x20, 0xbc, 0x4e, 0x6f, 0x5f, 0xe9, 0x5b, 0x1f, 0xe3, 0xc8, 0x45, 0x2b };
 
   //! Hash Buffer
-  uint8_t hash_buf[SL_SI91x_SHA_384_DIGEST_LEN] = { 0 };
+  uint8_t hash_buf[SL_SI91X_SHA_384_DIGEST_LEN] = { 0 };
 
   //! Hash length
   size_t hash_len;
@@ -209,7 +209,7 @@ void test_psa_sha_512()
                                    0xa7, 0x1d, 0xd7, 0x03, 0x54, 0xec, 0x63, 0x12, 0x38, 0xca, 0x34, 0x45 };
 
   //! Hash Buffer
-  uint8_t hash_buf[SL_SI91x_SHA_512_DIGEST_LEN] = { 0 };
+  uint8_t hash_buf[SL_SI91X_SHA_512_DIGEST_LEN] = { 0 };
 
   //! Hash length
   size_t hash_len;

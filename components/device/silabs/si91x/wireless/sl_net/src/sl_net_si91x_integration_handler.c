@@ -329,6 +329,9 @@ sl_status_t sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(uint16
         status = sli_si91x_flush_socket_data_queues_based_on_queue_type(index);
         // If flushing fails, return the error status immediately
         VERIFY_STATUS_AND_RETURN(status);
+
+        // update the socket state to disconnected.
+        sli_si91x_sockets[index]->state = DISCONNECTED;
       }
     }
   }

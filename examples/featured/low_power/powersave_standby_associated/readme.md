@@ -136,7 +136,8 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 > Note: 
 > User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
-- Configure the following parameters in **app.c** to test throughput app as per requirements
+- Configure the following parameters in **app.c** as per requirements
+  - To enable Data Transfer, change the `ENABLE_DATA_TRANSFER` to 1.
   - `SERVER_PORT` is the remote UDP server port number on the PC running iPerf.
   - `SERVER_IP_ADDRESS` is the remote UDP server IP address on the PC running iPerf.
   - `NUMBER_OF_PACKETS` controls the number of packets sent to the remote UDP server.

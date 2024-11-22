@@ -96,7 +96,7 @@
     condition:
       - si91x_mem_config_1
   - name: device_flash_size
-    value: 1232896 # 0x0012 D000
+    value: 1110016 # 0x0010 F000
     priority: 1000
     condition:
       - si91x_mem_config_1
@@ -107,7 +107,7 @@
     condition:
       - si91x_mem_config_2
   - name: device_flash_size
-    value: 1232896 # 0x0012 D000
+    value: 1110016 # 0x0010 F000
     priority: 1000
     condition:
       - si91x_mem_config_2
@@ -118,7 +118,7 @@
     condition:
       - si91x_mem_config_3
   - name: device_flash_size
-    value: 1232896 # 0x0012 D000
+    value: 1110016 # 0x0010 F000
     priority: 1000
     condition:
       - si91x_mem_config_3

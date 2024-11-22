@@ -256,7 +256,8 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   do {
     //! Getting IP address of the AWS server using DNS request
-    status = sl_net_host_get_by_name((const char *)AWS_DOMAIN_NAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status =
+      sl_net_dns_resolve_hostname((const char *)AWS_DOMAIN_NAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count++;
   } while ((dns_retry_count < MAX_DNS_RETRY_COUNT) && (status != SL_STATUS_OK));
 

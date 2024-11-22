@@ -6,9 +6,9 @@ version=3.4.0
 label=WiSeConnect 3
 description=WiSeConnect 3 SDK
 
-prop.subLabel=Wi-Fi\\ SDK\\ 3.4.0-rc3
+prop.subLabel=Wi-Fi\\ SDK\\ 3.4.0-cf
 
-prop.file.templatesFile=wifi_templates.xml wifi_internal_templates.xml
+prop.file.templatesFile=wifi_templates.xml
 
 prop.file.docsFile=wiseconnect3_docs.xml
 

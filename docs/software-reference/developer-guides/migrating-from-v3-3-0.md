@@ -33,6 +33,8 @@ Refer to the tables in each of the sections that follow which map the v3.3.0 API
 | **Module**   | **v3.3.0** | **v3.3.1** |
 |--------------|------------|------------|
 | Wi-Fi | void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)|void **data\_callback** (uint32_t sock_no, uint8_t *buffer, uint32_t length, const sl_si91x_socket_metadata_t *firmware_socket_response)|
+| Wi-Fi | sl_status_t sl_http_client_deinit(sl_http_client_t *client) | sl_status_t sl_http_client_deinit(**const** sl_http_client_t *client) |
+| Wi-Fi | sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client, uint8_t *data, uint32_t data_length, bool flush_now) | sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client, **const** uint8_t *data, uint32_t data_length, bool flush_now) |
 
 ### Update Files
 

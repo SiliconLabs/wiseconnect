@@ -11,6 +11,7 @@ metadata:
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/trng
 provides:
 - name: sl_si91x_psa_trng
+- name: mbedtls_entropy_source
 source:
 - path: src/sl_si91x_psa_trng.c
 include:

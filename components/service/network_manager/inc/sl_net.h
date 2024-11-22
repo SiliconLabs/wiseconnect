@@ -325,6 +325,7 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   If the credential is NULL or the credential length is zero, this API will return an error `SL_STATUS_INVALID_PARAMETER`.
  * @note
  * - Certificates should follow standard *.pem format  
  * - A PEM encoded file includes Base64 data. 
@@ -333,6 +334,7 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
  * - Certificates are prefixed with a header like "-----BEGIN CERTIFICATE-----" line and postfixed with an footer like"-----END CERTIFICATE-----" line. 
  * - Text outside the prefix and postfix lines is ignored and can be used for metadata.
  * - The above mentioned Headers and Footers might vary 
+ * - This API does not support the OPEN Security type for Wi-Fi client credentials.
  ******************************************************************************/
 sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
                                   sl_net_credential_type_t type,

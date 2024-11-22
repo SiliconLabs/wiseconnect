@@ -48,6 +48,9 @@
 #include "rsi_rom_udma_wrapper.h"
 #endif
 
+#include "sl_si91x_driver_gpio.h"
+#include "sl_gpio_board.h"
+
 #define BYTES_FOR_8_DATA_WIDTH  1    // Number of bytes for 8 bit data frame
 #define BYTES_FOR_16_DATA_WIDTH 2    // Number of bytes for 16 bit data frame
 #define BYTES_FOR_32_DATA_WIDTH 4    // Number of bytes for 32 bit data frame
@@ -61,6 +64,9 @@
 #endif
 static uint8_t data_width_in_bytes = 0; // variable to store data width in bytes for current transfer
 static uint8_t ssi_slave_number    = 0; // variable to store current slave number
+#ifndef SI917_MEMLCD
+static uint8_t cs_gpio_mode_pin = 0; // ULP_SSI primary CS pin number store in this variable.
+#endif
 static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
 
 #ifndef SSI_ROMDRIVER_PRESENT
@@ -208,6 +214,7 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
     RSI_EGPIO_UlpPadReceiverEnable(spi->io.sck->pin);
     RSI_EGPIO_SetPinMux(EGPIO1, spi->io.sck->port, spi->io.sck->pin, spi->io.sck->mode);
 
+#if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
     //CS Selection
     if (spi->io.cs0 != NULL) {
       RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs0->pin);
@@ -225,7 +232,41 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
       RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs3->pin);
       RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs3->port, spi->io.cs3->pin, spi->io.cs3->mode);
     }
-
+#else // For ULP_SSI primary non DMA case, configure CS as normal gpio pin to control manually.
+#ifndef SI917_MEMLCD
+    sl_si91x_gpio_pin_config_t sl_gpio_pin_config;
+    sl_status_t status;
+    //Configured CS0 pin
+    if (spi->io.cs0 != NULL) {
+      sl_gpio_pin_config.port_pin.pin = spi->io.cs0->pin;
+    } //Configured CS1 pin
+    if (spi->io.cs1 != NULL) {
+      sl_gpio_pin_config.port_pin.pin = spi->io.cs1->pin;
+    } //Configured CS2 pin
+    if (spi->io.cs2 != NULL) {
+      sl_gpio_pin_config.port_pin.pin = spi->io.cs2->pin;
+    }
+    sl_gpio_pin_config.port_pin.port = SL_GPIO_ULP_PORT;
+    sl_gpio_pin_config.direction     = GPIO_OUTPUT;
+    // Initialize the GPIOs by clearing all interrupts initially
+    status = sl_gpio_driver_init();
+    if (status != SL_STATUS_OK) {
+      return ARM_DRIVER_ERROR;
+    }
+    // Configure CS pin using GPIO driver pin configuration API.
+    // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
+    // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
+    status = sl_gpio_set_configuration(sl_gpio_pin_config);
+    if (status != SL_STATUS_OK) {
+      return ARM_DRIVER_ERROR;
+    }
+    // Set CS line as high by default.
+    cs_gpio_mode_pin                                    = sl_gpio_pin_config.port_pin.pin;
+    ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = SET;
+    while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == SET))
+      ;
+#endif
+#endif
     //mosi
     RSI_EGPIO_UlpPadReceiverEnable(spi->io.mosi->pin);
     RSI_EGPIO_SetPinMux(EGPIO1, spi->io.mosi->port, spi->io.mosi->pin, spi->io.mosi->mode);
@@ -599,13 +640,21 @@ int32_t SPI_Transfer(const void *data_out,
 
     // Interrupt mode
     /* spi->reg->IMR |= TXEIM | RXFIM; */
-    /*enabled below bits 
-    Transmit FIFO Empty Interrupt Mask
-    Transmit FIFO Overflow Interrupt Mask
-    Receive FIFO Underflow Interrupt Mask
-    Receive FIFO Overflow Interrupt Mask
-    Receive FIFO Full Interrupt Mask
-    */
+    /*enabled below bits
+      Transmit FIFO Empty Interrupt Mask
+      Transmit FIFO Overflow Interrupt Mask
+      Receive FIFO Underflow Interrupt Mask
+      Receive FIFO Overflow Interrupt Mask
+      Receive FIFO Full Interrupt Mask
+      */
+    // Down the CS pin for ULP primary to transfer the data.
+#ifndef SI917_MEMLCD
+    if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
+      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = CLR;
+      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == CLR))
+        ;
+    }
+#endif
     spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
   }
   return ARM_DRIVER_OK;
@@ -1077,6 +1126,14 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
     // Appending the instance value in the callback event variable
     event |= (ssi_instance << SSI_INSTANCE_BIT);
     spi->info->cb_event(event);
+#ifndef SI917_MEMLCD
+    // CS pin setting high after transferred all the bytes of data.
+    if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
+      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = SET;
+      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == SET))
+        ;
+    }
+#endif
     if (spi->info->status.busy) {
       spi->info->status.busy = 0U;
     }
@@ -1245,6 +1302,14 @@ int32_t SPI_Send(const void *data,
     Receive FIFO Overflow Interrupt Mask
     Receive FIFO Full Interrupt Mask
     */
+#ifndef SI917_MEMLCD
+    // Down the CS pin for ULP primary to send the data.
+    if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
+      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = CLR;
+      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == CLR))
+        ;
+    }
+#endif
     spi->reg->IMR |= (TXEIM | TXOIM);
   }
   return ARM_DRIVER_OK;
@@ -1514,6 +1579,14 @@ int32_t SPI_Receive(void *data,
     Receive FIFO Overflow Interrupt Mask
     Receive FIFO Full Interrupt Mask
     */
+#ifndef SI917_MEMLCD
+    // Down the CS pin for ULP primary to receive the data.
+    if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
+      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = CLR;
+      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == CLR))
+        ;
+    }
+#endif
     spi->reg->IMR |= (RXUIM | RXOIM | RXFIM);
     if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
       *(volatile uint8_t *)(&spi->reg->DR) = DUMMY_DATA; // dummy data

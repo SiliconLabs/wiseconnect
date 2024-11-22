@@ -75,6 +75,7 @@ sl_websocket_error_t sl_websocket_init(sl_websocket_client_t *handle, const sl_w
   handle->data_cb             = config->data_cb;
   handle->remote_terminate_cb = config->remote_terminate_cb;
   handle->state               = SL_WEBSOCKET_STATE_DISCONNECTED;
+  handle->enable_ssl          = config->enable_ssl;
   handle->user_context        = NULL;
   return SL_WEBSOCKET_SUCCESS;
 }
@@ -133,6 +134,15 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
 
   SL_DEBUG_LOG("\r\nClient Socket ID : %d\r\n", client_socket);
   handle->socket_fd = client_socket;
+
+  if (handle->enable_ssl) {
+    socket_return_value = setsockopt(client_socket, SOL_TCP, TCP_ULP, TLS, sizeof(TLS));
+    if (socket_return_value < 0) {
+      SL_DEBUG_LOG("\r\nSet socket failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      return SL_WEBSOCKET_ERR_SSL_SETSOCKOPT;
+    }
+  }
 
   socket_return_value = sl_si91x_bind(client_socket, (struct sockaddr *)&client_address, socket_length);
   if (socket_return_value < 0) {

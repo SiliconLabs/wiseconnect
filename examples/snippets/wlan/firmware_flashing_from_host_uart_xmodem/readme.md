@@ -15,6 +15,7 @@
   - [Test the Application](#test-the-application)
     - [Console Prints](#console-prints)
   - [Timings Observed](#timings-observed)
+  - [Appendix](#appendix)
 
 ## Purpose/Scope
 
@@ -71,18 +72,19 @@ The application can be configured to suit your requirements and development envi
 ### App Configuration
 
 - By deafult the application does Fast Firmware upgrade
-- For Safe Firmware upgrade, Delete this preprocessor macro in preprocessor settings, **SL_SI91X_FAST_FW_UP==1**  
+- For Safe Firmware upgrade, Delete this preprocessor macro in preprocessor settings, **SL_SI91X_FAST_FW_UP==1** 
+- For secure image, only Safe Firmware upgrade is supported.
 - For NCP, only NWP Firmware update is supported.
 - For SoC, both NWP and M4 Firmware updates are supported. 
-- For SoC slave mode transfer, add SLAVE_MODE_TRANSFER in preprocessor settings.
-- By default, the application is configured to update the NWP firmware: 
+- For SoC, secure image update with secure zone enabled (slave mode), add SLAVE_MODE_TRANSFER in preprocessor settings. Please refer to [Appendix](#appendix) for information on secure zone.
+- By default, the application is configured to update the NWP firmware in **app.c** file: 
     ```c
      #define FW_UPDATE_TYPE NWP_FW_UPDATE
     ```
 
-- For M4 update, please change it as shown below:
+- For M4 update, please change it as shown below in **app.c** file:
     ```c
-    #define FW_UPDATE_TYPE M4_FW_UPDATE
+     #define FW_UPDATE_TYPE M4_FW_UPDATE
     ```
 
 ## Test the Application
@@ -97,7 +99,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ![Figure: Teraterm serial port settings](resources/readme/serial_port_settings_921600.png)
 - Configure the following parameter in `app.c` to test firmware flashing through xmodem app as per requirement
   ```c
-    init.baudrate = 926100;
+    init.baudrate = 921600;
   ```
 - In launch console set the vcom port baudrate to 921600 using below command
   ```c
@@ -133,3 +135,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 | **XMODEM Bootloader**     | **Using Fast FW Upgrade**| **Using SAFE FW Upgrade** |
 |---------------------------|--------------------------|--------------------------|
 |**Firmware Upgrade timing**|    3mins 58secs          |     4mins 37secs         |
+
+## **Appendix**
+- [Secure Zone](https://www.silabs.com/documents/public/data-sheets/siwg917-datasheet.pdf)
+- [Secure Zone bit](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf)

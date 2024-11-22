@@ -137,13 +137,15 @@ sl_status_t sli_si91x_clock_manager_config_clks_on_ps_change(sl_power_state_t po
       RSI_CLK_M4ssRefClkConfig(M4CLK, EXT_40MHZ_CLK);
       RSI_ULPSS_RefClkConfig(ULPSS_40MHZ_CLK);
 
+      // configure M4 source frequency based on current state and mode
+      soc_pll_freq = power_mode ? PS3_PERFORMANCE_MODE_FREQ : PS3_POWERSAVE_MODE_FREQ;
       if (power_mode) {
-        // Set SOC PLL to PS3_PERFORMANCE_MODE_FREQ and configure M4 source to SOC PLL
-        soc_pll_freq = PS3_PERFORMANCE_MODE_FREQ;
-        sli_status   = sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, soc_pll_freq);
+        // configure M4 source to SOC PLL
+        sli_status = sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, soc_pll_freq);
       } else {
         // Configure M4 source to ULP REF clock
         sli_status = sl_si91x_clock_manager_m4_set_core_clk(M4_ULPREFCLK, 0);
+        sl_si91x_clock_manager_set_pll_freq(SOC_PLL, soc_pll_freq, PLL_REF_CLK_VAL_XTAL);
       }
       if (sli_status != SL_STATUS_OK) {
         break;

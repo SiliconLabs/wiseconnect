@@ -115,7 +115,7 @@ static int32_t sli_map_tos_to_nwp(const void *option_value)
 }
 
 // Static helper function to set WebSocket data offset
-static void sli_si91x_set_websocket_offset(sl_si91x_socket_send_request_t *request, size_t data_len)
+static void sli_si91x_set_websocket_offset(sli_si91x_socket_send_request_t *request, size_t data_len)
 {
   if (data_len < WEBSOCKET_SMALL_FRAME_THRESHOLD) {
     request->data_offset += WEBSOCKET_SMALL_FRAME_OFFSET;
@@ -146,8 +146,10 @@ int16_t sl_si91x_get_socket_mss(int32_t socketIndex)
                           : si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV6;
       return (int16_t)max_size;
     } else {
-      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_STREAM_MSS_SIZE_IPV4
-                                                                             : DEFAULT_STREAM_MSS_SIZE_IPV6;
+      // Adjust MSS based on IP version (IPv4 or IPv6) for non TLS connections
+      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET)
+                          ? si91x_socket->mss
+                          : si91x_socket->mss - (TCP_V6_HEADER_LENGTH - TCP_HEADER_LENGTH);
       return (int16_t)max_size;
     }
   } else if (si91x_socket->type == SOCK_DGRAM) {
@@ -304,10 +306,10 @@ ssize_t sendto(int socket_id,
   UNUSED_PARAMETER(flags);
   errno = 0;
 
-  sl_status_t status                     = SL_STATUS_OK;
-  sli_si91x_socket_t *si91x_socket       = get_si91x_socket(socket_id);
-  sl_si91x_socket_send_request_t request = { 0 };
-  bool is_websocket                      = (si91x_socket->ssl_bitmap & SI91X_WEBSOCKET_FEAT);
+  sl_status_t status                      = SL_STATUS_OK;
+  sli_si91x_socket_t *si91x_socket        = get_si91x_socket(socket_id);
+  sli_si91x_socket_send_request_t request = { 0 };
+  bool is_websocket                       = (si91x_socket->ssl_bitmap & SI91X_WEBSOCKET_FEAT);
 
   // Check for various error conditions
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
@@ -650,9 +652,6 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
   switch (option_name) {
     case SO_SNDBUF: {
       mss            = sl_si91x_get_socket_mss(socket_id);
-      mss            = (si91x_socket->local_address.sin6_family == AF_INET)
-                         ? si91x_socket->mss
-                         : (si91x_socket->mss - (TCP_V6_HEADER_LENGTH - TCP_HEADER_LENGTH));
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(mss));
       memcpy(option_value, &mss, *option_length);
       break;
@@ -740,9 +739,9 @@ struct hostent *gethostbyname(const char *name)
   }
 // Retrieve host information based on address type
 #ifdef SLI_SI91X_ENABLE_IPV6
-  status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
+  status = sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
 #else
-  status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
+  status = sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
 #endif
 
   // Handle the DNS resolution result
@@ -783,9 +782,11 @@ struct hostent *gethostbyname2(const char *name, int af)
 
   // Retrieve host information based on address type
   if (af == AF_INET6) {
-    status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
+    status =
+      sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
   } else {
-    status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
+    status =
+      sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
   }
 
   // Handle the DNS resolution result

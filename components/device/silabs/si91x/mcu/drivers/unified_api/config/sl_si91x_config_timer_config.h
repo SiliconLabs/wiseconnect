@@ -52,7 +52,7 @@
 //   <SL_COUNTER0_UP=> Up Counter
 //   <SL_COUNTER0_DOWN=> Down Counter
 //   <SL_COUNTER0_UP_DOWN=> Up-Down Counter
-// <i> Default: SL_COUNTER1_UP
+// <i> Default: SL_COUNTER0_UP
 #define SL_COUNTER0_DIRECTION_MACRO SL_COUNTER0_UP
 
 // <o SL_COUNTER1_DIRECTION_MACRO> Counter-1 : Direction

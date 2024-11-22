@@ -123,14 +123,37 @@
 #define SL_HTTP_CONTENT_TYPE_APPLICATION_XML "application/xml"
 
 /**
- * @def MAX_QUERY_PARAMETERS
+ * @def SL_HTTP_SERVER_MAX_QUERY_PARAMETERS
  * @brief
  *   Maximum number of query parameters in a URI.
  * 
  * @details
  *   This macro defines the maximum number of query parameters that can be included in a Uniform Resource Identifier (URI) for an HTTP request. It is used to limit the number of parameters that the server will process.
  */
-#define MAX_QUERY_PARAMETERS 4
+#define SL_HTTP_SERVER_MAX_QUERY_PARAMETERS 4
+
+/**
+ * @def MAX_QUERY_PARAMETERS
+ * @brief
+ *   Maximum number of query parameters in a URI.
+ * 
+ * @details
+ *   This macro defines the maximum number of query parameters that can be included in a Uniform Resource Identifier (URI) for an HTTP request. It is used to limit the number of parameters that the server will process.
+ * 
+ * @note
+ *   This macro will be depreciated in future releases. The renamed macro is @ref SL_HTTP_SERVER_MAX_QUERY_PARAMETERS.
+ */
+#define MAX_QUERY_PARAMETERS SL_HTTP_SERVER_MAX_QUERY_PARAMETERS
+
+/**
+ * @def SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH
+ * @brief
+ *   Maximum length of the header buffer.
+ * 
+ * @details
+ *   This macro defines the maximum length, in bytes, of the buffer used to store HTTP headers. It is used to ensure that the buffer allocated for headers is sufficiently large to handle typical HTTP requests and responses.
+ */
+#define SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH 1024
 
 /**
  * @def MAX_HEADER_BUFFER_LENGTH
@@ -139,8 +162,11 @@
  * 
  * @details
  *   This macro defines the maximum length, in bytes, of the buffer used to store HTTP headers. It is used to ensure that the buffer allocated for headers is sufficiently large to handle typical HTTP requests and responses.
+ * 
+ * @note
+ *   This macro will be depreciated in future releases. The renamed macro is @ref SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH.
  */
-#define MAX_HEADER_BUFFER_LENGTH 1024
+#define MAX_HEADER_BUFFER_LENGTH SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH
 
 /******************************************************
  *                   Enumerations
@@ -289,8 +315,9 @@ typedef struct {
  */
 typedef struct {
   char *path; ///< URI path. Must be a null-terminated string.
-  sl_http_server_uri_query_parameter_t query_parameters[MAX_QUERY_PARAMETERS]; ///< Array of query parameters.
-  uint16_t query_parameter_count; ///< Number of query parameters received in the URI.
+  sl_http_server_uri_query_parameter_t
+    query_parameters[SL_HTTP_SERVER_MAX_QUERY_PARAMETERS]; ///< Array of query parameters.
+  uint16_t query_parameter_count;                          ///< Number of query parameters received in the URI.
 } sl_http_server_request_uri_t;
 
 /**
@@ -346,16 +373,16 @@ typedef struct {
  *   This structure holds the state and configuration of the HTTP server, including sockets, synchronization events, request and response data, and buffers.
  */
 typedef struct sl_http_server_s {
-  sl_http_server_config_t config;                ///< Configuration settings for the HTTP server.
-  int server_socket;                             ///< Socket descriptor for the server.
-  int client_socket;                             ///< Socket descriptor for the client currently being served.
-  osEventFlagsId_t http_server_id;               ///< Event ID for the HTTP server, used for synchronization.
-  sl_http_server_request_t request;              ///< Current HTTP request being processed.
-  char request_buffer[MAX_HEADER_BUFFER_LENGTH]; ///< Buffer for storing the HTTP request.
-  char *header;                                  ///< Pointer to a string containing headers.
-  uint8_t *req_data;                             ///< Pointer to the data of the HTTP request.
-  uint32_t data_length;                          ///< Length of the request data.
-  uint32_t rem_len;                              ///< Remaining length of data to be processed in the request.
+  sl_http_server_config_t config;   ///< Configuration settings for the HTTP server.
+  int server_socket;                ///< Socket descriptor for the server.
+  int client_socket;                ///< Socket descriptor for the client currently being served.
+  osEventFlagsId_t http_server_id;  ///< Event ID for the HTTP server, used for synchronization.
+  sl_http_server_request_t request; ///< Current HTTP request being processed.
+  char request_buffer[SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH]; ///< Buffer for storing the HTTP request.
+  char *header;                                                 ///< Pointer to a string containing headers.
+  uint8_t *req_data;                                            ///< Pointer to the data of the HTTP request.
+  uint32_t data_length;                                         ///< Length of the request data.
+  uint32_t rem_len;         ///< Remaining length of data to be processed in the request.
   bool response_sent;       ///< Flag indicating whether the response has been sent for the current request.
   uint32_t rem_resp_length; ///< Remaining length of data to be sent in the response.
 } sl_http_server_t;

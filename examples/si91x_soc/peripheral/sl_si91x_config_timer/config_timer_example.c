@@ -79,10 +79,11 @@ static sl_config_timer_ocu_params_t vsOCUparams = { INITIAL_VALUE };
 #endif
 static sl_config_timer_interrupt_flags_t ct_interrupt_flags;
 #if (CT_COUNTER_MODE_USECASE == SET)
-sl_counter_number_t counter_used    = CT_COUNTER_USED;
-static uint32_t interrupt_count     = INITIAL_VALUE;
-static uint32_t initial_match_value = 0;
-volatile boolean_t interrupt_flag   = 0;
+sl_counter_number_t counter_used       = CT_COUNTER_USED;
+static uint32_t interrupt_count        = INITIAL_VALUE;
+static uint32_t counter0_initial_value = 0;
+static uint32_t counter1_initial_value = 0;
+volatile boolean_t interrupt_flag      = 0;
 #endif
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
@@ -229,24 +230,12 @@ void config_timer_example_init(void)
     }
     DEBUGOUT("CT match value get is successful \n");
     // Setting Initial count value
-    status = sl_si91x_config_timer_set_initial_count(SL_COUNTER_16BIT, initial_match_value, initial_match_value);
+    status = sl_si91x_config_timer_set_initial_count(SL_COUNTER_16BIT, counter0_initial_value, counter1_initial_value);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_config_timer_set_initial_count, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT Initial Count is set successfully \n");
-    // Check conditions based on counter direction
-    if (ct_config.counter0_direction == SL_COUNTER0_UP) {
-      if (match_value < initial_match_value) {
-        DEBUGOUT("Error: Initial count is greater than match value for UP counter.\n");
-        break;
-      }
-    } else if (ct_config.counter0_direction == SL_COUNTER0_DOWN) {
-      if (match_value > initial_match_value) {
-        DEBUGOUT("Error: Initial count is less than match value for DOWN counter.\n");
-        break;
-      }
-    }
     // Setting match value
     status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, counter_used, match_value);
     if (status != SL_STATUS_OK) {

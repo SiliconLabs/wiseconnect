@@ -103,8 +103,7 @@ sl_websocket_error_t sl_websocket_deinit(sl_websocket_client_t *handle);
  * @brief Extracts the WebSocket opcode from a given socket ID.
  *
  * @details
- *   This function takes a 16-bit socket ID, extracts the second byte, and then
- *   extracts the first 4 bits of that byte to determine the WebSocket opcode.
+ *   This function determines the opcode of the WebSocket from the socket ID.
  *
  * @param[in] socket_id
  *   The 16-bit socket ID from which to extract the opcode.

@@ -52,7 +52,8 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -168,4 +169,4 @@ Follow the steps below for successful execution of the application:
   sl_si91x_gpio_ulp_soc_mode(3,3);  
 
 > **Note:**
-Header connection pin references mentioned here are all specific to BRD4338A (B0 2.0v boards). If user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.
+Header connection pin references mentioned here are all specific to BRD4338A. If user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.

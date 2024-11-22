@@ -33,10 +33,6 @@
 - DMA mode supports dual buffer cyclic mode to avoid loss of data when buffer is full. In dual buffer cyclic mode, if buffer 1 is full for particular channel, incoming sampled
   data is written into buffer 2 such that, samples from buffer 1 are read back by controller during this time. That’s why there are two start addresses, two buffer lengths and
   two valid signals for each channel.
-- External event-based sampling support.
-- Multi-channel mode, as the multiple channels are sensed, after sensing each channel, information related to “buffer length” etc. of that particular channel are rewritten
-  in to the corresponding location of internal memory for the next use when same channel is sensed again.
-- External triggers can be used in PS4 State to collect the sample from a pre-defined channel.
 - The AUX ADC can take analog inputs in single ended or differential. The output is 12-bit digital which can be given out with (or) without noise averaging.
 - The Aux VRef can be connected directly to Vbat (Aux LDO bypass mode) or to the Aux LDO output.
 
@@ -60,7 +56,8 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -79,8 +76,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 - [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -142,6 +139,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | DAC_OUT               |         24    |     13        |
 
 ### Pin Configuration of the AC1 Module Explorer Kit
+
  | CHANNEL | PIN TO ADCP | PIN TO ADCN |
   | --- | --- | --- |
   | 1 | ULP_GPIO_1 [EXP_HEADER-5] | GPIO_28 [CS]  |

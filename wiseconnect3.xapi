@@ -302,32 +302,294 @@
                 </param>
             </returns>
         </command>
-        <enums name="region_code" title="region_code">
+        <command name="set_device_config" index="0x04">
+            <description>
+                Sets si91x device configuration of the device.
+            </description>
+            <params>
+                <param name="boot_option" type="uint8" enum="net_intf_boot_option">
+                    <description>
+                        Boot option, which specifies the type of firmware to be loaded for the si91x devices.
+                    </description>
+                </param>
+                <param name="mac_address_octet_0" type="uint8">
+                    <description>
+                        First octet of the mac address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_1" type="uint8">
+                    <description>
+                        Second octet of the mac address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_2" type="uint8">
+                    <description>
+                        Third octet of the mac address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_3" type="uint8">
+                    <description>
+                        Fourth octet of the mac address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_4" type="uint8">
+                    <description>
+                        Fifth octet of the mac address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_5" type="uint8">
+                    <description>
+                        Sixth octet of the mac address.
+                    </description>
+                </param>
+                <param name="band" type="uint8" enum="net_intf_band_mode">
+                    <description>
+                        si91x Wi-Fi band mode defines the supported frequency bands for the device. At present, only the 2.4 GHz band is supported.
+                    </description>
+                </param>
+                <param name="region_code" type="uint8" enum="net_intf_region_code">
+                    <description>
+                        si91x region code, which defines the regional settings for the device. Note that Singapore is not currently supported.
+                    </description>
+                </param>
+                <param name="tx_ratio_in_buffer_pool" type="uint8">
+                    <description>
+                        Specifies the ratio of the transmission (TX) buffer allocation in the buffer pool.
+                    </description>
+                </param>
+                <param name="rx_ratio_in_buffer_pool" type="uint8">
+                    <description>
+                        Specifies the ratio of the reception (RX) buffer allocation in the buffer pool.
+                    </description>
+                </param>
+                <param name="global_ratio_in_buffer_pool" type="uint8">
+                    <description>
+                        Specifies the ratio of the global buffer allocation in the buffer pool.
+                    </description>
+                </param>
+                <param name="efuse_data_type" type="uint8">
+                    <description>
+                        Type of eFuse data need to be read from flash.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_init_status" index="0x06">
+            <description>
+                Gets device intialization status.
+            </description>
+            <params>
+                <param name="net_interface" type="uint8" enum="net_intf_interface">
+                    <description>
+                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="is_init" type="uint8">
+                    <description>
+                        Gets device intialization status. 1 for initialized, 0 for not initialized.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_network_status" index="0x07">
+            <description>
+                Gets status of network interface.
+            </description>
+            <params>
+                <param name="net_interface" type="uint8" enum="net_intf_interface">
+                    <description>
+                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="is_up" type="uint8">
+                    <description>
+                        Status of the network interface. A value of 1 means the network interface is up, and 0 means the network interface is down.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_device_config" index="0x08">
+            <description>
+                Gets si91x device configuration of the device.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="boot_option" type="uint8" enum="net_intf_boot_option">
+                    <description>
+                        Specifies the current boot option for the si91x device, which determines the type of firmware to be loaded.
+                    </description>
+                </param>
+                <param name="mac_address_octet_0" type="uint8">
+                    <description>
+                        The first octet of the device's MAC address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_1" type="uint8">
+                    <description>
+                        The second octet of the device's MAC address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_2" type="uint8">
+                    <description>
+                        The third octet of the device's MAC address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_3" type="uint8">
+                    <description>
+                        The fourth octet of the device's MAC address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_4" type="uint8">
+                    <description>
+                        The fifth octet of the device's MAC address.
+                    </description>
+                </param>
+                <param name="mac_address_octet_5" type="uint8">
+                    <description>
+                        The sixth octet of the device's MAC address.
+                    </description>
+                </param>
+                <param name="band" type="uint8" enum="net_intf_band_mode">
+                    <description>
+                        The current Wi-Fi band mode of the si91x device. This defines the supported frequency bands. Currently, only the 2.4 GHz band is supported.
+                    </description>
+                </param>
+                <param name="region_code" type="uint8" enum="net_intf_region_code">
+                    <description>
+                        The regional code for the device.
+                    </description>
+                </param>
+                <param name="tx_ratio_in_buffer_pool" type="uint8">
+                    <description>
+                        The ratio of the transmission (TX) buffer allocation in the buffer pool.
+                    </description>
+                </param>
+                <param name="rx_ratio_in_buffer_pool" type="uint8">
+                    <description>
+                        The ratio of the reception (RX) buffer allocation in the buffer pool.
+                    </description>
+                </param>
+                <param name="global_ratio_in_buffer_pool" type="uint8">
+                    <description>
+                        The ratio of the global buffer allocation in the buffer pool.
+                    </description>
+                </param>
+                <param name="efuse_data_type" type="uint8">
+                    <description>
+                        The type of eFuse data to be read from the device's flash memory.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <enums name="region_code" title="Region Code">
             <enum name="region_code_default_region" value="0x00" title="Factory default region">
-                <description/>
+                <description>
+                    The default region setting applied when the device is initialized to factory settings.
+                </description>
             </enum>
             <enum name="region_code_us" value="0x01" title="United States">
-                <description/>
+                <description>
+                    The region code for the United States.
+                </description>
             </enum>
             <enum name="region_code_eu" value="0x02" title="European Union">
-                <description/>
+                <description>
+                    The region code for the European Union.
+                </description>
             </enum>
             <enum name="region_code_jp" value="0x03" title="Japan">
-                <description/>
+                <description>
+                    The region code for Japan.
+                </description>
             </enum>
             <enum name="region_code_world_domain" value="0x04" title="Worldwide domain">
-                <description/>
+                <description>
+                    The worldwide domain region code, which applies global regulatory settings. This setting is used for devices that are not restricted to a specific region and are intended for use across multiple countries.
+                </description>
             </enum>
             <enum name="region_code_kr" value="0x05" title="Korea">
-                <description/>
+                <description>
+                    The region code for Korea.
+                </description>
             </enum>
             <enum name="region_code_ch" value="0x07" title="China">
-                <description/>
+                <description>
+                    The region code for China.
+                </description>
+            </enum>
+        </enums>
+        <event name="network_up_completed" index="0x00">
+            <description>
+                Indicates that the network interface has successfully completed the network up procedure.
+                This event is triggered when the specified network interface is brought up and initialized,
+                or if there was an error during the process.
+            </description>
+            <params>
+                <param name="net_interface" type="uint8" enum="net_intf_interface">
+                    <description>
+                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                    </description>
+                </param>
+                <param name="is_completed" type="errorcode">
+                    <description>
+                        Status of the network interface. A value of 1 means the network interface is up, and 0 means the network interface is down.
+                    </description>
+                </param>
+            </params>
+        </event>
+        <enums name="band_mode" title="band_mode">
+            <enum name="band_mode_2_4_ghz" value="0x00" title="Wi-Fi Band 2.4 GHz">
+                <description>
+                    2.4 GHz Wi-Fi band.
+                </description>
+            </enum>
+            <enum name="band_mode_5_ghz" value="0x01" title="Wi-Fi Band 5 GHz">
+                <description>
+                    5 GHz Wi-Fi band (currently not supported).
+                </description>
+            </enum>
+            <enum name="band_mode_dual_ghz" value="0x02" title="Wi-Fi Dual Band">
+                <description>
+                    Both 2.4 GHz and 5 GHz Wi-Fi bands (currently not supported).
+                </description>
+            </enum>
+        </enums>
+        <enums name="boot_option" title="Boot Option">
+            <enum name="boot_option_load_nwp_fw" value="0x31" title="Load NWP Firmware">
+                <description>
+                    Specifies the option to load the Network Processor (NWP) firmware during the boot process. This option is used to initialize the device's networking capabilities by loading the appropriate firmware.
+                </description>
             </enum>
         </enums>
         <enums name="oper_mode" title="Operation Mode">
             <description>
-                Si91x operating mode
+                si91x operating mode
             </description>
             <enum name="oper_mode_client" value="0x00">
                 <description>
@@ -384,62 +646,66 @@
             <params>
                 <param name="oper_mode" type="uint16" enum="net_intf_oper_mode">
                     <description>
-                        Operation mode
+                        The operational mode of the device. This defines how the device functions within the network (e.g., as an access point or station).
                     </description>
                 </param>
                 <param name="coex_mode" type="uint16" enum="net_intf_coex_mode">
                     <description>
-                        Coexistence mode
+                        The coexistence mode, which specifies how the device manages simultaneous use of multiple wireless technologies (e.g., Wi-Fi and Bluetooth).
                     </description>
                 </param>
                 <param name="feature_bit_map" type="uint32">
                     <description>
-                        Feature bit map
+                        A 32-bit feature bit map that specifies the available features on the device. Each bit represents a different device feature.
                     </description>
                 </param>
                 <param name="tcp_ip_feature_bit_map" type="uint32">
                     <description>
-                        TCP/IP feature bit map
+                        A 32-bit bit map that indicates which TCP/IP features are enabled on the device.
                     </description>
                 </param>
                 <param name="custom_feature_bit_map" type="uint32">
                     <description>
-                        Custom feature bit map
+                        A 32-bit custom feature bit map that represents additional features configured for the device beyond standard capabilities.
                     </description>
                 </param>
                 <param name="ext_custom_feature_bit_map" type="uint32">
                     <description>
-                        Extended custom feature bit map
+                        An extended custom feature bit map providing even further customization options beyond the basic and custom features.
                     </description>
                 </param>
                 <param name="bt_feature_bit_map" type="uint32">
                     <description>
-                        BT featured bit map
+                        A 32-bit Bluetooth feature bit map that specifies which Bluetooth features are supported and enabled on the device.
                     </description>
                 </param>
                 <param name="ext_tcp_ip_feature_bit_map" type="uint32">
                     <description>
-                        Extended TCP/IP feature bit map
+                        An extended TCP/IP feature bit map, indicating advanced TCP/IP features enabled on the device.
                     </description>
                 </param>
                 <param name="ble_feature_bit_map" type="uint32">
                     <description>
-                        BLE feature bitmap
+                        A 32-bit bit map that specifies which BLE features are supported on the device.
                     </description>
                 </param>
                 <param name="ble_ext_feature_bit_map" type="uint32">
                     <description>
-                        BLE extended feature bitmap
+                        An extended BLE feature bit map that allows additional customization of BLE functionality beyond the basic BLE features.
                     </description>
                 </param>
                 <param name="config_feature_bit_map" type="uint32">
                     <description>
-                        Config feature bitmap
+                        A configuration feature bit map that represents various configuration settings for the device, including network and device-specific options.
                     </description>
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
             </returns>
         </command>
         <command name="get_si91x_boot_config" index="0x09" title="Gets si91x boot configuration">
@@ -448,18 +714,66 @@
             </description>
             <params/>
             <returns>
-                <param name="result" type="errorcode"/>
-                <param name="oper_mode" type="uint16" enum="net_intf_oper_mode"/>
-                <param name="coex_mode" type="uint16" enum="net_intf_coex_mode"/>
-                <param name="feature_bit_map" type="uint32"/>
-                <param name="tcp_ip_feature_bit_map" type="uint32"/>
-                <param name="custom_feature_bit_map" type="uint32"/>
-                <param name="ext_custom_feature_bit_map" type="uint32"/>
-                <param name="bt_feature_bit_map" type="uint32"/>
-                <param name="ext_tcp_ip_feature_bit_map" type="uint32"/>
-                <param name="ble_feature_bit_map" type="uint32"/>
-                <param name="ble_ext_feature_bit_map" type="uint32"/>
-                <param name="config_feature_bit_map" type="uint32"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="oper_mode" type="uint16" enum="net_intf_oper_mode">
+                    <description>
+                        The operational mode of the device, which defines how the device functions within the network (e.g., access point, station mode, etc.).
+                    </description>
+                </param>
+                <param name="coex_mode" type="uint16" enum="net_intf_coex_mode">
+                    <description>
+                        The coexistence mode, which specifies how the device interacts with other wireless technologies (e.g., Bluetooth and Wi-Fi co-existence).
+                    </description>
+                </param>
+                <param name="feature_bit_map" type="uint32">
+                    <description>
+                        The feature bit map that specifies the available features of the device.
+                    </description>
+                </param>
+                <param name="tcp_ip_feature_bit_map" type="uint32">
+                    <description>
+                        The TCP/IP feature bit map, which indicates the specific TCP/IP features enabled on the device.
+                    </description>
+                </param>
+                <param name="custom_feature_bit_map" type="uint32">
+                    <description>
+                        A custom feature bit map representing any additional custom features configured for the device.
+                    </description>
+                </param>
+                <param name="ext_custom_feature_bit_map" type="uint32">
+                    <description>
+                        An extended custom feature bit map, providing further customization options beyond the basic custom feature set.
+                    </description>
+                </param>
+                <param name="bt_feature_bit_map" type="uint32">
+                    <description>
+                        The Bluetooth feature bit map, specifying the Bluetooth features supported and enabled on the device.
+                    </description>
+                </param>
+                <param name="ext_tcp_ip_feature_bit_map" type="uint32">
+                    <description>
+                        An extended TCP/IP feature bit map, representing additional TCP/IP features enabled on the device.
+                    </description>
+                </param>
+                <param name="ble_feature_bit_map" type="uint32">
+                    <description>
+                        The BLE feature bit map, which indicates the BLE features enabled on the device.
+                    </description>
+                </param>
+                <param name="ble_ext_feature_bit_map" type="uint32">
+                    <description>
+                        An extended BLE feature bit map.
+                    </description>
+                </param>
+                <param name="config_feature_bit_map" type="uint32">
+                    <description>
+                        The configuration feature bit map that represents the device's configuration features, including network and device-specific settings.
+                    </description>
+                </param>
             </returns>
         </command>
     </class>
@@ -860,31 +1174,6 @@
         <command name="set" index="0x00">
             <description>
                 Stores the network profile data, such as Wi-Fi credentials and network credentials, for the specified interface. The profile can later be used to bring the interface up with the stored settings. Users can use the ID to store multiple profiles for the same interface and pass the ID to different APIs.
-                Note: Please ensure that sl_wifi_net_intf_init is called before using this API.
-            </description>
-            <params>
-                <param name="net_interface" type="uint8" enum="net_intf_interface">
-                    <description>
-                        Network interface. Currently only AP_INTERFACE is supported.
-                    </description>
-                </param>
-                <param name="profile_id" type="uint8" enum="net_intf_profile_id">
-                    <description>
-                        Profile ID to use for configuring the network interface.
-                    </description>
-                </param>
-            </params>
-            <returns>
-                <param name="result" type="errorcode">
-                    <description>
-                        Result of the command.
-                    </description>
-                </param>
-            </returns>
-        </command>
-        <command name="get" index="0x01">
-            <description>
-                Retrieves network profile data for the specified interface and profile ID. The retrieved profile data is stored in the provided profile object for further use.
                 Note: Please ensure that sl_wifi_net_intf_init is called before using this API.
             </description>
             <params>
@@ -1412,6 +1701,485 @@
                 <param name="result" type="errorcode">
                     <description>
                         Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_ap_ssid" index="0x01">
+            <description>
+                Retrieves the SSID (Service Set Identifier) of the Access Point (AP) currently in use or connected to.
+                This command can be used to obtain the name of the wireless network, which may be useful for monitoring
+                or diagnostic purposes.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="ssid" type="api_ssid">
+                    <description>
+                        SSID of the current Access Point as a string. This is the name of the Wi-Fi network to which
+                        the device is connected or attempting to connect.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_ap_config" index="0x09">
+            <description>
+                Retrieves the configuration settings for the specified access point (AP) network interface, including security, encryption, rate protocol, options, credentials, and other settings related to performance and client management.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="ap_security" type="uint16" enum="net_profile_security_type">
+                    <description>
+                        Security type configured for the access point.
+                    </description>
+                </param>
+                <param name="ap_encryption" type="uint8" enum="net_profile_encryption_type">
+                    <description>
+                        Encryption type in use by the access point.
+                    </description>
+                </param>
+                <param name="ap_rate_protocol" type="uint8" enum="net_profile_rate_protocol">
+                    <description>
+                        Rate protocol configured for the access point.
+                    </description>
+                </param>
+                <param name="ap_options" type="uint8" enum="net_profile_ap_option">
+                    <description>
+                        Additional configuration options set for the access point.
+                    </description>
+                </param>
+                <param name="ap_credential_id" type="uint32" enum="net_profile_credential_id">
+                    <description>
+                        ID for the credentials associated with the access point.
+                    </description>
+                </param>
+                <param name="ap_keepalive_type" type="uint8" enum="net_profile_ap_keepalive_type">
+                    <description>
+                        Type of keepalive mechanism used.
+                    </description>
+                </param>
+                <param name="ap_beacon_interval" type="uint16">
+                    <description>
+                        Beacon interval of the access point in milliseconds; default is 100 ms.
+                    </description>
+                </param>
+                <param name="ap_client_idle_timeout" type="uint32">
+                    <description>
+                        Time in milliseconds to disconnect idle clients; default is 255 ms.
+                    </description>
+                </param>
+                <param name="ap_dtim_beacon_count" type="uint16">
+                    <description>
+                        Number of beacons per DTIM; default is 3.
+                    </description>
+                </param>
+                <param name="ap_maximum_clients" type="uint8">
+                    <description>
+                        Maximum number of clients allowed to associate; default is 3.
+                    </description>
+                </param>
+                <param name="ap_beacon_stop" type="uint8">
+                    <description>
+                        Flag indicating if beaconing stops when no clients are connected; default is 0 (disabled).
+                    </description>
+                </param>
+                <param name="ap_tdi" type="uint8" enum="net_profile_tdi">
+                    <description>
+                        Transition Disable Indication settings in use.
+                    </description>
+                </param>
+                <param name="ap_is_11n_enabled" type="uint8" enum="net_profile_is_11n">
+                    <description>
+                        Indicates if 802.11n protocol is enabled on the access point.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_ap_channel" index="0x0A">
+            <description>
+                Retrieves the current channel settings for the specified access point (AP) network interface, including the channel number, frequency band, and bandwidth.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="channel" type="uint16" enum="net_profile_channel">
+                    <description>
+                        Current channel number set for the access point.
+                    </description>
+                </param>
+                <param name="band" type="uint8" enum="net_profile_band">
+                    <description>
+                        Frequency band in use by the access point (e.g., 2.4 GHz, 5 GHz).
+                    </description>
+                </param>
+                <param name="bandwidth" type="uint8" enum="net_profile_bandwidth">
+                    <description>
+                        Bandwidth in use by the access point (e.g., 20 MHz, 40 MHz).
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_ap_ip_config" index="0x0B">
+            <description>
+                Retrieves the IP management settings for the specified access point (AP) network interface, including IP mode and address type.
+                Note: Ensure that sl_wifi_net_intf_up is called before executing this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="mode" type="uint8" enum="net_profile_ip_management">
+                    <description>
+                        Current IP management mode in use (e.g., Static, DHCP).
+                    </description>
+                </param>
+                <param name="type" type="uint8" enum="net_profile_ip_address_type">
+                    <description>
+                        Type of IP address assigned (e.g., IPv4, IPv6).
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_ap_ipv4_config" index="0x0C">
+            <description>
+                Retrieves the IPv4 configuration settings (IP address, gateway, and subnet mask) for the specified network interface.
+                Note: Ensure that sl_wifi_net_intf_up is called before using this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="ipv4_octet_1" type="uint8">
+                    <description>
+                        First octet of the IPv4 address.
+                    </description>
+                </param>
+                <param name="ipv4_octet_2" type="uint8">
+                    <description>
+                        Second octet of the IPv4 address.
+                    </description>
+                </param>
+                <param name="ipv4_octet_3" type="uint8">
+                    <description>
+                        Third octet of the IPv4 address.
+                    </description>
+                </param>
+                <param name="ipv4_octet_4" type="uint8">
+                    <description>
+                        Fourth octet of the IPv4 address.
+                    </description>
+                </param>
+                <param name="gateway_octet_1" type="uint8">
+                    <description>
+                        First octet of the gateway address.
+                    </description>
+                </param>
+                <param name="gateway_octet_2" type="uint8">
+                    <description>
+                        Second octet of the gateway address.
+                    </description>
+                </param>
+                <param name="gateway_octet_3" type="uint8">
+                    <description>
+                        Third octet of the gateway address.
+                    </description>
+                </param>
+                <param name="gateway_octet_4" type="uint8">
+                    <description>
+                        Fourth octet of the gateway address.
+                    </description>
+                </param>
+                <param name="netmask_octet_1" type="uint8">
+                    <description>
+                        First octet of the subnet mask.
+                    </description>
+                </param>
+                <param name="netmask_octet_2" type="uint8">
+                    <description>
+                        Second octet of the subnet mask.
+                    </description>
+                </param>
+                <param name="netmask_octet_3" type="uint8">
+                    <description>
+                        Third octet of the subnet mask.
+                    </description>
+                </param>
+                <param name="netmask_octet_4" type="uint8">
+                    <description>
+                        Fourth octet of the subnet mask.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_ap_ipv6_config" index="0x0D">
+            <description>
+                Retrieves the IPv6 configuration settings, including link-local and global addresses, as well as the gateway address.
+                Note: Ensure that sl_wifi_net_intf_up is called before using this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_1" type="uint8">
+                    <description>
+                        First octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_2" type="uint8">
+                    <description>
+                        Second octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_3" type="uint8">
+                    <description>
+                        Third octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_4" type="uint8">
+                    <description>
+                        Fourth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_5" type="uint8">
+                    <description>
+                        Fifth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_6" type="uint8">
+                    <description>
+                        Sixth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_7" type="uint8">
+                    <description>
+                        Seventh octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_8" type="uint8">
+                    <description>
+                        Eighth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_9" type="uint8">
+                    <description>
+                        Ninth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_10" type="uint8">
+                    <description>
+                        Tenth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_11" type="uint8">
+                    <description>
+                        Eleventh octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_12" type="uint8">
+                    <description>
+                        Twelfth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_13" type="uint8">
+                    <description>
+                        Thirteenth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_14" type="uint8">
+                    <description>
+                        Fourteenth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_15" type="uint8">
+                    <description>
+                        Fifteenth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="link_local_address_octet_16" type="uint8">
+                    <description>
+                        Sixteenth octet of the link-local IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_1" type="uint8">
+                    <description>
+                        First octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_2" type="uint8">
+                    <description>
+                        Second octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_3" type="uint8">
+                    <description>
+                        Third octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_4" type="uint8">
+                    <description>
+                        Fourth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_5" type="uint8">
+                    <description>
+                        Fifth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_6" type="uint8">
+                    <description>
+                        Sixth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_7" type="uint8">
+                    <description>
+                        Seventh octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_8" type="uint8">
+                    <description>
+                        Eighth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_9" type="uint8">
+                    <description>
+                        Ninth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_10" type="uint8">
+                    <description>
+                        Tenth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_11" type="uint8">
+                    <description>
+                        Eleventh octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_12" type="uint8">
+                    <description>
+                        Twelfth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_13" type="uint8">
+                    <description>
+                        Thirteenth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_14" type="uint8">
+                    <description>
+                        Fourteenth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_15" type="uint8">
+                    <description>
+                        Fifteenth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="global_address_octet_16" type="uint8">
+                    <description>
+                        Sixteenth octet of the global IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_1" type="uint8">
+                    <description>
+                        First octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_2" type="uint8">
+                    <description>
+                        Second octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_3" type="uint8">
+                    <description>
+                        Third octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_4" type="uint8">
+                    <description>
+                        Fourth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_5" type="uint8">
+                    <description>
+                        Fifth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_6" type="uint8">
+                    <description>
+                        Sixth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_7" type="uint8">
+                    <description>
+                        Seventh octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_8" type="uint8">
+                    <description>
+                        Eighth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_9" type="uint8">
+                    <description>
+                        Ninth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_10" type="uint8">
+                    <description>
+                        Tenth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_11" type="uint8">
+                    <description>
+                        Eleventh octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_12" type="uint8">
+                    <description>
+                        Twelfth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_13" type="uint8">
+                    <description>
+                        Thirteenth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_14" type="uint8">
+                    <description>
+                        Fourteenth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_15" type="uint8">
+                    <description>
+                        Fifteenth octet of the gateway IPv6 address.
+                    </description>
+                </param>
+                <param name="gateway_address_octet_16" type="uint8">
+                    <description>
+                        Sixteenth octet of the gateway IPv6 address.
                     </description>
                 </param>
             </returns>

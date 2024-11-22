@@ -56,7 +56,8 @@ typedef enum {
   SL_WEBSOCKET_ERR_SEND_FRAME        = -4, /**< Error sending frame */
   SL_WEBSOCKET_ERR_RECEIVE_FRAME     = -5, /**< Error receiving frame */
   SL_WEBSOCKET_ERR_CLOSE_FRAME       = -6, /**< Error closing frame */
-  SL_WEBSOCKET_ERR_INVALID_PARAMETER = -7  /**< Invalid input parameter */
+  SL_WEBSOCKET_ERR_SSL_SETSOCKOPT    = -7, /**< Error setting socket options for SSL */
+  SL_WEBSOCKET_ERR_INVALID_PARAMETER = -8  /**< Invalid input parameter */
 } sl_websocket_error_t;
 
 /**
@@ -102,6 +103,7 @@ typedef struct {
   sl_si91x_socket_receive_data_callback_t data_cb; /**< Data receive callback function. */
   sl_si91x_socket_remote_termination_callback_t
     remote_terminate_cb; /**< Callback function for remote termination event. */
+  bool enable_ssl;       /**< Enable SSL for WebSocket connection. */
 } sl_websocket_config_t;
 
 /**
@@ -121,6 +123,7 @@ typedef struct sl_websocket_client_s {
   sl_si91x_socket_receive_data_callback_t data_cb; /**< Data receive callback function. */
   sl_si91x_socket_remote_termination_callback_t
     remote_terminate_cb; /**< Callback function for remote termination event. */
+  bool enable_ssl;       /**< Enable SSL for WebSocket connection. */
   void *user_context;    /**< User-defined context (for callbacks). */
 } sl_websocket_client_t;
 

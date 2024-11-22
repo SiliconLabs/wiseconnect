@@ -40,42 +40,42 @@ psa_status_t sli_si91x_crypto_hash_compute(psa_algorithm_t alg,
   switch (alg) {
 #if defined(PSA_WANT_ALG_SHA_1)
     case PSA_ALG_SHA_1:
-      sha_algo     = SL_SI91x_SHA_1;
-      *hash_length = SL_SI91x_SHA_1_DIGEST_LEN;
+      sha_algo     = SL_SI91X_SHA_1;
+      *hash_length = SL_SI91X_SHA_1_DIGEST_LEN;
       break;
 #endif // PSA_WANT_ALG_SHA_1
 #if defined(PSA_WANT_ALG_SHA_224)
     case PSA_ALG_SHA_224:
-      sha_algo     = SL_SI91x_SHA_224;
-      *hash_length = SL_SI91x_SHA_224_DIGEST_LEN;
+      sha_algo     = SL_SI91X_SHA_224;
+      *hash_length = SL_SI91X_SHA_224_DIGEST_LEN;
       break;
 #endif // PSA_WANT_ALG_SHA_224
 #if defined(PSA_WANT_ALG_SHA_256)
     case PSA_ALG_SHA_256:
-      sha_algo     = SL_SI91x_SHA_256;
-      *hash_length = SL_SI91x_SHA_256_DIGEST_LEN;
+      sha_algo     = SL_SI91X_SHA_256;
+      *hash_length = SL_SI91X_SHA_256_DIGEST_LEN;
       break;
 #endif // PSA_WANT_ALG_SHA_256
 #if defined(PSA_WANT_ALG_SHA_384)
     case PSA_ALG_SHA_384:
-      sha_algo     = SL_SI91x_SHA_384;
-      *hash_length = SL_SI91x_SHA_384_DIGEST_LEN;
+      sha_algo     = SL_SI91X_SHA_384;
+      *hash_length = SL_SI91X_SHA_384_DIGEST_LEN;
       break;
 #endif // PSA_WANT_ALG_SHA_384
 #if defined(PSA_WANT_ALG_SHA_512)
     case PSA_ALG_SHA_512:
-      sha_algo     = SL_SI91x_SHA_512;
-      *hash_length = SL_SI91x_SHA_512_DIGEST_LEN;
+      sha_algo     = SL_SI91X_SHA_512;
+      *hash_length = SL_SI91X_SHA_512_DIGEST_LEN;
       break;
 #endif // PSA_WANT_ALG_SHA_256
     default:
-      *hash_length = SL_SI91x_SHA_LEN_INVALID;
+      *hash_length = SL_SI91X_SHA_LEN_INVALID;
       return PSA_ERROR_BAD_STATE;
   }
 
   status = convert_si91x_error_code_to_psa_status(sl_si91x_sha(sha_algo, (uint8_t *)input, input_length, hash));
   if (status != PSA_SUCCESS) {
-    *hash_length = SL_SI91x_SHA_LEN_INVALID;
+    *hash_length = SL_SI91X_SHA_LEN_INVALID;
   }
 
 #endif

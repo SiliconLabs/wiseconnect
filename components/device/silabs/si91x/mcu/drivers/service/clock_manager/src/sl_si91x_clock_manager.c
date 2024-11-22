@@ -96,8 +96,7 @@ sl_status_t sl_si91x_clock_manager_init(void)
   sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_FREQ);
 
 #ifdef SL_SI91X_REQUIRES_INTF_PLL
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
+  // Configuring the interface PLL clock to 180MHz used by the peripherals whose source clock in INTF_PLL
   sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_FREQ, PLL_REF_CLK_VAL_XTAL);
 
 // Configure QSPI clock with INTF PLL as input source
@@ -144,6 +143,10 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
     return status;
   }
 
+  // Configure the registers for clock less than 120MHz
+  if (pll_freq < PLL_PREFETCH_LIMIT) {
+    RSI_PS_PS4ClearRegisters();
+  }
   // Changing M4 SOC clock to M4_ULPREFCLK
   error_status = RSI_CLK_M4SocClkConfig(pCLK, M4_ULPREFCLK, 0);
   status       = convert_rsi_to_sl_error_code(error_status);

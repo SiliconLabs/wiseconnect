@@ -83,10 +83,10 @@ typedef struct {
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
  */
-sl_status_t sl_net_host_get_by_name(const char *host_name,
-                                    const uint32_t timeout,
-                                    const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
-                                    sl_ip_address_t *ip_address);
+sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
+                                        const uint32_t timeout,
+                                        const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
+                                        sl_ip_address_t *ip_address);
 
 /**
  * @brief

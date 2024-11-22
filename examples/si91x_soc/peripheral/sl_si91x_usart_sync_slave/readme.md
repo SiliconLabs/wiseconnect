@@ -46,10 +46,9 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(4002A) +  BRD4338A / BRD4342A / BRD4343A ]- Master
-- Silicon Labs Si917 Evaluation Kit [WPK(4002A) +  BRD4338A / BRD4342A / BRD4343A ] - Slave
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A] - Master
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A] - Slave
+- Silicon Labs Si917 Evaluation Kit [WPK(4002A) +  BRD4338A / BRD4342A / BRD4343A ]- Master and Slave
+- SiWx917 AC1 Module Explorer Kit (BRD2708A) - Master and Slave
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A) - Master and slave
 
 ### Software Requirements
 

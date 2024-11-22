@@ -81,7 +81,7 @@ void gdpma_callbak(uint8_t dma_ch);
 void application_callback(uint8_t events);
 
 /***************************************************************************/ /**
- * @brief       
+ * @brief
  *   This is an application callback function for host interrupt events raised
  *   within the IRQ handler in the sdio slave peripheral driver
  *
@@ -122,12 +122,6 @@ void sdio_secondary_example_init(void)
   sl_status_t status;
 
   SysTick_Config(SystemCoreClock / 1000);
-
-  status = sl_si91x_sdio_secondary_init();
-  if (status != SL_STATUS_OK) {
-    DEBUGOUT("\r\nSDIO Secondary init failed\r\n");
-  }
-  DEBUGOUT("\r\nSDIO secondary init success\r\n");
 
   status = sl_si91x_sdio_secondary_register_event_callback(application_callback, SL_SDIO_WR_INT_EN);
   if (status != SL_STATUS_OK) {

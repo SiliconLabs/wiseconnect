@@ -400,7 +400,7 @@ sl_status_t create_tls_client(void)
   do {
 
     status =
-      sl_net_host_get_by_name((const char *)democonfigHOSTNAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+      sl_net_dns_resolve_hostname((const char *)democonfigHOSTNAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     if (status == SL_STATUS_OK) {
       break;
     }

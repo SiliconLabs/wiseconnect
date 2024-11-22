@@ -250,7 +250,7 @@ sl_status_t embedded_sntp_client(void)
   status = sl_net_set_dns_server(SL_NET_WIFI_CLIENT_INTERFACE, &dns_address);
 
   do {
-    status = sl_net_host_get_by_name(NTP_SERVER_IP, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &address);
+    status = sl_net_dns_resolve_hostname(NTP_SERVER_IP, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &address);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 

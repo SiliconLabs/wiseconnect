@@ -108,6 +108,7 @@ other_file:
   - path: resources/readme/image508c.png
   - path: resources/readme/image508d.png
   - path: resources/readme/setupdiagram.png
+  - path: resources/readme/wakeup.PNG
 readme:
   - path: readme.md
 ui_hints:

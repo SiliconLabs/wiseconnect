@@ -28,11 +28,11 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static const uint8_t sha_digest_len_table[] = { [SL_SI91x_SHA_1]   = SL_SI91x_SHA_1_DIGEST_LEN,
-                                                [SL_SI91x_SHA_256] = SL_SI91x_SHA_256_DIGEST_LEN,
-                                                [SL_SI91x_SHA_384] = SL_SI91x_SHA_384_DIGEST_LEN,
-                                                [SL_SI91x_SHA_512] = SL_SI91x_SHA_512_DIGEST_LEN,
-                                                [SL_SI91x_SHA_224] = SL_SI91x_SHA_224_DIGEST_LEN };
+static const uint8_t sha_digest_len_table[] = { [SL_SI91X_SHA_1]   = SL_SI91X_SHA_1_DIGEST_LEN,
+                                                [SL_SI91X_SHA_256] = SL_SI91X_SHA_256_DIGEST_LEN,
+                                                [SL_SI91X_SHA_384] = SL_SI91X_SHA_384_DIGEST_LEN,
+                                                [SL_SI91X_SHA_512] = SL_SI91X_SHA_512_DIGEST_LEN,
+                                                [SL_SI91X_SHA_224] = SL_SI91X_SHA_224_DIGEST_LEN };
 
 static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
                                          uint8_t *msg,

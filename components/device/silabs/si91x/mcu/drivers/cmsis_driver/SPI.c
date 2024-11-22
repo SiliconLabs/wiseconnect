@@ -471,7 +471,7 @@ static const SPI_RESOURCES SSI_ULP_MASTER_Resources = {
     SPI_ULP_MASTER_MODE,
     {
     SSI_INTFPLLCLK,
-    ULP_SSI_ULP_MHZ_RC_CLK,
+    ULP_SSI_REF_CLK,
     0,
     }
 };

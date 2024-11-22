@@ -31,9 +31,14 @@
 #define __SL_SI91X_PERIPHERAL_SDIO_SECONDARY_H_
 
 #include "si91x_device.h"
+#include "sl_component_catalog.h"
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef SL_CATALOG_KERNEL_PRESENT
+#include "rsi_m4.h"
 #endif
 
 /***************************************************************************/
@@ -68,7 +73,10 @@ extern "C" {
 #define M4_HOST_INTR_MASK_REG   (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x00))
 #define M4_HOST_INTR_STATUS_REG (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x04))
 #define M4_HOST_INTR_CLEAR      (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x08))
-#define MISC_CFG_HOST_CTRL      (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x0C))
+#ifndef MISC_CFG_HOST_CTRL
+#define MISC_CFG_HOST_CTRL (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x0C))
+#endif
+
 /** @endcond */
 
 // @brief SDIO Function1 interrupt enable bits.

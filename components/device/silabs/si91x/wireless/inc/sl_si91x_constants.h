@@ -253,21 +253,23 @@ typedef enum {
 
 /// Assertion type must be in the range of 0 to 15 (both included)
 typedef enum {
-  SL_SI91X_ASSERTION_TYPE_LMAC = 0, ///< LMAC core
-  SL_SI91X_ASSERTION_TYPE_SME  = 1, ///< SME core
-  SL_SI91X_ASSERTION_TYPE_UMAC = 2, ///< UMAC core
-  SL_SI91X_ASSERTION_TYPE_NETX = 4, ///< NETX core
-  SL_SI91X_ASSERTION_TYPE_CA   = 8, ///< Enables assertion indication and provides ram dump in critical assertion
-  SL_SI91X_ASSERTION_TYPE_ALL  = 15 ///< Enables all cores
+  SL_SI91X_ASSERTION_TYPE_LMAC = 0, ///< Assertion type specific to the LMAC core.
+  SL_SI91X_ASSERTION_TYPE_SME  = 1, ///< Assertion type specific to the SME (Station Management Entity) core.
+  SL_SI91X_ASSERTION_TYPE_UMAC = 2, ///< Assertion type specific to the UMAC core.
+  SL_SI91X_ASSERTION_TYPE_NETX = 4, ///< Assertion type specific to the NETX (Networking Stack) core.
+  SL_SI91X_ASSERTION_TYPE_CA =
+    8, ///< Enables critical assertion indication and provides a RAM dump during critical assertions.
+  SL_SI91X_ASSERTION_TYPE_ALL = 15 ///< Enables assertion for all cores.
 } sl_si91x_assertion_type_t;
 
 /// Assertion level must be in the range of 0 to 15 (both included)
 typedef enum {
-  SL_SI91X_ASSERTION_LEVEL_MIN  = 0, ///< Assertion Required
-  SL_SI91X_ASSERTION_LEVEL_SP   = 1, ///< Specific Prints
-  SL_SI91X_ASSERTION_LEVEL_REC  = 2, ///< Recoverable
-  SL_SI91X_ASSERTION_LEVEL_INFO = 4, ///< Information
-  SL_SI91X_ASSERTION_LEVEL_MAX  = 15 ///< Enables all prints
+  SL_SI91X_ASSERTION_LEVEL_MIN = 0, ///< Minimum assertion level. Indicates that an assertion is mandatory.
+  SL_SI91X_ASSERTION_LEVEL_SP  = 1, ///< Assertion for specific print messages, used for debugging or analysis.
+  SL_SI91X_ASSERTION_LEVEL_REC =
+    2, ///< Recoverable assertion level. Indicates that the system can recover from the assertion.
+  SL_SI91X_ASSERTION_LEVEL_INFO = 4, ///< Informational assertion level, used to log general information.
+  SL_SI91X_ASSERTION_LEVEL_MAX  = 15 ///< Maximum assertion level. Enables all types of print statements.
 } sl_si91x_assertion_level_t;
 /** @} */
 
@@ -280,12 +282,8 @@ typedef enum {
   SL_SI91X_WAIT_FOR_SYNC_SCAN_RESULTS      = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 12000),
   SL_SI91X_WAIT_FOR_COMMAND_RESPONSE       = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 1000),
   SL_SI91X_WAIT_FOR_SOCKET_ACCEPT_RESPONSE = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 5000),
-#ifdef SLI_SI91X_MCU_INTERFACE
-  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = 3000,
-#else
-  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = 1000,
-#endif
-  SL_SI91X_WAIT_FOR_DNS_RESOLUTION = 20000,
+  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS        = 3000,
+  SL_SI91X_WAIT_FOR_DNS_RESOLUTION         = 20000,
 } sl_si91x_wait_period_t;
 
 #define SL_SI91X_WAIT_FOR(x)          (sl_si91x_wait_period_t)(x)

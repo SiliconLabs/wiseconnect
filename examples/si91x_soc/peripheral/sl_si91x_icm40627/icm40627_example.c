@@ -171,9 +171,9 @@ void icm40627_example_init(void)
     sl_status = sl_si91x_icm40627_get_device_id(ssi_driver_handle, &dev_id);
     if ((sl_status == SL_STATUS_OK) && (dev_id == ICM40627_DEVICE_ID)) {
       DEBUGOUT("Successfully verified ICM40627 Device by ID\n");
-      break;
     } else {
       DEBUGOUT("ICM40627 Get Device ID failed\n");
+      break;
     }
 
     // Initializes sensor and reads electronic ID 1st byte

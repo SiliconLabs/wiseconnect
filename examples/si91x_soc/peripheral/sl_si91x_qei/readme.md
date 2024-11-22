@@ -82,7 +82,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Open **sl_si91x_qei.slcp** project file, select **Software Component** tab and search for **QEI** in search bar.
 - Using configuration wizard one can configure different parameters like:
 
-  ![Figure: UC screen](resources/uc_screen/QEI_uc_screen.png)
+  ![Figure: UC screen](resources/uc_screen/qei_uc_screen.png)
 
 - **QEI Configuration**
   - Quadrature Encoder Mode: This setting controls the operation of the Quadrature Encoder.  This setting enables or disables the Quadrature Encoder mode. When enabled, the system utilizes the QEI for position tracking based on the encoder's output.

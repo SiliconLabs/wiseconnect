@@ -31,3 +31,5 @@ requires:
 provides:
   - name: memlcd_917
   - name: memlcd_driver
+define:
+  - name: SI917_MEMLCD

@@ -23,7 +23,7 @@ template_contribution:
     condition:
       - lite_image_for_4mb
   - name: device_flash_size
-    value: 1232896 # 0x0012 D000
+    value: 1110016 # 0x0010 F000
     priority: -333
     condition:
       - lite_image_for_4mb

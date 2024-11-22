@@ -306,19 +306,25 @@ void wifi_app_task()
         cred.type = SL_WIFI_PSK_CREDENTIAL;
         memcpy(cred.psk.value, pwd, strlen((char *)pwd));
 
-        status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
-        if (SL_STATUS_OK == status) {
-          LOG_PRINT("Credentials set, id : %lu\n", id);
-
-          access_point.ssid.length = strlen((char *)coex_ssid);
-          memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
-          access_point.security      = sec_type;
-          access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
-          access_point.credential_id = id;
-
-          LOG_PRINT("SSID=%s\n", access_point.ssid.value);
-          status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
+        if (sec_type != SL_WIFI_OPEN) {
+          status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
+          if (SL_STATUS_OK == status) {
+            LOG_PRINT("Credentials set, id : %lu\n", id);
+          }
+          if (status != SL_STATUS_OK) {
+            printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
+            continue;
+          }
         }
+        access_point.ssid.length = strlen((char *)coex_ssid);
+        memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
+        access_point.security      = sec_type;
+        access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
+        access_point.credential_id = id;
+
+        LOG_PRINT("SSID=%s\n", access_point.ssid.value);
+        status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
+
         if (status != RSI_SUCCESS) {
           timeout = 1;
           wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
@@ -336,7 +342,6 @@ void wifi_app_task()
         }
         osSemaphoreRelease(wlan_thread_sem);
         LOG_PRINT("WIFI App Join State\n");
-
       } break;
 
       case WIFI_APP_FLASH_STATE: {

@@ -106,7 +106,6 @@ static const sl_wifi_device_configuration_t firmware_update_configuration = {
 };
 
 uint8_t recv_buffer[RECV_BUFFER_SIZE];
-uint32_t start, end;
 
 /******************************************************
  *               Function Declarations
@@ -164,6 +163,8 @@ sl_status_t update_firmware()
   socklen_t socket_length            = sizeof(struct sockaddr_in);
   int client_socket                  = -1;
   int socket_return_value            = 0;
+  uint32_t start                     = 0;
+  uint32_t finish                    = 0;
   uint16_t chunk                     = 1;
   uint16_t chunk_max_count           = 1; // for header
   uint16_t fwup_chunk_length         = 0;
@@ -206,7 +207,7 @@ sl_status_t update_firmware()
 
     if (chunk > chunk_max_count) {
       printf("\r\n chunk : %d > chunk_max_count %d. Firmware update failed.\r\n", chunk, chunk_max_count);
-      end = osKernelGetTickCount();
+      finish = osKernelGetTickCount();
       close(client_socket);
       return SL_STATUS_FAIL;
     }
@@ -227,7 +228,7 @@ sl_status_t update_firmware()
       if (errno == ENOBUFS)
         continue;
       printf("\r\nFailed to Send data, Error Code : 0x%X\r\n", data_length);
-      end = osKernelGetTickCount();
+      finish = osKernelGetTickCount();
       sl_si91x_fwup_abort();
       close(client_socket);
       return SL_STATUS_FAIL;
@@ -238,7 +239,7 @@ sl_status_t update_firmware()
     data_length = recv(client_socket, recv_buffer, recv_size, 0);
     if (data_length < 0) {
       printf("\r\nFailed to Receive data, Error Code : 0x%d\r\n", data_length);
-      end = osKernelGetTickCount();
+      finish = osKernelGetTickCount();
       sl_si91x_fwup_abort();
       close(client_socket);
       return SL_STATUS_FAIL;
@@ -256,7 +257,7 @@ sl_status_t update_firmware()
       data_length = recv(client_socket, recv_buffer, recv_size, 0);
       if (data_length < 0) {
         printf("\r\nFailed to Receive data from remote peer, Error Code : 0x%d\r\n", data_length);
-        end = osKernelGetTickCount();
+        finish = osKernelGetTickCount();
         sl_si91x_fwup_abort();
         close(client_socket);
         return SL_STATUS_FAIL;
@@ -274,12 +275,12 @@ sl_status_t update_firmware()
 
     if (status != SL_STATUS_OK) { // Check if firmware update is completed
       if (status == SL_STATUS_SI91X_FW_UPDATE_DONE) {
-        end = osKernelGetTickCount();
+        finish = osKernelGetTickCount();
         // Close the socket
         close(client_socket);
         osDelay(3000);
         printf("\r\nFirmware update complete\r\n");
-        printf("FW update duration : %ld\n", end - start);
+        printf("FW update duration : %ld\n", finish - start);
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 //! Perform SOC soft reset for combined Image
@@ -312,9 +313,9 @@ sl_status_t update_firmware()
         return SL_STATUS_OK;
       } else {
         printf("\r\nFirmware update failed : %lx\n", status);
-        end = osKernelGetTickCount();
+        finish = osKernelGetTickCount();
         close(client_socket);
-        printf("FW update duration : %ld\n", end - start);
+        printf("FW update duration : %ld\n", finish - start);
         return SL_STATUS_FAIL;
       }
     }

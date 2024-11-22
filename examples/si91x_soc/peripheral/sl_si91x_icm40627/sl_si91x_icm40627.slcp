@@ -31,6 +31,9 @@ component:
   - id: sleeptimer
   - id: sl_ssi
     from: wiseconnect3_sdk
+  - id: sl_ssi_instance
+    instance: [ulp_primary]
+    from: wiseconnect3_sdk
   - id: ssi_ulp_component
     from: wiseconnect3_sdk
 

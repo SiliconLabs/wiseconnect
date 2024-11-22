@@ -44,7 +44,8 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -70,7 +71,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Open **sl_si91x_dma.slcp** project file select **software component**tab and search for **SL_DMA** in search bar.
+- Open **sl_si91x_dma.slcp** project file select **software component** tab and search for **SL_DMA** in search bar.
 
   > ![Figure: result](resources/uc_screen/ucScreenDMA.png)
 

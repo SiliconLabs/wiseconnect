@@ -663,10 +663,10 @@ typedef struct {
   uint16_t dest_port;   ///< destination port
   union {
     uint8_t ipv4_address[RSI_IP_ADDRESS_LEN];     ///< 4 bytes, IPv4 Address of the remote device
-    uint8_t ipv6_address[RSI_IP_ADDRESS_LEN * 4]; ///< 4 bytes, IPv6 Address of the remote device
+    uint8_t ipv6_address[RSI_IP_ADDRESS_LEN * 4]; ///< 16 bytes, IPv6 Address of the remote device
   } dest_ip_addr;                                 ///< IP address of the remote device
   uint8_t send_buffer[];                          ///< data buffer to send
-} sl_si91x_socket_send_request_t;
+} sli_si91x_socket_send_request_t;
 #pragma pack()
 
 /// socket accept request structure
@@ -1054,32 +1054,6 @@ typedef struct {
   /// Timeout for read
   uint8_t read_timeout[2];
 } sl_si91x_req_socket_read_t;
-
-/// Socket recieve response
-typedef struct {
-  /// 2 bytes, the ip version of the ip address , 4 or 6
-  uint16_t ip_version;
-
-  /// 2 bytes, the socket number associated with this read event
-  uint16_t socket_id;
-
-  /// 4 bytes, length of data received
-  uint32_t length;
-
-  /// 2 bytes, offset of data from start of buffer
-  uint16_t offset;
-
-  /// 2 bytes, port number of the device sending the data to us
-  uint16_t dest_port;
-
-  union {
-    /// 4 bytes, IPv4 Address of the device sending the data to us
-    uint8_t ipv4_address[4];
-
-    /// 4 bytes, IPv6 Address of the device sending the data to us
-    uint8_t ipv6_address[16];
-  } dest_ip_addr; ///< Destination IP address
-} si91x_rsp_socket_recv_t;
 
 /// Si91x specific time value
 typedef struct {
@@ -1804,7 +1778,8 @@ typedef struct {
 
 typedef struct {
   uint32_t key_type;
-  uint32_t reserved;
+  uint16_t padding;
+  uint16_t hmac_sha_mode;
   uint32_t key_size;
   uint32_t wrap_iv_mode;
   uint8_t *wrap_iv;
@@ -1993,7 +1968,8 @@ typedef struct {
 
 typedef struct {
   uint32_t key_type;
-  uint32_t reserved;
+  uint16_t padding;
+  uint16_t hmac_sha_mode;
   uint32_t key_size;
   uint32_t wrap_iv_mode;
   uint8_t wrap_iv[16];

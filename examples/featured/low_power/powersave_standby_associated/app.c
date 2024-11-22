@@ -56,6 +56,7 @@
 #define BROADCAST_DROP_THRESHOLD        5000
 #define BROADCAST_IN_TIM                1
 #define BROADCAST_TIM_TILL_NEXT_COMMAND 1
+#define ENABLE_DATA_TRANSFER            0
 
 /******************************************************
  *                    Constants
@@ -179,11 +180,13 @@ static void application_start(void *argument)
     return;
   }
 
+#if ENABLE_DATA_TRANSFER
   status = send_data();
   if (status != SL_STATUS_OK) {
     printf("\r\nSend data failed with status %lx\r\n", status);
     return;
   }
+#endif
   printf("\r\nExample Demonstration Completed\r\n");
 
 #ifdef SLI_SI91X_MCU_INTERFACE

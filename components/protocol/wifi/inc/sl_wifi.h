@@ -308,7 +308,7 @@ sl_status_t sl_wifi_set_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
- *   In channel 14 only 1,2 Mbps rates are allowed.
+ *   Only 1 and 2 Mbps rates are allowed in channel 14.
  ******************************************************************************/
 sl_status_t sl_wifi_set_transmit_rate(sl_wifi_interface_t interface,
                                       sl_wifi_rate_protocol_t rate_protocol,
@@ -441,14 +441,14 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  * 	For 911x, advanced scan results are not populated to user.
- *      Default Active Channel time is 100 milliseconds. If the user needs to modify the time, 
+ *      Default Active Channel time is 100 milliseconds. If the user wants to modify the time, 
  *      sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN, then
  *      the time is for foreground scan. Otherwise, it is used for background scanning.
- *      If the user needs to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE.
- *      If the user needs to enable Low Power (LP) mode in Passive Scan, user needs to enable lp_mode in sl_wifi_scan_configuration_t.
- *      Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
+ *      If the user wants to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE.
+ *      If the user wants to enable Low Power (LP) mode in Passive Scan, user should enable lp_mode in sl_wifi_scan_configuration_t.
+ *      The default channel time for passive scanning is set to 400 milliseconds. If user wants to modify the time, users can call the sl_si91x_set_timeout API to modify the time as per their requirements.
  *      Use the SL_WIFI_SCAN_TYPE_EXTENDED to obtain the scan results that exceed the SL_WIFI_MAX_SCANNED_AP. In this scan type, the number of scan results is not restricted; it is only limited by the amount of dynamic memory that the host can provide.
- *      Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
+ *      Default Passive Scan Channel time is 400 milliseconds. If the user wants to modify the time, sl_si91x_set_timeout can be called.
  *      In case of SL_WIFI_SCAN_TYPE_EXTENDED scan type, use @ref sl_wifi_get_stored_scan_results() API to get the scan results; after the scan status callback is received. 
  *      This API is not applicable for ADV_SCAN scan_type in AP mode
  *      AP scan is supported - to trigger this, send a scan after sl_wifi_start_ap() API with the SL_WIFI_SCAN_TYPE_ACTIVE scan_type.
@@ -569,9 +569,9 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  *   If channel, band, and BSSID are provided, this API will attempt to connect without scanning.
  *   If security_type is SL_WIFI_WPA3/SL_WIFI_WPA3_ENTERPRISE then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is enabled internally by SDK.
  *   If security_type is SL_WIFI_WPA3_TRANSITION/SL_WIFI_WPA3_TRANSITION_ENTERPRISE then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK.
- *   Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
- *   Default Authentication timeout and Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
- *   Default Keep Alive timeout is 30 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
+ *   Default Active Channel time is 100 milliseconds. If the user wants to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
+ *   Default Authentication timeout and Association timeout is 300 milliseconds. If the user wants to modify the time, sl_wifi_set_advanced_client_configuration can be called.
+ *   Default Keep Alive timeout is 30 milliseconds. If the user wants to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  * @note 
  *   In FCC certified module the behavior is as follows
  *      1. Region configuration is not supported and if triggered will return error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE.

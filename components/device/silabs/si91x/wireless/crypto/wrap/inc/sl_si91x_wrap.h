@@ -36,6 +36,16 @@
 /******************************************************
  *                   Type Definitions
  ******************************************************/
+/******************************************************
+ *                    Constants
+ ******************************************************/
+#define SL_SI91X_HMAC_PADDING              BIT(0)
+#define SL_SI91X_HMAC_512_BLOCK_SIZE       128
+#define SL_SI91X_HMAC_256_BLOCK_SIZE       64
+#define SL_SI91X_HMAC_512_BLOCK_SIZE_ALIGN 127
+#define SL_SI91X_HMAC_256_BLOCK_SIZE_ALIGN 63
+#define SL_SI91X_DEFAULT_16BYTE_ALIGN      15
+
 /**
  * @addtogroup CRYPTO_WRAP_TYPES 
  * @{ 
@@ -48,13 +58,21 @@
  * key type, key size, key buffer, and so on.
  */
 typedef struct {
-  uint32_t key_type;                                 ///< Type of the key
-  uint32_t reserved;                                 ///< Reserved for future use
-  uint32_t key_size;                                 ///< Size of the key
-  sl_si91x_crypto_wrap_mode_t wrap_iv_mode;          ///< Wrap IV mode
-  uint8_t wrap_iv[SL_SI91X_IV_SIZE];                 ///< Buffer to store the IV
+  uint32_t key_type;                        ///< Type of the key
+  uint16_t padding;                         ///< BIT(0) is set: HMAC padding, else PKCS7 padding
+  uint16_t hmac_sha_mode;                   ///< To determine HMAC SHA mode if HMAC padding is set, else reserved
+  uint32_t key_size;                        ///< Size of the key
+  sl_si91x_crypto_wrap_mode_t wrap_iv_mode; ///< Wrap IV mode
+  uint8_t wrap_iv[SL_SI91X_IV_SIZE];        ///< Buffer to store the IV
   uint8_t key_buffer[SL_SI91X_WRAP_KEY_BUFFER_SIZE]; ///< Key data wrapped or plain text
 } sl_si91x_wrap_config_t;
+
+typedef enum {
+  SL_SI91X_WRAP_HMAC_SHA_1 = 1, ///< HMAC SHA 1 mode used for padding during wrap
+  SL_SI91X_WRAP_HMAC_SHA_256,   ///< HMAC SHA 256 used for padding during wrap
+  SL_SI91X_WRAP_HMAC_SHA_384,   ///< HMAC SHA 384 mode used for padding during wrap
+  SL_SI91X_WRAP_HMAC_SHA_512    ///< HMAC SHA 512 mode used for padding during wrap
+} sl_si91x_wrap_mode_t;
 
 /** @} */
 

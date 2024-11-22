@@ -134,6 +134,7 @@ typedef struct {
 // Prototypes
 /***************************************************************************/
 /**
+ * @brief This API is no longer supported due to the restriction on peripheral drivers to configuring clocks.
  * @brief To configure and initialize Calendar (i.e., the RTC clock).
  * 
  * @details This API is no longer supported due to the restriction on peripheral drivers to configure clock.
@@ -165,7 +166,6 @@ sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type);
  *     - Milliseconds (uint16_t) Milliseconds (0-999)
  * 
  * @pre Pre-conditions:
- *     - \ref sl_si91x_calendar_set_configuration 
  *     - \ref sl_si91x_calendar_init 
  * 
  * @param[in] config Pointer to the Date Configuration Structure (sl_calendar_datetime_config_t).
@@ -196,7 +196,6 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
  *     - Milliseconds (uint16_t) Milliseconds (0-999)
  * 
  * @pre Pre-conditions:
- *     - \ref sl_si91x_calendar_set_configuration 
  *     - \ref sl_si91x_calendar_init 
  *     - \ref sl_si91x_calendar_set_date_time 
  * 
@@ -375,7 +374,6 @@ sl_status_t sl_si91x_calendar_unregister_alarm_trigger_callback(void);
  *     - Milliseconds (uint16_t) Milliseconds (0-999)
  * 
  * @pre Pre-conditions:
- *     - \ref sl_si91x_calendar_set_configuration 
  *     - \ref sl_si91x_calendar_init 
  * 
  * @param[in] alarm Pointer to the Date Configuration Structure (\ref sl_calendar_datetime_config_t). 
@@ -407,7 +405,6 @@ sl_status_t sl_si91x_calendar_set_alarm(sl_calendar_datetime_config_t *alarm);
  *     - Milliseconds (uint16_t) Milliseconds (0-999)
  * 
  * @pre Pre-conditions:
- *     - \ref sl_si91x_calendar_set_configuration 
  *     - \ref sl_si91x_calendar_init 
  *     - \ref sl_si91x_calendar_set_alarm 
  * 
@@ -571,7 +568,6 @@ sl_status_t sl_si91x_calendar_convert_calendar_datetime_to_unix_time(sl_calendar
 /***************************************************************************/ /**
  * Starts the Calendar RTC.
  * @pre Pre-conditions:
- *      - \ref sl_si91x_calendar_set_configuration 
  *      - \ref sl_si91x_calendar_init
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_calendar_rtc_start(void)
@@ -586,7 +582,6 @@ __STATIC_INLINE void sl_si91x_calendar_rtc_start(void)
  * @details This function stops the RTC clock.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_calendar_set_configuration 
  *      - \ref sl_si91x_calendar_init 
  *      - \ref sl_si91x_calendar_rtc_start
  ******************************************************************************/
@@ -721,8 +716,6 @@ sl_calendar_version_t sl_si91x_calendar_get_version(void);
 * To set up a calendar in the si91x, use the @ref sl_calendar_clock_t structure. 
 * It is mandatory to call @ref sl_si91x_calendar_calibration_init function before calling RO clock calibration or
 * RC clock calibration function.
-* After defining this structure, the following function will re-initiate and configure the calendar:
-* - @ref sl_si91x_calendar_set_configuration()
 * 
 * For more detailed information on configuring available parameters, see the respective peripheral example README document.
 *
@@ -732,11 +725,10 @@ sl_calendar_version_t sl_si91x_calendar_get_version(void);
 * Common Calendar functions can be used after the Calendar structures are specified, passing an instance of @ref sl_calendar_datetime_config_t.
 * These functions will initiate and configure the Calendar, following the implementation flow below:
 *
-* 1. @ref sl_si91x_calendar_set_configuration - Configures the calendar settings.
-* 2. @ref sl_si91x_calendar_init - Initializes the calendar module.
-* 3. @ref sl_si91x_calendar_build_datetime_struct - Builds the datetime structure.
-* 4. @ref sl_si91x_calendar_set_date_time - Sets the date and time.
-* 5. @ref sl_si91x_calendar_deinit - Deinitializes the calendar module.
+* 1. @ref sl_si91x_calendar_init - Initializes the calendar module.
+* 2. @ref sl_si91x_calendar_build_datetime_struct - Builds the datetime structure.
+* 3. @ref sl_si91x_calendar_set_date_time - Sets the date and time.
+* 4. @ref sl_si91x_calendar_deinit - Deinitialize the calendar module.
 */
 /** @} end group CALENDAR ********************************************************/
 

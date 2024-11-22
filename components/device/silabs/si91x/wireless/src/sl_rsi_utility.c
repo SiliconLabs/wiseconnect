@@ -1111,7 +1111,16 @@ sl_status_t sl_si91x_platform_deinit(void)
 
   // Terminate SI91X bus thread
   if (NULL != si91x_thread) {
-    osThreadTerminate(si91x_thread);
+    // Signal the thread to terminate
+    osEventFlagsSet(si91x_events, SL_SI91X_TERMINATE_BUS_THREAD_EVENT);
+
+    // Wait for thread termination acknowledgment
+    osStatus_t stat = osEventFlagsWait(si91x_events, SL_SI91X_TERMINATE_BUS_THREAD_EVENT_ACK, osFlagsWaitAny, 5000);
+    if (stat == osErrorTimeout) {
+      // Return timeout if acknowledgment is not received
+      return SL_STATUS_TIMEOUT;
+    }
+
     si91x_thread = NULL;
   }
 
@@ -1197,6 +1206,39 @@ sl_status_t sli_si91x_flush_all_tx_wifi_queues(uint16_t frame_status)
                                         NULL,
                                         NULL);
   }
+  return SL_STATUS_OK;
+}
+
+sl_status_t sli_si91x_flush_generic_data_queues(sl_si91x_buffer_queue_t *tx_data_queue)
+{
+  sl_wifi_buffer_t *current_packet = NULL;
+  sl_wifi_buffer_t *next_packet    = NULL;
+
+  // Validate input
+  if (tx_data_queue == NULL) {
+    return SL_STATUS_FAIL;
+  }
+
+  // Prevent race conditions
+  CORE_irqState_t state = CORE_EnterAtomic();
+
+  // Free all packets in the queue
+  current_packet = tx_data_queue->head;
+  while (current_packet != NULL) {
+    next_packet = (sl_wifi_buffer_t *)current_packet->node.node;
+    sl_si91x_host_free_buffer(current_packet);
+    current_packet = next_packet;
+  }
+
+  // Reset the queue
+  tx_data_queue->head = NULL;
+  tx_data_queue->tail = NULL;
+
+  // Clear pending TX status
+  tx_generic_socket_data_queues_status &= ~(SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT);
+
+  CORE_ExitAtomic(state);
+
   return SL_STATUS_OK;
 }
 
@@ -1933,8 +1975,15 @@ sl_status_t sl_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t ty
   sl_status_t status         = sl_wifi_get_credential(id, &cred->type, &cred->pmk, &credential_length);
   VERIFY_STATUS_AND_RETURN(status);
 
-  if (type != cred->type) {
+  if (type == SL_WIFI_PSK_CREDENTIAL) {
+    if ((cred->type == SL_WIFI_PSK_CREDENTIAL) || (cred->type == SL_WIFI_PMK_CREDENTIAL)) {
+      return SL_STATUS_OK;
+    } else {
+      return SL_STATUS_FAIL;
+    }
+  } else if (type != cred->type) {
     return SL_STATUS_FAIL;
   }
+
   return SL_STATUS_OK;
 }

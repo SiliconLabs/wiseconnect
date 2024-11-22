@@ -64,9 +64,9 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) +  BRD4338A / BRD4342A / BRD4343A ] - as a Follower
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) +  BRD4338A / BRD4342A / BRD4343A ] - as a Leader
-
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) +  BRD4338A / BRD4342A / BRD4343A / BRD4344A ] - as a Follower and Leader
+- SiWx917 AC1 Module Explorer Kit (BRD2708A) as a Follower and Leader
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A) - as a Follower and Leader
 
 ### Software Requirements
 

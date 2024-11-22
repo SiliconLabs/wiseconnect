@@ -1,13 +1,32 @@
-import { createServer } from "http";
 import { WebSocketServer } from "ws";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Define variables
+const USE_SSL = false; // Set to true to use WSS (WebSocket Secure), false to use WS (WebSocket)
 const HOSTNAME = "example.com";
 const PATHNAME = "/myresource";
 const PORT = 8080;
 
-// Create an HTTP server
-const server = createServer((req, res) => {
+// Conditionally import the HTTP or HTTPS module
+const { createServer } = USE_SSL ? await import("https") : await import("http");
+
+// Get the directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load SSL certificates if USE_SSL is true
+const options = USE_SSL ? {
+    key: fs.readFileSync(path.resolve(__dirname, "../certificates/server-key.pem")),
+    cert: fs.readFileSync(path.resolve(__dirname, "../certificates/server-cert.pem")),
+} : {};
+
+// Create an HTTP or HTTPS server based on USE_SSL
+const server = USE_SSL ? createServer(options, (req, res) => {
+    res.writeHead(404);
+    res.end();
+}) : createServer((req, res) => {
     res.writeHead(404);
     res.end();
 });
@@ -84,7 +103,8 @@ wss.on("connection", function connection(ws, req) {
 
 // Handle HTTP upgrade requests
 server.on("upgrade", (req, socket, head) => {
-    const { pathname, hostname } = new URL(req.url, `http://${req.headers.host}`);
+    const protocol = USE_SSL ? "https" : "http";
+    const { pathname, hostname } = new URL(req.url, `${protocol}://${req.headers.host}`);
     console.log(`Upgrade request for hostname: ${hostname}, pathname: ${pathname}`);
 
     if ((hostname === HOSTNAME && pathname === PATHNAME) || hostname === "localhost") {

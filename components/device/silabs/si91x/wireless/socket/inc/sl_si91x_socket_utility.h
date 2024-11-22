@@ -246,7 +246,7 @@ sli_si91x_socket_t *sli_si91x_get_socket_from_id(int socket_id,
                                                  int16_t role);
 
 sl_status_t sli_si91x_send_socket_data(sli_si91x_socket_t *si91x_socket,
-                                       sl_si91x_socket_send_request_t *request,
+                                       const sli_si91x_socket_send_request_t *request,
                                        const void *data);
 int32_t sli_get_socket_command_from_host_packet(sl_wifi_buffer_t *buffer);
 

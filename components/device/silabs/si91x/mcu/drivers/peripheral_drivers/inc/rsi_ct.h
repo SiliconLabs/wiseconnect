@@ -767,7 +767,7 @@ STATIC INLINE void RSI_CT_OutputEventADCTrigger(RSI_CT_MUX_REG_T *pCTmux, uint8_
 STATIC INLINE void RSI_CT_SetCount(RSI_CT_T *pCT, uint32_t count)
 {
   // Sets the Coutner start value
-  pCT->CT_COUNTER_REG |= count;
+  pCT->CT_COUNTER_REG = count;
 }
 
 /*===================================================*/

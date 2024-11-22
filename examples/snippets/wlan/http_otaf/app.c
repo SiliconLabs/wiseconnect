@@ -353,7 +353,8 @@ void application_start(const void *unused)
 #if defined(AWS_ENABLE) || defined(AZURE_ENABLE)
         do {
           //! Getting IP address of the AWS server using DNS request
-          status = sl_net_host_get_by_name((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+          status =
+            sl_net_dns_resolve_hostname((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
           dns_retry_count--;
         } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 

@@ -204,8 +204,12 @@ const sl_wifi_buffer_configuration_t default_buffer_configuration = {
   .control_buffer_quota = 10,
   .tx_buffer_quota      = 10,
   .rx_buffer_quota      = 10,
-  .block_size           = 1616,
-  .buffer_memory        = NULL,
+#ifdef SPI_EXTENDED_TX_LEN_2K
+  .block_size = 2300,
+#else
+  .block_size = 1616,
+#endif
+  .buffer_memory = NULL,
 };
 
 const sl_wifi_ap_configuration_t default_wifi_ap_configuration = {
@@ -332,10 +336,6 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
   return status;
 }
 
-#ifndef SLI_SI91X_MCU_INTERFACE
-osSemaphoreId_t cmd_lock = NULL;
-#endif
-
 sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, sl_wifi_event_handler_t event_handler)
 {
   sl_status_t status;
@@ -401,17 +401,6 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   // Initialize the SI91x host
   status = sl_si91x_host_init(&init_config);
   VERIFY_STATUS_AND_RETURN(status);
-
-#ifndef SLI_SI91X_MCU_INTERFACE
-  // Create and release a semaphore for DATA TX
-  if (cmd_lock == NULL) {
-    cmd_lock = osSemaphoreNew(1, 0, NULL);
-    if (cmd_lock == NULL) {
-      return SL_STATUS_FAIL;
-    }
-    osSemaphoreRelease(cmd_lock);
-  }
-#endif
 
   // Initialize the SI91x platform
   status = sl_si91x_platform_init();
@@ -640,6 +629,9 @@ sl_status_t sl_si91x_driver_deinit(void)
   // Flush all TX Wi-Fi queues with the status indicating Wi-Fi connection is lost
   sli_si91x_flush_all_tx_wifi_queues(SL_STATUS_WIFI_CONNECTION_LOST);
 
+  // Flush the generic TX data queue
+  sli_si91x_flush_generic_data_queues(&sli_tx_data_queue);
+
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
 
   // Flush all pending socket commands in the client VAP queue due to Wi-Fi connection loss
@@ -781,35 +773,28 @@ sl_status_t sl_si91x_driver_raw_send_command(uint8_t command,
   return sl_si91x_driver_send_data_packet(buffer, wait_time);
 }
 
-sl_status_t sl_si91x_driver_send_socket_data(const sl_si91x_socket_send_request_t *request,
+sl_status_t sl_si91x_driver_send_socket_data(const sli_si91x_socket_send_request_t *request,
                                              const void *data,
                                              uint32_t wait_time)
 {
   UNUSED_PARAMETER(wait_time);
   sl_wifi_buffer_t *buffer;
   sl_si91x_packet_t *packet;
-  sl_si91x_socket_send_request_t *send;
+  sli_si91x_socket_send_request_t *send;
 
   sl_status_t status     = SL_STATUS_OK;
-  uint16_t header_length = (request->data_offset - sizeof(sl_si91x_socket_send_request_t));
+  uint16_t header_length = (request->data_offset - sizeof(sli_si91x_socket_send_request_t));
   uint32_t data_length   = request->length;
 
   if (data == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
 
-#ifndef SLI_SI91X_MCU_INTERFACE
-  // lock before buffer allocation for DATA TX
-  if (osSemaphoreAcquire(cmd_lock, 1000) != osOK) {
-    BREAKPOINT();
-  }
-#endif
-
   // Allocate a buffer for the socket data with appropriate size
   status = sl_si91x_host_allocate_buffer(
     &buffer,
     SL_WIFI_TX_FRAME_BUFFER,
-    sizeof(sl_si91x_packet_t) + sizeof(sl_si91x_socket_send_request_t) + header_length + data_length,
+    sizeof(sl_si91x_packet_t) + sizeof(sli_si91x_socket_send_request_t) + header_length + data_length,
     SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
 
   VERIFY_STATUS_AND_RETURN(status);
@@ -822,12 +807,12 @@ sl_status_t sl_si91x_driver_send_socket_data(const sl_si91x_socket_send_request_
 
   memset(packet->desc, 0, sizeof(packet->desc));
 
-  send = (sl_si91x_socket_send_request_t *)packet->data;
-  memcpy(send, request, sizeof(sl_si91x_socket_send_request_t));
+  send = (sli_si91x_socket_send_request_t *)packet->data;
+  memcpy(send, request, sizeof(sli_si91x_socket_send_request_t));
   memcpy((send->send_buffer + header_length), data, data_length);
 
   // Fill frame type
-  packet->length = (sizeof(sl_si91x_socket_send_request_t) + header_length + data_length) & 0xFFF;
+  packet->length = (sizeof(sli_si91x_socket_send_request_t) + header_length + data_length) & 0xFFF;
 
   return sl_si91x_driver_send_data_packet(buffer, wait_time);
 }
@@ -1384,7 +1369,7 @@ sl_status_t sl_si91x_allocate_data_buffer(sl_wifi_buffer_t **host_buffer,
   sl_status_t status =
     sl_si91x_host_allocate_buffer(host_buffer,
                                   SL_WIFI_TX_FRAME_BUFFER,
-                                  sizeof(sl_si91x_packet_t) + sizeof(sl_si91x_socket_send_request_t) + data_size,
+                                  sizeof(sl_si91x_packet_t) + sizeof(sli_si91x_socket_send_request_t) + data_size,
                                   wait_duration_ms);
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -2397,11 +2382,11 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
 
   ext_desc_size = TRANSCEIVER_TX_DATA_EXT_DESC_SIZE;
 
-  // Allocate a command buffer with space for the command data and metadata
-  status = sli_si91x_allocate_command_buffer(&buffer,
-                                             (void **)&packet,
-                                             sizeof(sl_si91x_packet_t) + ext_desc_size + mac_hdr_len + payload_len,
-                                             SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  // Allocate a data buffer with space for the data and metadata
+  status = sl_si91x_allocate_data_buffer(&buffer,
+                                         (void **)&packet,
+                                         sizeof(sl_si91x_packet_t) + ext_desc_size + mac_hdr_len + payload_len,
+                                         SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   VERIFY_STATUS_AND_RETURN(status);
 
   // If the packet is not allocated successfully, return an allocation failed error

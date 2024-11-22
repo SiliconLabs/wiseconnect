@@ -33,6 +33,7 @@
 #include "rsi_rom_gpdma.h"
 #include "rsi_rom_clks.h"
 #include "si91x_device.h"
+#include "sl_assert.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -58,6 +59,7 @@ static RSI_GPDMA_DESC_T GPDMADesc[NUMGPDMADESC];
 
 #if defined(__GNUC__)
 RSI_GPDMA_DESC_T GPDMADesc[NUMGPDMADESC];
+RSI_GPDMA_DESC_T rx_GPDMADesc[NUMGPDMADESC];
 #endif // defined (__GNUC__)
 
 static uint32_t memBuff[30]; //gpdma driver memory context, driver context
@@ -94,6 +96,8 @@ static sl_sdio_secondary_callback_t user_callback = NULL; // SDIO Secondary user
 static sl_sdio_secondary_gpdma_callback_t user_gpdma_callback =
   NULL; // SDIO Secondary user gpdma callback function varialbe
 
+RSI_GPDMA_DESC_T rx_XferCfg;
+volatile RSI_GPDMA_DESC_T XferCfg;
 /*******************************************************************************
  ***************************   LOCAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -196,7 +200,6 @@ void sl_si91x_fill_rx_descriptors(uint8_t *data_buf)
   uint32_t j;
   RSI_GPDMA_DESC_T *pPrevDesc;
   uint32_t no_of_desc = 0;
-  RSI_GPDMA_DESC_T XferCfg;
 
   // Get the SDIO block count
   no_of_desc = sl_si91x_sdio_secondary_get_block_cnt();
@@ -205,41 +208,41 @@ void sl_si91x_fill_rx_descriptors(uint8_t *data_buf)
   for (j = 0; j < no_of_desc; j++) {
 
     // Channel Control Config
-    XferCfg.chnlCtrlConfig.transSize        = (sl_si91x_sdio_secondary_get_block_len() & 0xfff);
-    XferCfg.chnlCtrlConfig.transType        = PERIPHERAL_MEMORY;
-    XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
-    XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;
-    XferCfg.chnlCtrlConfig.mastrIfSendSel   = MASTER0_SEND_IFSEL;
-    XferCfg.chnlCtrlConfig.destDataWidth    = DST_8_DATA_WIDTH;
-    XferCfg.chnlCtrlConfig.srcDataWidth     = SRC_32_DATA_WIDTH;
-    XferCfg.chnlCtrlConfig.srcAlign         = 0;
-    XferCfg.chnlCtrlConfig.linkListOn       = 1;
-    XferCfg.chnlCtrlConfig.linkListMstrSel  = LINK_MASTER_0_FTCH;
-    XferCfg.chnlCtrlConfig.srcAddContiguous = 0;
-    XferCfg.chnlCtrlConfig.dstAddContiguous = 0;
-    XferCfg.chnlCtrlConfig.retryOnErr       = 0;
-    XferCfg.chnlCtrlConfig.linkInterrupt    = 0;
-    XferCfg.chnlCtrlConfig.srcFifoMode      = 1;
-    XferCfg.chnlCtrlConfig.dstFifoMode      = 0;
+    rx_XferCfg.chnlCtrlConfig.transSize        = (sl_si91x_sdio_secondary_get_block_len() & 0xfff);
+    rx_XferCfg.chnlCtrlConfig.transType        = PERIPHERAL_MEMORY;
+    rx_XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
+    rx_XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;
+    rx_XferCfg.chnlCtrlConfig.mastrIfSendSel   = MASTER0_SEND_IFSEL;
+    rx_XferCfg.chnlCtrlConfig.destDataWidth    = DST_8_DATA_WIDTH; //DST_8_DATA_WIDTH;
+    rx_XferCfg.chnlCtrlConfig.srcDataWidth     = SRC_32_DATA_WIDTH;
+    rx_XferCfg.chnlCtrlConfig.srcAlign         = 0;
+    rx_XferCfg.chnlCtrlConfig.linkListOn       = 1;
+    rx_XferCfg.chnlCtrlConfig.linkListMstrSel  = LINK_MASTER_0_FTCH;
+    rx_XferCfg.chnlCtrlConfig.srcAddContiguous = 0;
+    rx_XferCfg.chnlCtrlConfig.dstAddContiguous = 0;
+    rx_XferCfg.chnlCtrlConfig.retryOnErr       = 0;
+    rx_XferCfg.chnlCtrlConfig.linkInterrupt    = 0;
+    rx_XferCfg.chnlCtrlConfig.srcFifoMode      = 1;
+    rx_XferCfg.chnlCtrlConfig.dstFifoMode      = 0;
 
     // Misc Channel Config
-    XferCfg.miscChnlCtrlConfig.ahbBurstSize  = AHBBURST_SIZE_4;
-    XferCfg.miscChnlCtrlConfig.destDataBurst = DST_BURST_SIZE_4;
-    XferCfg.miscChnlCtrlConfig.srcDataBurst  = SRC_BURST_SIZE_4;
-    XferCfg.miscChnlCtrlConfig.destChannelId = 0;
-    XferCfg.miscChnlCtrlConfig.srcChannelId  = 30;
-    XferCfg.miscChnlCtrlConfig.dmaProt       = 0;
-    XferCfg.miscChnlCtrlConfig.memoryFillEn  = 0;
-    XferCfg.miscChnlCtrlConfig.memoryOneFill = 0;
+    rx_XferCfg.miscChnlCtrlConfig.ahbBurstSize  = AHBBURST_SIZE_4;
+    rx_XferCfg.miscChnlCtrlConfig.destDataBurst = DST_BURST_SIZE_4;
+    rx_XferCfg.miscChnlCtrlConfig.srcDataBurst  = SRC_BURST_SIZE_4;
+    rx_XferCfg.miscChnlCtrlConfig.destChannelId = 0;
+    rx_XferCfg.miscChnlCtrlConfig.srcChannelId  = 30;
+    rx_XferCfg.miscChnlCtrlConfig.dmaProt       = 0;
+    rx_XferCfg.miscChnlCtrlConfig.memoryFillEn  = 0;
+    rx_XferCfg.miscChnlCtrlConfig.memoryOneFill = 0;
 
-    XferCfg.dest = (data_buf + (j * sl_si91x_sdio_secondary_get_block_len()));
-    XferCfg.src  = (uint32_t *)(RX_SOURCE_ADDR);
-    if (RSI_GPDMA_BuildDescriptors(GPDMAHandle, &XferCfg, &GPDMADesc[j], pPrevDesc) != RSI_OK) {
+    rx_XferCfg.dest = (data_buf + (j * sl_si91x_sdio_secondary_get_block_len()));
+    rx_XferCfg.src  = (uint32_t *)(RX_SOURCE_ADDR);
+    if (RSI_GPDMA_BuildDescriptors(GPDMAHandle, &rx_XferCfg, &rx_GPDMADesc[j], pPrevDesc) != RSI_OK) {
     }
-    pPrevDesc = &GPDMADesc[j];
+    pPrevDesc = &rx_GPDMADesc[j];
   }
   // Assigning pointer to next descriptor link in a chain with NULL
-  GPDMADesc[no_of_desc - 1].pNextLink = NULL;
+  rx_GPDMADesc[no_of_desc - 1].pNextLink = NULL;
 }
 
 /*******************************************************************************
@@ -320,7 +323,7 @@ void sl_si91x_setup_rx_channel_desc(uint8_t *data_buf)
 
   sl_si91x_fill_rx_descriptors(data_buf);
 
-  RSI_GPDMA_SetupChannelTransfer(GPDMAHandle, GPDMA_CHNL1, GPDMADesc);
+  RSI_GPDMA_SetupChannelTransfer(GPDMAHandle, GPDMA_CHNL1, rx_GPDMADesc);
 }
 
 /*******************************************************************************
@@ -409,7 +412,9 @@ sl_status_t sl_si91x_sdio_secondary_init(void)
   sl_si91x_sdio_secondary_peripheral_init();
   // Initialize the GPDMA
   status = sl_si91x_gpdma_init();
+
   // Return the status
+  EFM_ASSERT(status == SL_STATUS_OK);
   return status;
 }
 

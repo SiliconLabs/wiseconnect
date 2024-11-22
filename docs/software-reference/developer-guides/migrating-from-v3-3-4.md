@@ -7,6 +7,7 @@
   - [Update API Calls](#update-api-calls)
   - [Update Files](#update-files)
   - [Update Macros](#update-macros)
+  - [Deprecated Macros](#deprecated-macros)
 
 ## Overview
 
@@ -39,6 +40,12 @@ Refer to the tables in each of the sections that follow which map the v3.3.4 API
 - For **sl_si91x_setsockopt_async** API:
   - The term "async" has been removed from the API as setting an option on a socket is not related to the socket being synchronous/asynchronous. Hence, the name of the API has been updated to `sl_si91x_setsockopt`.
 
+- For **sl_net_host_get_by_name** API:
+  - Starting from WC-3.4.0 release, this API has renamed to `sl_net_dns_resolve_hostname`, to enhance the user accessibility.
+
+- For **sl_net_set_credentials** API:
+  - Starting from 3.4.0 release, a check has been added to ensure that if the credential is NULL or the credential length is zero, the `sl_net_set_credentials()` API will return an error `SL_STATUS_INVALID_PARAMETER`.
+
 - Removed **sl_si91x_set_custom_sync_sockopt** API:
   - Starting from WC-3.4.0, the `setsockopt` API of BSD can be used to set SiWx91x options that were previously supported by `sl_si91x_set_custom_sync_sockopt`.
 
@@ -63,8 +70,29 @@ Refer to the tables in each of the sections that follow which map the v3.3.4 API
 | Wi-Fi       | `SO_HIGH_PERFORMANCE_SOCKET`  | `SL_SO_HIGH_PERFORMANCE_SOCKET`|
 | Wi-Fi       | `SO_TLS_SNI`                  | `SL_SO_TLS_SN`                 |
 | Wi-Fi       | `SO_TLS_ALPN`                 | `SL_SO_TLS_ALPN`               |
+| Crypto      | `SL_SI91x_SHA_LEN_INVALID`    | `SL_SI91X_SHA_LEN_INVALID`     |
 - Note: The custom socket option macros have been renamed with the prefix "SL" to enhance readability.
+- Note: The crypto macro has been updated in compliance with Silicon Labs naming conventions.
 
+| **Module**  | **v3.3.4**                             | **v3.4.0**                                    |
+|-------------|----------------------------------------|-----------------------------------------------|
+| Wi-Fi       | `SL_TRANSCEIVER_CHANNEL_NO`            | `SL_WIFI_TRANSCEIVER_CHANNEL_NO`              |
+| Wi-Fi       | `SL_TRANSCEIVER_TX_POWER`              | `SL_WIFI_TRANSCEIVER_TX_POWER`                |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_RETRANSMIT_COUNT` | `SL_WIFI_TRANSCEIVER_DEFAULT_RETRANSMIT_COUNT`|
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_BE_CWMIN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_CWMIN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_BE_CWMAX`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_CWMAX`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_BE_AIFSN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_AIFSN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_BK_CWMIN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_CWMIN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_BK_CWMAX`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_CWMAX`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_BK_AIFSN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_AIFSN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_VI_CWMIN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_CWMIN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_VI_CWMAX`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_CWMAX`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_VI_AIFSN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_AIFSN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_VO_CWMIN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_CWMIN`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_VO_CWMAX`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_CWMAX`    |
+| Wi-Fi       | `DEFAULT_TRANSCEIVER_QOS_VO_AIFSN`     | `SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_AIFSN`    |
+- Note: The transceiver configuration macros have been renamed with the prefix "SL_WIFI" to ensure consistency 
+and improve readability.
 
 ### Update Typedefs
 | **Module**  |     **v3.3.4**                      |         **v3.4.0**                                 |
@@ -81,8 +109,20 @@ Refer to the tables in each of the sections that follow which map the v3.3.4 API
 | **Module** | **v3.3.4** | **v3.4.0** |
 |------------|------------|------------|
 | Wi-Fi   | `sl_si91x_performance_profile_t` | The `sl_si91x_performance_profile_t` enum variables have been renamed for clarity, with `STANDBY_POWER_SAVE` updated to `DEEP_SLEEP_WITHOUT_RAM_RETENTION` and `STANDBY_POWER_SAVE_WITH_RAM_RETENTION` updated to `DEEP_SLEEP_WITH_RAM_RETENTION`.   |
+| Crypto | `sl_si91x_crypto_sha_mode_t`      | The `sl_si91x_crypto_sha_mode_t` enum constants have been renamed to adhere to naming conventions with `SL_SI91x_SHA_xxx` updated to `SL_SI91X_SHA_xxx` where xxx represents modes of SHA.|
+| Crypto | `sl_si91x_sha_length_t`           | The `sl_si91x_sha_length_t` enum constants have been renamed to adhere to naming conventions with `SL_SI91x_SHA_xxx_DIGEST_LEN` updated to `SL_SI91X_SHA_xxx_DIGEST_LEN` where xxx represents modes of SHA.|
 | Wi-Fi  | `SL_WIFI_STATS_AYSNC_EVENT` enum variable in `sl_wifi_event_t` | `SL_WIFI_STATS_ASYNC_EVENT` enum variable in `sl_wifi_event_t`|
 |Memory configuration components |si917_memory_default_config|si91x_memory_default_config|
 |Memory configuration components |si917_mem_config_1|si91x_mem_config_1|
 |Memory configuration components |si917_mem_config_2|si91x_mem_config_2|
 |Memory configuration components |si917_mem_config_3|si91x_mem_config_3|
+
+### Deprecated Macros
+
+- Deprecated **MAX_QUERY_PARAMETERS** and **MAX_HEADER_BUFFER_LENGTH** macros.
+  > **Note**: From WC-3.4.0, the `MAX_QUERY_PARAMETERS` and `MAX_HEADER_BUFFER_LENGTH` macros are deprecated. It's recommended to use updated macros to ensure compatibility with future releases.
+
+  | **Module**   | **v3.3.4**                   | **v3.4.0**                                 |
+  |--------------|------------------------------|--------------------------------------------|
+  | HTTP Server  | `MAX_QUERY_PARAMETERS`       | `SL_HTTP_SERVER_MAX_QUERY_PARAMETERS`      |
+  | HTTP Server  | `MAX_HEADER_BUFFER_LENGTH`   | `SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH`  |

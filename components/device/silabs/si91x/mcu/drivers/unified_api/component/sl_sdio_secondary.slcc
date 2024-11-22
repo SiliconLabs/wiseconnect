@@ -14,7 +14,8 @@ root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 provides:
   - name: sl_sdio_secondary
 requires:
-  - name: sl_sdio_secondary_peripheral  
+  - name: sl_assert
+  - name: sl_sdio_secondary_peripheral
 source:
   - path: src/sl_si91x_sdio_secondary.c
 include:
@@ -24,6 +25,12 @@ include:
 config_file:
   - path: config/sl_si91x_sdio_secondary_drv_config.h
     file_id: sdio_secondary_drv_config
+template_contribution:
+  - name: event_handler
+    value:
+      event: driver_init
+      include: "sl_si91x_sdio_secondary.h"
+      handler: sl_si91x_sdio_secondary_init
 documentation:
     docset: wiseconnect
     document: wiseconnect-api-reference-guide-si91x-peripherals/sdio

@@ -196,6 +196,7 @@ typedef struct {
 
 /***************************************************************************/
 /**
+ * @brief This API is no longer supported due to the restriction on peripheral drivers to configuring clocks.
  * @brief To configure the clock for the GSPI module.
  * 
  * @details This API sets the clock for the GSPI peripheral. It configures the PLL clock and 
@@ -205,10 +206,6 @@ typedef struct {
  * 
  * @return Status code indicating the result:
  *         - SL_STATUS_OK  - Success.
- *         - SL_STATUS_FAIL  - Function failed.
- *         - SL_STATUS_NOT_INITIALIZED  - Clock is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -220,9 +217,6 @@ sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configur
  * 
  * @details This API initializes the GSPI module. If DMA is enabled, it also initializes the DMA module. 
  * The API takes the address of a pointer to store the GSPI primary handle, which can be used for subsequent function calls.
- * 
- * @pre Pre-condition:
- *      - \ref sl_si91x_gspi_configure_clock must be called before this function.
  * 
  * @param[in] instance GSPI instance \ref sl_gspi_instance_t.
  * @param[in] gspi_handle Double pointer to the GSPI driver handle \ref sl_gspi_handle_t.
@@ -283,7 +277,6 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
  *   Swap Read and Swap Write can be used only if the bit_width is configured as 16.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
@@ -314,7 +307,6 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number
@@ -343,7 +335,6 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number 
@@ -372,7 +363,6 @@ sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *da
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number 
@@ -405,7 +395,6 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
  * it can be turned on/off at runtime by using this API.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
@@ -477,7 +466,6 @@ sl_gspi_version_t sl_si91x_gspi_get_version(void);
  * It is used to poll the busy status of the GSPI Primary.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  * 
@@ -495,7 +483,6 @@ sl_gspi_status_t sl_si91x_gspi_get_status(sl_gspi_handle_t gspi_handle);
  * of data bytes received.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  * 
@@ -513,7 +500,6 @@ uint32_t sl_si91x_gspi_get_rx_data_count(sl_gspi_handle_t gspi_handle);
  * of data bytes sent.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_gspi_configure_clock 
  *  - \ref sl_si91x_gspi_init 
  *  - \ref sl_si91x_gspi_set_configuration
  * 
@@ -621,14 +607,13 @@ __STATIC_INLINE sl_status_t sl_si91x_gspi_set_slave_number(uint8_t number)
  * 
  * @n @section GSPI_Usage Usage
  * After specifying the GSPI configuration through the @ref sl_gspi_control_config_t structure, you can use the following common GSPI functions to initiate and configure GSPI:
- * 1. @ref sl_si91x_gspi_configure_clock - Configures the GSPI clock.
- * 2. @ref sl_si91x_gspi_init - Initializes the GSPI module.
- * 3. @ref sl_si91x_gspi_set_configuration - Sets the GSPI configuration.
- * 4. @ref sl_si91x_gspi_register_event_callback - Registers a callback for GSPI events.
- * 5. @ref sl_si91x_gspi_send_data - Sends data using the GSPI.
- * 6. @ref sl_si91x_gspi_receive_data - Receives data using the GSPI.
- * 7. @ref sl_si91x_gspi_transfer_data - Transfers data using the GSPI.
- * 8. @ref sl_si91x_gspi_deinit - De-initializes the GSPI module.
+ * 1. @ref sl_si91x_gspi_init - Initializes the GSPI module.
+ * 2. @ref sl_si91x_gspi_set_configuration - Sets the GSPI configuration.
+ * 3. @ref sl_si91x_gspi_register_event_callback - Registers a callback for GSPI events.
+ * 4. @ref sl_si91x_gspi_send_data - Sends data using the GSPI.
+ * 5. @ref sl_si91x_gspi_receive_data - Receives data using the GSPI.
+ * 6. @ref sl_si91x_gspi_transfer_data - Transfers data using the GSPI.
+ * 7. @ref sl_si91x_gspi_deinit - De-initializes the GSPI module.
  */
 /** @} (end addtogroup GSPI) */
 

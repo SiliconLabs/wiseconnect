@@ -28,14 +28,14 @@
  *
  ******************************************************************************/
 #include "sli_cpc_system_common.h"
-
+#include "sl_cpc_drv_secondary_sdio.h"
 /***************************************************************************/ /**
  * Get system reset reason.
  ******************************************************************************/
 sl_cpc_system_status_t cpc_get_reset_reason(void)
 {
   // For handling si91x reset cause
-  return Read_reset_reason();
+  return sl_si91x_read_reset_reason();
 }
 
 /***************************************************************************/ /**
@@ -55,6 +55,5 @@ void cpc_system_reset(sli_cpc_system_reboot_mode_t reboot_mode)
   // Chip Reset
   (void)reboot_mode;
   /* 91x note - Both M4SS and TASS are reset */
-  Device_Reset();
-  exit(1);
+  sl_si91x_device_reset();
 }

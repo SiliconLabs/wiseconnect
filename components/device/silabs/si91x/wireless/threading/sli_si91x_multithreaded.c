@@ -62,7 +62,7 @@
 #define BUS_THREAD_EVENTS                                                                                          \
   (SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS | SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT | SL_SI91X_NCP_HOST_BUS_RX_EVENT \
    | SL_SI91X_SOCKET_COMMAND_TX_PENDING_EVENT | SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT                             \
-   | SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT)
+   | SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT | SL_SI91X_TERMINATE_BUS_THREAD_EVENT)
 
 /**
  * All flags used with async events
@@ -86,6 +86,7 @@
  ******************************************************/
 
 extern osEventFlagsId_t si91x_async_events;
+extern osEventFlagsId_t si91x_events;
 
 volatile uint32_t tx_command_queues_status             = 0;
 volatile uint32_t tx_socket_command_queues_status      = 0;
@@ -119,11 +120,6 @@ extern sl_wifi_event_handler_t si91x_event_handler;
 
 extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
 extern sl_si91x_buffer_queue_t sli_tx_data_queue;
-
-#ifndef SLI_SI91X_MCU_INTERFACE
-// Declaration of a semaphore handle used for command locking
-extern osSemaphoreId_t cmd_lock;
-#endif
 
 void si91x_event_handler_thread(const void *args);
 
@@ -1482,6 +1478,16 @@ void si91x_bus_thread(const void *args)
       }
 #endif
     }
+    if (event & SL_SI91X_TERMINATE_BUS_THREAD_EVENT) {
+      // Clear the termination event flag
+      event &= ~SL_SI91X_TERMINATE_BUS_THREAD_EVENT;
+
+      // Acknowledge the termination request
+      osEventFlagsSet(si91x_events, SL_SI91X_TERMINATE_BUS_THREAD_EVENT_ACK);
+
+      // Terminate the current thread
+      osThreadTerminate(osThreadGetId());
+    }
   }
   //To suppress warning unused parameter, no code effect
   UNUSED_PARAMETER(event);
@@ -1619,11 +1625,6 @@ static sl_status_t bus_write_data_frame(sl_si91x_buffer_queue_t *queue)
   if (current_performance_profile != HIGH_PERFORMANCE) {
     sl_si91x_host_clear_sleep_indicator();
   }
-
-#ifndef SLI_SI91X_MCU_INTERFACE
-  // If WLAN data queue is involved, release semaphore
-  osSemaphoreRelease(cmd_lock);
-#endif
 
   sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;

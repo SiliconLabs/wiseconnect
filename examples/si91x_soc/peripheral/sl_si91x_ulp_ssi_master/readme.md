@@ -16,11 +16,11 @@
 
 ## Purpose/Scope
 
-- This application demonstrate the use of ULP SSI MASTER for data transfer in full duplex as well as half duplex mode in master mode.
+- This application demonstrate the use of ULP SSI PRIMARY for data transfer in full duplex as well as half duplex mode.
 - This application can run in synchronous mode with full-duplex operation
-  - Master transmits data on MOSI pin and receives the same data on MISO pin
+  - Primary transmits data on MOSI pin and receives the same data on MISO pin
 - This also supports send and receive data with any SSI slave, additionally it also supports DMA and non-DMA transfer.
-- For half duplex communication, i.e., send and receive, master / slave connection is required.
+- For half duplex communication, i.e., send and receive, primary / secondary connection is required.
 
 ## Overview
 
@@ -28,7 +28,7 @@
 - Synchronous data transmission is one in which the data is transmitted by synchronizing the transmission at the receiving and sending ends using a common clock signal.
 - SSI is a synchronous four-wire interface consisting of two data pins(MOSI, MISO), a device select pin (CSN) and a gated clock pin(SCLK).
 - With the two data pins, it allows for full-duplex operation with other SSI compatible devices.
-- It supports full duplex Single-bit SPI master mode.
+- It supports full duplex Single-bit SPI Primary mode.
 - It supports 6 modes:  
   - Mode 0: Clock Polarity is zero and Clock Phase is zero.
   - Mode 1: Clock Polarity is zero, Clock Phase is one.
@@ -45,7 +45,7 @@
 ## About Example Code
 
 - This example demonstrates SSI transfer i.e., full duplex communication and SSI send, SSI receive i.e., half duplex communication.
-- Various parameters like SSI clock mode, bit-width, manual cs pin and SSI baudrate can be configured using UC. Also, Master or Slave or ULP Master DMA can be configured using UC.
+- Various parameters like SSI clock mode, bit-width, manual cs pin and SSI baudrate can be configured using UC. Also, Primary or Secondary or ULP Primary DMA can be configured using UC.
 - sl_si91x_ssi_config.h file contains the control configurations and sl_si91x_ssi_common_config.h contains DMA configuration selection.
 - In the example code, first the output buffer is filled with some data which is transferred to the slave.
 - Firmware version of API is fetched using \ref sl_si91x_ssi_get_version which includes release version, major version and minor version \ref sl_ssi_version_t.
@@ -107,8 +107,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 - [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 ## Application Build Environment
 
@@ -173,8 +173,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps below for successful execution of the application:
 
-1. Connect ULP SSI Master SCK, CS, MOSI, MISO pins with the SSI Slave device.
-2. In the ssi slave example, enable slave DMA.
+1. Connect ULP SSI Primary SCK, CS, MOSI, MISO pins with the SSI Secondary device.
+2. In the ssi slave example, enable Secondary DMA.
 3. When the application runs, it transfers the data.
 4. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
 5. Then again reset SSI slave once application switches to ULP mode and observe "Test Case Passed" print on console.
@@ -182,18 +182,18 @@ Follow the steps below for successful execution of the application:
 7. If ULP_SSI_MASTER_RECEIVE or ULP_SSI_MASTER_SEND is enabled, SSI slave will receive and send data respectively.
 8. After successful program execution the prints in serial console looks as shown below.
 
-- ULP Master output:
+- ULP Primary output:
 
    > ![output](resources/readme/output_ulp_ssi.png)
 
-- Slave output:
+- Secondary output:
 
    > ![output](resources/readme/output_ssi_slave.png)
 
 > **Note:**
 >
->- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
->- The SSI slave example side files should be executed in RAM if wish to test the non-DMA full duplex mode with SSI Slave example.
+>- After Flashing ULP examples as M4 flash will be turned off, flash erase does not work.
+>- For ULP SSI Primary Non-DMA configuration, Secondary device running with ssi_slave_example might not work as expected in all the power states. It requires an handshake mechanism or tuning Secondary device speed to achieve synchronization for large data packets. To verify this case, recommended to refer sl_si91x_icm40627 example where a real slave device is demonstrated.
 >
 - To Erase the chip follow the below procedure
   - **Press ISP and RESET button at same time and then release, now perform Chip erase through commander.**

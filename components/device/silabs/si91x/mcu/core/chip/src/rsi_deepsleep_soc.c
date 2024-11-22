@@ -669,11 +669,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /*Initialize floating point unit  */
   fpuInit();
 
-#ifdef DEBUG_UART
-  /*Initialize UART after wake up*/
-  DEBUGINIT();
-#endif
-
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
   //passing the ram vector address to VTOR register
   SCB->VTOR = (uint32_t)ram_vector;

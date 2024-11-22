@@ -31,7 +31,7 @@
 #define SL_STATUS_SI91X_SUBSPACE ((sl_status_t)0x00010000)
 
 /**
- * @addtogroup SL_ADDITIONAL_STATUS_ERRORS
+ * @addtogroup WISECONNECT_STATUS_CODES
  * @{ 
  */
 

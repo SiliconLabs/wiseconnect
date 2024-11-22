@@ -417,6 +417,8 @@
  * This feature allows the device to use Multicast DNS (mDNS) for local
  * network service discovery, enabling devices to find each other without
  * a central DNS server.
+ * 
+ * @note This feature is not supported in AP mode.
  */
 #define SL_SI91X_TCP_IP_FEAT_MDNSD BIT(19)
 
@@ -1893,7 +1895,7 @@
  * | Configuration 3          | If there is an ongoing Wi-Fi Transmission (Including ACK/BLOCK ACK), then PTA MAIN will not assert GRANT to an asserted REQUEST. However, if PRIORITY and REQUEST are asserted, PTA MAIN will assert GRANT. |
  * 
  * The below configuration describes the pin connections between the EFR32MG21 and the SiW91x device that involves the GRANT, REQUEST, and PRIORITY signal.
- * 0 kept reserved for future. 3-Wire used at DUT as GPIO_7(Grant pin driven by DUT), ULP_GPIO_1(Request i/p pin for DUT) and ULP_GPIO_6(Priority i/p pin for DUT).
+ * 0 kept reserved for future. 3-Wire used at DUT are GPIO_7(Grant pin driven by DUT), ULP_GPIO_1(Request i/p pin for DUT) and ULP_GPIO_6(Priority i/p pin for DUT).
  *
  * | Pin Description | GPIO         | 4338A Radio board  | 4002A EFR board |
  * |:----------------|:-------------|:-------------------|:----------------|
@@ -2205,11 +2207,11 @@ static const sl_wifi_device_configuration_t sl_wifi_default_ap_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode                  = SL_SI91X_ACCESS_POINT_MODE,
-                   .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map            = SL_SI91X_FEAT_SECURITY_OPEN,
-                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER | SL_SI91X_TCP_IP_FEAT_MDNSD
-                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+  .boot_config = { .oper_mode       = SL_SI91X_ACCESS_POINT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map = SL_SI91X_FEAT_SECURITY_OPEN,
+                   .tcp_ip_feature_bit_map =
+                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #if defined(SLI_SI917) || defined(SLI_SI915)

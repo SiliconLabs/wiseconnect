@@ -36,7 +36,8 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -75,7 +76,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration
 
-- Here mentioned pin numbers for BRD4338a (B0 2.0v boards) firmware version 18 board if user want to use different radio board, refer to board specific user guide.
+- Here mentioned pin numbers for BRD4338a firmware version 18 board if user want to use different radio board, refer to board specific user guide.
 
   | INPUT SELECTION       | VALUE TO ADCP |
   | --------------        | ------------  |

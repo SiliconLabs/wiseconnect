@@ -84,18 +84,21 @@ The SiWx917 clock subsystem facilitates changing the clock source and/or frequen
 * Configurable independent division factors for varying the frequencies of different functional blocks
 * Configurable independent clock gating for different functional blocks
 
-By default the MCU clock is configured to 40 MHz using the **XTAL_CLK** clock source.
+By default, the M4 Core clock is configured to 180 MHz **SOC_PLL_CLK** and **XTAL_CLK** is the reference clock for this PLL.
+
+If **Power Manager** component is installed in the application, the default power state is set to **PS3 Powersave** where MCU clock is set to 40 MHz using the **XTAL_CLK** clock source
 
 The following example code snippet illustrates setting the SOCPLL clock (1 MHz to 180 MHz) as MCUSOC-Clock:
 
 ```C
 #include "sl_si91x_clock_manager.h"
 
-#define SOC_PLL_CLK  (180000000UL) // 180 MHz default SoC PLL Clock as source to Processor
+#define SOC_PLL_CLK  (180000000UL) // 180 MHz SoC PLL Clock as source to M4 Core
 
-// Core Clock runs at 180 MHz SOC PLL Clock
+// M4 Core Clock runs at 180 MHz SOC PLL Clock
 sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
 ```
+
 ### Custom Sys-Tick Handler
 When using the CMSIS_OS2 wrapper for FreeRTOS, the SysTick handler is provided by default. This handler increments the OS ticks with every SysTick interrupt. However, in tickless mode, the entire RTOS relies on the Sleep timer, and OS ticks are incremented in the Sleep timer IRQ handler. Thus, simultaneously using the SysTick and Sleep timer can affect the OS ticks.
 

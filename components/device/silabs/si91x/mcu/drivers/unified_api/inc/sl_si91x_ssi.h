@@ -171,6 +171,7 @@ typedef enum {
 
 /***************************************************************************/
 /**
+ * @brief This API is no longer supported due to the restriction on peripheral drivers to configuring clocks.
  * @brief To configure the SSI clock.
  * 
  * @details Configures the PLL clock and SOC clock with the values set by the user in the clock configuration structure.
@@ -178,11 +179,7 @@ typedef enum {
  * @param[in] clock_config Pointer to the clock configuration structure \ref sl_ssi_clock_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Success, timer clock-source parameters configured properly.
- *         - SL_STATUS_FAIL               - Generic error.
- *         - SL_STATUS_NOT_INITIALIZED    - Clock is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Success.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -277,7 +274,6 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
  *          When the received data is equal to the data_length passed in this function, a callback event is generated which can be registered using \ref sl_si91x_ssi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_configure_clock 
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  *      - \ref sl_si91x_ssi_set_slave_number
@@ -305,7 +301,6 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
  *          When the sent data is equal to the data_length passed in this function, a callback event is generated which can be registered using \ref sl_si91x_ssi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_configure_clock 
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  *      - \ref sl_si91x_ssi_set_slave_number
@@ -334,7 +329,6 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
  *          a callback event is generated which can be registered using \ref sl_si91x_ssi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_configure_clock 
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  *      - \ref sl_si91x_ssi_set_slave_number
@@ -380,7 +374,6 @@ sl_ssi_version_t sl_si91x_ssi_get_version(void);
  *          It is generally used to poll the busy status of SSI Master/ULP Master.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_configure_clock
  *      - \ref sl_si91x_ssi_init
  *      - \ref sl_si91x_ssi_set_configuration
  * 
@@ -398,7 +391,6 @@ sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
  *          data items received at the time of the function call.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_configure_clock 
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  *  
@@ -416,7 +408,6 @@ uint32_t sl_si91x_ssi_get_rx_data_count(sl_ssi_handle_t ssi_handle);
  *          data items transmitted at the time of the function call.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_configure_clock 
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  * 
@@ -584,9 +575,7 @@ __STATIC_INLINE sl_status_t sl_si91x_ssi_set_slave_number(uint8_t number)
 *
 *   @n @section SSI_Config Configuration
 *
-*   @li SSI allows the configuration of several parameters, including the mode of the SSI clock,
-*       which can be set using @ref sl_ssi_clock_config_t and then called by the API
-*       @ref sl_si91x_ssi_configure_clock(). The mode of the SSI peripheral clock, such as clock polarity and clock phase,
+*   @li SSI allows the configuration of several parameters. The mode of the SSI peripheral clock, such as clock polarity and clock phase,
 *       can be set using @ref ssi_peripheral_clock_mode_t. The SSI peripheral device mode
 *       (SSI master/SSI slave/ULP SSI Master) can be configured using @ref sl_ssi_instance_t.
 *       The bit width may be adjusted between 4 and 16, and the bit rate between 500,000 and 40,000,000 bits per second.
@@ -601,13 +590,11 @@ __STATIC_INLINE sl_status_t sl_si91x_ssi_set_slave_number(uint8_t number)
 *   Most of the SSI functions take @ref sl_ssi_control_config_t as an argument and are invoked in
 *   the following order:
 *
-*   1. Set the clock for the SSI peripheral by configuring the PLL clock and
-*      SOC clock with the value set by the user in the clock configuration structure using @ref sl_si91x_ssi_configure_clock.
-*   2. Initialize the SSI using @ref sl_si91x_ssi_init.
-*   3. Control and configure the SSI using @ref sl_si91x_ssi_set_configuration.
-*   4. Register the user event callback using @ref sl_si91x_ssi_register_event_callback.
-*   5. Send data to the secondary device using @ref sl_si91x_ssi_send_data.
-*   6. Uninitialize the SSI using @ref sl_si91x_ssi_deinit.
+*   1. Initialize the SSI using @ref sl_si91x_ssi_init.
+*   2. Control and configure the SSI using @ref sl_si91x_ssi_set_configuration.
+*   3. Register the user event callback using @ref sl_si91x_ssi_register_event_callback.
+*   4. Send data to the secondary device using @ref sl_si91x_ssi_send_data.
+*   5. Uninitialize the SSI using @ref sl_si91x_ssi_deinit.
 *
 * @} (end addtogroup SSI ) ********************************************************/
 

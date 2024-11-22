@@ -75,4 +75,4 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 3. After successful program execution, observe the prints in the serial console.
 
      ### Output console
-     > ![Figure: Output](resources/readme/powerManagerWirelessOutputConsole.png) 
+     > ![Figure: Output](resources/readme/output.png) 

@@ -29,7 +29,7 @@
 - The power domains will be disabled and NWP will be shutdown.
 - The application will then switch to the PS4 state and clock is at 180 MHz(performance mode).
 - Finally, the application will enter the ps4 sleep mode.
-- To ensure a continuous PS4 active state, configure the ACTIVE_STATE macro to 1 in the application. This will transition the application to the PS4 state with the clock running at 180 MHz and begin toggling the NPSS GPIO 3(P18 on the B0 2.0 WPK Pin).
+- To ensure a continuous PS4 active state, configure the ACTIVE_STATE macro to 1 in the application. This will transition the application to the PS4 state with the clock running at 180 MHz and begin toggling the NPSS GPIO 3(P18 on the WPK).
 
 ## Prerequisites/Setup Requirements
 
@@ -90,6 +90,6 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 3. After successful program execution, the prints in the serial console look as shown below.
   ![Figure: Ps4 Sleep State](resources/readme/ps4_sleep_state.png)
 4. For Active state, please set the ACTIVE_STATE macro as 1.
-5. This will continuously toggle the NPSS GPIO 3 (P18 on the B0 2.0 WPK Pin), indicating that the application is in an active state.
+5. This will continuously toggle the NPSS GPIO 3 (P18 on the WPK), indicating that the application is in an active state.
 6. After successful program execution, the prints in the serial console look as shown below.
   ![Figure: PS4 Active State](resources/readme/ps4_active_state.png)

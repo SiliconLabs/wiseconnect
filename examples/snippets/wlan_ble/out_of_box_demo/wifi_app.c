@@ -469,7 +469,7 @@ void ping_silabs()
 
   do {
     //! Getting IP address of the remote server using DNS request
-    status = sl_net_host_get_by_name((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status = sl_net_dns_resolve_hostname((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
@@ -707,7 +707,8 @@ sl_status_t mqtt_example()
 
   do {
 
-    status = sl_net_host_get_by_name((const char *)mqtt_hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status =
+      sl_net_dns_resolve_hostname((const char *)mqtt_hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
@@ -841,11 +842,13 @@ void wifi_app_task(void)
         wifi_client_profile.config.security = sec_type;
 
         // Set the custom Wi-Fi client profile
-        status =
-          sl_net_set_credential(wifi_client_profile.config.credential_id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
-        if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
-          continue;
+        if (sec_type != SL_WIFI_OPEN) {
+          status =
+            sl_net_set_credential(wifi_client_profile.config.credential_id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
+          if (status != SL_STATUS_OK) {
+            printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
+            continue;
+          }
         }
 
         status =

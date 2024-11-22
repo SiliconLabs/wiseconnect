@@ -223,6 +223,7 @@ sl_websocket_error_t create_and_send_websocket_data(void)
     .ip_address          = SERVER_IP_ADDR,
     .data_cb             = data_callback,
     .remote_terminate_cb = remote_terminate_callback,
+    .enable_ssl          = false,
   };
 
   sl_websocket_error_t ws_error = sl_websocket_init(&ws_handle, &ws_config);

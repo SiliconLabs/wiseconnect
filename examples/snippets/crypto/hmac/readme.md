@@ -52,7 +52,10 @@ Open `app.c` file and configure the following parameters accordingly
 
 - "msg" refers to plain data which is given to HMAC engine for encryption with all sizes of key.
 - "key" refers to key which is used to encrypt/decrypt the "msg" using  HMAC engine.
+- "hmac_mode" can be configured to one of the following mode - "SL_SI91X_HMAC_SHA_1", "SL_SI91X_HMAC_SHA_256", "SL_SI91X_HMAC_SHA_384", "SL_SI91X_HMAC_SHA_512" 
 - After filling the appropriate **sl_si91x_hmac_config_t** configuration, `sl_si91x_hmac()` stores the digest in the provided buffer. 
+- "USE_WRAPPED_KEYS" is defined by default which will enable key wrapping functionality.
+- `sl_si91x_wrap()` pads and wraps the key based on the "padding" and "hmac_mode" configurations and stores it in the provided buffer.
 
 ## Test the Application
 

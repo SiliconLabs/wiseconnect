@@ -85,7 +85,6 @@ define:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
-  - path: resources/readme/powerManagerWirelessOutputConsole.png 
   - path: resources/power_manager_integration_guide/power_manager_integration.pdf
 ui_hints:
   highlight:

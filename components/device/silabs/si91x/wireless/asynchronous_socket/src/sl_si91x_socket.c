@@ -340,9 +340,9 @@ int sl_si91x_sendto_async(int socket,
 {
 
   UNUSED_PARAMETER(flags);
-  sl_status_t status                     = SL_STATUS_OK;
-  sli_si91x_socket_t *si91x_socket       = get_si91x_socket(socket);
-  sl_si91x_socket_send_request_t request = { 0 };
+  sl_status_t status                      = SL_STATUS_OK;
+  sli_si91x_socket_t *si91x_socket        = get_si91x_socket(socket);
+  sli_si91x_socket_send_request_t request = { 0 };
 
   // Check if the socket is valid
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
@@ -456,9 +456,11 @@ int sl_si91x_recvfrom(int socket,
   sl_si91x_wait_period_t wait_time     = 0;
   sl_si91x_req_socket_read_t request   = { 0 };
   ssize_t bytes_read                   = 0;
+  size_t max_buf_len                   = 0;
   sl_si91x_socket_metadata_t *response = NULL;
   sli_si91x_socket_t *si91x_socket     = get_si91x_socket(socket);
   sl_wifi_buffer_t *buffer             = NULL;
+  sl_si91x_packet_t *packet            = NULL;
 
   // Check if the socket is valid
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
@@ -482,19 +484,27 @@ int sl_si91x_recvfrom(int socket,
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->state != CONNECTED && si91x_socket->state != UDP_UNCONNECTED_READY, EBADF);
 
   // Limit the buffer length based on the socket type
-  if (si91x_socket->type == SOCK_STREAM) {
-    if (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)
-      buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
-                                                                     : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
-  } else if ((si91x_socket->type == SOCK_DGRAM)
-             && (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)) {
-    buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
-                                                                   : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
+  if (si91x_socket->local_address.sin6_family == AF_INET) {
+    if (si91x_socket->type == SOCK_STREAM) {
+      max_buf_len = DEFAULT_STREAM_MSS_SIZE_IPV4;
+    } else if (si91x_socket->type == SOCK_DGRAM) {
+      max_buf_len = DEFAULT_DATAGRAM_MSS_SIZE_IPV4;
+    }
+  } else if (si91x_socket->local_address.sin6_family == AF_INET6) {
+    if (si91x_socket->type == SOCK_STREAM) {
+      max_buf_len = DEFAULT_STREAM_MSS_SIZE_IPV6;
+    } else if (si91x_socket->type == SOCK_DGRAM) {
+      max_buf_len = DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
+    }
   }
 
+  if (max_buf_len && (buf_len > max_buf_len)) {
+    buf_len = max_buf_len;
+  }
   // Initialize the socket read request with the socket ID and requested buffer length
   request.socket_id = (uint8_t)si91x_socket->id;
   memcpy(request.requested_bytes, &buf_len, sizeof(buf_len));
+  memcpy(request.read_timeout, &si91x_socket->read_timeout, sizeof(si91x_socket->read_timeout));
   wait_time = (SL_SI91X_WAIT_FOR_EVER | SL_SI91X_WAIT_FOR_RESPONSE_BIT);
 
   sl_status_t status = sli_si91x_send_socket_command(si91x_socket,
@@ -511,7 +521,11 @@ int sl_si91x_recvfrom(int socket,
 
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
-  response = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  // Retrieve the packet from the buffer
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+
+  // Extract the socket receive response data from the firmware packet
+  response = (sl_si91x_socket_metadata_t *)packet->data;
 
   // Determine the number of bytes read, considering the buffer length and response length
   bytes_read = (response->length <= buf_len) ? response->length : buf_len;

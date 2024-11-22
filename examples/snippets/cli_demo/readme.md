@@ -178,7 +178,7 @@ reset
 20. wifi_set_performance_profile ultra_power_save
 21. wifi_get_statistics
 22. wifi_get_performance_profile
-23. sl_net_host_get_by_name **url** -t **time_in_milliseconds** -i **ipv4/ipv6**
+23. sl_net_dns_resolve_hostname **url** -t **time_in_milliseconds** -i **ipv4/ipv6**
 24. wifi_iot_socket_create -i 1 -j 2 -k 2
 25. wifi_iot_socket_connect -i 0 -j **server_ip** -k 4 -l **server_port**
 26. wifi_iot_socket_bind -i 0 -j **local_ip** -k 4 -l **local_port**

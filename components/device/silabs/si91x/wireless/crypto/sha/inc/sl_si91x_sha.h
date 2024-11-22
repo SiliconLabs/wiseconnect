@@ -27,7 +27,7 @@
  * @{ 
  */
 
-#define SL_SI91x_SHA_LEN_INVALID 0 ///< SHA length is invalid
+#define SL_SI91X_SHA_LEN_INVALID 0 ///< SHA length is invalid
 /**
  * @brief Enumeration defining SHA modes supported by the SI91X device.
  *
@@ -35,11 +35,11 @@
  * such as SHA1, SHA224, SHA256, SHA384, and SHA512 modes.
  */
 typedef enum {
-  SL_SI91x_SHA_1 = 1, ///< SHA 1 mode
-  SL_SI91x_SHA_256,   ///< SHA 256 mode
-  SL_SI91x_SHA_384,   ///< SHA 384 mode
-  SL_SI91x_SHA_512,   ///< SHA 512 mode
-  SL_SI91x_SHA_224    ///< SHA 224 mode
+  SL_SI91X_SHA_1 = 1, ///< SHA 1 mode
+  SL_SI91X_SHA_256,   ///< SHA 256 mode
+  SL_SI91X_SHA_384,   ///< SHA 384 mode
+  SL_SI91X_SHA_512,   ///< SHA 512 mode
+  SL_SI91X_SHA_224    ///< SHA 224 mode
 } sl_si91x_crypto_sha_mode_t;
 
 /**
@@ -49,11 +49,11 @@ typedef enum {
  * including SHA1, SHA224, SHA256, SHA384, and SHA512 modes.
  */
 typedef enum {
-  SL_SI91x_SHA_1_DIGEST_LEN   = 20, ///< Digest length for SHA 1
-  SL_SI91x_SHA_256_DIGEST_LEN = 32, ///< Digest length for SHA 256
-  SL_SI91x_SHA_384_DIGEST_LEN = 48, ///< Digest length for SHA 384
-  SL_SI91x_SHA_512_DIGEST_LEN = 64, ///< Digest length for SHA 512
-  SL_SI91x_SHA_224_DIGEST_LEN = 28  ///< Digest length for SHA 224
+  SL_SI91X_SHA_1_DIGEST_LEN   = 20, ///< Digest length for SHA 1
+  SL_SI91X_SHA_256_DIGEST_LEN = 32, ///< Digest length for SHA 256
+  SL_SI91X_SHA_384_DIGEST_LEN = 48, ///< Digest length for SHA 384
+  SL_SI91X_SHA_512_DIGEST_LEN = 64, ///< Digest length for SHA 512
+  SL_SI91X_SHA_224_DIGEST_LEN = 28  ///< Digest length for SHA 224
 } sl_si91x_sha_length_t;
 
 /** @} */

@@ -76,8 +76,7 @@ After transmission the data is compared and result is printed on the console.
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [WPK(BRD4002) + BRD4338A]. It will act as a leader 
-- Silicon Labs [WPK(BRD4002) + BRD4338A]. It will act as a follower 
+- Silicon Labs [WPK(BRD4002) + BRD4338A]. It will act as a leader and follower
 
 ### Software Requirements
 
@@ -159,7 +158,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## USART Pin Configuration
 
-  | USART PINS     | GPIO    | Connector     | UART-TTL cable |
+  | USART PINS     | GPIO    | Breakout pin     | UART-TTL cable |
   | -------------- | ------- | ------------- | -------------- |
   | USART0_TX_PIN  | GPIO_30 |     P35       | RX pin         |
   | USART0_RX_PIN  | GPIO_29 |     P33       | TX Pin         | 

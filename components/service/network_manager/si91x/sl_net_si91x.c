@@ -52,10 +52,10 @@ typedef enum { SLI_SI91X_CLIENT = 0, SLI_SI91X_AP = 1, SLI_SI91X_MAX_INTERFACES 
 static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interface,
                                                     const sl_ip_address_t *ip_address,
                                                     uint8_t command_type);
-sl_status_t sl_net_host_get_by_name(const char *host_name,
-                                    const uint32_t timeout,
-                                    const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
-                                    sl_ip_address_t *sl_ip_address);
+sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
+                                        const uint32_t timeout,
+                                        const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
+                                        sl_ip_address_t *sl_ip_address);
 
 extern bool device_initialized;
 
@@ -220,10 +220,10 @@ static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interfac
 }
 
 // Resolve a host name to an IP address using DNS
-sl_status_t sl_net_host_get_by_name(const char *host_name,
-                                    const uint32_t timeout,
-                                    const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
-                                    sl_ip_address_t *sl_ip_address)
+sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
+                                        const uint32_t timeout,
+                                        const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
+                                        sl_ip_address_t *sl_ip_address)
 {
   // Check for a NULL pointer for sl_ip_address
   SL_WIFI_ARGS_CHECK_NULL_POINTER(sl_ip_address);

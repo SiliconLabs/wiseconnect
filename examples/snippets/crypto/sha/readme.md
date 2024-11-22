@@ -60,7 +60,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ## Application Build Environment
 
 - Configure the following parameters in app.c file and update/modify following macros if required
-- In calling function sl_si91x_sha, change SL_SI91x_SHA_512 to required sha mode
+- In calling function sl_si91x_sha, change SL_SI91X_SHA_512 to required sha mode
 - From given configuration,
 “SHA” refers to data which is given as input to SHA for computing digest.
 

@@ -36,6 +36,8 @@ component:
     id: ulp_timers_instance
 other_file:
   - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/qei_uc_screen.png
+  - path: resources/readme/output_qei.png
 ui_hints:
   highlight:
     - path: readme.md

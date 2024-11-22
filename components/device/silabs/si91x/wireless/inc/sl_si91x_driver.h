@@ -80,6 +80,8 @@
 #define SL_SI91X_SOCKET_COMMAND_TX_PENDING_EVENT SL_SI91X_EXTRA_EVENT_FLAG(2)
 #define SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT   SL_SI91X_EXTRA_EVENT_FLAG(3)
 #define SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT      SL_SI91X_EXTRA_EVENT_FLAG(4)
+#define SL_SI91X_TERMINATE_BUS_THREAD_EVENT      (1 << 21)
+#define SL_SI91X_TERMINATE_BUS_THREAD_EVENT_ACK  (1 << 22)
 
 #define SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS                                                           \
   (SL_SI91X_COMMON_TX_PENDING_EVENT | SL_SI91X_WLAN_TX_PENDING_EVENT | SL_SI91X_NETWORK_TX_PENDING_EVENT \
@@ -203,7 +205,7 @@ sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl
  * @brief
  *   Send a socket command.
  * @param[in] request
- *   @ref sl_si91x_socket_send_request_t Pointer to socket command packet.
+ *   @ref sli_si91x_socket_send_request_t Pointer to socket command packet.
  * @param[in] data
  *   Pointer to socket data.
  * @param[in] wait_time
@@ -214,7 +216,7 @@ sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_driver_send_socket_data(const sl_si91x_socket_send_request_t *request,
+sl_status_t sl_si91x_driver_send_socket_data(const sli_si91x_socket_send_request_t *request,
                                              const void *data,
                                              uint32_t wait_time);
 
@@ -481,9 +483,10 @@ sl_status_t sl_si91x_get_ram_log(uint32_t address, uint32_t length);
  *   The address in the common flash memory where the write operation should begin.
  *   - For the M4 region, the write address should start from 0x8000000. Possible values range from the M4 image end address to the M4 region end address.
  *   - For the NWP region, the write address should range from 0 to (20K-1).
- * 
+ *   - For sector erase, it should be multiples of 4K.
+ *
  * @param[in] write_data
- *   Pointer to the data to be written. For sector erase, it should be multiples of 4K.
+ *   Pointer to the data to be written. 
  * 
  * @param[in] write_data_length
  *   The total length of the data, which should be multiples of 4K for sector erase.
@@ -808,7 +811,7 @@ sl_status_t sl_si91x_frequency_offset(const sl_si91x_freq_offset_t *frequency_ca
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
  * @note 
  *   In FCC-certified SiWx91x ACx modules the behavior is as follows
- *      1. The device region functionality is not supported for ACx modules (ensure the SL_SI91X_ACX_MODULE macro is defined). If the API is called, it will return the error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE.
+ *      1. For FCC-certified modules, using this API will result in an SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE error unless the module is in SL_SI91X_TRANSMIT_TEST_MODE.
  *      2. STA mode channels 1 to 11 are actively scanned and 12,13,14 are passively scanned.
  *      3. AP mode and Concurrent mode supports only 1 to 11 channels.
  *      4. The AP will not broadcast the Country Information Element (IE).
@@ -1085,8 +1088,7 @@ sl_status_t sl_si91x_fwup_load(const uint8_t *content, uint16_t length);
 
 /***************************************************************************/ /**
  * @brief
- *   Abort the firmware update process on the SiWx91x device. 
- *    and also used to reset all firmware upgradation helper variables in NWP. This is a blocking API.
+ *   Abort the firmware update process on the SiWx91x device and reset all firmware upgrade helper variables in the NWP. This is a blocking API.
  * 
  * @details
  *   This function aborts the ongoing firmware update process on the SiWx91x device. It is a blocking API and will not return until the process is aborted.

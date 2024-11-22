@@ -86,21 +86,21 @@
 
 /** @addtogroup SL_WIFI_CONSTANTS
   * @{ */
-#define SL_TRANSCEIVER_CHANNEL_NO            14 ///< Wi-Fi transceiver default channel
-#define SL_TRANSCEIVER_TX_POWER              20 ///< Wi-Fi transceiver default TX power
-#define DEFAULT_TRANSCEIVER_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
-#define DEFAULT_TRANSCEIVER_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
-#define DEFAULT_TRANSCEIVER_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
-#define DEFAULT_TRANSCEIVER_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
-#define DEFAULT_TRANSCEIVER_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
-#define DEFAULT_TRANSCEIVER_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
-#define DEFAULT_TRANSCEIVER_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
-#define DEFAULT_TRANSCEIVER_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
-#define DEFAULT_TRANSCEIVER_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
-#define DEFAULT_TRANSCEIVER_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
-#define DEFAULT_TRANSCEIVER_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
-#define DEFAULT_TRANSCEIVER_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
-#define DEFAULT_TRANSCEIVER_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_CHANNEL_NO               14 ///< Wi-Fi transceiver default channel
+#define SL_WIFI_TRANSCEIVER_TX_POWER                 20 ///< Wi-Fi transceiver default TX power
+#define SL_WIFI_TRANSCEIVER_DEFAULT_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
 /** @} */
 
 /** @addtogroup SL_WIFI_TYPES Types

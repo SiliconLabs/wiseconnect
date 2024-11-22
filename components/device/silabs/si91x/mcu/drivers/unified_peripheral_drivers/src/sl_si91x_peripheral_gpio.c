@@ -1184,6 +1184,8 @@ uint32_t sl_si91x_gpio_get_ulp_interrupt_status(uint32_t flags)
  *  - Set the direction of the GPIO pin.
  *  - Configure the UULP pin interrupt.
  * Enable the IRQ handler.
+ * @note: The NPSS GPIO interrupt pin number is transformed into a bit mask by
+ * shifting a single bit to the left by the specified pin number.
 *******************************************************************************/
 void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags, uint8_t npssgpio_interrupt)
 {

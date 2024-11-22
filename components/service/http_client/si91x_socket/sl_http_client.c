@@ -442,6 +442,11 @@ static void sli_si91x_load_extended_headers_into_request_buffer(uint8_t *buffer,
 {
   sl_http_client_header_t *current_header = extended_header;
 
+  if (current_header == NULL) {
+    buffer[(*http_buffer_offset)] = '\0';
+    (*http_buffer_offset)++;
+  }
+
   while (current_header != NULL) {
     // Copy header key
     *http_buffer_offset += snprintf((char *)(buffer + (*http_buffer_offset)),
@@ -458,16 +463,21 @@ static void sli_si91x_load_extended_headers_into_request_buffer(uint8_t *buffer,
                                     "%s",
                                     current_header->value);
 
+    // Add carriage return to buffer
+    buffer[(*http_buffer_offset)] = '\r';
+    (*http_buffer_offset)++;
+
+    // Add newline to buffer
+    buffer[(*http_buffer_offset)] = '\n';
+    (*http_buffer_offset)++;
+
+    // Check if current header is the last one
     if (current_header->next == NULL) {
+      // Add null terminator to buffer
       buffer[(*http_buffer_offset)] = '\0';
       (*http_buffer_offset)++;
       break;
     } else {
-      buffer[(*http_buffer_offset)] = '\r';
-      (*http_buffer_offset)++;
-      buffer[(*http_buffer_offset)] = '\n';
-      (*http_buffer_offset)++;
-
       // Point to next header
       current_header = current_header->next;
     }
@@ -958,6 +968,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
                                                             &http_buffer_offset);
       } else {
         http_put_request->http_put_buffer[http_buffer_offset] = '\0';
+        http_buffer_offset++;
       }
 
       // Check if request buffer is overflowed

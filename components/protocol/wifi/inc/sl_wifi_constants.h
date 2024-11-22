@@ -246,7 +246,7 @@ typedef enum {
 typedef enum {
   SL_WIFI_SCAN_TYPE_ACTIVE = 0x00, ///< Active scan: Transmit probe requests and listen for responses
   SL_WIFI_SCAN_TYPE_PASSIVE =
-    0x01, ///< Passive scan: No active transmissions, listen for AP beacons and probe responses
+    0x01, ///< Passive scan: No active transmissions, listen for AP beacons and broadcast probe responses
   SL_WIFI_SCAN_TYPE_EXTENDED =
     0x02, ///< Extended Active scan. Transmit probe requests and listen for responses to get more than SL_WIFI_MAX_SCANNED_AP number of results
   SL_WIFI_SCAN_TYPE_PROHIBITED_CHANNELS = 0x04, ///< Scan channels prohibited by regulatory region

@@ -1080,15 +1080,15 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
 }
 
 sl_status_t sli_si91x_send_socket_data(sli_si91x_socket_t *si91x_socket,
-                                       sl_si91x_socket_send_request_t *request,
+                                       const sli_si91x_socket_send_request_t *request,
                                        const void *data)
 {
   sl_wifi_buffer_t *buffer;
   sl_si91x_packet_t *packet;
-  sl_si91x_socket_send_request_t *send;
+  sli_si91x_socket_send_request_t *send;
 
   sl_status_t status     = SL_STATUS_OK;
-  uint16_t header_length = (request->data_offset - sizeof(sl_si91x_socket_send_request_t));
+  uint16_t header_length = (request->data_offset - sizeof(sli_si91x_socket_send_request_t));
   uint32_t data_length   = request->length;
 
   if (data == NULL) {
@@ -1107,7 +1107,7 @@ sl_status_t sli_si91x_send_socket_data(sli_si91x_socket_t *si91x_socket,
   status = sl_si91x_host_allocate_buffer(
     &buffer,
     SL_WIFI_TX_FRAME_BUFFER,
-    sizeof(sl_si91x_packet_t) + sizeof(sl_si91x_socket_send_request_t) + header_length + data_length,
+    sizeof(sl_si91x_packet_t) + sizeof(sli_si91x_socket_send_request_t) + header_length + data_length,
     SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -1119,12 +1119,12 @@ sl_status_t sli_si91x_send_socket_data(sli_si91x_socket_t *si91x_socket,
 
   memset(packet->desc, 0, sizeof(packet->desc));
 
-  send = (sl_si91x_socket_send_request_t *)packet->data;
-  memcpy(send, request, sizeof(sl_si91x_socket_send_request_t));
+  send = (sli_si91x_socket_send_request_t *)packet->data;
+  memcpy(send, request, sizeof(sli_si91x_socket_send_request_t));
   memcpy((send->send_buffer + header_length), data, data_length);
 
   // Fill frame type
-  packet->length = (sizeof(sl_si91x_socket_send_request_t) + header_length + data_length) & 0xFFF;
+  packet->length = (sizeof(sli_si91x_socket_send_request_t) + header_length + data_length) & 0xFFF;
 
   //  ++data_queue_appended_count;
   CORE_irqState_t state = CORE_EnterAtomic();

@@ -75,7 +75,8 @@ Compare internal voltages.
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit [BRD2708A / BRD2911A]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 
@@ -165,9 +166,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ```
 - Note :
   1. At a time only one MACRO should be enable from above Compare MACROs.
-  2. For A0 boards use Comparator-1
-  3. For B0 boards use Comparator-2   
-  4. 4.To compare external input to buffer output enable macro 'COMPARE_POS_INPUT_EXTERNAL_NEG_INPUT_EXTERNAL' and 
+  2. Use Comparator-2 for 917 boards   
+  3. To compare external input to buffer output enable macro 'COMPARE_POS_INPUT_EXTERNAL_NEG_INPUT_EXTERNAL' and 
   select 'External input-1' as non-inverting input & 'Reference buffer ouput' as inverting input from UC. Reference buffer
   will produce a fixed output of 1.2v only.
 ```C

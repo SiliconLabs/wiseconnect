@@ -502,19 +502,19 @@ void GRP_IRQ1_Handler(void)
 void UULP_PIN_IRQ_Handler(void)
 {
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_1) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_1);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_0_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_2) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_2);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_1_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_3) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_3);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_2_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_4) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_4);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_3_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_5) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_5);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_4_BIT);
   }
 }
 

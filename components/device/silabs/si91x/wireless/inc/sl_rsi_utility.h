@@ -500,4 +500,22 @@ sl_status_t sli_si91x_flush_all_socket_data_queues(uint8_t vap_id);
 sl_status_t sli_si91x_flush_socket_data_queues_based_on_queue_type(uint8_t index);
 #endif
 
+/**
+ * @brief Flushes all packets from the specified data transmission queue.
+ * @details This function removes all packets from the provided transmission queue (`tx_data_queue`) and frees the associated memory. It ensures thread-safe operation by preventing race conditions during the process.
+ *
+ * @param[in, out] tx_data_queue Pointer to the transmission data queue to be flushed. 
+ *                               The queue will be reset to an empty state after the function completes.
+ *
+ * @return 
+ * - `SL_STATUS_OK`: The operation was successful, and the queue has been flushed.
+ * - `SL_STATUS_FAIL`: The provided queue pointer is NULL.
+ *
+ * @note 
+ * - This function is typically used to clear transmission buffers in scenarios such as error recovery or reinitialization.
+ * - The function uses atomic operations to ensure that the queue is safely manipulated in multi-threaded environments.
+ * - The function resets the queue to an empty state after flushing all packets.
+ */
+sl_status_t sli_si91x_flush_generic_data_queues(sl_si91x_buffer_queue_t *tx_data_queue);
+
 #endif // _SL_RSI_UTILITY_H_
