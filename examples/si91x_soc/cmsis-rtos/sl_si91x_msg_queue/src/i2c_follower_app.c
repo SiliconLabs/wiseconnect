@@ -33,7 +33,6 @@
 #define OWN_I2C_ADDR                         0x50        // Own I2C address
 #define RX_LENGTH                            BUFFER_SIZE // Number of bytes to receive
 #define TX_LENGTH                            BUFFER_SIZE // Number of bytes to send
-#define OFFSET_LENGTH                        1           // Offset length
 #define FIFO_THRESHOLD                       0x0         // FIFO threshold
 #define ZERO_FLAG                            0           // Zero flag, No argument
 #define PINMUX_MODE                          6           // I2C pinmux mode
@@ -116,7 +115,7 @@ static uint32_t read_count          = 0;
 static uint8_t *write_data;
 static uint8_t *read_data;
 static uint8_t i2c_write_buffer[BUFFER_SIZE];
-static uint8_t i2c_read_buffer[BUFFER_SIZE + OFFSET_LENGTH];
+static uint8_t i2c_read_buffer[BUFFER_SIZE];
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -185,7 +184,7 @@ void i2c_follower_example_process_action(void)
       case RECEIVE_DATA:
         if (receive_data_flag) {
           // Validation for executing the API only once.
-          i2c_receive_data(i2c_read_buffer, RX_LENGTH + OFFSET_LENGTH, OWN_I2C_ADDR);
+          i2c_receive_data(i2c_read_buffer, RX_LENGTH, OWN_I2C_ADDR);
           receive_data_flag = false;
         }
         if (i2c_receive_complete) {
@@ -215,7 +214,7 @@ void i2c_follower_example_process_action(void)
           DEBUGOUT("I2C_Task: Data read from UART_Message_Queue successfully and forwarding to Leader\n");
 
           // Validation for executing the API only once.
-          i2c_send_data(i2c_write_buffer, TX_LENGTH + OFFSET_LENGTH, OWN_I2C_ADDR);
+          i2c_send_data(i2c_write_buffer, TX_LENGTH, OWN_I2C_ADDR);
           send_data_flag = false;
         }
         if (i2c_send_complete) {

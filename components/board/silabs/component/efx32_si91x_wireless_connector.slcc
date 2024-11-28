@@ -83,6 +83,19 @@ include:
       - path: sl_hfxo_manager_config.h
       - path: sl_power_manager_config.h
       - path: sl_sleeptimer_config.h
+  - path: "config/brd4270a"
+    condition: [brd4270a]
+    file_list:
+      - path: FreeRTOSConfig.h
+      - path: sl_board_configuration.h
+      - path: sl_board_control_config.h
+      - path: sl_device_init_emu_config.h
+      - path: sl_device_init_hfrco_config.h
+      - path: sl_device_init_hfxo_config.h
+      - path: sl_device_init_lfxo_config.h
+      - path: sl_hfxo_manager_config.h
+      - path: sl_power_manager_config.h
+      - path: sl_sleeptimer_config.h
   - path: "config/brd8036a"
     condition: [brd8036a]
 define:

@@ -66,6 +66,14 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle);
  *
  * @return
  *   sl_websocket_error_t - Error code indicating the result of the operation.
+ *
+ * @note The following table lists the maximum individual chunk of data that can be sent over each supported protocol.
+ *       The length of the payload is specified in the `length` field of the `sl_websocket_send_request_t` structure.
+ *  
+ *  Protocol            | Maximum data chunk (bytes)
+ *  --------------------|---------------------------
+ *  WebSocket           | 1450 bytes
+ *  WebSocket over SSL  | 1362 bytes
  */
 sl_websocket_error_t sl_websocket_send_frame(sl_websocket_client_t *handle,
                                              const sl_websocket_send_request_t *send_request);
@@ -89,7 +97,8 @@ sl_websocket_error_t sl_websocket_close(sl_websocket_client_t *handle);
  *
  * @details
  *   This function deinitializes the WebSocket client by freeing allocated resources and resetting the state.
- *   It should be called only after the WebSocket connection has been closed.
+ *   It should be called only after the WebSocket connection has been closed as it also ensures that if the socket remains open after the @ref sl_websocket_close is invoked, it attempts to close the socket as part of its cleanup process.
+ *   Therefore, calling this function is mandatory whenever a WebSocket connection is terminated, ensuring proper cleanup.
  *
  * @param[in] handle
  *   Pointer to the WebSocket client structure. Must not be NULL.
@@ -104,6 +113,7 @@ sl_websocket_error_t sl_websocket_deinit(sl_websocket_client_t *handle);
  *
  * @details
  *   This function determines the opcode of the WebSocket from the socket ID.
+ *   The socket_id is obtained from the recv_data_callback from the sl_si91x_socket_metadata_t parameter.
  *
  * @param[in] socket_id
  *   The 16-bit socket ID from which to extract the opcode.

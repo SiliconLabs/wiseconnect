@@ -213,30 +213,17 @@ void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_si91
 
   // Handle the scenario where a Wi-Fi client disconnects from the AP.
   if (is_client_disconnected_from_ap) {
-    sl_mac_address_t mac_address = { 0 };
+
+    uint32_t payload_length = packet->length & 0x0FFF;
 
     // Extract the MAC address based on the specific disconnection command.
-    if (packet->command == RSI_WLAN_RSP_CLIENT_DISCONNECTED) {
-      // For a client disconnection, the MAC address is in the packet data.
-      memcpy((uint8_t *)&mac_address, (uint8_t *)packet->data, sizeof(sl_mac_address_t));
-    } else {
-      // For a general disconnect, the MAC address is in the SDK context.
-      memcpy((uint8_t *)&mac_address, (uint8_t *)data->sdk_context, sizeof(sl_mac_address_t));
-    }
+    if ((packet->command == RSI_WLAN_RSP_CLIENT_DISCONNECTED)
+        && (payload_length == sizeof(sli_si91x_ap_disconnect_resp_t))) {
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-    // Retrieve the destination IP address associated with the MAC address.
-    const sl_ip_address_t *destination_ip_address = sli_si91x_get_ap_client_ip_address_from_mac_address(mac_address);
-
-    // If an IP address is found, flush all socket TX queues for that destination.
-    if (destination_ip_address != NULL) {
-      sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(data->frame_status, destination_ip_address);
-    }
+      sli_si91x_flush_third_party_station_dependent_sockets((sli_si91x_ap_disconnect_resp_t *)packet->data);
 #endif
-
-    // Update AP client information after handling the disconnection.
-    sli_si91x_update_ap_client_info();
-
+    }
   } else if (is_tx_flush_required) {
     // Handle cases where a general TX flush might be needed due to connection changes.
 
@@ -302,14 +289,15 @@ void sli_si91x_network_cleanup_handler()
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 sl_status_t sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(uint16_t frame_status,
-                                                                          const sl_ip_address_t *dest_ip_add)
+                                                                          const sl_ip_address_t *dest_ip_add,
+                                                                          uint8_t vap_id)
 {
   sl_status_t status;
 
   // Loop through all sockets
   for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
     // Check if the socket exists and matches the required VAP ID
-    if (sli_si91x_sockets[index] != NULL) {
+    if ((sli_si91x_sockets[index] != NULL) && (vap_id == sli_si91x_sockets[index]->vap_id)) {
       bool is_same = 0;
       if (dest_ip_add->type == SL_IPV4) {
         const struct sockaddr_in *socket_address = (struct sockaddr_in *)&sli_si91x_sockets[index]->remote_address;
@@ -337,5 +325,44 @@ sl_status_t sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(uint16
   }
   // Return SL_STATUS_OK if all sockets were processed successfully
   return SL_STATUS_OK;
+}
+
+void sli_si91x_flush_third_party_station_dependent_sockets(const sli_si91x_ap_disconnect_resp_t *ap_disconnect_resp)
+{
+
+  sl_ip_address_t dest_ip_add = { 0 };
+  uint8_t vap_id = (SL_SI91X_CONCURRENT_MODE == get_opermode()) ? SL_SI91X_WIFI_AP_VAP_ID : SL_SI91X_WIFI_CLIENT_VAP_ID;
+  // IPv4 Address Handling
+  if (ap_disconnect_resp->flag & BIT(0)) {
+    dest_ip_add.type = SL_IPV4;
+    memcpy(dest_ip_add.ip.v4.bytes, ap_disconnect_resp->ipv4_address, SL_IPV4_ADDRESS_LENGTH);
+    if (!sli_si91x_is_ip_address_zero(&dest_ip_add)) {
+      sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(SL_STATUS_WIFI_CONNECTION_LOST,
+                                                                    &dest_ip_add,
+                                                                    vap_id);
+    }
+  }
+
+  // IPv6 Link-Local Address Handling
+  if (ap_disconnect_resp->flag & BIT(1)) {
+    dest_ip_add.type = SL_IPV6;
+    memcpy(dest_ip_add.ip.v6.bytes, ap_disconnect_resp->link_local_address, SL_IPV6_ADDRESS_LENGTH);
+    if (!sli_si91x_is_ip_address_zero(&dest_ip_add)) {
+      sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(SL_STATUS_WIFI_CONNECTION_LOST,
+                                                                    &dest_ip_add,
+                                                                    vap_id);
+    }
+  }
+
+  // IPv6 Global Address Handling
+  if (ap_disconnect_resp->flag & BIT(2)) {
+    dest_ip_add.type = SL_IPV6;
+    memcpy(dest_ip_add.ip.v6.bytes, ap_disconnect_resp->global_address, SL_IPV6_ADDRESS_LENGTH);
+    if (!sli_si91x_is_ip_address_zero(&dest_ip_add)) {
+      sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(SL_STATUS_WIFI_CONNECTION_LOST,
+                                                                    &dest_ip_add,
+                                                                    vap_id);
+    }
+  }
 }
 #endif

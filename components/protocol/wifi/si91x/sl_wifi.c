@@ -134,7 +134,6 @@ static sl_wifi_advanced_scan_configuration_t advanced_scan_configuration     = {
 static sl_wifi_advanced_client_configuration_t advanced_client_configuration = { 0 };
 int32_t validate_datarate(sl_wifi_data_rate_t data_rate);
 sl_status_t sl_wifi_get_associated_client_list(void *client_list_buffer, uint16_t buffer_length, uint32_t timeout);
-static sl_wifi_client_info_response_t sli_si91x_client_info = { 0 };
 
 static sl_status_t fill_join_request_security_using_encryption(sl_wifi_encryption_t encryption_mode,
                                                                uint8_t *security_type)
@@ -664,6 +663,11 @@ sl_status_t sl_wifi_set_advanced_client_configuration(sl_wifi_interface_t interf
 
   if (interface & SL_WIFI_AP_INTERFACE) {
     return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  //Check if provided client interface is up or not
+  if (!sl_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
   sl_si91x_rejoin_params_t rejoin_request = { .max_retry_attempts      = configuration->max_retry_attempts,
@@ -2568,21 +2572,4 @@ sl_status_t sl_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *
 
   VERIFY_STATUS_AND_RETURN(status);
   return status;
-}
-
-sl_status_t sli_si91x_update_ap_client_info()
-{
-  return sl_wifi_get_ap_client_info(SL_WIFI_AP_INTERFACE, &sli_si91x_client_info);
-}
-
-sl_ip_address_t *sli_si91x_get_ap_client_ip_address_from_mac_address(const sl_mac_address_t mac_add)
-{
-
-  for (uint16_t station_info_index = 0; station_info_index < sli_si91x_client_info.client_count; station_info_index++) {
-    sl_wifi_client_info_t *station_info = &sli_si91x_client_info.client_info[station_info_index];
-    if (!memcmp((const uint8_t *)&mac_add, (uint8_t *)&station_info->mac_adddress, sizeof(sl_mac_address_t))) {
-      return &station_info->ip_address;
-    }
-  }
-  return NULL;
 }

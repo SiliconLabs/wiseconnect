@@ -14,6 +14,8 @@ provides:
 - name: wifi_driver
 - condition: ["brd4271a"]
   name: efx_ncp_custom_host_mcu
+- condition: ["brd4270a"]
+  name: efx_ncp_custom_host_mcu
 source:
 - path: src/sl_si91x_driver.c
 - path: src/sl_rsi_utility.c
@@ -47,6 +49,8 @@ source:
   unless: ["efx_ncp_custom_host_mcu"]
 - path: host_mcu/efr32fg25/efx32_ncp_host.c
   condition: ["brd4271a"]
+- path: host_mcu/efr32fg25/efx32_ncp_host.c
+  condition: ["brd4270a"]
 include:
 - path: inc
 - path: inc/mqtt/inc

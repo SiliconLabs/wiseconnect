@@ -95,7 +95,7 @@ typedef struct sl_websocket_client_s sl_websocket_client_t;
  * @details This structure holds the configuration parameters for initializing a WebSocket client.
  */
 typedef struct {
-  char *host;                                      /**< WebSocket server host. */
+  char *host;                                      /**< WebSocket server host (e.g., "example.com"). */
   char *resource;                                  /**< WebSocket resource path (e.g., "/chat"). */
   uint16_t server_port;                            /**< WebSocket server port number. */
   uint16_t client_port;                            /**< Local client port number. */
@@ -109,11 +109,11 @@ typedef struct {
 /**
  * @brief WebSocket client structure.
  * 
- * @details This structure holds the state and configuration of a WebSocket client, including socket descriptors, connection state, and callback functions.
+ * @details This structure holds the state and configuration of a WebSocket client, including socket descriptors, connection state, and callback functions. This is not a user configurable structure.
  */
 typedef struct sl_websocket_client_s {
   int socket_fd;                                         /**< BSD socket file descriptor. */
-  char host[SL_SI91X_WEBSOCKET_MAX_HOST_LENGTH];         /**< WebSocket server host. */
+  char host[SL_SI91X_WEBSOCKET_MAX_HOST_LENGTH];         /**< WebSocket server host (e.g., "example.com"). */
   char resource[SL_SI91X_WEBSOCKET_MAX_RESOURCE_LENGTH]; /**< WebSocket resource path (e.g., "/chat"). */
   uint16_t server_port;                                  /**< WebSocket server port number. */
   uint16_t client_port;                                  /**< Local client port number. */
@@ -124,7 +124,7 @@ typedef struct sl_websocket_client_s {
   sl_si91x_socket_remote_termination_callback_t
     remote_terminate_cb; /**< Callback function for remote termination event. */
   bool enable_ssl;       /**< Enable SSL for WebSocket connection. */
-  void *user_context;    /**< User-defined context (for callbacks). */
+  void *user_context;    /**< User-defined context (for future reference). */
 } sl_websocket_client_t;
 
 /**

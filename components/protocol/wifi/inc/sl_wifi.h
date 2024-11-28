@@ -443,7 +443,7 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  * 	For 911x, advanced scan results are not populated to user.
  *      Default Active Channel time is 100 milliseconds. If the user wants to modify the time, 
  *      sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN, then
- *      the time is for foreground scan. Otherwise, it is used for background scanning.
+ *      the time is for foreground scan. Otherwise, it is used for background scanning. For more details, refer to @ref sl_wifi_scan_type_t.
  *      If the user wants to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE.
  *      If the user wants to enable Low Power (LP) mode in Passive Scan, user should enable lp_mode in sl_wifi_scan_configuration_t.
  *      The default channel time for passive scanning is set to 400 milliseconds. If user wants to modify the time, users can call the sl_si91x_set_timeout API to modify the time as per their requirements.
@@ -451,7 +451,7 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  *      Default Passive Scan Channel time is 400 milliseconds. If the user wants to modify the time, sl_si91x_set_timeout can be called.
  *      In case of SL_WIFI_SCAN_TYPE_EXTENDED scan type, use @ref sl_wifi_get_stored_scan_results() API to get the scan results; after the scan status callback is received. 
  *      This API is not applicable for ADV_SCAN scan_type in AP mode
- *      AP scan is supported - to trigger this, send a scan after sl_wifi_start_ap() API with the SL_WIFI_SCAN_TYPE_ACTIVE scan_type.
+ *      This API is supported in AP mode, to scan for - to trigger this, send a scan after sl_wifi_start_ap() API with the SL_WIFI_SCAN_TYPE_ACTIVE scan_type.
  ******************************************************************************/
 sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                const sl_wifi_ssid_t *optional_ssid,
@@ -1579,27 +1579,3 @@ sl_status_t sl_wifi_send_transceiver_data(sl_wifi_interface_t interface,
                                           uint8_t *payload,
                                           uint16_t payload_len);
 /** @} */
-
-/**
- * @brief Refreshes the Access Point (AP) client information.
- *
- * This function fetches the current client details for the specified
- * AP interface and updates the internal client information structure sl_wifi_client_info_t for all connected clients.
- *
- * @return sl_status_t
- *     - SL_STATUS_OK if the operation is successful.
- *     - Appropriate error code otherwise.
- */
-sl_status_t sli_si91x_update_ap_client_info();
-
-/**
- * @brief Retrieve the IP address of an AP client using its MAC address.
- *
- * This function searches through the list of connected clients and returns the IP address
- * of the client that matches the provided MAC address.
- *
- * @param[in] mac_add The MAC address of the client whose IP address is to be retrieved.
- *
- * @return A pointer to the IP address of the client if found, otherwise NULL.
- */
-sl_ip_address_t *sli_si91x_get_ap_client_ip_address_from_mac_address(const sl_mac_address_t mac_add);

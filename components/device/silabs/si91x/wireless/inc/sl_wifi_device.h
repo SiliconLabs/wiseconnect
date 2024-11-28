@@ -168,8 +168,10 @@
  * @def SL_SI91X_FEAT_LONG_ICMP_PACKET
  * @brief Support for long-sized ICMP packets.
  * @details
- * Enables support for long-sized Internet Control Message Protocol (ICMP) packets. Maximum 1472 bytes for IPv4 and 1452 bytes for IPv6.
- * 
+ * Enables support for long-sized Internet Control Message Protocol (ICMP) packets.
+ * Enable this bit to receive & process ICMP requests of size more than 308 bytes sent from peers.
+ * A maximum packet size of 1472 bytes can be processed for ICMP and 1452 bytes for ICMPv6.
+ * The limit for sending ICMP/ICMPv6 packets to peers continues to be limited to 308 bytes i.e. with the API sl_si91x_send_ping.
  * @note Bit 11 are reserved.
  */
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
@@ -184,9 +186,9 @@
 
 /**
  * @def SL_SI91X_FEAT_LONG_HTTP_URL
- * @brief Support for long HTTP GET URLs.
+ * @brief Support for long HTTP GET and OTAF URLs.
  * @details
- * Enables support for long HTTP GET URLs. The maximum URL length supported is 2048 bytes.
+ * Enables support for long HTTP GET and OTAF URLs. The maximum URL length supported is 2048 bytes.
  */
 #define SL_SI91X_FEAT_LONG_HTTP_URL BIT(14)
 

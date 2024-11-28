@@ -29,3 +29,7 @@ include:
     condition: [brd4271a]
     file_list:
       - path: si91x_ncp_uart_config.h
+  - path: "brd4270a"
+    condition: [brd4270a]
+    file_list:
+      - path: si91x_ncp_uart_config.h

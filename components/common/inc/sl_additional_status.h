@@ -372,7 +372,7 @@
 #define SL_STATUS_SI91X_SNMP_INTERNAL_ERROR      ((sl_status_t)0x10100) ///< SNMP internal error.
 #define SL_STATUS_SI91X_SNMP_INVALID_IP_PROTOCOL ((sl_status_t)0x10104) ///< SNMP invalid IP protocol error.
 #define SL_STATUS_SI91X_UNSUPPORTED_PWR_IDX_915  ((sl_status_t)0x10105) ///< Unsupported power index for 915
-#define SL_STATUS_SI91x_EFUSE_DATA_INVALID       ((sl_status_t)0x10106) ///< Efuse data is invalid.
+#define SL_STATUS_SI91X_EFUSE_DATA_INVALID       ((sl_status_t)0x10106) ///< Efuse data is invalid.
 #define SL_STATUS_SI91X_NO_DATA_RECEIVED_OR_RECEIVE_TIMEOUT \
   ((sl_status_t)0x1BB01) ///< No data received or receive timeout.
 #define SL_STATUS_SI91X_INSUFFICIENT_DATA_FOR_TIME_CONVERSION \

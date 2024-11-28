@@ -1508,3 +1508,25 @@ sl_status_t sli_si91x_flush_select_request_table(uint16_t error_code)
   // Return SL_STATUS_OK to indicate the function completed successfully
   return SL_STATUS_OK;
 }
+
+bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr)
+{
+
+  if (ip_addr->type == SL_IPV4) {
+    for (int i = 0; i < 4; i++) {
+      if (ip_addr->ip.v4.bytes[i] != 0) {
+        return false; // Non-zero byte found
+      }
+    }
+    return true; // All bytes are zero
+  } else if (ip_addr->type == SL_IPV6) {
+    for (int i = 0; i < 16; i++) {
+      if (ip_addr->ip.v6.bytes[i] != 0) {
+        return false; // Non-zero byte found
+      }
+    }
+    return true; // All bytes are zero
+  }
+
+  return false; // Invalid or unsupported type
+}

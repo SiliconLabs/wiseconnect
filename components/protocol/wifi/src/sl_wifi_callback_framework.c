@@ -83,9 +83,6 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
 
     return entry->function(event, &status, 0, entry->arg);
   }
-  if (RSI_WLAN_RSP_CLIENT_CONNECTED == packet->command) {
-    sli_si91x_update_ap_client_info();
-  }
 
   if (event == SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB) {
     sl_wifi_transceiver_tx_data_confirmation_t tx_cfm_cb_data = { 0 };

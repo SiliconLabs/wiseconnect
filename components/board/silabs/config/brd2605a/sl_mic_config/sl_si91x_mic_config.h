@@ -36,8 +36,8 @@ extern "C" {
 #endif
 
 // <<< sl:start pin_tool >>>
-// <i2s signal=SCLK,WSCLK,DIN0> SL_SI91X_MIC
-// $[I2S_SL_SI91X_MIC]
+// <i2s0 signal=SCLK,WSCLK,DIN0> SL_SI91X_MIC
+// $[I2S0_SL_SI91X_MIC]
 #ifndef SL_SI91X_MIC_PERIPHERAL
 #define SL_SI91X_MIC_PERIPHERAL I2S0
 #endif
@@ -73,7 +73,7 @@ extern "C" {
 #ifndef SL_SI91X_MIC_DIN0_LOC
 #define SL_SI91X_MIC_DIN0_LOC 14
 #endif
-// [I2S_SL_SI91X_MIC]$
+// [I2S0_SL_SI91X_MIC]$
 // <<< sl:end pin_tool >>>
 
 // <<< sl:start pin_tool >>>

@@ -256,6 +256,14 @@ int sl_si91x_connect(int socket, const struct sockaddr *addr, socklen_t addr_len
  *  Controls the transmission of the data.
  * @return int 
  * @note The flags parameter is not currently supported.
+ * @note For TCP, the maximum buffer length shall not exceed the MSS.
+ * @note The following table lists the maximum buffer length that can be sent over each supported protocol.
+ *  
+ *  Protocol | Maximum data chunk (bytes)
+ *  ---------|----------------------
+ *  UDP      | 1472 bytes
+ *  TCP      | 1460 bytes
+ *  TLS      | 1370 bytes
  */
 int sl_si91x_send(int socket, const uint8_t *buffer, size_t buffer_length, int32_t flags);
 
@@ -278,6 +286,14 @@ int sl_si91x_send(int socket, const uint8_t *buffer, size_t buffer_length, int32
  *  A function pointer of type @ref sl_si91x_socket_data_transfer_complete_handler_t that is called after complete data transfer.
  * @return int 
  * @note The flags parameter is not currently supported.
+ * @note For TCP, the maximum buffer length shall not exceed the MSS.
+ * @note The following table lists the maximum buffer length that can be sent over each supported protocol.
+ *  
+ *  Protocol | Maximum data chunk (bytes)
+ *  ---------|----------------------
+ *  UDP      | 1472 bytes
+ *  TCP      | 1460 bytes
+ *  TLS      | 1370 bytes
  */
 int sl_si91x_send_async(int socket,
                         const uint8_t *buffer,
@@ -306,6 +322,14 @@ int sl_si91x_send_async(int socket,
  *  Length of the socket address of type @ref socklen_t in bytes.
  * @return int 
  * @note The flags parameter is not currently supported.
+ * @note For TCP, the maximum buffer length shall not exceed the MSS.
+ * @note The following table lists the maximum buffer length that can be sent over each supported protocol.
+ *  
+ *  Protocol | Maximum data chunk (bytes)
+ *  ---------|----------------------
+ *  UDP      | 1472 bytes
+ *  TCP      | 1460 bytes
+ *  TLS      | 1370 bytes
  */
 int sl_si91x_sendto(int socket,
                     const uint8_t *buffer,
@@ -326,7 +350,7 @@ int sl_si91x_sendto(int socket,
  * @param[in] buffer 
  *  Pointer to data buffer contains data to send to remote peer.
  * @param[in] buffer_length 
- *  Length of the buffer pointed to by the buffer parameter.
+ *  Length of the buffer pointed to by the buffer parameter. 
  * @param[in] flags 
  *  Controls the transmission of the data.
  * @param[in] to_addr 
@@ -337,6 +361,14 @@ int sl_si91x_sendto(int socket,
  *  A function pointer of type @ref sl_si91x_socket_data_transfer_complete_handler_t that is called after complete data transfer.
  * @return int 
  * @note The flags parameter is not currently supported.
+ * @note For TCP, the maximum buffer length shall not exceed the MSS.
+ * @note The following table lists the maximum buffer length that can be sent over each supported protocol.
+ *  
+ *  Protocol | Maximum data chunk (bytes)
+ *  ---------|----------------------
+ *  UDP      | 1472 bytes
+ *  TCP      | 1460 bytes
+ *  TLS      | 1370 bytes
  */
 int sl_si91x_sendto_async(int socket,
                           const uint8_t *buffer,
@@ -352,6 +384,7 @@ int sl_si91x_sendto_async(int socket,
  * @details
  * This function sends data that exceeds the MSS size to a remote peer. It handles
  * the segmentation of the data into smaller chunks that fit within the MSS limit.
+ * This API can even be used when the buffer length is less than the MSS.
  *
  * @param[in] socket 
  *   The socket ID or file descriptor for the specified socket.

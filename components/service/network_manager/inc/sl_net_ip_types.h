@@ -99,11 +99,9 @@ typedef struct {
     type; ///< IP Address Type of [sl_ip_address_type_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-ip-address-type-t)
   char *host_name; ///< Host name visible on network
   struct {
-    sl_net_ipv4_setting_t
-      v4; ///< IPv4 setting to be used in case of static IP address assignment of type @ref sl_net_ipv4_setting_t
-    sl_net_ipv6_setting_t
-      v6; ///< IPv6 setting to be used in case of static IP address assignment of type @ref sl_net_ipv6_setting_t
-  } ip;   ///< IP setting to be used for static IP address assignment
+    sl_net_ipv4_setting_t v4; ///< IPv4 setting to be used in IP address assignment of type @ref sl_net_ipv4_setting_t
+    sl_net_ipv6_setting_t v6; ///< IPv6 setting to be used in IP address assignment of type @ref sl_net_ipv6_setting_t
+  } ip;                       ///< IP setting to be used for IP address assignment
 
   sl_net_dhcp_configuration_t dhcp_config; ///< DHCP configuration for the network manager
 } sl_net_ip_configuration_t;
@@ -114,10 +112,8 @@ typedef struct {
     mode; ///< IP Assignment Type of [sl_ip_management_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-management-t)
   sl_ip_address_type_t
     type; ///< IP Address Type of [sl_ip_address_type_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-address-type-t)
-  sl_net_ipv4_setting_t
-    v4; ///< IPv4 setting to be used in case of static IP address assignment of type @ref sl_net_ipv4_setting_t
-  sl_net_ipv6_setting_t
-    v6; ///< IPv6 setting to be used in case of static IP address assignment of type @ref sl_net_ipv6_setting_t
+  sl_net_ipv4_setting_t v4; ///< IPv4 setting to be used in IP address assignment of type @ref sl_net_ipv4_setting_t
+  sl_net_ipv6_setting_t v6; ///< IPv6 setting to be used in IP address assignment of type @ref sl_net_ipv6_setting_t
 } sl_net_ip_address_t;
 
 /** @} */

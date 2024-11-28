@@ -1,11 +1,11 @@
-# Co-Processor Communication (CPC)
+# CPC Secondary SDIO With Security
 
 ## Table of Contents
 - [Purpose/Scope](#purposescope)
-- [Overview of CPC](#overview-of-cpc-)
+- [Overview of CPC](#overview-of-cpc)
 - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
 
-  - [Hardware Requirements](#hardware-requirements-)
+  - [Hardware Requirements](#hardware-requirements)
   - [Software Requirements](#software-requirements)
   - [Setup Diagram](#setup-diagram)
 
@@ -16,10 +16,11 @@
 
 
 ## Purpose/Scope
-- This application contains an example code to demonstrate CPC communication over SDIO interface. CPC
+- This application contains an example code to demonstrate Co-Processor Communication (CPC) over SDIO interface. CPC
    enables one host system to communicate with a SiWx917 Radio Board, also named the secondary device or secondary, by physical
    transport (SDIO).
 - For further information refer document [here](https://www.silabs.com/documents/public/application-notes/an1351-using-co-processor-communication_daemon.pdf)
+
 
 ## Overview of CPC
 - CPC stands for Co-Processor Communication that enables one host system to communicate with a Network Co-processor device (NCP), also named
@@ -34,7 +35,7 @@
 -  CPC is a piece of code that runs on both the primary and the secondary. Its purpose is to multiplex multiple endpoints over one physical link and allows
    for reliable communication.
 
-![Figure: Introduction_picture](resources/readme/cpc_introduction_picture.png)
+>![Figure: Introduction_picture](resources/readme/cpc_introduction_picture.png)
 
 ##  Prerequisites/Setup Requirements
 - To use this application following Hardware, Software is required
@@ -42,31 +43,35 @@
 ### Hardware Requirements
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+  - Silicon Labs [BRD4338A](https://www.silabs.com/)
+  - Base Board 4002 WSTK
 - Host Device (For example : Raspberry Pi 4 Model B) as Primary
+- SD-card (128 GB) 
 
 ### Software Requirements
   - Simplicity Studio
-  - GSDK version 4.3.2 (Download gecko-sdk.zip package from [Github repository](https://github.com/SiliconLabs/gecko_sdk/tree/v4.3.2))
-  - CPCd version 4.3.2 ([Github repository](https://github.com/SiliconLabs/cpc-daemon/tree/v4.3.2)) for Raspberry Pi 4 Model B. Refer readme.md file for installation instruction.
-  - Latest Wiseconnect Version be 3.1.1
+  - SiSDK version 2024.12.0 
+  - Wiseconnect Version 3.4.0
+  - CPC Daemon version 4.6.0 , follow github link to download [here](https://github.com/SiliconLabs/cpc-daemon)
+  - linux_sdio_driver , link to download is [here](https://github.com/SiliconLabs/linux-sdio-driver)
 
-**Note!**
-- Apply the patch located in SiWx917_WiSeConnect_SDK.x.x.x.x/utilities/cpc_patch_files/gsdk_patch_for_si91xcpc.patch to downloaded gsdk release package using "git apply path-to-patch-file/gsdk_patch_for_si91xcpc.patch" command.
-- Apply the patch located in SiWx917_WiSeConnect_SDK.x.x.x.x/utilities/cpc_patch_files/cpc_daemon_patch_for_si91x_device.patch to downloaded cpc-daemon using "git apply path-to-patch-file/cpc_daemon_patch_for_si91x_device.patch" command.
+Refer [link](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) to Download: SiSDK, wiseconnect and studio 
 
 ### Setup Diagram
-![Figure: FULL_PICTURE](resources/readme/FULL_PICTURE.png)
+
+>![Figure: setup_diagram.png](resources/readme/setup_diagram.png)
+
 
 ## Getting Started
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer to the Setup Software instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 - Install Studio and WiSeConnect 3 extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
-- Create a Studio project
+- Create a Studio project with name "sl_cpc_with_security_secondary_sdio_freertos"
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
@@ -84,55 +89,148 @@ The application can be configured to suit your requirements and development envi
 | Ground PIN   | GND                     | GND/PIN 14                           |
 
 
-**Note!**
-- Above connection pin mapping is supported for BRD4002A WPK base board.
+
+Full setup diagram will look like.
+
+>![Figure: set_up_connection.png](resources/readme/set_up_connection.png)
+
+
+
+**Note:**
+
+- Short cables should be used for above connections.
 
 ## Test the application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#configure-an-application) to:
 
-- Build the application with name "sl_cpc_with_security_secondary_sdio_freertos"
+- Build the application with name "sl_cpc_with_security_secondary_sdio_freertos" 
 - Flash, run and debug the application
+
+**Note:**
+Keep Raspberry pi OFF always at the time of flashing the application on secondary.
+
+
 
 ### Run the CPC Host (Raspberry pi 4 Model B)
 
-1. Go to /path_to_cpcd/cpcd.conf file to set the parameters:
+1. Writing an OS to Raspberry Pi:
+
+
 ```
-bus_type: NETLINK_SDIO
-disable_encryption: false
-reset_sequence: false
+1. Download and Install Raspberry Pi Imager.
+2. Open Raspberry Pi Imager
+3. Click "CHOOSE OS" and select Raspberry Pi OS (32-bit).
+4. Insert the microSD card into your PC/Laptop.
+5. Click "CHOOSE STORAGE" and select your SD card.
+6. Click the gear icon to open Advanced options:
+     - Set hostname to "raspberrypi".
+     - Enable SSH (password authentication by default).
+     - Set username to "pi" and password to "test123".
+     - Configure Wi-Fi (optional, can be done later).
+     - Set Timezone to Asia/Kolkata and Keyboard layout to US.
+     - Save settings by clicking the SAVE icon.
+7.  Follow the steps provided in the README file located at linux_sdio_driver/
+8. Click "WRITE", confirm with "YES".
 ```
-2. Then apply the provided changes in `cpcd.patch`. which is at /resources/cpccd.patch
-3. Make sure to keep the linux-sdio-driver folder in home/pi/ directory , Link to download the linux-sdio-driver folder is :
-4. Follow the below commands from home/pi/ directory :
+
+2. Boot the Raspberry Pi:
+
+```
+1. Insert the micro SD card into Raspberry Pi SD card slot
+2. Booting of RPi can be observed on Monitor
+3. Open terminal, and run the command "ifconfig -a" to know the IP address (to ssh into RPi)
+```
+
+
+3. SSH into the Raspberry Pi from Test PC/Laptop:
+
+```
+1. Open MobaXterm, click on session -> SSH -> Give IP address of RPi at Remote Host (Port 22, default) -> click on OK
+2. Prompts login as, give, pi
+3. When prompts "Are you sure you want to continue connecting (yes/no)?", give answer as 'yes'
+```
+
+4. Keep the linux-sdio-driver folder in home directory , Download the linux-sdio-driver from [here](https://github.com/SiliconLabs/linux-sdio-driver)
+
+
+5. Follow the below commands from home directory :
 
 ```
 a. sudo su
-b. cd to linux-sdio-driver/platforms/linux/Driver/sdio/src
+b. cd to linux-sdio-driver/platforms/linux/Driver/sdio/src  
 c. make clean
-d. insmod rpssdio.ko
-e. dmesg -c
+d. make 
+e. insmod rpssdio.ko
+f. dmesg -c
 ```
 
-**Note!**
-On successful connection of linux-sdio-driver with secondary, output will look like :
+>**Note:**
+>By following above commands rpssdio.ko module will be loaded. On successful execution, output will look like :
+>![Figure: sapi_perf](resources/readme/sapi_perf.png)
+>or message will look like "NOT IN OPEN STATE"
 
+6. Copy the CPC-daemon to the home directory .
 
-4. As security is enabled, the host and secondary must undergo a binding process before communication can begin. This can be initiated from the host by passing the bind argument, ie
+7. Open a new terminal on the Raspberry Pi, navigate to the /daemon/cpcd.conf file, and set the following parameters:
 
 ```
-cpcd -c cpcd.conf --bind ecdh
+a. disable_encryption: false
+b. bus_type: NETLINK_SDIO
+c. reset_sequence: false
+
 ```
 
-5. After the binding is successful restart the primary and secondary and install the linux-sdio-driver.
+8. Open a new terminal window and follow the below commands from /dameon/ directory:
 
-6. Primary should connect to secondary device successfully with "Daemon startup was successful. Waiting for client connections" message displayed.
-![Figure: daemon_picture](resources/readme/daemon_picture.PNG)
+```
+a. mkdir build
+b. cd build
+c. cmake ../
+d. make 
+e. sudo make install
+```
 
-7. Once the CPCd connection is successful with the secondary, open another tab(make sure CPCd running in the background) goto /path_to_cpcd/script/ and run "python3 cpc_interactive_client.py -i cpcd_0 -l ../build/libcpc.so" command.
+9. As security is enabled, the host and secondary must undergo a binding process before communication can begin. This can be initiated from the host by passing the bind argument, ie
 
-8. Now you should be able to see the welcome message. Using help command you can proceed with the testing. Refer the picture below:
-![Figure: help_command](resources/readme/help_command.PNG)
+>```
+>cpcd -c cpcd.conf --bind ecdh
+>```
+
+10. Turn off the Raspberry Pi, reset the secondary device, and then power on the Raspberry Pi again 
+
+11. Follow the commands mentioned in 5th step and make sure probe is connected successfully.
+
+12. Open another terminal , and below commands:
+
+
+```
+a. mkdir build
+b. cd build
+c. cmake ../
+d. make 
+e. sudo make install
+f. ./cpcd -c ./../cpcd.conf
+```
+
+
+**Note:**
+
+On successful execution of above commands, output will look like : "Starting daemon in normal mode" message displayed.
+
+>![Figure: daemon_picture](resources/readme/daemon_picture.png)
+
+13. Once the CPCd connection is successful with the secondary, open another tab(make sure CPCd running in the background) goto /path_to_cpcd/script/ and run "python3 cpc_interactive_client.py -i cpcd_0 -l ../build/libcpc.so" command.
+
+**Note:**
+
+if you get error saying "ModuleNotFoundError: No module named 'libcpc' " 
+Follow the below command: 
+export PYTHONPATH=$PYTHONPATH:<daemon directory>/lib/bindings/python/src/libcpc
+
+
+14. Now you should be able to see the welcome message. Using help command you can proceed with the testing. Refer the picture below:
+>![Figure: help_command](resources/readme/help_command.png)
 
 ### Run the Application
 
@@ -140,25 +238,26 @@ cpcd -c cpcd.conf --bind ecdh
 - The application receives data on user endpoint 90 and echos it back.
 
 
-Command syntax:
+**Command syntax:**
 ```
-1. close_endpoint <Endpoint_ID>
-2. open_endpoint <Endpoint_ID>
-3. quit
-4. write <Endpoint_ID> <Data to be written>
-5. read <Endpoint_ID>
+1. open_endpoint <Endpoint_ID>
+2. write <Endpoint_ID> <Data to be written>
+3. read <Endpoint_ID>
+4. close_endpoint <Endpoint_ID>
+5. quit
+
 ```
 
-**Note!**
+**Note:**
 1. In this example supported Endpoint_ID is 90.
 2. "quit" command quits the cpc_interactive_client python script.
 
 
 After successful execution of the application, the output will be as follows:
 
-![Figure: write_and_read_](resources/readme/write_and_read_.png)
+>![Figure: write_and_read_](resources/readme/write_and_read_.png)
 
-Command Details are as follows :
+**Command Details are as follows :**
 
 1. "90" is the user endpoint, SL_CPC_ENDPOINT_USER_ID_0.
 2. "Hello" is the data which is sent to secondary (supported maximum data size is 256 bytes).

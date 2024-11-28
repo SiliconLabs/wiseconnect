@@ -286,7 +286,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/gatt_long_read/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
   </descriptors>
-<descriptors name="ble_gatt_long_read_psram" label="BLE - Gatt Long Read(PSRAM)" description="Demonstrates how a GATT client device accesses a GATT server device for long read">
+<descriptors name="ble_gatt_long_read_psram" label="BLE - Gatt Long Read (PSRAM)" description="Demonstrates how a GATT client device accesses a GATT server device for long read">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/gatt_long_read_psram.slcp"/>
@@ -361,7 +361,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_heart_rate_profile/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_hid_on_gatt_ncp" label="BLE - HID On GATT(NCP)" description="This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode and as GATT client in BLE central mode.">
+<descriptors name="ble_hid_on_gatt_ncp" label="BLE - HID On GATT (NCP)" description="This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode and as GATT client in BLE central mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_hid_on_gatt/ble_hid_on_gatt_ncp.slcp"/>
@@ -376,7 +376,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_hid_on_gatt/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_hid_on_gatt_psram" label="BLE - HID On GATT(PSRAM)" description="This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode and as GATT client in BLE central mode.">
+<descriptors name="ble_hid_on_gatt_psram" label="BLE - HID On GATT (PSRAM)" description="This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode and as GATT client in BLE central mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_hid_on_gatt/ble_hid_on_gatt_psram.slcp"/>
@@ -391,7 +391,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_hid_on_gatt/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_hid_on_gatt_soc" label="BLE - HID On GATT(SoC)" description="This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode and as GATT client in BLE central mode.">
+<descriptors name="ble_hid_on_gatt_soc" label="BLE - HID On GATT (SoC)" description="This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode and as GATT client in BLE central mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_hid_on_gatt/ble_hid_on_gatt_soc.slcp"/>
@@ -466,7 +466,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_longrange_2mbps/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_longrange_2mbps_psram" label="BLE - Long Range(PSRAM)" description="This application demonstrates how to configure/connects BLE device as Central and can be used to update the PHY rates.">
+<descriptors name="ble_longrange_2mbps_psram" label="BLE - Long Range (PSRAM)" description="This application demonstrates how to configure/connects BLE device as Central and can be used to update the PHY rates.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_longrange_2mbps/ble_longrange_2mbps_psram.slcp"/>
@@ -526,7 +526,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_multiconnection_gatt_test/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
   </descriptors>
-<descriptors name="ble_multiconnection_gatt_test_soc" label="BLE - Multiconnection GATT Test(SOC)" description="The Application demonstrates how to configure SiWx91x EVK in central/peripheral modes and then connect with multiple peripherals/centrals.">
+<descriptors name="ble_multiconnection_gatt_test_soc" label="BLE - Multiconnection GATT Test (SoC)" description="The Application demonstrates how to configure SiWx91x EVK in central/peripheral modes and then connect with multiple peripherals/centrals.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_multiconnection_gatt_test/ble_multiconnection_gatt_test_soc.slcp"/>
@@ -616,7 +616,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_power_save/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_power_save_psram" label="BLE - Power Save(PSRAM)" description="This application demonstrates how to configure/connects BLE device as Central and can be used to update the PHY rates in Low Power mode">
+<descriptors name="ble_power_save_psram" label="BLE - Power Save (PSRAM)" description="This application demonstrates how to configure/connects BLE device as Central and can be used to update the PHY rates in Low Power mode">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_power_save/ble_power_save_psram.slcp"/>
@@ -676,7 +676,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_privacy/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_privacy_psram" label="BLE - Privacy(PSRAM)" description="This application demonstrates how to configure device with privacy feature by organizing resolving list and resolution process and how to connect to remote peripheral device.">
+<descriptors name="ble_privacy_psram" label="BLE - Privacy (PSRAM)" description="This application demonstrates how to configure device with privacy feature by organizing resolving list and resolution process and how to connect to remote peripheral device.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_privacy/ble_privacy_psram.slcp"/>
@@ -871,7 +871,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_unified_ae_coex_app/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
   </descriptors>
-<descriptors name="ble_unified_ae_coex_app_psram" label="BLE - Unified AE Coex App(PSRAM)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
+<descriptors name="ble_unified_ae_coex_app_psram" label="BLE - Unified AE Coex App (PSRAM)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_unified_ae_coex_app/ble_unified_ae_coex_app_psram.slcp"/>
@@ -886,7 +886,7 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_unified_ae_coex_app/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
   </descriptors>
-<descriptors name="ble_unified_ae_coex_app_soc" label="BLE - Unified AE Coex App (SOC)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
+<descriptors name="ble_unified_ae_coex_app_soc" label="BLE - Unified AE Coex App (SoC)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_unified_ae_coex_app/ble_unified_ae_coex_app_soc.slcp"/>
@@ -1415,8 +1415,8 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_cpc_secondary_sdio_freertos/sl_cpc_secondary_sdio_freertos.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339b brd4340b"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4338a brd4340b"/>
+    <properties key="partCompatibility" value=" .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="quality" value="production"/>
@@ -1430,8 +1430,8 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_cpc_with_security_secondary_sdio_freertos/sl_cpc_with_security_secondary_sdio_freertos.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339b brd4340b"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4338a brd4340b"/>
+    <properties key="partCompatibility" value=" .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="quality" value="production"/>
@@ -2521,7 +2521,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_uart/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_usart_async" label="SL Si91x - USART ASYNCHRONOUS" description="This example project configures USART transmits and receives data in asynchronous full duplex mode.">
+<descriptors name="sl_si91x_usart_async" label="SL Si91x - USART Asynchronous" description="This example project configures USART transmits and receives data in asynchronous full duplex mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_usart_async/sl_si91x_usart_async.slcp"/>
@@ -2536,7 +2536,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_usart_async/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_usart_sync_master" label="SL Si91x - USART SYNCHRONOUS MASTER" description="This example project configures USART master and transmits and receives data in synchronous full duplex mode.">
+<descriptors name="sl_si91x_usart_sync_master" label="SL Si91x - USART Synchronous Master" description="This example project configures USART master and transmits and receives data in synchronous full duplex mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_usart_sync_master/sl_si91x_usart_sync_master.slcp"/>
@@ -2551,7 +2551,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_usart_sync_master/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_usart_sync_slave" label="SL Si91x - USART SYNCHRONOUS SLAVE" description="This example project configures USART slave and transmits and receives data in synchronous full duplex mode.">
+<descriptors name="sl_si91x_usart_sync_slave" label="SL Si91x - USART Synchronous Slave" description="This example project configures USART slave and transmits and receives data in synchronous full duplex mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_usart_sync_slave/sl_si91x_usart_sync_slave.slcp"/>
@@ -3586,7 +3586,7 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/http_server/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_https_ble_dual_role_ncp" label="Wi-Fi Coex - Wi-Fi Client HTTPS BLE Dual Role(NCP)" description="This example demonstrates the ability of SiWx91x device connecting and transferring the data simultaneously in BLE/WiFi wireless interfaces.">
+<descriptors name="wifi_https_ble_dual_role_ncp" label="Wi-Fi Coex - Wi-Fi Client HTTPS BLE Dual Role (NCP)" description="This example demonstrates the ability of SiWx91x device connecting and transferring the data simultaneously in BLE/WiFi wireless interfaces.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_https_ble_dual_role/wifi_https_ble_dual_role_ncp.slcp"/>
@@ -3601,7 +3601,7 @@
     <properties key="readmeFiles" value="examples/snippets/wlan_ble/wifi_https_ble_dual_role/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
   </descriptors>
-<descriptors name="wifi_https_ble_dual_role_soc" label="Wi-Fi Coex - Wi-Fi Client HTTPS BLE Dual Role(SOC)" description="This example demonstrates the ability of SiWx91x device connecting and transferring the data simultaneously in BLE/WiFi wireless interfaces.">
+<descriptors name="wifi_https_ble_dual_role_soc" label="Wi-Fi Coex - Wi-Fi Client HTTPS BLE Dual Role (SoC)" description="This example demonstrates the ability of SiWx91x device connecting and transferring the data simultaneously in BLE/WiFi wireless interfaces.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_https_ble_dual_role/wifi_https_ble_dual_role_soc.slcp"/>
@@ -4081,7 +4081,7 @@
     <properties key="readmeFiles" value="examples/snippets/wlan_ble/wifi_station_ble_throughput_app/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
   </descriptors>
-<descriptors name="wifi_station_ble_throughput_app_soc" label="Wi-Fi Coex - Wi-Fi Client BLE Throughput App (SOC)" description="This application demonstrates throughput measurement of Wi-Fi while BLE is in connection.">
+<descriptors name="wifi_station_ble_throughput_app_soc" label="Wi-Fi Coex - Wi-Fi Client BLE Throughput App (SoC)" description="This application demonstrates throughput measurement of Wi-Fi while BLE is in connection.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_station_ble_throughput_app/wifi_station_ble_throughput_app_soc.slcp"/>
@@ -4231,7 +4231,7 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/three_ssl_concurrent_client_sockets/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_throughput_ble_dual_role_ncp" label="Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role(NCP)" description="This example demonstrates throughput measurements of WLAN/BLE in individual or with protocol combinations in the SiWx91x module.">
+<descriptors name="wifi_throughput_ble_dual_role_ncp" label="Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role (NCP)" description="This example demonstrates throughput measurements of WLAN/BLE in individual or with protocol combinations in the SiWx91x module.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_throughput_ble_dual_role/wifi_throughput_ble_dual_role_ncp.slcp"/>
@@ -4246,7 +4246,7 @@
     <properties key="readmeFiles" value="examples/snippets/wlan_ble/wifi_throughput_ble_dual_role/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
   </descriptors>
-<descriptors name="wifi_throughput_ble_dual_role_soc" label="Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role(SOC)" description="This example demonstrates throughput measurements of WLAN/BLE in individual or with protocol combinations in the SiWx91x module.">
+<descriptors name="wifi_throughput_ble_dual_role_soc" label="Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role (SoC)" description="This example demonstrates throughput measurements of WLAN/BLE in individual or with protocol combinations in the SiWx91x module.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_throughput_ble_dual_role/wifi_throughput_ble_dual_role_soc.slcp"/>

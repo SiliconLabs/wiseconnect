@@ -87,6 +87,8 @@ sl_status_t sli_si91x_socket_deinit(void);
 
 sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id);
 
+bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr);
+
 /**
  * @addtogroup SOCKET_CONFIGURATION_FUNCTION
  * @{ 

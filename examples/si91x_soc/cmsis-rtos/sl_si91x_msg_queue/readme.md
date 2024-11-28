@@ -103,7 +103,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following macros in i2c_follower_example.c file and update/modify following macros if required.
+- Configure the following macros in i2c_follower_app.c file and update/modify following macros if required.
 
   ```C
     #define I2C_INSTANCE    2    // I2C Instance for Pin configuration
@@ -170,12 +170,17 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. Compile and run the application.
-2. After running this application below console output can be observed.
-3. Connect ULP_GPIO_6 and ULP_GPIO_7 with the leader device for ULP_I2C. Connect TX pin(GPIO_30) to RX pin(GPIO_29) forming a loopback.
-4. When the application runs, it receives and sends data.
-5. After the transfer is completed, it validates the data and prints on the console.
-6. Will get "Test Case Passed" print on console.
-7. After successful program execution the prints in serial console looks as shown below.
+1.Create i2c_driver_leader example and change I2C_BUFFER_SIZE macro value to 15.
+  ```C
+    #define I2C_BUFFER_SIZE          15  // Size of data buffer
+  ```
+2. Create and build msg_queue application
+3. Connect ULP_GPIO_6 and ULP_GPIO_7 with the leader device for ULP_I2C.  Connect TX pin(GPIO_30) to RX pin(GPIO_29) forming a loopback.
+4. Run both application
+5. After running this application below console output can be observed. 
+6. When the application runs, it receives and sends data.
+7. After the transfer is completed, it validates the data and prints on the console.
+8. Will get "Test Case Passed" print on console.
+9. After successful program execution the prints in serial console looks as shown below.
 
     ![Figure: Introduction](resources/readme/output.png)

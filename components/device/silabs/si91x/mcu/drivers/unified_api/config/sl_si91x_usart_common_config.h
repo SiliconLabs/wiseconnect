@@ -47,15 +47,15 @@
 #define SL_USART0_PERIPHERAL USART0
 #endif
 
-// USART0 TX on GPIO_15
+// USART0 TX on GPIO_30
 #ifndef SL_USART0_TX_PORT
 #define SL_USART0_TX_PORT HP
 #endif
 #ifndef SL_USART0_TX_PIN
-#define SL_USART0_TX_PIN 15
+#define SL_USART0_TX_PIN 30
 #endif
 #ifndef SL_USART0_TX_LOC
-#define SL_USART0_TX_LOC 4
+#define SL_USART0_TX_LOC 5
 #endif
 
 // USART0 RX on GPIO_29

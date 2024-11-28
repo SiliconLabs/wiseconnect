@@ -300,7 +300,7 @@ typedef struct {
   uint32_t sub_command_type; ///< Requested configuration. Currently, only `GET_OPN_BOARD_CONFIG` is supported.
 } sl_si91x_nwp_get_configuration_t;
 
-/// Assertion structure
+/// Assertion structure. It is a structure that contains information about the assertion type and level, which are used to determine the output of debug logs.
 typedef struct {
   sl_si91x_assertion_type_t assert_type;   ///< Assertion type. It must be in the range of 0 to 15 (both included).
   sl_si91x_assertion_level_t assert_level; ///< Assertion level. It must be in the range of 0 to 15 (both included).
@@ -815,6 +815,7 @@ sl_status_t sl_si91x_frequency_offset(const sl_si91x_freq_offset_t *frequency_ca
  *      2. STA mode channels 1 to 11 are actively scanned and 12,13,14 are passively scanned.
  *      3. AP mode and Concurrent mode supports only 1 to 11 channels.
  *      4. The AP will not broadcast the Country Information Element (IE).
+ *      5. The device region for modules parts cannot be manually configured by the user. It automatically updates to align with the region of the connected AP.
  ******************************************************************************/
 sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
                                        sl_si91x_band_mode_t band,
@@ -919,10 +920,10 @@ sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
 
 /***************************************************************************/ /**
  * @brief
- *   Command the firmware to read data from the Efuse memory location. 
+ *   Read data from Efuse memory location. 
  * 
  * @details
- *   This function commands the firmware to read data from the specified Efuse memory location. The data is read into the provided buffer.
+ *   This function reads data from the specified Efuse memory location. The data is read into the provided buffer.
  * 
  *  This is a blocking API.
  * 
@@ -930,13 +931,17 @@ sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
  * - [sl_wifi_init](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) should be called before this API.
  * 
  * @param[in] efuse_read
- *   Pointer to an `sl_si91x_efuse_read_t` structure, which contains the Efuse read address offset and read data length.
+ *   Pointer to an @ref sl_si91x_efuse_read_t structure, which contains the Efuse read address offset and read data length.
+ *   - Efuse Read Address Offset: Specifies the starting byte address in the Efuse memory to be read. Valid range: 144 to 255. For more information refer @ref sl_si91x_efuse_read_t.
+ *   - Read Data Length: Specifies the number of bytes to read from the given offset. Please @ref sl_si91x_efuse_read_t for the length in bytes which can be read from each offset.
  * 
  * @param[out] efuse_read_buf
  *   Pointer to a buffer where the read Efuse data will be stored.
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * @note
+ *   If a valid Efuse is not present on the device, this API will return the error SL_STATUS_SI91X_EFUSE_DATA_INVALID.
  *******************************************************************************/
 sl_status_t sl_si91x_efuse_read(const sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf);
 

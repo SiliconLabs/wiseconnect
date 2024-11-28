@@ -87,9 +87,11 @@ readme:
 other_file:
   - path: resources/readme/cpc_introduction_picture.png
   - path: resources/readme/daemon_picture.png
-  - path: resources/readme/FULL_PICTURE.png
+  - path: resources/readme/setup_diagram.png
   - path: resources/readme/help_command.png
   - path: resources/readme/write_and_read_.png
+  - path: resources/readme/sapi_perf.png
+  - path: resources/readme/set_up_connection.png
 
 ui_hints:
   highlight:
