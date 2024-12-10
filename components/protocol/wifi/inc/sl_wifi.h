@@ -75,6 +75,8 @@ sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration,
  *   @ref sl_wifi_init should be called before this API.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * @note
+ *   All si91x, BSD, and IoT sockets must be closed before invoking this API.
  ******************************************************************************/
 sl_status_t sl_wifi_deinit(void);
 
@@ -592,6 +594,8 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
  *   Wi-Fi client interface as identified by @ref sl_wifi_interface_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * @note
+ *   All si91x, BSD, and IoT sockets associated with the station interface must be closed before invoking this API.
  ******************************************************************************/
 sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface);
 
@@ -912,7 +916,7 @@ sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_con
 
 /***************************************************************************/ /**
  * @brief
- *   Reconfigure the dynamic parameters of a Wi-Fi access point (AP) interface.
+ *   Reconfigure the dynamic parameters of a Wi-Fi Access point (AP) interface.
  * @pre
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
@@ -928,7 +932,7 @@ sl_status_t sl_wifi_reconfigure_ap(sl_wifi_interface_t interface, sl_si91x_ap_re
 
 /***************************************************************************/ /**
  * @brief
- *   Set the configuration of a running Wi-Fi access point (AP).
+ *   Set the configuration of a running Wi-Fi AP.
  *   If the new configuration modifies vital settings such as SSID or security, the AP will be stopped and restarted automatically.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -997,6 +1001,8 @@ sl_status_t sl_wifi_get_advanced_ap_configuration(sl_wifi_interface_t interface,
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * @note
+ *   All si91x, BSD, and IoT sockets associated with the AP interface must be closed before invoking this API.
  ******************************************************************************/
 sl_status_t sl_wifi_stop_ap(sl_wifi_interface_t interface);
 

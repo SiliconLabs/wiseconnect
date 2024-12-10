@@ -35,7 +35,6 @@ This application showcases a multithreaded program that simultaneously manages W
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
-      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
     - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
 
 ### Software Requirements

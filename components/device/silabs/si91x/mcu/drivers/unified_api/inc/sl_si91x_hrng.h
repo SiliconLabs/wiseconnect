@@ -131,12 +131,13 @@ sl_status_t sl_si91x_hrng_get_bytes(uint32_t *random_bytes, uint8_t number_of_by
 /***************************************************************************/
 /**
  * @brief
- *    Reads random data from the HRNG using the LFSR input latch.
+ *    Reads random data from the HRNG using the LFSR (Linear-Feedback Shift Register) input latch.
  *
  * @details
  *    This function reads random data from the HRNG using the LFSR input latch register.
  *    It first enables the LFSR, reads the specified number of bytes, and then disables
- *    the LFSR. The data is valid only when the LFSR_32_BIT_INPUT_VALID bit is set.
+ *    the LFSR. 
+ *  @note Data is valid only when the LFSR_32_BIT_INPUT_VALID bit is set.
  *
  * @param[in] number_of_bytes
  *   The number of random bytes to read from the HRNG.
@@ -217,8 +218,8 @@ sl_status_t sl_si91x_hrng_deinit(void);
  * The HRNG module can be configured using the following parameters:
  * 
  * **Modes**: 
- * 1. True random 
- * 2. Pseudo-random generation mode.
+ *  - **Pseudo-random number:** Pseudo-random number rely on mathematical algorithms to generate sequences of numbers that resemble randomness. These algorithms are deterministic, meaning they always produce the same sequence of numbers when initialized with the same starting value, referred to as a seed.
+ *  - **True Random Number :** True Random Number create random numbers using physical processes like electronic noise, radioactive decay, or other unpredictable natural events.
  *
  * The random number generator can be initialized, started, and stopped using the following functions:
  * - Initialize the HRNG : @ref sl_si91x_hrng_init

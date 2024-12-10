@@ -38,6 +38,7 @@ This means that the Controller autonomously establishes a connection with the de
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - **PSRAM Mode**:
   - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)  	
 - **NCP Mode**:

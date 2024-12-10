@@ -62,7 +62,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration
 
-Tested on WPK Base board - 4002A and Radio board - BRD4338A / BRD4344A.
+Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 
 | Description  | 917 GPIO  | 915 GPIO  | Breakout pin |
 | -------------| -----------| -----------| ----------|

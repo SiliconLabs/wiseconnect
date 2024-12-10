@@ -48,7 +48,6 @@ Before running the application, the user will need the following things to setup
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 - SiWx917 AC1 Module Explorer Kit (BRD2708A)
-- Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 
 ### Software Requirements
 

@@ -44,7 +44,7 @@
 - Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4338A](https://www.silabs.com/)
-  - Base Board 4002 WSTK
+  - Silicon Labs [Si917 Evaluation Kit WPK(BRD4002)]
 - Host Device (For example : Raspberry Pi 4 Model B) as Primary
 - SD-card (128 GB) 
 
@@ -52,10 +52,9 @@
   - Simplicity Studio
   - SiSDK version 2024.12.0 
   - Wiseconnect Version 3.4.0
-  - CPC Daemon version 4.6.0 , follow github link to download [here](https://github.com/SiliconLabs/cpc-daemon)
+  - CPC Daemon version 4.6.0 , follow github [link](https://github.com/SiliconLabs/cpc-daemon)
   - linux_sdio_driver , link to download is [here](https://github.com/SiliconLabs/linux-sdio-driver)
 
-Refer [link](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) to Download: SiSDK, wiseconnect and studio 
 
 ### Setup Diagram
 >![Figure: setup_diagram.png](resources/readme/setup_diagram.png)
@@ -128,7 +127,7 @@ Keep Raspberry pi OFF always at the time of flashing the application on secondar
      - Configure Wi-Fi (optional, can be done later).
      - Set Timezone to Asia/Kolkata and Keyboard layout to US.
      - Save settings by clicking the SAVE icon.
-7.  Follow the steps provided in the README file located at linux_sdio_driver/
+7. Download the latest kernel version for RPI from the Raspberry pi official page.
 8. Click "WRITE", confirm with "YES".
 ```
 
@@ -149,10 +148,16 @@ Keep Raspberry pi OFF always at the time of flashing the application on secondar
 3. When prompts "Are you sure you want to continue connecting (yes/no)?", give answer as 'yes'
 ```
 
-4. Keep the linux-sdio-driver folder in home directory , Download the linux-sdio-driver from [here](https://github.com/SiliconLabs/linux-sdio-driver)
+4. In /boot/firmware/config.txt add the following line to enable sdio in RPi: 
+
+```
+dtoverlay=sdio,poll_once=false,sdio_overclock=25
+```
+
+5. Keep the linux-sdio-driver folder in home directory , Download the linux-sdio-driver from [here](https://github.com/SiliconLabs/linux-sdio-driver)
 
 
-5. Follow the below commands from home directory :
+6. Follow the below commands from home directory :
 
 ```
 a. sudo su
@@ -167,10 +172,11 @@ f. dmesg -c
 >By following above commands rpssdio.ko module will be loaded. On successful execution, output will look like :
 >![Figure: sapi_perf](resources/readme/sapi_perf.png) 
 >or message will look like "NOT IN OPEN STATE"
+>- Once the command has been successfully executed, removing and reloading the kernel module is not supported. Restart the device in order to install it again.
 
-6. Copy the CPC-daemon to the home directory.
+7. Copy the CPC-daemon to the home directory.
 
-7. Open a new terminal on the Raspberry Pi, navigate to the /daemon/cpcd.conf file, and set the following parameters:
+8. Open a new terminal on the Raspberry Pi, navigate to the daemon/cpcd.conf file, and set the following parameters:
 
 ```
 a. disable_encryption: true
@@ -179,7 +185,10 @@ c. reset_sequence: false
 
 ```
 
-8. Open a new terminal window and follow the below commands from /dameon/ directory:
+9. Apply the patch located in resources/cpcd.patch. 
+
+
+10. Open a new terminal window and follow the below commands from /dameon/ directory:
 
 ```
 a. mkdir build
@@ -196,16 +205,19 @@ On successful execution of above commands, output will look like : "Starting dae
 
 >![Figure: daemon_picture](resources/readme/daemon_picture.png)
 
-9. Once the CPCd connection is successful with the secondary, open another tab(make sure CPCd running in the background) goto /path_to_cpcd/script/ and run "python3 cpc_interactive_client.py -i cpcd_0 -l ../build/libcpc.so" command.
+11. Once the CPCd connection is successful with the secondary, open another tab(make sure CPCd running in the background) goto /path_to_cpcd/script/ and run "python3 cpc_interactive_client.py -i cpcd_0 -l ../build/libcpc.so" command.
 
 **Note:**
 
-if you get error saying "ModuleNotFoundError: No module named 'libcpc' " 
+- if you get error saying "ModuleNotFoundError: No module named 'libcpc' " 
 Follow the below command: 
 export PYTHONPATH=$PYTHONPATH:<daemon directory>/lib/bindings/python/src/libcpc
 
+- If you restart the cpc-daemon after closing it, it will result in a "Daemon exiting with status EXIT_FAILURE" error. To prevent this, power off the Raspberry Pi, reset the secondary device, and then try running it again.
 
-10. Now you should be able to see the welcome message. Using help command you can proceed with the testing. Refer the picture below:
+
+
+12. Now you should be able to see the welcome message. Using help command you can proceed with the testing. Refer the picture below:
 >![Figure: help_command](resources/readme/help_command.png)
 
 ### Run the Application
@@ -227,6 +239,7 @@ export PYTHONPATH=$PYTHONPATH:<daemon directory>/lib/bindings/python/src/libcpc
 **Note:**
 1. In this example supported Endpoint_ID is 90.
 2. "quit" command quits the cpc_interactive_client python script.
+
 
 
 After successful execution of the application, the output will be as follows:

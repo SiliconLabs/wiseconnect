@@ -32,8 +32,9 @@ Before running the application, the user will need the following things to setup
 		- BRD4340A [SiWx917-RB4340A] 
 		- BRD4343A [SiWx917-RB4343A]
 - Kits
-  - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-  - SiWx917 Pro Kit [Si917-PK6032A]
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   - Smart phone with Simplicity Connect App(formerly EFR Connect App) mobile app  			
 ### Software Requirements
 

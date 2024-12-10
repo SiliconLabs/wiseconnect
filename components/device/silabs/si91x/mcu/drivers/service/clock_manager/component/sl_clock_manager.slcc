@@ -26,8 +26,6 @@ provides:
   - name: sl_clock_manager
 requires:
   - name: status
-ui_hints:
-  visibility: never
 template_contribution:
   - name: event_handler
     value:

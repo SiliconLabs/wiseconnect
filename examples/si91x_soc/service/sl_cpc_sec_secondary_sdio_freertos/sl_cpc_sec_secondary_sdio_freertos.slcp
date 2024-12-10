@@ -1,0 +1,101 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_cpc_sec_secondary_sdio_freertos
+label: SI91x - SoC Peripheral CPC with Security Secondary SDIO - FreeRTOS
+description: |
+  Start a CPC with Security over SDIO interface
+category: Example|peripheral
+package: platform
+quality: experimental
+source:
+  - path: app.c
+  - path: main.c
+  - path: cpc_app.c
+include:
+  - path: .
+    file_list:
+    - path: app.h
+    - path: cpc_app.h
+sdk:
+  id: simplicity_sdk
+  version: 2024.12.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.0
+toolchain_settings: []
+component:
+  - id: emlib_core
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_assert
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
+  - id: sl_common
+  - id: sl_system
+  - id: status
+  - id: enum
+  - id: syscalls
+    from: wiseconnect3_sdk
+
+  # CPC specific components
+  - id: cpc_secondary
+  - id: cpc_secondary_driver_sdio_917
+    instance: [exp]
+  - id: cpc_security_secondary
+
+  # CPC specific component for 91x
+  - id: sl_si91x_cpc_sdio
+    from: wiseconnect3_sdk
+  # Needed for CPC Security on 91x
+  - id: sl_si91x_cpc_security
+    from: wiseconnect3_sdk
+
+  # Only required for Debug
+  - id: si91x_debug
+    from: wiseconnect3_sdk
+
+  # Needed in RTOS Specific application
+  - id: freertos
+  - id: wifi  # Adding this to get the wiseconnect_common and rsi_os.h files.
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers # Specifying the buffer manager to avoid conflicts.
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack # required by sl_si91x_wireless
+    from: wiseconnect3_sdk
+  - id: wifi_resources # required for sl_net_default_values.h
+    from: wiseconnect3_sdk
+  - id: network_manager  # required for sl_net_types.h file
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager # required by network manager
+    from: wiseconnect3_sdk
+
+requires:
+  - name: udma_linker_config
+  - name: sleeptimer
+  - name: sleeptimer_sysrtc
+    condition: [si91x_b0_chip]
+
+define:
+  - name: SLI_SI91X_MCU_INTERFACE
+  - name: SYSCALLS_WRITE
+
+configuration:
+  - name: SL_CPC_USER_ENDPOINT_MAX_COUNT
+    value: 2
+
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/cpc_introduction_picture.png
+  - path: resources/readme/daemon_picture.png
+  - path: resources/readme/setup_diagram.png
+  - path: resources/readme/help_command.png
+  - path: resources/readme/write_and_read_.png
+  - path: resources/readme/sapi_perf.png
+  - path: resources/readme/set_up_connection.png
+
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

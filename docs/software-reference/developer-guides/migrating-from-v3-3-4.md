@@ -13,7 +13,7 @@
 
 This is a guide for updating an existing application using the WiSeConnect™ SDK v3.3.4 to a v3.4.0 application.
 
-There are few naming and file changes in v3.4.0 as compared to v3.3.4, mostly in order to standardize the names and improve the overall usage experience of the application programming interface (API). Migration requires the names everywhere to be updated in the existing code of an application.
+There are few naming and file changes in v3.4.0 as compared to v3.3.4, mostly in order to standardize the names and improve the overall usage experience of the application programming interface (API). Migration requires the names everywhere to be updated in the existing application.
 
 ## Migration Steps
 
@@ -57,6 +57,10 @@ Refer to the tables in each of the sections that follow which map the v3.3.4 API
   - The `sl_si91x_power_manager_sleep` API is defined in the `sl_si91x_power_manager.h` file. Therefore, include this header file in power-save applications.
 
 - Removed `sl_si91x_soc_soft_reset()` API references from the SDK
+
+- Starting from version WC-3.4.0 of the SDK, important changes have been made regarding the management of sockets within the APIs sl_wifi_deinit(), sl_wifi_disconnect(), and sl_wifi_stop_ap(), as well as in cases where the Device Under Test (DUT) station encounters rejoin failures.
+The SDK no longer automatically forcefully closes any open sockets in these situations. As a result, it is now the user or application's responsibility to ensure that sockets are properly closed. If this step is overlooked, the sockets will remain in a disconnected or open state, which could result in unintended behavior in the application.
+
 
 ### Update Files
 
@@ -126,3 +130,52 @@ and improve readability.
   |--------------|------------------------------|--------------------------------------------|
   | HTTP Server  | `MAX_QUERY_PARAMETERS`       | `SL_HTTP_SERVER_MAX_QUERY_PARAMETERS`      |
   | HTTP Server  | `MAX_HEADER_BUFFER_LENGTH`   | `SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH`  |
+
+ 
+### Updated Default Clock Values
+
+As part of the migration from WiSeConnect™ SDK v3.3.4 to v3.4.0, there have been changes to the default clock configurations to improve system stability and performance. These changes are as follows:
+
+**High-Frequency Clocks (M4 Core, and PLL)**
+
+  - The default clock source for the M4 Core and Phase-Locked Loop (PLL) has been revised from the ULP_MHZ_RC_CLK oscillator to EXT_40MHZ_CLK crystal oscillator.
+
+**Reason for Change**
+
+  The EXT_40MHZ_CLK crystal oscillator provides a more stable and accurate clock source compared to the ULP_MHZ_RC_CLK oscillator. So, configuration of ULP_MHZ_RC_CLK is removed for custom applications. This change enhances the overall performance and reliability of the system, particularly in applications requiring precise timing and high-frequency operations.
+
+**User Impact**
+
+- In some sample apps, where the default M4 Core clock was configured to 32MHz, it has been modified to 40MHz sourcing from the external crystal. The same is configured as the default M4 core clock in PS3-Powersave mode.
+- In user applications where:
+  - The M4 Core clock configuration should not be performed within the application.
+  - Any peripheral initialization/configuration using 32MHz RC should be re-configured using 40MHz as the source.
+
+**Low-Frequency Clocks (LF_FSM and SysRTC)**
+
+- The default clock source for the Low-Frequency Finite State Machine (LF_FSM) and System Real-Time Clock (SysRTC) has been revised from the KHZ_RC_CLK_SEL to the KHZ_XTAL_CLK_SEL.
+
+**Reason for Change**
+
+The XTAL 32.768 kHz crystal oscillator provides a more stable and accurate clock source compared to the 32 kHz RC oscillator. This adjustment resolves timing inconsistencies observed when using the 32 kHz RC clock, ensuring more reliable and accurate timekeeping for low-frequency operations.
+
+**Note**
+
+If the 32.768 kHz XTAL is not available on the custom board designed with SiWx917 IC:
+  - If using any timer peripherals on the 917 MCU, failures will be observed.
+  - If the custom application doesn't need accurate timers and plans to continue with 32 kHz RC, please use the following code snippet:
+
+ ```c
+    #include "rsi_power_save.h"
+    #include "rsi_sysrtc.h"
+
+    /* Configuring 32kHz RC Clock for LF-FSM */
+    RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
+
+    /* Enable 32kHz RC clock to SYSRTC peripheral */
+    rsi_sysrtc_clk_set(RSI_SYSRTC_CLK_32kHz_RC, 0u);
+```
+
+By following these steps, you can ensure a smooth transition to the new default clock configurations in WiSeConnect™ SDK v3.4.0, resulting in improved system stability and performance.
+
+Please refer ERRATA for more details

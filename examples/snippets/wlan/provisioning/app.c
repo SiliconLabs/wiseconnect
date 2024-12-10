@@ -131,6 +131,10 @@ static sl_status_t callback_status                             = SL_STATUS_OK;
 static app_state_t app_state                                   = PROVISIONING_INIT_STATE;
 static sl_wifi_client_configuration_t provisioned_access_point = { 0 };
 
+char wifi_client_profile_ssid[32]; // Assuming SSID can be up to 32 characters long
+char wifi_client_credential[64];   // Assuming Password can be up to 64 characters long
+char wifi_client_security_type[32];
+
 static const osThreadAttr_t thread_attributes = {
   .name       = "app",
   .attr_bits  = 0,
@@ -286,9 +290,20 @@ static void application_start(void *argument)
         }
         printf("Wi-Fi client interface initialized\r\n");
 
-        // Set callbacks for client connection and disconnection events
-        sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+        sl_wifi_credential_t cred  = { 0 };
+        sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
+        cred.type                  = SL_WIFI_PSK_CREDENTIAL;
+        memcpy(cred.psk.value, wifi_client_credential, strlen((char *)wifi_client_credential));
+
+        status =
+          sl_net_set_credential(id, SL_NET_WIFI_PSK, wifi_client_credential, strlen((char *)wifi_client_credential));
+
+        memset(&provisioned_access_point, 0, sizeof(provisioned_access_point));
+        provisioned_access_point.ssid.length = strlen((char *)wifi_client_profile_ssid);
+        memcpy(provisioned_access_point.ssid.value, wifi_client_profile_ssid, provisioned_access_point.ssid.length);
+        provisioned_access_point.security      = string_to_security_type(wifi_client_security_type);
+        provisioned_access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
+        provisioned_access_point.credential_id = id;
 
         //  Keeping the station ipv4 record in profile_id_0
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile_4);
@@ -491,11 +506,6 @@ static sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server
 
     jsmn_init(&parser); // Initialize JSON parser
 
-    // Clear and initialize the access point profile
-    memset(&provisioned_access_point, 0, sizeof(provisioned_access_point));
-    provisioned_access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
-    provisioned_access_point.credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
-
     memset(&tokens, 0, sizeof(tokens));
     jsmn_parse(&parser, received_data_buffer, req->request_data_length, tokens, sizeof(tokens) / sizeof(jsmntok_t));
 
@@ -504,37 +514,30 @@ static sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server
       if (tokens[a].type == JSMN_STRING) {
         if (memcmp(&received_data_buffer[tokens[a].start], SSID, tokens[a].end - tokens[a].start) == 0) {
           if (tokens[a + 1].type == JSMN_STRING) {
-            provisioned_access_point.ssid.length = tokens[a + 1].end - tokens[a + 1].start;
-            if (provisioned_access_point.ssid.length <= sizeof(provisioned_access_point.ssid.value)) {
-              ssid_found = true;
-              memcpy(provisioned_access_point.ssid.value,
-                     &received_data_buffer[tokens[a + 1].start],
-                     provisioned_access_point.ssid.length);
-            } else {
-              printf("SSID is too long. Max length is 32.\r\n");
-            }
+            snprintf(wifi_client_profile_ssid,
+                     sizeof(wifi_client_profile_ssid),
+                     "%.*s",
+                     tokens[a + 1].end - tokens[a + 1].start,
+                     received_data_buffer + tokens[a + 1].start);
+            ssid_found = true;
           }
         } else if (memcmp(&received_data_buffer[tokens[a].start], PASSPHRASE, tokens[a].end - tokens[a].start) == 0) {
           if (tokens[a].type == JSMN_STRING) {
-            // Set passphrase for the Wi-Fi client
-            sl_status_t status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                                                       SL_NET_WIFI_PSK,
-                                                       &received_data_buffer[tokens[a + 1].start],
-                                                       tokens[a + 1].end - tokens[a + 1].start);
-            if (status == SL_STATUS_OK) {
-              passphrase_found = true;
-            }
+            snprintf(wifi_client_credential,
+                     sizeof(wifi_client_credential),
+                     "%.*s",
+                     tokens[a + 1].end - tokens[a + 1].start,
+                     received_data_buffer + tokens[a + 1].start);
+            passphrase_found = true;
           }
         } else if (memcmp(&received_data_buffer[tokens[a].start], SECURITY_TYPE, tokens[a].end - tokens[a].start)
                    == 0) {
-          char security_type[20] = { 0 };
-
-          // Extract security type from JSON
-          strncpy(security_type, &received_data_buffer[tokens[a + 1].start], tokens[a + 1].end - tokens[a + 1].start);
-          provisioned_access_point.security = string_to_security_type(security_type);
-          if (provisioned_access_point.security != SL_WIFI_SECURITY_UNKNOWN) {
-            security_type_found = true;
-          }
+          snprintf(wifi_client_security_type,
+                   sizeof(wifi_client_security_type),
+                   "%.*s",
+                   tokens[a + 1].end - tokens[a + 1].start,
+                   received_data_buffer + tokens[a + 1].start);
+          security_type_found = true;
         }
       }
     }

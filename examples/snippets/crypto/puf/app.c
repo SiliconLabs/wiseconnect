@@ -41,13 +41,13 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-//!Size of data should be multiples of key_size(in bytes)
+//! User input data to be encrypted
 #define AES_PLAIN_TXT "Silabs"
-//! AES Key to be used to encrypt and decrypt
+//! User Key to be used to create keycode(Key length can be 16 or 32 bytes)
 #define AES_KEY "123456abcdefghijklmnopqrstuvwxyz"
 //! AES CBC mode IV
 #define AES_CBC_IV "abcdefghijklmnop"
-//! AES_BUFFER_SIZE
+//! Buffer size for output data. Adjust based on input message length.
 #define AES_BUFFER_SIZE 256
 //! PUF Demo type
 #define PUF_GET_KEY_DEMO 0

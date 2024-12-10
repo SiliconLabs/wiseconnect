@@ -33,7 +33,6 @@ In this example application, the SiWx91x's AP instance acts as HTTP Server and t
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
-      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
 
 ### Software Requirements
 

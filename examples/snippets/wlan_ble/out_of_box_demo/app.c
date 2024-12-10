@@ -39,6 +39,7 @@
 #include <rsi_common_apis.h>
 #include "glib.h"
 #include "logo_bitmaps.h"
+#include "sl_si91x_power_manager.h"
 
 // TCP IP BYPASS feature check
 #define RSI_TCP_IP_BYPASS RSI_DISABLE
@@ -176,6 +177,7 @@ void rsi_wlan_ble_app_init(void *argument)
   UNUSED_PARAMETER(argument);
   int32_t status = RSI_SUCCESS;
 
+  sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
   memlcd_app_init();
   GLIB_clear(&glibContext);
   GLIB_drawBitmap(&glibContext,

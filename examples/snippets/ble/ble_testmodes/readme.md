@@ -22,6 +22,8 @@ This application demonstrates how to test the BLE GAP peripheral role.
 - Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
+  - Kits
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:

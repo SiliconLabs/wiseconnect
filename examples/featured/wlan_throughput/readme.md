@@ -48,7 +48,6 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
     - SiWx917 AC1 Module Explorer Kit (BRD2708A)
-    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
   	
 - **NCP Mode**:
   - Standalone
@@ -57,7 +56,6 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
-      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
@@ -65,7 +63,6 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
      - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045C)
       - (BRD4357A + BRD8045C)
-      - (BRD4353A + BRD8045A)
   - Interface and Host MCU Supported
     - SPI - EFR32 & STM32
     - UART - EFR32
@@ -100,7 +97,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
 - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following steps:
   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-  - Mount the NCP Radio board (BRD4346A/BRD4357A/BRD4353A) onto the radio board socket available on the base board (BRD8045C).
+  - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
   - After connecting all the boards, the setup should look like the image shown:
   
   ![Figure: Setup](resources/readme/stm32_setup.png)

@@ -35,6 +35,7 @@ This also displays all the remote GATT profiles and service characteristics logs
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - **PSRAM Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]  

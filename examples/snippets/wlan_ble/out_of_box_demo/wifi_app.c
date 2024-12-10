@@ -219,7 +219,7 @@ uint8_t yield;
 uint8_t disconnect_flag = 0;
 char *hostname          = "www.silabs.com";
 
-uint8_t mqtt_connected = 0;
+volatile uint8_t mqtt_connected = 0;
 
 //LCD related variables
 GLIB_Context_t glibContext;

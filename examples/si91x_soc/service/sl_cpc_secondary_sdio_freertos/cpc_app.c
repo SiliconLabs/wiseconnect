@@ -281,10 +281,9 @@ static void cpc_app_task_endpoint_1(void *arg)
         status = sl_cpc_write(&user_endpoint_handle_1, static_write_array, size, 0, NULL);
         SL_ASSERT(status == SL_STATUS_OK);
         // wait for tx to complete
-        osSemaphoreAcquire(tx_complete_semaphore, 1000);
-        if (tx_complete_semaphore != osOK) {
+        osStatus_t sem_status = osSemaphoreAcquire(tx_complete_semaphore, osWaitForever);
+        if (sem_status != osOK) {
           DEBUGOUT("Failed to acquire tx_complete Semaphore\n");
-          //            SL_ASSERT(false);
         }
       }
     }

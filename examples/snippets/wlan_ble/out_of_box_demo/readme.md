@@ -42,7 +42,6 @@ If a message is published onto the topic from a MQTT client application [https:/
   - Kits
     - SiWG917 Dev Kit [BRD2605A]
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-    - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
 - Android Phone or iPhone with Simplicity Connect App (formerly EFR Connect App), which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
 
 ### Software Requirements
@@ -85,7 +84,7 @@ To view the application prints on the console, refer [here](https://docs.silabs.
     ![OOB initialization screen v1.0](resources/readme/status_lcd1_v1_0.png)
 
     > Note:
-    > Dev Kit(BRD2605A) and Explorer Kits(BRD2708A, BRD2911A) do not support display functionality.
+    > Dev Kit(BRD2605A) and Explorer Kits(BRD2708A) do not support display functionality.
 
     It implies that an older version of OOB demo binary (older than v2.0) is running on the SiWG917 board. 
     
@@ -163,6 +162,23 @@ To view the application prints on the console, refer [here](https://docs.silabs.
   ![Here is the image of serial prints](resources/readme/status_print_mqtt_connected.png)
 
 - NWP (network processor of SiWG917) enters connected sleep.  
+
+- To connect to a working MQTT broker and update the mqtt_hostname in the wifi_app.c file, follow these steps:
+
+# Update MQTT Hostname in wifi_app.c
+- By default, the mqtt_hostname in the wifi_app.c file is set to "test.mosquitto.org".
+    ```c
+    char *mqtt_hostname = "test.mosquitto.org";     
+    ```
+- If you're using a different MQTT broker, replace "test.mosquitto.org" with the appropriate hostname.
+
+- To check if the MQTT broker is working, you can use the online MQTT client available at the below link.
+
+
+**NOTE :**
+
+> If the default MQTT broker link is not working, you can try using other MQTT brokers listed on the webpage. For   instance, if "test.mosquitto.org" is not functioning, you can use "broker.mqtt.cool" as an alternative. Please follow the steps mentioned above to update the MQTT hostname.
+
 
 - Go to the browser and open the [online mqtt client](https://testclient-cloud.mqtt.cool/).
 

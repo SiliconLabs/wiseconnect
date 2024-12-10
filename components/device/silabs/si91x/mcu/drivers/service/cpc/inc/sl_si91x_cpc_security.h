@@ -26,7 +26,6 @@ extern osStatus_t sl_si91x_cpc_crypto_init_semaphore_status;
 void sl_ta_trng_init(void);
 void sl_si91x_cpc_crypto_init(void);
 void sl_si91x_cpc_crypto_init_task(void);
-void initialize_sl_net_init_semaphore(void);
 void sl_si91x_cpc_crypto_semaphore_init(void);
 
 #endif /* SL_SI91X_CPC_SECURITY_H_ */

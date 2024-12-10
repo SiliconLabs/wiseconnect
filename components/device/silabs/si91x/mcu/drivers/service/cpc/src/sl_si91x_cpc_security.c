@@ -81,6 +81,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
                    .config_feature_bit_map     = 0 }
 };
 
+// This function initializes a Semaphore with the `sl_si91x_cpc_crypto_semaphore_attr_st` atrribute
 void sl_si91x_cpc_crypto_semaphore_init(void)
 {
   sl_si91x_cpc_crypto_semaphore_attr_st.attr_bits = 0U;
@@ -108,6 +109,10 @@ void sl_ta_trng_init(void)
   }
 }
 
+//  CPC Crypto Init Task performs the following operations:
+//    - Create & acquire Semaphore to block calling of Crypto hardware drivers before TA is intialized.
+//    - Initialize the TA to access Crypto Hardware Acclerators.
+//    - Release the Semaphore so that `sli_cpc_security_init()` can call `psa_crypto_init()`.
 void sl_si91x_cpc_crypto_init_task(void)
 {
   sl_ta_trng_init();
@@ -123,6 +128,7 @@ void sl_si91x_cpc_crypto_init_task(void)
   }
 }
 
+//This function initializes the TA, making it ready for usage for Crypto Functions for CPC.
 void sl_si91x_cpc_crypto_init(void)
 {
   sl_si91x_cpc_crypto_semaphore_init();

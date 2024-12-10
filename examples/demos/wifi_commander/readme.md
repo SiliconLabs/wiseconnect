@@ -58,27 +58,14 @@ Refer to the instructions here:
 
 ## Application Build Environment
 
-- The application uses the default configurations as provided in the **default_wifi_ap_profile** in ``sl_net_default_values.h``. Users can choose to configure these parameters as needed.
+- The application uses the default Access Point (AP) configurations provided as below.
 
-- In the Project Explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters as you desired to enable the Silicon Labs Wi-Fi device as an access point.
+  - Default SSID of the WiSeConnect soft AP that will be "MY_AP_SSID".
 
-- AP instance related parameters :
+  - Default secret key of the WiSeConnect soft AP that will be "MY_AP_PASSPHRASE".
 
-  - `DEFAULT_WIFI_AP_PROFILE_SSID` refers to the SSID of the WiSeConnect soft AP that will be created.
-
-```c
-#define DEFAULT_WIFI_AP_PROFILE_SSID "MY_AP_SSID"
-```
-
-  - `DEFAULT_WIFI_AP_CREDENTIAL` refers to the secret key of the WiSeConnect soft AP that will be created.
-
-```c
-#define DEFAULT_WIFI_AP_CREDENTIAL "MY_AP_PASSPHRASE"
-```
-
-- Other AP instance configurations can be modified if required in `default_wifi_ap_profile` configuration structure.
-
-
+> Note
+> If you wish to modify the above settings, you can also do by updating the configuration using the Wi-Fi commander tool.
 
 ## Test the application
 

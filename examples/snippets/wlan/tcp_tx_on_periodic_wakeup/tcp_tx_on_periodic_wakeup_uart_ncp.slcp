@@ -91,6 +91,7 @@ other_file:
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
   - path: resources/readme/vcom.png
+  - path: resources/readme/console_logs.png
 ui_hints:
   highlight:
     - path: readme.md

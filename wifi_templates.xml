@@ -1411,6 +1411,21 @@
     <properties key="readmeFiles" value="examples/si91x_soc/siwx917_dev_kit/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="sl_cpc_sec_secondary_sdio_freertos" label="SI91x - SoC Peripheral CPC with Security Secondary SDIO - FreeRTOS" description="Demonstrates the CPC Secondary loopback application with SDIO interface support.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_cpc_sec_secondary_sdio_freertos/sl_cpc_sec_secondary_sdio_freertos.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4338a brd4340b"/>
+    <properties key="partCompatibility" value=" .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/service/sl_cpc_sec_secondary_sdio_freertos/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
 <descriptors name="sl_cpc_secondary_sdio_freertos" label="Si91x - CPC SDIO secondary freertos" description="Demonstrates the CPC Secondary loopback application with SDIO interface support.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1424,21 +1439,6 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/service/sl_cpc_secondary_sdio_freertos/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC"/>
-  </descriptors>
-<descriptors name="sl_cpc_with_security_secondary_sdio_freertos" label="SI91x - SoC Peripheral CPC with Security Secondary SDIO - FreeRTOS" description="Demonstrates the CPC Secondary loopback application with SDIO interface support.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_cpc_with_security_secondary_sdio_freertos/sl_cpc_with_security_secondary_sdio_freertos.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4338a brd4340b"/>
-    <properties key="partCompatibility" value=" .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/service/sl_cpc_with_security_secondary_sdio_freertos/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_adc_fifo_mode" label="SL Si91x - ADC FIFO Mode" description="Demonstrates the how to configure and use the ADC peripheral on the fifo mode on the the SiWx917 SoC device.">
@@ -1846,21 +1846,6 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_i2c_driver_follower/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_i2c_driver_follower_non_blocking" label="SL Si91x - I2C Driver Follower Non Blocking" description="Demonstrates how to use I2C Peripheral with Non Blocking APIs.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_i2c_driver_follower_non_blocking/sl_si91x_i2c_driver_follower_non_blocking.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_i2c_driver_follower_non_blocking/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
-  </descriptors>
 <descriptors name="sl_si91x_i2c_driver_leader" label="SL Si91x - I2C Driver Leader" description="Demonstrates how to use I2C Peripheral with Blocking APIs.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1874,21 +1859,6 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_i2c_driver_leader/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
-  </descriptors>
-<descriptors name="sl_si91x_i2c_driver_leader_non_blocking" label="SL Si91x - I2C Driver Leader Non Blocking" description="Demonstrates how to use I2C Peripheral with Non Blocking APIs.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_i2c_driver_leader_non_blocking/sl_si91x_i2c_driver_leader_non_blocking.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_i2c_driver_leader_non_blocking/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
 <descriptors name="sl_si91x_i2c_driver_leader_using_transfer_api" label="SL Si91x - I2C Driver Leader Using Transfer API" description="Demonstrates how to use I2C Peripheral, using transfer API.">
@@ -2444,21 +2414,6 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_i2c_driver_leader/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
-  </descriptors>
-<descriptors name="sl_si91x_ulp_i2c_driver_leader_non_blocking" label="SL Si91x - ULP I2C Driver Leader Non Blocking" description="Demonstrates how to use I2C Peripheral in ULP mode with Non Blocking APIs.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_i2c_driver_leader_non_blocking/sl_si91x_ulp_i2c_driver_leader_non_blocking.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_i2c_driver_leader_non_blocking/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
 <descriptors name="sl_si91x_ulp_i2s" label="Si91x - SL_ULP_I2S" description="Demonstrates how to use the I2S loopback on the Si91x SoC device in Ultra Low Power.">

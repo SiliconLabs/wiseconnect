@@ -22,7 +22,7 @@ This sample app demonstrates the use of the Joystick Driver. It prints the joyst
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A / BRD4344A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A]
 
 ### Software Requirements
 

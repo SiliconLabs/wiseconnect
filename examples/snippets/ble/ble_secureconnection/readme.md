@@ -25,6 +25,8 @@ In this application, module connects with remote device and initiates SMP pairin
   - SiWx91x Wi-Fi Evaluation Kit.
   - SoC Mode:
     - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
+    - Kits
+      - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   - PSRAM Mode:  
     - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
   - NCP Mode:

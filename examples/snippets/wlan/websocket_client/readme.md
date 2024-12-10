@@ -29,7 +29,6 @@ This application demonstrates how to configure SiWx91x device as a WebSocket cli
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
-      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
 
 ### Software Requirements
 
@@ -110,17 +109,55 @@ To run the WebSocket server, follow these steps:
    ```sh
    npm install
    ```
+4. Update the `index.js` file to enable SSL if required by setting the `USE_SSL` variable to `true`:
 
-4. Start the WebSocket server by running:
+   ```javascript
+   const USE_SSL = true; // Set to true to use WSS (WebSocket Secure), false to use WS (WebSocket)
+   ```
+
+5. Start the WebSocket server by running:
 
    ```sh
    node index.js
    ```
 
-5. The server will start listening on port 8080. You should see the following message in your terminal: Server is listening on port 8080
+6. The server will start listening on port 8080. You should see the following message in your terminal: Server is listening on port 8080
 
-6. The WebSocket server is now ready to accept connections from the WebSocket client application.
+7. The WebSocket server is now ready to accept connections from the WebSocket client application.
 
+## Configuring the WebSocket Client for SSL
+
+1. Update the `sl_websocket_config_t` structure in your client application to set the `enable_ssl` field to `true`:
+
+   ```c
+   sl_websocket_config_t ws_config = {
+     .host                = HOST_NAME,
+     .resource            = RESOURCE_NAME,
+     .server_port         = 8080,
+     .client_port         = 5001,
+     .ip_address          = SERVER_IP_ADDR,
+     .data_cb             = data_callback,
+     .remote_terminate_cb = remote_terminate_callback,
+     .enable_ssl          = true, // Enable SSL
+   };
+   ```
+
+2. Load the SSL CA certificate in the app.c as shown below.
+
+   ```c
+   #include "cacert.pem.h"
+   
+   // Load SSL CA certificate
+   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(CERTIFICATE_INDEX),
+                                  SL_NET_SIGNING_CERTIFICATE,
+                                  cacert,
+                                  sizeof(cacert) - 1);
+   if (status != SL_STATUS_OK) {
+     printf("\r\nLoading TLS CA certificate into FLASH Failed, Error Code : 0x%lX\r\n", status);
+     return;
+   }
+   printf("\r\nLoad SSL CA certificate at index %d Success\r\n", CERTIFICATE_INDEX);
+   ```
 
 ## Test the Application
 

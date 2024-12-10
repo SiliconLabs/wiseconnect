@@ -37,7 +37,6 @@ This application demonstrates to flash the firmware on the Si91x Device from the
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
-      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
     - SoC
       - Silicon Labs [BRD4338A]
   - Kits

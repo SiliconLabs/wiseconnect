@@ -19,11 +19,12 @@
 
 ## Overview
 
-- The HRNG module provides an interface to generate random numbers using the hardware capabilities of the SI91x series microcontrollers.
+- The HRNG module provides an interface to generate random numbers using the hardware capabilities of the SI91x series micro-controllers.
 - Key features of the HRNG module include:
   - High-quality random number generation
   - Hardware-based entropy source
-  - Pseudo-random number generation support
+  - **Pseudo-random number:** Pseudo-random number rely on mathematical algorithms to generate sequences of numbers that resemble randomness. These algorithms are deterministic, meaning they always produce the same sequence of numbers when initialized with the same starting value, referred to as a seed.
+  - **True Random Number :** True Random Number create random numbers using physical processes like electronic noise, radioactive decay, or other unpredictable natural events.
   - Easy-to-use API
 
 ## About Example Code
@@ -32,7 +33,7 @@ This section provides instructions on how to get started with the Hardware Rando
 
 - **Initialize the HRNG Peripheral**: Before using the HRNG, you need to initialize it. This can be done using the `sl_si91x_hrng_init()` function.
 - **Start the HRNG**: After initialization, start the HRNG using the `sl_si91x_hrng_start()` function.
-- **Generate Random Numbers**: Use the `sl_si91x_hrng_get_random_number()` function to generate random numbers.
+- **Generate Random Numbers**: Use the ` sl_si91x_hrng_get_bytes()` function to generate random numbers.
 - **Stop the HRNG**: Once you are done generating random numbers, stop the HRNG using the `sl_si91x_hrng_stop()` function.
 - **Deinitialize the HRNG**: Finally, deinitialize the HRNG using the `sl_si91x_hrng_deinit()` function to release any allocated resources.
 

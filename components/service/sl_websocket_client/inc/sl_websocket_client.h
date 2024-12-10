@@ -27,11 +27,11 @@
  *   This function initializes the WebSocket client with the provided configuration.
  *   It allocates necessary resources and sets up the client for connection.
  *
- * @param[in] handle
+ * @param[out] handle
  *   Pointer to the WebSocket client structure. Must not be NULL.
  *
  * @param[in] config
- *   Pointer to the WebSocket client configuration structure. Must not be NULL.
+ *   Pointer to the WebSocket client configuration constant structure. Must not be NULL.
  *
  * @return
  *   sl_websocket_error_t - Error code indicating the result of the operation.
@@ -43,7 +43,10 @@ sl_websocket_error_t sl_websocket_init(sl_websocket_client_t *handle, const sl_w
  *
  * @details
  *   This function creates a socket, binds it, and connects to the specified WebSocket server.
- *
+ * 
+ * @pre
+ *   The WebSocket handle should be initialized using @ref sl_websocket_init before calling this function.
+ * 
  * @param[in] handle
  *   Pointer to the WebSocket client structure. Must not be NULL.
  *
@@ -58,14 +61,19 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle);
  * @details
  *   This function sends a WebSocket frame to the server. Masking is taken care of by the firmware.
  *
+ * @pre
+ *   The WebSocket handle should be initialized using @ref sl_websocket_init and connected using @ref sl_websocket_connect before calling this function.
+ * 
  * @param[in] handle
  *   Pointer to the WebSocket client structure. Must not be NULL.
  *
  * @param[in] send_request
- *   Pointer to the send request structure containing the frame details. Must not be NULL.
+ *   Pointer to the send request constant structure containing the frame details. Must not be NULL.
  *
  * @return
  *   sl_websocket_error_t - Error code indicating the result of the operation.
+ *
+ * @note Masking refers to applying a random 32-bit mask to the data sent to the server to ensure data integrity and security.
  *
  * @note The following table lists the maximum individual chunk of data that can be sent over each supported protocol.
  *       The length of the payload is specified in the `length` field of the `sl_websocket_send_request_t` structure.
@@ -84,6 +92,9 @@ sl_websocket_error_t sl_websocket_send_frame(sl_websocket_client_t *handle,
  * @details
  *   This function closes the WebSocket connection and cleans up resources.
  *
+ * @pre
+ *   The WebSocket handle should be initialized using @ref sl_websocket_init and connected using @ref sl_websocket_connect before calling this function.
+ * 
  * @param[in] handle
  *   Pointer to the WebSocket client structure. Must not be NULL.
  *
@@ -100,6 +111,9 @@ sl_websocket_error_t sl_websocket_close(sl_websocket_client_t *handle);
  *   It should be called only after the WebSocket connection has been closed as it also ensures that if the socket remains open after the @ref sl_websocket_close is invoked, it attempts to close the socket as part of its cleanup process.
  *   Therefore, calling this function is mandatory whenever a WebSocket connection is terminated, ensuring proper cleanup.
  *
+ * @pre
+ *   The WebSocket handle should be initialized using @ref sl_websocket_init before calling this function.
+ * 
  * @param[in] handle
  *   Pointer to the WebSocket client structure. Must not be NULL.
  *

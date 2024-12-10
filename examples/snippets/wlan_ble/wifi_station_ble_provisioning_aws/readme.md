@@ -85,7 +85,6 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
    - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
    - SiWx917 Pro Kit [Si917-PK6032A]
    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
-   - Ezurio Veda SL917 Explorer Kit Board (BRD2911A)
    
 - **NCP Mode**:
   - Standalone
@@ -94,7 +93,6 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
     - NCP Expansion Kit with NCP Radio boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
-      - (BRD4353A + BRD8045A) [SiWx917-EB4353A]
   - Interface and Host MCU Supported
     - SPI - EFR32 & STM32 
     - UART - EFR32
