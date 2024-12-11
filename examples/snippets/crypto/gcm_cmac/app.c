@@ -77,7 +77,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
 #else
                      SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                      ),
@@ -183,7 +183,7 @@ sl_status_t gcm_encryption(void)
   config_gcm.ad              = additional_data;
   config_gcm.ad_length       = sizeof(additional_data);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   config_gcm.gcm_mode    = SL_SI91X_GCM_MODE;
   size_t key_buffer_size = sizeof(key);
 
@@ -260,7 +260,7 @@ sl_status_t gcm_decryption(void)
   config_gcm.nonce_length    = sizeof(nonce);
   config_gcm.ad              = additional_data;
   config_gcm.ad_length       = sizeof(additional_data);
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   config_gcm.gcm_mode    = SL_SI91X_GCM_MODE;
   size_t key_buffer_size = sizeof(key);
   switch (key_buffer_size) {
@@ -315,7 +315,7 @@ sl_status_t gcm_decryption(void)
 sl_status_t cmac_compute(void)
 {
   sl_status_t status = SL_STATUS_FAIL;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_gcm_config_t config_cmac;
   memset(&config_cmac, 0, sizeof(sl_si91x_gcm_config_t));
   config_cmac.gcm_mode     = SL_SI91X_CMAC_MODE;

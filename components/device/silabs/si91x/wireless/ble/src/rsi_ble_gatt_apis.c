@@ -468,6 +468,27 @@ int32_t rsi_ble_set_att_value_async(uint8_t *dev_addr, uint16_t handle, uint8_t 
 
   return rsi_bt_driver_send_cmd(RSI_BLE_SET_DESCVALUE_ASYNC, &set_att_val, NULL);
 }
+
+void ble_prepare_write_request(rsi_ble_req_prepare_write_t *req_prepare_write,
+                               uint8_t *dev_addr,
+                               uint16_t handle,
+                               uint16_t offset,
+                               uint8_t data_len,
+                               const uint8_t *p_data)
+{
+  memset(req_prepare_write, 0, sizeof(*req_prepare_write));
+
+#ifdef BD_ADDR_IN_ASCII
+  rsi_ascii_dev_address_to_6bytes_rev(req_prepare_write->dev_addr, dev_addr);
+#else
+  memcpy((uint8_t *)req_prepare_write->dev_addr, (int8_t *)dev_addr, 6);
+#endif
+  rsi_uint16_to_2bytes(req_prepare_write->handle, handle);
+  rsi_uint16_to_2bytes(req_prepare_write->offset, offset);
+  req_prepare_write->length = (uint8_t)(RSI_MIN(sizeof(req_prepare_write->att_value), data_len));
+  memcpy(req_prepare_write->att_value, p_data, req_prepare_write->length);
+}
+
 /*==============================================*/
 /**
  * @fn         int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
@@ -499,7 +520,6 @@ int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
                                     uint8_t data_len,
                                     const uint8_t *p_data)
 {
-
   SL_PRINTF(SL_RSI_BLE_PREPARE_WRITE_ASYNC,
             BLE,
             LOG_INFO,
@@ -508,20 +528,10 @@ int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
             offset,
             data_len);
   rsi_ble_req_prepare_write_t req_prepare_write;
-  memset(&req_prepare_write, 0, sizeof(req_prepare_write));
-
-#ifdef BD_ADDR_IN_ASCII
-  rsi_ascii_dev_address_to_6bytes_rev(req_prepare_write.dev_addr, dev_addr);
-#else
-  memcpy((uint8_t *)req_prepare_write.dev_addr, (int8_t *)dev_addr, 6);
-#endif
-  rsi_uint16_to_2bytes(req_prepare_write.handle, handle);
-  rsi_uint16_to_2bytes(req_prepare_write.offset, offset);
-  req_prepare_write.length = (uint8_t)(RSI_MIN(sizeof(req_prepare_write.att_value), data_len));
-  memcpy(req_prepare_write.att_value, p_data, req_prepare_write.length);
-
+  ble_prepare_write_request(&req_prepare_write, dev_addr, handle, offset, data_len, p_data);
   return rsi_bt_driver_send_cmd(RSI_BLE_SET_PREPAREWRITE_ASYNC, &req_prepare_write, NULL);
 }
+
 /*==============================================*/
 /**
  * @fn         int32_t rsi_ble_execute_write_async(uint8_t *dev_addr, uint8_t exe_flag)
@@ -1090,16 +1100,7 @@ int32_t rsi_ble_prepare_write(uint8_t *dev_addr,
             data_len,
             offset);
   rsi_ble_req_prepare_write_t req_prepare_write;
-  memset(&req_prepare_write, 0, sizeof(req_prepare_write));
-#ifdef BD_ADDR_IN_ASCII
-  rsi_ascii_dev_address_to_6bytes_rev(req_prepare_write.dev_addr, dev_addr);
-#else
-  memcpy((uint8_t *)req_prepare_write.dev_addr, (int8_t *)dev_addr, 6);
-#endif
-  rsi_uint16_to_2bytes(req_prepare_write.handle, handle);
-  rsi_uint16_to_2bytes(req_prepare_write.offset, offset);
-  req_prepare_write.length = (uint8_t)(RSI_MIN(sizeof(req_prepare_write.att_value), data_len));
-  memcpy(req_prepare_write.att_value, p_data, req_prepare_write.length);
+  ble_prepare_write_request(&req_prepare_write, dev_addr, handle, offset, data_len, p_data);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_REQ_PREPARE_WRITE, &req_prepare_write, NULL);
 }

@@ -1,10 +1,31 @@
-/*
- * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
- * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
- * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
- * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
- * (c) Copyright 2024, Silicon Laboratories Inc.  All rights reserved.
- */
+/********************************************************************************
+ * @file  sl_wifi_types.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
@@ -65,21 +86,21 @@
 
 /** @addtogroup SL_WIFI_CONSTANTS
   * @{ */
-#define SL_CHANNEL_NO            14 ///< Wi-Fi transceiver default channel
-#define SL_TX_POWER              20 ///< Wi-Fi transceiver default TX power
-#define DEFAULT_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
-#define DEFAULT_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
-#define DEFAULT_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
-#define DEFAULT_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
-#define DEFAULT_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
-#define DEFAULT_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
-#define DEFAULT_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
-#define DEFAULT_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
-#define DEFAULT_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
-#define DEFAULT_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
-#define DEFAULT_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
-#define DEFAULT_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
-#define DEFAULT_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_CHANNEL_NO               14 ///< Wi-Fi transceiver default channel
+#define SL_WIFI_TRANSCEIVER_TX_POWER                 20 ///< Wi-Fi transceiver default TX power
+#define SL_WIFI_TRANSCEIVER_DEFAULT_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
+#define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
 /** @} */
 
 /** @addtogroup SL_WIFI_TYPES Types
@@ -132,7 +153,7 @@ typedef struct {
  */
 typedef struct {
   int32_t
-    trigger_level; ///< RSSI level to trigger the roam algorithm, setting the value to SL_WIFI_NEVER_ROAM will disable roaming configuration
+    trigger_level; ///< RSSI level to trigger the roam algorithm, setting the value to SL_WIFI_NEVER_ROAM disables roaming configuration
   uint32_t trigger_level_change; ///< RSSI level delta change to trigger the roam algorithm
 } sl_wifi_roam_configuration_t;
 
@@ -186,7 +207,7 @@ typedef struct {
 /// Extended Wi-Fi scan result parameters
 typedef struct {
   sl_wifi_extended_scan_result_t
-    *scan_results;         ///< Pointer to an array containing scan results of type @ref sl_wifi_extended_scan_result_t
+    *scan_results;         ///< Pointer to an array contains scan results of type @ref sl_wifi_extended_scan_result_t
   uint16_t array_length;   ///< Length of the scan results array provided by the user.
   uint16_t *result_count;  ///< Pointer to store the total count of scan results returned.
   uint8_t *channel_filter; ///< Pointer to Channel number (Filter based on Channel number of the AP).
@@ -229,8 +250,8 @@ typedef struct {
   sl_wifi_scan_type_t type;        ///< Scan type to be configured of type @ref sl_wifi_scan_type_t
   uint32_t flags;                  ///< Reserved
   uint32_t periodic_scan_interval; ///< Duration in milliseconds between periodic scans
-  uint16_t channel_bitmap_2g4;     ///< Bitmap of selected 2.4GHz channels
-  uint32_t channel_bitmap_5g[8];   ///< Bitmap of selected 5GHz channels (currently not supported)
+  uint16_t channel_bitmap_2g4;     ///< Bitmap of selected 2.4 GHz channels
+  uint32_t channel_bitmap_5g[8];   ///< Bitmap of selected 5 GHz channels (currently not supported)
   uint8_t lp_mode;                 ///< Enable LP mode, 1 - Enable LP mode, 0 - Disable LP mode
 } sl_wifi_scan_configuration_t;
 
@@ -309,7 +330,7 @@ typedef struct {
 typedef struct {
   uint16_t channel_bitmap_2_4; ///< Channel bitmap for scanning in a set of selective channels in 2.4 GHz.
   uint32_t
-    channel_bitmap_5; ///< Channel bitmap for scanning in a set of selective channels in 5 GHz. (Currently not supported.)
+    channel_bitmap_5; ///< Channel bitmap for scanning in a set of selective channels in 5 GHz. (Currently not supported).
 } sl_wifi_channel_bitmap_t;
 
 /**
@@ -368,7 +389,7 @@ typedef struct {
  * @brief Wi-Fi WEP (Wired Equivalent Privacy) security credentials structure.
  *
  * Specifies the WEP security credentials used for Wi-Fi connections.
- * These keys are used for authenticating and securing the Wi-Fi connection.
+ * These keys are used for authentication and securing the Wi-Fi connection.
  */
 typedef struct {
   uint8_t index[2];                                           ///< Index of the active WEP key
@@ -391,11 +412,11 @@ typedef struct {
      *  - BIT[0] of Opportunistic Key Caching (OKC) is used to enable or disable OKC:
      *    - 0 – disable
      *    - 1 – enable
-     *    When this is enabled, the module will use cached PMKID to get the Master Session Key (MSK), which is needed for generating PMK that is needed for the 4-way handshake.
+     *    When this is enabled, the module uses cached PMKID to get the Master Session Key (MSK), which is needed for generating PMK that is needed for the 4-way handshake.
      * - BIT[1] of OKC is used to enable or disable CA certification for PEAP connection:
      *   – 0 – CA certificate is not required
      *   – 1 – CA certificate is required
-	   * - BIT[2-12] of OKC argument are used for cipher list selection for EAP connection. All possible ciphers are listed below:
+	   * - BIT[2-12] of OKC argument are used for cipher list selection for EAP connection. All possible ciphers are listed further:
 	   *       | BIT position| Cipher selected       |
 	   *       |-------------|-----------------------|
 	   *       | 2           | DHE-RSA-AES256-SHA256 |
@@ -440,17 +461,17 @@ typedef struct {
 typedef struct {
   uint8_t wake_duration; ///< Nominal minimum wake duration. Range : 0 - 255
   uint8_t
-    wake_duration_tol; ///< Tolerance allowed for wake duration in case of suggest TWT. Received TWT wake duration from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Range : 0 - 255.
+    wake_duration_tol; ///< Tolerance allowed for wake duration in case of suggest TWT. Received TWT wake duration from AP validates against tolerance limits and decides if TWT config received is in acceptable range or not. Range : 0 - 255.
   uint8_t wake_int_exp; ///< Wake interval exponent to the base 2. Range : 0 - 31.
   uint8_t
-    wake_int_exp_tol; ///< Tolerance allowed for wake_int_exp in case of suggest TWT request. Received TWT wake interval exponent from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Range : 0 - 31.
+    wake_int_exp_tol; ///< Tolerance allowed for wake_int_exp in case of suggest TWT request. Received TWT wake interval exponent from AP validates against tolerance limits and decides if TWT config received is in acceptable range or not. Range : 0 - 31.
   uint16_t wake_int_mantissa; ///< Wake interval mantissa. Range : 0 - 65535.
   uint16_t
-    wake_int_mantissa_tol; ///< Tolerance allowed for wake_int_mantissa in case of suggest TWT. Received TWT wake interval mantissa from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Range : 0 - 65535.
+    wake_int_mantissa_tol; ///< Tolerance allowed for wake_int_mantissa in case of suggest TWT. Received TWT wake interval mantissa from AP validates against tolerance limits and decides if TWT config received is in acceptable range or not. Range : 0 - 65535.
   uint8_t
-    implicit_twt; ///< If enabled (1), the TWT requesting STA calculates the next TWT by adding a fixed value to the current TWT value. Explicit TWT is currently not allowed.
+    implicit_twt; ///< If enabled (1), the TWT requests STA to calculate the next TWT by adding a fixed value to the current TWT value. Currently, explicit TWT is not allowed.
   uint8_t
-    un_announced_twt; ///< If enabled (1), the TWT requesting STA does not announce its wake up to AP through PS-POLLs or UAPSD Trigger frames. Values : 0 or 1.
+    un_announced_twt; ///< If enabled (1), the TWT requests STA to not announce its wake up to AP through PS-POLLs or UAPSD Trigger frames. Values : 0 or 1.
   uint8_t
     triggered_twt; ///< If enabled(1), at least one trigger frame is included in the TWT Service Period(TSP). Values : 0 or 1.
   uint8_t negotiation_type; ///< Negotiation type : 0 - Individual TWT; 1 - Broadcast TWT.
@@ -474,21 +495,21 @@ typedef struct {
 typedef struct {
   uint8_t twt_enable; ///< TWT enable. 0 - TWT session teardown; 1 - TWT session setup.
   uint16_t
-    average_tx_throughput; ///< This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20Mbps by default).
+    average_tx_throughput; ///< This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10 Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20 Mbps by default).
   uint32_t
-    tx_latency; ///< The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
+    tx_latency; ///< The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200 ms - 6 hrs].
   uint32_t
     rx_latency; ///< The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
   uint16_t
-    device_average_throughput; ///< Refers to the average Tx throughput that the device is capable of achieving in Kbps. The default value is 20Mbps. Internal SDK use only: do not use.
+    device_average_throughput; ///< Refers to the average Tx throughput that the device is capable of achieving in Kbps. The default value is 20 Mbps. Internal SDK use only: do not use.
   uint8_t
     estimated_extra_wake_duration_percent; ///< The percentage by which wake duration is supposed to be overestimated to compensate for bss congestion. Recommended input range is 0 - 50%. The default value is 0. Internal SDK use only: do not use.
   uint8_t
     twt_tolerable_deviation; ///< The allowed deviation percentage of wake duration TWT response. Recommended input range is 0 - 50%. The default value is 10. Internal SDK use only: do not use.
   uint32_t
-    default_wake_interval_ms; ///< Default minimum wake interval. Recommended Range: 512ms to 1024ms. The default value is 1024msec. Internal SDK use only: do not use.
+    default_wake_interval_ms; ///< Default minimum wake interval. Recommended Range: 512 to 1024 ms. The default value is 1024msec. Internal SDK use only: do not use.
   uint32_t
-    default_minimum_wake_duration_ms; ///< Default minimum wake interval. Recommended Range: 8ms - 16ms. The default value is 8ms. Internal SDK use only: do not use.
+    default_minimum_wake_duration_ms; ///< Default minimum wake interval. Recommended Range: 8- 16 ms. The default value is 8 ms. Internal SDK use only: do not use.
   uint8_t
     beacon_wake_up_count_after_sp; ///< The number of beacons after the service period completion for which the module wakes up and listens for any pending RX. The default value is 2. Internal SDK use only: do not use.
 } sl_wifi_twt_selection_t;
@@ -624,10 +645,21 @@ typedef struct {
  * The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
  * maximum supported value for that region, or if the specified transmit power exceeds the maximum supported value of the device,
  * the transmission would occur at the maximum supported transmit power.
+ *
+ * @note
+ * There are three available configurations for join_tx_power: low, medium, and high, which correspond to the values 0, 1, and 2, respectively.
+ * Each configuration has a specified power level.
+ *     Low power (7 +/- 1) dBm
+ *     Medium power (10 +/- 1) dBm
+ *     High power (18 +/- 2) dBm
+ * An absolute power level can be set using the most significant bit (MSB) of an 8-bit value. This is achieved by setting the MSB to 128 (binary: 1000 0000).
+ * To configure the absolute transmission power, add the desired Tx power to 128.
+ * For example, setting the parameter to 148 (128 + 20) configures the transmission power to 20 dBm.
+ *
  */
 typedef struct {
-  uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1 dBm to 31 dBm
-  uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1 dBm to 31 dBm
+  uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1 to 31 dBm
+  uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1 to 31 dBm
 } sl_wifi_max_tx_power_t;
 
 /**
@@ -678,7 +710,7 @@ typedef struct {
   sl_wifi_data_rate_t
     rate; ///< Rates shall be provided as per @ref sl_wifi_data_rate_t. Only 11b/g rates shall be supported
   uint32_t
-    token; ///< Used for synchronization between data packets sent and reports received. Application shall provide token/identifier as per PPDU. MAC layer sends the same token/identifier in status report along with the status of the transmitted packet
+    token; ///< Used for synchronization between data packets sent and reports received. Application provides token/identifier as per PPDU. MAC layer sends the same token/identifier in status report along with the status of the transmitted packet
   uint8_t addr1[6]; ///< Receiver MAC address
   uint8_t addr2[6]; ///< Transmitter MAC address
   uint8_t addr3[6]; ///< Destination MAC address

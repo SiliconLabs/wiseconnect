@@ -80,7 +80,7 @@ static const sl_wifi_device_configuration_t http_server_configuration = {
                    .custom_feature_bit_map =
                      (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),

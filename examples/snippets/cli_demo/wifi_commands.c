@@ -62,6 +62,7 @@
 
 #define WIFI_MODE_BLE_COEX      4 // BLE Coex mode
 #define WIFI_TRANSMIT_TEST_MODE 6
+#define BLE_MODE                7
 
 #define OPENSSL_SERVER 0
 #define AWS_SERVER     1
@@ -115,6 +116,12 @@ static uint32_t max_receive_stats_count  = 0;
 float pass_avg                           = 0;
 float fail_avg                           = 0;
 
+typedef struct {
+  sl_si91x_operation_mode_t operation_mode;
+  sl_si91x_band_mode_t band;
+  sl_si91x_region_code_t region_code;
+} set_region_struct_t;
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -124,7 +131,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .region_code = US,
+  .region_code = WORLD_DOMAIN,
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
@@ -145,7 +152,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
 #if ENABLE_POWERSAVE_CLI
                       | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -198,7 +205,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_configura
 #if ENABLE_POWERSAVE_CLI
                                                   | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -226,7 +233,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_enterprise_client_co
 #if ENABLE_POWERSAVE_CLI
                       | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -256,7 +263,7 @@ static const sl_wifi_device_configuration_t sl_wifi_transmit_test_configuration_
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -266,6 +273,8 @@ static const sl_wifi_device_configuration_t sl_wifi_transmit_test_configuration_
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
+
+extern const sl_wifi_device_configuration_t sl_wifi_ble_configuration_cli;
 
 sl_wifi_device_configuration_t si91x_init_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -370,7 +379,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .mode        = 0,
   .channel     = 1,
   .aggr_enable = 0,
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,
@@ -510,7 +519,7 @@ static inline const char *get_performance_profile_name(sl_si91x_performance_prof
       return "Associated power save";
     case ASSOCIATED_POWER_SAVE_LOW_LATENCY:
       return "Associated power save low latency";
-    case STANDBY_POWER_SAVE:
+    case DEEP_SLEEP_WITHOUT_RAM_RETENTION:
       return "Standby low power";
     default:
       return "Unknown";
@@ -540,6 +549,9 @@ sl_status_t wifi_init_command_handler(console_args_t *arguments)
     case WIFI_TRANSMIT_TEST_MODE:
       config = sl_wifi_transmit_test_configuration_cli;
       break;
+    case BLE_MODE:
+      config = sl_wifi_ble_configuration_cli;
+      break;
     default:
       printf("Selected Wi-Fi mode is not supported. Try 'help'");
       return SL_STATUS_WIFI_UNKNOWN_INTERFACE;
@@ -565,6 +577,11 @@ sl_status_t wifi_init_command_handler(console_args_t *arguments)
       break;
     case WIFI_MODE_BLE_COEX:
       printf("Started BLE Coex mode");
+      break;
+    case BLE_MODE:
+      printf("Started BLE mode");
+      break;
+    default:
       break;
   }
 
@@ -622,7 +639,9 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
     return SL_STATUS_FAIL;
   }
 
-  callback_status = show_scan_results(result);
+  if (result_length != 0) {
+    callback_status = show_scan_results(result);
+  }
 
   scan_results_complete = true;
   return SL_STATUS_OK;
@@ -637,7 +656,7 @@ sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uin
     return SL_STATUS_FAIL;
   }
 
-  if (event == SL_WIFI_STATS_AYSNC_EVENT) {
+  if (event == SL_WIFI_STATS_ASYNC_EVENT) {
     sl_si91x_async_stats_response_t *result = (sl_si91x_async_stats_response_t *)reponse;
 
     printf("%s: WIFI STATS Recieved packet# %d\n", __func__, stats_count);
@@ -811,7 +830,8 @@ sl_status_t wifi_connect_command_handler(console_args_t *arguments)
     sl_wifi_set_join_callback(join_callback_handler, NULL);
   }
 
-  if ((security_type == SL_WIFI_WPA_ENTERPRISE) || ((security_type == SL_WIFI_WPA2_ENTERPRISE))) {
+  if ((security_type == SL_WIFI_WPA_ENTERPRISE) || ((security_type == SL_WIFI_WPA2_ENTERPRISE))
+      || (security_type == SL_WIFI_WPA3_ENTERPRISE) || (security_type == SL_WIFI_WPA3_TRANSITION_ENTERPRISE)) {
     if (user_name == NULL) {
       return SL_STATUS_INVALID_CREDENTIALS;
     }
@@ -1128,8 +1148,7 @@ sl_status_t wifi_start_ap_command_handler(console_args_t *arguments)
   sl_status_t status;
   sl_wifi_ap_configuration_t ap_configuration = { 0 };
   sl_wifi_credential_t cred                   = { 0 };
-
-  char *ssid = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SOFT_AP_SSID, char *);
+  char *ssid                                  = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SOFT_AP_SSID, char *);
 
   memcpy(ap_configuration.ssid.value, ssid, strlen(ssid));
   ap_configuration.ssid.length = (uint8_t)strlen((char *)ap_configuration.ssid.value);
@@ -1744,10 +1763,10 @@ sl_status_t sl_wifi_update_gain_table_command_handler(console_args_t *arguments)
   sl_status_t status           = SL_STATUS_OK;
   uint8_t band                 = (uint8_t)GET_COMMAND_ARG(arguments, 0);
   uint8_t bandwidth            = (uint8_t)GET_COMMAND_ARG(arguments, 1);
-  uint8_t gain_table_payload[] = { 3,  0,  13, 1,  34, 20, 20,  2,  34, 28, 28, 3,  34,  32, 32, 4,  34,
-                                   36, 36, 5,  34, 38, 38, 6,   34, 40, 40, 7,  34, 38,  38, 8,  34, 36,
-                                   36, 9,  34, 32, 32, 10, 34,  32, 32, 11, 34, 24, 24,  12, 34, 16, 24,
-                                   13, 34, 12, 12, 2,  17, 255, 20, 16, 16, 4,  17, 255, 26, 20, 20 };
+  uint8_t gain_table_payload[] = { 3,  0,  13, 1,  34, 20, 20, 22, 2,  34, 28,  28, 28, 3,  34, 32, 32,  32, 4,  34,
+                                   36, 36, 34, 5,  34, 38, 38, 38, 6,  34, 40,  40, 38, 7,  34, 38, 38,  38, 8,  34,
+                                   36, 36, 38, 9,  34, 32, 32, 32, 10, 34, 32,  32, 28, 11, 34, 24, 24,  24, 12, 34,
+                                   16, 24, 24, 13, 34, 12, 12, 12, 2,  17, 255, 20, 16, 16, 4,  17, 255, 26, 20, 20 };
 
   status = sl_wifi_update_gain_table(band, bandwidth, gain_table_payload, sizeof(gain_table_payload));
   VERIFY_STATUS_AND_RETURN(status);
@@ -1796,28 +1815,29 @@ sl_status_t sl_wifi_ax_transmit_test_start_command_handler(console_args_t *argum
   tx_test_info.length                 = (uint16_t)GET_COMMAND_ARG(arguments, 2);
   tx_test_info.mode                   = (uint16_t)GET_COMMAND_ARG(arguments, 3);
   tx_test_info.channel                = (uint16_t)GET_COMMAND_ARG(arguments, 4);
-  tx_test_info.enable_11ax            = (uint8_t)GET_COMMAND_ARG(arguments, 5);
-  tx_test_info.coding_type            = (uint8_t)GET_COMMAND_ARG(arguments, 6);
-  tx_test_info.nominal_pe             = (uint8_t)GET_COMMAND_ARG(arguments, 7);
-  tx_test_info.ul_dl                  = (uint8_t)GET_COMMAND_ARG(arguments, 8);
-  tx_test_info.he_ppdu_type           = (uint8_t)GET_COMMAND_ARG(arguments, 9);
-  tx_test_info.beam_change            = (uint8_t)GET_COMMAND_ARG(arguments, 10);
-  tx_test_info.bw                     = (uint8_t)GET_COMMAND_ARG(arguments, 11);
-  tx_test_info.stbc                   = (uint8_t)GET_COMMAND_ARG(arguments, 12);
-  tx_test_info.tx_bf                  = (uint8_t)GET_COMMAND_ARG(arguments, 13);
-  tx_test_info.gi_ltf                 = (uint8_t)GET_COMMAND_ARG(arguments, 14);
-  tx_test_info.dcm                    = (uint8_t)GET_COMMAND_ARG(arguments, 15);
-  tx_test_info.nsts_midamble          = (uint8_t)GET_COMMAND_ARG(arguments, 16);
-  tx_test_info.spatial_reuse          = (uint8_t)GET_COMMAND_ARG(arguments, 17);
-  tx_test_info.bss_color              = (uint8_t)GET_COMMAND_ARG(arguments, 18);
-  tx_test_info.he_siga2_reserved      = (uint16_t)GET_COMMAND_ARG(arguments, 19);
-  tx_test_info.ru_allocation          = (uint8_t)GET_COMMAND_ARG(arguments, 20);
-  tx_test_info.n_heltf_tot            = (uint8_t)GET_COMMAND_ARG(arguments, 21);
-  tx_test_info.sigb_dcm               = (uint8_t)GET_COMMAND_ARG(arguments, 22);
-  tx_test_info.sigb_mcs               = (uint8_t)GET_COMMAND_ARG(arguments, 23);
-  tx_test_info.user_sta_id            = (uint16_t)GET_COMMAND_ARG(arguments, 24);
-  tx_test_info.user_idx               = (uint8_t)GET_COMMAND_ARG(arguments, 25);
-  tx_test_info.sigb_compression_field = (uint8_t)GET_COMMAND_ARG(arguments, 26);
+  tx_test_info.aggr_enable            = (uint16_t)GET_COMMAND_ARG(arguments, 5);
+  tx_test_info.enable_11ax            = (uint8_t)GET_COMMAND_ARG(arguments, 6);
+  tx_test_info.coding_type            = (uint8_t)GET_COMMAND_ARG(arguments, 7);
+  tx_test_info.nominal_pe             = (uint8_t)GET_COMMAND_ARG(arguments, 8);
+  tx_test_info.ul_dl                  = (uint8_t)GET_COMMAND_ARG(arguments, 9);
+  tx_test_info.he_ppdu_type           = (uint8_t)GET_COMMAND_ARG(arguments, 10);
+  tx_test_info.beam_change            = (uint8_t)GET_COMMAND_ARG(arguments, 11);
+  tx_test_info.bw                     = (uint8_t)GET_COMMAND_ARG(arguments, 12);
+  tx_test_info.stbc                   = (uint8_t)GET_COMMAND_ARG(arguments, 13);
+  tx_test_info.tx_bf                  = (uint8_t)GET_COMMAND_ARG(arguments, 14);
+  tx_test_info.gi_ltf                 = (uint8_t)GET_COMMAND_ARG(arguments, 15);
+  tx_test_info.dcm                    = (uint8_t)GET_COMMAND_ARG(arguments, 16);
+  tx_test_info.nsts_midamble          = (uint8_t)GET_COMMAND_ARG(arguments, 17);
+  tx_test_info.spatial_reuse          = (uint8_t)GET_COMMAND_ARG(arguments, 18);
+  tx_test_info.bss_color              = (uint8_t)GET_COMMAND_ARG(arguments, 19);
+  tx_test_info.he_siga2_reserved      = (uint16_t)GET_COMMAND_ARG(arguments, 20);
+  tx_test_info.ru_allocation          = (uint8_t)GET_COMMAND_ARG(arguments, 21);
+  tx_test_info.n_heltf_tot            = (uint8_t)GET_COMMAND_ARG(arguments, 22);
+  tx_test_info.sigb_dcm               = (uint8_t)GET_COMMAND_ARG(arguments, 23);
+  tx_test_info.sigb_mcs               = (uint8_t)GET_COMMAND_ARG(arguments, 24);
+  tx_test_info.user_sta_id            = (uint16_t)GET_COMMAND_ARG(arguments, 25);
+  tx_test_info.user_idx               = (uint8_t)GET_COMMAND_ARG(arguments, 26);
+  tx_test_info.sigb_compression_field = (uint8_t)GET_COMMAND_ARG(arguments, 27);
   status                              = sl_si91x_transmit_test_start(&tx_test_info);
   VERIFY_STATUS_AND_RETURN(status);
   return SL_STATUS_OK;
@@ -1872,6 +1892,103 @@ sl_status_t wifi_configure_timeout_command_handler(console_args_t *arguments)
   const uint16_t timeout_value               = (uint16_t)GET_COMMAND_ARG(arguments, 1);
 
   status = sl_si91x_configure_timeout(timeout_type, timeout_value);
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_calibration_write_command_handler(console_args_t *arguments)
+{
+  sl_status_t status = SL_STATUS_OK;
+  sl_si91x_calibration_write_t calib_pkt = {
+       .target = GET_OPTIONAL_COMMAND_ARG(arguments, 5, 1, const uint8_t), ///< Burn into efuse or flash, @ref SI91X_BURN_TARGET_OPTIONS
+       .reserved0   = {0, }, ///< Reserved bits
+       .flags       = (uint32_t)GET_COMMAND_ARG(arguments, 0),       ///< Calibration Flags, @ref SI91X_CALIBRATION_FLAGS
+       .gain_offset = {
+           (int8_t)GET_COMMAND_ARG(arguments, 1),
+           (int8_t)GET_COMMAND_ARG(arguments, 2),
+           (int8_t)GET_COMMAND_ARG(arguments, 3)  ///< gain offset
+       },
+       .xo_ctune    = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, const int8_t),      ///< xo ctune
+  };
+  status = sl_si91x_calibration_write(calib_pkt);
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_calibration_read_command_handler(console_args_t *arguments)
+{
+  sl_status_t status                 = SL_STATUS_OK;
+  sl_si91x_calibration_read_t target = {
+    0,
+  };
+  sl_si91x_calibration_read_t calib_read_pkt = {
+    0,
+  };
+
+  target.target = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 1, const uint8_t);
+
+  status = sl_si91x_calibration_read(target, &calib_read_pkt);
+  if (status == SL_STATUS_OK) {
+    printf("target %d, reserved:%d "
+           "gain_offset_low:%d, gain_offset_2:%d, gain_offset_3:%d,xo_tune:%d\r\n",
+           calib_read_pkt.target,
+           calib_read_pkt.reserved0[0],
+           calib_read_pkt.gain_offset[0],
+           calib_read_pkt.gain_offset[1],
+           calib_read_pkt.gain_offset[2],
+           calib_read_pkt.xo_ctune);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_frequency_offset_command_handler(console_args_t *arguments)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  sl_si91x_freq_offset_t freq_calib_pkt  = { 0 };
+  freq_calib_pkt.frequency_offset_in_khz = (int32_t)GET_COMMAND_ARG(arguments, 0);
+
+  status = sl_si91x_frequency_offset(&freq_calib_pkt);
+
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
+
+sl_status_t set_region_configuration_handler(console_args_t *arguments)
+{
+  sl_status_t status = SL_STATUS_OK;
+  static set_region_struct_t set_region_config;
+  //set_region_config.operation_mode            = GET_COMMAND_ARG(arguments,0);// GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_SI91X_CLIENT_MODE, const uint8_t);
+  const int mode                = GET_OPTIONAL_COMMAND_ARG(arguments, 0, WIFI_MODE_STA, const int);
+  set_region_config.band        = SL_SI91X_WIFI_BAND_2_4GHZ;
+  set_region_config.region_code = GET_COMMAND_ARG(arguments, 1);
+
+  switch (mode) {
+    case WIFI_MODE_STA:
+      set_region_config.operation_mode = SL_SI91X_CLIENT_MODE;
+      break;
+    case WIFI_MODE_AP:
+      set_region_config.operation_mode = SL_SI91X_ACCESS_POINT_MODE;
+      break;
+    case WIFI_MODE_APSTA:
+      set_region_config.operation_mode = SL_SI91X_CONCURRENT_MODE;
+      break;
+    case WIFI_MODE_EAP:
+      set_region_config.operation_mode = SL_SI91X_ENTERPRISE_CLIENT_MODE;
+      break;
+    case WIFI_TRANSMIT_TEST_MODE:
+      set_region_config.operation_mode = SL_SI91X_TRANSMIT_TEST_MODE;
+      break;
+    case BLE_MODE:
+      set_region_config.operation_mode = SL_SI91X_CLIENT_MODE;
+      break;
+    default:
+      printf("Selected Wi-Fi mode is not supported. Try 'help'");
+      return SL_STATUS_WIFI_UNKNOWN_INTERFACE;
+  }
+  status =
+    sl_si91x_set_device_region(set_region_config.operation_mode, set_region_config.band, set_region_config.region_code);
   VERIFY_STATUS_AND_RETURN(status);
   return SL_STATUS_OK;
 }

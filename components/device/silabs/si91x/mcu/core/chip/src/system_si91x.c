@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  system_si91x.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -30,7 +42,7 @@
 #include "rsi_ulpss_clk.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_clks.h"
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
+#if defined(SLI_SI91X_MCU_PSRAM_PRESENT)
 #include "rsi_d_cache.h"
 #endif
 
@@ -39,11 +51,14 @@
 #define MCU_RETENTION_BASE_ADDRESS 0x24048600
 #define NPSS_GPIO_CTRL             (MCU_RETENTION_BASE_ADDRESS + 0x1C)
 #endif
+
+#if defined(SLI_SI915)
+#define BG_LDO_REG1        0x129 //IPMU Bandgap Top register
+#define LDO_0P6_BYPASS_BIT 21    //Retention LDO bypass
+#endif
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-#define __SYSTEM_CLOCK 32000000 // 32MhzMhz Reference clock
-
 /*Cortex-m4 FPU registers*/
 #define FPU_CPACR       0xE000ED88
 #define SCB_MVFR0       0xE000EF40
@@ -59,7 +74,7 @@
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
-uint32_t SystemCoreClock = __SYSTEM_CLOCK; /*!< System Clock Frequency (Core Clock)*/
+uint32_t SystemCoreClock; /*!< System Clock Frequency (Core Clock)*/
 
 SYSTEM_CLOCK_SOURCE_FREQUENCIES_T system_clocks; /*!< System Clock sources Frequencies */
 
@@ -76,15 +91,16 @@ uint32_t package_type;
  */
 void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
 {
-  retention_boot_status_word_t *retention_reg = (retention_boot_status_word_t *)MCURET_BOOTSTATUS;
+  const retention_boot_status_word_t *retention_reg = (const retention_boot_status_word_t *)MCURET_BOOTSTATUS;
+
   /*Updated the default SOC clock frequency*/
-  SystemCoreClock = DEFAULT_32MHZ_RC_CLOCK;
+  SystemCoreClock = DEFAULT_40MHZ_CLOCK;
 #if (defined(RAM_COMPILATION) && defined(SLI_SI91X_MCU_COMMON_FLASH_MODE))
   /*Initialize QSPI for RAM based execution for common flash boards  */
   RSI_FLASH_Initialize();
 #endif
 #ifndef SIMULATION
-#if defined(RAM_COMPILATION) && defined(SIMULATION)
+#ifdef RAM_COMPILATION
   if (retention_reg->product_mode == MCU) {
     SiliconRev   = SIMULATION_SILICON_REV;
     package_type = SIMULATION_PACKAGE_TYPE;
@@ -101,22 +117,20 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
     package_type = PACKAGE_TYPE_WMCU;
   }
 #endif
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
+#if defined(SLI_SI91X_MCU_PSRAM_PRESENT)
   rsi_d_cache_invalidate_all();
 #endif
   /*Initialize IPMU and MCU FSM blocks */
   RSI_Ipmu_Init();
   /*configures chip supply mode */
   RSI_Configure_Ipmu_Mode();
-#endif
 
+#endif
   /*Default clock mux configurations */
   RSI_CLK_PeripheralClkEnable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE);
-  RSI_CLK_M4ssRefClkConfig(M4CLK, ULP_32MHZ_RC_CLK);
-  RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
-  /* NWP clock is selected as RC32MHZ clock from MCU */
-  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = ULP_32MHZ_RC_CLK;
+  /* NWP clock is selected as 40MHZ clock from MCU */
+  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = ULP_MHZ_RC_CLK;
   /* Changing NPSS GPIO 0 mode to 0, to disable buck-boost enable mode*/
   MCU_RET->NPSS_GPIO_CNTRL[0].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0;
   /* Configuring MCU FSM clock for BG_PMU */
@@ -136,8 +150,8 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL);
 #endif // SI91X_32kHz_EXTERNAL_OSCILLATOR
 
-  /* Configuring RC-32MHz Clock for HF-FSM */
-  RSI_PS_FsmHfClkSel(FSM_32MHZ_RC);
+  /* Configuring RC-MHz Clock for HF-FSM */
+  RSI_PS_FsmHfClkSel(FSM_MHZ_RC);
 
   /* XTAL control pointed to Software and  XTAL is Turned-Off from M4 */
   RSI_ConfigXtal(XTAL_DISABLE_FROM_M4, XTAL_IS_IN_SW_CTRL_FROM_M4);
@@ -148,23 +162,26 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_Set_Cntrls_To_M4();
 
 #endif
+#if defined(SLI_SI915)
+  ULP_SPI_MEM_MAP(BG_LDO_REG1) |= BIT(LDO_0P6_BYPASS_BIT); //bypassing the retention LDO
+#endif
   /*Update the system clock sources with source generating frequency*/
-  system_clocks.m4ss_ref_clk     = DEFAULT_32MHZ_RC_CLOCK;
-  system_clocks.ulpss_ref_clk    = DEFAULT_32MHZ_RC_CLOCK;
+  system_clocks.m4ss_ref_clk     = DEFAULT_40MHZ_CLOCK;
+  system_clocks.ulpss_ref_clk    = DEFAULT_40MHZ_CLOCK;
   system_clocks.soc_pll_clock    = DEFAULT_SOC_PLL_CLOCK;
   system_clocks.modem_pll_clock  = DEFAULT_MODEM_PLL_CLOCK;
   system_clocks.modem_pll_clock2 = DEFAULT_MODEM_PLL_CLOCK;
   system_clocks.intf_pll_clock   = DEFAULT_INTF_PLL_CLOCK;
-  system_clocks.soc_clock        = DEFAULT_32MHZ_RC_CLOCK;
+  system_clocks.soc_clock        = DEFAULT_40MHZ_CLOCK;
   system_clocks.rc_32khz_clock   = DEFAULT_32KHZ_RC_CLOCK;
-  system_clocks.rc_32mhz_clock   = DEFAULT_32MHZ_RC_CLOCK;
+  system_clocks.rc_mhz_clock     = DEFAULT_MHZ_RC_CLOCK;
   system_clocks.ro_20mhz_clock   = DEFAULT_20MHZ_RO_CLOCK;
   system_clocks.ro_32khz_clock   = DEFAULT_32KHZ_RO_CLOCK;
   system_clocks.xtal_32khz_clock = DEFAULT_32KHZ_XTAL_CLOCK;
   system_clocks.doubler_clock    = DEFAULT_DOUBLER_CLOCK;
-  system_clocks.rf_ref_clock     = DEFAULT_RF_REF_CLOCK;
+  system_clocks.rf_ref_clock     = DEFAULT_40MHZ_CLOCK;
   system_clocks.mems_ref_clock   = DEFAULT_MEMS_REF_CLOCK;
-  system_clocks.byp_rc_ref_clock = DEFAULT_32MHZ_RC_CLOCK;
+  system_clocks.byp_rc_ref_clock = DEFAULT_MHZ_RC_CLOCK;
   system_clocks.i2s_pll_clock    = DEFAULT_I2S_PLL_CLOCK;
 
   return;
@@ -189,9 +206,9 @@ void fpuInit(void)
   //                ; Write back the modified value to the CPACR
   //                STR R1, [R0]
 
-  volatile uint32_t *regCpacr = (uint32_t *)FPU_CPACR;
-  volatile uint32_t *regMvfr0 = (uint32_t *)SCB_MVFR0;
-  volatile uint32_t *regMvfr1 = (uint32_t *)SCB_MVFR1;
+  volatile uint32_t *regCpacr       = (uint32_t *)FPU_CPACR;
+  volatile const uint32_t *regMvfr0 = (volatile const uint32_t *)SCB_MVFR0;
+  volatile const uint32_t *regMvfr1 = (volatile const uint32_t *)SCB_MVFR1;
   volatile uint32_t Cpacr;
   volatile uint32_t Mvfr0;
   volatile uint32_t Mvfr1;

@@ -28,6 +28,7 @@
 #ifndef __RTE_DEVICE_H
 #define __RTE_DEVICE_H
 #include "rsi_ccp_user_config.h"
+#include "pin_config.h"
 
 #define GPIO_PORT_0       0  // GPIO port 0
 #define ULP_GPIO_MODE_6   6  // ULP GPIO mode 6
@@ -2814,7 +2815,7 @@
 #define RTE_GSPI_MASTER_MOSI_PIN  GSPI_MASTER_MOSI__PIN
 #if (GSPI_MASTER_MOSI_LOC == 16)
 #define RTE_GSPI_MASTER_MOSI_MUX 4
-#define RTE_GSPI_MASTER_MOSI_PAD 1
+#define RTE_GSPI_MASTER_MOSI_PAD 7
 #endif
 #if (GSPI_MASTER_MOSI_LOC == 17)
 #define RTE_GSPI_MASTER_MOSI_MUX 4
@@ -2912,8 +2913,8 @@
 // </e>(Generic SPI master)[Driver_GSPI_MASTER]
 
 // <o>(State Configurable Timer) Interface
-#define SCT_CLOCK_SOURCE   M4_SOCCLKFOROTHERCLKSCT
-#define SCT_CLOCK_DIV_FACT 1
+#define SCT_CLOCK_SOURCE   CT_INTFPLLCLK
+#define SCT_CLOCK_DIV_FACT 2
 
 //SCT_IN_0  <0=>GPIO_25  <1=>GPIO_64 <2=>GPIO_68
 

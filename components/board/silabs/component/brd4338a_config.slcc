@@ -5,6 +5,9 @@
 - package: platform
 - category: Board|Configuration
 - quality: production
+- metadata:
+    sbom:
+      license: Zlib
 - root_path: "components/board/silabs/config"
 - ui_hints:
     visibility: never
@@ -141,6 +144,43 @@
       instance: i2c2
     path: common_config/sl_si91x_i2c_init_i2c2_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_common_config
+      instance: primary
+    path: common_config/sl_si91x_ssi_primary_common_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_common_config
+      instance: secondary
+    path: common_config/sl_si91x_ssi_secondary_common_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_common_config
+      instance: ulp_primary
+    path: common_config/sl_si91x_ssi_ulp_primary_common_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: primary
+    path: common_config/sl_si91x_ssi_primary_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: secondary
+    path: common_config/sl_si91x_ssi_secondary_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: ulp_primary
+    path: common_config/sl_si91x_ssi_ulp_primary_config.h
+    unless: [memlcd_917]
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: ulp_primary
+    path: brd4338a/sl_memlcd_config/sl_si91x_ssi_ulp_primary_config.h
+    condition: [memlcd_917]
+  - override:
       component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
       file_id: ulp_timer_config
       instance: timer0
@@ -193,13 +233,9 @@
       instance: btn1
     path: brd4338a/sl_si91x_button_init_btn1_config.h
   - override:
-      component: "%extension-wiseconnect3_sdk%sl_si70xx"
-      file_id: si70xx_config
-    path: brd4338a/sl_si91x_i2c_init_i2c2_config.h
-  - override:
       component: "%extension-wiseconnect3_sdk%memlcd_917"
       file_id: memlcd_config
-    path: brd4338a/sl_si91x_memlcd_config.h
+    path: brd4338a/sl_memlcd_config/sl_si91x_memlcd_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%iostream_si91x"
       file_id: iostream_usart_config
@@ -214,3 +250,13 @@
       file_id: led_config
       instance: led1
     path: brd4338a/sl_si91x_led_init_led1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%i2s_instance"
+      file_id: i2s_config
+      instance: i2s0
+    path: common_config/sl_si91x_i2s_init_i2s0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%i2s_instance"
+      file_id: i2s_config
+      instance: ulp_i2s
+    path: common_config/sl_si91x_i2s_init_ulp_i2s_config.h

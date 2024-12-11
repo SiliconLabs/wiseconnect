@@ -318,7 +318,7 @@ static int32_t GSPI_MASTER_Control(uint32_t control, uint32_t arg)
   }
 #endif
 #if (defined(GSPI_ROMDRIVER_PRESENT))
-#if ((defined(A11_ROM)) && (defined(SLI_SI917)) && (defined(SLI_SI917B0)))
+#if (defined(A11_ROM) && (defined(SLI_SI917) || defined(SLI_SI915)) && (defined(SLI_SI917B0) || defined(SLI_SI915)))
   return ROMAPI_GSPI_API->GSPI_Control(control, arg, &GSPI_MASTER_Resources, gspi_get_clock, gspi_slavenumber);
 #else
   return ROMAPI_GSPI_API->GSPI_Control(control, arg, &GSPI_MASTER_Resources, gspi_get_clock);
@@ -434,6 +434,18 @@ void gspi_error_callback(uint32_t channel, void *data)
   if (channel == RTE_GSPI_MASTER_CHNL_UDMA_RX_CH) {
     GSPI_UDMA_Rx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &GSPI_MASTER_Resources);
   }
+}
+
+/*******************************************************************************
+ * The GSPI_WriteDummyByte function is used to perform a dummy write operation on
+ * the GSPI. In the first SPI transaction after out of reset, two sampling clock
+ * cycles are taken to synchronize the reset.
+ * This dummy write is particularly useful to ensure that the sampling
+ * FIFOs are correctly synchronized after a reset.
+ * *****************************************************************************/
+void GSPI_WriteDummyByte(void)
+{
+  GSPI_Write_Dummy_Byte(&GSPI_MASTER_Resources);
 }
 #endif /* SL_SI91X_GSPI_DMA */
 #endif

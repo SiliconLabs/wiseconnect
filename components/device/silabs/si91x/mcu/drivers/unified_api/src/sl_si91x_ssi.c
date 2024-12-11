@@ -1,53 +1,58 @@
-/***************************************************************************/ /**
- * @file sl_si91x_ssi.c
- * @brief SSI Peripheral API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_ssi.c
+* @brief SSI Peripheral API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #include "sl_si91x_ssi.h"
-#include "sl_si91x_ssi_config.h"
 #include "rsi_rom_clks.h"
 #include "rsi_spi.h"
+#ifdef SSI_INSTANCE_CONFIG
+#include "sl_ssi_instances.h"
+#elif SSI_CONFIG
+#include "sl_si91x_ssi_config.h"
+#endif
 
 /*******************************************************************************
 ****************************  DEFINES / MACROS   ********************************
 *******************************************************************************/
-#define MAX_BAUDRATE        40000000 // Maximum bitrate
-#define MANUAL_LOCK         1        // Manual Lock Enable
-#define BYPASS_MANUAL_LOCK  1        // Bypass Manual Lock Enable
-#define SSI_RELEASE_VERSION 0        // SSI Release version
-#define SSI_SQA_VERSION     0        // SSI SQA version
-#define SSI_DEV_VERSION     2        // SSI Developer version
-#define ODD_DIV_ENABLE      0        // Odd division enable for QSPI clock
-#define SWALLO_ENABLE       0        // Swallo enable for QSPI clock
-#define MIN_BIT_WIDTH       4        // Minimum Bit width
-#define MAX_SLAVE_BIT_WIDTH 16       // Maximum Slave Bit width
-#define MAX_BIT_WIDTH       16       // Maximum Bit width
-#define MAX_INSTANCE        3        // Maximum SSI Instance
+#define MAX_BAUDRATE         40000000 // Maximum bitrate
+#define ULP_SSI_MAX_BAUDRATE 5000000  // Maximum bit rate that ULP_SSI can support
+#define MANUAL_LOCK          1        // Manual Lock Enable
+#define BYPASS_MANUAL_LOCK   1        // Bypass Manual Lock Enable
+#define SSI_RELEASE_VERSION  0        // SSI Release version
+#define SSI_SQA_VERSION      0        // SSI SQA version
+#define SSI_DEV_VERSION      2        // SSI Developer version
+#define ODD_DIV_ENABLE       0        // Odd division enable for QSPI clock
+#define SWALLO_ENABLE        0        // Swallo enable for QSPI clock
+#define MIN_BIT_WIDTH        4        // Minimum Bit width
+#define MAX_SLAVE_BIT_WIDTH  16       // Maximum Slave Bit width
+#define MAX_BIT_WIDTH        16       // Maximum Bit width
+#define MAX_INSTANCE         3        // Maximum SSI Instance
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -121,15 +126,26 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
   sl_status_t status              = 0;
   int32_t error_status            = 0;
   sl_ssi_handle_t ssi_temp_handle = NULL;
-  /* SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
-   * configuration is directly taken from the configuration set in the universal configuration (UC).
-   * if the application requires the configuration to be changed in run-time, undefined this macro
-   * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
-   */
-#if (SSI_UC == 1)
-  instance = ssi_configuration.device_mode;
-#endif
   do {
+#ifdef SSI_INSTANCE_CONFIG
+    if (instance == SL_SSI_MASTER_ACTIVE) {
+#if (SSI_PRIMARY_UC == ENABLE)
+      instance = ssi_primary_configuration.device_mode;
+#endif
+    } else if (instance == SL_SSI_SLAVE_ACTIVE) {
+#if (SSI_SECONDARY_UC == ENABLE)
+      instance = ssi_secondary_configuration.device_mode;
+#endif
+    } else if (instance == SL_SSI_ULP_MASTER_ACTIVE) {
+#if (SSI_ULP_PRIMARY_UC == ENABLE)
+      instance = ssi_ulp_primary_configuration.device_mode;
+#endif
+    }
+#elif SSI_CONFIG
+#ifdef SSI_UC
+    instance              = ssi_configuration.device_mode;
+#endif
+#endif
     if (SSI_GetInitState(instance) == ENABLE) {
       status = SL_STATUS_BUSY;
       break;
@@ -239,15 +255,27 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
   sl_status_t status;
   int32_t error_status;
   uint32_t input_mode = 0;
-  /* SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
-   * configuration is directly taken from the configuration set in the universal configuration (UC).
-   * if the application requires the configuration to be changed in run-time, undefined this macro
-   * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
-   */
-#if (SSI_UC == 1)
-  control_configuration = &ssi_configuration;
-#endif
   do {
+#ifdef SSI_INSTANCE_CONFIG
+    if (ssi_handle == &Driver_SSI_MASTER) {
+#if (SSI_PRIMARY_UC == ENABLE)
+      control_configuration = &ssi_primary_configuration;
+#endif
+    } else if (ssi_handle == &Driver_SSI_SLAVE) {
+#if (SSI_SECONDARY_UC == ENABLE)
+      control_configuration = &ssi_secondary_configuration;
+#endif
+    } else if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+#if (SSI_ULP_PRIMARY_UC == ENABLE)
+      control_configuration = &ssi_ulp_primary_configuration;
+#endif
+    }
+#elif SSI_CONFIG
+#ifdef SSI_UC
+    control_configuration = &ssi_configuration;
+#endif
+#endif
+
     // validate parameters passed in
     if (control_configuration == NULL || ssi_handle == NULL) {
       status = SL_STATUS_NULL_POINTER;
@@ -263,6 +291,7 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
     if (status != SL_STATUS_OK) {
       break;
     }
+
     // bitwise or various parameters such as clock mode, master mode, bit width and slave select mode
     // and pass it(input_mode) into control API.
     input_mode = (control_configuration->clock_mode | ARM_SPI_DATA_BITS(control_configuration->bit_width));
@@ -859,9 +888,17 @@ static sl_status_t validate_control_parameters(sl_ssi_control_config_t *control_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if (control_configuration->baud_rate > MAX_BAUDRATE) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
+    // Maximum bit rate that ULP_SSI can support.
+    if (control_configuration->device_mode == SL_SSI_ULP_MASTER_ACTIVE) {
+      if (control_configuration->baud_rate > ULP_SSI_MAX_BAUDRATE) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
+    } else {
+      if (control_configuration->baud_rate > MAX_BAUDRATE) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
     }
     if (control_configuration->device_mode >= SL_SSI_INSTANCE_LAST) {
       status = SL_STATUS_INVALID_PARAMETER;

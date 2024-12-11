@@ -73,7 +73,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -85,10 +85,10 @@ static const sl_wifi_device_configuration_t client_configuration = {
 };
 
 // Buffer to store response
-uint8_t digest[SL_SI91x_SHA_512_DIGEST_LEN];
+uint8_t digest[SL_SI91X_SHA_512_DIGEST_LEN];
 
 // Expected output for the given SHA input message
-uint8_t digest_out[SL_SI91x_SHA_512_DIGEST_LEN] = { 0x8e, 0x95, 0x9b, 0x75, 0xda, 0xe3, 0x13, 0xda, 0x8c, 0xf4, 0xf7,
+uint8_t digest_out[SL_SI91X_SHA_512_DIGEST_LEN] = { 0x8e, 0x95, 0x9b, 0x75, 0xda, 0xe3, 0x13, 0xda, 0x8c, 0xf4, 0xf7,
                                                     0x28, 0x14, 0xfc, 0x14, 0x3f, 0x8f, 0x77, 0x79, 0xc6, 0xeb, 0x9f,
                                                     0x7f, 0xa1, 0x72, 0x99, 0xae, 0xad, 0xb6, 0x88, 0x90, 0x18, 0x50,
                                                     0x1d, 0x28, 0x9e, 0x49, 0x00, 0xf7, 0xe4, 0x33, 0x1b, 0x99, 0xde,
@@ -132,20 +132,20 @@ sl_status_t sha_process(void)
   sl_status_t status;
 
   // Compute digest using SHA
-  status = sl_si91x_sha(SL_SI91x_SHA_512, (uint8_t *)message, strlen(message), digest);
+  status = sl_si91x_sha(SL_SI91X_SHA_512, (uint8_t *)message, strlen(message), digest);
   if (status != SL_STATUS_OK) {
     printf("\r\n SHA Failed, Error Code : 0x%lX\r\n", status);
     return status;
   }
   printf("\r\nSHA success\r\n");
 
-  for (int i = 0; i < SL_SI91x_SHA_512_DIGEST_LEN; i++) {
+  for (int i = 0; i < SL_SI91X_SHA_512_DIGEST_LEN; i++) {
     printf(" 0x%x", digest[i]);
   }
 
   // By default SHA mode is SHA_512. So compare the resultant hash with digest_out
   // Change the expected sha in the comparison
-  if (memcmp(digest, digest_out, SL_SI91x_SHA_512_DIGEST_LEN)) {
+  if (memcmp(digest, digest_out, SL_SI91X_SHA_512_DIGEST_LEN)) {
     printf("\r\nSHA Compare with expected value failed\r\n");
   } else {
     printf("\r\nSHA Compare with expected value is Successful\r\n");

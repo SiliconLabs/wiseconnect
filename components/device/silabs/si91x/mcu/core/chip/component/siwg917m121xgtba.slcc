@@ -27,8 +27,7 @@
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     unless: [rsilib_board]
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
-    unless: [rsilib_board]
-  - name: SLI_SI91X_MCU_PSRAM_PRESENT    
+    unless: [rsilib_board]    
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
@@ -41,6 +40,8 @@
     path: components/device/silabs/si91x/mcu/core/chip/inc/
 - provides:
   - name: siwg917m121xgtba
+  - name: device
+  - name: device_cortexm
   - name: device_si91x
   - name: device_family_siwg917
   - name: si91x_platform
@@ -54,10 +55,14 @@
   - name: device_has_mpu
   - name: device_has_chip
   - name: device_supports_external_flash
+  - name: si91x_common_flash  
 - requires:
   - name: rsilib_chip
+  - name: cmsis_common
+    condition: [freertos]
+  - name: cmsis_core
   - name: romdriver_clks
-  - name: si917_mem_config
+  - name: si91x_mem_config
   - name: sl_si91x_mcu
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin
@@ -66,7 +71,7 @@
   - name: freertos_config
     condition: [freertos]
 - recommends:
-  - name: si917_mem_config_1
+  - name: si91x_mem_config_1
 - template_contribution:
   - name: device_opn
     value: SIWG917M121XGTBA
@@ -106,6 +111,8 @@
   - option: fpu
     value: fpv4-sp
 - metadata:
+    sbom:
+      license: Zlib
     device:
       memory:
 # Flash details will be provided by external flash component
@@ -118,3 +125,4 @@
         start: 12
         type: volatile
       opn: siwg917m121xgtba
+

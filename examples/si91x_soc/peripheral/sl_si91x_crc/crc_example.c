@@ -21,14 +21,10 @@
 #include "sl_si91x_crc.h"
 #include "sl_si91x_dma.h"
 #include "crc_example.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
 ***************************  Defines / Macros  ********************************
 ******************************************************************************/
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
-
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -81,20 +77,9 @@ unsigned int gsw_crc;
 
 /* Private function prototypes -----------------------------------------------*/
 static uint32_t crc_convert_tx_buffer(uint32_t num);
-static void default_clock_configuration(void);
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * Transfer callback function.
  ******************************************************************************/
@@ -135,9 +120,6 @@ void crc_example_init(void)
   sl_status_t status     = SL_STATUS_OK;
   sl_dma_init_t dma_init = { SL_DMA_INSTANCE };
   sl_dma_callback_t callbacks;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   DEBUGOUT("\n******* CRC EXAMPLE INIT *********\n");
   do {

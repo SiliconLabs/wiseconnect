@@ -50,43 +50,10 @@ typedef enum {
   SI91X_COMMON_CMD  = 0, ///< SI91X Common Command
   SI91X_WLAN_CMD    = 1, ///< SI91X Wireless LAN Command
   SI91X_NETWORK_CMD = 2, ///< SI91X Network Command
-  SI91X_SOCKET_CMD  = 3, ///< SI91X Socket Command
-  SI91X_BT_CMD      = 4, ///< SI91X Bluetooth Command
-  SI91X_SOCKET_DATA = 5, ///< SI91X Socket Data Command
-  SI91X_CMD_MAX          ///< SI91X Maximum Command value
+  SI91X_BT_CMD      = 3, ///< SI91X Bluetooth Command
+  SI91X_SOCKET_CMD  = 4, ///< SI91X Socket Command
+  SI91X_CMD_MAX,         ///< SI91X Maximum Command value
 } sl_si91x_command_type_t;
-
-/// Si91x queue types
-typedef enum {
-  // SI91X command queue types
-  // Note: The values of the command queue type should be
-  //       in sync with that of sl_si91x_command_type_t
-  SI91X_COMMON_CMD_QUEUE  = 0, ///< SI91X Common Command queue
-  SI91X_WLAN_CMD_QUEUE    = 1, ///< SI91X Wireless LAN Command queue
-  SI91X_NETWORK_CMD_QUEUE = 2, ///< SI91X Network Command queue
-  SI91X_SOCKET_CMD_QUEUE  = 3, ///< SI91X Socket Command queue
-  SI91X_BT_CMD_QUEUE      = 4, ///< SI91X Bluetooth Command queue
-  SI91X_SOCKET_DATA_QUEUE = 5, ///< SI91X Socket Command queue
-
-  // SI91X response queue types
-  SI91X_COMMON_RESPONSE_QUEUE  = 6,  ///< SI91X Common Command response queue
-  SI91X_WLAN_RESPONSE_QUEUE    = 7,  ///< SI91X Wireless LAN Command response queue
-  SI91X_NETWORK_RESPONSE_QUEUE = 8,  ///< SI91X Network Command response queue
-  SI91X_SOCKET_RESPONSE_QUEUE  = 9,  ///< SI91X Socket Command response queue
-  SI91X_BT_RESPONSE_QUEUE      = 10, ///< SI91X Bluetooth Command response queue
-
-  // All SI91X WLAN Async Events use this queue
-  SI91X_WLAN_EVENT_QUEUE = 11, ///< SI91X Wireless LAN Asynchronous response queue
-  // All SI91X Network Async Events use this queue
-  SI91X_NETWORK_EVENT_QUEUE = 12, ///< SI91X Network Asynchronous response queue
-
-  SI91X_SOCKET_EVENT_QUEUE = 13, ///< SI91X Asynchronous Sockets events queue
-
-  // ALL SOC rx packets use this queue
-  CCP_M4_TA_RX_QUEUE = 14, ///< SI91X M4 Receive queue
-
-  SI91X_QUEUE_MAX ///< SI91X Maximum queue type
-} sl_si91x_queue_type_t;
 
 /** \addtogroup SL_SI91X_CONSTANTS 
  * @{
@@ -165,16 +132,16 @@ typedef struct {
 #pragma pack(1)
 typedef struct {
   uint32_t
-    timestamp; ///< Timestamp. This is value of counter at the time of message. This counter is continuously incremented by one per 100ms time.
+    timestamp; ///< Timestamp. This is the value of the counter at the time of message. This counter is continuously incremented by one per 100ms time.
   uint8_t
-    state_code; ///< State code. This field indicates state of the module. state code contain two parts (upper and lower nibbles). Upper nibble represent the state of rejoin process and StateCode represented by the lower nibble of state code.
+    state_code; ///< State code. This field indicates the state of the module. State code contains two parts (upper and lower nibbles). Upper nibble represents the state of rejoin process and StateCode represented by the lower nibble of state code.
   uint8_t reason_code; ///< Reason code. This is used to get the reason code from firmware point of view.
   uint8_t
-    channel; ///< Channel number. If value of channel is 0, it means channel information is not available. In State-I, channel of association or Invalid if it is startup. In State-II, channel of next association if module finds better AP in bgscan result. In State-III, Channel at the time of association.
+    channel; ///< Channel number. If the value of the channel is 0, it means channel information is not available. In State-I, channel of association or Invalid if it is startup. In State-II, channel of next association if module finds better AP in bgscan result. In State-III, channel at the time of association.
   uint8_t
     rssi; ///< RSSI VALUE. If value of rssi is 100, it means RSSI information is not available. In State-I it is RSSI of AP at the time of trigger. In State-II it is RSSI of next association. In State-III it is RSSI at the time of final association.
   uint8_t bssid
-    [6]; ///< BSSID of AP. If the value of AP BSSID is 00:00:00:00:00:00,it means MAC information is not available. In State-I it is MAC of AP at the time of scan trigger. In State-II it is MAC of next association. In State-III it is MAC at the time of association.
+    [6]; ///< BSSID of AP. If the value of AP BSSID is 00:00:00:00:00:00, it means MAC information is not available. In State-I it is MAC of AP at the time of scan trigger. In State-II it is MAC of next association. In State-III it is MAC at the time of association.
 } sl_si91x_module_state_stats_response_t;
 #pragma pack()
 
@@ -197,17 +164,17 @@ typedef struct {
 
 /// Firmware header information
 typedef struct {
-  uint16_t control_flags;                     ///< Control flags for the firmware image.
-  uint16_t sha_type;                          ///< SHA type used for the firmware image.
-  uint32_t magic_no;                          ///< Magic number identifying the firmware image.
-  uint32_t image_size;                        ///< Size of the firmware image in bytes.
-  sl_si91x_fw_version_info_t fw_version_info; ///< Firmware version information.
-  uint32_t flash_location;                    ///< Address location in flash memory where the firmware image is stored.
-  uint32_t crc;                               ///< Cyclic Redundancy Check (CRC) value of the firmware image.
-  uint32_t mic[4];                            ///< Message Integrity Code (MIC) of the firmware image.
-  uint32_t reserved;                          ///< Reserved fields for future use.
-  sl_si91x_fw_version_ext_info_t fw_version_ext_info; ///< Firmware version extended information.
-  uint32_t reserved1[4];                              ///< Reserved fields for future use.
+  uint16_t control_flags;                     ///< Control flags for the firmware image
+  uint16_t sha_type;                          ///< SHA type used for the firmware image
+  uint32_t magic_no;                          ///< Magic number identifying the firmware image
+  uint32_t image_size;                        ///< Size of the firmware image in bytes
+  sl_si91x_fw_version_info_t fw_version_info; ///< Firmware version information
+  uint32_t flash_location;                    ///< Address location in flash memory where the firmware image is stored
+  uint32_t crc;                               ///< Cyclic Redundancy Check (CRC) value of the firmware image
+  uint32_t mic[4];                            ///< Message Integrity Code (MIC) of the firmware image
+  uint32_t reserved;                          ///< Reserved fields for future use
+  sl_si91x_fw_version_ext_info_t fw_version_ext_info; ///< Firmware version extended information
+  uint32_t reserved1[4];                              ///< Reserved fields for future use
 } sl_si91x_firmware_header_t;
 
 /** @} */
@@ -237,14 +204,12 @@ typedef struct {
   sl_wifi_buffer_t *host_packet;        ///< Si91x host buffer
   uint8_t firmware_queue_id;            ///< Si91x firmware queue id
   sl_si91x_command_type_t command_type; ///< Si91x command type
-  uint16_t packet_id;                   ///< Packet id, used internally to track packets
-  uint8_t flags;                        ///< One of the values from Si91x packet response flags
-  uint16_t frame_status;                ///< Si91x command status
-  void *sdk_context;                    ///< SDK context, unused internally to invoke user callbacks
-  int32_t
-    sl_si91x_socket_id; ///< socket_id, used only for SI91X_SOCKET_CMD queue to update socket_id in command trace of bus thread.
+  //  uint16_t packet_id;                   ///< Packet id, used internally to track packets
+  uint8_t flags;              ///< One of the values from Si91x packet response flags
+  uint16_t frame_status;      ///< Si91x command status
+  void *sdk_context;          ///< SDK context, unused internally to invoke user callbacks
   uint32_t command_timeout;   ///< Si91x command timeout
-  uint32_t command_tickcount; ///< command_tickcount stores the tickcount when the command is given to the bus thread.
+  uint32_t command_tickcount; ///< Command_tickcount stores the tickcount when the command is given to the bus thread
 } sli_si91x_queue_packet_t;
 
 /// Si91x specific buffer queue structure
@@ -260,3 +225,23 @@ typedef struct {
   uint8_t rx_ratio_in_buffer_pool;     ///< rx ratio
   uint8_t global_ratio_in_buffer_pool; ///< global ratio
 } sl_si91x_dynamic_pool;
+
+/// Structure to represent a command queue
+typedef struct {
+  sl_si91x_buffer_queue_t tx_queue;    ///< TX queue
+  sl_si91x_buffer_queue_t rx_queue;    ///< RX queue
+  sl_si91x_buffer_queue_t event_queue; ///< Event queue
+  void *mutex;                         ///< Pointer to mutex
+  uint32_t flag;                       ///< Flags
+  bool sequential;                     ///< Indicates if the commands are sequential
+  bool command_in_flight;              ///< Indicates if a command is currently being processed
+  uint16_t frame_type;                 ///< Type of the frame associated with the command
+  uint8_t firmware_queue_id;           ///< ID of the firmware queue for the command
+  uint32_t rx_counter;                 ///< Counter for received packets
+  uint32_t tx_counter;                 ///< Counter for transmitted packets
+  uint16_t packet_id;                  ///< ID of the packet associated with the command
+  uint8_t flags;                       ///< Flags associated with the command
+  uint32_t command_tickcount;          ///< Command tick count
+  uint32_t command_timeout;            ///< Command timeout
+  void *sdk_context;                   ///< Context data associated with the command
+} sli_si91x_command_queue_t;

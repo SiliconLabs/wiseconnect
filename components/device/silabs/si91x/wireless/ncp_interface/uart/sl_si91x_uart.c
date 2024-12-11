@@ -101,6 +101,7 @@
 
 static sl_wifi_buffer_t *resp_buffer = NULL;
 static sl_status_t resp_status       = SL_STATUS_OK;
+sl_si91x_buffer_queue_t sli_uart_bus_rx_queue;
 
 /************************************************************************************
  ******************************** Static Functions *********************************
@@ -139,6 +140,10 @@ sl_status_t sl_si91x_bus_init(void)
   uint16_t temp;
   static uint32_t i = 0;
   SL_DEBUG_LOG("Bus Init startup\n");
+
+  // Initialize the RX queue
+  sli_uart_bus_rx_queue.head = NULL;
+  sli_uart_bus_rx_queue.tail = NULL;
 
   // Allocate a buffer for the frame using sl_si91x_host_allocate_buffer
   status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
@@ -235,7 +240,7 @@ sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 {
   sl_status_t status;
 
-  status = sl_si91x_host_remove_from_queue(CCP_M4_TA_RX_QUEUE, buffer);
+  status = sli_si91x_remove_from_queue(&sli_uart_bus_rx_queue, buffer);
   VERIFY_STATUS_AND_RETURN(status);
 
   return SL_STATUS_OK;
@@ -246,7 +251,7 @@ sl_status_t sl_si91x_bus_read_interrupt_status(uint16_t *interrupt_status)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  if (0 != sl_si91x_host_queue_status(CCP_M4_TA_RX_QUEUE)) {
+  if (0 != sl_si91x_host_queue_status(&sli_uart_bus_rx_queue)) {
     *interrupt_status = RSI_RX_PKT_PENDING;
   }
 
@@ -292,7 +297,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
 
   sl_si91x_host_uart_enable_hardware_flow_control();
 #endif
-  sl_si91x_host_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
+  sli_si91x_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
 
   SL_DEBUG_LOG("Bootup Done\n");
   return SL_STATUS_OK;
@@ -326,7 +331,7 @@ sl_status_t sl_si91x_bus_rx_irq_handler(void)
     BREAKPOINT();
   }
 
-  status = sl_si91x_host_add_to_queue(CCP_M4_TA_RX_QUEUE, resp_buffer);
+  status = sli_si91x_add_to_queue(&sli_uart_bus_rx_queue, resp_buffer);
 
   // Allocate a buffer for the next frame
   status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
@@ -335,7 +340,7 @@ sl_status_t sl_si91x_bus_rx_irq_handler(void)
     BREAKPOINT();
   }
 
-  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   return SL_STATUS_OK;
 }
 
@@ -344,7 +349,7 @@ void sl_si91x_bus_rx_done_handler(void)
   sl_status_t status;
 
   if (SL_STATUS_IN_PROGRESS == resp_status) {
-    status = sl_si91x_host_add_to_queue(CCP_M4_TA_RX_QUEUE, resp_buffer);
+    status = sli_si91x_add_to_queue(&sli_uart_bus_rx_queue, resp_buffer);
 
     // Allocate a buffer for the next frame
     status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
@@ -353,7 +358,7 @@ void sl_si91x_bus_rx_done_handler(void)
       BREAKPOINT();
     }
 
-    sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+    sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
     sl_si91x_host_enable_bus_interrupt();
   }
   return;

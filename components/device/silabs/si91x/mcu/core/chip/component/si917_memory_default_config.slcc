@@ -5,11 +5,16 @@ description: >
   Provides default RAM memory configuration for the Si91x.
 category: Device|Si91x|Memory Configuration
 quality: production
+metadata:
+  sbom:
+    license: Zlib
+ui_hints:
+  visibility: never
 requires:
-  - name: si917_mem_config_1
+  - name: si91x_mem_config_1
 provides:
   - name: si917_memory_default_config
-  - name: si917_mem_config
+  - name: si91x_mem_config
 conflicts:
-  - name: si917_mem_config_2
-  - name: si917_mem_config_3
+  - name: si91x_mem_config_2
+  - name: si91x_mem_config_3

@@ -30,7 +30,7 @@
 
 #include "sl_memlcd.h"
 #include "sl_sleeptimer.h"
-#include "RTE_Device_917.h"
+#include "em_device.h"
 #include "sl_ulp_timer_instances.h"
 #include "sl_si91x_ulp_timer_common_config.h"
 #include "rsi_power_save.h"

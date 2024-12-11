@@ -35,6 +35,7 @@ This application is configured with the following configs:
 
 - Windows PC
 - Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
@@ -66,19 +67,19 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Pin configurations for external UART to TTL cable, When VCOM enable is Turned off.
 
-  | USART PINS     | GPIO    | Connector(B0) |
-  | -------------- | ------- | ------------- |
-  | USART0_TX_PIN  | GPIO_30 |     P35       |
-  | USART0_RX_PIN  | GPIO_29 |     P33       |
+  | USART PINS     | GPIO    | Breakout pin  | Explorer kit Breakout pin|
+  | -------------- | ------- | ------------- | ------------------------ |
+  | USART0_TX_PIN | GPIO_30  |     P35       |           [RST]          |
+  | USART0_RX_PIN | GPIO_29  |     P33       |           [AN]           |
 
 ![Figure: Selecting Example project](resources/readme/image501b.png)
 
 - Pin configurations for external UART to TTL cable, When VCOM enable is Turned ON.
 
-  | USART PINS       | GPIO        | Connector(B0) |
-  | ---------------- | ----------- | ------------- |
-  | ULP_GPIO_TX_PIN  | ULP_GPIO_11 |     F6        |
-  | ULP_GPIO_RX_PIN  | ULP_GPIO_9  |     F7        |
+  |  USART PINS     |     917 GPIO    |    915 GPIO    |  Explorer kit GPIO |
+  | --------------- | --------------- | -------------- | ------------------ |
+  | ULP_GPIO_TX_PIN | ULP_GPIO_11[F6] | ULP_GPIO_7[F6] |      ULP_GPIO_11   |
+  | ULP_GPIO_RX_PIN | ULP_GPIO_9 [F7] | ULP_GPIO_6[F7] |      ULP_GPIO_9    |
 
 ## Test the Application
 

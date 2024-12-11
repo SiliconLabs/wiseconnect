@@ -51,13 +51,14 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
 
   memset(request, 0, sizeof(sl_si91x_wrap_request_t));
 
-  request->algorithm_type        = WRAP;
-  request->current_chunk_length  = chunk_length;
-  request->wrap_flags            = wrap_flags;
-  request->key_info.key_size     = config->key_size;
-  request->key_info.key_type     = config->key_type;
-  request->key_info.reserved     = config->reserved;
-  request->key_info.wrap_iv_mode = config->wrap_iv_mode;
+  request->algorithm_type         = WRAP;
+  request->current_chunk_length   = chunk_length;
+  request->wrap_flags             = wrap_flags;
+  request->key_info.key_size      = config->key_size;
+  request->key_info.key_type      = config->key_type;
+  request->key_info.padding       = config->padding;
+  request->key_info.hmac_sha_mode = config->hmac_sha_mode;
+  request->key_info.wrap_iv_mode  = config->wrap_iv_mode;
   memcpy(request->key_info.key_buffer, config->key_buffer, config->key_size);
 
   if (config->wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
@@ -66,7 +67,7 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
 
   status =
     sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD_QUEUE,
+                                 SI91X_COMMON_CMD,
                                  request,
                                  (sizeof(sl_si91x_wrap_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -80,9 +81,23 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-
-  // Allign size to 16 bytes
-  output_size = (config->key_size + 15) & (~15);
+  //! Determine output block size based upon selected algorithm if HMAC padding is enabled
+  if (request->key_info.padding & SL_SI91X_HMAC_PADDING) {
+    int hmac_sha_mode = request->key_info.hmac_sha_mode & 0xF;
+    if (hmac_sha_mode == SL_SI91X_WRAP_HMAC_SHA_384 || hmac_sha_mode == SL_SI91X_WRAP_HMAC_SHA_512) {
+      output_size = (config->key_size > SL_SI91X_HMAC_512_BLOCK_SIZE)
+                      ? (config->key_size + SL_SI91X_HMAC_512_BLOCK_SIZE_ALIGN) & (~SL_SI91X_HMAC_512_BLOCK_SIZE_ALIGN)
+                      : (config->key_size + SL_SI91X_DEFAULT_16BYTE_ALIGN) & (~SL_SI91X_DEFAULT_16BYTE_ALIGN);
+    } else {
+      output_size = (config->key_size > SL_SI91X_HMAC_256_BLOCK_SIZE)
+                      ? (config->key_size + SL_SI91X_HMAC_256_BLOCK_SIZE_ALIGN) & (~SL_SI91X_HMAC_256_BLOCK_SIZE_ALIGN)
+                      : (config->key_size + SL_SI91X_DEFAULT_16BYTE_ALIGN) & (~SL_SI91X_DEFAULT_16BYTE_ALIGN);
+    }
+    config->key_size = output_size;
+  } else {
+    //! Align to 16 bytes
+    output_size = (config->key_size + SL_SI91X_DEFAULT_16BYTE_ALIGN) & (~SL_SI91X_DEFAULT_16BYTE_ALIGN);
+  }
   memcpy(output, packet->data, output_size);
 
   sl_si91x_host_free_buffer(buffer);
@@ -101,13 +116,14 @@ static sl_status_t sli_si91x_wrap_side_band(sl_si91x_wrap_config_t *config, uint
 
   memset(request, 0, sizeof(sl_si91x_wrap_request_t));
 
-  request->algorithm_type        = WRAP;
-  request->key_info.key_size     = config->key_size;
-  request->key_info.key_type     = config->key_type;
-  request->key_info.reserved     = config->reserved;
-  request->key_info.wrap_iv_mode = config->wrap_iv_mode;
-  request->key_info.key_buffer   = config->key_buffer;
-  request->key_info.wrap_iv      = config->wrap_iv;
+  request->algorithm_type         = WRAP;
+  request->key_info.key_size      = config->key_size;
+  request->key_info.key_type      = config->key_type;
+  request->key_info.padding       = config->padding;
+  request->key_info.hmac_sha_mode = config->hmac_sha_mode;
+  request->key_info.wrap_iv_mode  = config->wrap_iv_mode;
+  request->key_info.key_buffer    = config->key_buffer;
+  request->key_info.wrap_iv       = config->wrap_iv;
 
   request->output = output;
 

@@ -14,10 +14,10 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 source:
   - path: app.c
   - path: main.c
@@ -66,6 +66,8 @@ configuration:
     value: "51200"
   - name: configTIMER_TASK_PRIORITY 
     value: '55'
+  - name: configUSE_POSIX_ERRNO
+    value: '1'
 readme:
   - path: readme.md
 other_file:
@@ -89,6 +91,7 @@ other_file:
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
   - path: resources/readme/vcom.png
+  - path: resources/readme/console_logs.png
 ui_hints:
   highlight:
     - path: readme.md

@@ -30,7 +30,7 @@ This process allows the device to update its software over the air (OTA) without
 
 ### Hardware Requirements  
 
-- PC or Mac.
+- PC or Mac
 - Linux PC or [Cygwin](https://www.cygwin.com/install.html) on Windows (to build and run the TCP server source provided)
 - Wi-Fi Access point with a connection to the internet
 - **SoC Mode**:
@@ -43,20 +43,21 @@ This process allows the device to update its software over the air (OTA) without
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
     - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
     - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045C)
       - (BRD4357A + BRD8045C)
   - Interface and Host MCU Supported
@@ -75,7 +76,7 @@ This process allows the device to update its software over the air (OTA) without
 
 ## Getting Started
 
-### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -91,11 +92,11 @@ This process allows the device to update its software over the air (OTA) without
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
-   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
-   - After connecting all the boards, the setup should look like the image shown below:
+   	- Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
+   	- Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
+   	- After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
-   - Connect the setup to the computer.
+   	- Connect the setup to the computer.
   - Open the FIRMWARE UPDATE µVision project - **firmware_update.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → firmware_update → keil_project**. 
 
 ## Application Build Environment
@@ -111,9 +112,9 @@ The application can be configured to suit user requirements and development envi
 - In the Project pane, expand the **resources/defaults** folder and open the **sl_net_default_values.h** file.
 
 
-### STA instance related parameters
+### STA Instance Related Parameters
 
-- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network shall be advertised. The Si91X module is connected to it.
 
   	```c
   	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
@@ -133,6 +134,9 @@ The application can be configured to suit user requirements and development envi
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
+> Note: 
+> The user can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+
 ### TCP Configuration
 
 ```c
@@ -148,7 +152,7 @@ The application can be configured to suit user requirements and development envi
 
 ## Test the Application
 
-### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -159,7 +163,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
   ![Figure: Log of firmware transfer](resources/readme/image157.png)
 
@@ -167,7 +171,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - When the firmware update completes, the SiWx91x should be rebooted after which it may take a few minutes to overwrite the old firmware with the new firmware in flash memory.
 
-### Build and run the TCP Server (Linux PC)
+### Build and Run the TCP Server (Linux PC)
 
   1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
   2. Compile the application
@@ -182,7 +186,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
       user@linux:~$ ./ota_server.bin 5001 SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps
       ```
 
-### Build and run the TCP Server (Windows PC)
+### Build and Run the TCP Server (Windows PC)
 
   1. Open the FIRMWARE UPDATE project in cygwin terminal - by navigating to **WiSeConnect 3 SDK → examples → featured → firmware_update**.  
   

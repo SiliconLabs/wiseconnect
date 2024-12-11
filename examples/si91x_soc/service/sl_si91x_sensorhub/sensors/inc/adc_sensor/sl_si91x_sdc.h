@@ -98,8 +98,8 @@ void IRQ029_Handler(void);
  *  @param[in]   None
  *  @return      status 0 if successful,
  *               else error code
- *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
- *               \ref SL_STATUS_OK (0X000)- Success,
+ *               \ref SL_STATUS_FAIL - Fail ,
+ *               \ref SL_STATUS_OK - Success,
 *******************************************************************************/
 void SDC_IRQHandler(void);
 

@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_gspi.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -45,7 +57,6 @@ typedef uint32_t __attribute__((__may_alias__)) aliased_uint32_t;
 
 static uint8_t data_width_in_bytes = 0; // variable to store data width in bytes for current transfer
 static void GSPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
-
 /*==============================================*/
 /**
  * @fn          int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
@@ -80,7 +91,7 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
   (void)UDMA_Table;
   (void)mem;
 #endif
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI2);
@@ -100,6 +111,12 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
   memset(gspi->xfer, 0, sizeof(GSPI_TRANSFER_INFO));
 
   gspi->info->state = SPI_INITIALIZED;
+
+  // Configure the M4 Clock
+  RSI_CLK_PeripheralClkEnable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE);
+
+  // Configure the GSPI Clocks
+  RSI_CLK_GspiClkConfig(M4CLK, gspi->clock_source);
 
   // Pin Mux
   if ((gspi->reg == GSPI0)) {
@@ -203,6 +220,7 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
         if (sl_si91x_dma_init(&dma_init)) {
           return ARM_DRIVER_ERROR;
         }
+        sl_si91x_dma_enable(DMA_INSTANCE);
 #else
         //if using uart debug init in application this UDMA0_Uninitialize is power gating the uart peri power,then disabled this  ,
         // if other issue occures enable UDMA0_Uninitialize and try
@@ -285,7 +303,7 @@ int32_t GSPI_PowerControl(ARM_POWER_STATE state, const GSPI_RESOURCES *gspi)
       gspi->info->state &= (uint8_t)~SPI_POWERED; // SPI is not powered
 
 // power down
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
       RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
       RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI2);
@@ -301,12 +319,6 @@ int32_t GSPI_PowerControl(ARM_POWER_STATE state, const GSPI_RESOURCES *gspi)
       if ((gspi->info->state & SPI_POWERED) != 0U) {
         return ARM_DRIVER_OK;
       }
-
-      // Configure the M4 Clock
-      RSI_CLK_PeripheralClkEnable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE);
-
-      // Configure the GSPI Clocks
-      RSI_CLK_GspiClkConfig(M4CLK, gspi->clock_source);
 
       gspi->reg->GSPI_BUS_MODE_b.SPI_HIGH_PERFORMANCE_EN = 0x1;
 
@@ -325,6 +337,84 @@ int32_t GSPI_PowerControl(ARM_POWER_STATE state, const GSPI_RESOURCES *gspi)
       return ARM_DRIVER_ERROR_UNSUPPORTED;
   }
   return ARM_DRIVER_OK;
+}
+
+/*==============================================*/
+/**
+ * @fn          void GSPI_Write_Dummy_Byte(const GSPI_RESOURCES *gspi)
+ * @brief        This API is used to write GSPI 1byte dummy data into buffer.
+ * @param[in]    gspi        : Pointer to the GSPI resources
+ * @return       None
+ */
+void GSPI_Write_Dummy_Byte(const GSPI_RESOURCES *gspi)
+{
+  // Save original configuration values
+  uint8_t originalManualWrite    = gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR;
+  uint8_t originalFullDuplex     = gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN;
+  uint8_t originalEmptyThreshold = gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD;
+  uint8_t originalFullThreshold  = gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD;
+
+  GSPI0->GSPI_CONFIG1_b.GSPI_MANUAL_CSN = 0;
+  while ((GSPI0->GSPI_STATUS & GSPI_MAN_CSN))
+    ;
+
+  // Set direction and high for each CS pin
+  if (gspi->reg == GSPI0) {
+    if (gspi->io.cs0 != NULL) {
+      RSI_EGPIO_SetDir(EGPIO, gspi->io.cs0->port, gspi->io.cs0->pin, 0);    // Set CS pin direction as output
+      RSI_EGPIO_SetPin(EGPIO, gspi->io.cs0->port, gspi->io.cs0->pin, 1);    // Set pin high
+      RSI_EGPIO_SetPinMux(EGPIO, gspi->io.cs0->port, gspi->io.cs0->pin, 0); // set pin mode to mode0
+      if (gspi->io.cs0->pin >= GPIO_MAX_PIN) {
+        RSI_EGPIO_SetPinMux(EGPIO1,
+                            gspi->io.cs0->port,
+                            (uint8_t)(gspi->io.cs0->pin - GPIO_MAX_PIN),
+                            0); // set pin mode to mode0
+        RSI_EGPIO_SetDir(EGPIO1,
+                         gspi->io.cs0->port,
+                         (uint8_t)(gspi->io.cs0->pin - GPIO_MAX_PIN),
+                         0); // Set CS pin direction as output
+        RSI_EGPIO_SetPin(EGPIO1, gspi->io.cs0->port, (uint8_t)(gspi->io.cs0->pin - GPIO_MAX_PIN), 1); // Set pin high
+      }
+    }
+  }
+
+  gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR     = ENABLE; // Write enable
+  gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN = ENABLE; // Enable Full duplex mode
+
+  // Configure the FIFO thresholds in interrupt mode
+  gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
+  gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
+  // enable GSPI interrupt
+  gspi->reg->GSPI_INTR_UNMASK |= GSPI_INTR_UNMASK_BIT;
+  // Write dummy data into write fifo
+  *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = DUMMY_DATA;
+  while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
+    ;
+  uint8_t flush_data = *(volatile aliased_uint32_t *)(gspi->reg->GSPI_READ_FIFO);
+  (void)flush_data;
+  gspi->reg->GSPI_INTR_MASK |= (GSPI_INTR_MASK_BIT);
+  GSPI0->GSPI_CONFIG1_b.GSPI_MANUAL_CSN = 1;
+  while ((GSPI0->GSPI_STATUS & GSPI_MAN_CSN))
+    ;
+  // Pin mux configuration after all operations
+  if (gspi->reg == GSPI0) {
+    if (gspi->io.cs0 != NULL) {
+      // Set the pin mode to the stored default mode
+      RSI_EGPIO_SetPinMux(EGPIO, gspi->io.cs0->port, gspi->io.cs0->pin, gspi->io.cs0->mode);
+      if (gspi->io.cs0->pin >= GPIO_MAX_PIN) {
+        // Set the pin mode to the stored default mode
+        RSI_EGPIO_SetPinMux(EGPIO1,
+                            gspi->io.cs0->port,
+                            (uint8_t)(gspi->io.cs0->pin - GPIO_MAX_PIN),
+                            gspi->io.cs0->mode);
+      }
+    }
+  }
+  // Restore original configuration values
+  gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR       = originalManualWrite;
+  gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN   = originalFullDuplex;
+  gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = originalEmptyThreshold;
+  gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = originalFullThreshold;
 }
 
 /*==============================================*/
@@ -691,7 +781,6 @@ int32_t GSPI_Send(const void *data,
       return ARM_DRIVER_ERROR;
     }
     sl_si91x_dma_channel_enable(DMA_INSTANCE, gspi->tx_dma->channel + 1);
-    sl_si91x_dma_enable(DMA_INSTANCE);
 #else
     // Initialize and start GSPI TX DMA Stream
     stat = UDMAx_ChannelConfigure(udma,
@@ -715,7 +804,7 @@ int32_t GSPI_Send(const void *data,
     GSPI_Convert_Data_Width_To_Bytes(data_bits);
     gspi->xfer->num = num * data_width_in_bytes;
 
-    // Configure the FIFO thresholds in I/0 mode
+    // Configure the FIFO thresholds in interrupt mode
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
     // enable GSPI interrupt
@@ -956,7 +1045,6 @@ int32_t GSPI_Receive(void *data,
 #ifdef SL_SI91X_GSPI_DMA
     sl_si91x_dma_channel_enable(DMA_INSTANCE, gspi->tx_dma->channel + 1);
     sl_si91x_dma_channel_enable(DMA_INSTANCE, gspi->rx_dma->channel + 1);
-    sl_si91x_dma_enable(DMA_INSTANCE);
 #else
     UDMAx_DMAEnable(udma, udmaHandle);
 #endif
@@ -965,7 +1053,7 @@ int32_t GSPI_Receive(void *data,
     GSPI_Convert_Data_Width_To_Bytes(data_bits);
     gspi->xfer->num = num * data_width_in_bytes;
 
-    // Configure the FIFO thresholds in I/0 mode
+    // Configure the FIFO thresholds in interrupt mode
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
     // enable GSPI interrupt
@@ -1194,9 +1282,8 @@ int32_t GSPI_Transfer(const void *data_out,
 #endif
       gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD = ENABLE;
 #ifdef SL_SI91X_GSPI_DMA
-      sl_si91x_dma_channel_enable(DMA_INSTANCE, gspi->tx_dma->channel + 1);
       sl_si91x_dma_channel_enable(DMA_INSTANCE, gspi->rx_dma->channel + 1);
-      sl_si91x_dma_enable(DMA_INSTANCE);
+      sl_si91x_dma_channel_enable(DMA_INSTANCE, gspi->tx_dma->channel + 1);
 #else
       UDMAx_DMAEnable(udma, udmaHandle);
 #endif
@@ -1206,7 +1293,7 @@ int32_t GSPI_Transfer(const void *data_out,
     GSPI_Convert_Data_Width_To_Bytes(data_bits);
     gspi->xfer->num = num * data_width_in_bytes;
 
-    // Configure the FIFO thresholds in I/0 mode
+    // Configure the FIFO thresholds in interrupt mode
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
     // enable GSPI interrupt
@@ -1261,6 +1348,9 @@ void GSPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, GSPI_RESOURCES *gspi)
       gspi->xfer->tx_cnt = gspi->xfer->num;
       if (gspi->xfer->rx_buf == NULL) {
         if (gspi->info->cb_event != NULL) {
+#ifdef SL_SI91X_GSPI_DMA
+          sl_si91x_dma_channel_disable(DMA_INSTANCE, gspi->tx_dma->channel + 1);
+#endif
           gspi->info->cb_event(ARM_SPI_EVENT_TRANSFER_COMPLETE);
         }
       }
@@ -1291,6 +1381,9 @@ void GSPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, GSPI_RESOURCES *gspi)
       break;
   }
   if (gspi->info->cb_event != NULL) {
+#ifdef SL_SI91X_GSPI_DMA
+    sl_si91x_dma_channel_disable(DMA_INSTANCE, gspi->rx_dma->channel + 1);
+#endif
     gspi->info->cb_event(ARM_SPI_EVENT_TRANSFER_COMPLETE);
   }
 }

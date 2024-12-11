@@ -1,31 +1,31 @@
-/***************************************************************************/ /**
- * @file sl_driver_gpio.h
- * @brief sl driver gpio header file
- *******************************************************************************
- * # License
- * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licenser of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be miss represented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    miss represented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
-  ******************************************************************************/
+/*******************************************************************************
+* @file sl_driver_gpio.h
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #ifndef SL_DRIVER_GPIO_H
 #define SL_DRIVER_GPIO_H
 
@@ -103,8 +103,9 @@ typedef void (*sl_gpio_irq_callback_t)(uint32_t flag);
  * @param[in]  flags  Bitwise logic OR of GPIO interrupt sources to clear.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000)  - Success.
+ * -   SL_STATUS_OK  - Success.
  * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
 {
@@ -136,10 +137,12 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
  *                         it returns SL_GPIO_INTERRUPT_UNAVAILABLE (0xFF).
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_BUSY (0x00004) - Interrupt is busy and cannot carry out the requested operation.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_BUSY  - Interrupt is busy and cannot carry out the requested operation.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -169,10 +172,12 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
  * @param[in] gpio_callback IRQ callback function pointer of type \ref sl_gpio_irq_callback_t.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_BUSY (0x00004) - Interrupt is busy and cannot carry out the requested operation.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_BUSY  - Interrupt is busy and cannot carry out the requested operation.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pins are properly configured 
  *       before calling this function.
@@ -219,9 +224,11 @@ sl_status_t sl_gpio_configure_group_interrupt(sl_si91x_gpio_group_interrupt_conf
  *                         The GPIO setting is important for some input mode configurations.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -248,9 +255,11 @@ sl_status_t sl_gpio_driver_set_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode, ui
  * @param[out] mode Pointer to a variable where the current pin mode will be stored.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -267,7 +276,9 @@ sl_status_t sl_gpio_driver_get_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t *mode);
  * all callback function pointers to NULL.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
+ * -   SL_STATUS_OK - Success.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note This function should be called before any other GPIO driver functions 
  *       to ensure proper initialization.
@@ -283,7 +294,9 @@ sl_status_t sl_gpio_driver_init(void);
  * callback function pointers to NULL.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
+ * -   SL_STATUS_OK - Success.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note This function should be called to properly clean up the GPIO driver 
  *       before the application exits or when the GPIO driver is no longer needed.
@@ -304,8 +317,10 @@ sl_status_t sl_gpio_driver_deinit(void);
  * @param[in] flag GPIO interrupt flag. Maximum range is 8.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO instance and interrupt are properly configured before 
  *       calling this function.
@@ -325,8 +340,10 @@ sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
  * @param[in] gpio Pointer to the structure of type \ref sl_gpio_t.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the `gpio` structure is properly initialized before calling this function.
   ******************************************************************************/
@@ -395,9 +412,11 @@ STATIC __INLINE sl_status_t sl_gpio_validation(sl_gpio_t *gpio)
  * @param[in] gpio Pointer to the structure of type \ref sl_gpio_t.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -439,9 +458,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_pin(sl_gpio_t *gpio)
  * @param[in] gpio Pointer to the structure of type \ref sl_gpio_t.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -483,9 +504,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_pin(sl_gpio_t *gpio)
  * @param[in] gpio Pointer to the structure of type \ref sl_gpio_t.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -529,9 +552,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_toggle_pin(sl_gpio_t *gpio)
  * @param[out] pin_value Pointer to a variable where the GPIO pin value will be stored.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- * -   SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * -   SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pin is properly configured 
  *       before calling this function.
@@ -579,8 +604,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin
  *                 If we want to set pins (maximum of 0-15 pins) in a port, it can set all pins at a time.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pins are properly configured 
  *       before calling this function.
@@ -623,8 +650,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_
  *                 If we want to clear pins (maximum of 0-15 pins) in a port, it can clear all pins at a time.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pins are properly configured 
  *       before calling this function.
@@ -665,8 +694,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint3
  * @param[out] port_value Pointer to a variable where the GPIO port value will be stored.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
  * @note Ensure that the GPIO clock is enabled and the pins are properly configured 
  *       before calling this function.
@@ -749,8 +780,10 @@ STATIC __INLINE uint8_t sl_gpio_driver_get_pin_output(sl_gpio_t *gpio)
  * @param[in] mask Mask indicating which bits to modify.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_port_output_value(sl_gpio_port_t port, uint32_t val, uint32_t mask)
 {
@@ -782,8 +815,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port_output_value(sl_gpio_port_t 
  * @param[in] slewrate_alt The slewrate to configure for the pins using alternate modes on this GPIO port.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_slew_rate(sl_gpio_port_t port, uint32_t slewrate, uint32_t slewrate_alt)
 {
@@ -857,8 +892,10 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_port_input(sl_gpio_port_t port)
  * @param[in] pins Port pins to toggle. Ranges from 0 to 65535 in decimal (or 0xFFFF in hex).
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_toggle_port_output(sl_gpio_port_t port, uint32_t pins)
 {
@@ -889,8 +926,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_toggle_port_output(sl_gpio_port_t por
  * @param[in] flags GPIO interrupt sources to enable.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
- * -   SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * -   SL_STATUS_OK - Success.
+ * -   SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_enable_interrupts(uint32_t flags)
 {
@@ -909,7 +948,9 @@ STATIC __INLINE sl_status_t sl_gpio_driver_enable_interrupts(uint32_t flags)
  *
  * @param[in]  flags  -  GPIO interrupt sources to disable.
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000)  - Success.
+ * -   SL_STATUS_OK  - Success.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_disable_interrupts(uint32_t flags)
 {
@@ -935,7 +976,9 @@ STATIC __INLINE sl_status_t sl_gpio_driver_disable_interrupts(uint32_t flags)
  * @param[in] flags GPIO interrupt sources to set to pending.
  * 
  * @return Status code indicating the result:
- * -   SL_STATUS_OK (0x0000) - Success.
+ * -   SL_STATUS_OK - Success.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_interrupts(uint32_t flags)
 {

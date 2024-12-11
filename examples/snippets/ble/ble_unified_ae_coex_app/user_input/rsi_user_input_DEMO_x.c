@@ -71,6 +71,10 @@ void display(uint8_t *disp)
 
 void ARM_USART_SignalEvent(uint32_t event)
 {
+  // Mask to get only the usart events,
+  // bits 30-31 gives the instance from which this event occurred
+  event &= (USART_EVENT_MASK);
+
   volatile uint32_t read_rx_cnt = 0;
   volatile uint32_t read_tx_cnt = 0;
   //BaseType_t xHigherPriorityTaskWoken = 0;

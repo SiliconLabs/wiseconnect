@@ -37,7 +37,7 @@
 #define DEVICE_PORT       5001             //! Module port number
 #define SERVER_PORT       5001             //! Server port number
 #define SERVER_IP_ADDRESS "192.168.50.234" //! Server IP address
-#define SSL_SERVER_PORT   443              //! Server port number of SSL client
+#define TLS_SERVER_PORT   443              //! Server port number of TLS client
 #define DHCP_MODE         1                //! DHCP mode 1- Enable 0- Disable
 
 //! Type of throughput
@@ -45,27 +45,27 @@
 #define UDP_TX 2
 #define TCP_TX 4
 #define TCP_RX 8
-#define SSL_TX 16
-#define SSL_RX 32
+#define TLS_TX 16
+#define TLS_RX 32
 
 #define THROUGHPUT_TYPE TCP_RX
 
 // Memory length for send buffer
 #define TCP_BUFFER_SIZE     1460
 #define UDP_BUFFER_SIZE     1470
-#define SSL_BUFFER_SIZE     1370
+#define TLS_BUFFER_SIZE     1370
 #define DEFAULT_BUFFER_SIZE 1460
 
 #if ((THROUGHPUT_TYPE == UDP_RX) || (THROUGHPUT_TYPE == UDP_TX))
 #define BUFFER_SIZE UDP_BUFFER_SIZE
 #elif ((THROUGHPUT_TYPE == TCP_RX) || (THROUGHPUT_TYPE == TCP_TX))
 #define BUFFER_SIZE TCP_BUFFER_SIZE
-#elif ((THROUGHPUT_TYPE == SSL_RX) || (THROUGHPUT_TYPE == SSL_TX))
-#define SSL              1
+#elif ((THROUGHPUT_TYPE == TLS_RX) || (THROUGHPUT_TYPE == TLS_TX))
+#define ENABLE_TLS       1
 // Load certificate to device flash :
 // Certificate could be loaded once and need not be loaded for every boot up
 #define LOAD_CERTIFICATE 0
-#define BUFFER_SIZE      SSL_BUFFER_SIZE
+#define BUFFER_SIZE      TLS_BUFFER_SIZE
 #else
 #define BUFFER_SIZE DEFAULT_BUFFER_SIZE
 #endif
@@ -76,7 +76,7 @@
                               0- Measure throughput only once for interval of 'TEST_TIMEOUT' */
 #define RSI_DNS_CLIENT     0 //! Enable if using DNS client (when using server hostname instead of ip addr)
 #define TX_RX_RATIO_ENABLE 0
-#define RSI_SSL_BIT_ENABLE 0
+#define RSI_TLS_BIT_ENABLE 0
 
 #define TX_DATA 0 //! Enable this to test TCP transmit
 

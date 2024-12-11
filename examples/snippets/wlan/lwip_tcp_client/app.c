@@ -44,6 +44,7 @@
 #include "sl_net_wifi_types.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_power_manager.h"
 #include "sl_si91x_m4_ps.h"
 #endif
 
@@ -92,7 +93,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
                    .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -183,7 +184,7 @@ static void application_start(void *argument)
 #ifdef SLI_SI91X_MCU_INTERFACE
 
 #if (SL_SI91X_TICKLESS_MODE == 0)
-  sl_si91x_m4_sleep_wakeup();
+  sl_si91x_power_manager_sleep();
 #else
   osSemaphoreId_t wait_semaphore;
   wait_semaphore = osSemaphoreNew(1, 0, NULL);
@@ -235,6 +236,8 @@ void send_data_to_tcp_server()
   while (packet_count < NUMBER_OF_PACKETS) {
     sent_bytes = send(client_socket, DATA, strlen(DATA), 0);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSend failed with bsd error:%d\r\n", errno);
       close(client_socket);
       return;

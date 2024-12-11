@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_wifi_callback_framework.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_wifi_callback_framework.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
@@ -101,7 +113,7 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *   | @ref sl_wifi_event_t                 | DataType                                    |
  *   |:-------------------------------------|:--------------------------------------------|
  *   | SL_WIFI_STATS_EVENT                  | Not supported in current release            |
- *   | SL_WIFI_STATS_AYSNC_EVENT            | [sl_si91x_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)        |
+ *   | SL_WIFI_STATS_ASYNC_EVENT            | [sl_si91x_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)        |
  *   | SL_WIFI_STATS_ADVANCE_EVENT          | Not supported in current release            |
  *   | SL_WIFI_STATS_TEST_MODE_EVENT        | Not supported in current release            |
  *   | SL_WIFI_STATS_MODULE_STATE_EVENT     | [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t) |
@@ -119,42 +131,103 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *  SL_WIFI_STATS_MODULE_STATE_EVENT messages are used to indicate module state to the host. These messages are enabled by setting the 10th bit of the custom feature bitmap in opermode.
  *  For the event SL_WIFI_STATS_MODULE_STATE_EVENT response structure refer [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t).
  * - state_code of this response  (1 byte), indicates the state of the module. `state_code` contains two parts, the upper nibble and lower nibble.
+ *  The state code is formed by combining the upper and the lower nibbles using a bitwise OR operation, that is, State code = upper nibble | lower nibble
+ *  For example, if the state code is 82 but is not found in the table, it can be divided as follows: state_code = 80 | 02, where 80 is the upper nibble and 02 is the lower nibble.
  *
  *  The upper nibble indicates the state of the rejoin process.
  *  The following table documents the possible values of the upper nibble of the state_code.
- *  | Module state code upper nibble | Description                                                                |
- *  |:------------------------------ |----------------------------------------------------------------------------|
- *  | 0x00                           | Startup (Initial Roam). Indicates the reason for scan triggered(state-I).  |
- *  | 0x10                           | Beacon Loss (Failover Roam). Indicates the reason for scan triggered(state-I). |
- *  | 0x20                           | De-authentication (AP induced Roam / Disconnect from supplicant). Indicates the reason for scan triggered(state-I). |
- *  | 0x50                           | Current AP is best. Indicates a state change based on scan result(state-II).   |
- *  | 0x60                           | Better AP found. Indicates a state change based on scan result(state-II).      |
- *  | 0x70                           | No AP found. Indicates a state change based on scan result(state-II).          |
- *  | 0x80                           | Associated. Indicates the connection state change(state – III).                |
- *  | 0x90                           | Unassociated. Indicates the connection state change(state – III).              |
+ *  | Module state code                   | upper nibble | Description                                                                |
+ *  |:------------------------------------|------------- |----------------------------------------------------------------------------|
+ *  |     Scan Trigger (State I)          | 0x00         | Startup (Initial state or idle state).                                     |
+ *  | Indicates the reason for the scan   |--------------|----------------------------------------------------------------------------|
+ *  |         triggered.                  | 0x10         | Beacon Loss (Failover Roam).                                               |
+ *  |                                     |--------------|----------------------------------------------------------------------------|
+ *  |                                     | 0x20         | De-authentication from AP.                                                 |
+ *  |-------------------------------------|--------------|----------------------------------------------------------------------------|
+ *  |   Scan Result/Decision (State II)   | 0x50         | Current AP is best.                                                        |
+ *  | Indicates a state change based on   |--------------|--------------------------------------------------------------------------- |
+ *  | the scan result.                    | 0x60         | Better AP found while roaming.                                             |
+ *  |                                     |--------------|----------------------------------------------------------------------------|
+ *  |                                     | 0x70         | No AP found.                                                               |
+ *  |-------------------------------------|--------------|----------------------------------------------------------------------------|
+ *  | Final Connection or Join (State III)| 0x80         | Associated or joined to an Access point.                                   |
+ *  |Indicates the connection state       |--------------|----------------------------------------------------------------------------|
+ *  |change                               | 0x90         | Unassociated(Disconnected from host or join failure).                      |
  *
  * @note
  *  The lower nibble of state_code indicates the reason for a state change.
  *  The table below lists the possible values of the lower nibble of the state_code.
  *  | Module state code lower nibble | Description                                   |
  *  |:-------------------------------|:----------------------------------------------|
- *  | 0x00                           | No reason specified.                          |
- *  | 0x01                           | Authentication denial.                        |
- *  | 0x02                           | Association denial.                           |
- *  | 0x03                           | AP not present.                               |
- *  | 0x05                           | WPA2 key exchange failed.                     |
+ *  | 0x00                           | No reason specified (Initial state or idle state). |
+ *  | 0x01                           | No response from AP for authentication request(Authentication denial).   |
+ *  | 0x02                           | Association denial (Association timeout or Association failure due to unknown reasons). |
+ *  | 0x03                           | User configured AP is not present.            |
+ *  | 0x05                           | Four-way Handshake failure.                   |
+ *  | 0x06                           | Deauthentication from user.                   |
+ *  | 0x07                           | PSK not configured.                           |
+ *  | 0x08                           | key-handshake failure during rejoin/roaming/after connection(Disconnection from supplicant). |
+ *  | 0x09                           | Roaming not enabled.                          |
  *
  * @note
  *  | Module reason code | Description                                                |
  *  |:-------------------|:-----------------------------------------------------------|
- *  | 0x00               | No reason specified.                                       |
- *  | 0x01               | Authentication denial.                                     |
- *  | 0x02               | Association denial.                                        |
- *  | 0x07               | PSK not configured                                         |
+ *  | 0x00               | No reason specified (Initial state or idle state).         |
+ *  | 0x01               | No response from AP for authentication request(Authentication denial). |
+ *  | 0x02               | Association denial (caused by Association timeout or Association failure due to unknown reasons). |
+ *  | 0x03               | User configured AP is not present.                         |
+ *  | 0x05               | Four-way Handshake failure.                                |
+ *  | 0x06               | Deauthentication from user.                                |
+ *  | 0x07               | PSK not configured.                                        |
+ *  | 0x08               | key-handshake failure during rejoin/roaming/after connection(Disconnection from supplicant). |
  *  | 0x09               | Roaming not enabled                                        |
- *  | 0x10               | Beacon Loss (Failover Roam)                                |
- *  | 0x20               | De-authentication (AP induced Roam/Deauth from supplicant) |
+ *  | 0x10               | Beacon Loss (Failover Roam).                               |
+ *  | 0x20               | De-authentication from AP.                                 |
+ *  | 0x28               | TLS CA Cert not present                                    |
+ *  | 0x29               | TLS PRIVATE key not present.                               |
+ *  | 0x2A               | TLS Client Cert not present.                               |
+ *  | 0x2B               | TLS no Cert present.                                       |
+ *  | 0x2C               | PEAP CA Cert not present.                                  |
+ *  | 0x2D               | Server Cert Invalid Key Type.                              |
+ *  | 0x2E               | Server Intermediate CA Invalid Key Type.                   |
+ *  | 0x2F               | Server Root CA Invalid Key Type.                           |
+ *  | 0x30               | Client Cert Invalid Key Type.                              |
+ *  | 0x31               | Client Root CA Invalid Key Type.                           |
+ *  | 0x37               | Server Cert 4096-bit length support is not enabled.        |
+ *  | 0x38               | Server Intermediate CA 4096-bit length support is not enabled. |
+ *  | 0x39               | Server Root CA 4096-bit length support is not enabled.     |
+ *  | 0x3A               | Client Cert 4096-bit length support is not enabled.        |
+ *  | 0x3B               | Client Root CA 4096-bit length support is not enabled.     |
+ *  | 0x3C               | Server Cert Invalid Sign Alg.                              |
+ *  | 0x3D               | Server Intermediate CA Invalid Sign Alg.                   |
+ *  | 0x3E               | Server Root CA Invalid Sign Length.                        |
+ *  | 0x3F               | Client Cert Invalid Sign Alg.                              |
+ *  | 0x40               | Client Root CA Invalid Sign Length.                        |
+ *  | 0x41               | Server Intermediate CA not Present.                        |
+ *  | 0x42               | Server Root CA Parse Error.                                |
+ *  | 0x43               | Server Intermediate Root CA Parse Error.                   |
+ *  | 0x44               | Sever Cert Parse Error.                                    |
+ *  | 0x45               | Client Cert Parse Error.                                   |
+ *  | 0x46               | Incorrect Private Key Password.                            |
+ *  | 0x47               | EAP Failure Received.                                      |
+ *  | 0x48               | Client Cert Bad Date Error.                                |
+ *  | 0x49               | Server Cert Bad Date Error.                                |
+ *  | 0x4A               | Server Root CA Bad Date Error.                             |
+ *  | 0x4B               | Client Root CA Bad Date Error.                             |
+ *  | 0x4C               | Server Intermediate Root CA Bad Date Error.                |
+ *  | 0x4D               | Pem Header Error.                                          |
+ *  | 0x4E               | Pem Footer Error.                                          |
+ *  | 0x4F               | Client Intermediate CA Invalid Sign Length.                |
+ *  | 0x50               | Client Intermediate CA Invalid Length.                     |
+ *  | 0x52               | Client Intermediate CA invalid Key Type.                   |
+ *  | 0x53               | Pem Error.                                                 |
+ *  | 0x54               | Pathlen certificate is Invalid.                            |
  *
+ * @note
+ *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the Most Significant Bit (MSB) of the reason code.
+ *   If the MSB is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame.
+ *   Pem Header Error (0x4D) and Pem Footer Error (0x4E) apply only when certificates are loaded individually.
+ *   If certificates are loaded together in a single file, only the Pem Error (0x53) triggers for any header or footer errors.
  * @note
  *   In case of event failure, the `SL_WIFI_FAIL_EVENT_STATUS_INDICATION` bit is set in the `event` parameter.
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.

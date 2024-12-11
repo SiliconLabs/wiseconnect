@@ -7,7 +7,9 @@ description: >
   selection in Wakeup Source Configuration UC.
 category: Device|Si91x|MCU|Service|Power Manager|UULP Wakeup Sources
 quality: production
-
+metadata:
+  sbom:
+    license: Zlib
 provides:
   - name: wireless_wakeup_ulp_component
 

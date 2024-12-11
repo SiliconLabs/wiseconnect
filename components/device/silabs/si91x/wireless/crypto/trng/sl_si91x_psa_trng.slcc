@@ -5,13 +5,24 @@ description: >
 label: PSA TRNG
 category: Device|Si91x|MCU|Crypto
 quality: production
+metadata:
+  sbom:
+   license: MSLA
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/trng
 provides:
 - name: sl_si91x_psa_trng
+- name: mbedtls_entropy_source
 source:
 - path: src/sl_si91x_psa_trng.c
+include:
+- path: inc
+- path: inc
+  file_list:
+    - path: sl_si91x_psa_trng.h
+
 define:
 - name: SLI_TRNG_DEVICE_SI91X
+
 requires:
 - name: sl_si91x_crypto
 - name: sl_si91x_trng
@@ -21,9 +32,4 @@ template_contribution:
   value: MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
 - name: mbedtls_config
   value: MBEDTLS_NO_PLATFORM_ENTROPY
-
-include:
-- path: inc
-  file_list:
-    - path: sl_si91x_psa_trng.h
 

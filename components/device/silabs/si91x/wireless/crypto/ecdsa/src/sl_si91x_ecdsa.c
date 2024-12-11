@@ -80,7 +80,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
     memcpy(request->signature, config->signature, config->signature_length);
   }
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   request->key_info.key_type                         = config->key_config.b0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
@@ -95,7 +95,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 
   status = sl_si91x_driver_send_command(
     RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD_QUEUE,
+    SI91X_COMMON_CMD,
     request,
     (sizeof(sl_si91x_ecdsa_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_ECDSA + chunk_length),
     SL_SI91X_WAIT_FOR_RESPONSE(32000),

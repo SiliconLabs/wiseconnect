@@ -13,28 +13,29 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to transfer the TCP data using LWIP stack by configure the SiWx91x in client mode.
+This application demonstrates how to transfer the TCP data using LWIP stack by configuring the SiWx91x in client mode.
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
-- A Windows PC.
+- Windows PC
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
   	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+  	- SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -54,10 +55,11 @@ This application demonstrates how to transfer the TCP data using LWIP stack by c
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -68,29 +70,31 @@ The application can be configured to suit your requirements and development envi
 
 - STA instance related parameters
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network shall be advertised and Si91X module is connected to it.
  
    ```c
    #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
    ```
 
-  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the access point is configured in WPA-PSK/WPA2-PSK security modes.
 
    ```c 
    #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
    ```
   
-  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the access point is configured in WPA/WPA2 or mixed security modes.
 
    ```c
    #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2 
    ```
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
+> Note: 
+> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
-#### Configure the following parameters in **app.c** to test lwip app as per requirements
+#### Configure the following parameters in **app.c** to test LWIP app as per requirements
 
-- **app related parameters**
+- **App related parameters**
 
   - `SERVER_PORT` is the remote TCP server port number on the PC running iPerf.
 
@@ -116,14 +120,12 @@ The application can be configured to suit your requirements and development envi
 
 The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
-- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
-  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
-  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
+- ALARM timer-based - In this method, an ALARM timer runs and wakes the M4 processor periodically.
+  - We can enable the ALARM timer-wakeup by setting the macros "SL_ENABLE_CALENDAR_WAKEUP_SOURCE" and "ENABLE_ALARM" to '1'.
+  - We can configure the periodic alarm time by setting the macro "ALARM_TIME_MSEC" to a specific value.
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
-  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
-  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
+  - We can enable the Button press-based wakeup by setting the macro "ENABLE_NPSS_GPIO_2" to '1'.
 - Wireless-based - When an RX packet is to be received by the NWP, the M4 processor is woken up.
-  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
 
 ### Tickless Mode
 
@@ -142,8 +144,8 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
-- After the application gets executed successfully, The device will connect to the remote and transfer the 1000 tcp packets.
+- Flash, run, and debug the application.
+- After the application gets executed successfully, the device will connect to the remote and transfer the 1000 tcp packets.
 
 The iPerf command to start the TCP server is:
   

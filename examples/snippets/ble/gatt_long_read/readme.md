@@ -38,6 +38,8 @@ This Application explains to the user how to:
   - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
 - SoC Mode:
    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
+   - Kits
+     - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - PSRAM Mode:  
    - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
 - NCP Mode:
@@ -64,10 +66,11 @@ This Application explains to the user how to:
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -75,6 +78,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes if needed.
 
+> **Note:** 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 - Open **app.c** file.
 

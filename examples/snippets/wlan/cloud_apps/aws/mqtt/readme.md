@@ -21,7 +21,7 @@
 
 This application demonstrates how to configure SiWx91x as an IoT device and securely connect to AWS IoT Cloud to subscribe and publish on a topic by using AWS MQTT library.
 
-In this application, the SiWx91x, which is configured as a Wi-Fi client interface, gets connected to an Access Point which has internet access. After successful Wi-Fi connection, the application connects to AWS IoT Cloud and subscribes to **SUBSCRIBE_TO_TOPIC** topic. Subsequently, the application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic. After publish, the NWP processor is set into associated power save.  Next, the application works differently in NCP and SoC modes as defined below.
+In this application, the SiWx91x, which is configured as a Wi-Fi client interface, gets connected to an access point which has internet access. After successful Wi-Fi connection, the application connects to AWS IoT Cloud and subscribes to **SUBSCRIBE_TO_TOPIC** topic. Subsequently, the application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic. After publish, the NWP processor is set into associated power save.  This application works differently in NCP and SoC modes as described below.
 
 ## Soc Mode:
 
@@ -29,15 +29,15 @@ If macro **SL_SI91X_TICKLESS_MODE** is enabled, then the M4 processor is set in 
 
 ### Tickless Mode
 
-In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by these methods: SysRTC, a wireless signal, Button press-based (GPIO), and Alarm based wakeup.
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by these methods: SysRTC, a wireless signal, Button press-based (GPIO), and Alarm-based wakeup.
 
-- **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
+- **System Real-Time Clock (SysRTC)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
 
 - **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
-- **Button Based Wakeup**:The device can also be awakened by a button signal.
+- **Button-based Wakeup**:The device can also be awakened by a button signal.
 
-- **Alarm Based Wakeup**:The device can also be awakened by setting the timeout to the appropriate duration in the osSemaphoreAcquire function.
+- **Alarm-based Wakeup**:The device can also be awakened by setting the timeout to the appropriate duration in the osSemaphoreAcquire function.
 
 After M4 processor wakes up via any of the above processes, the application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic.
 
@@ -48,18 +48,18 @@ If macro **SL_SI91X_TICKLESS_MODE** is disabled, then M4 processor does not go t
 
 **NCP Mode**:
 
-A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
+A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes a **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
 
 - Once in every **PUBLISH_PERIODICITY** time period.
 - When an incoming packet is received by the application.
 
-*Note*: The bold texts are the macros defined in the application. You can find more details about them in the upcoming section (#section 4).
+*Note: The bold texts are the macros defined in the application. You can find more details about them in the upcoming section (#section 4).*
 
 ## Overview of AWS SDK
 
 AWS IoT Core is a cloud platform which connects devices across AWS cloud services. AWS IoT provides an interface which allows the devices to communicate securely and reliably in bi-directional ways to the AWS touch-points, even when the devices are offline.
 
-The AWS IoT Device SDK allow applications to securely connect to the AWS IoT platform.
+The AWS IoT Device SDK allows applications to securely connect to the AWS IoT platform.
 
 ![Figure: Setup Diagram for Device Shadow Example](resources/readme/aws_sdk_architecture.png)
 
@@ -67,23 +67,24 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 
 ### Hardware Requirements
 
-- Windows PC with Host interface (UART).
-- Wi-Fi Access point with internet connection
+- Windows PC with Host interface (UART)
+- Wi-Fi access point with internet connection
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
   	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -103,10 +104,11 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -114,20 +116,20 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-### Configure the application
+### Configure the Application
 
-#### Configure the below parameters in `app.c`
+#### Configure the follwoing parameters in `app.c`:
 
-- The below parameters are common to SoC and NCP.
+- The following parameters are common to SoC and NCP.
 
  ```c
- #define SUBSCRIBE_TO_TOPIC        "aws_status"      //! Subscribe Topic to receive the messages from AWS IoT cloud
- #define PUBLISH_ON_TOPIC          "siwx91x_status"  //! Publish Topic to send the messages from application to AWS IoT cloud
+ #define SUBSCRIBE_TO_TOPIC        "aws_status"      //! Subscribe topic to receive the messages from AWS IoT cloud
+ #define PUBLISH_ON_TOPIC          "siwx91x_status"  //! Publish topic to send the messages from application to AWS IoT cloud
  #define MQTT_PUBLISH_PAYLOAD      "Hi from SiWx91x" //! Publish message
  #define SUBSCRIBE_QOS             QOS0              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
  #define PUBLISH_QOS               QOS0              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
  #define PUBLISH_PERIODICITY       30000             //! Publish periodicity in milliseconds
- #define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save.
+ #define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save
  ```
 
 - `SUBSCRIBE_TO_TOPIC` refers to the topic to which the device subscribes.
@@ -135,14 +137,16 @@ The application can be configured to suit your requirements and development envi
 
 ### Configure the below parameters in `sl_net_default_values.h` present at `\<project>/config`
 
-By default, the application connects to the remote Access point with `default_wifi_client_profile` configuration provided in **sl_net_default_values.h**.
+By default, the application connects to the remote access point with `default_wifi_client_profile` configuration provided in **sl_net_default_values.h**.
 
 ```c
 #define DEFAULT_WIFI_CLIENT_PROFILE_SSID "YOUR_AP_SSID"
 #define DEFAULT_WIFI_CLIENT_CREDENTIAL   "YOUR_AP_PASSPHRASE"
 ```
+> Note: 
+> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
-### Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`
+### Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`:
 
 > - Before configuring the parameters in `aws_iot_config.h`, register the SiWx917 device in the AWS IoT registry by following the steps mentioned in [Create an AWS Thing](#create-an-aws-thing) section.
 
@@ -152,7 +156,7 @@ By default, the application connects to the remote Access point with `default_wi
 
 ```c
 #define AWS_IOT_MQTT_HOST \
-  "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"  ///< Customer specific MQTT HOST. The same will be used for Thing Shadow
+  "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"  ///< Customer-specific MQTT HOST. The same will be used for Thing Shadow
 #define AWS_IOT_MQTT_PORT      8883                 ///< Default port for MQTT/S
 #define AWS_IOT_MQTT_CLIENT_ID "silicon_labs_thing" ///< MQTT client ID should be unique for every device
 #define AWS_IOT_MY_THING_NAME  "silicon_labs_thing" 
@@ -180,7 +184,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Application Output
 
-- **SoC mode**:
+- **SoC Mode**:
 
   ![SoC Application prints](resources/readme/application_prints_soc.png)
 
@@ -213,8 +217,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 **Application notes**:
 
-1. Currently, for SoC, the button-based and ALARM-based implementations work in power save enabled mode only.
-2. Currently, both QoS0 and QoS1 based publishes are supported.
+1. Currently, for SoC, the button-based and Alarm-based implementations work in power save enabled mode only.
+2. Currently, both QoS0 and QoS1-based publishes are supported.
 
 ## Additional Information
 
@@ -269,11 +273,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
 
 > **NOTE :**
-> Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/aws_starfield_ca.pem.h).
+> Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website. The WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/aws_starfield_ca.pem.h).
 >
 > AWS has announced that there will be changes in their root CA chain. More details can be found in the reference link: (https://aws.amazon.com/blogs/security/acm-will-no-longer-cross-sign-certificates-with-starfield-class-2-starting-august-2024/)
 >
-> We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`
+> We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`.
 >
 > For AWS connectivity, StarField Root CA certificate has the highest authority being at the top of the signing hierarchy.
 >
@@ -283,22 +287,30 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 >
 > The certificate chain sent by AWS server is as below:
 > Starfield Class 2 :
-> id-at-commonName=Amazon,RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
+> 
+>id-at-commonName=Amazon,RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
+>
 > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
+>
 > id-at-commonName=Starfield Services Root Certificate Authority - G2,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at- stateOrProvinceName=Arizona,id-at-countryName=US
+>
 >id-at-organizationalUnitName=Starfield Class 2 Certification Authority,id-at-organizationName=Starfield Technologies, Inc.,id-at-countryName=US
 >
 > Starfield G2:
+>
 > id-at-commonName=Amazon RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
+>
 > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
+>
 > id-at-commonName=Starfield Services Root Certificate Authority - G2,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at-stateOrProvinceName=Arizona,id-at-countryName=US
 >
 > To authenticate the AWS server on SiWx91x, first validate the Root CA (validate the Root CA received with the Root CA loaded on the device). Once the Root CA validation is successful, other certificates sent from the AWS server are validated.
-> If intermediate CA certificates are loaded instead of the Starfield Root CA certificate, the SiWx91x will not authenticate to the AWS server, resulting in a Handshake error.
+> Alternate certification chains support is added. With this, as opposed to requiring full chain validation, only the peer certificate must validate to a trusted certificate. This allows loading intermediate root CAs as trusted.
+> The default CA certificate is the Starfield Combined CA certificate. To use the Intermediate Amazon Root CA 1 certificate, define the `SL_SI91X_AWS_IOT_ROOT_CA1` macro in the application.
 
 ### Create an AWS Thing
 
- **Thing Note**: By default we are giving ThingName: silicon_labs_thing, these related configuration we set default If you want your own thing name you can follow the below procedure.
+ **Thing Note**: By default, we provide ThingName as: silicon_labs_thing. If you want to create your own thing name, you can follow the below procedure.
 
 Create a thing in the AWS IoT registry to represent your IoT device.
 
@@ -322,7 +334,7 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- To attach an existing policy, choose the policy and click on create thing. If the policy is not yet created, choose Create policy and fill in the fields as shown in the following images.
+- To attach an existing policy, choose the policy and click on create thing. If the policy is not yet created, choose **Create policy** and fill in the fields as shown in the following images.
 
 - Choosing an existing policy.
 
@@ -338,7 +350,7 @@ Create a thing in the AWS IoT registry to represent your IoT device.
   - Choose the created policy and click on **Create thing**.
 
 - Choose the **Download** links to download the device certificate and private key. Note that Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
-  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them securely.
+  > **Warning:** This is the only instance in which you can download your device certificate and private key. Make sure to save them securely.
 
   ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
 

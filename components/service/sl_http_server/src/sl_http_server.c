@@ -32,8 +32,8 @@
 
 #define BACK_LOG                      1 ///< As we are processing one request at a time, the backlog is set to one.
 #define SL_HIGH_PERFORMANCE_SOCKET    BIT(7)
-#define HTTP_MAX_HEADER_LENGTH        (MAX_HEADER_BUFFER_LENGTH - 1)
-#define HTTP_CONNECTION_STATUS_HEADER "Connection: close\r\n"
+#define HTTP_MAX_HEADER_LENGTH        (SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH - 1)
+#define HTTP_CONNECTION_STATUS_HEADER "Connection: close\r\n\r\n"
 
 #define HTTP_SERVER_START_SUCCESS   BIT(0)
 #define HTTP_SERVER_START_FAILED    BIT(1)
@@ -154,7 +154,7 @@ static sl_status_t sli_parse_http_headers(sl_http_server_t *handle, int length)
     char *value = NULL;
 
     query = target;
-    for (int i = 0; i < MAX_QUERY_PARAMETERS; i++) {
+    for (int i = 0; i < SL_HTTP_SERVER_MAX_QUERY_PARAMETERS; i++) {
       handle->request.uri.query_parameters[i].query = query;
       query                                         = strchr(query, '&');
       if (NULL != query) {
@@ -215,7 +215,7 @@ static void sli_process_request(sl_http_server_t *handle, int client_socket)
 
   handle->request.request_data_length = 0;
   handle->response_sent               = false;
-  rem_length                          = (MAX_HEADER_BUFFER_LENGTH - 1);
+  rem_length                          = (SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH - 1);
   recv_buffer                         = handle->request_buffer;
 
   // Loop until Complete headers are received
@@ -310,11 +310,11 @@ static void sli_http_server(const void *arg)
   }
   SL_DEBUG_LOG("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(server_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(server_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(server_socket);
@@ -323,7 +323,7 @@ static void sli_http_server(const void *arg)
 
   uint8_t ap_vap = 1;
   socket_return_value =
-    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(server_socket);
@@ -422,9 +422,10 @@ static int sli_process_socket_buffered_data(int fd, char *data, size_t data_leng
 
 static int sli_send_response_headers(sl_http_server_t *server, sl_http_server_response_t *response, int window_size)
 {
-  char response_code[16]  = { 0 };
-  char content_length[32] = { 0 };
-  char *http_version      = NULL;
+  char response_code[16]           = { 0 };
+  char content_length[32]          = { 0 };
+  char *http_version               = NULL;
+  static char http_status_line[16] = { 0 };
 
   // Convert the response code to a string
   sprintf(response_code, "%d", response->response_code);
@@ -439,9 +440,11 @@ static int sli_send_response_headers(sl_http_server_t *server, sl_http_server_re
     http_version = "HTTP/1.0 ";
   }
 
-  sli_process_socket_buffered_data(server->client_socket, http_version, strlen(http_version), window_size);
-  sli_process_socket_buffered_data(server->client_socket, response_code, strlen(response_code), window_size);
-  sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+  strncpy(http_status_line, http_version, strlen(http_version) + 1); // +1 for null terminator
+  strncat(http_status_line, response_code, strlen(response_code));
+  strncat(http_status_line, "\r\n", 3); // +1 for null terminator
+
+  sli_process_socket_buffered_data(server->client_socket, http_status_line, strlen(http_status_line), window_size);
 
   if (NULL != response->content_type) {
     sli_process_socket_buffered_data(server->client_socket, "Content-Type: ", strlen("Content-Type: "), window_size);
@@ -460,10 +463,6 @@ static int sli_send_response_headers(sl_http_server_t *server, sl_http_server_re
     sli_process_socket_buffered_data(server->client_socket, content_length, strlen(content_length), window_size);
     sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
   }
-  sli_process_socket_buffered_data(server->client_socket,
-                                   HTTP_CONNECTION_STATUS_HEADER,
-                                   strlen(HTTP_CONNECTION_STATUS_HEADER),
-                                   window_size);
 
   // Append the headers to the response
   if ((response->header_count > 0) && (NULL != response->headers)) {
@@ -477,11 +476,16 @@ static int sli_send_response_headers(sl_http_server_t *server, sl_http_server_re
                                        response->headers[i].value,
                                        strlen(response->headers[i].value),
                                        window_size);
+
       sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
     }
   }
 
-  sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+  sli_process_socket_buffered_data(server->client_socket,
+                                   HTTP_CONNECTION_STATUS_HEADER,
+                                   strlen(HTTP_CONNECTION_STATUS_HEADER),
+                                   window_size);
+
   return 0;
 }
 
@@ -505,7 +509,7 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
   handle->config.handlers_count   = config->handlers_count;
   handle->config.client_idle_time = config->client_idle_time;
 
-  memset(handle->request_buffer, 0, sizeof(MAX_HEADER_BUFFER_LENGTH));
+  memset(handle->request_buffer, 0, sizeof(SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH));
   handle->http_server_id = osEventFlagsNew(NULL);
 
   memset(&(handle->request), 0, sizeof(sl_http_server_request_t));
@@ -586,7 +590,7 @@ sl_status_t sl_http_server_get_request_headers(sl_http_server_t *handle,
 
   uint16_t current_count = 0;
   char *header           = NULL;
-  char *sol              = NULL;
+  char *start_of_line    = NULL;
   int length             = 0;
 
   if (NULL == handle) {
@@ -605,28 +609,40 @@ sl_status_t sl_http_server_get_request_headers(sl_http_server_t *handle,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  sol    = handle->header;
-  length = strlen(sol);
-  header = sol;
+  start_of_line = handle->header;
+  length        = strlen(start_of_line);
+  header        = start_of_line;
   for (int i = 0; i < length; i++) {
     if ('\r' == header[i] && '\n' == header[i + 1]) {
       // Found a new line
       header[i]     = 0;
       header[i + 1] = 0;
 
-      // Seggrigate key and value in current header line
-      char *colon_pos = strchr(sol, ':'); // Find the colon position
-      if (' ' == *(colon_pos - 1)) {
-        *(colon_pos - 1) = 0;
-      } else {
-        *colon_pos = 0;
+      // Segregate key and value in current header line
+      char *colon_position = strchr(start_of_line, ':'); // Find the colon position
+
+      // Iterate backward to null-terminate all spaces before the colon
+      char *space_position = colon_position - 1;
+      while (space_position > start_of_line && *space_position == ' ') {
+        *space_position = 0;
+        space_position--;
       }
-      colon_pos += 2;
 
-      headers[current_count].key   = sol;
-      headers[current_count].value = colon_pos;
+      // Null-terminate the key at the colon if no spaces were found
+      if (space_position == colon_position - 1) {
+        *colon_position = 0;
+      }
 
-      sol = &(header[i + 2]);
+      colon_position += 1; // Move past the colon
+      // Skip all LWS (spaces and horizontal tabs) after the colon
+      while (*colon_position == ' ' || *colon_position == '\t') {
+        colon_position += 1;
+      }
+
+      headers[current_count].key   = start_of_line;  // Store the key
+      headers[current_count].value = colon_position; // Store the value
+
+      start_of_line = &(header[i + 2]);
       current_count++;
       if (current_count == header_count) {
         break;

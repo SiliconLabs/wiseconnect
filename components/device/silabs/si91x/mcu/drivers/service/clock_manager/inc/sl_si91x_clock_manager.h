@@ -1,32 +1,32 @@
-/************************************************************************************
- * @file sl_si91x_clock_manager.h
- * @brief Clock Manager Service API implementation
- ************************************************************************************
- * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
- ************************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ************************************************************************************/
+/******************************************************************************
+* @file sl_si91x_clock_manager.h
+* @brief Clock Manager Service API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_CLOCK_MANAGER_H
 #define SL_SI91X_CLOCK_MANAGER_H
@@ -47,12 +47,10 @@ extern "C" {
  ******************************************************************************/
 // -----------------------------------------------------------------------------------
 // GLOBAL DEFINES / MACROS
-#define PLL_REF_CLK_VAL_RC_32MHZ ((uint32_t)(32000000)) ///< PLL reference clock frequency value of RC_32MHZ_CLK
-#define PLL_REF_CLK_VAL_XTAL     ((uint32_t)(40000000)) ///< PLL reference clock frequency value of XTAL_CLK
+// Macros for defining supported PLL Ref Clock frequencies
+#define PLL_REF_CLK_VAL_XTAL (40000000UL) ///< PLL reference clock frequency value of XTAL CLK
 // -----------------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------------
-// DATA TYPES
 /***************************************************************************/
 /**
  * @typedef sl_si91x_m4_soc_clk_src_sel_t
@@ -73,13 +71,25 @@ typedef M4_SOC_CLK_SRC_SEL_T sl_si91x_m4_soc_clk_src_sel_t;
 
 /***************************************************************************/
 /**
+ * @brief Initializes the M4_SOC and other required clocks.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_clock_manager_init(void);
+
+/***************************************************************************/
+/**
  * @brief To configure the M4 core clock source and configure the PLL frequency if selected as source.
  * 
  * @param[in] clk_source Enum value representing different core clock sources.
  * @param[in] pll_freq Desired M4 core frequency in MHz.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_OK  - Success.
  *         - Corresponding error code on failure.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -95,19 +105,18 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
  * @param[in] pll_ref_clk Reference clock frequency for the PLL configuration.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_OK  - Success.
  *         - Corresponding error code on failure.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-
 sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pll_freq, uint32_t pll_ref_clk);
 
 /***************************************************************************/
 /**
  * @brief To read the currently active M4 core clock source and its frequency.
  * 
- * @param[out] core_clock Pointer to a variable where the current core clock frequency will be stored (in MHz).
+ * @param[out] m4_core_clk_freq Pointer to a variable where the current core clock frequency will be stored (in MHz).
  * 
  * @return sl_si91x_m4_soc_clk_src_sel_t The currently active core clock source:
  *         - 0: M4_ULPREFCLK
@@ -116,9 +125,33 @@ sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pl
  *         - 4: M4_INTFPLLCLK
  *         - 5: M4_SLEEPCLK
  * 
+ ******************************************************************************/
+sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *m4_core_clk_freq);
+
+/***************************************************************************/
+/**
+ * @brief Gets the selected PLL (Phase-Locked Loop) clock to the desired frequency.
+ * 
+ * @param[in] pll_type Enum specifying the type of PLL to configure.
+ * 
+ * @return uint32_t PLL frequency value in MHz.
+ ******************************************************************************/
+uint32_t sl_si91x_clock_manager_get_pll_freq(PLL_TYPE_T pll_type);
+
+/***************************************************************************/
+/**
+ * @brief Controls the selected PLL (Phase-Locked Loop) clock.
+ * 
+ * @param[in] pll_type Enum specifying the type of PLL to control.
+ * @param[in] enable Boolean value to enable (true) or disable (false) the PLL.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - Corresponding error code on failure.
+ * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *core_clock);
+sl_status_t sl_si91x_clock_manager_control_pll(PLL_TYPE_T pll_type, bool enable);
 // -----------------------------------------------------------------------------------
 
 /// @} end addtogroup CLOCK-MANAGER ******************************************************/

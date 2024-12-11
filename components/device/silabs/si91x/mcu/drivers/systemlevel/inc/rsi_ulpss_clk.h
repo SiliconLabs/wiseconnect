@@ -1,19 +1,31 @@
 /*******************************************************************************
 * @file  rsi_ulpss_clk.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 /**
  * Includes
@@ -32,7 +44,7 @@
 #define MCU_ULP_40MHZ_CLK_EN_TRUN_ON_DELAY          10   /*  delay to enable the ULP 40MHZ  CLK*/
 #define MCU_ULP_DOUBLER_CLK_EN_TRUN_ON_DELAY        10   /*  delay to enable the ULP DOUBLER CLK*/
 #define MCU_ULP_20MHZ_RING_OSC_CLK_EN_TRUN_ON_DELAY 10   /*  delay to enable the ULP 20MHZ_RING_OSC CLK*/
-#define MCU_ULP_32MHZ_RC_CLK_EN_TRUN_ON_DELAY       2    /*  delay to enable the ULP 32MHZ_RC CLK*/
+#define MCU_ULP_MHZ_RC_CLK_EN_TRUN_ON_DELAY         2    /*  delay to enable the ULP MHZ_RC CLK*/
 #define MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_1   500  /*  delay to enable the ULP 32KHZ_XTAL CLK*/
 #define MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_2   1500 /*  delay to enable the ULP 32KHZ_XTAL CLK*/
 #define MCU_ULP_32KHZ_RO_CLK_EN_TRUN_ON_DELAY       250  /*  delay to enable the ULP 32KHZ_RO CLK*/
@@ -145,8 +157,8 @@
  **/
 typedef enum ULPSS_REF_CLK_SEL {
   ULPSS_REF_BYP_CLK           = 1, /*!< REF_BYP_CLK selection*/
-  ULPSS_ULP_32MHZ_RC_CLK      = 2, /*!< ULP_32MHZ_RC_CLK selection*/
-  ULPSS_RF_REF_CLK            = 3, /*!< RF_REF_CLK selection*/
+  ULPSS_ULP_MHZ_RC_CLK        = 2, /*!< ULP_MHZ_RC_CLK selection*/
+  ULPSS_40MHZ_CLK             = 3, /*!< EXT_40MHZ_CLK selection*/
   ULPSS_MEMS_REF_CLK          = 4, /*!< MEMS_REF_CLK selection*/
   ULPSS_ULP_20MHZ_RINGOSC_CLK = 5, /*!< ULP_20MHZ_RINGOSC_CLK selection*/
   ULPSS_ULP_DOUBLER_CLK       = 6, /*!< ULP_DOUBLER_CLK selection*/
@@ -159,7 +171,7 @@ typedef enum ULP_PROC_CLK_SELECT {
   ULP_PROC_ULP_32KHZ_RO_CLK,   /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_PROC_ULP_32KHZ_RC_CLK,   /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_PROC_ULP_32KHZ_XTAL_CLK, /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_PROC_ULP_32MHZ_RC_CLK,   /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_PROC_ULP_MHZ_RC_CLK,     /*!< ULP_MHZ_RC_CLK selection*/
   ULP_PROC_ULP_20MHZ_RO_CLK,   /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_PROC_SOC_CLK,            /*!< SOC_CLK selection*/
   ULP_PROC_ULP_DOUBLER_CLK     /*!< ULP_DOUBLER_CLK selection*/
@@ -173,7 +185,7 @@ typedef enum ULP_SSI_CLK_SELECT {
   ULP_SSI_ULP_32KHZ_RO_CLK,   /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_SSI_ULP_32KHZ_RC_CLK,   /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_SSI_ULP_32KHZ_XTAL_CLK, /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_SSI_ULP_32MHZ_RC_CLK,   /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_SSI_ULP_MHZ_RC_CLK,     /*!< ULP_MHZ_RC_CLK selection*/
   ULP_SSI_ULP_20MHZ_RO_CLK,   /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_SSI_SOC_CLK,            /*!< SOC_CLK selection*/
 } ULP_SSI_CLK_SELECT_T;
@@ -186,7 +198,7 @@ typedef enum ULP_I2S_CLK_SELECT {
   ULP_I2S_ULP_32KHZ_RO_CLK,   /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_I2S_ULP_32KHZ_RC_CLK,   /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_I2S_ULP_32KHZ_XTAL_CLK, /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_I2S_ULP_32MHZ_RC_CLK,   /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_I2S_ULP_MHZ_RC_CLK,     /*!< ULP_MHZ_RC_CLK selection*/
   ULP_I2S_ULP_20MHZ_RO_CLK,   /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_I2S_SOC_CLK,            /*!< SOC_CLK selection*/
   ULP_I2S_ULP_DOUBLER_CLK,    /*!< ULP_DOUBLER_CLK selection*/
@@ -202,7 +214,7 @@ typedef enum ULP_UART_CLK_SELECT {
   ULP_UART_ULP_32KHZ_RO_CLK,   /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_UART_ULP_32KHZ_RC_CLK,   /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_UART_ULP_32KHZ_XTAL_CLK, /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_UART_ULP_32MHZ_RC_CLK,   /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_UART_ULP_MHZ_RC_CLK,     /*!< ULP_MHZ_RC_CLK selection*/
   ULP_UART_ULP_20MHZ_RO_CLK,   /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_UART_SOC_CLK,            /*!< SOC_CLK selection*/
   ULP_UART_ULP_DOUBLER_CLK,    /*!< ULP_DOUBLER_CLK selection*/
@@ -216,7 +228,7 @@ typedef enum ULP_TIMER_CLK_SELECT {
   ULP_TIMER_32KHZ_RO_CLK,   /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_TIMER_32KHZ_RC_CLK,   /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_TIMER_32KHZ_XTAL_CLK, /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_TIMER_32MHZ_RC_CLK,   /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_TIMER_MHZ_RC_CLK,     /*!< ULP_MHZ_RC_CLK selection*/
   ULP_TIMER_20MHZ_RO_CLK,   /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_TIMER_ULP_SOC_CLK,    /*!< SOC_CLK selection*/
 } ULP_TIMER_CLK_SELECT_T;
@@ -229,7 +241,7 @@ typedef enum ULP_AUX_CLK_SELECT {
   ULP_AUX_32KHZ_RO_CLK,    /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_AUX_32KHZ_RC_CLK,    /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_AUX_32KHZ_XTAL_CLK,  /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_AUX_32MHZ_RC_CLK,    /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_AUX_MHZ_RC_CLK,      /*!< ULP_MHZ_RC_CLK selection*/
   ULP_AUX_20MHZ_RO_CLK,    /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_AUX_ULP_SOC_CLK,     /*!< SOC_CLK selection*/
   ULP_AUX_ULP_DOUBLER_CLK, /*!< ULP_DOUBLER_CLK selection*/
@@ -251,7 +263,7 @@ typedef enum ULP_VAD_FCLK_SELECT {
 
   ULP_VAD_ULP_PROCESSOR_CLK, /*!< ULP_PROCESSOR_CLK selection*/
   ULP_VAD_REF_CLK,           /*!< ULP_REF_CLK selection*/
-  ULP_VAD_32MHZ_RC_CLK,      /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_VAD_MHZ_RC_CLK,        /*!< ULP_MHZ_RC_CLK selection*/
   ULP_VAD_20MHZ_RO_CLK,      /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_VAD_ULP_SOC_CLK,       /*!< SOC_CLK selection*/
 } ULP_VAD_FCLK_SELECT_T;
@@ -264,7 +276,7 @@ typedef enum ULP_TOUCH_CLK_SELECT {
   ULP_TOUCH_32KHZ_RO_CLK,   /*!< ULP_32KHZ_RO_CLK selection*/
   ULP_TOUCH_32KHZ_RC_CLK,   /*!< ULP_32KHZ_RC_CLK selection*/
   ULP_TOUCH_32KHZ_XTAL_CLK, /*!< ULP_32KHZ_XTAL_CLK selection*/
-  ULP_TOUCH_32MHZ_RC_CLK,   /*!< ULP_32MHZ_RC_CLK selection*/
+  ULP_TOUCH_MHZ_RC_CLK,     /*!< ULP_MHZ_RC_CLK selection*/
   ULP_TOUCH_20MHZ_RO_CLK,   /*!< ULP_20MHZ_RO_CLK selection*/
   ULP_TOUCH_ULP_SOC_CLK     /*!< SOC_CLK selection*/
 

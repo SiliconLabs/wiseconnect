@@ -157,15 +157,15 @@ static const console_descriptive_command_t _set_nvm_profile_command = {
 };
 
 extern sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments);
-static const char *_sl_net_host_get_by_name_arg_help[] = {
+static const char *_sl_net_dns_resolve_hostname_arg_help[] = {
   0,
   0,
   0,
 };
 
-static const console_descriptive_command_t _sl_net_host_get_by_name_command = {
+static const console_descriptive_command_t _sl_net_dns_resolve_hostname_command = {
   .description   = "DNS resolution",
-  .argument_help = _sl_net_host_get_by_name_arg_help,
+  .argument_help = _sl_net_dns_resolve_hostname_arg_help,
   .handler       = sl_dns_hostgetbyname_command_handler,
   .argument_list = { CONSOLE_ARG_STRING,
                      CONSOLE_OPTIONAL_ARG('t', CONSOLE_ARG_UINT),
@@ -1339,7 +1339,7 @@ const console_database_t console_command_database = { CONSOLE_DATABASE_ENTRIES(
   { "rtt", &_rtt_command },
   { "set", &_set_command },
   { "set_nvm_profile", &_set_nvm_profile_command },
-  { "sl_net_host_get_by_name", &_sl_net_host_get_by_name_command },
+  { "sl_net_dns_resolve_hostname", &_sl_net_dns_resolve_hostname_command },
   { "sl_net_ping", &_sl_net_ping_command },
   { "sl_si91x_get_ram_log", &_sl_si91x_get_ram_log_command },
   { "start_dhcp", &_start_dhcp_command },

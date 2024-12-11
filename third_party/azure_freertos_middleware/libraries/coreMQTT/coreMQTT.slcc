@@ -5,6 +5,15 @@ description: >
 label: Core MQTT
 category: Third Party
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: Core MQTT
+      version: 1.1.1
+      supplier: FreeRTOS
+      url: https://github.com/FreeRTOS/coreMQTT
+      package_url: pkg:github/FreeRTOS/coreMQTT@v1.1.1
 component_root_path: ./third_party/azure_freertos_middleware/libraries/coreMQTT
 provides:
 - name: coreMQTT
@@ -13,12 +22,10 @@ source:
 - path: source/core_mqtt_state.c
 - path: source/core_mqtt_serializer.c
 - path: ../../ports/coreMQTT/azure_iot_core_mqtt.c
-define:
-- name: MQTT_DO_NOT_USE_CUSTOM_CONFIG
-requires:
-- name: bsd_socket
-
 include:
+- path: source/include
+- path: source/interface
+- path: ../../ports/coreMQTT/
 - path: source/include
   file_list:
     - path: core_mqtt.h
@@ -31,4 +38,10 @@ include:
 - path: ../../ports/coreMQTT/
   file_list:
     - path: azure_iot_mqtt_port.h
+
+define:
+- name: MQTT_DO_NOT_USE_CUSTOM_CONFIG
+
+requires:
+- name: bsd_socket
 

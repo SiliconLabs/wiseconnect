@@ -56,7 +56,7 @@ Open `app.c` file and configure the following parameters accordingly
 - The length of the input message/plain text can be configured by using the below macro
 
 ```c
-#define BUFFER_SIZE      16
+#define BUFFER_SIZE 16
 ```
 
 - *gcm_msg* refers to plain data which is passed to GCM engine.
@@ -81,6 +81,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Based on the input data, key size and mode of encryption/decryption, the output from GCM engine can be observed in the provided output buffer.
 - In case of CMAC mode, the output from the CMAC engine can be observed in the provided mac output buffer.
 
+## Note
+
+- The SDK does not properly handle rx packet lengths over 1616 bytes due to the rx_buffer being capped at 1616 bytes, which may cause data corruption if the input message size exceeds the expected length. Therefore, the GCM_CMAC application limits the input message length to 1400 bytes.
+- If the user provides an input message longer than 1400 bytes, the firmware will return "SL_STATUS_SI91X_CRYPTO_INPUT_MSG_LENGTH_EXCEEDED".
 ## Application Output
 
 ![Output](resources/readme/output.png)

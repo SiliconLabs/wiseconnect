@@ -53,7 +53,7 @@ typedef int32_t sl_adc_error_t;
 
 /* ADC peripheral configurations */
 #define SL_SH_ADC_SAMPLING_RATE       1000 ///< ADC sampling rate, 10sps, 20 milliseconds per sample */
-#define SL_SH_ADC_NUM_CHANNELS_ENABLE 3    ///< ADC number of channels enabled */
+#define SL_SH_ADC_NUM_CHANNELS_ENABLE 1    ///< ADC number of channels enabled */
 
 /* ADC channel 0 configurations */
 #ifdef SL_SH_ADC_CHANNEL0
@@ -175,11 +175,11 @@ sl_sensor_adc_handle_t sl_si91x_adc_sensor_create(sl_sensor_bus_t bus, int id);
  *
  * @param[in] sensor : ADC sensor handle
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_adc_error_t sl_si91x_adc_sensor_delete(sl_sensor_adc_handle_t *sensor);
 
@@ -189,11 +189,11 @@ sl_adc_error_t sl_si91x_adc_sensor_delete(sl_sensor_adc_handle_t *sensor);
  *
  * @param[in] sensor : NONE
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_sensor_sample_static();
 
@@ -214,11 +214,11 @@ sl_adc_error_t sl_si91x_sensor_channel_sample(uint8_t channel);
  *
  * @param[in] sensor : ADC sensor handle
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_sensor_sleep(sl_sensor_adc_handle_t sensor);
 
@@ -228,11 +228,11 @@ sl_status_t sl_si91x_adc_sensor_sleep(sl_sensor_adc_handle_t sensor);
  *
  * @param[in] sensor : ADC sensor handle
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_sensor_wakeup(sl_sensor_adc_handle_t sensor);
 
@@ -243,11 +243,11 @@ sl_status_t sl_si91x_adc_sensor_wakeup(sl_sensor_adc_handle_t sensor);
  * @param[in] sensor : ADC sensor handle
  * @param[in] power_mode : set ADC sensor to requested power mode
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_status_t sl_si91x_adc_sensor_set_power(sl_sensor_adc_handle_t sensor, sl_sensor_power_mode_t power_mode);
 
@@ -259,11 +259,11 @@ sl_status_t sl_si91x_adc_sensor_set_power(sl_sensor_adc_handle_t sensor, sl_sens
  * @param[in] data_group : sensor hub data group structure that contains
  *            memory to store ADC data and number of samples
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_adc_error_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sensor_data_group_t *data_group);
 
@@ -275,11 +275,11 @@ sl_adc_error_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sens
  * @param[in] data_group : sensor hub data group structure that contains
  *            memory to store ADC data and number of samples
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_adc_error_t sl_si91x_sdc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sensor_data_group_t *data_group);
 
@@ -290,11 +290,11 @@ sl_adc_error_t sl_si91x_sdc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sens
  * @param[in] sensor : ADC sensor handle
  * @param[in] cmd : command to change the sensor modes
  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
- *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ *         \ref SL_STATUS_OK  - Success
+ *         \ref SL_STATUS_NULL_POINTER  - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER  - Parameters are invalid
+ *         \ref SL_STATUS_FAIL  - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED  - Clock is not initialized
  ******************************************************************************/
 sl_adc_error_t sl_si91x_adc_sensor_control(sl_sensor_adc_handle_t sensor, sl_sensor_command_t cmd, void *args);
 

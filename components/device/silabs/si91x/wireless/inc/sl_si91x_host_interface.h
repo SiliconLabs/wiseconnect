@@ -63,7 +63,7 @@ void sl_si91x_host_release_from_reset(void);
  *  This API used to allocate all threads, mutexes and event handlers
  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
  */
-sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config);
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config);
 
 /**
   * @brief 

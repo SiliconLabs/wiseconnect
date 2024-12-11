@@ -135,8 +135,8 @@ void dma_example_init(void)
     for (int i = 0; i < ULP_DMA_TRANSFER_SIZE; i++) {
       src0[i] = (uint32_t)(i + 1);
     }
-#ifdef ULP_DMA_SIMPLE_TRANSFER
-    // Perform DMA transfer using simple dma transfer API
+#if defined(ULP_DMA_SIMPLE_TRANSFER) \
+  && (ULP_DMA_SIMPLE_TRANSFER == 1) // Perform DMA transfer using simple dma transfer API
     status = sl_si91x_dma_simple_transfer(ULP_DMA_INSTANCE, channel, src0, dst0, ULP_DMA_TRANSFER_SIZE);
 #else
     sl_dma_xfer_t dma_transfer_t = { 0 };
@@ -206,9 +206,9 @@ void dma_example_process_action(void)
           DEBUGOUT("sl_si91x_power_manager_add_ps_requirement: Error Code : %lu \n", status);
           break;
         }
-        /* Due to calling trim_efuse API om power manager it will change the clock
-    frequency, if we are not initialize the debug again it will print the
-    garbage data or no data in console output. */
+        /* Calling the trim_eFuse API within the power manager modifies the clock frequency. 
+        If debug is not reinitialized afterward, it may result in corrupted or 
+        missing output data in the console.*/
         DEBUGINIT();
         // Configuring the ps2 power state by configuring
         // the ram retention and removing the unused peripherals

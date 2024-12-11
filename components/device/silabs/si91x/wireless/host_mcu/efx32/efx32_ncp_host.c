@@ -293,7 +293,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
   return GPIO_PinInGet(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN);
 }
 
-sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
 {
   init_config.rx_irq      = config->rx_irq;
   init_config.rx_done     = config->rx_done;

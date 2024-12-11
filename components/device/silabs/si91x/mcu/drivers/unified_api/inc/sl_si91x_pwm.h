@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_pwm.h
- * @brief PWM API header file
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_pwm.h
+* @brief PWM API header file
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_PWM_H
 #define SL_SI91X_PWM_H
@@ -464,9 +464,9 @@ sl_pwm_version_t sl_si91x_pwm_get_version(void);
  * @param[in] pwm_config Pointer to configuration parameters of type \ref sl_pwm_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -486,9 +486,9 @@ sl_status_t sl_si91x_pwm_set_configuration(sl_pwm_config_t *pwm_config);
  * @param[in] polarity_high Output polarity for the high side (H3, H2, H1, H0).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -511,9 +511,9 @@ sl_status_t sl_si91x_pwm_set_output_polarity(boolean_t polarity_low, boolean_t p
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -536,9 +536,9 @@ sl_status_t sl_si91x_pwm_start(sl_pwm_channel_t channel);
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -561,9 +561,9 @@ sl_status_t sl_si91x_pwm_stop(sl_pwm_channel_t channel);
  * @param[in] base_timer PWM base timer of type \ref sl_pwm_timer_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -586,9 +586,9 @@ sl_status_t sl_si91x_pwm_control_base_timer(sl_pwm_timer_t base_timer);
  * @param[in] init_val Update the base time counter initial value, in the range of 0 - 65535.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -612,9 +612,9 @@ sl_status_t sl_si91x_pwm_set_time_period(sl_pwm_channel_t channel, uint32_t peri
  * @param[in] pwm_config Pointer to the structure of type \ref sl_si91x_pwm_svt_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -638,9 +638,9 @@ sl_status_t sl_si91x_pwm_trigger_special_event(sl_pwm_svt_t direction, sl_si91x_
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -662,9 +662,9 @@ sl_status_t sl_si91x_pwm_configure_dead_time(sl_si91x_pwm_dt_config_t *dead_time
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -686,9 +686,9 @@ sl_status_t sl_si91x_pwm_reset_channel(sl_pwm_channel_t channel);
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -711,9 +711,9 @@ sl_status_t sl_si91x_pwm_reset_counter(sl_pwm_channel_t channel);
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -738,9 +738,9 @@ sl_status_t sl_si91x_pwm_control_period(sl_pwm_post_t post_scale, sl_pwm_pre_t p
  * @param[in] value Fault input A/B PWM output override value of type \ref sl_pwm_override_value_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -762,9 +762,9 @@ sl_status_t sl_si91x_pwm_control_fault(sl_pwm_fault_t fault, sl_pwm_output_t pwm
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -785,9 +785,9 @@ sl_status_t sl_si91x_pwm_set_base_timer_mode(sl_pwm_base_timer_mode_t mode, sl_p
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -810,8 +810,8 @@ sl_status_t sl_si91x_pwm_set_output_mode(sl_pwm_mode_t mode, sl_pwm_channel_t ch
  * @param[in] flag It is the logical OR of different interrupts generated on multiple channels (in the range of 0 - 65535).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -834,8 +834,8 @@ sl_status_t sl_si91x_pwm_register_callback(sl_si91x_pwm_callback_t *callback_eve
  * @param[in] flag It is the logical OR of different interrupts generated on multiple channels (in the range of 0 - 65535).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -859,9 +859,9 @@ sl_status_t sl_si91x_pwm_unregister_callback(uint16_t flag);
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -886,9 +886,9 @@ sl_status_t sl_si91x_pwm_read_counter(uint16_t *counter_value, sl_pwm_channel_t 
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -914,9 +914,9 @@ sl_status_t sl_si91x_pwm_get_counter_direction(uint8_t *counter_direction, sl_pw
  *                  - DT_EN_CH3
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -942,9 +942,9 @@ sl_status_t sl_si91x_pwm_control_dead_time(sl_pwm_dead_time_t dead_time, uint32_
  *                  - DT_EN_CH3
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -969,9 +969,9 @@ sl_status_t sl_si91x_pwm_control_dead_time(sl_pwm_dead_time_t dead_time, uint32_
  * @param[out] intr_status Pointer to interrupt status.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -996,9 +996,9 @@ sl_status_t sl_si91x_pwm_get_interrupt_status(uint32_t flag, uint16_t *intr_stat
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result: 
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1020,9 +1020,9 @@ sl_status_t sl_si91x_pwm_configure_duty_cycle(sl_pwm_duty_cycle_t duty_cycle, ui
  * @param[in] pwm_output PWM output override of type \ref sl_pwm_output_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1044,9 +1044,9 @@ sl_status_t sl_si91x_pwm_output_override(sl_pwm_override_t override, sl_pwm_outp
  * @param[in] value Output override to be in sync with PWM time period of type \ref sl_pwm_output_override_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1068,9 +1068,9 @@ sl_status_t sl_si91x_pwm_control_override(sl_pwm_override_t override, sl_pwm_out
  * @param[in] value Override value of type \ref sl_pwm_override_value_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1107,8 +1107,8 @@ sl_status_t sl_si91x_pwm_control_override_value(sl_pwm_override_t override,
  *                    If the bit is 0, the PWM I/O pin pair is in the independent output mode.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1129,8 +1129,8 @@ sl_status_t sl_si91x_pwm_control_output_fault(sl_pwm_output_fault_t output_fault
  * @param[in] event Enum of type \ref sl_pwm_event_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1155,8 +1155,8 @@ sl_status_t sl_si91x_pwm_control_special_event_trigger(sl_pwm_event_t event);
  *                    Possible values are as follows: If bit is zero, use counter A. If bit is 1, use counter B.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1176,9 +1176,9 @@ sl_status_t sl_si91x_pwm_select_dead_time(sl_pwm_dead_time_t dead_time, uint32_t
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1198,9 +1198,9 @@ sl_status_t sl_si91x_pwm_set_duty_cycle(uint32_t duty_cycle, sl_pwm_channel_t ch
  * @param[out] duty_cycle Pointer to the duty cycle value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1221,9 +1221,9 @@ sl_status_t sl_si91x_pwm_get_duty_cycle(sl_pwm_channel_t channel, uint32_t *duty
  * @param[in] enable Controlling external trigger of type \ref sl_pwm_trigger_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1243,9 +1243,9 @@ sl_status_t sl_si91x_pwm_enable_external_trigger(sl_pwm_trigger_t enable);
  * @param[out] time_period Pointer to read the time period.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1260,8 +1260,8 @@ sl_status_t sl_si91x_pwm_get_time_period(sl_pwm_channel_t channel, uint16_t *tim
  * @param[in] pwm_init Pointer to the structure of type \ref sl_pwm_init_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1276,8 +1276,8 @@ sl_status_t sl_si91x_pwm_init(sl_pwm_init_t *pwm_init);
  * @param[in] pwm_fault Pointer to the structure of type \ref sl_pwm_fault_init_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1300,8 +1300,8 @@ sl_status_t sl_si91x_pwm_fault_init(sl_pwm_fault_init_t *pwm_fault);
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1324,8 +1324,8 @@ sl_status_t sl_si91x_pwm_reset_channel_disable(sl_pwm_channel_t channel);
  * @param[in] channel Channel number (0 to 3) of type \ref sl_pwm_channel_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/

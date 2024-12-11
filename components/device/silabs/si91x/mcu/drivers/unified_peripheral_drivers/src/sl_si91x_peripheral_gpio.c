@@ -1,32 +1,31 @@
-/*******************************************************************************
- * @file sl_si91x_peripheral_gpio.c
- * @brief General Purpose IO (GPIO) peripheral API.
- *******************************************************************************
- * # License
- * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licenser of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be miss represented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    miss represented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_peripheral_gpio.c
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_peripheral_gpio.h"
 #ifdef DEBUG_UART
 #include "rsi_debug.h"
@@ -66,32 +65,20 @@ void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_INTR(int_no));
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PORT_NUMBER = port;
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PIN_NUMBER  = (sl_si91x_gpio_pin_t)pin;
-  // Enable GPIO interrupt rising and falling edge
-  if ((flags & SL_GPIO_INTERRUPT_RISE_FALL_EDGE) == SL_GPIO_INTERRUPT_RISE_FALL_EDGE) {
-    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
+  // Enable or disable GPIO interrupt falling edge in GPIO HP instance
+  if ((flags & SL_GPIO_INTERRUPT_FALLING_EDGE) == SL_GPIO_INTERRUPT_FALLING_EDGE) {
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   } else {
-    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
   }
-  // Enable GPIO interrupt falling edge
-  if ((flags & SL_GPIO_INTERRUPT_FALL_EDGE) == SL_GPIO_INTERRUPT_FALL_EDGE) {
-    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
-  }
-  // Disable GPIO interrupt falling edge
-  else {
-    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
-  }
-  // Enable GPIO interrupt rising edge
-  if ((flags & SL_GPIO_INTERRUPT_RISE_EDGE) == SL_GPIO_INTERRUPT_RISE_EDGE) {
+  // Enable or disable GPIO interrupt rising edge in GPIO HP instance
+  if ((flags & SL_GPIO_INTERRUPT_RISING_EDGE) == SL_GPIO_INTERRUPT_RISING_EDGE) {
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
-  }
-  // Disable GPIO interrupt rising edge
-  else {
+  } else {
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
   }
   // Enable GPIO interrupt level high
-  if ((flags & SL_GPIO_INTERRUPT_LEVEL_HIGH) == SL_GPIO_INTERRUPT_LEVEL_HIGH) {
+  if ((flags & SL_GPIO_INTERRUPT_HIGH) == SL_GPIO_INTERRUPT_HIGH) {
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_HIGH_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   }
   // Disable GPIO interrupt level high
@@ -99,7 +86,7 @@ void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_HIGH_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
   }
   // Enable GPIO interrupt level low
-  if ((flags & SL_GPIO_INTERRUPT_LEVEL_LOW) == SL_GPIO_INTERRUPT_LEVEL_LOW) {
+  if ((flags & SL_GPIO_INTERRUPT_LOW) == SL_GPIO_INTERRUPT_LOW) {
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_LOW_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   }
   // Disable GPIO interrupt level low
@@ -767,34 +754,26 @@ void sl_si91x_gpio_configure_ulp_pin_interrupt(uint8_t int_no,
   // Pin interrupt configuration in ULP GPIO instance
   ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PORT_NUMBER = ULP_PORT_NUM;
   ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PIN_NUMBER  = pin;
-  // Enable GPIO interrupt rising and falling edge
-  if ((flags & SL_GPIO_INTERRUPT_RISE_FALL_EDGE) == SL_GPIO_INTERRUPT_RISE_FALL_EDGE) {
-    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
-    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
-  } else {
-    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
-    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
-  }
-  // Enable or disable GPIO interrupt falling edge
-  if ((flags & SL_GPIO_INTERRUPT_FALL_EDGE) == SL_GPIO_INTERRUPT_FALL_EDGE) {
+  // Enable or disable GPIO interrupt falling edge in GPIO ULP instance
+  if ((flags & SL_GPIO_INTERRUPT_FALLING_EDGE) == SL_GPIO_INTERRUPT_FALLING_EDGE) {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   } else {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
   }
-  // Enable or disable GPIO interrupt rising edge
-  if ((flags & SL_GPIO_INTERRUPT_RISE_EDGE) == SL_GPIO_INTERRUPT_RISE_EDGE) {
+  // Enable or disable GPIO interrupt rising edge in GPIO ULP instance
+  if ((flags & SL_GPIO_INTERRUPT_RISING_EDGE) == SL_GPIO_INTERRUPT_RISING_EDGE) {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   } else {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
   }
   // Enable or disable GPIO interrupt level high
-  if ((flags & SL_GPIO_INTERRUPT_LEVEL_HIGH) == SL_GPIO_INTERRUPT_LEVEL_HIGH) {
+  if ((flags & SL_GPIO_INTERRUPT_HIGH) == SL_GPIO_INTERRUPT_HIGH) {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_HIGH_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   } else {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_HIGH_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
   }
   // Enable or disable GPIO interrupt level low
-  if ((flags & SL_GPIO_INTERRUPT_LEVEL_LOW) == SL_GPIO_INTERRUPT_LEVEL_LOW) {
+  if ((flags & SL_GPIO_INTERRUPT_LOW) == SL_GPIO_INTERRUPT_LOW) {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_LOW_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
   } else {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.LEVEL_LOW_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
@@ -1136,7 +1115,7 @@ void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
-  UULP_GPIO_FSM->GPIO_WAKEUP_REGISTER |= (BIT(npssgpio_interrupt));
+  UULP_GPIO_FSM->GPIO_WAKEUP_REGISTER &= ~(BIT(npssgpio_interrupt));
 }
 
 /*******************************************************************************
@@ -1205,6 +1184,8 @@ uint32_t sl_si91x_gpio_get_ulp_interrupt_status(uint32_t flags)
  *  - Set the direction of the GPIO pin.
  *  - Configure the UULP pin interrupt.
  * Enable the IRQ handler.
+ * @note: The NPSS GPIO interrupt pin number is transformed into a bit mask by
+ * shifting a single bit to the left by the specified pin number.
 *******************************************************************************/
 void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags, uint8_t npssgpio_interrupt)
 {
@@ -1213,34 +1194,26 @@ void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_
   npssgpio_interrupt = BIT(npssgpio_interrupt);
   // Unmask NPSS interrupt
   sl_si91x_gpio_unmask_uulp_npss_interrupt(npssgpio_interrupt);
-  // Enable GPIO interrupt rising and falling edge
-  if ((flags & SL_GPIO_INTERRUPT_RISE_FALL_EDGE) == SL_GPIO_INTERRUPT_RISE_FALL_EDGE) {
-    GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_0);
-    GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_8);
-  } else {
-    GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_0);
-    GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_8);
-  }
-  // Enable or disable interrupt rising edge in UULP GPIO instance
-  if ((flags & SL_GPIO_INTERRUPT_RISE_EDGE) == SL_GPIO_INTERRUPT_RISE_EDGE) {
+  // Enable or disable interrupt rising edge in GPIO UULP instance
+  if ((flags & SL_GPIO_INTERRUPT_RISING_EDGE) == SL_GPIO_INTERRUPT_RISING_EDGE) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_0);
   } else {
     GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_0);
   }
-  // Enable or disable GPIO interrupt falling edge in UULP GPIO instance
-  if ((flags & SL_GPIO_INTERRUPT_FALL_EDGE) == SL_GPIO_INTERRUPT_FALL_EDGE) {
+  // Enable or disable GPIO interrupt falling edge in GPIO UULP instance
+  if ((flags & SL_GPIO_INTERRUPT_FALLING_EDGE) == SL_GPIO_INTERRUPT_FALLING_EDGE) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_8);
   } else {
     GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_8);
   }
   // Enable or disable interrupt level low in UULP GPIO instance
-  if ((flags & SL_GPIO_INTERRUPT_LEVEL_LOW) == SL_GPIO_INTERRUPT_LEVEL_LOW) {
+  if ((flags & SL_GPIO_INTERRUPT_LOW) == SL_GPIO_INTERRUPT_LOW) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_16);
   } else {
     GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_16);
   }
   // Enable or disable interrupt level high in UULP GPIO instance
-  if ((flags & SL_GPIO_INTERRUPT_LEVEL_HIGH) == SL_GPIO_INTERRUPT_LEVEL_HIGH) {
+  if ((flags & SL_GPIO_INTERRUPT_HIGH) == SL_GPIO_INTERRUPT_HIGH) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_24);
   } else {
     GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_24);

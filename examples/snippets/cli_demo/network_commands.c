@@ -310,7 +310,7 @@ sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments)
   sl_net_dns_resolution_ip_type_t ip_type =
     GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_NET_DNS_TYPE_IPV4, sl_net_dns_resolution_ip_type_t);
 
-  status = sl_net_host_get_by_name(host_name, timeout, ip_type, &ip_address);
+  status = sl_net_dns_resolve_hostname(host_name, timeout, ip_type, &ip_address);
   if (status == SL_STATUS_IN_PROGRESS) {
     return SL_STATUS_OK;
   }

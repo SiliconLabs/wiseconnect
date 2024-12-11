@@ -26,16 +26,14 @@
  * PWM output mode Use-case :
  * Here it will generate 2 PWM outputs, Counter-1 will generate square wave
  * output (50%-duty cycle) and counter-0 will generates PWM output whose duty
- * cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
+ * cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1%.
  =============================================================================*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "config_timer_example.h"
 #include "rsi_debug.h"
-#include "sl_si91x_pwm.h"
 #include "rsi_rom_egpio.h"
 #include "sl_si91x_config_timer.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -44,7 +42,6 @@
 #define CT_RATE               1000         // value for dividing system core clock
 #define TICKS                 1000         // tick value
 #define TENTH_INTERRUPT_COUNT 10           // Count for tenth timeout interrupt
-#define INITIAL_MATCH_VALUE   0            // for match initial value
 #define INITIAL_VALUE         0            // for zero value
 #define PIN_1                 1            // for ulp-gpio-1
 #define PORT_0                0            // for gpio port 0
@@ -56,9 +53,6 @@
 #define CLEAR                 0            // for clearing any value
 #define DELAY_COUNT           10           // delay count value
 #define TIME_PERIOD_VALUE     1000         // Time period in microseconds
-
-#define SOC_PLL_CLK  ((uint32_t)(32000000))  // 32MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  GLOBAL variables   ***************************
  ******************************************************************************/
@@ -71,7 +65,6 @@ sl_config_timer_pwm_callback_t pwm_callback;
 static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq);
 #endif
 static void on_config_timer_callback(void *callback_flag);
-static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local variables   ***************************
  ******************************************************************************/
@@ -86,22 +79,15 @@ static sl_config_timer_ocu_params_t vsOCUparams = { INITIAL_VALUE };
 #endif
 static sl_config_timer_interrupt_flags_t ct_interrupt_flags;
 #if (CT_COUNTER_MODE_USECASE == SET)
-sl_counter_number_t counter_used = CT_COUNTER_USED;
-static uint32_t interrupt_count  = INITIAL_VALUE;
+sl_counter_number_t counter_used       = CT_COUNTER_USED;
+static uint32_t interrupt_count        = INITIAL_VALUE;
+static uint32_t counter0_initial_value = 0;
+static uint32_t counter1_initial_value = 0;
+volatile boolean_t interrupt_flag      = 0;
 #endif
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 32MHz SOC PLL Clock in this example
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * Config-Timer example initialization function
  ******************************************************************************/
@@ -109,20 +95,18 @@ void config_timer_example_init(void)
 {
   sl_config_timer_version_t version;
   sl_config_timer_config_t ct_config;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
+  static uint32_t match_value;
 
   // Initializing ct configuration structure
   ct_config.is_counter_mode_32bit_enabled    = SL_COUNTER_16BIT;
   ct_config.counter0_direction               = SL_COUNTER0_UP;
-  ct_config.is_counter0_periodic_enabled     = true;
+  ct_config.is_counter0_periodic_enabled     = false;
   ct_config.is_counter0_sync_trigger_enabled = true;
   ct_config.counter1_direction               = SL_COUNTER0_UP;
   ct_config.is_counter1_periodic_enabled     = true;
   ct_config.is_counter1_sync_trigger_enabled = true;
 
-  //Version information of watchdog-timer
+  //Version information of config timer
   version = sl_si91x_config_timer_get_version();
   DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
 #if (CT_PWM_MODE_USECASE == SET)
@@ -136,8 +120,6 @@ void config_timer_example_init(void)
   ct_ocu_config.is_counter1_toggle_output_high_enabled = true;
   ct_ocu_config.is_counter0_toggle_output_low_enabled  = true;
   ct_ocu_config.is_counter1_toggle_output_low_enabled  = true;
-  uint32_t match_value                                 = INITIAL_MATCH_VALUE;
-  match_value                                          = (SystemCoreClock / CT_RATE);
   do {
     /*Initialize pins and clock */
     sl_si91x_config_timer_init();
@@ -149,6 +131,12 @@ void config_timer_example_init(void)
       break;
     }
     DEBUGOUT("CT configuration is set successfully \n");
+    // Get the match value of the timer
+    status = sl_si91x_config_timer_get_match_value(CT_RATE, &match_value);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_config_timer_get_match_value, Error code: %lu", status);
+      break;
+    }
     // Setting match value for counter 0
     status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, SL_COUNTER_0, match_value);
     if (status != SL_STATUS_OK) {
@@ -163,19 +151,6 @@ void config_timer_example_init(void)
       break;
     }
     DEBUGOUT("Counter1 Match Count is set successfully \n");
-    /* Set Duty cycle value for channel 0 and channel 1*/
-    status = sl_si91x_pwm_set_duty_cycle(INITIAL_MATCH_VALUE, PWM_CHNL_0);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel0,Error Code : %lu\r\n", status);
-      break;
-    }
-    DEBUGOUT("\r\nSets Duty Cycle for PWM Channel0\r\n");
-    status = sl_si91x_pwm_set_duty_cycle(match_value, PWM_CHNL_1);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel1,Error Code : %lu\r\n", status);
-      break;
-    }
-    DEBUGOUT("\r\nSets Duty Cycle for PWM Channel1\r\n");
     // Setting OCU threshold values
     vsOCUparams.CompareVal1_0 = INITIAL_VALUE;
     vsOCUparams.CompareVal1_1 = (uint16_t)(match_value / TWO);
@@ -232,7 +207,6 @@ void config_timer_example_init(void)
   } while (false);
 #endif
 #if (CT_COUNTER_MODE_USECASE == SET)
-  uint32_t match_value = INITIAL_MATCH_VALUE;
   // Setting ULP-GPIO-1 mode
   RSI_EGPIO_SetPinMux(EGPIO1, PORT_0, PIN_1, EGPIO_PIN_MUX_MODE0);
   // Setting ULP-GPIO-1 output direction
@@ -256,7 +230,7 @@ void config_timer_example_init(void)
     }
     DEBUGOUT("CT match value get is successful \n");
     // Setting Initial count value
-    status = sl_si91x_config_timer_set_initial_count(SL_COUNTER_16BIT, INITIAL_VALUE, INITIAL_VALUE);
+    status = sl_si91x_config_timer_set_initial_count(SL_COUNTER_16BIT, counter0_initial_value, counter1_initial_value);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_config_timer_set_initial_count, Error code: %lu\n", status);
       break;
@@ -275,8 +249,9 @@ void config_timer_example_init(void)
     } else {
       ct_interrupt_flags.is_counter1_hit_peak_interrupt_enabled = true;
     }
-    // Registering callback
+    // Un-registering callback
     status = sl_si91x_config_timer_unregister_callback(&ct_interrupt_flags);
+    // Registering callback
     status = sl_si91x_config_timer_register_callback(on_config_timer_callback, callback_flag_data, &ct_interrupt_flags);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu\n", status);
@@ -293,8 +268,16 @@ void config_timer_example_init(void)
   } while (false);
 #endif
 }
+
 void config_timer_example_process_action(void)
 {
+#if (CT_COUNTER_MODE_USECASE == SET)
+  // interrupt_flag is set when interrupt count is greater than TENTH_INTERRUPT_COUNT
+  if (interrupt_flag) {
+    interrupt_flag = 0;
+    DEBUGOUT("Config timer unregistered & de-inits callback after 10th interrupt\n");
+  }
+#endif
 #if (CT_PWM_MODE_USECASE == SET)
   do {
     if (delay >= DELAY_COUNT) {
@@ -337,8 +320,9 @@ static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq)
   uint32_t ticks = INITIAL_VALUE;
   uint32_t rate  = INITIAL_VALUE;
   if (freq != 0) {
-    rate  = SystemCoreClock / freq;
+    sl_si91x_config_timer_get_match_value(freq, &rate);
     ticks = (rate * percent) / HUNDRED;
+    DEBUGOUT("ticks:%ld, rate:%ld, percent:%d\n", ticks, rate, percent);
     return ticks;
   } else {
     return 0;
@@ -372,8 +356,8 @@ void on_config_timer_callback(void *callback_flag)
   }
   // Checking interrupt count
   if (interrupt_count >= TENTH_INTERRUPT_COUNT) {
+    interrupt_flag = 1;
     // De-initializing config-timer
-    DEBUGOUT("Config timer unregistered & de-inits callback after 10th interrupt\n");
     sl_si91x_config_timer_deinit();
   }
 #endif

@@ -1,22 +1,31 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_rom_clks.h
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
-/*************************************************************************
- *
- */
 
 //Includes
 
@@ -128,10 +137,8 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(const M4CLK_Type *pCLK, uint32_t
   rsi_error_t ret             = (rsi_error_t)0;
   system_clocks.soc_pll_clock = socPllFreq;
 
-  if (pllRefClk == RC_32MHZ_CLK_FREQ) {
-    PLL_REF_CLK_CONFIG_REG |= SELECT_RC_MHZ_CLOCK; // Selecting the 32 MHz RC as SOC-PLL reference clock
-  }
-
+  /* TurnON the SOC_PLL */
+  RSI_CLK_SocPllTurnOn();
   if (pllRefClk == XTAL_CLK_FREQ) //avoid if XTAL req is already done
   {
 #if SL_WIFI_COMPONENT_INCLUDED
@@ -369,6 +376,8 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllTurnOn()
 STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
 {
   system_clocks.i2s_pll_clock = i2sPllFreq;
+  /* TurnON the I2S_PLL */
+  RSI_CLK_I2sPllTurnOn();
 #if SL_WIFI_COMPONENT_INCLUDED
   /*  Notify NWP that M4 requires XTAL clock source */
   sli_si91x_xtal_turn_on_request_from_m4_to_TA();
@@ -420,7 +429,6 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(const M4CLK_Type *pCLK)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_clk_set(pCLK);
 #else
   return clk_i2s_pll_clk_set(pCLK);
-  ;
 #endif
 }
 
@@ -485,6 +493,19 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOff()
 }
 
 /**
+ * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPLLTurnOn()
+ * @brief       This API is used to TurnOn the Intf_PLL
+ * @return      returns zero \ref RSI_OK  on success ,on failure return error code.
+ */
+STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOn()
+{
+#if defined(CLOCK_ROMDRIVER_PRESENT)
+  return ROMAPI_M4SS_CLK_API->clk_intf_pll_turn_on();
+#else
+  return clk_intf_pll_turn_on();
+#endif
+}
+/**
  * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(const M4CLK_Type *pCLK,uint32_t intfPllFreq,uint32_t pllRefClk)
  * @brief		    This API is used to set the INTFPLL clock to particular frequency
  * @param[in]	  pCLK : Pointer to the pll register instance
@@ -497,10 +518,9 @@ STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(const M4CLK_Type *pCLK, uint32_
 {
   rsi_error_t error            = (rsi_error_t)0;
   system_clocks.intf_pll_clock = intfPllFreq;
+  /* TurnON the INTF_PLL */
+  RSI_CLK_IntfPLLTurnOn();
 
-  if (pllRefClk == RC_32MHZ_CLK_FREQ) {
-    PLL_REF_CLK_CONFIG_REG |= SELECT_RC_MHZ_CLOCK; // Selecting the 32 MHz RC as SOC-PLL reference clock
-  }
 #if SL_WIFI_COMPONENT_INCLUDED
   if (pllRefClk == XTAL_CLK_FREQ) //avoid if XTAL req is already done
   {
@@ -588,20 +608,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLClkBypassEnable(boolean_t clkEnable)
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPLLTurnOn()
- * @brief		    This API is used to TurnOn the Intf_PLL
- * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
- */
-STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOn()
-{
-#if defined(CLOCK_ROMDRIVER_PRESENT)
-  return ROMAPI_M4SS_CLK_API->clk_intf_pll_turn_on();
-#else
-  return clk_intf_pll_turn_on();
-#endif
-}
 
-/**
  * @fn	        STATIC INLINE rsi_error_t  RSI_CLK_IntfPllClkReset()
  * @brief		    This API is used to Reset the Intf_pll_clk
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
@@ -1074,7 +1081,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_DisableRefClks(REF_CLK_ENABLE_T clk_type)
 STATIC INLINE rsi_error_t RSI_CLK_M4ssRefClkConfig(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
 {
 #if SL_WIFI_COMPONENT_INCLUDED
-  if (clkSource == RF_REF_CLK) {
+  if (clkSource == EXT_40MHZ_CLK) {
     /*  Notify NWP that M4 requires XTAL clock source */
     sli_si91x_xtal_turn_on_request_from_m4_to_TA();
   }
@@ -1130,7 +1137,7 @@ STATIC INLINE rsi_error_t RSI_CLK_QspiClkConfig(M4CLK_Type *pCLK,
   return clk_qspi_clk_config(pCLK, clkSource, swalloEn, OddDivEn, divFactor);
 #endif
 }
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_CLK_Qspi2ClkConfig(M4CLK_Type *pCLK ,QSPI_CLK_SRC_SEL_T clkSource,boolean_t swalloEn,
@@ -1408,7 +1415,6 @@ STATIC INLINE rsi_error_t RSI_CLK_QspiClkDiv(M4CLK_Type *pCLK,
   return ROMAPI_M4SS_CLK_API->clk_qspi_clk_div(pCLK, u8SwallowEn, u8OddDivEn, divFactor);
 #else
   return clk_qspi_clk_div(pCLK, u8SwallowEn, u8OddDivEn, divFactor);
-  ;
 #endif
 }
 
@@ -1425,7 +1431,6 @@ STATIC INLINE rsi_error_t RSI_CLK_CtClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
   return ROMAPI_M4SS_CLK_API->clk_ct_clk_div(pCLK, divFactor);
 #else
   return clk_ct_clk_div(pCLK, divFactor);
-  ;
 #endif
 }
 
@@ -1442,7 +1447,6 @@ STATIC INLINE rsi_error_t RSI_CLK_SsiMstClkDiv(M4CLK_Type *pCLK, uint32_t divFac
   return ROMAPI_M4SS_CLK_API->clk_ssi_mst_clk_div(pCLK, divFactor);
 #else
   return clk_ssi_mst_clk_div(pCLK, divFactor);
-  ;
 #endif
 }
 
@@ -1460,7 +1464,6 @@ STATIC INLINE rsi_error_t RSI_CLK_CciClkDiv(M4CLK_Type *pCLK, uint32_t divFactor
   return ROMAPI_M4SS_CLK_API->clk_cci_clk_div(pCLK, divFactor);
 #else
   return clk_cci_clk_div(pCLK, divFactor);
-  ;
 #endif
 }
 #endif
@@ -1478,7 +1481,6 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sClkDiv(M4CLK_Type *pCLK, uint32_t divFactor
   return ROMAPI_M4SS_CLK_API->clk_i2s_clk_div(pCLK, divFactor);
 #else
   return clk_i2s_clk_div(pCLK, divFactor);
-  ;
 #endif
 }
 

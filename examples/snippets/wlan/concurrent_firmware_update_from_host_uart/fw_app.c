@@ -63,8 +63,6 @@
 #define MAGIC_WORD          0x900d900d
 #define HANDSHAKE_DATA_SIZE 43
 
-#define SL_STATUS_FW_UPDATE_DONE ((sl_status_t)0x10003)
-
 #define MAX_LOG_BUF_SIZE 128
 
 /******************************************************
@@ -240,8 +238,8 @@ sl_status_t send_1k_chunks(uint8_t *buffer, size_t total_length)
     // Call sl_si91x_fwup_load with the current 1k chunk
     sl_status_t result = sl_si91x_fwup_load(current_buffer, send_length);
 
-    // SL_STATUS_FW_UPDATE_DONE is a valid status code for completion
-    if (result == SL_STATUS_FW_UPDATE_DONE) {
+    // SL_STATUS_SI91X_FW_UPDATE_DONE is a valid status code for completion
+    if (result == SL_STATUS_SI91X_FW_UPDATE_DONE) {
       LOG_PRINT("\r\nFirmware update successful !!!: %lx\n", result);
       return result;
     }
@@ -402,7 +400,7 @@ sl_status_t update_firmware()
     }
 
     if (status != SL_STATUS_OK) {
-      if (status == SL_STATUS_FW_UPDATE_DONE) {
+      if (status == SL_STATUS_SI91X_FW_UPDATE_DONE) {
         end = osKernelGetTickCount();
         return SL_STATUS_OK;
       } else {

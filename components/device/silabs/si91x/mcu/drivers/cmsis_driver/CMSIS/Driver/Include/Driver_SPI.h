@@ -1,4 +1,5 @@
 /* -----------------------------------------------------------------------------
+ * SPDX-License-Identifier: Zlib
  * Copyright (c) 2013-2014 ARM Ltd.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -124,9 +125,9 @@
 \brief SPI Status
 */
 typedef struct _ARM_SPI_STATUS {
-  uint32_t busy       : 1;              ///< Transmitter/Receiver busy flag
-  uint32_t data_lost  : 1;              ///< Data lost: Receive overflow / Transmit underflow (cleared on start of transfer operation)
-  uint32_t mode_fault : 1;              ///< Mode fault detected; optional (cleared on start of transfer operation)
+  unsigned int busy       : 1;              ///< Transmitter/Receiver busy flag
+  unsigned int data_lost  : 1;              ///< Data lost: Receive overflow / Transmit underflow (cleared on start of transfer operation)
+  unsigned int mode_fault : 1;              ///< Mode fault detected; optional (cleared on start of transfer operation)
 } ARM_SPI_STATUS;
 
 
@@ -209,10 +210,10 @@ typedef void (*ARM_SPI_SignalEvent_t) (uint32_t event);  ///< Pointer to \ref AR
 \brief SPI Driver Capabilities.
 */
 typedef struct _ARM_SPI_CAPABILITIES {
-  uint32_t simplex          : 1;        ///< supports Simplex Mode (Master and Slave)
-  uint32_t ti_ssi           : 1;        ///< supports TI Synchronous Serial Interface
-  uint32_t microwire        : 1;        ///< supports Microwire Interface
-  uint32_t event_mode_fault : 1;        ///< Signal Mode Fault event: \ref ARM_SPI_EVENT_MODE_FAULT
+  unsigned int simplex          : 1;        ///< supports Simplex Mode (Master and Slave)
+  unsigned int ti_ssi           : 1;        ///< supports TI Synchronous Serial Interface
+  unsigned int microwire        : 1;        ///< supports Microwire Interface
+  unsigned int event_mode_fault : 1;        ///< Signal Mode Fault event: \ref ARM_SPI_EVENT_MODE_FAULT
 } ARM_SPI_CAPABILITIES;
 
 

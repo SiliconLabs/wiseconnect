@@ -3,7 +3,7 @@
 * @brief I2c driver configuration file.
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -55,21 +55,25 @@ extern "C" {
 // <i> Selection of the I2C Mode.
 #define SL_I2C_I2C0_OPERATING_MODE SL_I2C_STANDARD_MODE
 
-// <o SL_I2C_I2C0_TRANSFER_TYPE> Transfer Type
-//   <SL_I2C_USING_INTERRUPT=> Using Interrupt
-//   <SL_I2C_USING_DMA=> Using DMA
-// <i> Selection of the I2C Mode.
-#define SL_I2C_I2C0_TRANSFER_TYPE SL_I2C_USING_INTERRUPT
+// <q SL_I2C_I2C0_INIT_DMA> DMA
+// <i> Default: 0
+#define SL_I2C_I2C0_INIT_DMA 0
 
 // </h> End I2C0 Configuration
 /******************************************************************************/
 // <<< end of configuration section >>>
 
+// Previously, SL_I2C_I2C0_TRANSFER_TYPE was updated directly through UC. Now, it is updated indirectly through SL_I2C_I2C0_INIT_DMA.
+#define SL_I2C_I2C0_TRANSFER_TYPE SL_I2C_I2C0_INIT_DMA
+
 // <<< sl:start pin_tool >>>
-// <i2c signal=SCL,SDA> SL_I2C0
-// $[I2C_SL_I2C0]
+// <i2c0 signal=SCL,SDA> SL_I2C0
+// $[I2C0_SL_I2C0]
 #ifndef SL_I2C0_PERIPHERAL
 #define SL_I2C0_PERIPHERAL I2C0
+#endif
+#ifndef SL_I2C0_PERIPHERAL_NO
+#define SL_I2C0_PERIPHERAL_NO 0
 #endif
 
 // I2C0 SCL on GPIO_7
@@ -93,7 +97,7 @@ extern "C" {
 #ifndef SL_I2C0_SDA_LOC
 #define SL_I2C0_SDA_LOC 3
 #endif
-// [I2C_SL_I2C0]$
+// [I2C0_SL_I2C0]$
 // <<< sl:end pin_tool >>>
 
 #define SL_I2C_I2C0_SCL_PORT 0

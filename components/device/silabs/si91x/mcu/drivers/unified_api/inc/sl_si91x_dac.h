@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_dac.h
- * @brief DAC API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_dac.h
+* @brief DAC API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_DAC_H_
 #define SL_SI91X_DAC_H_
@@ -82,7 +82,7 @@ typedef enum {
 } sl_dac_callback_event_t;
 
 /**
- * @brief Enumeration for ADC channels. This enum is only used in the Reference voltage for ADC mode of DAC.
+ * @brief Enumeration for ADC channels. This enumeration is only used in the Reference voltage for ADC mode of DAC.
  * @note These enums are not used as SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC mode is not supported currently.
  */
 typedef enum {
@@ -142,14 +142,14 @@ typedef struct {
  * 
  * @details This API enables the DAC peripheral and sets the clock for the DAC controller.
  *
- * @param[in] dac_clock Pointer to the DAC clock configuration structure ( \ref sl_dac_clock_config_t).
+ * @param[in] dac_clock Pointer to the DAC clock configuration structure (\ref sl_dac_clock_config_t).
  *
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully initialized the DAC.
- *         - SL_STATUS_FAIL (0x0001)              - The function failed.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011)   - Clock is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Successfully initialized the DAC.
+ *         - SL_STATUS_FAIL               - The function failed.
+ *         - SL_STATUS_NOT_INITIALIZED    - Clock is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *
@@ -174,9 +174,9 @@ sl_status_t sl_si91x_dac_init(sl_dac_clock_config_t *dac_clock);
  * @param[in] vref_value Reference voltage in the range of 1.8 to 3.6 V.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured the DAC.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully configured the DAC.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
@@ -204,9 +204,9 @@ sl_status_t sl_si91x_dac_set_configuration(sl_dac_config_t dac_config, float vre
  * @param[in] length Number of samples to play in the DAC in the range of 1 - 1024 bits.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully wrote the data to the DAC.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully wrote the data to the DAC.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -228,8 +228,8 @@ sl_status_t sl_si91x_dac_write_data(int16_t *data, uint16_t length);
  * @param[out] dac_output_data Pointer to store the DAC data read from the data register.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully read the data from the DAC.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_OK  - Successfully read the data from the DAC.
+ *         - SL_STATUS_FAIL  - Function failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -249,8 +249,8 @@ sl_status_t sl_si91x_dac_read_data(uint16_t *dac_output_data);
  * @param[out] sample_clock Pointer to store the achieved sample frequency value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully got the achieved sample clock.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully got the achieved sample clock.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -272,9 +272,9 @@ sl_status_t sl_si91x_dac_get_achieved_sample_clock(uint32_t sample_rate, uint32_
  * @param[in] length Number of samples to play in the DAC in the range of (1-1024).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully rewrote the sample data.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully rewrote the sample data.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
@@ -295,9 +295,9 @@ sl_status_t sl_si91x_dac_rewrite_data(int16_t *data, uint16_t length);
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt, see \ref sl_dac_callback_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully registered the callback.
- *         - SL_STATUS_BUSY (0x0004)              - Driver is busy.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Successfully registered the callback.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
@@ -318,7 +318,7 @@ sl_status_t sl_si91x_dac_register_event_callback(sl_dac_callback_t callback_even
  *      - \ref sl_si91x_dac_register_event_callback
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully deregistered the callback.
+ *         - SL_STATUS_OK  - Successfully deregistered the callback.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -337,7 +337,7 @@ sl_status_t sl_si91x_dac_unregister_event_callback(void);
  *      - \ref sl_si91x_dac_write_data
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully started the DAC operation.
+ *         - SL_STATUS_OK  - Successfully started the DAC operation.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -357,7 +357,7 @@ sl_status_t sl_si91x_dac_start(void);
  *      - \ref sl_si91x_dac_start
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully stopped the DAC operation.
+ *         - SL_STATUS_OK  - Successfully stopped the DAC operation.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -373,9 +373,9 @@ sl_status_t sl_si91x_dac_stop(void);
  *      - \ref sl_si91x_dac_init
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully deinitialized the DAC module.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Successfully deinitialized the DAC module.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

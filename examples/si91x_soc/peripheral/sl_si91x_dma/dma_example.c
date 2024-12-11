@@ -27,7 +27,6 @@
 #include "rsi_debug.h"
 #include "sl_si91x_dma_config.h"
 #include "dma_example.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -36,9 +35,6 @@
 #define DMA_INSTANCE        0    //DMA0 instance
 #define DMA_CHANNEL         32   //DMA0 channel number
 #define DMA_TRANSFER_SIZE   2048 //DMA transfer size
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  Local variables   ***************************
  ******************************************************************************/
@@ -48,7 +44,6 @@ uint32_t dst0[DMA_TRANSFER_SIZE] = { 0 }; //destination buffer
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void default_clock_configuration(void);
 /*******************************************************************************
  * Transfer callback function.
  ******************************************************************************/
@@ -71,17 +66,6 @@ void transfer_complete_callback_dmadrv(uint32_t channel, void *data)
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
-
 /*******************************************************************************
  * DMA example initialization function
  * Configures DMA for basic memory to memory transfer
@@ -92,9 +76,6 @@ void dma_example_init(void)
   uint32_t channel   = DMA_CHANNEL;
   sl_dma_callback_t callbacks;
   sl_dma_init_t dma_init = { DMA_INSTANCE };
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
     //Initialize UDMA peripheral

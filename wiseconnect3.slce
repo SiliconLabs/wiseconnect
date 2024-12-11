@@ -2,13 +2,13 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
-version: "3.3.4"
+version: "3.4.0"
 sdk:
   id: simplicity_sdk
-  version: "2024.6.2"
+  version: "2024.12.0"
 documentation:
   - docset: wiseconnect
-    version: "3.3.4"
+    version: "3.4.0"
 component_path:
   - path: resources
   - path: components/board
@@ -36,11 +36,13 @@ component_path:
   - path: components/device/silabs/si91x/wireless/crypto/mac
   - path: components/device/silabs/si91x/wireless/crypto/attestation
   - path: components/device/silabs/si91x/wireless/crypto/multithread
+  - path: components/device/silabs/si91x/wireless/crypto/puf
   - path: components/device/silabs/si91x/wireless/errno/component
   - path: components/service/bsd_socket
   - path: components/service/network_manager
   - path: components/service/http_client
   - path: components/service/sl_http_server
+  - path: components/service/sl_websocket_client
   - path: components/service/mqtt
   - path: components/service/sntp
   - path: components/service/mdns
@@ -59,6 +61,7 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/si70xx_sensor/component
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/icm40627/component
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/veml6035/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/mic/component
   - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/component
   - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/config/component
   - path: components/device/silabs/si91x/mcu/drivers/peripheral_drivers/component
@@ -77,6 +80,7 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/wdt_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/sl_si91x_etm/component
   - path: components/device/silabs/si91x/mcu/drivers/service/littlefs/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/cpc/component
   - path: components/device/silabs/si91x/mcu/core/chip/component
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/core/cmsis/component
@@ -84,7 +88,6 @@ component_path:
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/hal/component
   - path: components/segger_sysview
-  - path: tests/test_agent
   - path: third_party/aws_sdk
   - path: third_party/json_parser
   - path: third_party/azure_freertos_middleware

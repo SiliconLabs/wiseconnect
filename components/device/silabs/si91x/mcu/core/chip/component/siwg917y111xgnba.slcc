@@ -42,6 +42,8 @@
     path: components/device/silabs/si91x/mcu/core/chip/inc/
 - provides:
   - name: siwg917y111xgnba
+  - name: device
+  - name: device_cortexm
   - name: device_si91x
   - name: device_family_siwg917
   - name: si91x_platform
@@ -54,10 +56,14 @@
   - name: device_has_mpu
   - name: device_is_module
   - name: device_supports_external_flash
+  - name: si91x_common_flash 
 - requires:
   - name: rsilib_chip
+  - name: cmsis_common
+    condition: [freertos]
+  - name: cmsis_core
   - name: romdriver_clks
-  - name: si917_mem_config
+  - name: si91x_mem_config
   - name: sl_si91x_mcu
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin
@@ -65,7 +71,7 @@
     condition: [freertos]
   - name: si91x_32kHz_external_oscillator
 - recommends:
-  - name: si917_mem_config_1
+  - name: si91x_mem_config_1
 - template_contribution:
   - name: device_opn
     value: SIWG917Y111XGNBA
@@ -102,34 +108,34 @@
     value: 136323072 # 0x0820 2000
     priority: 1000
     condition:
-      - si917_mem_config_1
+      - si91x_mem_config_1
   - name: device_flash_size
     value: 2088960 # 0x001F E000
     priority: 1000
     condition:
-      - si917_mem_config_1
+      - si91x_mem_config_1
   # Medium Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
     priority: 1000
     condition:
-      - si917_mem_config_2
+      - si91x_mem_config_2
   - name: device_flash_size
     value: 2088960 # 0x001F E000
     priority: 1000
     condition:
-      - si917_mem_config_2
+      - si91x_mem_config_2
   # Advanced Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
     priority: 1000
     condition:
-      - si917_mem_config_3
+      - si91x_mem_config_3
   - name: device_flash_size
     value: 2088960 # 0x001F E000
     priority: 1000
     condition:
-      - si917_mem_config_3
+      - si91x_mem_config_3
 
 - tag:
   - device:opn:siwg917y111xgnba
@@ -143,6 +149,8 @@
   - option: fpu
     value: fpv4-sp
 - metadata:
+    sbom:
+      license: Zlib
     device:
       memory:
 # Flash details will be provided by external flash component

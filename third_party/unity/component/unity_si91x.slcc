@@ -3,6 +3,9 @@ package: "platform"
 description: "Unity test framework"
 category: "Test|Framework"
 quality: "test"
+metadata:
+  sbom:
+    license: MSLA
 component_root_path: 'third_party/unity'
 provides:
   - name: "unity_si91x"

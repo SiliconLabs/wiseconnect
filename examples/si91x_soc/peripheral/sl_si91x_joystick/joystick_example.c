@@ -19,14 +19,11 @@
 #include "rsi_debug.h"
 
 #include "sl_sleeptimer.h"
-#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 #define DELAY_MS1_PERIODIC 400 //sleeptimer1 periodic timeout in ms
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -38,29 +35,15 @@ boolean_t delay_timeout = false;     //Indicates sleeptimer1 timeout
  ******************************************************************************/
 //Sleeptimer timeout callbacks
 static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle, void *data);
-static void default_clock_configuration(void);
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * Joystick example initialization function
  ******************************************************************************/
 void joystick_example_init(void)
 {
   sl_status_t status = 0;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
     //Start 400 ms periodic timer

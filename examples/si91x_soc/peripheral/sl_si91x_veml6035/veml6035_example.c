@@ -3,7 +3,7 @@
  * @brief veml6035 example APIs
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -20,20 +20,18 @@
 #include "sl_sleeptimer.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_driver_gpio.h"
-#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define TX_THRESHOLD       0       // tx threshold value
-#define RX_THRESHOLD       0       // rx threshold value
-#define I2C                SL_I2C2 // I2C 2 instance
-#define DELAY_PERIODIC_MS1 2000    // sleeptimer1 periodic timeout in ms
-#define MODE_0             0       // Initializing GPIO MODE_0 value
-#define OUTPUT_VALUE       1       // GPIO output value
-#define SYNC_TIME          10      // Sync time for sensor
+#define TX_THRESHOLD       0                     // tx threshold value
+#define RX_THRESHOLD       0                     // rx threshold value
+#define I2C                VEML6035_I2C_INSTANCE // I2C instance
+#define DELAY_PERIODIC_MS1 2000                  // sleeptimer1 periodic timeout in ms
+#define MODE_0             0                     // Initializing GPIO MODE_0 value
+#define OUTPUT_VALUE       1                     // GPIO output value
+#define SYNC_TIME          10                    // Sync time for sensor
 
-#define SOC_PLL_CLK  ((uint32_t)(80000000)) // 80MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(80000000)) // 80MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -51,20 +49,9 @@ static sl_status_t veml6035_measure_als_lux(void);
 static sl_status_t veml6035_measure_white_ch_lux(void);
 static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle, void *data);
 static void delay(uint32_t idelay);
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * RHT example initialization function
  ******************************************************************************/
@@ -73,11 +60,8 @@ void veml6035_example_init(void)
   sl_status_t status;
   sl_i2c_configuration_t i2c_config;
 
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
-
   i2c_config.mode           = SL_I2C_LEADER_MODE;
-  i2c_config.transfer_type  = SL_I2C_USING_INTERRUPT;
+  i2c_config.transfer_type  = SL_I2C_USING_NON_DMA;
   i2c_config.operating_mode = SL_I2C_STANDARD_MODE;
   i2c_config.i2c_callback   = i2c_leader_callback;
   do {

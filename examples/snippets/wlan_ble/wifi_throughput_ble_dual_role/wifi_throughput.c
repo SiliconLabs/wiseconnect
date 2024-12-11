@@ -93,9 +93,9 @@ uint8_t data_buffer[BUFFER_SIZE];
 
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000);             // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
-  result         = (result / 1000000);                  // bps to Mbps
+  float duration = ((test_timeout) / 1000);                    // ms to sec
+  float result   = ((float)total_num_of_bytes * 8) / duration; // bytes to bps
+  result         = (result / 1000000);                         // bps to Mbps
   LOG_PRINT("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 
@@ -130,6 +130,8 @@ void send_data_to_udp_server(void)
     sent_bytes =
       sendto(client_socket, data_buffer, UDP_BUFFER_SIZE, 0, (struct sockaddr *)&server_address, socket_length);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       if (errno == ENOTCONN) {
         LOG_PRINT("\nRemote server terminated\n");
       } else {
@@ -264,11 +266,9 @@ void send_data_to_tcp_server(void)
   while (1) {
     sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
     if (sent_bytes < 0) {
-      if (errno == ENOTCONN) {
-        LOG_PRINT("\nRemote server terminated\n");
-      } else {
-        LOG_PRINT("\nTCP send failed with BSD error : %d\n", errno);
-      }
+      if (errno == ENOBUFS)
+        continue;
+      LOG_PRINT("\nTCP send failed with BSD error : %d\n", errno);
       close(client_socket);
       return;
     } else if (sent_bytes > 0) {
@@ -329,11 +329,11 @@ void receive_data_from_tcp_client(void)
   }
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(server_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -513,6 +513,8 @@ void send_data_to_ssl_server(void)
   while (1) {
     sent_bytes = send(client_socket, data_buffer, SSL_BUFFER_SIZE, 0);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       if (errno == ENOTCONN) {
         LOG_PRINT("\nRemote server terminated\n");
       } else {
@@ -574,11 +576,11 @@ void receive_data_from_ssl_client(void)
     return;
   }
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(client_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with BSD error: %d\r\n", errno);
     close(client_socket);

@@ -27,9 +27,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include <string.h>
 #include <stdint.h>
-
 #include "sl_si91x_socket_utility.h"
 #include "netdb.h"
 #include "sl_si91x_driver.h"
@@ -68,6 +66,10 @@
 #define SI91X_SSL_HEADER_SIZE_IPV4 90
 #define SI91X_SSL_HEADER_SIZE_IPV6 110
 
+#define WEBSOCKET_SMALL_FRAME_THRESHOLD 126
+#define WEBSOCKET_SMALL_FRAME_OFFSET    6
+#define WEBSOCKET_LARGE_FRAME_OFFSET    8
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -79,23 +81,48 @@ static struct hostent host_ent;
 static sl_ip_address_t host_ip_address;
 
 /******************************************************
- *               Function Declarations
- ******************************************************/
-
-int sl_si91x_set_custom_sync_sockopt(int socket_id,
-                                     int option_level,
-                                     int option_name,
-                                     const void *option_value,
-                                     socklen_t option_length);
-int sl_si91x_get_custom_sync_sockopt(int socket_id,
-                                     int option_level,
-                                     int option_name,
-                                     void *option_value,
-                                     socklen_t *option_length);
-
-/******************************************************
  *               Function Definitions
  ******************************************************/
+
+static int32_t sli_map_tos_to_nwp(const void *option_value)
+{
+  int value = *(const int *)option_value; // Cast the void pointer to an int pointer and dereference it
+
+  // This check is placed to maintain backward compatibility with internal stack, soon to be depricated for future releases to maintain standard TOS values.
+  if ((value >= 0) && (value <= 7))
+    return *(int32_t *)option_value;
+
+  switch (value) {
+    case IPTOS_PREC_NETCONTROL:
+      return 7;
+    case IPTOS_PREC_INTERNETCONTROL:
+      return 6;
+    case IPTOS_PREC_CRITIC_ECP:
+      return 5;
+    case IPTOS_PREC_FLASHOVERRIDE:
+      return 4;
+    case IPTOS_PREC_FLASH:
+      return 3;
+    case IPTOS_PREC_IMMEDIATE:
+      return 2;
+    case IPTOS_PREC_PRIORITY:
+      return 1;
+    case IPTOS_PREC_ROUTINE:
+      return 0;
+    default:
+      return -1;
+  }
+}
+
+// Static helper function to set WebSocket data offset
+static void sli_si91x_set_websocket_offset(sli_si91x_socket_send_request_t *request, size_t data_len)
+{
+  if (data_len < WEBSOCKET_SMALL_FRAME_THRESHOLD) {
+    request->data_offset += WEBSOCKET_SMALL_FRAME_OFFSET;
+  } else {
+    request->data_offset += WEBSOCKET_LARGE_FRAME_OFFSET;
+  }
+}
 
 int *__h_errno_location(void)
 {
@@ -105,7 +132,7 @@ int *__h_errno_location(void)
 int16_t sl_si91x_get_socket_mss(int32_t socketIndex)
 {
   // Retrieve the SI91X socket associated with the given socket index
-  const si91x_socket_t *si91x_socket = get_si91x_socket(socketIndex);
+  const sli_si91x_socket_t *si91x_socket = get_si91x_socket(socketIndex);
   //Verifying socket existence
   if (si91x_socket == NULL)
     return -1;
@@ -117,16 +144,18 @@ int16_t sl_si91x_get_socket_mss(int32_t socketIndex)
       size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET)
                           ? si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV4
                           : si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV6;
-      return max_size;
+      return (int16_t)max_size;
     } else {
-      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_STREAM_MSS_SIZE_IPV4
-                                                                             : DEFAULT_STREAM_MSS_SIZE_IPV6;
-      return max_size;
+      // Adjust MSS based on IP version (IPv4 or IPv6) for non TLS connections
+      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET)
+                          ? si91x_socket->mss
+                          : si91x_socket->mss - (TCP_V6_HEADER_LENGTH - TCP_HEADER_LENGTH);
+      return (int16_t)max_size;
     }
   } else if (si91x_socket->type == SOCK_DGRAM) {
     size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
                                                                            : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
-    return max_size;
+    return (int16_t)max_size;
   }
   return -1;
 }
@@ -135,12 +164,12 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(socket_info_response);
 
-  sl_status_t status                           = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer                     = NULL;
-  sl_si91x_network_params_response_t *response = NULL;
+  sl_status_t status                                 = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer                           = NULL;
+  const sl_si91x_network_params_response_t *response = NULL;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_NETWORK_PARAMS,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         NULL,
                                         0,
                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_GET_CHANNEL_TIMEOUT),
@@ -181,7 +210,7 @@ static int sli_si91x_get_sock_address(int socket_id,
                                       uint8_t required_address_type)
 {
   // Retrieve the SI91X socket associated with the given socket ID
-  const si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+  const sli_si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
   // Determine the number of bytes to copy
   uint8_t bytes_to_be_copied = (*name_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6)
                                                                          : (uint8_t)*name_len;
@@ -214,31 +243,7 @@ static int sli_si91x_get_sock_address(int socket_id,
 
 int socket(int family, int type, int protocol)
 {
-  // Check for valid values of family, type, and protocol
-  SET_ERRNO_AND_RETURN_IF_TRUE(family != AF_INET && family != AF_INET6, EAFNOSUPPORT);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(type != SOCK_STREAM && type != SOCK_DGRAM, EINVAL);
-  SET_ERRNO_AND_RETURN_IF_TRUE(protocol != IPPROTO_TCP && protocol != IPPROTO_UDP && protocol != 0, EINVAL);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE((type == SOCK_STREAM && (protocol != IPPROTO_TCP && protocol != 0)), EPROTOTYPE);
-  SET_ERRNO_AND_RETURN_IF_TRUE((type == SOCK_DGRAM && (protocol != IPPROTO_UDP && protocol != 0)), EPROTOTYPE);
-
-  int socket_index             = -1;
-  si91x_socket_t *si91x_socket = NULL;
-
-  // Allocate a socket and initialize its properties.
-  get_free_socket(&si91x_socket, &socket_index);
-
-  if (socket_index < 0) {
-    SET_ERROR_AND_RETURN(ENOMEM);
-  }
-
-  si91x_socket->type                      = type;
-  si91x_socket->local_address.sin6_family = (uint8_t)family;
-  si91x_socket->protocol                  = protocol;
-  si91x_socket->state                     = INITIALIZED;
-
-  return socket_index;
+  return sli_si91x_socket(family, type, protocol, NULL);
 }
 
 int bind(int socket_id, const struct sockaddr *addr, socklen_t addr_len)
@@ -252,7 +257,7 @@ int listen(int socket_id, int backlog)
 
   sl_status_t status;
   // Retrieve the SI91X socket associated with the given socket ID.
-  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+  sli_si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
 
   // Validate socket
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
@@ -270,53 +275,7 @@ int listen(int socket_id, int backlog)
 
 int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
 {
-  sl_status_t status                              = SL_STATUS_OK;
-  si91x_socket_t *si91x_server_socket             = get_si91x_socket(socket_id);
-  si91x_socket_t *si91x_client_socket             = NULL;
-  sl_si91x_socket_accept_request_t accept_request = { 0 };
-  int32_t client_socket_id                        = -1;
-
-  errno = 0;
-
-  // Check if server socket is valid and in the correct state
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_server_socket == NULL, EBADF);
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_server_socket->type != SOCK_STREAM, EOPNOTSUPP);
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_server_socket->state != LISTEN, EINVAL);
-
-  // Create a new instance for socket
-  client_socket_id =
-    socket(si91x_server_socket->local_address.sin6_family, si91x_server_socket->type, si91x_server_socket->protocol);
-  sli_si91x_set_accept_callback(si91x_server_socket, NULL, client_socket_id);
-  si91x_client_socket = get_si91x_socket(client_socket_id);
-  //Verifying socket existence
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_client_socket == NULL, SI91X_UNDEFINED_ERROR);
-  // Copy the local address information to the client socket
-  memcpy(&si91x_client_socket->local_address, &si91x_server_socket->local_address, sizeof(struct sockaddr_in6));
-
-  // populating socket info to accept request structure
-  accept_request.socket_id   = (uint8_t)si91x_server_socket->id;
-  accept_request.source_port = si91x_server_socket->local_address.sin6_port;
-
-  status = sli_si91x_sync_accept_command(si91x_server_socket, (void *)&accept_request, sizeof(accept_request));
-  if (status != SL_STATUS_OK) {
-    // Close the client socket and free resources if the connection fails
-    close(client_socket_id);
-    SET_ERROR_AND_RETURN(SI91X_UNDEFINED_ERROR);
-  }
-
-  // If addr_len is NULL or invalid value, just return the client socket ID
-  if ((addr != NULL) && (*addr_len > 0)) {
-    // Copy the remote address to the provided sockaddr structure
-    memcpy(addr,
-           &si91x_client_socket->remote_address,
-           (*addr_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6) : *addr_len);
-
-    // Update addr_len based on the family of the local address
-    *addr_len = si91x_client_socket->local_address.sin6_family == AF_INET ? sizeof(struct sockaddr_in)
-                                                                          : sizeof(struct sockaddr_in6);
-  }
-
-  return client_socket_id;
+  return sli_si91x_accept(socket_id, addr, addr_len, NULL);
 }
 
 int connect(int socket_id, const struct sockaddr *addr, socklen_t addr_len)
@@ -347,42 +306,21 @@ ssize_t sendto(int socket_id,
   UNUSED_PARAMETER(flags);
   errno = 0;
 
-  sl_status_t status                     = SL_STATUS_OK;
-  si91x_socket_t *si91x_socket           = get_si91x_socket(socket_id);
-  sl_si91x_socket_send_request_t request = { 0 };
+  sl_status_t status                      = SL_STATUS_OK;
+  sli_si91x_socket_t *si91x_socket        = get_si91x_socket(socket_id);
+  sli_si91x_socket_send_request_t request = { 0 };
+  bool is_websocket                       = (si91x_socket->ssl_bitmap & SI91X_WEBSOCKET_FEAT);
 
   // Check for various error conditions
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state != CONNECTED, ENOTCONN);
-  SET_ERRNO_AND_RETURN_IF_TRUE(data == NULL, EFAULT);
+  SET_ERRNO_AND_RETURN_IF_TRUE(!is_websocket && data == NULL, EFAULT);
 
-  if (si91x_socket->type == SOCK_STREAM) {
-    if (si91x_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) {
-      // Check if TLS is enabled for IPV4 or IPV6 and data length exceeds allowed size
-      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET)
-                          ? si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV4
-                          : si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV6;
-      SET_ERRNO_AND_RETURN_IF_TRUE(data_len > max_size, EMSGSIZE);
-    } else {
-      size_t max_size =
-        (si91x_socket->local_address.sin6_family == AF_INET)
-          ? si91x_socket->mss
-          : (
-            si91x_socket->mss
-            - (TCP_V6_HEADER_LENGTH
-               - TCP_HEADER_LENGTH)); // Incase of IPV6 MAX size for payload is 1440(1460(excluding IPV4 header)-20(overhead for IPV6 compared to IPV4)).
-      SET_ERRNO_AND_RETURN_IF_TRUE(data_len > max_size, EMSGSIZE);
-    }
-  } else if (si91x_socket->type == SOCK_DGRAM) {
-    // For UDP sockets, check if data length exceeds allowed size
-    size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
-                                                                           : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
-    SET_ERRNO_AND_RETURN_IF_TRUE(data_len > max_size, EMSGSIZE);
-  }
+  SET_ERRNO_AND_RETURN_IF_TRUE(data_len > (size_t)sl_si91x_get_socket_mss(socket_id), EMSGSIZE);
 
   // If it's a UDP socket in an unconnected state, establish a connection
   if (si91x_socket->type == SOCK_DGRAM && (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED)) {
-    status = create_and_send_socket_request(socket_id, SI91X_SOCKET_LUDP, NULL);
+    status = create_and_send_socket_request(socket_id, SI91X_SOCKET_UDP_CLIENT, NULL);
 
     SET_ERRNO_AND_RETURN_IF_TRUE(status != SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
     si91x_socket->state = UDP_UNCONNECTED_READY;
@@ -430,14 +368,21 @@ ssize_t sendto(int socket_id,
   }
 
   // Set other parameters in the request structure
-  request.socket_id = (uint16_t)si91x_socket->id;
+  // Check for Websocket feature bit
+  if (si91x_socket->ssl_bitmap & SI91X_WEBSOCKET_FEAT) {
+    sli_si91x_set_websocket_offset(&request, data_len);
+  }
+  // Set the socket_id with both the socket ID and the opcode of WebSocket in one line
+  request.socket_id = (uint16_t)((si91x_socket->id & 0x00FF) | ((uint16_t)(si91x_socket->opcode & 0xFF) << 8));
+
   request.dest_port = (si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len > 0)
                         ? ((const struct sockaddr_in *)to_addr)->sin_port
                         : si91x_socket->remote_address.sin6_port;
   request.length    = data_len;
 
   // Send the socket data request
-  status = sl_si91x_driver_send_socket_data(&request, data, 0);
+  status = sli_si91x_send_socket_data(si91x_socket, &request, data);
+  //  status = sl_si91x_driver_send_socket_data(&request, data, 0);
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, ENOBUFS);
 
   return data_len;
@@ -451,11 +396,11 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
 
   sl_si91x_req_socket_read_t request   = { 0 }; // Initialize a request structure
   sl_status_t status                   = SL_STATUS_OK;
-  uint32_t event                       = NCP_HOST_SOCKET_RESPONSE_EVENT; // Event identifier
-  ssize_t bytes_read                   = 0;                              // Number of bytes read
-  sl_si91x_socket_metadata_t *response = NULL;                           // Response structure
-  si91x_socket_t *si91x_socket         = get_si91x_socket(socket_id);    // Get socket information
-  void *sdk_context                    = NULL;
+  ssize_t bytes_read                   = 0; // Number of bytes read
+  sl_si91x_packet_t *packet            = NULL;
+  sl_si91x_socket_metadata_t *response = NULL;                        // Response structure
+  sli_si91x_socket_t *si91x_socket     = get_si91x_socket(socket_id); // Get socket information
+                                                                      //  void *sdk_context                  = NULL;
 
   sl_wifi_buffer_t *buffer = NULL;
 
@@ -467,7 +412,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
 
   // If it's a UDP socket and not yet initialized, initialize it
   if (si91x_socket->type == SOCK_DGRAM && (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED)) {
-    sl_status_t bsd_status = create_and_send_socket_request(socket_id, SI91X_SOCKET_LUDP, NULL);
+    sl_status_t bsd_status = create_and_send_socket_request(socket_id, SI91X_SOCKET_UDP_CLIENT, NULL);
     SOCKET_VERIFY_STATUS_AND_RETURN(bsd_status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
     si91x_socket->state = UDP_UNCONNECTED_READY;
@@ -481,15 +426,15 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
     if (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)
       buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
                                                                      : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
-  } else if (si91x_socket->type == SOCK_DGRAM) {
-    if (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)
-      buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
-                                                                     : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
+  } else if ((si91x_socket->type == SOCK_DGRAM)
+             && (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)) {
+    buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
+                                                                   : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
   }
 
   // Prepare the request structure with socket and buffer information
   request.socket_id = (uint8_t)si91x_socket->id;
-  sdk_context       = &(request.socket_id);
+  //  sdk_context       = &(request.socket_id);
   memcpy(request.requested_bytes, &buf_len, sizeof(buf_len));
   memcpy(request.read_timeout, &si91x_socket->read_timeout, sizeof(request.read_timeout));
 
@@ -497,22 +442,21 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   wait_time = (SL_SI91X_WAIT_FOR_EVER | SL_SI91X_WAIT_FOR_RESPONSE_BIT);
 
   // Send the command to read data from the socket
-  status = sl_si91x_socket_driver_send_command(RSI_WLAN_REQ_SOCKET_READ_DATA,
-                                               &request,
-                                               sizeof(request),
-                                               SI91X_SOCKET_CMD_QUEUE,
-                                               SI91X_SOCKET_RESPONSE_QUEUE,
-                                               &buffer,
-                                               (void *)&response,
-                                               &event,
-                                               &wait_time,
-                                               sdk_context);
+  status = sli_si91x_send_socket_command(si91x_socket,
+                                         RSI_WLAN_REQ_SOCKET_READ_DATA,
+                                         &request,
+                                         sizeof(request),
+                                         wait_time,
+                                         &buffer);
 
   // Free the buffer if there was an error
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
     sl_si91x_host_free_buffer(buffer);
   }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+
+  packet   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  response = (sl_si91x_socket_metadata_t *)packet->data;
 
   // Determine the number of bytes to copy
   bytes_read = (ssize_t)((response->length <= buf_len) ? response->length : buf_len);
@@ -562,8 +506,9 @@ int getpeername(int socket_id, struct sockaddr *name, socklen_t *name_len)
 
 int setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length)
 {
-  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
-  sl_si91x_time_value *timeout = NULL;
+  sli_si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+  sl_si91x_time_value *timeout     = NULL;
+  int32_t converted_tos_value      = 0;
   uint16_t timeout_val;
 
   // Check if the socket is valid
@@ -613,7 +558,7 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       } else if (strncmp(option_value, TLS_1_0, option_length) == 0) {
         si91x_socket->ssl_bitmap = SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_0;
       }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
       else if (strncmp(option_value, TLS_1_3, option_length) == 0) {
         si91x_socket->ssl_bitmap = SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_3;
       }
@@ -621,7 +566,7 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       break;
     }
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     case SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
       // Set max retransmission timeout value with bounds check
       if (IS_POWER_OF_TWO(*(uint8_t *)option_value)
@@ -639,45 +584,17 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
 
     case IP_TOS: {
       // Set IP TOS (Type of Service)
-      memcpy(&si91x_socket->tos,
-             (const uint8_t *)option_value,
-             GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->tos), option_length));
+      converted_tos_value = sli_map_tos_to_nwp(option_value);
+      if (converted_tos_value < 0) {
+        SET_ERROR_AND_RETURN(EINVAL);
+      }
+
+      si91x_socket->tos = (uint32_t)converted_tos_value;
       break;
     }
 #endif
-    default: {
-      // Unsupported option
-      SET_ERROR_AND_RETURN(ENOPROTOOPT);
-    }
-  }
 
-  return SI91X_NO_ERROR;
-}
-
-int sl_si91x_set_custom_sync_sockopt(int socket_id,
-                                     int option_level,
-                                     int option_name,
-                                     const void *option_value,
-                                     socklen_t option_length)
-{
-  UNUSED_PARAMETER(option_length);
-  // Get a reference to the socket associated with the given socket id
-  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
-
-  // Check if socket is valid
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
-
-  // Check if option_value is valid
-  SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT);
-
-  // Check if option_level is SOL_SOCKET
-  SET_ERRNO_AND_RETURN_IF_TRUE(
-    ((option_level != SOL_SOCKET) && (option_level != SOL_TCP) && (option_level != IPPROTO_IP)),
-    EINVAL);
-
-  // Handle different socket options based on option_name
-  switch (option_name) {
-    case SO_CERT_INDEX: {
+    case SL_SO_CERT_INDEX: {
       // Check if the provided certificate index is within a valid range
       SET_ERRNO_AND_RETURN_IF_TRUE(
         ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
@@ -688,7 +605,7 @@ int sl_si91x_set_custom_sync_sockopt(int socket_id,
       break;
     }
 
-    case SO_HIGH_PERFORMANCE_SOCKET: {
+    case SL_SO_HIGH_PERFORMANCE_SOCKET: {
       // Check if the provided value is SI91X_HIGH_PERFORMANCE_SOCKET
       SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
 
@@ -697,8 +614,8 @@ int sl_si91x_set_custom_sync_sockopt(int socket_id,
       break;
     }
 
-    case SO_TLS_SNI:
-    case SO_TLS_ALPN: {
+    case SL_SO_TLS_SNI:
+    case SL_SO_TLS_ALPN: {
       // Call a function to add a TLS extension to si91x_socket
       sl_status_t status = sli_si91x_add_tls_extension(&si91x_socket->tls_extensions,
                                                        (const sl_si91x_socket_type_length_value_t *)option_value);
@@ -710,7 +627,7 @@ int sl_si91x_set_custom_sync_sockopt(int socket_id,
     }
 
     default: {
-      // If option_name is not recognized, return an error code
+      // Unsupported option
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
   }
@@ -720,8 +637,8 @@ int sl_si91x_set_custom_sync_sockopt(int socket_id,
 
 int getsockopt(int socket_id, int option_level, int option_name, void *option_value, socklen_t *option_length)
 {
-  int16_t mss                        = 0;
-  const si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+  int16_t mss                            = 0;
+  const sli_si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
 
   // Check if the socket is valid
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
@@ -735,9 +652,6 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
   switch (option_name) {
     case SO_SNDBUF: {
       mss            = sl_si91x_get_socket_mss(socket_id);
-      mss            = (si91x_socket->local_address.sin6_family == AF_INET)
-                         ? si91x_socket->mss
-                         : (si91x_socket->mss - (TCP_V6_HEADER_LENGTH - TCP_HEADER_LENGTH));
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(mss));
       memcpy(option_value, &mss, *option_length);
       break;
@@ -793,33 +707,16 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
       break;
     }
 
+    case SL_SO_CERT_INDEX: {
+      // Retrieve and copy the socket certificate index
+      *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->certificate_index));
+      memcpy(option_value, &si91x_socket->certificate_index, *option_length);
+      break;
+    }
+
     default: {
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
-  }
-
-  return SI91X_NO_ERROR;
-}
-
-int sl_si91x_get_custom_sync_sockopt(int socket_id,
-                                     int option_level,
-                                     int option_name,
-                                     void *option_value,
-                                     socklen_t *option_length)
-{
-  const si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
-  SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT);
-  SET_ERRNO_AND_RETURN_IF_TRUE(option_level != SOL_SOCKET || option_length == NULL, EINVAL);
-
-  if (option_name == SO_CERT_INDEX) {
-    // Retrieve and copy the socket certificate index
-    *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->certificate_index));
-    memcpy(option_value, &si91x_socket->certificate_index, *option_length);
-  } else {
-    // Unsupported option
-    SET_ERROR_AND_RETURN(ENOPROTOOPT);
   }
 
   return SI91X_NO_ERROR;
@@ -842,9 +739,9 @@ struct hostent *gethostbyname(const char *name)
   }
 // Retrieve host information based on address type
 #ifdef SLI_SI91X_ENABLE_IPV6
-  status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
+  status = sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
 #else
-  status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
+  status = sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
 #endif
 
   // Handle the DNS resolution result
@@ -885,9 +782,11 @@ struct hostent *gethostbyname2(const char *name, int af)
 
   // Retrieve host information based on address type
   if (af == AF_INET6) {
-    status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
+    status =
+      sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
   } else {
-    status = sl_net_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
+    status =
+      sl_net_dns_resolve_hostname(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
   }
 
   // Handle the DNS resolution result
@@ -917,100 +816,5 @@ struct hostent *gethostbyname2(const char *name, int af)
 
 int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout)
 {
-  sl_status_t status = SL_STATUS_OK;
-
-  int32_t total_fd_set_count        = 0; // Specifies total number of file descriptors.
-  int32_t select_response_wait_time = 0;
-
-  sl_si91x_socket_select_req_t request   = { 0 };
-  sl_si91x_socket_select_rsp_t *response = NULL;
-  sl_wifi_buffer_t *buffer               = NULL;
-  sl_si91x_packet_t *packet              = NULL;
-  sl_si91x_wait_period_t wait_time       = 0;
-
-  // Validate input parameters
-  // exceptfds are not being checked as firmware doesn't support it.
-  if ((readfds == NULL) && (writefds == NULL)) {
-    // No file descriptor sets provided
-    SET_ERROR_AND_RETURN(EINVAL);
-  }
-  if (nfds < 0 || nfds > NUMBER_OF_BSD_SOCKETS) {
-    // Invalid number of file descriptors
-    SET_ERROR_AND_RETURN(EINVAL);
-  }
-
-  if ((timeout != NULL) && ((timeout->tv_sec < 0) || (timeout->tv_usec < 0))) {
-    // Invalid timeout values
-    SET_ERROR_AND_RETURN(EINVAL);
-  }
-
-  // Iterate through the file descriptor sets and populate the request
-  for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
-    const si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-
-    // Throw error if the socket file descriptor set by developer is not valid
-    if (socket == NULL
-        && ((readfds != NULL && FD_ISSET(host_socket_index, readfds))
-            || (writefds != NULL && FD_ISSET(host_socket_index, writefds)))) {
-      SET_ERROR_AND_RETURN(EBADF);
-    }
-
-    // If the socket is NULL, continue to iterate through other sockets.
-    // The code will reach this if clause in the case of a socket being NULL and the socket being neither set in readfds nor writefds.
-    if (socket == NULL) {
-      continue;
-    }
-
-    if (readfds != NULL && FD_ISSET(host_socket_index, readfds)) {
-      // Sets the corresponding bit for read in the request
-      request.read_fds.fd_array[0] |= (1U << socket->id);
-    }
-
-    if (writefds != NULL && FD_ISSET(host_socket_index, writefds)) {
-      // Sets the corresponding bit for write in the request
-      request.write_fds.fd_array[0] |= (1U << socket->id);
-    }
-
-    // Update 'num_fd' to the maximum file descriptor ID encountered
-    if (request.num_fd <= socket->id) {
-      request.num_fd = (uint8_t)socket->id + 1;
-    }
-  }
-
-  // Calculate the select timeout based on the provided timeout values
-  if (timeout != NULL) {
-    request.select_timeout.tv_sec  = timeout->tv_sec;
-    request.select_timeout.tv_usec = timeout->tv_usec;
-    select_response_wait_time      = ((request.select_timeout.tv_sec * 1000) + (request.select_timeout.tv_usec / 1000)
-                                 + SI91X_HOST_WAIT_FOR_SELECT_RSP);
-    wait_time                      = SL_SI91X_WAIT_FOR_RESPONSE(select_response_wait_time);
-  } else {
-    // No timeout specified
-    request.no_timeout        = 1;
-    select_response_wait_time = 0;
-    wait_time                 = (SL_SI91X_WAIT_FOR_EVER | SL_SI91X_WAIT_FOR_RESPONSE_BIT);
-  }
-
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SELECT_REQUEST,
-                                        SI91X_SOCKET_CMD_QUEUE,
-                                        &request,
-                                        sizeof(sl_si91x_socket_select_req_t),
-                                        wait_time,
-                                        NULL,
-                                        &buffer);
-  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
-  }
-  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
-
-  // Retrieve the response packet and data
-  packet   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  response = (sl_si91x_socket_select_rsp_t *)packet->data;
-
-  // Update the file descriptor sets
-  total_fd_set_count = handle_select_response(response, readfds, writefds, exceptfds);
-
-  sl_si91x_host_free_buffer(buffer);
-
-  return total_fd_set_count;
+  return sli_si91x_select(nfds, readfds, writefds, exceptfds, timeout, NULL);
 }

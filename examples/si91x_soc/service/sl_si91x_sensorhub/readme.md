@@ -2,17 +2,26 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [About Example Code](#about-example-code)
-- [Framework](#framework)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Sensor Hub Configuration Parameters](#sensor-hub-configuration-parameters)
-- [Test the Application](#test-the-application)
-- [Expected Results](#expected-results)
+- [SENSOR HUB](#sensor-hub)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [About Example Code](#about-example-code)
+  - [Framework](#framework)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [SensorHub Configuration Parameters](#sensorhub-configuration-parameters)
+    - [AWS Configuration](#aws-configuration)
+  - [Sensor Pins Setup](#sensor-pins-setup)
+    - [I2C Sensor Pin Configurations](#i2c-sensor-pin-configurations)
+    - [SPI Sensor Pin Configurations](#spi-sensor-pin-configurations)
+    - [ADC Sensor Pin Configurations](#adc-sensor-pin-configurations)
+    - [SDC Sensor Pin Configurations](#sdc-sensor-pin-configurations)
+  - [Test the Application](#test-the-application)
+  - [Expected Results](#expected-results)
 
 ## Purpose/Scope
 
@@ -83,7 +92,6 @@ Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-g
 ### Setup Diagram
 
 ![Figure: Introduction](resources/readme/setupdiagram.png)
-
 ## Getting Started
 
 Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:
@@ -208,6 +216,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
       ```
 
 4. **ADC Configurations**:
+    - Configure SH_ADC_ENABLE=1 in properties -> C/C++ Build -> Setting -> Tool Settings -> GNU ARM C Compiler -> Preprocessor to enable ADC
     - Configure the following parameters in the ***sensorhub_config.c*** file to change the ADC's mode from FIFO to STATIC and vice versa.
 
       ```c
@@ -273,7 +282,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
           ```
 5. **SDC Configurations**:
-    - Disable the ADC **SH_ADC_ENABLE** macro in the preprocessor settings and enable the **SH_SDC_ENABLE** macro for the sdc
+    - Disable the ADC **SH_ADC_ENABLE** macro if enabled in the preprocessor settings and enable the **SH_SDC_ENABLE** macro for the sdc
     - For SDC Multichannel enable the **SDC_MUTI_CHANNEL_ENABLE** macro in the preprocessor settings
     - Disable the remaining sensor configurations.
     - one sensor hub configuration structure is enough for the all connected sensors.
@@ -305,6 +314,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
           SL_SH_PS1_STATE=1 
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
           ```
+6. **Button Configurations as a wakeup source**:          
+          To set GPIO as wakeup source configure following in slcp-> software components -> PM Wakeup Source Configuration 
+    ![Figure: Introduction](resources/readme/wakeup.png)
+   
 ### AWS Configuration
 AWS will ONLY begin by implementing the modifications and settings listed below.
 
@@ -316,7 +329,6 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
 3. Make the relevant changes according to the above example readme in ***sl_net_default_values.h***,  ***aws_iot_config.h*** present in *config* folder 
 4. Modify the relevant changes in ***sensorhub_aws_app.c*** also. 
 5. Increase the buffer size AWS_IOT_MQTT_TX_BUF_LEN to 1024 in config/aws_iot_config.h
-
 
 ## Sensor Pins Setup
 
@@ -377,7 +389,6 @@ GY-61
   >- The GPIO based Interrupt Sensor Mode won't function in Sleep mode.
   >- SPI sensor will only work in PS4 state
   >- Disable ADC if using SPI sensor
-  >
 >#### ADC
   >
   >- ADC static mode will read the data from the ADC registers and does not depends on ADC Interrupt.

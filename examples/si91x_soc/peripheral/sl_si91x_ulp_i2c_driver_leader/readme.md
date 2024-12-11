@@ -36,24 +36,20 @@
 
 ## About Example Code
 
-- This example code demonstrates I2C data transfer between leader and follower either using interrupt(Blocking application) or using DMA (Non-blocking application).
+- This example code demonstrates I2C data transfer between leader and follower using Blocking APIs.
 - In this example i2c instance is first initialized using \ref sl_i2c_driver_init to configure various init structure parameters
 - This structure includes:
   - \ref sl_i2c_operating_mode_t bus speed, it can be Standard, Fast, Fast plus or High speed.
   - \ref sl_i2c_mode_t mode, it should be leader mode for leader application.
-  - \ref sl_i2c_transfer_type_t, using interrupt or DMA (for using non-blocking send/transfer API it should be set as DMA type and for blocking API
-     it should be interrupt type)
+  - \ref sl_i2c_transfer_type_t, using NON-DMA.
   - \ref sl_i2c_callback_t , I2C callback
 - It also initializes I2C clock and configures I2C SDA & SCL pins.
-- It also initializes DMA, if transfer type is 'Using DMA'.
 - Now transmit and receive FIFO threshold values are configured using \ref sl_i2c_driver_configure_fifo_threshold API.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
-- Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
+- Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking for blocking Application.
 - For Blocking usecase : When all bytes are sent then mode changes to I2C_RECEIVE_DATA (Blocking API won't update any transfer complete flag, as control will be blocked until all bytes are sent).
-- For Non-Blocking usecase : After that it will wait till all the data is transferred to the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_RECEIVE_DATA.
-- Then it receives data from follower through \ref sl_i2c_driver_receive_data_blocking (for blocking Application) or through \ref sl_i2c_driver_receive_data_non_blocking (for Non-blocking Application).
+- Then it receives data from follower through \ref sl_i2c_driver_receive_data_blocking for blocking Application.
 - For Blocking usecase : When all bytes are recieved then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked until all bytes are received).
-- For Non Blocking usecase : After calling receive_data, it will wait till all the data is received from the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the data is same, it will print Test Case Passed on the console.
 - After this first cycle of data transfer application switches to ULP mode using sl_si91x_power_manager_add_ps_requirement API and reconfig I2C leader params as per ULP mode through \ref sl_i2c_driver_leader_reconfig_on_power_mode_change API.
@@ -64,13 +60,12 @@
 - Once Follower gets reset then whole data transfer cycle repeats once again and compares data again.
 - After third cycle of data tranfer I2c gets de-initialized.
 
-> **Note:** When utilizing the I2C2 instance in high power mode with DMA enabled, it is advisable to allocate buffers in the ULP Memory block.
-
+> **Note:** The Non-Blocking receive API is not performing as expected in ULP Mode (PS2), so it is advisable to use the Blocking receive API instead.
 
 > **Note:**
 >
 >- I2C has three instances. User can handle these i2c-instances by adding their instances.
->- I2C0, I2C1 & I2C2 are the names pre-defined for the I2C instances. But ULP I2C supports only I2C2 and instance 2.
+>- I2C0, I2C1, and I2C2 are predefined names for the I2C instances, while ULP I2C specifically refers to instance 2.
 >- For user defined instances, one may have to define his hardware specific definitions in config.h file.
 >- User can directly use APIs in application by passing appropriate structure members, if user doesn't want to configure from UC.
 
@@ -80,6 +75,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
@@ -95,10 +91,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -107,18 +104,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Application Configuration Parameters
 
 - Open sl_si91x_i2c_driver_leader.slcp project file select software component tab and search for i2c in search bar.
-- Click on **I2C2** and configure the I2C2 instance as per configuration parameters given in wizard.
+- Click on **I2C2** and configure the ULP_I2C instance as per configuration parameters given in wizard.
 - For ULP application instance used should be 2 only
 - After creation of instances separate configuration files are get generated in **config folder**.
 - If project built without selecting configurations, it will take default values from UC.
 - Configure mode, operating-mode and transfer-type of I2C instance using respective instance UC.
 - Change 'Operating Mode' as per bus-speed requirement.
-- Change 'Transfer Type' to 'Using Interrupt' for Blocking Application or to 'Using DMA' for NON-Blocking Application.
 - After above UC configurations also configure following macros in i2c_leader_example.c file and update/modify following macros if required.
 
   ```C
-    #define BLOCKING_APPLICATION     // Enable it for enabling I2C transfer using interrupt Application
-    #define NON_BLOCKING_APPLICATION // Enable it for enabling I2C transfer using interrupt Application
     #define FOLLOWER_I2C_ADDR        // Update I2C follower address
     #define I2C_SIZE_BUFFERS             // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
   ```
@@ -129,12 +123,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration
 
-**I2C2:**
+**ULP_I2C:**
 
-| PIN |   ULP GPIO PIN             |   Description             |
-| --- | -------------------------- | ------------------------- |
-| SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
-| SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
+| PIN |   ULP GPIO PIN             |  Explorer kit GPIO  |   Description             |
+| --- | -------------------------- | ------------------- | ------------------------- |
+| SCL | ULP_GPIO_7 [EXP_HEADER-15] |   ULP_GPIO_7 [TX]   | Connect to Follower SCL pin |
+| SDA | ULP_GPIO_6 [EXP_HEADER-16] |   ULP_GPIO_6 [RX]   | Connect to Follower SDA pin |
 
 ![Figure: Pin Configuration I2C](resources/readme/image507e.png)
 

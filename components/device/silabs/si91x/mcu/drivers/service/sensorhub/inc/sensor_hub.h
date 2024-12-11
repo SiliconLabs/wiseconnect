@@ -42,6 +42,8 @@
 #include "sl_status.h"
 #include "sensors_config.h"
 #include "sensorhub_error_codes.h"
+#include "sl_si91x_gpio.h"
+#include "sl_si91x_peripheral_gpio.h"
 /**************************************************************************/ /**
  * @addtogroup SENSOR-HUB Sensor Hub
  * @ingroup SI91X_SERVICE_APIS
@@ -51,7 +53,7 @@
 /*******************************************************************************
  ********************* Sensor_HUB Defines / Macros  ****************************
  ******************************************************************************/
-#define SL_SH_SENSOR_TASK_STACK_SIZE     (512 * 2)     ///< Sensor task stack size
+#define SL_SH_SENSOR_TASK_STACK_SIZE     (1024 * 2)    ///< Sensor task stack size
 #define SL_SH_EM_TASK_STACK_SIZE         (512 * 2)     ///< EM task stack size
 #define SL_SH_POWER_SAVE_TASK_STACK_SIZE (512 * 2)     ///< Power task stack size
 #define SL_EM_TASK_RUN_TICKS             osWaitForever ///< Max wait time of message queue in Event task
@@ -66,7 +68,7 @@
 /*******************************************************************************
  ******************** Wake UP Alarm Defines / Macros  **************************
  ******************************************************************************/
-#define SL_ALARM_PERIODIC_TIME         10   ///< Periodic alarm configuration in milliseconds
+#define SL_ALARM_PERIODIC_TIME         10   ///< Periodic alarm configuration in milliseconds.
 #define RC_TRIGGER_TIME                5    ///< RC clock trigger time
 #define RO_TRIGGER_TIME                0    ///< RO clock trigger time
 #define NO_OF_HOURS_IN_A_DAY           24   ///< Number of hours in a day
@@ -103,22 +105,26 @@ typedef void (*sl_sensor_signalEvent_t)(uint8_t sensor_id, uint8_t event, void *
 typedef enum {
   SL_SH_POLLING_MODE,   ///< POLLING_MODE
   SL_SH_INTERRUPT_MODE, ///< INTERRUPT_MODE
-  SL_SH_NO_MODE,
+  SL_SH_NO_MODE,        ///< NO_MODE
 } sl_sensor_mode_t;
 
 /**
- * @brief Enumeration for Sensors HUB Callback Events.
+ * @enum sl_sensorhub_event_t
+ * @brief Enumeration for Sensor Hub Callback Events.
+ * 
+ * This enumeration defines various events related to the operation of sensors within a Sensor Hub.
+ * The events represent different states and actions of the sensors, such as creation, starting, stopping, and data readiness.
  */
 typedef enum {
-  SL_SENSOR_CREATION_FAILED,
-  SL_SENSOR_STARTED,
-  SL_SENSOR_STOPPED,
-  SL_SENSOR_DATA_READY,
-  SL_SENSOR_CNFG_INVALID,
-  SL_SENSOR_START_FAILED,
-  SL_SENSOR_STOP_FAILED,
-  SL_SENSOR_DELETED,
-  SL_SENSOR_DELETE_FAILED,
+  SL_SENSOR_CREATION_FAILED, ///< Event indicating that sensor creation failed
+  SL_SENSOR_STARTED,         ///< Event indicating that the sensor has started successfully
+  SL_SENSOR_STOPPED,         ///< Event indicating that the sensor has stopped
+  SL_SENSOR_DATA_READY,      ///< Event indicating that sensor data is ready to be read
+  SL_SENSOR_CNFG_INVALID,    ///< Event indicating that the sensor configuration is invalid
+  SL_SENSOR_START_FAILED,    ///< Event indicating that the sensor failed to start
+  SL_SENSOR_STOP_FAILED,     ///< Event indicating that the sensor failed to stop
+  SL_SENSOR_DELETED,         ///< Event indicating that the sensor has been deleted
+  SL_SENSOR_DELETE_FAILED    ///< Event indicating that the sensor deletion failed
 } sl_sensorhub_event_t;
 
 /**
@@ -163,11 +169,11 @@ typedef enum { SL_SH_PS4TOPS2, SL_SH_PS2TOPS4, SL_SH_SLEEP_WAKEUP, SL_SH_DUMMY }
  */
 
 typedef struct {
-  bool i2c;                  ///< I2C bus error status
-  bool spi;                  ///< SPI bus error status
-  bool adc;                  ///< ADC bus error status
-  bool sdc;                  ///< SDC bus error status
-  bool sensor_global_status; ///< All buses error status
+  bool i2c;                      ///< I2C bus error status
+  bool spi;                      ///< SPI bus error status
+  bool adc;                      ///< ADC bus error status
+  bool sdc;                      ///< SDC bus error status
+  bool peripheral_global_status; ///< All buses error status
 } sl_sensorhub_errors_t;
 
 /**
@@ -359,11 +365,11 @@ typedef struct {
 * @brief To initialize Peripherals of Sensor HUB.
 * @details
 * This function will initialize the Peripherals like I2C/SPI/ADC, based on the user configuration.
-* @param[out] -    Return the Sensor Hub bus initialization status.
+*
 * @return Status code indicating the result:
-*       SL_STATUS_OK (0X000)- Success, peripherals initialization was done properly.
-*       SL_STATUS_FAIL (0x0001) - Failed, peripherals initialization failed.
-*       SL_ALL_PERIPHERALS_INIT_FAILED (0x001C), All peripherals initializaion failed.
+*       - SL_STATUS_OK - Success, peripherals initialization was done properly.
+*       - SL_STATUS_FAIL - Failed, peripherals initialization failed.
+*       - SL_ALL_PERIPHERALS_INIT_FAILED , All peripherals initializaion failed. 
 *
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
@@ -376,7 +382,7 @@ sl_status_t sl_si91x_sensorhub_init();
 * @param[in] sensor_id_info[] -     Sensor IDs.
 * @param[in] num_of_sensors   -     Number of sensors given by user.
 * @return Number of sensors scanned, if successful.
-*       SL_STATUS_FAIL (0x0001) - No sensors found.
+*       - SL_STATUS_FAIL - No sensors found.
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_detect_sensors(sl_sensor_id_t sensor_id_info[], uint8_t num_of_sensors);
@@ -389,14 +395,14 @@ sl_status_t sl_si91x_sensorhub_detect_sensors(sl_sensor_id_t sensor_id_info[], u
 * modify the sensor status to invalid, and publish the events to the event task.
 *
 * @param[in] sensor_id - Sensor ID.
-* @param[out] - Return the delete sensors status.
-* @return Status code indicating the result:
-*       SL_STATUS_OK (0X0000)   - Success, delete sensor success.
-*       SL_SH_TIMER_DELETION_FAILED  (0X0002) - Timer deletion failed.
-*       SL_SH_COMMAND_SET_POWER_FAIL (0X0008) - Set power failed.
-*       SL_SH_HAL_SENSOR_DELETION_FAILED (0X0016) - Sensor deletion failed at HAL layer.
-*       SL_SH_SENSOR_INDEX_NOT_FOUND (0x00FF) - Given sensor index not found.
 *
+* @return Status code indicating the result:
+*       - SL_STATUS_OK   - Success, delete sensor success.
+*       - SL_SH_TIMER_DELETION_FAILED  - Timer deletion failed.
+*       - SL_SH_COMMAND_SET_POWER_FAIL - Set power failed.
+*       - SL_SH_HAL_SENSOR_DELETION_FAILED - Sensor deletion failed at HAL layer.
+*       - SL_SH_SENSOR_INDEX_NOT_FOUND - Given sensor index not found.
+* 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id);
@@ -408,19 +414,19 @@ sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id);
 * This function creates a sensor instance as per user configuration. It also allocates max sample memory for the configured sensor.
 *
 * @param[in] sensor_id - Sensor ID.
-* @param[out] -    Return the create sensors status
+*
 * @return Status code indicating the result:
-*        SL_STATUS_OK (0X0000) - Create sensor instance success. 
-*        SL_SH_TIMER_CREATION_FAILED  (0x0001) - Timer creation for the sensor failed.
-*        SL_SH_MAX_SENSORS_REACHED  (0x0005) - Maximum number of sensors reached.
-*        SL_SH_MEMORY_LIMIT_EXCEEDED  (0x0006) - Memory limit exceeded. 
-*        SL_SH_COMMAND_SET_POWER_FAIL  (0x0008) - Command to set power failed.
-*        SL_SH_COMMAND_SET_RANGE_FAIL  (0x0009) - Command to set range failed.
-*        SL_SH_COMMAND_SELF_TEST_FAIL  (0x000A) - Command for the self test failed.
-*        SL_SH_SENSOR_IMPLEMENTATION_NOT_FOUND  (0x000D) - Implementation of the sensor not found.
-*        SL_SH_CONFIG_NOT_FOUND  (0x0010) - Configuration of the sensor not found.
-*        SL_SH_INVALID_MODE  (0x0013) - Invalid mode.
-*        SL_SH_HAL_SENSOR_CREATION_FAILED  (0x0015) - Sensor creation failed at HAL. 
+*        - SL_STATUS_OK - Create sensor instance success. 
+*        - SL_SH_TIMER_CREATION_FAILED  - Timer creation for the sensor failed.
+*        - SL_SH_MAX_SENSORS_REACHED  - Maximum number of sensors reached.
+*        - SL_SH_MEMORY_LIMIT_EXCEEDED  - Memory limit exceeded. 
+*        - SL_SH_COMMAND_SET_POWER_FAIL  - Command to set power failed.
+*        - SL_SH_COMMAND_SET_RANGE_FAIL  - Command to set range failed.
+*        - SL_SH_COMMAND_SELF_TEST_FAIL - Command for the self test failed.
+*        - SL_SH_SENSOR_IMPLEMENTATION_NOT_FOUND   - Implementation of the sensor not found.
+*        - SL_SH_CONFIG_NOT_FOUND   - Configuration of the sensor not found.
+*        - SL_SH_INVALID_MODE   - Invalid mode.
+*        - SL_SH_HAL_SENSOR_CREATION_FAILED  - Sensor creation failed at HAL. 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 *******************************************************************************/
 sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id);
@@ -435,13 +441,13 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id);
 * - Enable IRQ handle for sensor with interrupt mode.
 *
 * @param[in] sensor_id - Sensor ID.
-* @param[out] -   Return the start sensors status.
-* @return Status code indicating the result:
-*       SL_STATUS_OK (0X000) - Success, sensor started.
-*       SL_SH_TIMER_START_FAIL (0x0003) - Failed to start timer.
-*       SL_SH_SENSOR_CREATE_FAIL (0x0007) - Given sensor not created.
-*       SL_SH_INVALID_MODE (0x0013) - Invaild mode given.
 *
+* @return Status code indicating the result:
+*       - SL_STATUS_OK  - Success, sensor started.
+*       - SL_SH_TIMER_START_FAIL - Failed to start timer.
+*       - SL_SH_SENSOR_CREATE_FAIL - Given sensor not created.
+*       - SL_SH_INVALID_MODE  - Invaild mode given.
+* 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id);
@@ -456,12 +462,12 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id);
 * - Disable IRQ handles of the interrupt mode sensors.
 *
 * @param[in] sensor_id -  Sensor ID.
-* @param[out] -   Returns the stop sensor status.
-* @return Status code indicating the result:
-*       SL_STATUS_OK (0X000) - Success, sensor stopped.
-*       SL_SH_TIMER_STOP_FAIL (0x0004) - Failed to stop timer.
-*       SL_SH_SENSOR_CREATE_FAIL (0x0007) -  Given sensor not created.
 *
+* @return Status code indicating the result:
+*       - SL_STATUS_OK  - Success, sensor stopped.
+*       - SL_SH_TIMER_STOP_FAIL - Failed to stop timer.
+*       - SL_SH_SENSOR_CREATE_FAIL -  Given sensor not created.
+* 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id);
@@ -569,7 +575,6 @@ sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id);
 * This function will create the sensor list index based on the sensor status
 * For the maximum sensors available in the sensor hub
 *
-* @param[out] -   Returns the Sensor ID from the implementation struct.
 * @return  Returns the sensor index in sensor_list.
 *
 ******************************************************************************/
@@ -585,7 +590,7 @@ int32_t sli_si91x_create_sensor_list_index();
 *
 * @param[in] sensor_id -   Sensor ID.
 * @return If successful, it returns the sensor index.
-*         Otherwise, it returns SL_SH_SENSOR_INDEX_NOT_FOUND(0XFF).
+*         Otherwise, it returns - SL_SH_SENSOR_INDEX_NOT_FOUND.
 *
 ******************************************************************************/
 uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id);
@@ -599,7 +604,7 @@ uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id);
 *
 * @param[in] sensor_id -   Sensor ID.
 * @return If successful, it returns the sensor index.
-*         Otherwise, it returns error code SL_SH_SENSOR_INDEX_NOT_FOUND(0XFF).
+*         Otherwise, it returns error code - SL_SH_SENSOR_INDEX_NOT_FOUND.
 *
 ******************************************************************************/
 uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id);
@@ -628,8 +633,8 @@ sl_sensor_info_t *sli_si91x_get_sensor_info(sl_sensor_id_t sensor_id);
 * @param[in] cb_event  -   Pointer to the callback event.
 * @param[in] cb_ack    -   Pointer to callback acknowledge to the application.
 * @return    Status code indicating the result:
-*                SL_STATUS_OK (0X000) - Success, callback registered.
-*                SL_SH_INVALID_PARAMETERS (0x000B) - Invalid parameters.
+*                - SL_STATUS_OK  - Success, callback registered.
+*                - SL_SH_INVALID_PARAMETERS - Invalid parameters.
 *
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
@@ -656,12 +661,12 @@ void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer);
 * @param[in] gpio_pin   -   NPSS GPIO pin number.
 * @param[in] intr_type  -   NPSS GPIO interrupt type.
 * @return     Status code indicating the result:
-*             SL_STATUS_OK (0X000) - Success, interrupt configured.
-*             SL_SH_INTERRUPT_TYPE_CONFIG_FAIL (0x000E) - Invalid interrupt type.
+*             - SL_STATUS_OK  - Success, interrupt configured.
+*             - SL_SH_INTERRUPT_TYPE_CONFIG_FAIL - Invaild interrupt type.
 * 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
-sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_gpio_intr_type_t intr_type);
+sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type);
 
 /***************************************************************************/ /**
 * @brief To enable and set the priority of NPSS GPIO interrupt.
@@ -693,10 +698,10 @@ void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin);
 * This Starts the sensor hub Tasks.
 *
 * @return     Status code indicating the result:
-*             SL_STATUS_OK (0X000) - Success, sensorhub started.
-*             SL_SH_POWER_TASK_CREATION_FAILED (0x0019) - Failed to create power task.
-*             SL_SH_SENSOR_TASK_CREATION_FAILED (0x001A) - Failed to create sensor task.
-*             SL_SH_EM_TASK_CREATION_FAILED (0x001B) - Failed to create EM task.
+*             - SL_STATUS_OK  - Success, sensorhub started.
+*             - SL_SH_POWER_TASK_CREATION_FAILED - Failed to create power task.
+*             - SL_SH_SENSOR_TASK_CREATION_FAILED  - Failed to create sensor task.
+*             - SL_SH_EM_TASK_CREATION_FAILED - Failed to create EM task.
 *
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
@@ -773,8 +778,8 @@ void sli_si91x_sensorhub_ps2tops4_state(void);
 * This function will configure/Initialize ADC Interface based on configuration.
 *
 * @return      Status code indicating the result:
-*              SL_STATUS_OK (0X000)- Success, ADC initialized.
-*              SL_STATUS_FAIL (0x0001)- Failed to initialize ADC.
+*              - SL_STATUS_OK - Success, ADC initialized.
+*              - SL_STATUS_FAIL - Failed to initialize ADC .
 *
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
@@ -820,8 +825,8 @@ void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event);
  *  @brief       To initialize sdc Interface based on the configuration.
  *  @return      Returns status 0 if successful.
  *               Otherwise, it returns an error code.
- *               SL_STATUS_FAIL (0x0001) - Fail.
- *               SL_STATUS_OK (0X000) - Success.
+ *               - SL_STATUS_FAIL - Fail.
+ *               - SL_STATUS_OK  - Success.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -829,9 +834,12 @@ sl_status_t sli_si91x_sdc_init(void);
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /**************************************************************************/ /**
- *  @fn          void sli_config_sdc_params(sl_sdc_config_t * sdc_config)
  *  @brief       Initialize the sdc Interface based on the configuration.
  *  @param[in] sdc_config_st_p - Configuration parameters for SDC Driver
+ *  @return      Returns status 0 if successful. 
+ *               Otherwise, it returns an error code.
+ *               - SL_STATUS_FAIL - Fail.
+ *               - SL_STATUS_OK  - Success.
 *******************************************************************************/
 void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
 /** @endcond */
@@ -860,55 +868,55 @@ void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
 ///   @n @section SENSOR-HUB_Config Configuration
 ///
 ///    * Sensor Hub has 2 Sensor Mode:
-///    * **SL_SH_POLLING_MODE**: This mode is Timer based.
-///    * **SL_SH_INTERRUPT_MODE**: This mode is NPSS Button 0 GPIO Interrupt based.
-///    * There are 3 types of data_deliver.mode in Polling Sensor Mode and they are **SL_SH_THRESHOLD**, **SL_SH_TIMEOUT** and **SL_SH_NUM_OF_SAMPLES**.
-///    * **SL_SH_NO_DATA** data_deliver.mode is used when Interrupt Sensor Mode is selected.
-///    * If the user wants a value that sets a limit or boundary, above which the sensor data should be shown then SL_SH_THRESHOLD mode should be chosen
-///    * SL_SH_TIMEOUT mode is used when user wants to get the data at some intervals of time for some sampling time
-///    * SL_SH_NUM_OF_SAMPLES mode is used when user wants to get the particular number of sensor data 
-///    * SL_SH_NO_DATA mode is used when .
+///    * **- SL_SH_POLLING_MODE**: This mode is Timer based.
+///    * **- SL_SH_INTERRUPT_MODE**: This mode is NPSS Button 0 GPIO Interrupt based.
+///    * There are 3 types of data_deliver.mode in Polling Sensor Mode and they are **- SL_SH_THRESHOLD**, **- SL_SH_TIMEOUT** and **- SL_SH_NUM_OF_SAMPLES**.
+///    * **- SL_SH_NO_DATA** data_deliver.mode is used when Interrupt Sensor Mode is selected.
+///    * If the user wants a value that sets a limit or boundary, above which the sensor data should be shown then - SL_SH_THRESHOLD mode should be chosen
+///    * - SL_SH_TIMEOUT mode is used when user wants to get the data at some intervals of time for some sampling time
+///    * - SL_SH_NUM_OF_SAMPLES mode is used when user wants to get the particular number of sensor data 
+///    * - SL_SH_NO_DATA mode is used when .
 ///    * Here data_deliver.timeout is the time for which the sensor should keep collecting the data for.
 ///    * sampling_interval is the the amount of time between two sensor data read is sampled or collected.
 ///    * sampling_intr_req_pin is the GPIO pin for sampling the sensor data
 ///
 ///    * Configure the number of sensors info in the /sensors/inc/sensors_config.h file
 ///    ```C
-///    #define SL_MAX_NUM_SENSORS              5   // Maximum sensors present in the system
+///    #define - SL_MAX_NUM_SENSORS              5   // Maximum sensors present in the system
 ///     ```
 ///    * Modes: Using the configuration structure, one can configure the following parameters in the ***sensorhub_config.c*** file:
 ///
 ///     * For **POLLING Sensor Mode** configure the below parameters:
 ///    ```C
-///    .sensor_mode                = SL_SH_POLLING_MODE,
+///    .sensor_mode                = - SL_SH_POLLING_MODE,
 ///    .sampling_interval          = 100,
 ///    ```
-///      * If sensor_mode is selected as ***SL_SH_POLLING_MODE***, then data_deliver.mode should be configured as **one** of the following for a sensor configuration structure:
+///      * If sensor_mode is selected as ***- SL_SH_POLLING_MODE***, then data_deliver.mode should be configured as **one** of the following for a sensor configuration structure:
 ///        * For **TIMEOUT Data Mode** configure the below parameters:
 ///    ```C
-///    .data_deliver.mode          = SL_SH_TIMEOUT,
+///    .data_deliver.mode          = - SL_SH_TIMEOUT,
 ///    .data_deliver.timeout       = 1000,
 ///    ```
 ///        * For **THRESHOLD Data Mode** configure the below parameters:
 ///    ```C
-///    .data_deliver.mode          = SL_SH_THRESHOLD,
+///    .data_deliver.mode          = - SL_SH_THRESHOLD,
 ///    .data_deliver.threshold     = 1000,
 ///    ```
 ///        * For **SAMPLING Data Mode** configure the below parameters:
 ///    ```C
-///    .data_deliver.mode          = SL_SH_NUM_OF_SAMPLES,
+///    .data_deliver.mode          = - SL_SH_NUM_OF_SAMPLES,
 ///    .data_deliver.numOfSamples  = 5,
 ///    ```
 ///     * For **INTERRUPT Sensor Mode** configure the below parameters:
 ///    ```C
-///    .sensor_mode                = SL_SH_INTERRUPT_MODE,
+///    .sensor_mode                = - SL_SH_INTERRUPT_MODE,
 ///    .sampling_intr_req_pin      = BUTTON_0_GPIO_PIN,
-///    .sensor_intr_type           = SL_SH_FALL_EDGE,
-///    .data_deliver.data_mode     = SL_SH_NO_DATA_MODE,
+///    .sensor_intr_type           = - SL_SH_FALL_EDGE,
+///    .data_deliver.data_mode     = - SL_SH_NO_DATA_MODE,
 ///    ```
 ///    * To configure the PS2, please update the below macro in the preprocessor settings:
 ///    ```C
-///    SL_SENSORHUB_POWERSAVE=1
+///    - SL_SENSORHUB_POWERSAVE=1
 ///    Enabling this macro will move the application from PS4 state to PS2 state. In PS2 state the sensor data will be sampled and collected.
 ///    ```
 ///
@@ -939,17 +947,17 @@ void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
 ///
 ///     * For ADC FIFO mode, configure as shown below:
 ///    ```C
-///    .adc_config.adc_cfg.operation_mode        = SL_ADC_FIFO_MODE,
-///    .adc_config.adc_ch_cfg.sampling_rate[0]   = SL_SH_ADC_SAMPLING_RATE, // Use 100 for FIFO Mode
+///    .adc_config.adc_cfg.operation_mode        = - SL_ADC_FIFO_MODE,
+///    .adc_config.adc_ch_cfg.sampling_rate[0]   = - SL_SH_ADC_SAMPLING_RATE, // Use 100 for FIFO Mode
 ///    ```
 ///     * For ADC Static mode, configure as shown below:
 ///    ```C
-///    .adc_config.adc_cfg.operation_mode        = SL_ADC_STATIC_MODE,
-///    .adc_config.adc_ch_cfg.sampling_rate[0]   = SL_SH_ADC_SAMPLING_RATE, // Use 1000 for Static Mode
+///    .adc_config.adc_cfg.operation_mode        = - SL_ADC_STATIC_MODE,
+///    .adc_config.adc_ch_cfg.sampling_rate[0]   = - SL_SH_ADC_SAMPLING_RATE, // Use 1000 for Static Mode
 ///    ```
 ///     * To configure the PS1 power state from PS2 State, please update the below macro in the preprocessor settings:
 ///    ```C
-///    SL_SH_ADC_PS1=1
+///    - SL_SH_ADC_PS1=1
 ///     Enabling this macro will move the core from PS2 Active state to PS1 state
 ///    ```
 ///      * Please update the defines in sisdk/util/third_party/freertos/kernel/include/FreeRTOS.h file as below:

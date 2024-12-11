@@ -250,8 +250,12 @@ void gpio_example_process_action(void)
       do {
         // Initialize GPIO ULP instance
         if (ULP_GPIO_PIN == SET) {
+#ifdef SLI_SI915
+          sl_si91x_gpio_t port_pin = { SL_SI91X_GPIO_10_PORT, SL_SI91X_GPIO_10_PIN };
+#else
           sl_si91x_gpio_t port_pin = { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN };
-          status                   = sl_gpio_driver_toggle_pin(&port_pin); // Toggle ULP GPIO pin
+#endif
+          status = sl_gpio_driver_toggle_pin(&port_pin); // Toggle ULP GPIO pin
           if (status != SL_STATUS_OK) {
             DEBUGOUT("sl_gpio_driver_toggle_pin, Error code: %lu", status);
             break;
@@ -348,7 +352,11 @@ static void gpio_driver_ulp_initialization(void)
   sl_status_t status;
   sl_gpio_driver_init();
   sl_si91x_gpio_t gpio_port_pin1 = { SL_SI91X_ULP_GPIO_1_PORT, SL_SI91X_ULP_GPIO_1_PIN };
+#ifdef SLI_SI915
+  sl_si91x_gpio_t gpio_port_pin10 = { SL_SI91X_GPIO_10_PORT, SL_SI91X_GPIO_10_PIN };
+#else
   sl_si91x_gpio_t gpio_port_pin2 = { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN };
+#endif
   sl_si91x_gpio_t gpio_port_pin8 = { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN };
   sl_gpio_mode_t mode            = MODE_0;
 
@@ -367,7 +375,11 @@ static void gpio_driver_ulp_initialization(void)
       break;
     }
     DEBUGOUT("GPIO driver ulp pad receiver enable is successful \n");
+#ifdef SLI_SI915
+    status = sl_si91x_gpio_driver_enable_ulp_pad_receiver(SL_SI91X_GPIO_10_PIN);
+#else
     status = sl_si91x_gpio_driver_enable_ulp_pad_receiver(SL_SI91X_ULP_GPIO_2_PIN);
+#endif
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_gpio_driver_enable_ulp_pad_receiver, Error code: %lu", status);
       break;
@@ -408,7 +420,11 @@ static void gpio_driver_ulp_initialization(void)
       break;
     }
     DEBUGOUT("GPIO driver set pin mode is successful \n");
+#ifdef SLI_SI915
+    status = sl_gpio_driver_set_pin_mode(&gpio_port_pin10, mode, OUTPUT_VALUE);
+#else
     status = sl_gpio_driver_set_pin_mode(&gpio_port_pin2, mode, OUTPUT_VALUE);
+#endif
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_gpio_driver_set_pin_mode, Error code: %lu", status);
       break;
@@ -430,9 +446,15 @@ static void gpio_driver_ulp_initialization(void)
       break;
     }
     DEBUGOUT("GPIO driver set pin direction is successful \n");
+#ifdef SLI_SI915
+    status = sl_si91x_gpio_driver_set_pin_direction(SL_SI91X_GPIO_10_PORT,
+                                                    SL_SI91X_GPIO_10_PIN,
+                                                    (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+#else
     status = sl_si91x_gpio_driver_set_pin_direction(SL_SI91X_ULP_GPIO_2_PORT,
                                                     SL_SI91X_ULP_GPIO_2_PIN,
                                                     (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+#endif
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_gpio_driver_set_pin_direction, Error code: %lu", status);
       break;

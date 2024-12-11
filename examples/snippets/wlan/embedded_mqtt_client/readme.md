@@ -16,22 +16,22 @@
 
 ## Purpose/Scope
 
-This application demonstrates how SiWx91x is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic and publishes messages on a particular MQTT topic.
-In this application, SiWx91x is configured as a Wi-Fi station and connects to an Access Point. After successful Wi-Fi connection, application connects to a MQTT broker and subscribes to the topic called **THERMOSTAT-DATA**. Subsequently, the application publishes a message **"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do** on the **WiFiSDK_TOPIC** topic. Finally, the application waits to receive the data published on the subscribed topic by other clients after which it would be unsubscribe from topic it has subscribed to and disconnect from MQTT broker.
+This application demonstrates how SiWx91x is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic.
+In this application, SiWx91x is configured as a Wi-Fi station and connects to an access point. After successful Wi-Fi connection, the application connects to a MQTT broker and subscribes to the topic called **THERMOSTAT-DATA**. Subsequently, the application publishes a message **"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"** on the **WiFiSDK_TOPIC** topic. Finally, the application waits to receive the data published on the subscribed topic by other clients after which it unsubscribes from the topic it has subscribed to and disconnects from MQTT broker.
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements  
 
-- A Windows PC
-- A Wireless Access Point
+- Windows PC
+- Wireless Access Point
 - Windows PC1 (for running MQTT broker)
 - Windows PC2 (for running MQTT client utility - MQTT Explorer)
 - SoC Mode:
   - Silicon Labs [BRD4338A, BRD4343A](https://www.silabs.com/)
   - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
 - NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) 
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
    - Interface and Host MCU Supported
@@ -54,38 +54,41 @@ In this application, SiWx91x is configured as a Wi-Fi station and connects to an
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-In the Project explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
+In the Project explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network:
 
 - STA instance related parameters
 
-	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network shall be advertised. The Si91X module is connected to it.
 	
 	```c
   	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
   	```
 
-	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the access point is configured in WPA-PSK/WPA2-PSK security modes.
 
   	```c 
   	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
   	```
   
-	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the access point is configured in WPA/WPA2 or mixed security modes.
   	```c
   	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA2 
   	```
-  
+> Note: 
+> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
+ 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
   - MQTT_BROKER_PORT port refers to the port number on which the remote MQTT broker/server is running.
@@ -124,7 +127,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
    #define PUBLISH_MESSAGE    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
    ```
 
-  - QOS_OF_PUBLISH_MESSAGE indicates quality of service using which MQTT client publishes message.
+  - QOS_OF_PUBLISH_MESSAGE indicates quality of service which MQTT client uses to publish a message.
 
    ```c
    #define QOS_OF_PUBLISH_MESSAGE 0
@@ -136,37 +139,37 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
    #define IS_DUPLICATE_MESSAGE 0
    ```
 
-  - IS_MESSAGE_RETAINED whether broker need to retain message published by MQTT client.
+  - IS_MESSAGE_RETAINED whether broker needs to retain message published by MQTT client.
 
    ```c
    #define IS_MESSAGE_RETAINED 0
    ```
 
-  - IS_CLEAN_SESSION indicates whether this connection is new one or continuation of last session
+  - IS_CLEAN_SESSION indicates whether this connection is a new one or a continuation of last session.
 
    ```c
    #define IS_CLEAN_SESSION 0
    ```
 
-  - LAST_WILL_TOPIC Topic of last will message
+  - LAST_WILL_TOPIC Topic of last will message.
 
    ```c
    #define LAST_WILL_TOPIC  "WiFiSDK-MQTT-CLIENT-LAST-WILL"
    ```
 
-  - LAST_WILL_MESSAGE Message that would be published by broker if MQTT client disconnect abruptly.
+  - LAST_WILL_MESSAGE Message that would be published by broker if MQTT client disconnected abruptly.
 
    ```c
    #define LAST_WILL_MESSAGE  "WiFiSDK-MQTT-CLIENT has been disconnect from network"
    ```
 
-  - QOS_OF_LAST_WILL Quality of service for last will message
+  - QOS_OF_LAST_WILL Quality of service for last will message.
 
    ```c
    #define QOS_OF_LAST_WILL  1
    ```
 
-  - IS_LAST_WILL_RETAINED Whether broker needs to retail last will message of client
+  - IS_LAST_WILL_RETAINED Whether broker needs to retain last will message of client.
 
    ```c
    #define IS_LAST_WILL_RETAINED 1
@@ -178,13 +181,13 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
    #define ENCRYPT_CONNECTION  0
    ```
 
-  - KEEP_ALIVE_INTERVAL client keep alive period in milliseconds
+  - KEEP_ALIVE_INTERVAL client keep alive period in milliseconds.
 
    ```c
    #define KEEP_ALIVE_INTERVAL                       100
    ```
 
-  - MQTT_CONNECT_TIMEOUT Timeout for broker connection in milliseconds
+  - MQTT_CONNECT_TIMEOUT Timeout for broker connection in milliseconds.
 
    ```c
    #define MQTT_CONNECT_TIMEOUT                      5000
@@ -196,13 +199,13 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
    #define SEND_CREDENTIALS 0
    ```
 
-  - USERNAME for login credentials
+  - USERNAME for login credentials.
 
    ```c
    #define USERNAME "WIFISDK"
    ```
 
-  - PASSWORD for login credentials
+  - PASSWORD for login credentials.
 
    ```c
    #define PASSWORD "password"
@@ -213,7 +216,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
 - SoC mode
 
@@ -225,32 +228,32 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps below for successful execution of the application:
 
-- Once the SiWx91x gets connected to the MQTT broker, it will subscribe to the topic **TOPIC_TO_BE_SUBSCRIBED (Ex: "THERMOSTAT-DATA")**. The user can see the client connected and subscription success information in the MQTT broker.
+- Once the SiWx91x gets connected to the MQTT broker, it will subscribe to the topic **TOPIC_TO_BE_SUBSCRIBED (Ex: "THERMOSTAT-DATA")**. You can see the client connected and subscription success information in the MQTT broker.
 
    **![Client connected and subscription success information](resources/readme/connect_subscribe.png)**
 
-- SiWx91x publishes a message which is given in **PUBLISH_MESSAGE**
-  (Ex: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do") on **PUBLISH_TOPIC(Ex: WiFiSDK_TOPIC)**
+- SiWx91x publishes a message which is given in **PUBLISH_MESSAGE**. 
+  (Ex: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do") on **PUBLISH_TOPIC** (Ex: WiFiSDK_TOPIC).
 
 - MQTT Explorer which is running on Windows PC2 will receive the message published by the SiWx91x EVK as it subscribed to the same topic.
 
    **![MQTT Explorer receives the message published by the SiWx91x EVK](resources/readme/mqtt_explorer_msg.png)**
 
-- Now to publish a message using MQTT Explorer, enter the topic name under **Publish** tab, select **raw** data format, type the data that user wishes to send and then click on **publish**. This message will be received by the SiWx91x.
+- Now to publish a message using MQTT Explorer, enter the topic name under **Publish** tab, select **raw** data format, type the data that you wish to send, and then click on **publish**. This message will be received by the SiWx91x.
 
     **![To publish a message using MQTT Explorer](resources/readme/mqtt_explorer_msg.png)**
 
-- In the MQTT broker and on the terminal, user can observe the published message as the MQTT client is subscribed to that topic.
+- In the MQTT broker and on the terminal, you can observe the published message as the MQTT client is subscribed to that topic.
 
    **![In MQTT broker, user can observe the published message](resources/readme/publish_msg.png)**
 
-- SiWx91x unsubscribes to the topic that it has subscribe after receiving the message that was published by MQTT Explorer running on Windows PC2.
+- SiWx91x unsubscribes to the topic that it has subscribed to after receiving the message that was published by MQTT Explorer running on Windows PC2.
 
 - Once subscription is successful, SiWx91x disconnects from the broker.
 
 ### Procedure for executing the application when enabled with SSL
 
-1. Install MQTT broker in Windows PC1 which is connected to Access Point through LAN.
+1. Install MQTT broker in Windows PC1 which is connected to the access point through LAN.
 
 2. Update the **mosquitto.conf** file with the proper file paths, in which the certificates are available in the mosquitto.conf file.
 
@@ -266,7 +269,7 @@ Follow the steps below for successful execution of the application:
 
 >**Note:**
 > Multiple MQTT client instances can be created.
-> If mosquitto isn't allowing external connections to broker, add the below lines in **mosquitto.conf** file:
+> If mosquitto isn't allowing external connections to the broker, add the following lines in **mosquitto.conf** file:
 
   ```c
   listener 8886
@@ -275,13 +278,13 @@ Follow the steps below for successful execution of the application:
 
 > For using a different config file for mosquitto broker, use command:
   `mosquitto -v -p 8886 -c config/mosquitto.conf`
-  where **config** is the sub folder and **mosquitto.conf** is the different config file than default.
+  where **config** is the sub-folder and **mosquitto.conf** is the different config file than default.
 
 ## Additional Information
 
 ### Steps to set up MQTT server
 
-1. To run MQTT broker on port 8886 in Windows PC1, open command prompt and go to MQTT installed folder (Ex: C:\Program Files\mosquitto) and run the following command:
+1. To run MQTT broker on port 8886 in Windows PC1, open the command prompt and go to the MQTT installed folder (Ex: C:\Program Files\mosquitto) and run the following command:
 
    ```c
    mosquitto.exe –p 8886 –v
@@ -289,20 +292,20 @@ Follow the steps below for successful execution of the application:
 
    **![Run MQTT broker in Windows PC1](resources/readme/mqtt_server.png)**
 
-2. Open MQTT Explorer in Windows PC2 and delete the existing connections if any and click on **Advanced** as shown in the below image.
+2. Open MQTT Explorer in Windows PC2 and delete the existing connections, if any, and click on **Advanced** as shown in the image below.
 
    **![Delete the existing connections](resources/readme/delete_connections.png)**
 
-3. Delete the existing topic names if any. Enter the desired **TOPIC_NAME** in topic field and click on **ADD**. Then the desired topic name can be observed in the topic list and click on **BACK** as shown in below image.
+3. Delete the existing topic names if any. Enter the desired **TOPIC_NAME** in the topic field and click on **ADD**. The desired topic name then can be observed in the topic list. Click on **BACK** as shown in the image below.
 
    **![Add TOPIC NAME in topic field](resources/readme/add_topic_name.png)**
 
-4. Connect to MQTT broker by giving IP address and port number of Windows PC1 in HOST and PORT fields in MQTT Explorer respectively and click on **CONNECT** to connect to the MQTT broker. If you are running your MQTT broker on the same PC then the following configuration is made as shown in the below image.
+4. Connect to MQTT broker by entering IP address and port number of Windows PC1 in HOST and PORT fields in MQTT Explorer respectively, and click on **CONNECT**. If you are running your MQTT broker on the same PC, then the following configuration is made as shown in the image below.
 
    **![MQTT broker Configuration](resources/readme/connect.png)**
 
 >**Note:**
-> If we want to use IPv6 with the embedded MQTT client application, we will be using the Mosquitto command line to test the example, since the MQTT Explorer application doesn't support IPv6.
+> If we want to use IPv6 with the embedded MQTT client application, we will be using the Mosquitto command line to test the example because the MQTT Explorer application doesn't support IPv6.
 
 > The following commands are used to test the MQTT client with IPv6 addresses using the Mosquitto command line:
 >

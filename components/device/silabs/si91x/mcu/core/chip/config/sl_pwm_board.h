@@ -29,7 +29,7 @@ extern "C" {
  * @{
  */
 
-#include "RTE_Device_917.h"
+#include "em_device.h"
 
 #define SL_SI91X_PWM_1L_PORT RTE_PWM_1L_PORT
 #define SL_SI91X_PWM_1L_PIN  RTE_PWM_1L_PIN

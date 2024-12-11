@@ -33,7 +33,7 @@ static void sli_si91x_set_input_config(const psa_key_attributes_t *attributes,
                                        const uint8_t *key_buffer,
                                        size_t key_buffer_size)
 {
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   /* Fetch key type from attributes */
   psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
   if (location == 0)
@@ -95,7 +95,7 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
     case (PSA_ALG_ECB_NO_PADDING):
       /* Setting mode as ECB_MODE */
       aes_mode = SL_SI91X_AES_ECB;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
       /* Setting wrap iv mode as WRAP_IV_ECB_MODE */
       config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
 #endif
@@ -105,7 +105,7 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
       aes_mode = SL_SI91X_AES_CBC;
       /* setting aes_iv with iv */
       aes_iv = iv;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
       /* Setting wrap iv mode as WRAP_IV_CBC_MODE */
       config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
 #endif
@@ -131,7 +131,7 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
   /* Calling sl_si91x_aes() for AES encryption */
   si91x_status = sl_si91x_aes(&config, output);
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
   free(config.key_config.a0.key);
 #endif
 
@@ -175,7 +175,7 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
     case (PSA_ALG_ECB_NO_PADDING):
       /* Setting mode as ECB_MODE */
       aes_mode = SL_SI91X_AES_ECB;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
       /* Setting wrap iv mode as WRAP_IV_ECB_MODE */
       config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
 #endif
@@ -186,7 +186,7 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
       aes_iv   = input;
       input += SL_SI91X_IV_SIZE;
       input_length -= SL_SI91X_IV_SIZE;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
       /* Setting wrap iv mode as WRAP_IV_CBC_MODE */
       config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
 #endif
@@ -213,7 +213,7 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
   /* Calling sl_si91x_aes() for AES decryption */
   si91x_status = sl_si91x_aes(&config, output);
 
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
   free(config.key_config.a0.key);
 #endif
 

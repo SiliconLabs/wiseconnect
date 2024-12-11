@@ -1,4 +1,5 @@
 /* -----------------------------------------------------------------------------
+ * SPDX-License-Identifier: Zlib
  * Copyright (c) 2013-2014 ARM Ltd.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -180,11 +181,11 @@
 \brief SAI Status
 */
 typedef struct _ARM_SAI_STATUS {
-  uint32_t tx_busy          : 1;        ///< Transmitter busy flag
-  uint32_t rx_busy          : 1;        ///< Receiver busy flag
-  uint32_t tx_underflow     : 1;        ///< Transmit data underflow detected (cleared on start of next send operation)
-  uint32_t rx_overflow      : 1;        ///< Receive data overflow detected (cleared on start of next receive operation)
-  uint32_t frame_error      : 1;        ///< Sync Frame error detected (cleared on start of next send/receive operation)
+  unsigned int tx_busy          : 1;        ///< Transmitter busy flag
+  unsigned int rx_busy          : 1;        ///< Receiver busy flag
+  unsigned int tx_underflow     : 1;        ///< Transmit data underflow detected (cleared on start of next send operation)
+  unsigned int rx_overflow      : 1;        ///< Receive data overflow detected (cleared on start of next receive operation)
+  unsigned int frame_error      : 1;        ///< Sync Frame error detected (cleared on start of next send/receive operation)
 } ARM_SAI_STATUS;
 
 

@@ -60,7 +60,7 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Defines
 
-// Flags are used to subscribe to the Power Manager transition events, i.e., provides callback after state transitions.
+// Flags are used to subscribe to the Power Manager transition events, that is, provides callback after state transitions.
 // This can be used individually or can be ored and pass to the \ref sl_si91x_power_manager_subscribe_ps_transition_event.
 
 #define SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4 \
@@ -160,7 +160,7 @@ typedef struct {
   uint16_t m4ss_ram_size_kb;  ///< M4SS RAM size that needs to be restored.
   uint16_t ulpss_ram_size_kb; ///< ULPSS RAM size that needs to be restored.
   boolean_t
-    configure_ram_banks;    ///< Enable will set the RAM banks using size, disable will set RAM banks using bank number.
+    configure_ram_banks;    ///< Enable will set the RAM banks using size, disable sets RAM banks using bank number.
   uint32_t m4ss_ram_banks;  ///< M4SS RAM bank number that needs to be restored.
   uint32_t ulpss_ram_banks; ///< ULPSS RAM bank number that needs to be restored.
 } sl_power_ram_retention_config_t;
@@ -194,7 +194,7 @@ typedef enum {
 /// On ISR Exit Hook answer.
 typedef enum {
   SL_SI91X_POWER_MANAGER_ISR_IGNORE =
-    (1UL << 0UL), ///< The module did not trigger an ISR and it doesn't want to contribute to the decision.
+    (1UL << 0UL), ///< The module did not trigger an ISR and it does not want to contribute to the decision.
   SL_SI91X_POWER_MANAGER_ISR_SLEEP =
     (1UL << 1UL), ///< The module was the one that caused the system wakeup and the system SHOULD go back to sleep.
   SL_SI91X_POWER_MANAGER_ISR_WAKEUP =
@@ -245,11 +245,10 @@ typedef struct {
  * @param[in] add   Flag indicating if the requirement is added (true) or removed (false).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_ALREADY_INITIALIZED (0x0012) - Power Manager is already initialized.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_ALREADY_INITIALIZED  - Power Manager is already initialized.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add);
 
@@ -274,11 +273,10 @@ void sli_si91x_power_manager_debug_log_ps_requirement(sl_power_state_t ps, bool 
  * @details Configures the PS4 state with a 100 MHz system clock.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_ALREADY_INITIALIZED (0x0012) - Power Manager is already initialized.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_ALREADY_INITIALIZED - Power Manager is already initialized.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_init(void);
 /***************************************************************************/
@@ -289,7 +287,9 @@ sl_status_t sl_si91x_power_manager_init(void);
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_power_manager_core_entercritical(void)
 {
+#if (configUSE_TICKLESS_IDLE == 0)
   __disable_irq();
+#endif
 }
 /***************************************************************************/
 /**
@@ -299,7 +299,9 @@ __STATIC_INLINE void sl_si91x_power_manager_core_entercritical(void)
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_power_manager_core_exitcritical(void)
 {
+#if (configUSE_TICKLESS_IDLE == 0)
   __enable_irq();
+#endif
 }
 /***************************************************************************/
 /**
@@ -325,12 +327,11 @@ __STATIC_INLINE void sl_si91x_power_manager_core_exitcritical(void)
  *                  - SL_POWER_MANAGER_PS1
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 __STATIC_INLINE sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_state_t state)
 {
@@ -374,12 +375,11 @@ __STATIC_INLINE sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_s
  *                  - SL_POWER_MANAGER_PS1
  *
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011)   - The Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_NOT_INITIALIZED    - The Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 __STATIC_INLINE sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_power_state_t state)
 {
@@ -407,7 +407,7 @@ __STATIC_INLINE sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_powe
  *          - PS4 Performance: 180 MHz clock 
  *          - PS4 Power-save: 100 MHz clock 
  *          - PS3 Performance: 80 MHz clock 
- *          - PS3 Power-save: 32 MHz clock 
+ *          - PS3 Power-save: 40 MHz clock 
  *          - For PS2 state, 20 MHz clock is default. 
  * 
  * If the Power Manager service is not initialized, it returns SL_STATUS_NOT_INITIALIZED. 
@@ -419,27 +419,34 @@ __STATIC_INLINE sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_powe
  * @param[in] mode Clock scaling mode (of type \ref sl_clock_scaling_t).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - Invalid configuration of mode.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
+ *         - SL_STATUS_INVALID_CONFIGURATION  - Invalid configuration of mode.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode);
 
-/***************************************************************************/
-/**
- * @brief To add the peripheral requirement.
+/***************************************************************************/ /**
+ * @brief the clock scaling mode in PS4 and PS3 power state.
+ * Possible return values: *
+ * SL_SI91X_POWER_MANAGER_POWERSAVE   (Minimum supported frequency in a power state)
+ * SL_SI91X_POWER_MANAGER_PERFORMANCE (Maximum supported frequency in a power state)
  * 
- * @details Powers on the peripherals specified in the structure. Valid peripherals are passed in the structure 
- *          \ref sl_power_peripheral_t. The structure members can have the following values:
- *          - m4ss_peripheral  -> Accepts masked value of M4SS peripherals.
- *          - ulpss_peripheral -> Accepts masked value of ULPSS peripherals.
- *          - npss_peripheral  -> Accepts masked value of NPSS peripherals.
- * 
- * The values of enums can be combined using the 'OR' operator and then passed to the variable.
+ * @return The following values are returned:
+ * - sl_clock_scaling_t enum value indicating current clock scaling mode
+ ******************************************************************************/
+sl_clock_scaling_t sl_si91x_power_manager_get_clock_scaling(void);
+
+/***************************************************************************/ /**
+ * Adds the peripheral requirement.
+ * Power on the peripherals the valid peripherals passed in the structure. 
+ * Structure member possible values: \ref sl_power_peripheral_t
+ * - m4ss_peripheral  -> Accepts masked value of m4ss peripherals.
+ * - ulpss_peripheral -> Accepts masked value of ulpss peripherals.
+ * - npss_peripheral  -> Accepts masked value of npss peripherals. 
+ * The values of enums can be combined by using 'OR' operator and then passed to the variable.
  * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init 
@@ -447,13 +454,12 @@ sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode);
  * @param[in] peripheral Structure for different peripherals \ref sl_power_peripheral_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_OK  - Success.
  *         - SL_STATUS_INVALID_STATE (0x0002) - Not a valid transition.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_add_peripheral_requirement(sl_power_peripheral_t *peripheral);
 
@@ -475,12 +481,11 @@ sl_status_t sl_si91x_power_manager_add_peripheral_requirement(sl_power_periphera
  * @param[in] peripheral Structure for different peripherals \ref sl_power_peripheral_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_peripheral_requirement(sl_power_peripheral_t *peripheral);
 
@@ -498,12 +503,12 @@ sl_status_t sl_si91x_power_manager_remove_peripheral_requirement(sl_power_periph
  * @param[in] event_info   Event info structure that contains the event mask and the callback that must be called.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Null pointer is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_NULL_POINTER  - Null pointer is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ * 
  * @note Adding and removing power state transition requirement(s) from a callback on a transition event
  *       is not supported.
  * @note The parameters passed must be persistent, meaning that they need to survive
@@ -564,12 +569,13 @@ sl_status_t sl_si91x_power_manager_subscribe_ps_transition_event(
  * @param[in] event_info   Event info structure that contains the event mask and the callback that must be called.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Null pointer is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_NULL_POINTER  - Null pointer is passed.
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- * 
+ *  
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * @note An ASSERT is thrown if the handle is not found.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
@@ -608,13 +614,12 @@ sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
  * - sl_si91x_power_manager_set_wakeup_sources
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
  *         - SL_STATUS_INVALID_STATE (0x0002) - Not a valid transition.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_sleep(void);
 
@@ -650,12 +655,11 @@ void sl_si91x_power_manager_standby(void);
  * @param[in] add (boolean_t) True enables and false disables the wakeup source.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_set_wakeup_sources(uint32_t source, boolean_t add);
 
@@ -686,12 +690,11 @@ sl_status_t sl_si91x_power_manager_set_wakeup_sources(uint32_t source, boolean_t
  * @param[in] config Structure for the parameters of RAM retention \ref sl_power_ram_retention_config_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Power Manager is not initialized.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Null pointer is passed.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
+ *         - SL_STATUS_NULL_POINTER  - Null pointer is passed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
- * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_configure_ram_retention(sl_power_ram_retention_config_t *config);
 
@@ -786,7 +789,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *
 *   ***Add and remove requirements***
 *
-*   The driver/application can add and remove power state requirements at runtime. Adding requirement function calls will change the power state. Removing requirement function calls will not have any effect for state transition.
+*   The driver/application can add and remove power state requirements at runtime. Adding requirement function calls changes the power state. Removing requirement function calls will not have any effect for state transition.
 *   @ref sl_si91x_power_manager_add_peripheral_requirement()
 *
 *   @ref sl_si91x_power_manager_remove_peripheral_requirement()

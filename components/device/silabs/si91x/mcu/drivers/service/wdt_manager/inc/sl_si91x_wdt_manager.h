@@ -94,9 +94,9 @@ typedef enum {
 
 /***************************************************************************/
 /**
- * @brief Enumeration to represent possible time delay values for WDT interrupt time and system reset time with 32 kHz clock frequency.
+ * @brief Enumeration to represent possible time delay values for Watchdog Timer (WDT) interrupt time and system reset time with 32 kHz clock frequency.
  * 
- * @details This enumeration defines the possible time delays for the Watchdog Timer (WDT) interrupt and system reset times.
+ * @details This enumeration defines the possible time delays for the WDT interrupt and system reset times.
  *          The delays are based on a 32 kHz clock frequency.
  */
 typedef enum {
@@ -147,13 +147,13 @@ typedef enum {
  * - The 91x watchdog peripheral's interrupt interval is set to 2 seconds less than the configured value of `SL_WDT_MANAGER_INTERRUPT_TIME`.
  *   The hardware watchdog triggers an interrupt when this timeout expires, allowing the software to feed the watchdog within this interval.
  * 
- *  - Assigns a system reset value to 4 seconds. If the watchdog timer (WDT) is not reset within this interval, 
+ *  - Assigns a system reset value to 4 seconds. If the WDT is not reset within this interval, 
  *    the system will reset after 4 seconds. The reset counter begins counting after the interrupt time expires. 
  *    The system reset value is updated based on the configured interrupt time, referenced by `SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD`.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_FAIL (0x0001) - Generic error
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_FAIL  - Generic error
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -163,15 +163,15 @@ sl_status_t sl_watchdog_manager_init(void);
 /**
  * @brief To start the watchdog manager service.
  * 
- * @details This function starts the Watchdog Timer (WDT) and begins counting. 
+ * @details This function starts the WDT and begins counting. 
  *          The hardware watchdog triggers an interrupt when the WDT timeout interval expires.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_watchdog_manager_init must be called before this function.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_FAIL (0x0001) - Generic error
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_FAIL  - Generic error
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -195,7 +195,7 @@ sl_watchdog_manager_reset_reason_t sl_wdt_manager_get_system_reset_status(void);
 /**
  * @brief To disable the hardware watchdog in sleep mode.
  * 
- * @details This function stops the Watchdog Timer (WDT) counter from running when the system enters sleep mode.
+ * @details This function stops the WDT counter from running when the system enters sleep mode.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_watchdog_manager_init must be called before this function.
@@ -208,7 +208,7 @@ void sl_watchdog_disable_wdt_in_sleep(void);
 /**
  * @brief To enable the hardware watchdog in sleep mode.
  * 
- * @details This function starts the Watchdog Timer (WDT) counter running in sleep mode.
+ * @details This function starts the WDT counter running in sleep mode.
  *          It enables the WDT as a wake-up source to the system to serve the ISR and kick the watchdog.
  * 
  * @pre Pre-conditions:

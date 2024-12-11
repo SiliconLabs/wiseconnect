@@ -1,32 +1,31 @@
-/***************************************************************************/ /**
- * @file sl_si91x_peripheral_gpio.h
- * @brief General Purpose IO (GPIO) peripheral API
- *******************************************************************************
- * # License
- * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licenser of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be miss represented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    miss represented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_peripheral_gpio.h
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #ifndef SL_PERIPHERAL_GPIO_H
 #define SL_PERIPHERAL_GPIO_H
 
@@ -210,13 +209,15 @@ typedef enum {
 
 ///@brief GPIO Interrupt Configurations.
 typedef enum {
-  SL_GPIO_INTERRUPT_DISABLE        = 0,        ///< disable the interrupt
-  SL_GPIO_INTERRUPT_ENABLE         = (1 << 0), ///< enable the interrupt
-  SL_GPIO_INTERRUPT_HIGH           = (1 << 0), ///< interrupt when pin level is '1'
-  SL_GPIO_INTERRUPT_LOW            = (1 << 1), ///< interrupt when pin level is '0'
-  SL_GPIO_INTERRUPT_RISING_EDGE    = (1 << 2), ///< interrupt when rising edge is detected
-  SL_GPIO_INTERRUPT_FALLING_EDGE   = (1 << 3), ///< interrupt when falling edge is detected
-  SL_GPIO_INTERRUPT_RISE_FALL_EDGE = (1 << 4), ///< interrupt when rising and falling edge is detected
+  SL_GPIO_INTERRUPT_DISABLE      = 0,        ///< disable the interrupt
+  SL_GPIO_INTERRUPT_ENABLE       = (1 << 0), ///< enable the interrupt
+  SL_GPIO_INTERRUPT_HIGH         = (1 << 0), ///< interrupt when pin level is '1'
+  SL_GPIO_INTERRUPT_LOW          = (1 << 1), ///< interrupt when pin level is '0'
+  SL_GPIO_INTERRUPT_RISING_EDGE  = (1 << 2), ///< interrupt when rising edge is detected
+  SL_GPIO_INTERRUPT_FALLING_EDGE = (1 << 3), ///< interrupt when falling edge is detected
+  SL_GPIO_INTERRUPT_RISE_FALL_EDGE =
+    (SL_GPIO_INTERRUPT_FALLING_EDGE
+     | SL_GPIO_INTERRUPT_RISING_EDGE), ///< interrupt when rising and falling edge is detected
 } sl_gpio_interrupt_flag_t;
 
 /*******************************************************************************

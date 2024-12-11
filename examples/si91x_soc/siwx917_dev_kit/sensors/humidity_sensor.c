@@ -19,17 +19,16 @@
 #include "humidity_sensor.h"
 #include "sl_sleeptimer.h"
 #include "sl_si91x_driver_gpio.h"
-#include "sl_si91x_clock_manager.h"
 #include "cmsis_os2.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define TX_THRESHOLD 0       // tx threshold value
-#define RX_THRESHOLD 0       // rx threshold value
-#define I2C          SL_I2C2 // I2C 2 instance
-#define USER_REG_1   0xBA    // writing data into user register
-#define MODE_0       0       // Initializing GPIO MODE_0 value
-#define OUTPUT_VALUE 1       // GPIO output value
+#define TX_THRESHOLD 0                   // tx threshold value
+#define RX_THRESHOLD 0                   // rx threshold value
+#define I2C          SI70XX_I2C_INSTANCE // I2C 2 instance
+#define USER_REG_1   0xBA                // writing data into user register
+#define MODE_0       0                   // Initializing GPIO MODE_0 value
+#define OUTPUT_VALUE 1                   // GPIO output value
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -133,61 +132,61 @@ void humidity_sensor_init(void)
   //      printf("Successfully configured i2c TX & RX FIFO thresholds\r\n");
   //    }
   // reset the sensor
-  status = sl_si91x_si70xx_reset(I2C, SI7021_ADDR);
+  status = sl_si91x_si70xx_reset(I2C, SI70XX_SLAVE_ADDR);
   if (status != SL_STATUS_OK) {
     printf("Sensor reset un-successful, Error Code: 0x%ld \r\n", status);
     return;
   }
   osDelay(10);
   // Initializes sensor and reads electronic ID 1st byte
-  status = sl_si91x_si70xx_init(I2C, SI7021_ADDR, SL_EID_FIRST_BYTE);
+  status = sl_si91x_si70xx_init(I2C, SI70XX_SLAVE_ADDR, SL_EID_FIRST_BYTE);
   if (status != SL_STATUS_OK) {
     printf("Sensor initialization un-successful, Error Code: 0x%ld \r\n", status);
     return;
   }
   osDelay(10);
   // Initializes sensor and reads electronic ID 2nd byte
-  status = sl_si91x_si70xx_init(I2C, SI7021_ADDR, SL_EID_SECOND_BYTE);
+  status = sl_si91x_si70xx_init(I2C, SI70XX_SLAVE_ADDR, SL_EID_SECOND_BYTE);
   if (status != SL_STATUS_OK) {
     printf("Sensor initialization un-successful, Error Code: 0x%ld \r\n", status);
     return;
   }
   osDelay(10);
   // Get sensor internal firmware version of sensor
-  status = sl_si91x_si70xx_get_firmware_revision(I2C, SI7021_ADDR, &firm_rev);
+  status = sl_si91x_si70xx_get_firmware_revision(I2C, SI70XX_SLAVE_ADDR, &firm_rev);
   if (status != SL_STATUS_OK) {
     printf("Sensor firmware version un-successful, Error Code: 0x%ld \r\n", status);
     return;
   }
   osDelay(10);
   // write register data into sensor
-  status = sl_si91x_si70xx_write_control_register(I2C, SI7021_ADDR, SL_RH_T_USER_REG, USER_REG_1);
+  status = sl_si91x_si70xx_write_control_register(I2C, SI70XX_SLAVE_ADDR, SL_RH_T_USER_REG, USER_REG_1);
   if (status != SL_STATUS_OK) {
     printf("Sensor user register 1 write data failed, Error Code: 0x%ld \r\n", status);
     return;
   }
   // Reads register data from sensor
-  status = sl_si91x_si70xx_read_control_register(I2C, SI7021_ADDR, SL_RH_T_USER_REG, &value);
+  status = sl_si91x_si70xx_read_control_register(I2C, SI70XX_SLAVE_ADDR, SL_RH_T_USER_REG, &value);
   if (status != SL_STATUS_OK) {
     printf("Sensor user register 1 read failed, Error Code: 0x%ld \r\n", status);
     return;
   }
   osDelay(10);
   // Reads temperature from humidity from sensor
-  status = sl_si91x_si70xx_read_temp_from_rh(I2C, SI7021_ADDR, &humidity, &temperature);
+  status = sl_si91x_si70xx_read_temp_from_rh(I2C, SI70XX_SLAVE_ADDR, &humidity, &temperature);
   if (status != SL_STATUS_OK) {
     printf("Sensor temperature read failed, Error Code: 0x%ld \r\n", status);
     return;
   }
   // measure humidity data from sensor
-  status = sl_si91x_si70xx_measure_humidity(I2C, SI7021_ADDR, &humidity);
+  status = sl_si91x_si70xx_measure_humidity(I2C, SI70XX_SLAVE_ADDR, &humidity);
   if (status != SL_STATUS_OK) {
     printf("Sensor humidity read failed, Error Code: 0x%ld \r\n", status);
     return;
   }
   osDelay(10);
   // measure temperature data from sensor
-  status = sl_si91x_si70xx_measure_temperature(I2C, SI7021_ADDR, &temperature);
+  status = sl_si91x_si70xx_measure_temperature(I2C, SI70XX_SLAVE_ADDR, &temperature);
   if (status != SL_STATUS_OK) {
     printf("Sensor temperature read failed, Error Code: 0x%ld \r\n", status);
     return;
@@ -199,7 +198,7 @@ void humidity_sensor_init(void)
 sl_status_t humidity_read(uint32_t *humidity)
 {
   int32_t temperature = 0;
-  sl_status_t status  = sl_si91x_si70xx_measure_rh_and_temp(I2C, SI7021_ADDR, humidity, &temperature);
+  sl_status_t status  = sl_si91x_si70xx_measure_rh_and_temp(I2C, SI70XX_SLAVE_ADDR, humidity, &temperature);
   if (status != SL_STATUS_OK) {
     printf("Sensor temperature read failed, Error Code: 0x%ld \r\n", status);
   }

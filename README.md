@@ -28,7 +28,7 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 
   - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
   - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
-  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-3-2.md) for information on porting your WiSeConnect v3.3.2 application to WiSeConnect v3.3.3
+  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-3-4.md) for information on porting your WiSeConnect v3.3.4 application to WiSeConnect v3.4.0
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
 

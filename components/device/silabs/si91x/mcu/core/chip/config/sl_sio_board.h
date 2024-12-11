@@ -29,7 +29,7 @@ extern "C" {
  * @{
  */
 
-#include "RTE_Device_917.h"
+#include "em_device.h"
 
 #define SL_SI91X_SIO_0_PORT RTE_SIO_0_PORT
 #define SL_SI91X_SIO_0_PIN  RTE_SIO_0_PIN

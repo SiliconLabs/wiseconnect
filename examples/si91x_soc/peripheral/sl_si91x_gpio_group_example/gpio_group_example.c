@@ -23,7 +23,6 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_gpio_board.h"
 #include "rsi_debug.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -31,9 +30,6 @@
 #define PIN_COUNT      2 // Number of interrupts needed
 #define GRP_COUNT      2 // Count of group interrupt pins
 #define NUMBER_OF_PINS 4 //Total number of pins for pin configuration set
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -56,22 +52,10 @@ static sl_si91x_gpio_group_interrupt_config_t config_grp_int, ulp_config_grp_int
  ******************************************************************************/
 static void gpio_group_interrupt0_callback(uint32_t grp_intr);
 static void gpio_ulp_group_interrupt_callback(uint32_t pin_intr);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
-
 /*******************************************************************************
  * GPIO example initialization function. It initializes clock, pin mode,
  * direction and configures pin interrupt
@@ -79,9 +63,6 @@ static void default_clock_configuration(void)
 void gpio_group_example_init(void)
 {
   sl_status_t status;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
     // Initialize the GPIOs by clearing all interrupts initially

@@ -66,7 +66,7 @@
 
 /* Thread local storage pointers used by the SDK */
 #ifndef configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS
-  #define configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS 0
+  #define configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS 2
 #endif
 
 /* PRINT_STRING implementation. iostream_retarget_stdio or third party

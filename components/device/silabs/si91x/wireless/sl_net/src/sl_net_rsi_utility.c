@@ -53,7 +53,7 @@ sl_status_t convert_rsi_ipv4_address_to_sl_ip_address(sl_ip_address_t *ip_addres
   return SL_STATUS_OK;
 }
 
-sl_status_t convert_si91x_dns_response(sl_ip_address_t *ip_address, sl_si91x_dns_response_t *si91x_dns_response)
+sl_status_t convert_si91x_dns_response(sl_ip_address_t *ip_address, const sl_si91x_dns_response_t *si91x_dns_response)
 {
   SL_VERIFY_POINTER_OR_RETURN(ip_address, SL_STATUS_WIFI_NULL_PTR_ARG);
   SL_VERIFY_POINTER_OR_RETURN(si91x_dns_response, SL_STATUS_WIFI_NULL_PTR_ARG);
@@ -106,7 +106,8 @@ sl_status_t convert_si91x_event_to_sl_net_event(const uint16_t *event, sl_net_ev
       *sl_net_event = SL_NET_DHCP_NOTIFICATION_EVENT;
       return SL_STATUS_OK;
     }
-    case RSI_WLAN_RSP_IPV4_CHANGE: {
+    case RSI_WLAN_RSP_IPV4_CHANGE:
+    case RSI_WLAN_RSP_IPCONFV6: {
       *sl_net_event = SL_NET_IP_ADDRESS_CHANGE_EVENT;
       return SL_STATUS_OK;
     }

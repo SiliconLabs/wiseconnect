@@ -1,0 +1,69 @@
+project_name: crypto_puf
+package: wifi
+quality: production
+label: Crypto PUF
+category: Example|Crypto 
+description: >
+  Functionality of the PUF-derived keys
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: simplicity_sdk, version: "2024.12.0"}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.4.0}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SYSCALLS_WRITE
+  - name: SL_SI91X_PRINT_DBG_LOG
+component:
+- {from: wiseconnect3_sdk, id: si91x_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
+- {from: wiseconnect3_sdk, id: syscalls}
+requires:
+- name: sl_system
+- name: network_manager
+- name: basic_network_config_manager
+- name: sl_si91x_basic_buffers
+- name: freertos
+- name: wifi
+- name: sl_si91x_wireless
+- name: wiseconnect3_common
+- name: sl_si91x_internal_stack
+- name: wifi_resources
+- name: sl_si91x_puf
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/setup_dgm.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true  
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

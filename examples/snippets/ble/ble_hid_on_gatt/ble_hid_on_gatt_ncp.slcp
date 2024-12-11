@@ -15,10 +15,10 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.4
+  version: 3.4.0
 source:
 - path: app.c
 - path: main.c
@@ -29,7 +29,6 @@ include:
   - path: ble_config.h
 define:
 - name: SL_SI91X_PRINT_DBG_LOG
-- name: SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 component:
 - id: sl_system
 - id: freertos

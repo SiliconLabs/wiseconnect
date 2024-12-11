@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_i2s.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -374,12 +386,22 @@ int32_t I2S_Control(uint32_t control,
     }
     if (i2s->reg == I2S1) {
       if (i2s->clk->clk_src == ULP_I2S_REF_CLK) {
-        val = system_clocks.ulpss_ref_clk / bit_freq;
+        val = 32000000 / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val / 2);
       }
-      if (i2s->clk->clk_src == ULP_I2S_ULP_32MHZ_RC_CLK) {
-        val = system_clocks.rc_32mhz_clock / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_32MHZ_RC_CLK, (uint16_t)val / 2);
+      if (i2s->clk->clk_src == ULP_I2S_ULP_MHZ_RC_CLK) {
+        val = 32000000 / bit_freq;
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_MHZ_RC_CLK, (uint16_t)val / 2);
+      }
+      if (i2s->clk->clk_src == ULP_I2S_ULP_20MHZ_RO_CLK) {
+        val = 20000000 / bit_freq;
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_20MHZ_RO_CLK, (uint16_t)val);
+      }
+      if (i2s->clk->clk_src == ULP_I2S_SOC_CLK) {
+        // TODO: This source is not working
+        //freq = GetSOCClockFreq();
+        val = 32000000 / bit_freq;
+        //RSI_ULPSS_UlpI2sClkConfig(ULPCLK ,RTE_I2S1_CLK_SRC,val/2);
       }
       if (i2s->clk->clk_src == ULP_I2S_PLL_CLK) {
         val = 6250000 / bit_freq;
@@ -577,7 +599,7 @@ void i2s_chnl_Init(ARM_SAI_SignalEvent_t cb_event, I2S_RESOURCES *i2s)
   i2s->info->status.tx_busy      = 0U;
   i2s->info->status.tx_underflow = 0U;
   if (i2s->reg == I2S0) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI3);

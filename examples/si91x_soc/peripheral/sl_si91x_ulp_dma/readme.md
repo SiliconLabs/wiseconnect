@@ -25,7 +25,7 @@
 - This DMA supports 32 channels. Out of which last 24 are dedicated channels for particular peripherals. First 8 channels can support 32 different peripherals.
 - The number of transfers in a single DMA cycle can be programmed from 1 to 1024
 - The transfer address increment can be greater than the data width
-- UDMA1 only supports 12 channels
+- ULP_DMA only supports 12 channels.
 
 ## About Example Code
 
@@ -37,7 +37,7 @@
   1.  Using \ref sl_si91x_dma_simple_transfer, user can quickly perform DMA transfer using bare minimum configurations.
   2.  Using \ref sl_si91x_dma_transfer, user can configure more DMA parameters for transfer
 - User can either use any of above functions for performing DMA transfer.
-> **Note:** When utilizing the UDMA1 instance in high power mode, it is advisable to allocate buffers in the ULP Memory block.
+> **Note:** When utilizing the ULP_DMA instance in high power mode, it is advisable to allocate buffers in the ULP Memory block.
 
 ## Prerequisites/Setup Requirements
 
@@ -47,6 +47,7 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
@@ -62,10 +63,11 @@ Before running the application, the user will need the following things to setup
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -76,13 +78,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ![Figure: Introduction](resources/readme/ulp_dma_uc_screen.png)
 
-- Open **sl_si91x_ulp_dma.slcp** project file select **software component**tab and search for **SL_DMA** in search bar.
+- Open **sl_si91x_ulp_dma.slcp** project file select **software component** tab and search for **SL_DMA** in search bar.
 - Configure SL_ULP_DMA_CHANNEL_COUNT(0 - 12) - Number of available channels for ULP_DMA
 - Configure the following macros in ulp_dma_example.c file and update/modify following macros if required.
 
 ```C
 #define ULP_DMA_SIMPLE_TRANSFER 1    ///< Enable/Disable simple transfer
-#define ULP_DMA_CHANNEL			32   ///< DMA0 channel number 
+#define ULP_DMA_CHANNEL         12   ///< ULP_DMA channel number 12
 #define ULP_DMA_TRANSFER_SIZE   2048 ///< DMA transfer size
 ```
 

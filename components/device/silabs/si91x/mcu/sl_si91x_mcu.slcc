@@ -5,14 +5,18 @@ description: >
   The Si91x MCU component initialises the Si91x MCU subsystem at startup.
 category: Device|Si91x|MCU
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 root_path: components/device/silabs/si91x/mcu
 ui_hints:
   visibility: never
 provides:
   - name: sl_si91x_mcu
   - name: sli_si91x_mcu_interface
+  - name: hal_generic_common
+    condition: [sl_si91x_mcu]
 requires:
-  - name: cmsis_common
   - name: component_catalog
   - name: rsilib_userconfig
   - name: si91x_device_init_nvic
@@ -27,6 +31,7 @@ define:
   - name: SLI_SI91X_MCU_INTERFACE
   - name: TA_DEEP_SLEEP_COMMON_FLASH
   - name: SI917
+    condition: [device_family_siwg917]
   
 template_contribution:
   - name: event_handler

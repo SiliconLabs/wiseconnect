@@ -12,6 +12,7 @@
 - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
+
 This example demonstrates throughput measurements of WLAN/BLE in individual or with protocol combinations in the SiWx91x module.
 
 The application can measure throughput ranges for TCP/UDP/SSL TX/RX to and from remote servers, while BLE data transfers are in progress. It has provision to control other protocol activities while measuring WLAN/BLE throughputs.
@@ -27,14 +28,15 @@ The Application can be configured for the individual protocol throughput measure
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
-    - Radio Boards 
-  	  - BRD4338A [SiWx917-RB4338A]
+    - Radio Boards
+      - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
-  	  - BRD4343A [SiWx917-RB4343A]
+      - BRD4340A [SiWx917-RB4340A]
+      - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+  	- SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
@@ -44,20 +46,19 @@ The Application can be configured for the individual protocol throughput measure
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
-  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+    - EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - Interface and Host MCU Supported
-    - SPI - EFR32 
+    - SPI - EFR32
 - Wireless Access Point
 - Smart phone/tablet with BLE Application (Ex: Light Blue / BLE Connect App)
 - Windows PC with iPerf and openssl applications.
 
 ### Software Requirements
-  - Simplicity Studio
-  - Download and install iPerf from this link [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
 
-  - Download and install OpenSSL from this link [OpenSSL](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip) to download openssl in remote PC.
-
-  - Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Simplicity Studio
+- Download and install iPerf from this link [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
+- Download and install OpenSSL from this link [OpenSSL](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip) to download openssl in remote PC.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### Setup Diagram
 
@@ -67,10 +68,11 @@ The Application can be configured for the individual protocol throughput measure
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -119,6 +121,7 @@ The application can be configured to suit your requirements and development envi
     #define RSI_ENABLE_BLE_TEST     1 //Set this to 0 to disable BLE
     #define RSI_ENABLE_BT_TEST      1 //Set this to 0 to disable BT
     ```
+
     > **Note:**
     >
     > While measuring WLAN throughput with BLE activities ensure 'BLE_THROUGHPUT_TEST' is set to '0'
@@ -144,7 +147,7 @@ The application can be configured to suit your requirements and development envi
     >
     > By default, opermode is set to WLAN+BLE
 
-- Select WLAN configurations in `wifi_app_config.h` file
+- Select WLAN configurations in `wifi_app_config.h` file.
 
   - Enter the AP Connectivity essentials configs as the value to SSID, SECURITY_TYPE and PSK
 
@@ -166,37 +169,37 @@ The application can be configured to suit your requirements and development envi
     #define     SERVER_PORT                5001
     ```
 
-  - While verifying SSL RX throughput, port number of remote server should be configured below
+  - While verifying SSL RX throughput, port number of remote server should be configured below:
 
     ```c
     #define     SSL_SERVER_PORT         5002
     ```
 
-  - IP address of remote server
+  - IP address of remote server:
 
     ```c
     #define     SERVER_IP_ADDRESS          "192.168.0.102"
     ```
 
-  - Port number of module
+  - Port number of module:
 
     ```c
     #define     DEVICE_PORT                5001
     ```
 
-  - To select the ip, configure below macros
+  - To select the ip, configure below macros:
 
     ```c
     #define     DHCP_MODE                  1           // 0 enable or disable
     ```
 
-  - Choose the throughput type by configuring below macro
+  - Choose the throughput type by configuring below macro:
 
     ```c
     #define     THROUGHPUT_TYPE            TCP_TX 
     ```
 
-   - Valid Configurations of THROUGHPUT_TYPE:
+    - Valid Configurations of THROUGHPUT_TYPE:
 
       - UDP_TX → UDP transmit
       - UDP_RX → UDP receive
@@ -227,8 +230,11 @@ The application can be configured to suit your requirements and development envi
 
     > **Note:**
     >
-    > 1. By default, 'CONTINUOUS_THROUGHPUT' is set to '0' 
-    > 2. If CONTINUOUS_THROUGHPUT is set to '1', then ensure that client/server should run with interval at least greater than THROUGHPUT_AVG_TIME
+    > 1. By default, 'CONTINUOUS_THROUGHPUT' is set to '0'.
+    > 2. If CONTINUOUS_THROUGHPUT is set to '1', then ensure that client/server should run with interval at least greater than THROUGHPUT_AVG_TIME.
+
+> Note:
+> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
 
 - Open `ble_config.h` file
 
@@ -344,6 +350,7 @@ This section explains user how to configure the application for measuring BLE Tx
     #define     TX_WRITES_NO_RESP_TO_C1     0  //! set below macro to Transmit 'gatt write without response' to remote device
     #define     TX_INDICATIONS_TO_C1        0  //! set below macro to Transmit 'gatt indications' to remote device
     ```
+
     > **Note:**
     > By default, all BLE configurations are chosen to get high BLE throughput.
 
@@ -375,8 +382,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application
-- Observing the output prints on serial terminal 
-   
+- Observing the output prints on serial terminal
+
     ![](resources/readme/output1.png)
 
 - WLAN thread wait for the BLE activity
@@ -392,80 +399,81 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   
   ![](resources/readme/output4.png)
 
-
 ### Common Steps
 
 ### WLAN throughputs: UDP/TCP/SSL unidirectional
 
 1. Compile the project and flash the binary onto STM32
 
-2. To measure **WLAN throughput** , run the below iPerf commands or ssl scripts
+2. To measure **WLAN throughput**, run the below iPerf commands or ssl scripts
 
-- To measure **UDP Tx** throughput, configure module as UDP client and open UDP server in remote port using below command. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+   - To measure **UDP Tx** throughput, configure module as UDP client and open UDP server in remote port using below command. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
 
-  ```sh
-           iperf.exe -s -u -p <SERVER_PORT> -i 1
-  ```
+    ```sh
+            iperf.exe -s -u -p <SERVER_PORT> -i 1
+    ```
 
-  ex: iperf.exe -s -u -p 5001 -i 1
-    
-    ![](resources/readme/remote_screen4.png)
+    ex: iperf.exe -s -u -p 5001 -i 1
 
-- To measure **UDP Rx** througput, configure module as UDP server and open UDP client in remote port using below command
+      ![](resources/readme/remote_screen4.png)
 
-  ```sh
-           iperf.exe -c <Module_IP> -u -p <DEVICE_PORT> -i 1 -b<Bandwidth> -t <duration in sec>
-  ```
-  
-  ex: iperf.exe -c 192.168.0.1 -u -p 5001 -i 1 -b50M -t 100
-    
-    ![](resources/readme/remote_screen5.png)
+   - To measure **UDP Rx** througput, configure module as UDP server and open UDP client in remote port using below command
 
-- To measure **TCP Tx** throughput, configure module as TCP client and open TCP server in remote port using below command. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+      ```sh
+              iperf.exe -c <Module_IP> -u -p <DEVICE_PORT> -i 1 -b<Bandwidth> -t <duration in sec>
+      ```
 
-  ```sh
-           iperf.exe -s -p <SERVER_PORT> -i 1
-  ```
-  
-  ex: iperf.exe -s -p 5001 -i 1
-    
-    ![](resources/readme/remote_screen6.png)
+      ex: iperf.exe -c 192.168.0.1 -u -p 5001 -i 1 -b50M -t 100
 
-- To measure **TCP Rx** througput, configure module as TCP server and open TCP client in remote port using below command
+        ![](resources/readme/remote_screen5.png)
 
-  ```sh
-           iperf.exe -c <Module_IP> -p <DEVICE_PORT> -i 1 -t <duration in sec>
-  ```
-  ex: iperf.exe -c 192.168.0.1 -p 5001 -i 1 -t 100
-      
-    ![](resources/readme/remote_screen7.png)
+   - To measure **TCP Tx** throughput, configure module as TCP client and open TCP server in remote port using below command. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
 
-- To measure **SSL Tx** throughput, configure module in SSL client and follow below steps to run SSL server in windows
+      ```sh
+              iperf.exe -s -p <SERVER_PORT> -i 1
+      ```
 
-  - Copy SSL_Server_throughput_d.py from release/resources/scripts/ to release/resources/certificates/
+      ex: iperf.exe -s -p 5001 -i 1
 
-  - Open command prompt in folder release/resources/certificates/ and run below command
+        ![](resources/readme/remote_screen6.png)
 
-  ```sh
-           python SSL_Server_throughput_d.py
-  ```   
-    ![](resources/readme/remote_screen8.png)
+   - To measure **TCP Rx** througput, configure module as TCP server and open TCP client in remote port using below command
 
-- To measure **SSL Rx** throughput, configure module in SSL client and follow below steps to run SSL server in windows
+      ```sh
+              iperf.exe -c <Module_IP> -p <DEVICE_PORT> -i 1 -t <duration in sec>
+      ```
 
-  - Copy SSL_tx_throughput.py from release/resources/scripts/ to release/resources/certificate
+      ex: iperf.exe -c 192.168.0.1 -p 5001 -i 1 -t 100
 
-  - Change port no. from "5001" to the value configured in "SSL_RX_SERVER_PORT"
+        ![](resources/readme/remote_screen7.png)
 
-  - Open command prompt in folder release/resources/certificates/ and run below command
-  > **Note:**
-  > Python version: 3.9.0
+   - To measure **SSL Tx** throughput, configure module in SSL client and follow below steps to run SSL server in windows
 
-  ```sh
-      python SSL_tx_throughput.py
-   ```
-   
-   ![](resources/readme/remote_screen9.png)
+      - Copy SSL_Server_throughput_d.py from release/resources/scripts/ to release/resources/certificates/
+
+      - Open command prompt in folder release/resources/certificates/ and run below command
+
+        ```sh
+                python SSL_Server_throughput_d.py
+        ```
+
+      ![](resources/readme/remote_screen8.png)
+
+   - To measure **SSL Rx** throughput, configure module in SSL client and follow below steps to run SSL server in windows
+
+      - Copy SSL_tx_throughput.py from release/resources/scripts/ to release/resources/certificate
+
+      - Change port no. from "5001" to the value configured in "SSL_RX_SERVER_PORT"
+
+      - Open command prompt in folder release/resources/certificates/ and run below command
+      > **Note:**
+      > Python version: 3.9.0
+
+      ```sh
+          python SSL_tx_throughput.py
+      ```
+
+      ![](resources/readme/remote_screen9.png)
 
 3. After the program gets executed, Module scans for the configured Access point, connects to it.
 
@@ -476,11 +484,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     ![](resources/readme/remote_screen1.png)
 
 6. For BLE data transfer, enable GATT notifications of Module on service characteristic RSI_BLE_ATTRIBUTE_1_UUID (0x1AA1) using EFR connect.
-   
+
     ![](resources/readme/remote_screen2.png)
 
 7. If Gatt Notification are enabled, module continuously transmits notifications per connection interval of size 232 bytes.
-   
+
     ![](resources/readme/remote_screen3.png)
 
 8. Once above activities are completed, Module transmits/receives packets based on the configuration selected and measures the WLAN throughput

@@ -60,7 +60,7 @@ typedef uint32_t __socklen_t;
  * @brief Public type for socket length.
  * 
  * @details
- *   It is a public alias for the internal __socklen_t type.You can use it to specify the length of socket addresses in the network system calls.
+ *   It is a public alias for the internal __socklen_t type. You can use it to specify the length of socket addresses in the network system calls.
  */
 typedef __socklen_t socklen_t;
 /** @} */
@@ -88,7 +88,7 @@ typedef __socklen_t socklen_t;
  * @brief Internal type for sockaddr address family.
  * 
  * @details
- *   The address family of a socket address is used internally within the system to specify the address type. (for example, IPv4 and IPv6).
+ *   The address family of a socket address is used internally within the system to specify the address type (for example, IPv4 and IPv6).
  */
 typedef uint8_t __sa_family_t;
 
@@ -178,9 +178,9 @@ typedef __in_port_t	in_port_t;	/* IP port type */
  *
  * The value IP_PORTRANGE_HIGH changes the range of candidate port numbers
  * into the "high" range.  These are reserved for client outbound connections
- * which is not filtered by any firewalls.
+ * which are not filtered by any firewalls.
  *
- * The value IP_PORTRANGE_LOW changes the range to the "low" are
+ * The value IP_PORTRANGE_LOW changes the range to the "low" 
  * that is (by convention) restricted to privileged processes.  This
  * convention is based on "vouchsafe" principles only.  It is only secure
  * if you trust the remote host to restrict these ports.
@@ -189,10 +189,10 @@ typedef __in_port_t	in_port_t;	/* IP port type */
  * sysctl(3).  (net.inet.ip.port{hi}{first,last})
  *
  * Changing those values has bad security implications if you are
- * using a a stateless firewall that is, allowing packets outside of the
+ * using a a stateless firewall, i.e., allowing packets outside of the
  * range in order to allow transparent outgoing connections.
  *
- * Such a firewall configuration would depends on the use of the
+ * Such a firewall configuration would depend on the use of the
  * default values.  If you change them, you may find your Security
  * Administrator looking for you with a heavy object.
  */
@@ -372,6 +372,23 @@ struct ip_opts {
 						/* source address to use */
 
 #define IP_RTABLE		0x1021	/* int; routing table, see SO_RTABLE */
+
+/**
+ * @addtogroup BSD_SOCKET_TOS_DEFINES
+ * @{ 
+ */
+#define IPTOS_PREC_MASK		0xE0              ///< Mask to extract the precedence field from the TOS byte.
+#define IPTOS_PREC(tos)		((tos)&IPTOS_PREC_MASK)  ///< Extract the precedence field from the TOS byte.
+
+#define IPTOS_PREC_NETCONTROL           0xe0  ///< Indicates that the packet is designated for network control purposes, such as voice communications.
+#define IPTOS_PREC_INTERNETCONTROL      0xc0  ///< Indicates that the packet is intended for internet control purposes, such as voice communications.
+#define IPTOS_PREC_CRITIC_ECP           0xa0  ///< Indicates that the packet is for critical applications like video communications.
+#define IPTOS_PREC_FLASHOVERRIDE        0x80  ///< Indicates that the packet should override other traffic, used for urgent applications such as time-sensitive video streaming.
+#define IPTOS_PREC_FLASH                0x60  ///< Indicates that the packet is of high priority, used for important but non-urgent background data.
+#define IPTOS_PREC_IMMEDIATE            0x40  ///< Indicates that the packet should be delivered as soon as possible, suitable for background tasks.
+#define IPTOS_PREC_PRIORITY             0x20  ///< Indicates that the packet has a higher priority than routine data but is less urgent than immediate delivery.
+#define IPTOS_PREC_ROUTINE              0x00  ///< Indicates that the packet is of routine and has the lowest priority, suitable for best-effort data.
+/** @} */
 
 #if __BSD_VISIBLE
 /*
@@ -802,7 +819,6 @@ struct ip_mreqn {
 
 /* INET6 stuff */
 #define __KAME_NETINET_IN_H_INCLUDED_
-//#include <netinet6/in6.h>
 #include "netinet6_in6.h"
 #undef __KAME_NETINET_IN_H_INCLUDED_
 

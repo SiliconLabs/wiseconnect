@@ -9,7 +9,9 @@ description: >
   This component can be used for ultra-low power state also.
 category: Device|Si91x|MCU|Service|Power Manager|UULP Wakeup Sources
 quality: production
-
+metadata:
+  sbom:
+    license: Zlib
 requires:
   - name: sl_watchdog_timer
   - name: systemlevel_wwdt

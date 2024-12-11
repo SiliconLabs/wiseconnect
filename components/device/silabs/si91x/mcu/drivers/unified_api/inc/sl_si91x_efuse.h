@@ -1,10 +1,9 @@
-/***************************************************************************/
-/**
+/******************************************************************************
 * @file sl_si91x_efuse.h
 * @brief EFUSE API implementation
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -99,8 +98,8 @@ sl_efuse_version_t sl_si91x_efuse_get_version(void);
  * @details The API is used to enable the peripheral clock for eFuse.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully enabled the peripheral clock.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Successfully enabled the peripheral clock.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -119,8 +118,8 @@ sl_status_t sl_si91x_efuse_enable_clock(void);
  *      - \ref sl_si91x_efuse_memory_mapped_read_byte()
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully disabled the peripheral clock.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Successfully disabled the peripheral clock.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -133,8 +132,8 @@ sl_status_t sl_si91x_efuse_disable_clock(void);
  * @details The API first enables the eFuse clock and then enables the eFuse.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully initialized the eFuse.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Successfully initialized the eFuse.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -153,8 +152,8 @@ sl_status_t sl_si91x_efuse_init(void);
  *      - \ref sl_si91x_efuse_memory_mapped_read_byte()
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -171,8 +170,8 @@ sl_status_t sl_si91x_efuse_deinit(void);
  *                    in the eFuse range 0x0 to 0x31.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -192,8 +191,8 @@ sl_status_t sl_si91x_efuse_set_address(uint16_t address);
  *                          to be written in the eFuse.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -217,8 +216,8 @@ sl_status_t sl_si91x_efuse_get_address(uint16_t *read_address);
  * @param[in] hold_time eFuse strobe hold time, depends on the clock frequency of the eFuse controller.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -240,9 +239,9 @@ sl_status_t sl_si91x_efuse_write_bit(uint16_t address, uint8_t bit_pos, uint32_t
  * @param[in] soc_clk Input clock frequency of eFuse controller in range between (1000000 - 180000000).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -264,9 +263,9 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_word(uint16_t address, uint16_t *r
  * @param[in] soc_clk Input clock frequency in range between (1000000 - 180000000).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -288,9 +287,9 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_byte(uint16_t address, uint8_t *re
  * @param[in] soc_clk Input clock frequency in range between (1000000 - 180000000).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -337,7 +336,7 @@ __STATIC_INLINE void sl_si91x_efuse_disable(void)
 * @section eFuse_Intro Introduction
 *
 * Electrically programmable fuses or eFuses are one-time programmable memory elements 
-* used to store configuration or data in integrated circuits (ICs).
+* used to store configuration or data in Integrated Circuits (ICs).
 * eFuses use 32-bit addressing with each address holding 8 bits of data.
 * The eFuse controller is used to program and read these bits.
 * @li Once information is programmed into an eFuse, it is typically irreversible.

@@ -452,6 +452,7 @@ sl_adc_error_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sens
       }
     }
     data_group->sensor_data[0].adc = adc_data_ptrs[channel];
+    data_group->number++;
   }
 
   return SL_STATUS_OK;

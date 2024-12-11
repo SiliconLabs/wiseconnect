@@ -1,32 +1,31 @@
-/***************************************************************************/ /**
- * @file sl_si91x_gpio.h
- * @brief General Purpose IO(GPIO) API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licenser of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be mis-represented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    mis-represented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_gpio.h
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #ifndef SL_SI91X_GPIO_PERIPHERAL_H
 #define SL_SI91X_GPIO_PERIPHERAL_H
 
@@ -223,6 +222,24 @@ typedef struct {
   uint8_t major;   ///< SQA version number
   uint8_t minor;   ///< Development version number
 } sl_si91x_gpio_version_t;
+
+/// @brief UULP GPIO pin/interrupt number
+typedef enum {
+  UULP_GPIO_INTERRUPT_0 = 0, /// UULP GPIO 0 pin/interrupt number
+  UULP_GPIO_INTERRUPT_1 = 1, /// UULP GPIO 1 pin/interrupt number
+  UULP_GPIO_INTERRUPT_2 = 2, /// UULP GPIO 2 pin/interrupt number
+  UULP_GPIO_INTERRUPT_3 = 3, /// UULP GPIO 3 pin/interrupt number
+  UULP_GPIO_INTERRUPT_4 = 4, /// UULP GPIO 4 pin/interrupt number
+} sl_si91x_uulp_gpio_interrupt_t;
+
+/// @brief UULP GPIO interrupt bit position
+typedef enum {
+  UULP_GPIO_INTERRUPT_0_BIT = BIT(0), /// UULP GPIO 0 interrupt bit position
+  UULP_GPIO_INTERRUPT_1_BIT = BIT(1), /// UULP GPIO 1 interrupt bit position
+  UULP_GPIO_INTERRUPT_2_BIT = BIT(2), /// UULP GPIO 2 interrupt bit position
+  UULP_GPIO_INTERRUPT_3_BIT = BIT(3), /// UULP GPIO 3 interrupt bit position
+  UULP_GPIO_INTERRUPT_4_BIT = BIT(4), /// UULP GPIO 4 interrupt bit position
+} sl_si91x_uulp_gpio_interrupt_bit_t;
 
 // -----------------------------------------------------------------------------
 // Prototypes
@@ -829,6 +846,7 @@ void sl_si91x_gpio_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity
  * @brief       Set the NPSS GPIO interrupt as a wake up source across sleep wakeups.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4)
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_t
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
@@ -837,6 +855,7 @@ void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
  * @brief        Clear the UULP NPSS GPIO Interrupt as wake up source.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4)
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_t
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
@@ -848,7 +867,8 @@ void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
- * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4)
+ * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be masked
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
@@ -860,7 +880,8 @@ void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
- * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4)
+ * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be unmasked
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
@@ -873,7 +894,8 @@ void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
  *        \ref sl_si91x_gpio_configure_uulp_interrupt() \n
- * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4)
+ * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be cleared
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
@@ -943,6 +965,7 @@ void sl_si91x_gpio_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_in
 * @param[in] flags  -  Interrupt configuration flags of type
 *                     \ref  sl_si91x_gpio_interrupt_config_flag_t
 * @param[in] npssgpio_interrupt - NPSS GPIO pin number(0 to 4)
+*                       \ref   sl_si91x_uulp_gpio_interrupt_t
 * @return    None
 *******************************************************************************/
 void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags, uint8_t npssgpio_interrupt);

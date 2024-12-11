@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  siwx917_soc_ncp_host.c
-* @brief
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  siwx917_soc_ncp_host.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_wifi_constants.h"
 #include "sl_si91x_host_interface.h"
@@ -32,7 +44,6 @@
 
 extern int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf);
 void sl_si91x_ta_events_init(void);
-sl_status_t sl_si91x_bus_init(void);
 sl_status_t sl_si91x_bus_set_interrupt_mask(uint32_t mask);
 sl_status_t sl_si91x_bus_enable_high_speed(void);
 sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
@@ -52,11 +63,6 @@ sl_status_t sl_si91x_bus_rx_irq_handler(void)
 void sl_si91x_bus_rx_done_handler(void)
 {
   return;
-}
-
-sl_status_t sl_si91x_bus_init(void)
-{
-  return RSI_SUCCESS;
 }
 
 sl_status_t sl_si91x_bus_set_interrupt_mask(uint32_t mask)
@@ -80,7 +86,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
   return 1;
 }
 
-sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
 {
   UNUSED_PARAMETER(config);
   // Initialize SI91X NWP events
@@ -116,7 +122,7 @@ void sl_si91x_host_disable_bus_interrupt(void)
 sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer)
 {
   UNUSED_PARAMETER(length);
-  *(uint32_t *)addr = *(uint32_t *)buffer;
+  *(uint32_t *)addr = *(const uint32_t *)buffer;
   return 0;
 }
 

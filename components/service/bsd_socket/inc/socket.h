@@ -49,7 +49,6 @@ typedef	__socklen_t	socklen_t;	/* length type for network syscalls */
 typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #endif
 
-typedef long off_t;
 /*
  * Definitions related to sockets: types, address families, options.
  */
@@ -64,25 +63,13 @@ typedef long off_t;
  */
 #define	SOCK_STREAM	1		///< Stream socket. Provides sequenced, reliable, two-way, connection-based byte streams.
 #define	SOCK_DGRAM	2		///< Datagram socket. Supports datagrams (connectionless, unreliable messages of a fixed maximum length).
-#define	SOCK_RAW	3		///< Raw socket. Provides raw network protocol access.
-#define	SOCK_RDM	4		///< Reliably-delivered message. Provides a reliable datagram layer that does not guarantee ordering.
-#define	SOCK_SEQPACKET	5   ///< Sequenced packet stream. Provides a sequenced, reliable, two-way, connection-based data transmission path for datagrams of fixed maximum length.
+#define	SOCK_RAW	3		///< Raw socket. Provides raw network protocol access. This feature is not supported in the current release.
+#define	SOCK_RDM	4		///< Reliably-delivered message. Provides a reliable datagram layer that does not guarantee ordering. This feature is not supported in the current release.
+#define	SOCK_SEQPACKET	5   ///< Sequenced packet stream. Provides a sequenced, reliable, two-way, connection-based data transmission path for datagrams of fixed maximum length. This feature is not supported in the current release.
 #ifdef _KERNEL
-#define	SOCK_TYPE_MASK	0x000F		///< Mask that covers all the above socket types.
+#define	SOCK_TYPE_MASK	0x000F		///< Mask that covers all the above socket types. This feature is not supported in the current release.
 #endif
 /** @} */
-
-/*
- * Socket creation flags
- */
-#if __BSD_VISIBLE
-#define	SOCK_CLOEXEC		0x8000	/* set FD_CLOEXEC */
-#define	SOCK_NONBLOCK		0x4000	/* set O_NONBLOCK */
-#ifdef _KERNEL
-#define	SOCK_NONBLOCK_INHERIT	0x2000	/* inherit O_NONBLOCK from listener */
-#endif
-#define	SOCK_DNS		0x1000	/* set SS_DNS */
-#endif /* __BSD_VISIBLE */
 
 /*
  * Option flags per-socket.
@@ -92,92 +79,65 @@ typedef long off_t;
  * @ingroup BSD_SOCKET_FUNCTIONS
  * @{ 
  */
-#define	SO_DEBUG	0x0001		///< Enables recording of debugging information.
-#define	SO_ACCEPTCONN	0x0002		///< Indicates that the socket has had listen().
-#define	SO_REUSEADDR	0x0004		///< Allows local address reuse.
+#define	SO_DEBUG	0x0001		///< Enables recording of debugging information. This option is not supported in the current release.
+#define	SO_ACCEPTCONN	0x0002		///< Indicates that the socket has had listen(). This option is not supported in the current release.
+#define	SO_REUSEADDR	0x0004		///< Allows local address reuse. This option is not supported in the current release.
 #define	SO_KEEPALIVE	0x0008		///< Keeps connections alive.
-#define	SO_DONTROUTE	0x0010		///< Uses interface addresses only.
-#define	SO_BROADCAST	0x0020		///< Permits sending of broadcast messages.
-#define	SO_USELOOPBACK	0x0040		///< Bypasses hardware when possible.
-#define	SO_LINGER	0x0080		///< Lingers on close if data is present.
-#define	SO_OOBINLINE	0x0100		///< Leaves received out-of-band data in line.
-#define	SO_REUSEPORT	0x0200		///< Allows local address and port reuse.
-#define SO_TIMESTAMP	0x0800		///< Timestamps received datagram traffic.
-#define SO_BINDANY	0x1000		///< Allows binding to any address.
-#define SO_ZEROIZE	0x2000		///< Zeroes out all mbufs sent over the socket.
+#define	SO_DONTROUTE	0x0010		///< Uses interface addresses only. This option is not supported in the current release.
+#define	SO_BROADCAST	0x0020		///< Permits sending of broadcast messages. This option is not supported in the current release.
+#define	SO_USELOOPBACK	0x0040		///< Bypasses hardware when possible. This option is not supported in the current release.
+#define	SO_LINGER	0x0080		///< Lingers on close if data is present. This option is not supported in the current release.
+#define	SO_OOBINLINE	0x0100		///< Leaves received out-of-band data in line. This option is not supported in the current release.
+#define	SO_REUSEPORT	0x0200		///< Allows local address and port reuse. This option is not supported in the current release.
+#define SO_TIMESTAMP	0x0800		///< Timestamps received datagram traffic. This option is not supported in the current release.
+#define SO_BINDANY	0x1000		///< Allows binding to any address. This option is not supported in the current release.
+#define SO_ZEROIZE	0x2000		///< Zeroes out all mbufs sent over the socket. This option is not supported in the current release.
 #define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 ///< Configures max retransmission timeout value. The option value associated with this option name should be a power of 2 between 1 and 32.
 /*
  * Additional options, not kept in so_options.
  */
 #define	SO_SNDBUF	0x1001		///< Sets send buffer size.
 #define	SO_RCVBUF	0x1002		///< Sets receive buffer size.
-#define	SO_SNDLOWAT	0x1003		///< Sets send low-water mark.
-#define	SO_RCVLOWAT	0x1004		///< Sets receive low-water mark.
-#define	SO_SNDTIMEO	0x1005		///< Sets send timeout.
-#define	SO_RCVTIMEO	0x1006		///< Sets receive timeout.
+#define	SO_SNDLOWAT	0x1003		///< Sets send low-water mark. This option is not supported in the current release.
+#define	SO_RCVLOWAT	0x1004		///< Sets receive low-water mark. This option is not supported in the current release.
+#define	SO_SNDTIMEO	0x1005		///< Sets send timeout. This option is not supported in the current release.
+#define	SO_RCVTIMEO	0x1006		///< Sets receive timeout. 
 #define	SO_ERROR	0x1007		///< Gets error status and clears.
 #define	SO_TYPE		0x1008		///< Gets socket type.
-#define	SO_NETPROC	0x1020		///< Multiplexes; network processing.
-#define	SO_RTABLE	0x1021		///< Sets routing table to be used.
-#define	SO_PEERCRED	0x1022		///< Gets connect-time credentials.
-#define	SO_SPLICE	0x1023		///< Splices data to another socket.
+#define	SO_NETPROC	0x1020		///< Multiplexes; network processing. This option is not supported in the current release.
+#define	SO_RTABLE	0x1021		///< Sets routing table to be used. This option is not supported in the current release.
+#define	SO_PEERCRED	0x1022		///< Gets connect-time credentials. This option is not supported in the current release.
+#define	SO_SPLICE	0x1023		///< Splices data to another socket. This option is not supported in the current release.
 #define	SO_DOMAIN	0x1024		///< Gets socket domain.
 #define	SO_PROTOCOL	0x1025		///< Gets socket protocol.
 /*
  * si91x socket options
  */
-#define	SO_CERT_INDEX				0x1026	///< Sets certificate index for SSL socket.
-#define	SO_HIGH_PERFORMANCE_SOCKET	0x1027	///< Enables high-performance socket.
-#define SO_TLS_SNI                  0x1028  ///< Passes SNI extension for SSL socket.
-#define SO_TLS_ALPN                 0x1029  ///< Passes ALPN extension for SSL socket.
+#define	SL_SO_CERT_INDEX				0x1026	///< Sets certificate index for SSL socket.
+#define	SL_SO_HIGH_PERFORMANCE_SOCKET	0x1027	///< Enables high-performance socket.
+#define SL_SO_TLS_SNI                  0x1028  ///< Passes SNI extension for SSL socket.
+#define SL_SO_TLS_ALPN                 0x1029  ///< Passes ALPN extension for SSL socket.
 /** @} */
 
 // From Linux include/uapi/linux/tcp.h
 // See https://www.kernel.org/doc/Documentation/networking/tls.txt for more details.
 #define TCP_ULP	0x001f		/* Attach a ULP to a TCP connection */
 
-#define TLS		"tls"
-#define TLS_1_0	"tls_1_0"
-#define TLS_1_1	"tls_1_1"
-#define TLS_1_2	"tls_1_2"
-#define TLS_1_3 "tls_1_3"
 
+/*
+ * Option values per-socket.
+ */
 /**
- * Structure used for manipulating linger option.
+ * @addtogroup BSD_TLS_OPTION_VALUE TLS Option Value
+ * @ingroup BSD_SOCKET_FUNCTIONS
+ * @{ 
  */
-struct	linger {
-	int	l_onoff;		///< Option on/off 
-	int	l_linger;		///< Linger time 
-};
-
-#if __BSD_VISIBLE
-
-//#ifndef _TIMEVAL_DECLARED
-//#define _TIMEVAL_DECLARED
-//struct timeval {
-//	time_t		tv_sec;		/* seconds */
-//	suseconds_t	tv_usec;	/* and microseconds */
-//};
-//#endif
-
-/*
- * Structure used for manipulating splice option.
- */
-
-struct	splice {
-	int	sp_fd;			/* drain socket file descriptor */
-	off_t	sp_max;			/* if set, maximum bytes to splice */
-	struct	timeval	sp_idle;	/* idle timeout */
-};
-
-/*
- * Maximum number of alternate routing tables
- */
-#define	RT_TABLEID_MAX		255
-#define	RT_TABLEID_BITS		8
-#define	RT_TABLEID_MASK		0xff
-
-#endif /* __BSD_VISIBLE */
+#define TLS		"tls"		///< Option value for default TLS version.
+#define TLS_1_0	"tls_1_0"	///< Option value for TLS 1.0.
+#define TLS_1_1	"tls_1_1" 	///< Option value for TLS 1.1.
+#define TLS_1_2	"tls_1_2"   ///< Option value for TLS 1.2.
+#define TLS_1_3 "tls_1_3"	///< Option value for TLS 1.3.
+/** @} */
 
 /**
  * @addtogroup BSD_SOCKET_OPTION_LEVEL Socket Option Level
@@ -203,45 +163,45 @@ struct	splice {
  * @{ 
  */
 #define	AF_UNSPEC	0		///< Unspecified address family.
-#define	AF_UNIX		1		///< Local to host (UNIX domain) address family.
-#define	AF_LOCAL	AF_UNIX		///< POSIX compatibility alias for AF_UNIX.
+#define	AF_UNIX		1		///< Local to host (UNIX domain) address family. This domain is not supported in the current release.
+#define	AF_LOCAL	AF_UNIX		///< POSIX compatibility alias for AF_UNIX. This domain is not supported in the current release.
 #define	AF_INET		2		///< Internet IP Protocol address family.
-#define	AF_IMPLINK	3		///< ARPANET IMP address family.
-#define	AF_PUP		4		///< PUP protocols (e.g., BSP) address family.
-#define	AF_CHAOS	5		///< MIT CHAOS protocols address family.
-#define	AF_NS		6		///< XEROX NS protocols address family.
-#define	AF_ISO		7		///< ISO protocols address family.
-#define	AF_OSI		AF_ISO  ///< OSI protocol family.
-#define	AF_ECMA		8		///< European Computer Manufacturers Association (ECMA) protocols address family.
-#define	AF_DATAKIT	9		///< Datakit protocols address family.
-#define	AF_CCITT	10		///< CCITT protocols (e.g., X.25) address family.
-#define	AF_SNA		11		///< IBM SNA address family.
-#define AF_DECnet	12		///< DECnet address family.
-#define AF_DLI		13		///< DEC Direct data link interface address family.
-#define AF_LAT		14		///< LAT address family.
-#define	AF_HYLINK	15		///< NSC Hyperchannel address family.
-#define	AF_APPLETALK	16		///< AppleTalk address family.
-#define	AF_ROUTE	17		///< Internal Routing Protocol address family.
-#define	AF_LINK		18		///< Link layer interface address family.
-#define	pseudo_AF_XTP	19		///< eXpress Transfer Protocol (no AF).
-#define	AF_COIP		20		///< Connection-oriented IP, aka ST II address family.
-#define	AF_CNT		21		///< Computer Network Technology address family.
-#define pseudo_AF_RTIP	22		///< Identifier for RTIP packets.
-#define	AF_IPX		23		///< Novell Internet Protocol address family.
+#define	AF_IMPLINK	3		///< ARPANET IMP address family. This domain is not supported in the current release.
+#define	AF_PUP		4		///< PUP protocols (for example, BSP) address family. This domain is not supported in the current release.
+#define	AF_CHAOS	5		///< MIT CHAOS protocols address family. This domain is not supported in the current release.
+#define	AF_NS		6		///< XEROX NS protocols address family. This domain is not supported in the current release.
+#define	AF_ISO		7		///< ISO protocols address family. This domain is not supported in the current release.
+#define	AF_OSI		AF_ISO  ///< OSI protocol family. This domain is not supported in the current release.
+#define	AF_ECMA		8		///< European Computer Manufacturers Association (ECMA) protocols address family. This domain is not supported in the current release.
+#define	AF_DATAKIT	9		///< Datakit protocols address family. This domain is not supported in the current release.
+#define	AF_CCITT	10		///< CCITT protocols (for example, X.25) address family. This domain is not supported in the current release.
+#define	AF_SNA		11		///< IBM SNA address family. This domain is not supported in the current release.
+#define AF_DECnet	12		///< DECnet address family. This domain is not supported in the current release.
+#define AF_DLI		13		///< DEC Direct data link interface address family. This domain is not supported in the current release.
+#define AF_LAT		14		///< LAT address family. This domain is not supported in the current release.
+#define	AF_HYLINK	15		///< NSC Hyperchannel address family. This domain is not supported in the current release.
+#define	AF_APPLETALK	16		///< AppleTalk address family. This domain is not supported in the current release.
+#define	AF_ROUTE	17		///< Internal Routing Protocol address family. This domain is not supported in the current release.
+#define	AF_LINK		18		///< Link layer interface address family. This domain is not supported in the current release.
+#define	pseudo_AF_XTP	19		///< eXpress Transfer Protocol (no AF). This domain is not supported in the current release.
+#define	AF_COIP		20		///< Connection-oriented IP, aka ST II address family. This domain is not supported in the current release.
+#define	AF_CNT		21		///< Computer Network Technology address family. This domain is not supported in the current release.
+#define pseudo_AF_RTIP	22		///< Identifier for RTIP packets. This domain is not supported in the current release.
+#define	AF_IPX		23		///< Novell Internet Protocol address family. This domain is not supported in the current release.
 #define	AF_INET6	24		///< IPv6 address family.
-#define pseudo_AF_PIP	25		///< Identifier for PIP packets.
-#define AF_ISDN		26		///< Integrated Services Digital Network address family.
-#define AF_E164		AF_ISDN		///< CCITT E.164 recommendation address family.
-#define AF_NATM		27		///< Native ATM access address family.
-#define	AF_ENCAP	28      ///< Encapsulation address family.
-#define	AF_SIP		29		///< Simple Internet Protocol address family.
+#define pseudo_AF_PIP	25		///< Identifier for PIP packets. This domain is not supported in the current release.
+#define AF_ISDN		26		///< Integrated Services Digital Network address family. This domain is not supported in the current release.
+#define AF_E164		AF_ISDN		///< CCITT E.164 recommendation address family. This domain is not supported in the current release.
+#define AF_NATM		27		///< Native ATM access address family. This domain is not supported in the current release.
+#define	AF_ENCAP	28      ///< Encapsulation address family. This domain is not supported in the current release.
+#define	AF_SIP		29		///< Simple Internet Protocol address family. This domain is not supported in the current release.
 #define AF_KEY		30      ///< Key management protocol address family (originally developed for usage with IPsec).
-#define pseudo_AF_HDRCMPLT 31		///< Used by BPF to not rewrite headers in interface output routine.
-#define	AF_BLUETOOTH	32		///< Bluetooth address family.
-#define AF_MPLS         33              ///< MPLS address family.
-#define pseudo_AF_PFLOW 34		///< Identifier for pflow packets.
-#define pseudo_AF_PIPEX 35		///< Identifier for PIPEX packets.
-#define AF_MAX          36      ///< Maximum address family value.
+#define pseudo_AF_HDRCMPLT 31		///< Used by BPF to not rewrite headers in interface output routine. This domain is not supported in the current release.
+#define	AF_BLUETOOTH	32		///< Bluetooth address family. This domain is not supported in the current release.
+#define AF_MPLS         33              ///< MPLS address family. This domain is not supported in the current release.
+#define pseudo_AF_PFLOW 34		///< Identifier for pflow packets. This domain is not supported in the current release.
+#define pseudo_AF_PIPEX 35		///< Identifier for PIPEX packets. This domain is not supported in the current release.
+#define AF_MAX          36      ///< Maximum address family value. This domain is not supported in the current release.
 /** @} */
 
 /*
@@ -263,7 +223,7 @@ struct	splice {
  */
 struct sockaddr {
 	uint8_t    sa_len;		///< Total length of the structure.
-	sa_family_t sa_family;		///< Address family (e.g., AF_INET).
+	sa_family_t sa_family;		///< Address family (for example, AF_INET).
 	char	    sa_data[14];	///< Socket address data. The actual format is determined by the address family.
 };
 /** @} */
@@ -287,329 +247,6 @@ struct sockaddr_storage {
 	uint64_t	__ss_pad2;	///< Force alignment for stupid compilers. 
 	unsigned char	__ss_pad3[240];	///< Pad to a total of 256 bytes. 
 };
-
-#ifdef _KERNEL
-/*
- * Structure used by kernel to pass protocol
- * information in raw sockets.
- */
-struct sockproto {
-	unsigned short	sp_family;	/* address family */
-	unsigned short	sp_protocol;	/* protocol */
-};
-#endif /* _KERNEL */
-
-/*
- * Protocol families, same as address families for now.
- */
-#define	PF_UNSPEC	AF_UNSPEC
-#define	PF_LOCAL	AF_LOCAL
-#define	PF_UNIX		AF_UNIX
-#define	PF_INET		AF_INET
-#define	PF_IMPLINK	AF_IMPLINK
-#define	PF_PUP		AF_PUP
-#define	PF_CHAOS	AF_CHAOS
-#define	PF_NS		AF_NS
-#define	PF_ISO		AF_ISO
-#define	PF_OSI		AF_ISO
-#define	PF_ECMA		AF_ECMA
-#define	PF_DATAKIT	AF_DATAKIT
-#define	PF_CCITT	AF_CCITT
-#define	PF_SNA		AF_SNA
-#define PF_DECnet	AF_DECnet
-#define PF_DLI		AF_DLI
-#define PF_LAT		AF_LAT
-#define	PF_HYLINK	AF_HYLINK
-#define	PF_APPLETALK	AF_APPLETALK
-#define	PF_ROUTE	AF_ROUTE
-#define	PF_LINK		AF_LINK
-#define	PF_XTP		pseudo_AF_XTP	/* really just proto family, no AF */
-#define	PF_COIP		AF_COIP
-#define	PF_CNT		AF_CNT
-#define	PF_IPX		AF_IPX		/* same format as AF_NS */
-#define PF_INET6	AF_INET6
-#define PF_RTIP		pseudo_AF_RTIP	/* same format as AF_INET */
-#define PF_PIP		pseudo_AF_PIP
-#define PF_ISDN		AF_ISDN
-#define PF_NATM		AF_NATM
-#define PF_ENCAP	AF_ENCAP
-#define	PF_SIP		AF_SIP
-#define PF_KEY		AF_KEY
-#define PF_BPF		pseudo_AF_HDRCMPLT
-#define	PF_BLUETOOTH	AF_BLUETOOTH
-#define PF_MPLS		AF_MPLS
-#define PF_PFLOW	pseudo_AF_PFLOW
-#define PF_PIPEX	pseudo_AF_PIPEX
-#define	PF_MAX		AF_MAX
-
-/*
- * These are the valid values for the "how" field used by shutdown(2).
- */
-#define	SHUT_RD		0
-#define	SHUT_WR		1
-#define	SHUT_RDWR	2
-
-#if __BSD_VISIBLE
-#define SA_LEN(x) ((x)->sa_len)
-
-/*
- * Definitions for network related sysctl, CTL_NET.
- *
- * Second level is protocol family.
- * Third level is protocol number.
- *
- * Further levels are defined by the following individual families.
- */
-#define NET_MAXID	AF_MAX
-
-#define CTL_NET_NAMES { \
-	{ 0, 0 }, \
-	{ "unix", CTLTYPE_NODE }, \
-	{ "inet", CTLTYPE_NODE }, \
-	{ "implink", CTLTYPE_NODE }, \
-	{ "pup", CTLTYPE_NODE }, \
-	{ "chaos", CTLTYPE_NODE }, \
-	{ "xerox_ns", CTLTYPE_NODE }, \
-	{ "iso", CTLTYPE_NODE }, \
-	{ "ecma", CTLTYPE_NODE }, \
-	{ "datakit", CTLTYPE_NODE }, \
-	{ "ccitt", CTLTYPE_NODE }, \
-	{ "ibm_sna", CTLTYPE_NODE }, \
-	{ "decnet", CTLTYPE_NODE }, \
-	{ "dec_dli", CTLTYPE_NODE }, \
-	{ "lat", CTLTYPE_NODE }, \
-	{ "hylink", CTLTYPE_NODE }, \
-	{ "appletalk", CTLTYPE_NODE }, \
-	{ "route", CTLTYPE_NODE }, \
-	{ "link", CTLTYPE_NODE }, \
-	{ "xtp", CTLTYPE_NODE }, \
-	{ "coip", CTLTYPE_NODE }, \
-	{ "cnt", CTLTYPE_NODE }, \
-	{ "rtip", CTLTYPE_NODE }, \
-	{ "ipx", CTLTYPE_NODE }, \
-	{ "inet6", CTLTYPE_NODE }, \
-	{ "pip", CTLTYPE_NODE }, \
-	{ "isdn", CTLTYPE_NODE }, \
-	{ "natm", CTLTYPE_NODE }, \
-	{ "encap", CTLTYPE_NODE }, \
-	{ "sip", CTLTYPE_NODE }, \
-	{ "key", CTLTYPE_NODE }, \
-	{ "bpf", CTLTYPE_NODE }, \
-	{ "bluetooth", CTLTYPE_NODE }, \
-	{ "mpls", CTLTYPE_NODE }, \
-	{ "pflow", CTLTYPE_NODE }, \
-	{ "pipex", CTLTYPE_NODE }, \
-}
-
-/*
- * PF_ROUTE - Routing table
- *
- * Four additional levels are defined:
- *	Fourth: address family, 0 is wildcard
- *	Fifth: type of info, defined below
- *	Sixth: flag(s) to mask with for NET_RT_FLAGS
- *	Seventh: routing table to use (facultative, defaults to 0)
- *		 NET_RT_TABLE has the table id as sixth element.
- */
-#define NET_RT_DUMP	1		/* dump; may limit to a.f. */
-#define NET_RT_FLAGS	2		/* by flags, e.g. RESOLVING */
-#define NET_RT_IFLIST	3		/* survey interface list */
-#define	NET_RT_STATS	4		/* routing table statistics */
-#define	NET_RT_TABLE	5
-#define	NET_RT_IFNAMES	6
-#define	NET_RT_SOURCE	7
-#define	NET_RT_MAXID	8
-
-#define CTL_NET_RT_NAMES { \
-	{ 0, 0 }, \
-	{ "dump", CTLTYPE_STRUCT }, \
-	{ "flags", CTLTYPE_STRUCT }, \
-	{ "iflist", CTLTYPE_STRUCT }, \
-	{ "stats", CTLTYPE_STRUCT }, \
-	{ "table", CTLTYPE_STRUCT }, \
-	{ "ifnames", CTLTYPE_STRUCT }, \
-	{ "source", CTLTYPE_STRUCT }, \
-}
-
-/*
- * PF_UNIX - unix socket tunables
- */
-#define NET_UNIX_INFLIGHT	6
-#define NET_UNIX_DEFERRED	7
-#define NET_UNIX_MAXID		8
-
-#define CTL_NET_UNIX_NAMES { \
-	{ 0, 0 }, \
-	{ "stream", CTLTYPE_NODE }, \
-	{ "dgram", CTLTYPE_NODE }, \
-	{ 0, 0 }, \
-	{ 0, 0 }, \
-	{ "seqpacket", CTLTYPE_NODE }, \
-	{ "inflight", CTLTYPE_INT }, \
-	{ "deferred", CTLTYPE_INT }, \
-}
-
-#define UNPCTL_RECVSPACE	1
-#define UNPCTL_SENDSPACE	2
-#define NET_UNIX_PROTO_MAXID	3
-
-#define CTL_NET_UNIX_PROTO_NAMES { \
-	{ 0, 0 }, \
-	{ "recvspace", CTLTYPE_INT }, \
-	{ "sendspace", CTLTYPE_INT }, \
-}
-
-/*
- * PF_LINK - link layer or device tunables
- */
-#define NET_LINK_IFRXQ		1	/* net.link.ifrxq */
-#define NET_LINK_MAXID		2
-
-#define CTL_NET_LINK_NAMES { \
-	{ 0, 0 }, \
-	{ "ifrxq", CTLTYPE_NODE }, \
-}
-
-#define NET_LINK_IFRXQ_PRESSURE_RETURN \
-				1	/* net.link.ifrxq.pressure_return */
-#define NET_LINK_IFRXQ_PRESSURE_DROP \
-				2	/* net.link.ifrxq.pressure_drop */
-#define NET_LINK_IFRXQ_MAXID	3
-
-#define CTL_NET_LINK_IFRXQ_NAMES { \
-	{ 0, 0 }, \
-	{ "pressure_return", CTLTYPE_INT }, \
-	{ "pressure_drop", CTLTYPE_INT }, \
-}
-
-/*
- * PF_KEY - Key Management
- */
-#define NET_KEY_SADB_DUMP	1	/* return SADB */
-#define NET_KEY_SPD_DUMP	2	/* return SPD */
-#define NET_KEY_MAXID		3
-
-#define CTL_NET_KEY_NAMES { \
-	{ 0, 0 }, \
-	{ "sadb_dump", CTLTYPE_STRUCT }, \
-	{ "spd_dump", CTLTYPE_STRUCT }, \
-}
-
-/*
- * PF_BPF  not really a family, but connected under CTL_NET
- */
-#define NET_BPF_BUFSIZE		1		/* default buffer size */
-#define NET_BPF_MAXBUFSIZE	2		/* maximum buffer size */
-#define NET_BPF_MAXID		3
-
-#define CTL_NET_BPF_NAMES { \
-	{ 0, 0 }, \
-	{ "bufsize", CTLTYPE_INT }, \
-	{ "maxbufsize", CTLTYPE_INT }, \
-}
-
-/*
- * PF_PFLOW not really a family, but connected under CTL_NET
- */
-#define NET_PFLOW_STATS		1		/* statistics */
-#define NET_PFLOW_MAXID		2
-
-#define CTL_NET_PFLOW_NAMES { \
-	{ 0, 0 }, \
-	{ "stats", CTLTYPE_STRUCT }, \
-}
-#endif /* __BSD_VISIBLE */
-
-/*
- * Maximum queue length specifiable by listen(2).
- */
-#define	SOMAXCONN	128
-
-/**
- * Message header for recvmsg and sendmsg calls.
- * Used value-result for recvmsg, value only for sendmsg.
- */
-struct msghdr {
-	void		*msg_name;	///< Optional address. 
-	socklen_t	msg_namelen;	///< Size of address.
-	struct		iovec *msg_iov;	///< Scatter/gather array. 
-	unsigned int	msg_iovlen;	///< # elements in msg_iov. 
-	void		*msg_control;	///< Ancillary data, see below. 
-	socklen_t	msg_controllen;	///< Ancillary data buffer len. 
-	int		msg_flags;	///< Flags on received message. 
-};
-/// Message Header 
-struct mmsghdr {
-	struct msghdr msg_hdr; ///< Message header
-	unsigned int msg_len; ///< Message len
-};
-
-struct timespec;
-
-#define	MSG_OOB			0x1	/* process out-of-band data */
-#define	MSG_PEEK		0x2	/* peek at incoming message */
-#define	MSG_DONTROUTE		0x4	/* send without using routing tables */
-#define	MSG_EOR			0x8	/* data completes record */
-#define	MSG_TRUNC		0x10	/* data discarded before delivery */
-#define	MSG_CTRUNC		0x20	/* control data lost before delivery */
-#define	MSG_WAITALL		0x40	/* wait for full request or error */
-#define	MSG_DONTWAIT		0x80	/* this message should be nonblocking */
-#define	MSG_BCAST		0x100	/* this message rec'd as broadcast */
-#define	MSG_MCAST		0x200	/* this message rec'd as multicast */
-#define	MSG_NOSIGNAL		0x400	/* do not send SIGPIPE */
-#define	MSG_CMSG_CLOEXEC	0x800	/* set FD_CLOEXEC on received fds */
-#define	MSG_WAITFORONE		0x1000	/* nonblocking but wait for one msg */
-
-/**
- * Header for ancillary data objects in msg_control buffer.
- * Used for additional information with/about a datagram
- * not expressible by flags.  The format is a sequence
- * of message elements headed by cmsghdr structures.
- */
-struct cmsghdr {
-	socklen_t	cmsg_len;	///< Data byte count, including hdr. 
-	int		cmsg_level;	///< Originating protocol. 
-	int		cmsg_type;	///< Protocol-specific type. 
-/* followed by	u_char  cmsg_data[]; */
-};
-
-/* given pointer to struct cmsghdr, return pointer to data */
-#define	CMSG_DATA(cmsg) \
-	((unsigned char *)(cmsg) + _ALIGN(sizeof(struct cmsghdr)))
-
-/* given pointer to struct cmsghdr, return pointer to next cmsghdr */
-#define	CMSG_NXTHDR(mhdr, cmsg)	\
-	(((char *)(cmsg) + _ALIGN((cmsg)->cmsg_len) + \
-			    _ALIGN(sizeof(struct cmsghdr)) > \
-	    ((char *)(mhdr)->msg_control) + (mhdr)->msg_controllen) ? \
-	    (struct cmsghdr *)NULL : \
-	    (struct cmsghdr *)((char *)(cmsg) + _ALIGN((cmsg)->cmsg_len)))
-
-/*
- * RFC 2292 requires to check msg_controllen, in case that the kernel returns
- * an empty list for some reasons.
- */
-#define	CMSG_FIRSTHDR(mhdr) \
-	((mhdr)->msg_controllen >= sizeof(struct cmsghdr) ? \
-	 (struct cmsghdr *)(mhdr)->msg_control : \
-	 (struct cmsghdr *)NULL)
-
-/* Round len up to next alignment boundary */
-#ifdef _KERNEL
-#define CMSG_ALIGN(n)		_ALIGN(n)
-#endif
-
-/* Length of the contents of a control message of length len */
-#define	CMSG_LEN(len)	(_ALIGN(sizeof(struct cmsghdr)) + (len))
-
-/* Length of the space taken up by a padded control message of length len */
-#define	CMSG_SPACE(len)	(_ALIGN(sizeof(struct cmsghdr)) + _ALIGN(len))
-
-/* "Socket"-level control message types: */
-#define	SCM_RIGHTS	0x01		/* access rights (array of int) */
-#define	SCM_TIMESTAMP	0x04		/* timestamp (struct timeval) */
-
-#ifndef _KERNEL
 
 /* __BEGIN_DECLS */
 
@@ -642,8 +279,11 @@ struct cmsghdr {
  *   The protocol number to use is specific to the communication domain. Must be one of the values from @ref BSD_SOCKET_PROTOCOL.
  * 
  * @return 
- *   Returns a descriptor referencing the socket if successful. 
+ *   Returns the socket ID or file descriptor that references the socket upon success.
  *   Returns -1 if an error occurs.
+ * 
+ * @note
+ * 	The \p type supports SOCK_STREAM and SOCK_DGRAM only.
  ******************************************************************************/
 int socket(int domain, int type, int protocol);
 
@@ -660,7 +300,7 @@ int socket(int domain, int type, int protocol);
  *   It is normally necessary to assign a local address using `bind()` before a `SOCK_STREAM` socket may receive connections.
  * 
  * @param[in] socket_id
- *   Socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] addr 
  *   Pointer to a @ref sockaddr structure containing the address to be assigned to the socket.
@@ -689,7 +329,7 @@ int bind(int socket_id, const struct sockaddr *addr, socklen_t addr_len);
  *   must be specified with @ref listen(), and then the connections can be accepted with @ref accept().
  * 
  * @param[in] socket_id
- *   Socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] backlog
  *   The backlog argument defines the maximum number of pending connections that can be queued.
@@ -756,7 +396,7 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len);
  *   @ref connect() multiple times to change their association.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] addr 
  *   The addr argument of type @ref sockaddr is the address is that to which datagrams are to be sent.
@@ -783,7 +423,7 @@ int connect(int socket_id, const struct sockaddr *addr, socklen_t addr_len);
  *   By default, @ref recv() is a blocking API. To use it in a non-blocking manner, you can set the socket to non-blocking mode using `setsockopt()`.
  * 
  * @param[in] socket_id
- *   Socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[out] buf
  *   Pointer to the buffer that receives the data.
@@ -813,7 +453,7 @@ ssize_t recv(int socket_id, void *buf, size_t buf_len, int flags);
  *   the source address of the message is filled in.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[out] buf
  *   Pointer to the buffer that receives the data.
@@ -853,7 +493,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
  *   has been placed in non-blocking I/O mode.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] buf
  *   Pointer to the buffer containing the message to transmit.
@@ -888,7 +528,7 @@ ssize_t send(int socket_id, const void *buf, size_t buf_len, int flags);
  *   the error `EMSGSIZE` is returned, and the message is not transmitted.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] buf
  *   Pointer to the buffer containing the message to transmit.
@@ -928,7 +568,7 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   The `option_value` and `option_length` arguments are used to access option values for @ref setsockopt().
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] option_level
  *   The level at which the option is being set. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
@@ -953,7 +593,13 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   - `SO_KEEPALIVE`: Keep connections alive.
  *   - `TCP_ULP`: TCP upper layer protocol.
  *   - `SO_MAX_RETRANSMISSION_TIMEOUT_VALUE`: Maximum retransmission timeout value.
- *   - `IP_TOS`: Type of service.
+ *   - `IP_TOS`: Type of service, one of the supported values from @ref BSD_SOCKET_TOS_DEFINES (Values 0-7 are deprecated). 
+ *   - `SL_SO_CERT_INDEX`: Set the certificate index for the socket.
+ *   - `SL_SO_HIGH_PERFORMANCE_SOCKET`: Set the high-performance socket option for the socket.
+ *   - `SL_SO_TLS_SNI`: Set the server name indication for the socket.
+ *   - `SL_SO_TLS_ALPN`: Set the application layer protocol negotiation for the socket.
+ *   The options `SL_SO_CERT_INDEX`, `SL_SO_HIGH_PERFORMANCE_SOCKET`, `SL_SO_TLS_SNI`, and `SL_SO_TLS_ALPN` are Silicon Labs specific options.
+ * 	 This function is used before the socket is connected.
  ******************************************************************************/
 int setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length);
 
@@ -971,7 +617,7 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
  *   The `option_value` and `option_length` arguments identify a buffer in which the value for the requested options are to be returned.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[in] option_level
  *   The level at which the option is defined. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
@@ -1012,7 +658,7 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
  *   pointed to by `name_len`. If the buffer provided is too small, the address is truncated.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[out] name 
  *   Pointer to a `sockaddr` structure that will be filled with the address of the peer socket.
@@ -1037,7 +683,7 @@ int getpeername(int socket_id, struct sockaddr *name, socklen_t *name_len);
  *   pointed to by `name_len`. If the buffer provided is too small, the address is truncated.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @param[out] name 
  *   Pointer to a `sockaddr` structure that will be filled with the address of the socket.
@@ -1061,7 +707,7 @@ int getsockname(int socket_id, struct sockaddr *name, socklen_t *name_len);
  *   This function releases the resources associated with the socket and makes the socket descriptor available for reuse.
  * 
  * @param[in] socket_id
- *   The socket identification number.
+ *   The socket ID or file descriptor for the specified socket.
  * 
  * @return
  *   Returns 0 on success. Returns -1 on error and sets the global variable `errno` to indicate the error.
@@ -1073,27 +719,6 @@ int getsockname(int socket_id, struct sockaddr *name, socklen_t *name_len);
 int close(int socket_id);
 
 /** @} */
-
-int	shutdown(int socket_id, int how);
-//int	sockatmark(int);
-
-//int	socketpair(int, int, int, int *);
-int closesocket(int socket_id);
-
-#if __BSD_VISIBLE
-int	accept4(int, struct sockaddr *__restrict, socklen_t *__restrict, int);
-#endif
-
 /* __END_DECLS */
-
-#else
-
-static inline struct sockaddr *
-sstosa(struct sockaddr_storage *ss)
-{
-	return ((struct sockaddr *)(ss));
-}
-
-#endif /* !_KERNEL */
 
 #endif /* !COMPONENTS_BSD_SOCKET_INC_SOCKET_H_ */

@@ -1,4 +1,5 @@
-  /* -----------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
+ * SPDX-License-Identifier: Zlib
  * Copyright (c) 2013-2016 ARM Ltd.
  *
  * This software is provided 'as-is', without any express or implied warranty.
@@ -2291,8 +2292,8 @@
 
 
 // <o>(State Configurable Timer) Interface
-#define SCT_CLOCK_SOURCE        M4_SOCCLKFOROTHERCLKSCT
-#define SCT_CLOCK_DIV_FACT      1
+#define SCT_CLOCK_SOURCE        CT_INTFPLLCLK
+#define SCT_CLOCK_DIV_FACT      2
 
 //SCT_IN_0	<0=>GPIO_25	 <1=>GPIO_64 <2=>GPIO_68
 #ifndef CHIP_917_6x6

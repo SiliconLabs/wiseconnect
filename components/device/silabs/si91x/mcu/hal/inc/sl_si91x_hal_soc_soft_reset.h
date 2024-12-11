@@ -45,19 +45,6 @@
  * @{ */
 
 /**
- * @brief        To trigger a software reset of the Si91X SoC.
- * 
- * @details      This API triggers a software reset of the Si91X SoC, resetting the system to its initial state.
- *               The system will reset to its initial state once the WDT expires. 
- *               This function also ensures that necessary configurations are applied before the system reset occurs, 
- *               including setting the power for the WDT and configuring the NVIC to handle WDT interrupts.
- * 
- * @note         Ensure that all necessary data is saved before calling this function because it will reset the entire system.
- *               This function is intended for use in situations where a full system reset is required.
- */
-void sl_si91x_soc_soft_reset(void);
-
-/**
  * @brief        To perform a Nested Vectored Interrupt Controller (NVIC) soft reset on the Si91X SoC.
  * 
  * @details      This function initiates a system reset request to reset the SoC.

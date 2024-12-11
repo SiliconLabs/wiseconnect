@@ -1,22 +1,31 @@
 /*******************************************************************************
 * @file  rsi_rom_ulpss_clk.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
-/*************************************************************************
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
- */
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 // Includes
 
@@ -52,6 +61,10 @@ extern "C" {
 #else
 #include "rsi_rom_table_RS1xxxx.h"
 #endif
+#if SL_WIFI_COMPONENT_INCLUDED
+#include "sl_rsi_utility.h"
+#include "rsi_m4.h"
+#endif
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_ULPSS_RefClkConfig(ULPSS_REF_CLK_SEL_T clkSource)
@@ -61,12 +74,18 @@ extern "C" {
  */
 STATIC INLINE rsi_error_t RSI_ULPSS_RefClkConfig(ULPSS_REF_CLK_SEL_T clkSource)
 {
+#if SL_WIFI_COMPONENT_INCLUDED
+  if (clkSource == ULPSS_40MHZ_CLK) {
+    /*  Notify NWP that M4 requires XTAL clock source  */
+    sli_si91x_xtal_turn_on_request_from_m4_to_TA();
+  }
+#endif
   return ulpss_ref_clk_config(clkSource);
 }
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK, boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor)
- * @brief	    	This API is used to select the ULPSS processor clock source when input is soc clk source which is greater than 100MHz
+ * @brief	    	This API is used to select the ULPSS processor clock source when input is soc clk source which is greater than 100 MHz
  * @param[in]   pCLK      : Pointer to the pll register instance
  * @param[in]	  clkEnable : is to enable or disable the ulpss_soc clock
  *              -  Enable  1: Enables the clock
@@ -295,13 +314,13 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpDynClkDisable(ULPCLK_Type *pULPCLK, uint3
  *              -  1: \ref ulp_32khz_ro_clk
  *              -  2: \ref ulp_32khz_rc_clk
  *              -  3: \ref ulp_32khz_xtal_clk  #refer NOTE
- *              -  4: \ref ulp_32mhz_rc_clk
+ *              -  4: \ref ulp_mhz_rc_clk
  *              -  5: \ref ulp_20mhz_ro_clk
  *              -  6: \ref soc_clk             #refer NOTE
  * @param[in]   divFactor : To divide the clock
  * @return 		  returns 0 \ref RSI_OK on success ,Error code on failure
  * @note        There are two \ref XTAL Clk sources one is Internal and external \ref XTAL clk source. In order to enable the external XTAL clk source need to configure the \ref NPSS_GPIO pins
- *   	          - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	          - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  *              - In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
  *              - please refer \ref RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK,boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor);
  */
@@ -329,7 +348,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpSsiClkConfig(ULPCLK_Type *pULPCLK,
  *               - 1: \ref ulp_32khz_ro_clk
  *               - 2: \ref ulp_32khz_rc_clk
  *               - 3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *               - 4: \ref ulp_32mhz_rc_clk
+ *               - 4: \ref ulp_mhz_rc_clk
  *               - 5: \ref ulp_20mhz_ro_clk
  *               - 6: \ref soc_clk                #refer NOTE
  *               - 7: \ref ulp_doubler_clk
@@ -367,13 +386,13 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpI2sClkConfig(ULPCLK_Type *pULPCLK,
  *               -  1: \ref ulp_32khz_ro_clk
  *               -  2: \ref ulp_32khz_rc_clk
  *               -  3: \ref ulp_32khz_xtal_clk    #refer NOTE
- *               -  4: \ref ulp_32mhz_rc_clk
+ *               -  4: \ref ulp_mhz_rc_clk
  *               -  5: \ref ulp_20mhz_ro_clk
  *               -  6: \ref soc_clk               #refer NOTE
  * @param[in]    divFactor : To divide the clock
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
  * @note         There are two XTAL Clk sources one is Internal and external XTAL clk source. In order to enable the external XTAL clk source need to configure the NPSS_GPIO pins
- *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  *               - In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
  *               - please refer RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK,boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor);
  */
@@ -404,7 +423,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpUartClkConfig(ULPCLK_Type *pULPCLK,
  *                -  1: \ref ulp_32khz_ro_clk
  *                -  2: \ref ulp_32khz_rc_clk
  *                -  3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *                -  4: \ref ulp_32mhz_rc_clk
+ *                -  4: \ref ulp_mhz_rc_clk
  *                -  5: \ref ulp_20mhz_ro_clk
  *                -  6: \ref soc_clk                #refer NOTE
  *                -  7: \ref ulp_doubler_clk
@@ -413,7 +432,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpUartClkConfig(ULPCLK_Type *pULPCLK,
  *                -  0 : Skip waiting for switching timer clk
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
  * @note         There are two XTAL Clk sources one is Internal and external XTAL clk source. In order to enable the external XTAL clk source need to configure the NPSS_GPIO pins
- *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  *               - In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
  *               - please refer RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK,boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor);
  */
@@ -458,14 +477,14 @@ STATIC INLINE rsi_error_t RSI_ULPSS_TimerClkDisable(ULPCLK_Type *pULPCLK)
  *                -  1: \ref ulp_32khz_ro_clk
  *                -  2: \ref ulp_32khz_rc_clk
  *                -  3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *                -  4: \ref ulp_32mhz_rc_clk
+ *                -  4: \ref ulp_mhz_rc_clk
  *                -  5: \ref ulp_20mhz_ro_clk
  *                -  6: \ref soc_clk                #refer NOTE
  *                -  7: \ref ulp_doubler_clk
  *                -  8: \ref I2S PLL
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
  * @note         - There are two XTAL Clk sources one is Internal and external XTAL clk source. In order to enable the external XTAL clk source need to configure the NPSS_GPIO pins
- *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  *               - In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
  *               - please refer RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK,boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor);
  */
@@ -492,17 +511,17 @@ STATIC INLINE rsi_error_t RSI_ULPSS_AuxClkConfig(ULPCLK_Type *pULPCLK,
  *               -  1: \ref ulp_32khz_rc_clk
  *               -  2: \ref ulp_32khz_xtal_clk        #refer NOTE
  *	              \n NOTE: In order to enable the XTAL CLK source need to configure the NPSS_GPIO pins
- *   	            \n which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	            \n which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  * @param[in]	   FclkSource : Ulp vad Fast clock select. Please refer #ULP_VAD_FCLK_SELECT_T for more info
  *               -  0: ulpss processor clock     #refer NOTE
  *               -  1: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *               -  2: \ref ulp_32mhz_rc_clk
+ *               -  2: \ref ulp_mhz_rc_clk
  *               -  3: \ref ulp_20mhz_ro_clk
  *               -  4: \ref soc_clk                 #refer NOTE
  * @param[in]    divFactor : To divide the clock
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
  * @note          - There are two XTAL Clk sources one is Internal and external XTAL clk source. In order to enable the external XTAL clk source need to configure the NPSS_GPIO pins
- *   	            - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	            - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  *                - In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
  *                - please refer RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK,boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor);
  *                - In order to enable the  ulpss processor clock source need to configure the
@@ -529,13 +548,13 @@ STATIC INLINE rsi_error_t RSI_ULPSS_VadClkConfig(ULPCLK_Type *pULPCLK,
  *                         -  1: \ref ulp_32khz_ro_clk
  *                         -  2: \ref ulp_32khz_rc_clk
  *                         -  3: \ref ulp_32khz_xtal_clk    #refer NOTE
- *                         -  4: \ref ulp_32mhz_rc_clk
+ *                         -  4: \ref ulp_mhz_rc_clk
  *                         -  5: \ref ulp_20mhz_ro_clk
  *                         -  6: \ref soc_clk               #refer NOTE
  * @param[in]    divFactor : To divide the clock
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
  * @note         There are two XTAL Clk sources one is Internal and external XTAL clk source. In order to enable the external XTAL clk source need to configure the NPSS_GPIO pins
- *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	           - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  *               - In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
  *               - please refer RSI_ULPSS_ClockConfig(M4CLK_Type *pCLK,boolean_t clkEnable,uint16_t  divFactor,boolean_t  oddDivFactor);
  */
@@ -559,7 +578,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_TouchClkConfig(ULPCLK_Type *pULPCLK,
  * @param[in]   divFactor : To divide the clock
  * @return 		  returns 0 \ref RSI_OK on success ,Error code on failure
  * @note        In order to enable the XTAL CLK source need to configure the NPSS_GPIO pins
- *   	          - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API i.e we need to call that API first
+ *   	          - which can be done through RSI_CLK_XtalClkConfig(uint8_t xtalPin) API that is we need to call that API first
  */
 STATIC INLINE rsi_error_t RSI_ULPSS_SlpSensorClkConfig(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor)
 {

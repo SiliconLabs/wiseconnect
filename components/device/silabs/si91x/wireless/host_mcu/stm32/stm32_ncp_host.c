@@ -29,7 +29,7 @@
 #include "stm32f4xx_hal.h"
 #include "sl_board_configuration.h"
 
-#define SPI_BUFFER_LENGTH 1600
+#define SPI_BUFFER_LENGTH 2300
 #define DMA_ENABLED
 
 static void MX_GPIO_Init(void);
@@ -164,7 +164,7 @@ void sl_si91x_host_release_from_reset(void)
   HAL_GPIO_WritePin(RESET_PIN_GPIO_Port, RESET_PIN_Pin, GPIO_PIN_SET);
 }
 
-sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
 {
   UNUSED_PARAMETER(config);
   uint32_t status = 0;
@@ -275,7 +275,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 void gpio_interrupt(void)
 {
   // Trigger SiWx91x BUS Event
-  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
 }
 bool sl_si91x_host_is_in_irq_context(void)
 {

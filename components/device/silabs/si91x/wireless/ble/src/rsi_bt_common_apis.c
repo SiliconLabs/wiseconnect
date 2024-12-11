@@ -388,10 +388,10 @@ int32_t rsi_bt_power_save_profile(uint8_t psp_mode, uint8_t psp_type)
       }
     } break;
     case RSI_SLEEP_MODE_8: {
-      profile.profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION;
+      profile.profile = DEEP_SLEEP_WITH_RAM_RETENTION;
     } break;
     case RSI_SLEEP_MODE_10: {
-      profile.profile = STANDBY_POWER_SAVE;
+      profile.profile = DEEP_SLEEP_WITHOUT_RAM_RETENTION;
     } break;
     default: {
       return RSI_FEATURE_NOT_SUPPORTED;

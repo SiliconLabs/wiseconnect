@@ -5,6 +5,9 @@ description: >
 label: Debug Unit
 category: Device|Si91x|MCU|Common
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 component_root_path: components/device/silabs/si91x/mcu/core/common
 source:
   - path: "src/rsi_debug.c"
@@ -28,6 +31,6 @@ template_contribution:
       event: platform_init
       include: rsi_debug.h
       handler: DEBUGINIT
-    priority: -9995
+    priority: -9994
 ui_hints:
     visibility: never

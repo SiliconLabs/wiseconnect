@@ -1092,11 +1092,11 @@ void receive_data_from_tcp_client(void)
   }
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(server_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -1104,7 +1104,7 @@ void receive_data_from_tcp_client(void)
   }
 
   socket_return_value =
-    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = LISTENING_PORT;
@@ -1197,6 +1197,8 @@ void send_data_to_udp_server(void)
       break;
     }
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       LOG_PRINT("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;

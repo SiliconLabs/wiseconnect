@@ -63,7 +63,7 @@ uint8_t rx_char;
 void ARM_UART_SignalEvent(uint32_t event)
 {
   // Get the USART Event
-  event &= (USART_EVENT_MASK);
+  event &= USART_EVENT_MASK;
   switch (event) {
     case ARM_USART_EVENT_SEND_COMPLETE:
       send_done++;
@@ -98,6 +98,9 @@ void ARM_UART_SignalEvent(uint32_t event)
     case ARM_USART_EVENT_DCD:
       break;
     case ARM_USART_EVENT_RI:
+      break;
+    default:
+      // Handle unexpected events
       break;
   }
 }
@@ -197,7 +200,7 @@ int READFUNC(void)
   return c;
 
 #else
-  return (int)-1;
+  return -1;
 #endif
 }
 #endif // defined( __GNUC__ )

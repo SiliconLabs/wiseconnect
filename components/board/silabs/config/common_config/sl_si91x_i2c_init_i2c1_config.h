@@ -3,7 +3,7 @@
 * @brief I2c driver instance configuration file.
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -55,45 +55,49 @@ extern "C" {
 // <i> Selection of the I2C Mode.
 #define SL_I2C_I2C1_OPERATING_MODE SL_I2C_STANDARD_MODE
 
-// <o SL_I2C_I2C1_TRANSFER_TYPE> Transfer Type
-//   <SL_I2C_USING_INTERRUPT=> Using Interrupt
-//   <SL_I2C_USING_DMA=> Using DMA
-// <i> Selection of the I2C Mode.
-#define SL_I2C_I2C1_TRANSFER_TYPE SL_I2C_USING_INTERRUPT
+// <q SL_I2C_I2C1_INIT_DMA> DMA
+// <i> Default: 0
+#define SL_I2C_I2C1_INIT_DMA 0
 
 // </h> End I2C1 Configuration
 /******************************************************************************/
 // <<< end of configuration section >>>
 
+// Previously, SL_I2C_I2C1_TRANSFER_TYPE was updated directly through UC. Now, it is updated indirectly through SL_I2C_I2C1_INIT_DMA.
+#define SL_I2C_I2C1_TRANSFER_TYPE SL_I2C_I2C1_INIT_DMA
+
 // <<< sl:start pin_tool >>>
-// <i2c signal=SCL,SDA> SL_I2C1
-// $[I2C_SL_I2C1]
+// <i2c1 signal=SCL,SDA> SL_I2C1
+// $[I2C1_SL_I2C1]
 #ifndef SL_I2C1_PERIPHERAL
 #define SL_I2C1_PERIPHERAL I2C1
 #endif
+#ifndef SL_I2C1_PERIPHERAL_NO
+#define SL_I2C1_PERIPHERAL_NO 1
+#endif
 
-// I2C1 SCL on GPIO_50
+// I2C1 SCL on GPIO_54
 #ifndef SL_I2C1_SCL_PORT
 #define SL_I2C1_SCL_PORT HP
 #endif
 #ifndef SL_I2C1_SCL_PIN
-#define SL_I2C1_SCL_PIN 50
+#define SL_I2C1_SCL_PIN 54
 #endif
 #ifndef SL_I2C1_SCL_LOC
-#define SL_I2C1_SCL_LOC 2
+#define SL_I2C1_SCL_LOC 3
 #endif
 
-// I2C1 SDA on GPIO_51
+// I2C1 SDA on GPIO_55
 #ifndef SL_I2C1_SDA_PORT
 #define SL_I2C1_SDA_PORT HP
 #endif
 #ifndef SL_I2C1_SDA_PIN
-#define SL_I2C1_SDA_PIN 51
+#define SL_I2C1_SDA_PIN 55
 #endif
 #ifndef SL_I2C1_SDA_LOC
-#define SL_I2C1_SDA_LOC 8
+#define SL_I2C1_SDA_LOC 9
 #endif
-// [I2C_SL_I2C1]$
+// [I2C1_SL_I2C1]$
 // <<< sl:end pin_tool >>>
 
 #define SL_I2C_I2C1_SCL_PORT 0

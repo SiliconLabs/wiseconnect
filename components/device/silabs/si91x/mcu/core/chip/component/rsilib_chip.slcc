@@ -5,11 +5,15 @@ description: >
   Provides the Si91x SoC MCU core functionalities.
 category: Device|Si91x|MCU|Core
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 component_root_path: "components/device/silabs/si91x/mcu/core/chip"
 ui_hints:
   visibility: never
 define:
   - name: SLI_SI91X_MCU_ENABLE_IPMU_APIS
+  - name: SLI_CODE_CLASSIFICATION_DISABLE  
 source:
   - path: "src/rsi_ps_ram_func.c"
   - path: "src/iPMU_prog/iPMU_dotc/rsi_system_config_917.c"
@@ -20,7 +24,6 @@ include:
     file_list:
     - path: "base_types.h"
     - path: "data_types.h"
-    - path: "RS1xxxx.h"
     - path: "rsi_ccp_common.h"
     - path: "rsi_error.h"
     - path: "rsi_ps_ram_func.h"
@@ -34,9 +37,13 @@ include:
     - path: "si91x_mvp.h"
 provides:
   - name: rsilib_chip
+  - name: sl_memory
+    condition: [device_si91x]
 requires:
   - name: systemlevel_ipmu
   - name: systemlevel_temp_sensor
+  - name: sl_bjt_temperature_sensor 
+  - name: sl_clock_manager
 template_contribution:
   - name: event_handler
     value:

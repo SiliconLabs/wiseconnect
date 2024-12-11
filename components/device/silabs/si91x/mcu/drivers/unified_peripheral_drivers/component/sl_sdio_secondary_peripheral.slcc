@@ -7,6 +7,9 @@ description: >
   transmitting and receiving the data to and from the sdio master.
 category: Device|Si91x|MCU|Peripheral|Register-Level API
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_peripheral_drivers"
 provides:
   - name: sl_sdio_secondary_peripheral

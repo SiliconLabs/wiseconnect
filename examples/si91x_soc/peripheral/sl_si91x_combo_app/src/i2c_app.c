@@ -22,34 +22,30 @@
 #include "sl_si91x_peripheral_i2c.h"
 #include "cmsis_os2.h"
 #include "sl_component_catalog.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define NON_BLOCKING_APPLICATION     DISABLE // Enable this macro when transfer type is DMA
-#define BLOCKING_APPLICATION         ENABLE  // Enable this macro when transfer type is Interrupt type
-#define I2C_INSTANCE_USED            2       // update this macro with i2c instance number used for application
-#define FOLLOWER_I2C_ADDR            0x50    // I2C follower address
-#define MAX_BUFFER_SIZE_BLOCKING     80000   // Maximum buffer size for RX and TX length when transferring without DMA
-#define MAX_BUFFER_SIZE_NON_BLOCKING 30000   // Maximum buffer size for RX and TX length when transferring with DMA
-#define I2C_SIZE_BUFFERS             1024    // Size of data buffer
+#ifdef SLI_SI915
+#define I2C_INSTANCE_USED \
+  0 // Update this macro with i2c instance number used for application, 0 for instance 0, 1 for instance 1 and 2 for ulp instance (instance 2).
+#else
+#define I2C_INSTANCE_USED 2
+#endif
+#define FOLLOWER_I2C_ADDR            0x50  // I2C follower address
+#define MAX_BUFFER_SIZE_BLOCKING     80000 // Maximum buffer size for RX and TX length when transferring without DMA
+#define MAX_BUFFER_SIZE_NON_BLOCKING 30000 // Maximum buffer size for RX and TX length when transferring with DMA
+#define I2C_SIZE_BUFFERS             1024  // Size of data buffer
 #define I2C_RX_LENGTH                I2C_SIZE_BUFFERS // Number of bytes to receive
 #define I2C_TX_LENGTH                I2C_SIZE_BUFFERS // Number of bytes to send
 #define I2C_OFFSET_LENGTH            1                // Offset length
 #define I2C_TX_FIFO_THRESHOLD        0                // FIFO threshold
 #define I2C_RX_FIFO_THRESHOLD        0                // FIFO threshold
-#define INITIAL_VALUE                0                // for 0 initial value
-#define ONE                          0x1              // for value one
+#define INITIAL_VALUE                0                // For 0 initial value
+#define ONE                          0x1              // For value one
 #define INSTANCE_ZERO                0                // For 0 value
 #define INSTANCE_ONE                 1                // For 0 value
 #define INSTANCE_TWO                 2                // For 0 value
-
-#if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
-#define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
-#define SOC_PLL_CLK ((uint32_t)(32000000)) // 32MHz default SoC PLL Clock as source to Processor for ULP instance
-#endif
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -66,17 +62,14 @@ typedef enum {
  ******************************************************************************/
 sl_i2c_instance_t i2c_instance = I2C_INSTANCE_USED;
 static uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS];
-#if NON_BLOCKING_APPLICATION
-uint32_t i2c_write_buffer[I2C_SIZE_BUFFERS];
-#else
 static uint8_t i2c_write_buffer[I2C_SIZE_BUFFERS];
-#endif
 static i2c_action_enum_t current_mode           = I2C_SEND_DATA;
 static boolean_t i2c_send_data_flag             = false;
 static boolean_t i2c_receive_data_flag          = false;
 static volatile boolean_t i2c_transfer_complete = false;
 static boolean_t i2c_driver_dma_error           = false;
 sl_i2c_dma_config_t p_dma_config;
+static sl_i2c_config_t sl_i2c_config;
 
 osEventFlagsId_t event_flags_id; // event flags id used for i2c-timer event
 uint32_t event_flag;
@@ -85,17 +78,10 @@ uint32_t event_flag;
  ******************************************************************************/
 static void i2c_leader_callback(sl_i2c_instance_t instance, uint32_t status);
 static void compare_data(void);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-}
 /*******************************************************************************
  * I2C initialization function
  ******************************************************************************/
@@ -115,28 +101,20 @@ void i2c_init(void)
 {
   sl_i2c_status_t i2c_status;
 
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
-
 #if (I2C_INSTANCE_USED == INSTANCE_ZERO)
-  // Update structure name as per instance used, to register I2C callback
-  sl_i2c_i2c0_config.i2c_callback = i2c_leader_callback;
-  // Initializing I2C instance (update i2c config-strucure name as per instance used)
-  i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_i2c0_config);
+  sl_i2c_config = sl_i2c_i2c0_config;
+#elif (I2C_INSTANCE_USED == INSTANCE_ONE)
+  sl_i2c_config = sl_i2c_i2c1_config;
+#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+  sl_i2c_config = sl_i2c_i2c2_config;
 #endif
-#if (I2C_INSTANCE_USED == INSTANCE_ONE)
+
   // Update structure name as per instance used, to register I2C callback
-  sl_i2c_i2c1_config.i2c_callback = i2c_leader_callback;
+  sl_i2c_config.i2c_callback = i2c_leader_callback;
   // Initializing I2C instance (update i2c config-strucure name as per instance used)
-  i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_i2c1_config);
-#endif
-#if (I2C_INSTANCE_USED == INSTANCE_TWO)
-  // Update structure name as per instance used, to register I2C callback
-  sl_i2c_i2c2_config.i2c_callback = i2c_leader_callback;
-  // Initializing I2C instance (update i2c config-strucure name as per instance used)
-  i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_i2c2_config);
+  i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_config);
   DEBUGINIT();
-#endif
+
   if (i2c_status != SL_I2C_SUCCESS) {
     DEBUGOUT("sl_i2c_driver_init : Invalid Parameters, Error Code : %u \n", i2c_status);
   } else {
@@ -157,20 +135,20 @@ void i2c_init(void)
     DEBUGOUT("Successfully enabled repeated start\n");
   }
   // Updating DMA RX and TX channel numbers as per I2C instance
-#if (NON_BLOCKING_APPLICATION)
-  if (i2c_instance == SL_I2C0) {
-    p_dma_config.dma_tx_channel = SL_I2C0_DMA_TX_CHANNEL;
-    p_dma_config.dma_rx_channel = SL_I2C0_DMA_RX_CHANNEL;
+  if (sl_i2c_config.transfer_type == SL_I2C_USING_DMA) {
+    if (i2c_instance == SL_I2C0) {
+      p_dma_config.dma_tx_channel = SL_I2C0_DMA_TX_CHANNEL;
+      p_dma_config.dma_rx_channel = SL_I2C0_DMA_RX_CHANNEL;
+    }
+    if (i2c_instance == SL_I2C1) {
+      p_dma_config.dma_tx_channel = SL_I2C1_DMA_TX_CHANNEL;
+      p_dma_config.dma_rx_channel = SL_I2C1_DMA_RX_CHANNEL;
+    }
+    if (i2c_instance == SL_ULP_I2C) {
+      p_dma_config.dma_tx_channel = SL_ULP_I2C_DMA_TX_CHANNEL;
+      p_dma_config.dma_rx_channel = SL_ULP_I2C_DMA_RX_CHANNEL;
+    }
   }
-  if (i2c_instance == SL_I2C1) {
-    p_dma_config.dma_tx_channel = SL_I2C1_DMA_TX_CHANNEL;
-    p_dma_config.dma_rx_channel = SL_I2C1_DMA_RX_CHANNEL;
-  }
-  if (i2c_instance == SL_I2C2) {
-    p_dma_config.dma_tx_channel = SL_I2C2_DMA_TX_CHANNEL;
-    p_dma_config.dma_rx_channel = SL_I2C2_DMA_RX_CHANNEL;
-  }
-#endif
   // Generating a buffer with values that needs to be sent.
   for (uint32_t loop = INITIAL_VALUE; loop < I2C_SIZE_BUFFERS; loop++) {
     i2c_write_buffer[loop] = (uint8_t)(loop + ONE);
@@ -197,47 +175,46 @@ void i2c_leader_example_process_action(void)
     case I2C_SEND_DATA:
       if (i2c_send_data_flag) {
         //  Validation for executing the API only once.
-#if (BLOCKING_APPLICATION)
-        i2c_status = sl_i2c_driver_send_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_write_buffer, I2C_TX_LENGTH);
-        if (i2c_status != SL_I2C_SUCCESS) {
-          DEBUGOUT("sl_i2c_driver_send_data_blocking : Invalid Parameters, "
-                   "Error Code : %u \n",
-                   i2c_status);
-          break;
+        if (sl_i2c_config.transfer_type == SL_I2C_USING_NON_DMA) {
+          i2c_status =
+            sl_i2c_driver_send_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_write_buffer, I2C_TX_LENGTH);
+          if (i2c_status != SL_I2C_SUCCESS) {
+            DEBUGOUT("sl_i2c_driver_send_data_blocking : Invalid Parameters, "
+                     "Error Code : %u \n",
+                     i2c_status);
+            break;
+          }
+        } else {
+          i2c_status = sl_i2c_driver_send_data_non_blocking(i2c_instance,
+                                                            FOLLOWER_I2C_ADDR,
+                                                            (uint32_t *)i2c_write_buffer,
+                                                            I2C_TX_LENGTH,
+                                                            &p_dma_config);
+          if (i2c_status != SL_I2C_SUCCESS) {
+            DEBUGOUT("sl_i2c_driver_send_data_non_blocking : Invalid Parameters, "
+                     "Error Code : %u \n",
+                     i2c_status);
+            break;
+          }
         }
-#endif
-#if (NON_BLOCKING_APPLICATION)
-        i2c_status = sl_i2c_driver_send_data_non_blocking(i2c_instance,
-                                                          FOLLOWER_I2C_ADDR,
-                                                          i2c_write_buffer,
-                                                          I2C_TX_LENGTH,
-                                                          &p_dma_config);
-        if (i2c_status != SL_I2C_SUCCESS) {
-          DEBUGOUT("sl_i2c_driver_send_data_non_blocking : Invalid Parameters, "
-                   "Error Code : %u \n",
-                   i2c_status);
-          break;
-        }
-#endif
         i2c_send_data_flag = false;
       }
-#if (BLOCKING_APPLICATION)
-      i2c_receive_data_flag = true;
-      current_mode          = I2C_RECEIVE_DATA;
-#endif
-#if (NON_BLOCKING_APPLICATION)
-      // It waits till i2c_transfer_complete is true in callback.
-      if (i2c_transfer_complete) {
-        i2c_transfer_complete = false;
+      if (sl_i2c_config.transfer_type == SL_I2C_USING_NON_DMA) {
         i2c_receive_data_flag = true;
         current_mode          = I2C_RECEIVE_DATA;
+      } else {
+        // It waits till i2c_transfer_complete is true in callback.
+        if (i2c_transfer_complete) {
+          i2c_transfer_complete = false;
+          i2c_receive_data_flag = true;
+          current_mode          = I2C_RECEIVE_DATA;
+        }
+        if (i2c_driver_dma_error) {
+          DEBUGOUT("Data is not transferred to Follower successfully \n");
+          i2c_driver_dma_error = false;
+          break;
+        }
       }
-      if (i2c_driver_dma_error) {
-        DEBUGOUT("Data is not transferred to Follower successfully \n");
-        i2c_driver_dma_error = false;
-        break;
-      }
-#endif
       break;
 
     case I2C_RECEIVE_DATA:
@@ -248,52 +225,50 @@ void i2c_leader_example_process_action(void)
           DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, Error Code : %u \n", i2c_status);
         }
         // Validation for executing the API only once.
-#if (BLOCKING_APPLICATION)
-        i2c_status =
-          sl_i2c_driver_receive_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_read_buffer, I2C_RX_LENGTH);
-        if (i2c_status != SL_I2C_SUCCESS) {
-          DEBUGOUT("sl_i2c_driver_receive_data_blocking : Invalid Parameters, Error "
-                   "Code : %u \n",
-                   i2c_status);
-          break;
+        if (sl_i2c_config.transfer_type == SL_I2C_USING_NON_DMA) {
+          i2c_status =
+            sl_i2c_driver_receive_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_read_buffer, I2C_RX_LENGTH);
+          if (i2c_status != SL_I2C_SUCCESS) {
+            DEBUGOUT("sl_i2c_driver_receive_data_blocking : Invalid Parameters, Error "
+                     "Code : %u \n",
+                     i2c_status);
+            break;
+          }
+        } else {
+          i2c_status = sl_i2c_driver_receive_data_non_blocking(i2c_instance,
+                                                               FOLLOWER_I2C_ADDR,
+                                                               i2c_read_buffer,
+                                                               I2C_RX_LENGTH,
+                                                               &p_dma_config);
+          if (i2c_status != SL_I2C_SUCCESS) {
+            DEBUGOUT("sl_i2c_driver_receive_data_non_blocking : Invalid Parameters, Error "
+                     "Code : %u \n",
+                     i2c_status);
+            break;
+          }
         }
-#endif
-#if (NON_BLOCKING_APPLICATION)
-        i2c_status = sl_i2c_driver_receive_data_non_blocking(i2c_instance,
-                                                             FOLLOWER_I2C_ADDR,
-                                                             i2c_read_buffer,
-                                                             I2C_RX_LENGTH,
-                                                             &p_dma_config);
-        if (i2c_status != SL_I2C_SUCCESS) {
-          DEBUGOUT("sl_i2c_driver_receive_data_non_blocking : Invalid Parameters, Error "
-                   "Code : %u \n",
-                   i2c_status);
-          break;
-        }
-#endif
         i2c_receive_data_flag = false;
       }
-#if (BLOCKING_APPLICATION)
-      current_mode = I2C_TRANSMISSION_COMPLETED;
-      // After the receive is completed, input and output data is compared and
-      // output is printed on console.
-      compare_data();
-#endif
-#if (NON_BLOCKING_APPLICATION)
-      // It waits till i2c_transfer_complete is true in callback.
-      if (i2c_transfer_complete) {
-        i2c_transfer_complete = false;
-        current_mode          = I2C_TRANSMISSION_COMPLETED;
+      if (sl_i2c_config.transfer_type == SL_I2C_USING_NON_DMA) {
+        current_mode = I2C_TRANSMISSION_COMPLETED;
         // After the receive is completed, input and output data is compared and
         // output is printed on console.
         compare_data();
+      } else {
+        // It waits till i2c_transfer_complete is true in callback.
+        if (i2c_transfer_complete) {
+          i2c_transfer_complete = false;
+          current_mode          = I2C_TRANSMISSION_COMPLETED;
+          // After the receive is completed, input and output data is compared and
+          // output is printed on console.
+          compare_data();
+        }
+        if (i2c_driver_dma_error) {
+          DEBUGOUT("Data is not received from Follower successfully \n");
+          i2c_driver_dma_error = false;
+          break;
+        }
       }
-      if (i2c_driver_dma_error) {
-        DEBUGOUT("Data is not received from Follower successfully \n");
-        i2c_driver_dma_error = false;
-        break;
-      }
-#endif
       break;
 
     case I2C_TRANSMISSION_COMPLETED:

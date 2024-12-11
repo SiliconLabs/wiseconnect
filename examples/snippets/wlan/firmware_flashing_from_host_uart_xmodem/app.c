@@ -32,7 +32,6 @@
 #include "cmsis_os2.h"
 #include "sl_wifi_callback_framework.h"
 #include "string.h"
-#include "sl_iostream_eusart.h"
 #include "em_gpio.h"
 #include "sl_board_configuration.h"
 #include "em_cmu.h"
@@ -61,6 +60,14 @@
 #define FW_HEADER_SIZE        64UL
 #define XMODEM_CHUNK_SIZE     128UL
 #define FIRST_PKT_XMODEM_CNT  32UL
+
+//! Type of FW update
+#define M4_FW_UPDATE  0 // Only Supported for SoC
+#define NWP_FW_UPDATE 1
+
+//! Set FW update type
+#define FW_UPDATE_TYPE NWP_FW_UPDATE
+
 typedef struct {
   uint8_t padding; /* Padding to make sure data is 32 bit aligned. */
   uint8_t header;
@@ -119,7 +126,11 @@ typedef struct fwupeq_s {
 } fwreq_t;
 
 static const sl_wifi_device_configuration_t firmware_update_configuration = {
+#if (FW_UPDATE_TYPE == NWP_FW_UPDATE)
   .boot_option = BURN_NWP_FW,
+#else
+  .boot_option = BURN_M4_FW,
+#endif
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
@@ -130,7 +141,7 @@ static const sl_wifi_device_configuration_t firmware_update_configuration = {
                    .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),

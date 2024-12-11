@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_rom_table_si91x.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -36,19 +48,19 @@ extern const ROM_PWR_API_T pwr_api;
 extern const ROM_M4SS_CLK_API_T m4ssclk_api;
 extern const ROM_ULPSS_CLK_API_T ulpssclk_api;
 extern const ROM_QSPI_API_T qspi_api;
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
 extern const ROM_EFUSE_API_T efuse_api;
 #endif
 extern const ROM_CRC_API_T crc_api;
 extern const ROM_RNG_API_T rng_api;
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
 extern const ROM_MCPWM_API_T mcpwm_api;
 #endif
 extern const ROM_USART_API_T usart_api;
 extern const ROM_GSPI_API_T gspi_api;
 extern const ROM_I2S_API_T i2s_api;
 extern const ROM_I2C_API_T i2c_api;
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
 extern const ROM_SSI_API_T ssi_api;
 #endif
 #if defined(CHIP_9118)
@@ -67,19 +79,19 @@ const RSI_ROM_API_T romEntry __attribute__((section(".rom_data_start"))) /* ((at
     &m4ssclk_api,      /*!< M4SS CLK driver API function table base address */
     &ulpssclk_api,     /*!< ULPSS CLK driver API function table base address */
     &qspi_api,         /*!< QSPI driver API function table base address */
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
     &efuse_api, /*!< EFUSE driver API function table base address */
 #endif
     &crc_api, /*!< CRC driver API function table base address */
     &rng_api, /*!< RNG driver API function table base address */
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
     &mcpwm_api, /*!< MCPWM driver API function table base address */
 #endif
     &usart_api, /*!< USARt driver API function table base address */
     &gspi_api,  /*!< GSPI driver API function table base address */
     &i2s_api,   /*!< I2S driver API function table base address */
     &i2c_api    /*!< I2C driver API function table base address */
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     ,
     &ssi_api
 #endif

@@ -5,6 +5,9 @@ description: >
 label: BLE
 category: Device|Si91x|Wireless
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 component_root_path: ./components/device/silabs/si91x/wireless/ble
 provides:
 - name: ble
@@ -16,12 +19,6 @@ source:
 - path: src/rsi_common_apis.c
 - path: src/rsi_utils.c
 - path: src/sl_si91x_ble.c
-define:
-- name: SLI_SI91X_ENABLE_BLE
-- name: SL_SI91X_ENABLE_LITTLE_ENDIAN
-requires:
-- name: sl_si91x_wireless
-
 include:
 - path: inc
   file_list:
@@ -36,4 +33,11 @@ include:
     - path: rsi_user.h
     - path: rsi_utils.h
     - path: sl_si91x_ble.h
+
+define:
+- name: SLI_SI91X_ENABLE_BLE
+- name: SL_SI91X_ENABLE_LITTLE_ENDIAN
+
+requires:
+- name: sl_si91x_wireless
 

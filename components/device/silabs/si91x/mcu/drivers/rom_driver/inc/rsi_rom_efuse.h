@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_rom_efuse.h
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -47,7 +59,7 @@ extern "C" {
  */
 STATIC INLINE void RSI_EFUSE_Enable(EFUSE_Type *pstcEfuse)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   ROMAPI_EFUSE_API->efuse_enable(pstcEfuse);
 #else
   efuse_enable(pstcEfuse);
@@ -62,7 +74,7 @@ STATIC INLINE void RSI_EFUSE_Enable(EFUSE_Type *pstcEfuse)
  */
 STATIC INLINE void RSI_EFUSE_Disable(EFUSE_Type *pstcEfuse)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   ROMAPI_EFUSE_API->efuse_Disable(pstcEfuse);
 #else
   efuse_Disable(pstcEfuse);
@@ -77,7 +89,7 @@ STATIC INLINE void RSI_EFUSE_Disable(EFUSE_Type *pstcEfuse)
  */
 STATIC INLINE uint8_t RSI_EFUSE_ReadData(EFUSE_Type *pstcEfuse)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   return ROMAPI_EFUSE_API->efuse_read_data(pstcEfuse);
 #else
   return efuse_read_data(pstcEfuse);
@@ -93,7 +105,7 @@ STATIC INLINE uint8_t RSI_EFUSE_ReadData(EFUSE_Type *pstcEfuse)
  */
 STATIC INLINE void RSI_EFUSE_WriteAddr(EFUSE_Type *pstcEfuse, uint16_t u16Addr)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   ROMAPI_EFUSE_API->efuse_write_addr(pstcEfuse, u16Addr);
 #else
   efuse_write_addr(pstcEfuse, u16Addr);
@@ -118,7 +130,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse,
                                              uint8_t u8BitPos,
                                              uint32_t hold_time)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   return ROMAPI_EFUSE_API->efuse_write_bit(pstcEfuse, u16Addr, u8BitPos, hold_time);
 #else
   return efuse_write_bit(pstcEfuse, u16Addr, u8BitPos, hold_time);
@@ -141,7 +153,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse,
                                                 uint8_t *pu8Byte,
                                                 uint32_t SocClk)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   return ROMAPI_EFUSE_API->efuse_fsm_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
 #else
   return efuse_fsm_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
@@ -164,7 +176,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse,
                                                    uint8_t *pu8Byte,
                                                    uint32_t SocClk)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   return ROMAPI_EFUSE_API->efuse_mem_map_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
 #else
   return efuse_mem_map_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
@@ -187,7 +199,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadWord(EFUSE_Type *pstcEfuse,
                                                    uint16_t *pu16Word,
                                                    uint32_t SocClk)
 {
-#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !(defined(SLI_SI917B0) || defined(SLI_SI915))
   return ROMAPI_EFUSE_API->efuse_mem_map_read_word(pstcEfuse, u16Addr, pu16Word, SocClk);
 #else
   return efuse_mem_map_read_word(pstcEfuse, u16Addr, pu16Word, SocClk);

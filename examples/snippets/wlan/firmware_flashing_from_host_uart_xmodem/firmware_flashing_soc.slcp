@@ -12,10 +12,10 @@ filter:
     value: ["Beginner"]
 sdk: 
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.4
+  version: 3.4.0
 source:
   - path: app.c
   - path: main.c
@@ -25,7 +25,6 @@ include:
       - path: app.h
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
-  - name: SL_SI91X_FAST_FW_UP
 component:
   - id: sl_system
   - id: freertos
@@ -33,8 +32,6 @@ component:
   - id: device_init
   - id: spidrv
     instance: [exp]
-  - id: iostream_eusart
-    instance: [vcom]
   - id: iostream_retarget_stdio
   - id: iostream_rtt
   - id: iostream_stdlib_config
@@ -70,6 +67,10 @@ readme:
   - path: readme.md
 other_file:
   - path: resources/readme/setup_ncp_soc.png
+  - path: resources/readme/serial_port_settings_921600.png
+  - path: resources/readme/commander-select-board.png
+  - path: resources/readme/select-commander.png
+  - path: resources/readme/serial_port_settings.png
 ui_hints:
   highlight:
     - path: readme.md

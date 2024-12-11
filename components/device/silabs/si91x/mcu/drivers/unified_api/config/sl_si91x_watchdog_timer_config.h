@@ -46,107 +46,97 @@
 // <h>Watchdog Timer Configuration
 
 // <o SL_WDT_SYSTEM_RESET_TIME> System-reset time
-//   <TIME_DELAY_2=> 0.125 ms
-//   <TIME_DELAY_3=> 0.25 ms
-//   <TIME_DELAY_4=> 0.5 ms
-//   <TIME_DELAY_5=> 1 ms
-//   <TIME_DELAY_6=> 2 ms
-//   <TIME_DELAY_7=> 4 ms
-//   <TIME_DELAY_8=> 8 ms
-//   <TIME_DELAY_9=> 16 ms
-//   <TIME_DELAY_10=> 32 ms
-//   <TIME_DELAY_11=> 64 ms
-//   <TIME_DELAY_12=> 128 ms
-//   <TIME_DELAY_13=> 256 ms
-//   <TIME_DELAY_14=> 512 ms
-//   <TIME_DELAY_15=> 1024 ms
-//   <TIME_DELAY_16=> 2048 ms
-//   <TIME_DELAY_17=> 4096 ms
-//   <TIME_DELAY_18=> 8192 ms
-//   <TIME_DELAY_19=> 16384 ms
-//   <TIME_DELAY_20=> 32768 ms
-//   <TIME_DELAY_21=> 65536 ms
-//   <TIME_DELAY_22=> 131072 ms
-//   <TIME_DELAY_23=> 262144 ms
-//   <TIME_DELAY_24=> 524288 ms
-//   <TIME_DELAY_25=> 1048576 ms
-//   <TIME_DELAY_26=> 2097152 ms
-//   <TIME_DELAY_27=> 4194304 ms
-//   <TIME_DELAY_28=> 838860 ms
-//   <TIME_DELAY_29=> 16777216 ms
-//   <TIME_DELAY_30=> 33554432 ms
-//   <TIME_DELAY_31=> 67108864 ms
+//   <TIME_DELAY_2=> 0.122 ms
+//   <TIME_DELAY_3=> 0.24 ms
+//   <TIME_DELAY_4=> 0.48 ms
+//   <TIME_DELAY_5=> 0.9 ms
+//   <TIME_DELAY_6=> 1.9 ms
+//   <TIME_DELAY_7=> 3.9 ms
+//   <TIME_DELAY_8=> 7.8 ms
+//   <TIME_DELAY_9=> 15.6 ms
+//   <TIME_DELAY_10=> 31.2 ms
+//   <TIME_DELAY_11=> 62.5 ms
+//   <TIME_DELAY_12=> 125 ms
+//   <TIME_DELAY_13=> 250 ms
+//   <TIME_DELAY_14=> 500 ms
+//   <TIME_DELAY_15=> 1000 ms
+//   <TIME_DELAY_16=> 2000 ms
+//   <TIME_DELAY_17=> 4000 ms
+//   <TIME_DELAY_18=> 8000 ms
+//   <TIME_DELAY_19=> 16000 ms
+//   <TIME_DELAY_20=> 32000 ms
+//   <TIME_DELAY_21=> 64000 ms
+//   <TIME_DELAY_22=> 128000 ms
+//   <TIME_DELAY_23=> 256000 ms
+//   <TIME_DELAY_24=> 512000 ms
+//   <TIME_DELAY_25=> 1024000 ms
+//   <TIME_DELAY_26=> 2048000 ms
+//   <TIME_DELAY_27=> 4096000 ms
+//   <TIME_DELAY_28=> 8192000 ms
+//   <TIME_DELAY_29=> 16384000 ms
+//   <TIME_DELAY_30=> 32768000 ms
+//   <TIME_DELAY_31=> 65536000 ms
 // <i> Selection of System-reset time
 #define SL_WDT_SYSTEM_RESET_TIME TIME_DELAY_17
 
 // <o SL_WDT_INTERRUPT_TIME> Interrupt Time
-//   <TIME_DELAY_1=> 0.0625 ms
-//   <TIME_DELAY_2=> 0.125 ms
-//   <TIME_DELAY_3=> 0.25 ms
-//   <TIME_DELAY_4=> 0.5 ms
-//   <TIME_DELAY_5=> 1 ms
-//   <TIME_DELAY_6=> 2 ms
-//   <TIME_DELAY_7=> 4 ms
-//   <TIME_DELAY_8=> 8 ms
-//   <TIME_DELAY_9=> 16 ms
-//   <TIME_DELAY_10=> 32 ms
-//   <TIME_DELAY_11=> 64 ms
-//   <TIME_DELAY_12=> 128 ms
-//   <TIME_DELAY_13=> 256 ms
-//   <TIME_DELAY_14=> 512 ms
-//   <TIME_DELAY_15=> 1024 ms
-//   <TIME_DELAY_16=> 2048 ms
-//   <TIME_DELAY_17=> 4096 ms
-//   <TIME_DELAY_18=> 8192 ms
-//   <TIME_DELAY_19=> 16384 ms
-//   <TIME_DELAY_20=> 32768 ms
-//   <TIME_DELAY_21=> 65536 ms
-//   <TIME_DELAY_22=> 131072 ms
-//   <TIME_DELAY_23=> 262144 ms
-//   <TIME_DELAY_24=> 524288 ms
-//   <TIME_DELAY_25=> 1048576 ms
-//   <TIME_DELAY_26=> 2097152 ms
-//   <TIME_DELAY_27=> 4194304 ms
-//   <TIME_DELAY_28=> 838860 ms
-//   <TIME_DELAY_29=> 16777216 ms
-//   <TIME_DELAY_30=> 33554432 ms
-//   <TIME_DELAY_31=> 67108864 ms
+//   <TIME_DELAY_1=> 0.0610 ms
+//   <TIME_DELAY_2=> 0.122 ms
+//   <TIME_DELAY_3=> 0.24 ms
+//   <TIME_DELAY_4=> 0.48 ms
+//   <TIME_DELAY_5=> 0.9 ms
+//   <TIME_DELAY_6=> 1.9 ms
+//   <TIME_DELAY_7=> 3.9 ms
+//   <TIME_DELAY_8=> 7.8 ms
+//   <TIME_DELAY_9=> 15.6 ms
+//   <TIME_DELAY_10=> 31.2 ms
+//   <TIME_DELAY_11=> 62.5 ms
+//   <TIME_DELAY_12=> 125 ms
+//   <TIME_DELAY_13=> 250 ms
+//   <TIME_DELAY_14=> 500 ms
+//   <TIME_DELAY_15=> 1000 ms
+//   <TIME_DELAY_16=> 2000 ms
+//   <TIME_DELAY_17=> 4000 ms
+//   <TIME_DELAY_18=> 8000 ms
+//   <TIME_DELAY_19=> 16000 ms
+//   <TIME_DELAY_20=> 32000 ms
+//   <TIME_DELAY_21=> 64000 ms
+//   <TIME_DELAY_22=> 128000 ms
+//   <TIME_DELAY_23=> 256000 ms
+//   <TIME_DELAY_24=> 512000 ms
+//   <TIME_DELAY_25=> 1024000 ms
+//   <TIME_DELAY_26=> 2048000 ms
+//   <TIME_DELAY_27=> 4096000 ms
+//   <TIME_DELAY_28=> 8192000 ms
+//   <TIME_DELAY_29=> 16384000 ms
+//   <TIME_DELAY_30=> 32768000 ms
+//   <TIME_DELAY_31=> 65536000 ms
 // <i> Selection of Interrupt Time
 #define SL_WDT_INTERRUPT_TIME TIME_DELAY_15
 
 // <o SL_WDT_WINDOW_TIME> Window Time
-//   <TIME_DELAY_0=> 0.03125 ms
-//   <TIME_DELAY_1=> 0.0625 ms
-//   <TIME_DELAY_2=> 0.125 ms
-//   <TIME_DELAY_3=> 0.25 ms
-//   <TIME_DELAY_4=> 0.5 ms
-//   <TIME_DELAY_5=> 1 ms
-//   <TIME_DELAY_6=> 2 ms
-//   <TIME_DELAY_7=> 4 ms
-//   <TIME_DELAY_8=> 8 ms
-//   <TIME_DELAY_9=> 16 ms
-//   <TIME_DELAY_10=> 32 ms
-//   <TIME_DELAY_11=> 64 ms
-//   <TIME_DELAY_12=> 128 ms
-//   <TIME_DELAY_13=> 256 ms
-//   <TIME_DELAY_14=> 512 ms
-//   <TIME_DELAY_15=> 1024 ms
+//   <TIME_DELAY_0=> 0.0305 ms
+//   <TIME_DELAY_1=> 0.0610 ms
+//   <TIME_DELAY_2=> 0.122 ms
+//   <TIME_DELAY_3=> 0.24 ms
+//   <TIME_DELAY_4=> 0.48 ms
+//   <TIME_DELAY_5=> 0.9 ms
+//   <TIME_DELAY_6=> 1.9 ms
+//   <TIME_DELAY_7=> 3.9 ms
+//   <TIME_DELAY_8=> 7.8 ms
+//   <TIME_DELAY_9=> 15.6 ms
+//   <TIME_DELAY_10=> 31.2 ms
+//   <TIME_DELAY_11=> 62.5 ms
+//   <TIME_DELAY_12=> 125 ms
+//   <TIME_DELAY_13=> 250 ms
+//   <TIME_DELAY_14=> 500 ms
+//   <TIME_DELAY_15=> 1000 ms
 // <i> Selection of Window Time
 #define SL_WDT_WINDOW_TIME TIME_DELAY_0
 
 // </h>
 // </e>
 // <<< end of configuration section >>>
-
-// WDT clock sources and parameters initialization
-
-#if defined(SL_LOW_FREQ_FSM_CLK_SRC)
-watchdog_timer_clock_config_t sl_watchdog_timer_clk_config_handle = {
-  .low_freq_fsm_clock_src  = SL_LOW_FREQ_FSM_CLK_SRC,
-  .high_freq_fsm_clock_src = FSM_32MHZ_RC,
-  .bg_pmu_clock_source     = RO_32KHZ_CLOCK,
-};
-#endif // SL_LOW_FREQ_FSM_CLK_SRC
 
 #if defined(SL_WDT_INTERRUPT_TIME)
 watchdog_timer_config_t sl_watchdog_timer_config_handle = {

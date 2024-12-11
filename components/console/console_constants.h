@@ -119,16 +119,17 @@ extern "C" {
  * e.g.
  */
 typedef enum {
-  CONSOLE_ARG_NONE = 0, // Used for optional arguments that are just flags and don't need any further data
-  CONSOLE_ARG_UINT,
-  CONSOLE_ARG_INT,
-  CONSOLE_ARG_STRING,
-  CONSOLE_ARG_IP_ADDRESS,
-  CONSOLE_ARG_MAC_ADDRESS,
-  CONSOLE_ARG_HEX,
-  CONSOLE_ARG_SUB_COMMAND,
-  CONSOLE_ARG_REMAINING_COMMAND_LINE,
-  CONSOLE_NUMBER_OF_ARGS_WITH_STRINGS, // This is the number of argument types that match to a specific string. Other arg types should follow
+  CONSOLE_ARG_NONE        = 0, // Used for optional arguments that are just flags and don't need any further data
+  CONSOLE_ARG_UINT        = 1,
+  CONSOLE_ARG_INT         = 2,
+  CONSOLE_ARG_STRING      = 3,
+  CONSOLE_ARG_IP_ADDRESS  = 4,
+  CONSOLE_ARG_MAC_ADDRESS = 5,
+  CONSOLE_ARG_HEX         = 6,
+  CONSOLE_ARG_SUB_COMMAND = 7,
+  CONSOLE_ARG_REMAINING_COMMAND_LINE = 8,
+  CONSOLE_NUMBER_OF_ARGS_WITH_STRINGS =
+    9, // This is the number of argument types that match to a specific string. Other arg types should follow
 
   CONSOLE_ARG_ENUM     = (1 << 6),
   CONSOLE_ARG_OPTIONAL = (1 << 7),
@@ -136,15 +137,15 @@ typedef enum {
 } console_argument_type_t;
 
 typedef enum {
-  CONSOLE_VARIABLE_NONE = 0,
-  CONSOLE_VARIABLE_UINT,
-  CONSOLE_VARIABLE_INT,
-  CONSOLE_VARIABLE_STRING,
-  CONSOLE_VARIABLE_IP_ADDRESS,
-  CONSOLE_VARIABLE_MAC_ADDRESS,
-  CONSOLE_VARIABLE_HEX,
-  CONSOLE_VARIABLE_BOOL,
-  CONSOLE_VARIABLE_REMAINING_COMMAND_LINE,
+  CONSOLE_VARIABLE_NONE                   = 0,
+  CONSOLE_VARIABLE_UINT                   = 1,
+  CONSOLE_VARIABLE_INT                    = 2,
+  CONSOLE_VARIABLE_STRING                 = 3,
+  CONSOLE_VARIABLE_IP_ADDRESS             = 4,
+  CONSOLE_VARIABLE_MAC_ADDRESS            = 5,
+  CONSOLE_VARIABLE_HEX                    = 6,
+  CONSOLE_VARIABLE_BOOL                   = 7,
+  CONSOLE_VARIABLE_REMAINING_COMMAND_LINE = 8,
 
   CONSOLE_VARIABLE_ENUM     = (1 << 6),
   CONSOLE_VARIABLE_OPTIONAL = (1 << 7),

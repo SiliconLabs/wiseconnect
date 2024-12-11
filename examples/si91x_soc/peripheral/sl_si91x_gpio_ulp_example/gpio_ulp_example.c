@@ -46,11 +46,17 @@ typedef sl_gpio_t sl_si91x_gpio_t;
 // Same representation followed for other port and pins.
 static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN },
                                                          GPIO_OUTPUT };
-// Define GPIO port and pin for ULP instance. Here SL_SI91X_ULP_GPIO_8_PORT refers to ULP GPIO pin 8's port number : 4.
-// This is defined to '4' which is ULP_PORT and SL_SI91X_ULP_GPIO_8_PIN refers to GPIO pin number 8.
+
+// Define GPIO port and pin for ULP instance. Here SL_SI91X_ULP_GPIO_8_PORT / SL_SI91X_ULP_GPIO_4_PORT refers to ULP GPIO pin 8's port number : 4.
+// This is defined to '4' which is ULP_PORT and SL_SI91X_ULP_GPIO_8_PIN refers to GPIO pin number 8 / SL_SI91X_ULP_GPIO_4_PIN refers to GPIO pin number 4.
 // Same representation followed for other port and pins.
+#ifdef SLI_SI915
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_ULP_GPIO_4_PORT, SL_SI91X_ULP_GPIO_4_PIN },
+                                                          GPIO_INPUT };
+#else
 static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN },
                                                           GPIO_INPUT };
+#endif
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************

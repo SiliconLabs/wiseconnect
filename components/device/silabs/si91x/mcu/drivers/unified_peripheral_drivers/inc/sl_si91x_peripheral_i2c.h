@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_peripheral_i2c.h
- * @brief I2C peripheral API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_peripheral_i2c.h
+* @brief I2C peripheral API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_PERIPHERAL_I2C_H
 #define SL_SI91X_PERIPHERAL_I2C_H
@@ -52,7 +52,7 @@ extern "C" {
 // Macros
 #define SL_I2C_ASSERT(expr) ((void)(expr)) ///< Macro function to assert the I2C instance
 #define I2C_NUM(ref) \
-  (((ref) == I2C0) ? 0 : ((ref) == I2C1) ? 1 : ((ref) == I2C2) ? 2 : -1) ///< Macro to validate I2C instance number
+  (((ref) == I2C0) ? 0 : ((ref) == I2C1) ? 1 : ((ref) == ULP_I2C) ? 2 : -1) ///< Macro to validate I2C instance number
 #define I2C_REF_VALID(ref) (I2C_NUM(ref) != -1) ///< Macro function to validate the user input and I2C instance
 
 #define SL_I2C_ENABLE_MASK       0x01   ///< I2C enable mask

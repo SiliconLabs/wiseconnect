@@ -86,8 +86,8 @@ typedef enum {
  * @details This API initializes the hoystick by configuring the ADC to read different voltages based on the Joystick's position.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation is successful.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_OK  - Operation is successful.
+ *         - SL_STATUS_FAIL  - Function failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -107,8 +107,8 @@ sl_status_t sl_si91x_joystick_init(void);
  * @param[out] pos    Position of the joystick, see \ref sl_joystick_position_t.
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation is successful.
- *         - SL_STATUS_NOT_READY (0x0003) - Module is not ready for the requested operation (Joystick is in disabled state).
+ *         - SL_STATUS_OK  - Operation is successful.
+ *         - SL_STATUS_NOT_READY - Module is not ready for the requested operation (Joystick is in disabled state).
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -126,8 +126,8 @@ sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystic
  * @param[in] state Joystick enable/disable state, see \ref sl_joystick_state_t.
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation is successful.
- *         - SL_STATUS_ABORT (0x0006) - Operation is aborted (Joystick is in disabled state).
+ *         - SL_STATUS_OK  - Operation is successful.
+ *         - SL_STATUS_ABORT - Operation is aborted (Joystick is in disabled state).
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -146,8 +146,8 @@ sl_status_t sl_si91x_joystick_start(sl_joystick_state_t state);
  * @param[in] state Joystick enable/disable state, see \ref sl_joystick_state_t.
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Operation is successful.
- *         - SL_STATUS_BUSY (0x0004) - Module is busy (Joystick is in enabled state).
+ *         - SL_STATUS_OK  - Operation is successful.
+ *         - SL_STATUS_BUSY  - Module is busy (Joystick is in enabled state).
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

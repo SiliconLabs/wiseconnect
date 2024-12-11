@@ -19,7 +19,7 @@
 ## Overview
 
 - According to the macros configured in power_manager_example.h file, it executes the state transition and sleep-wakeup with RAM retention on button press, sleep-wakeup without RAM retention using second trigger as wakeup source.
-- State transitions demonstrated are as follows: PS4 -> PS2, PS2 -> PS4, PS4 -> PS4 Sleep -> PS4, PS4 -> PS3, PS3 -> PS3 Sleep -> PS3, PS3 -> PS2, PS2 -> PS2 Sleep -> PS2, PS2 -> PS3, PS3 -> PS4. It switches the state at the time of button press.
+- By default, the system is configured to the PS3 state. The application will switch to the PS4 state as required. The state transitions occur upon button press. State transitions demonstrated are as follows: PS4 -> PS2, PS2 -> PS4, PS4 -> PS4 Sleep -> PS4, PS4 -> PS3, PS3 -> PS3 Sleep -> PS3, PS3 -> PS2, PS2 -> PS2 Sleep -> PS2, PS2 -> PS3, PS3 -> PS4. It switches the state at the time of button press.
 - Sleep - wakeup without RAM retention is demonstrated as follows: PS4 -> PS0 -> wakeup -> restart the controller.
 - For the integration of power manager in other projects, refer the instructions at the given path: **examples/si91x_soc/service/power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf** 
 
@@ -28,10 +28,8 @@
 - At initialization, a thread is created and the application_start() function is called along the thread.
 - All the activities are handled in the application_start() function.
 - Firstly wifi is initialized, M4-NWP secure handshake is established to send commands to NWP, NWP is switched to STANDBY_WITH_RAM_RETENTION mode.
-- Power Manager service is initialized, the processor is switched to PS4 state and the clock is 32 MHz (Power Save) using  sl_si91x_power_manager_init.
-- According to the revised implementation, the PS4 and PS3 power_save modes will continue to use the same clock frequency (32MHz).
+- Power Manager service is initialized, the processor is switched to PS3 state and the clock is at 40 MHz (Power Save) using  sl_si91x_power_manager_init. The application will switch to the PS4 state.
 - All the possible events are ored and passed to the  sl_si91x_power_manager_subscribe_ps_transition_event along with the callback function address.
-- RAM retention is enabled and configured using  sl_si91x_power_manager_configure_ram_retention.
 
 - Upon button press, it changes the state and performs sleep-wakeup operations.
   - PS4 -> PS2: Unwanted peripherals are powered off using  sl_si91x_power_manager_remove_peripheral_requirement, PS2 state requirement is added using  sl_si91x_power_manager_add_ps_requirement.
@@ -55,7 +53,7 @@
   - PS3 -> PS4: To transmit to PS3, remove the requirement for PS3 state using  sl_si91x_power_manager_remove_ps_requirement and add the requirement for PS4 state using  sl_si91x_power_manager_add_ps_requirement switches the power state to PS4.
 
   - PS4 -> PS0 -> Restarts the soc
-    - The NWP is switched to STANDBY_POWER_SAVE which means, sleep without retention.
+    - The NWP is switched to DEEP_SLEEP_WITHOUT_RAM_RETENTION which means, sleep without retention.
     - Wakeup Source is selected as the calendar second trigger. The calendar peripheral is initialized before setting it as a wakeup source, the calendar is initialized using  sl_si91x_calendar_init, the second trigger is selected as wakeup source using  sl_si91x_power_manager_set_wakeup_sources, Now callback is registered for second trigger (it enables the trigger also) using  sl_si91x_calendar_register_sec_trigger_callback.
     - It goes to PS0 state using  sl_si91x_power_manager_add_ps_requirement. After waking up using the calendar one-second trigger, it restarts the controller.  
 
@@ -67,12 +65,13 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-  - The Serial Console setup instructions are provided below:
-Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
 - Simplicity Studio
+- Serial console Setup
+  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 

@@ -41,8 +41,8 @@
 #include <string.h>
 #include <assert.h>
 #include "sl_si91x_core_utilities.h"
-#ifdef SLI_SI91X_MCU_INTERFACE
 #include "em_core.h"
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "sli_siwx917_soc.h"
 #include "rsi_rom_clks.h"
 #include "rsi_m4.h"
@@ -51,6 +51,8 @@
 #ifdef SLI_SI91X_ENABLE_BLE
 #include "rsi_common_apis.h"
 #endif
+
+#include "sl_wifi_region_db_config.h"
 
 #ifdef SLI_SI91X_SOCKETS
 #include "sl_si91x_socket_utility.h"
@@ -75,6 +77,8 @@ extern osMutexId_t side_band_crypto_mutex;
 #ifndef SL_WIFI_SET_MAC_COMMAND_TIME_OUT
 #define SL_WIFI_SET_MAC_COMMAND_TIME_OUT 30100 // Retrieved from SAPI 1.0
 #endif
+
+#define SLI_SI91X_GET_TCP_IP_TOTAL_SELECTS_BITS(x) ((x & 0x0000F000) >> 12)
 
 #define SL_SI91X_INVALID_MODE 0xFFFF
 
@@ -126,32 +130,21 @@ static sl_si91x_timeout_t timeout_glbl = { .auth_assoc_timeout_value       = SL_
                                            .passive_scan_timeout_value = SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME };
 
 sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
-                                                sl_si91x_queue_type_t comamnd_type,
+                                                sl_si91x_command_type_t command_type,
                                                 sl_wifi_buffer_t *buffer,
                                                 sl_si91x_wait_period_t wait_period,
                                                 void *sdk_context,
                                                 sl_wifi_buffer_t **data_buffer);
-sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
-                                             sl_wifi_buffer_t *buffer,
-                                             uint32_t wait_time);
+static sl_status_t sl_si91x_driver_send_data_packet(sl_wifi_buffer_t *buffer, uint32_t wait_time);
 sl_status_t sl_si91x_driver_raw_send_command(uint8_t command,
                                              const void *data,
                                              uint32_t data_length,
                                              uint32_t wait_time);
-sl_status_t sl_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
-                                             void **buffer,
-                                             uint32_t requested_buffer_size,
-                                             uint32_t wait_duration_ms);
 sl_status_t sl_si91x_allocate_data_buffer(sl_wifi_buffer_t **host_buffer,
                                           void **buffer,
                                           uint32_t data_size,
                                           uint32_t wait_duration_ms);
 sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t *config);
-sl_status_t sl_si91x_driver_wait_for_response_packet(sl_si91x_queue_type_t queue_type,
-                                                     uint32_t event_mask,
-                                                     uint16_t packet_id,
-                                                     sl_si91x_wait_period_t wait_period,
-                                                     sl_wifi_buffer_t **packet_buffer);
 sl_status_t sli_verify_device_boot(uint32_t *rom_version);
 sl_status_t sl_si91x_enable_radio(void);
 sl_status_t sli_wifi_select_option(const uint8_t configuration);
@@ -169,17 +162,20 @@ bool interface_is_up[SL_WIFI_MAX_INTERFACE_INDEX] = { false, false, false, false
 bool bg_enabled                                   = false;
 uint32_t frontend_switch_control                  = 0;
 static uint32_t feature_bit_map                   = 0;
-static uint16_t queue_packet_id[SI91X_CMD_MAX]    = { 0 };
-static uint8_t ap_join_feature_bitmap             = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
-static uint8_t client_join_feature_bitmap         = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
-static uint32_t client_listen_interval            = 1000;
-static sl_si91x_efuse_data_t si91x_efuse_data     = { 0 };
+//static uint16_t queue_packet_id[SI91X_CMD_MAX]    = { 0 };
+static uint8_t ap_join_feature_bitmap         = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint8_t client_join_feature_bitmap     = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint32_t client_listen_interval        = 1000;
+static sl_si91x_efuse_data_t si91x_efuse_data = { 0 };
 //! Currently, initialized_opermode is used only to handle concurrent mode using sl_net_init()
 static uint16_t initialized_opermode = SL_SI91X_INVALID_MODE;
+extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
+extern sl_si91x_buffer_queue_t sli_tx_data_queue;
 
 sli_si91x_performance_profile_t performance_profile;
-
-extern si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
+extern osEventFlagsId_t si91x_events;
+extern volatile uint32_t tx_command_queues_status;
+extern volatile uint32_t tx_generic_socket_data_queues_status;
 
 #ifdef SLI_SI91X_ENABLE_BLE
 //! Memory length for driver
@@ -208,8 +204,12 @@ const sl_wifi_buffer_configuration_t default_buffer_configuration = {
   .control_buffer_quota = 10,
   .tx_buffer_quota      = 10,
   .rx_buffer_quota      = 10,
-  .block_size           = 1616,
-  .buffer_memory        = NULL,
+#ifdef SPI_EXTENDED_TX_LEN_2K
+  .block_size = 2300,
+#else
+  .block_size = 1616,
+#endif
+  .buffer_memory = NULL,
 };
 
 const sl_wifi_ap_configuration_t default_wifi_ap_configuration = {
@@ -227,127 +227,29 @@ const sl_wifi_ap_configuration_t default_wifi_ap_configuration = {
   .maximum_clients     = 4
 };
 
-// Define default region-specific configurations for 2.4GHz and 5GHz bands
-const sl_si91x_set_region_ap_request_t default_US_region_2_4GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "US ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 11, .max_tx_power = 27 }
-};
-
-const sl_si91x_set_region_ap_request_t default_US_region_5GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "US ",
-  .no_of_rules                   = 5,
-  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 4, .max_tx_power = 16 },
-  .channel_info[1]               = { .first_channel = 52, .no_of_channels = 4, .max_tx_power = 23 },
-  .channel_info[2]               = { .first_channel = 100, .no_of_channels = 5, .max_tx_power = 23 },
-  .channel_info[3]               = { .first_channel = 132, .no_of_channels = 3, .max_tx_power = 23 },
-  .channel_info[4]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 29 }
-};
-
-// Define default configurations for the European region for 2.4GHz and 5GHz bands
-const sl_si91x_set_region_ap_request_t default_EU_region_2_4GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "EU ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 20 }
-};
-
-const sl_si91x_set_region_ap_request_t default_EU_region_5GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "EU ",
-  .no_of_rules                   = 3,
-  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 4, .max_tx_power = 23 },
-  .channel_info[1]               = { .first_channel = 52, .no_of_channels = 4, .max_tx_power = 23 },
-  .channel_info[2]               = { .first_channel = 100, .no_of_channels = 11, .max_tx_power = 30 }
-};
-
-// Define default configurations for the Japanese region for 2.4GHz and 5GHz bands
-const sl_si91x_set_region_ap_request_t default_JP_region_2_4GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "JP ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 14, .max_tx_power = 20 }
-};
-
-const sl_si91x_set_region_ap_request_t default_JP_region_5GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "JP ",
-  .no_of_rules                   = 3,
-  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 4, .max_tx_power = 20 },
-  .channel_info[1]               = { .first_channel = 52, .no_of_channels = 4, .max_tx_power = 20 },
-  .channel_info[2]               = { .first_channel = 100, .no_of_channels = 11, .max_tx_power = 30 }
-};
-
-// Define default configurations for the Korean region for 2.4GHz and 5GHz bands
-const sl_si91x_set_region_ap_request_t default_KR_region_2_4GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "KR ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 23 }
-};
-
-const sl_si91x_set_region_ap_request_t default_KR_region_5GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "KR ",
-  .no_of_rules                   = 4,
-  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 4, .max_tx_power = 23 },
-  .channel_info[1]               = { .first_channel = 52, .no_of_channels = 4, .max_tx_power = 20 },
-  .channel_info[2]               = { .first_channel = 100, .no_of_channels = 11, .max_tx_power = 20 },
-  .channel_info[3]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 23 }
-};
-
-// Define default configurations for the Singapore region for 2.4GHz and 5GHz bands
-const sl_si91x_set_region_ap_request_t default_SG_region_2_4GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "SG ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 27 }
-};
-
-const sl_si91x_set_region_ap_request_t default_SG_region_5GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "SG ",
-  .no_of_rules                   = 5,
-  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 4, .max_tx_power = 16 },
-  .channel_info[1]               = { .first_channel = 52, .no_of_channels = 4, .max_tx_power = 23 },
-  .channel_info[2]               = { .first_channel = 100, .no_of_channels = 5, .max_tx_power = 23 },
-  .channel_info[3]               = { .first_channel = 132, .no_of_channels = 3, .max_tx_power = 23 },
-  .channel_info[4]               = { .first_channel = 149, .no_of_channels = 4, .max_tx_power = 29 }
-};
-
-// Define default configurations for the China region for 2.4GHz and 5GHz bands
-const sl_si91x_set_region_ap_request_t default_CN_region_2_4GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "CN ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 20 }
-};
-
-const sl_si91x_set_region_ap_request_t default_CN_region_5GHZ_configurations = {
-  .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
-  .country_code                  = "CN ",
-  .no_of_rules                   = 2,
-  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 9, .max_tx_power = 20 },
-  .channel_info[4]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 33 }
-};
-
 // clang-format off
-  static uint8_t firmware_queue_id[SI91X_CMD_MAX]   = { [SI91X_COMMON_CMD]  = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_WLAN_CMD]    = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_NETWORK_CMD] = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_SOCKET_CMD]  = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_BT_CMD]      = RSI_BT_Q };
-  static uint32_t response_event_map[SI91X_CMD_MAX] = { [SI91X_COMMON_CMD]  = NCP_HOST_COMMON_RESPONSE_EVENT,
-                                                        [SI91X_WLAN_CMD]    = NCP_HOST_WLAN_RESPONSE_EVENT,
-                                                        [SI91X_NETWORK_CMD] = NCP_HOST_NETWORK_RESPONSE_EVENT,
-                                                        [SI91X_SOCKET_CMD]  = NCP_HOST_SOCKET_RESPONSE_EVENT,
-                                                        [SI91X_BT_CMD]      = NCP_HOST_BT_RESPONSE_EVENT };
+static uint8_t firmware_queue_id[SI91X_CMD_MAX]   = { [SI91X_COMMON_CMD]  = RSI_WLAN_MGMT_Q,
+                                                    [SI91X_WLAN_CMD]      = RSI_WLAN_MGMT_Q,
+                                                    [SI91X_NETWORK_CMD]   = RSI_WLAN_MGMT_Q,
+													[SI91X_SOCKET_CMD]    = RSI_WLAN_MGMT_Q,
+                                                    [SI91X_BT_CMD]        = RSI_BT_Q };
+//static uint32_t response_event_map[SI91X_CMD_MAX] = { [SI91X_COMMON_CMD]  = NCP_HOST_COMMON_RESPONSE_EVENT,
+//                                                      [SI91X_WLAN_CMD]    = NCP_HOST_WLAN_RESPONSE_EVENT,
+//                                                      [SI91X_NETWORK_CMD] = NCP_HOST_NETWORK_RESPONSE_EVENT,
+//                                                      [SI91X_SOCKET_CMD]  = NCP_HOST_SOCKET_RESPONSE_EVENT,
+//                                                      [SI91X_BT_CMD]      = NCP_HOST_BT_RESPONSE_EVENT };
 // clang-format on
 #ifdef SLI_SI91X_MCU_INTERFACE
 extern sl_wifi_buffer_t *rx_pkt_buffer;
 #endif
+
+static bool si91x_packet_identification_function(const sl_wifi_buffer_t *buffer, const void *user_data)
+{
+  const uint8_t *packet_id = (const uint8_t *)user_data;
+
+  // Check if the packet's packet ID matches the expected one
+  return (*packet_id == buffer->id);
+}
 
 void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data)
 {
@@ -371,7 +273,7 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
 
   // Send WLAN request to set the operating band (2.4GHz or 5GHz)
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_BAND,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &config->band,
                                         1,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -405,7 +307,7 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
 
   // Initialize the WLAN subsystem
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_INIT,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         NULL,
                                         0,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -413,16 +315,18 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
 
+#ifndef SL_SI91X_ACX_MODULE
   if (IGNORE_REGION != config->region_code) {
     // Set the device's region based on configuration
     status = sl_si91x_set_device_region(config->boot_config.oper_mode, config->band, config->region_code);
     VERIFY_STATUS_AND_RETURN(status);
   }
+#endif
 
   // Configure the RTS threshold for WLAN
   sl_si91x_config_request_t config_request = { .config_type = CONFIG_RTSTHRESHOLD, .value = RSI_RTS_THRESHOLD };
   status                                   = sl_si91x_driver_send_command(RSI_WLAN_REQ_CONFIG,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &config_request,
                                         sizeof(config_request),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -431,10 +335,6 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }
-
-#ifndef SLI_SI91X_MCU_INTERFACE
-osSemaphoreId_t cmd_lock = NULL;
-#endif
 
 sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, sl_wifi_event_handler_t event_handler)
 {
@@ -502,17 +402,6 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   status = sl_si91x_host_init(&init_config);
   VERIFY_STATUS_AND_RETURN(status);
 
-#ifndef SLI_SI91X_MCU_INTERFACE
-  // Create and release a semaphore for DATA TX
-  if (cmd_lock == NULL) {
-    cmd_lock = osSemaphoreNew(1, 0, NULL);
-    if (cmd_lock == NULL) {
-      return SL_STATUS_FAIL;
-    }
-    osSemaphoreRelease(cmd_lock);
-  }
-#endif
-
   // Initialize the SI91x platform
   status = sl_si91x_platform_init();
   VERIFY_STATUS_AND_RETURN(status);
@@ -542,6 +431,10 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   VERIFY_STATUS_AND_RETURN(status);
 #endif
 
+  // Initialize task register index to save firmware status
+  status = sli_fw_status_storage_index_init();
+  VERIFY_STATUS_AND_RETURN(status);
+
 #ifdef SL_SI91X_SPI_HIGH_SPEED_ENABLE
   // Enable high speed bus on the device and the host
   status = sl_si91x_bus_enable_high_speed();
@@ -555,22 +448,21 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   // NWP would not send card ready command response, if we call init after deinit
 
   if (get_card_ready_required()) {
-    uint32_t events = si91x_host_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 5000);
+    uint32_t events = sli_si91x_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 5000);
     if (!(events & NCP_HOST_COMMON_RESPONSE_EVENT)) {
       return SL_STATUS_CARD_READY_TIMEOUT;
     }
     set_card_ready_required(false);
   }
 #else
-  uint32_t events = si91x_host_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 3000);
+  uint32_t events = sli_si91x_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 3000);
   if (!(events & NCP_HOST_COMMON_RESPONSE_EVENT)) {
     return SL_STATUS_CARD_READY_TIMEOUT;
   }
 #endif
-  si91x_host_clear_events(NCP_HOST_COMMON_RESPONSE_EVENT);
   // Send WLAN request to set the operating mode and configuration
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_OPERMODE,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         &config->boot_config,
                                         sizeof(sl_si91x_boot_configuration_t),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -599,7 +491,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
 #endif
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_DYNAMIC_POOL,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &config->ta_pool,
                                         sizeof(sl_si91x_dynamic_pool),
                                         SL_SI91X_WAIT_FOR(30100),
@@ -627,16 +519,17 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
 
   // For the transmit test mode we need to disable BIT 0, 4, 5. These bitmaps are only required in powersave.
   // To receive broadcast data packets in transceiver opermode, we need to enable BIT 1.
-  feature_frame_request.feature_enables = (config->boot_config.oper_mode == SL_SI91X_TRANSMIT_TEST_MODE)
-                                            ? feature_frame_request.feature_enables & ~(FEATURE_ENABLES)
-                                          : (config->boot_config.oper_mode == SL_SI91X_TRANSCEIVER_MODE)
-                                            ? feature_frame_request.feature_enables
-                                                | SI91X_FEAT_FRAME_PERMIT_UNDESTINED_PACKETS
-                                            : feature_frame_request.feature_enables;
+  if (config->boot_config.oper_mode == SL_SI91X_TRANSMIT_TEST_MODE) {
+    feature_frame_request.feature_enables &= ~(FEATURE_ENABLES);
+  } else if (config->boot_config.oper_mode == SL_SI91X_TRANSCEIVER_MODE) {
+    feature_frame_request.feature_enables |= SI91X_FEAT_FRAME_PERMIT_UNDESTINED_PACKETS;
+  } else {
+    feature_frame_request.feature_enables = feature_frame_request.feature_enables;
+  }
 
   // Dispatch a feature request frame to the SI91x driver
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_FEATURE_FRAME,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         &feature_frame_request,
                                         sizeof(feature_frame_request),
                                         SL_SI91X_WAIT_FOR(10000),
@@ -647,6 +540,11 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   // if 16th bit of ext_tcp_ip_feature_bit_map is not set, then firmware auto closes the TCP socket on remote termination.
   save_tcp_auto_close_choice(
     (config->boot_config.ext_tcp_ip_feature_bit_map & SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE) == 0);
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+  sli_si91x_socket_init(SLI_SI91X_GET_TCP_IP_TOTAL_SELECTS_BITS(config->boot_config.ext_tcp_ip_feature_bit_map));
+  VERIFY_STATUS_AND_RETURN(status);
+#endif
 
   // Set the MAC address if provided in the configuration
   if (config->mac_address != NULL) {
@@ -728,13 +626,39 @@ sl_status_t sl_si91x_driver_deinit(void)
   }
 #endif
 
+  // Flush all TX Wi-Fi queues with the status indicating Wi-Fi connection is lost
+  sli_si91x_flush_all_tx_wifi_queues(SL_STATUS_WIFI_CONNECTION_LOST);
+
+  // Flush the generic TX data queue
+  sli_si91x_flush_generic_data_queues(&sli_tx_data_queue);
+
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
-  // Free all allocated sockets
-  status = sl_si91x_vap_shutdown(SL_SI91X_WIFI_CLIENT_VAP_ID);
+
+  // Flush all pending socket commands in the client VAP queue due to Wi-Fi connection loss
+  sli_si91x_flush_all_socket_command_queues(SL_STATUS_WIFI_CONNECTION_LOST, SL_SI91X_WIFI_CLIENT_VAP_ID);
+
+  // Flush all pending socket data in the client VAP queue due to Wi-Fi connection loss
+  sli_si91x_flush_all_socket_data_queues(SL_SI91X_WIFI_CLIENT_VAP_ID);
+
+  // Flush all pending socket commands in the AP VAP queue due to Wi-Fi connection loss
+  sli_si91x_flush_all_socket_command_queues(SL_STATUS_WIFI_CONNECTION_LOST, SL_SI91X_WIFI_AP_VAP_ID);
+
+  // Flush all pending socket data in the AP VAP queue due to Wi-Fi connection loss
+  sli_si91x_flush_all_socket_data_queues(SL_SI91X_WIFI_AP_VAP_ID);
+
+  // Shutdown and change the state of the client VAP sockets
+  status = sli_si91x_vap_shutdown(SL_SI91X_WIFI_CLIENT_VAP_ID);
   VERIFY_STATUS_AND_RETURN(status);
-  status = sl_si91x_vap_shutdown(SL_SI91X_WIFI_AP_VAP_ID);
+
+  // Shutdown and change the state of the AP VAP sockets
+  status = sli_si91x_vap_shutdown(SL_SI91X_WIFI_AP_VAP_ID);
   VERIFY_STATUS_AND_RETURN(status);
-#endif
+
+  // Deinitialize and free all socket-related resources
+  status = sli_si91x_socket_deinit();
+  VERIFY_STATUS_AND_RETURN(status);
+
+#endif // End of check for offloaded network stack and sockets
 
   // Deinitialize the SI91x platform
   status = sl_si91x_platform_deinit();
@@ -787,7 +711,7 @@ sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data, uin
   }
 
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_EFUSE_DATA,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         &efuse_data_type,
                                         sizeof(efuse_data_type),
                                         SL_SI91X_WAIT_FOR_RESPONSE(15000),
@@ -845,64 +769,32 @@ sl_status_t sl_si91x_driver_raw_send_command(uint8_t command,
   packet->length  = data_length & 0xFFF;
   packet->command = command;
 
-  //! Enter Critical Section
-  __disable_irq();
-
   // Adding the packet to the queue with atomic action
-  sl_si91x_host_add_to_queue_with_atomic_action(SI91X_SOCKET_DATA_QUEUE, buffer, NULL, NULL);
-  // Trigerring the bus event
-  sl_si91x_host_set_bus_event(SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT);
-
-  //! Exit Critical Section
-  __enable_irq();
-
-  return SL_STATUS_OK;
+  return sl_si91x_driver_send_data_packet(buffer, wait_time);
 }
 
-static void sl_si91x_atomic_packet_id_allocator(void *user_data)
-{
-  sl_si91x_driver_context_t *context = (sl_si91x_driver_context_t *)user_data;
-  uint16_t *packet_id_tracker        = (uint16_t *)context->payload;
-
-  // Set the packet ID for the current command and update the tracker
-  context->packet_id         = *packet_id_tracker;
-  context->packet->packet_id = *packet_id_tracker;
-
-  // Increment the packet ID tracker, ensuring it wraps around at 16 bits
-  *packet_id_tracker = (*packet_id_tracker + 1) & 0xFFFF;
-
-  return;
-}
-
-sl_status_t sl_si91x_driver_send_socket_data(const sl_si91x_socket_send_request_t *request,
+sl_status_t sl_si91x_driver_send_socket_data(const sli_si91x_socket_send_request_t *request,
                                              const void *data,
                                              uint32_t wait_time)
 {
   UNUSED_PARAMETER(wait_time);
   sl_wifi_buffer_t *buffer;
   sl_si91x_packet_t *packet;
-  sl_si91x_socket_send_request_t *send;
+  sli_si91x_socket_send_request_t *send;
 
   sl_status_t status     = SL_STATUS_OK;
-  uint16_t header_length = (request->data_offset - sizeof(sl_si91x_socket_send_request_t));
+  uint16_t header_length = (request->data_offset - sizeof(sli_si91x_socket_send_request_t));
   uint32_t data_length   = request->length;
 
   if (data == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
 
-#ifndef SLI_SI91X_MCU_INTERFACE
-  // lock before buffer allocation for DATA TX
-  if (osSemaphoreAcquire(cmd_lock, 1000) != osOK) {
-    BREAKPOINT();
-  }
-#endif
-
   // Allocate a buffer for the socket data with appropriate size
   status = sl_si91x_host_allocate_buffer(
     &buffer,
     SL_WIFI_TX_FRAME_BUFFER,
-    sizeof(sl_si91x_packet_t) + sizeof(sl_si91x_socket_send_request_t) + header_length + data_length,
+    sizeof(sl_si91x_packet_t) + sizeof(sli_si91x_socket_send_request_t) + header_length + data_length,
     SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
 
   VERIFY_STATUS_AND_RETURN(status);
@@ -915,18 +807,18 @@ sl_status_t sl_si91x_driver_send_socket_data(const sl_si91x_socket_send_request_
 
   memset(packet->desc, 0, sizeof(packet->desc));
 
-  send = (sl_si91x_socket_send_request_t *)packet->data;
-  memcpy(send, request, sizeof(sl_si91x_socket_send_request_t));
+  send = (sli_si91x_socket_send_request_t *)packet->data;
+  memcpy(send, request, sizeof(sli_si91x_socket_send_request_t));
   memcpy((send->send_buffer + header_length), data, data_length);
 
   // Fill frame type
-  packet->length = (sizeof(sl_si91x_socket_send_request_t) + header_length + data_length) & 0xFFF;
+  packet->length = (sizeof(sli_si91x_socket_send_request_t) + header_length + data_length) & 0xFFF;
 
-  return sl_si91x_driver_send_data_packet(SI91X_SOCKET_DATA_QUEUE, buffer, wait_time);
+  return sl_si91x_driver_send_data_packet(buffer, wait_time);
 }
 
 sl_status_t sl_si91x_custom_driver_send_command(uint32_t command,
-                                                sl_si91x_queue_type_t queue_type,
+                                                sl_si91x_command_type_t command_type,
                                                 const void *data,
                                                 uint32_t data_length,
                                                 sl_si91x_wait_period_t wait_period,
@@ -939,15 +831,15 @@ sl_status_t sl_si91x_custom_driver_send_command(uint32_t command,
   sl_status_t status;
 
   // Check if the queue type is within valid range
-  if (queue_type >= (sl_si91x_queue_type_t)SI91X_CMD_MAX) {
+  if (command_type >= SI91X_CMD_MAX) {
     return SL_STATUS_INVALID_INDEX;
   }
 
   // Allocate a buffer for the command with appropriate size
-  status = sl_si91x_allocate_command_buffer(&buffer,
-                                            (void **)&packet,
-                                            sizeof(sl_si91x_packet_t) + data_length,
-                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  status = sli_si91x_allocate_command_buffer(&buffer,
+                                             (void **)&packet,
+                                             sizeof(sl_si91x_packet_t) + data_length,
+                                             SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Clear the packet descriptor and copy the command data if available
@@ -961,11 +853,11 @@ sl_status_t sl_si91x_custom_driver_send_command(uint32_t command,
   packet->command = (uint16_t)command;
   // Fill the packet identifier
   packet->unused[1] = custom_host_desc;
-  return sl_si91x_driver_send_command_packet(command, queue_type, buffer, wait_period, sdk_context, data_buffer);
+  return sl_si91x_driver_send_command_packet(command, command_type, buffer, wait_period, sdk_context, data_buffer);
 }
 
 sl_status_t sl_si91x_driver_send_command(uint32_t command,
-                                         sl_si91x_queue_type_t queue_type,
+                                         sl_si91x_command_type_t command_type,
                                          const void *data,
                                          uint32_t data_length,
                                          sl_si91x_wait_period_t wait_period,
@@ -977,15 +869,15 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
   sl_status_t status;
 
   // Check if the queue type is within valid range
-  if (queue_type >= (sl_si91x_queue_type_t)SI91X_CMD_MAX) {
+  if (command_type >= SI91X_CMD_MAX) {
     return SL_STATUS_INVALID_INDEX;
   }
 
   // Allocate a buffer for the command with appropriate size
-  status = sl_si91x_allocate_command_buffer(&buffer,
-                                            (void **)&packet,
-                                            sizeof(sl_si91x_packet_t) + data_length,
-                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  status = sli_si91x_allocate_command_buffer(&buffer,
+                                             (void **)&packet,
+                                             sizeof(sl_si91x_packet_t) + data_length,
+                                             SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Clear the packet descriptor and copy the command data if available
@@ -994,10 +886,16 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
     memcpy(packet->data, data, data_length);
   }
 
+  // Set SLI_SI91X_FEAT_FW_UPDATE_NEW_CODE in the feature bit map to retrieve the latest firmware result codes
+  if (command == RSI_COMMON_REQ_OPERMODE) {
+    sl_si91x_boot_configuration_t *boot_configuration = (sl_si91x_boot_configuration_t *)packet->data;
+    boot_configuration->feature_bit_map |= SLI_SI91X_FEAT_FW_UPDATE_NEW_CODE;
+  }
+
   // Fill frame type
   packet->length  = data_length & 0xFFF;
   packet->command = (uint16_t)command;
-  return sl_si91x_driver_send_command_packet(command, queue_type, buffer, wait_period, sdk_context, data_buffer);
+  return sl_si91x_driver_send_command_packet(command, command_type, buffer, wait_period, sdk_context, data_buffer);
 }
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -1012,7 +910,7 @@ sl_status_t sl_si91x_driver_send_side_band_crypto(uint32_t command,
   sl_status_t status = SL_STATUS_OK;
 
   // Allocate a buffer for the command with appropriate size
-  status = sl_si91x_allocate_command_buffer(&buffer, (void **)&packet, sizeof(sl_si91x_packet_t) + data_length, 1000);
+  status = sli_si91x_allocate_command_buffer(&buffer, (void **)&packet, sizeof(sl_si91x_packet_t) + data_length, 1000);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Clear the packet descriptor and copy the command data if available
@@ -1062,22 +960,22 @@ sl_status_t sl_si91x_driver_send_side_band_crypto(uint32_t command,
 #endif
 
 sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
-                                            sl_si91x_queue_type_t queue_type,
+                                            sl_si91x_command_type_t command_type,
                                             sl_wifi_buffer_t *data,
                                             uint8_t sync_command)
 {
   sl_si91x_wait_period_t wait_period = SL_SI91X_RETURN_IMMEDIATELY;
 
   // Check if the queue type is within valid range
-  if (queue_type >= (sl_si91x_queue_type_t)SI91X_CMD_MAX) {
+  if (command_type >= SI91X_CMD_MAX) {
 
     return SL_STATUS_INVALID_INDEX;
   }
 
   if (sync_command) {
-    return sl_si91x_driver_send_command_packet(command, queue_type, data, wait_period, NULL, NULL);
+    return sl_si91x_driver_send_command_packet(command, command_type, data, wait_period, NULL, NULL);
   } else {
-    return sl_si91x_driver_send_async_command(command, queue_type, data, 0);
+    return sl_si91x_driver_send_async_command(command, command_type, data, 0);
   }
 }
 
@@ -1088,9 +986,9 @@ sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl
 #ifdef SI91x_ENABLE_WAIT_ON_RESULTS
   // Wait for WLAN response events with a specified timeout
   uint32_t events =
-    si91x_host_wait_for_event(NCP_HOST_WLAN_RESPONSE_EVENT, (wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT));
+    sli_si91x_wait_for_event(NCP_HOST_WLAN_RESPONSE_EVENT, (wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT));
 
-  si91x_host_clear_events(NCP_HOST_WLAN_RESPONSE_EVENT);
+  sli_si91x_clear_event(NCP_HOST_WLAN_RESPONSE_EVENT);
 
   //TODO: Change error handling from event based to response
   if (events & NCP_HOST_WLAN_RESPONSE_EVENT) {
@@ -1102,76 +1000,67 @@ sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-static uint8_t si91x_packet_identification_function(sl_wifi_buffer_t *node, void *user_data)
+sl_status_t sli_si91x_driver_wait_for_response_packet(sl_si91x_buffer_queue_t *queue,
+                                                      osEventFlagsId_t event_flag,
+                                                      uint32_t event_mask,
+                                                      uint16_t packet_id,
+                                                      sl_si91x_wait_period_t wait_period,
+                                                      sl_wifi_buffer_t **packet_buffer)
 {
-  const sli_si91x_queue_packet_t *packet   = NULL;
-  const sl_si91x_driver_context_t *context = (sl_si91x_driver_context_t *)user_data;
-  uint16_t data_length                     = 0;
+  // Verify that packet_buffer is a valid pointer, return error if invalid
+  SL_VERIFY_POINTER_OR_RETURN(packet_buffer, SL_STATUS_INVALID_PARAMETER);
 
-  packet = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(node, 0, &data_length);
+  // Variables to store event flags, start time, and elapsed time
+  uint32_t events       = 0;
+  uint32_t start_time   = osKernelGetTickCount(); // Capture the start time of the wait period
+  uint32_t elapsed_time = 0;                      // Elapsed time tracker
+  sl_wifi_buffer_t *buffer;
 
-  // Check if the packet's packet ID matches the expected one
-  if (packet->packet_id == context->packet_id) {
-    return true;
-  }
+  do {
+    // Wait for event flag(s) to be set within the specified wait period.
+    // This blocks the thread until any event in the mask is set or a timeout occurs.
+    events = osEventFlagsWait(event_flag, event_mask, (osFlagsWaitAny | osFlagsNoClear), (wait_period - elapsed_time));
 
-  return false;
-}
-
-sl_status_t sl_si91x_driver_wait_for_response_packet(sl_si91x_queue_type_t queue_type,
-                                                     uint32_t event_mask,
-                                                     uint16_t packet_id,
-                                                     sl_si91x_wait_period_t wait_period,
-                                                     sl_wifi_buffer_t **packet_buffer)
-{
-  sl_si91x_driver_context_t context = { 0 };
-  sl_status_t status;
-  uint32_t events = 0;
-  uint32_t start  = 0;
-
-  start = osKernelGetTickCount();
-  while (true) {
-    // Wait for specific events in the event mask with a timeout
-    events = si91x_host_wait_for_event(event_mask, wait_period);
-    SL_DEBUG_LOG("><<<< Got event : %u for queue %u\n", events, queue_type);
-
-    // If no events occur within the timeout, return a timeout status
-    if (events == 0) {
+    // If the event wait times out or resources are unavailable, return timeout status
+    if (events == (uint32_t)osErrorTimeout || events == (uint32_t)osErrorResource) {
       return SL_STATUS_TIMEOUT;
     }
 
-    // Set the packet ID to match for identification
-    context.packet_id = packet_id;
+    // Log the event and queue details (for debugging purposes)
+    SL_DEBUG_LOG("Event: %u, queue %u\n", events, queue);
 
-    // Attempt to remove a packet from the specified queue that matches the packet ID
-    status =
-      sl_si91x_host_remove_node_from_queue(queue_type, packet_buffer, &context, si91x_packet_identification_function);
+    // Traverse the queue to check if the packet with the desired packet_id is at the head.
+    // Introduce a delay if the head of the queue packet doesn't belong to the current thread.
+    // This allows other threads to process the packet at the head.
+    do {
+      buffer = queue->head; // Peek at the head of the queue
+    } while ((buffer != NULL) && (buffer->id != packet_id)
+             && osDelay(1) == 0); // Delay to yield if packet_id does not match
 
-    // If a matching packet is found, return success
-    if (SL_STATUS_OK == status) {
-      if (0 == cmd_queues[queue_type].queued_packet_count) {
-        si91x_host_clear_events(event_mask);
-      }
-      return SL_STATUS_OK;
-    }
-    SL_DEBUG_LOG(ERROR_TAG, status);
+    // Update the elapsed time since the start of the wait
+    elapsed_time = sl_si91x_host_elapsed_time(start_time);
 
-    // Calculate the elapsed time if we are not waiting for ever and update the wait_period accordingly.
-    if (osWaitForever != (uint32_t)wait_period) {
-      uint32_t elapsed_time = sl_si91x_host_elapsed_time(start);
-      // Check if we have already elapsed the remaining time before subtracting the remaining wait_period
-      if ((uint32_t)wait_period <= elapsed_time) {
-        return SL_STATUS_TIMEOUT;
-      }
-      wait_period -= elapsed_time;
-    }
-    start = osKernelGetTickCount();
+  } while (buffer == NULL || (buffer->id != packet_id)); // Loop until the correct packet is found or timeout occurs
+
+  // Remove the identified packet from the queue
+  sli_si91x_pop_from_buffer_queue(queue, &buffer);
+
+  // Assign the identified packet to packet_buffer
+  *packet_buffer = buffer;
+
+  // Enter atomic section to ensure thread safety while clearing the event flag
+  CORE_irqState_t state = CORE_EnterAtomic();
+  // If the queue is empty after popping the packet, clear the event flag to avoid unnecessary waits
+  if (queue->head == NULL) {
+    osEventFlagsClear(event_flag, event_mask);
   }
+  CORE_ExitAtomic(state); // Exit atomic section
 
-  return SL_STATUS_INVALID_STATE;
+  return SL_STATUS_OK; // Return success status
 }
+
 sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
-                                                sl_si91x_queue_type_t queue_type,
+                                                sl_si91x_command_type_t command_type,
                                                 sl_wifi_buffer_t *buffer,
                                                 sl_si91x_wait_period_t wait_period,
                                                 void *sdk_context,
@@ -1182,19 +1071,17 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
   sl_status_t status;
   sl_wifi_buffer_t *packet;
   sl_wifi_buffer_t *response;
-  uint8_t flags                     = 0;
-  uint16_t data_length              = 0;
-  sl_si91x_driver_context_t context = { 0 };
-  sl_si91x_wait_period_t wait_time  = 0;
-#ifdef SLI_SI91X_SOCKETS
-  const sl_si91x_socket_context_t *socket_context_t = sdk_context;
-#endif
+  uint8_t flags        = 0;
+  uint16_t data_length = 0;
+  //  sl_si91x_driver_context_t context = { 0 };
+  sl_si91x_wait_period_t wait_time = 0;
+  static uint8_t command_packet_id = 0;
 
   // Allocate a command packet and set flags based on the command type
-  status = sl_si91x_allocate_command_buffer(&packet,
-                                            (void **)&node,
-                                            sizeof(sli_si91x_queue_packet_t),
-                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  status = sli_si91x_allocate_command_buffer(&packet,
+                                             (void **)&node,
+                                             sizeof(sli_si91x_queue_packet_t),
+                                             SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   if (status != SL_STATUS_OK) {
     sl_si91x_host_free_buffer(buffer);
     return status;
@@ -1208,7 +1095,7 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
 #endif
 
   // Check the wait_period to determine the flags for packet handling
-  if (SL_SI91X_RETURN_IMMEDIATELY == wait_period) {
+  if (wait_period == SL_SI91X_RETURN_IMMEDIATELY) {
     // If wait_period indicates an immediate return, set flags to 0
     flags = 0;
   } else {
@@ -1216,7 +1103,7 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
     flags |= SI91X_PACKET_RESPONSE_STATUS;
     // Additionally, set the SI91X_PACKET_RESPONSE_PACKET flag if the SL_SI91X_WAIT_FOR_RESPONSE_BIT is set in wait_period
     if (data_buffer != NULL) {
-      flags |= (((wait_period & SL_SI91X_WAIT_FOR_RESPONSE_BIT) != 0) ? SI91X_PACKET_RESPONSE_PACKET : 0);
+      flags |= ((wait_period & SL_SI91X_WAIT_FOR_RESPONSE_BIT) ? SI91X_PACKET_RESPONSE_PACKET : 0);
     }
   }
 
@@ -1233,46 +1120,37 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
 
   // Set various properties of the node representing the command packet
   node->host_packet       = buffer;
-  node->firmware_queue_id = firmware_queue_id[queue_type];
-  node->command_type      = (sl_si91x_command_type_t)queue_type;
-  // copy the socket id to sl_si91x_socket_id member of sl_si91x_queue_type_t structure.
-#ifdef SLI_SI91X_SOCKETS
-  if (queue_type == (sl_si91x_queue_type_t)SI91X_SOCKET_CMD) {
-    if ((command == RSI_WLAN_REQ_SOCKET_ACCEPT) && (wait_period == SL_SI91X_RETURN_IMMEDIATELY)) {
-      node->sl_si91x_socket_id = (socket_context_t->socket_id);
-    } else if (sdk_context != NULL) {
-      node->sl_si91x_socket_id = (int32_t)(*((uint8_t *)sdk_context));
-    } else {
-      node->sl_si91x_socket_id = -1;
-    }
-  }
-#endif
-  node->flags       = flags;
-  node->sdk_context = sdk_context;
+  node->firmware_queue_id = firmware_queue_id[command_type];
+  node->command_type      = command_type;
+  node->flags             = flags;
+  node->sdk_context       = sdk_context;
 
   // Configure the context for packet handling
-  context.packet  = node;
-  context.payload = &(queue_packet_id[queue_type]);
+  //  context.packet = node;
+  //  context.payload = &(queue_packet_id[command_type]);
 
-  //! Enter Critical Section
-  __disable_irq();
-  if ((flags != SI91X_PACKET_WITH_ASYNC_RESPONSE)) {
+  if (flags != SI91X_PACKET_WITH_ASYNC_RESPONSE) {
     node->command_tickcount = osKernelGetTickCount();
     // Calculate the wait time based on wait_period
-    if ((wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT) == SL_SI91X_WAIT_FOR_EVER) {
+    if ((wait_period & SL_SI91X_WAIT_FOR_EVER) == SL_SI91X_WAIT_FOR_EVER) {
       node->command_timeout = osWaitForever;
     } else {
       node->command_timeout = (wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT);
     }
   }
 
-  // Add the command packet to the queue and trigger a bus event
-  sl_si91x_host_add_to_queue_with_atomic_action(queue_type, packet, &context, sl_si91x_atomic_packet_id_allocator);
+  //! Enter Critical Section
+  CORE_irqState_t state = CORE_EnterAtomic();
 
-  sl_si91x_host_set_bus_event(SL_SI91X_TX_PENDING_FLAG(queue_type));
-
-  //! Exit Critical Section
-  __enable_irq();
+  const uint8_t this_packet_id = command_packet_id;
+  command_packet_id++;
+  buffer->id        = this_packet_id;
+  packet->id        = this_packet_id;
+  packet->node.node = NULL;
+  sli_si91x_append_to_buffer_queue(&cmd_queues[command_type].tx_queue, packet);
+  tx_command_queues_status |= SL_SI91X_TX_PENDING_FLAG(command_type);
+  sli_si91x_set_event(SL_SI91X_TX_PENDING_FLAG(command_type));
+  CORE_ExitAtomic(state);
 
   // Check if the command should return immediately or wait for a response
   if (wait_period == SL_SI91X_RETURN_IMMEDIATELY) {
@@ -1280,41 +1158,41 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
   }
 
   // Calculate the wait time based on wait_period
-  if ((wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT) == SL_SI91X_WAIT_FOR_EVER) {
+  if ((wait_period & SL_SI91X_WAIT_FOR_EVER) == SL_SI91X_WAIT_FOR_EVER) {
     wait_time = osWaitForever;
   } else {
     wait_time = (wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT);
   }
 
   // Wait for a response packet and handle it
-  status = sl_si91x_driver_wait_for_response_packet((queue_type + SI91X_CMD_MAX),
-                                                    response_event_map[queue_type],
-                                                    context.packet_id,
-                                                    wait_time,
-                                                    &response);
+  status = sli_si91x_driver_wait_for_response_packet(&cmd_queues[command_type].rx_queue,
+                                                     si91x_events,
+                                                     SL_SI91X_RESPONSE_FLAG(command_type),
+                                                     this_packet_id,
+                                                     wait_time,
+                                                     &response);
   // Check if the status is SL_STATUS_TIMEOUT, indicating a timeout has occurred
   if (status == SL_STATUS_TIMEOUT) {
-
     // Declare a temporary packet pointer to hold the packet to be removed
     sl_wifi_buffer_t *temp_packet;
-
-    sl_status_t status =
-      sl_si91x_host_remove_node_from_queue(queue_type, &temp_packet, &context, si91x_packet_identification_function);
+    sl_status_t temp_status = sli_si91x_remove_buffer_from_queue_by_comparator(&cmd_queues[command_type].tx_queue,
+                                                                               &this_packet_id,
+                                                                               si91x_packet_identification_function,
+                                                                               &temp_packet);
 
     // Check if the packet removal was successful
-    if (status == SL_STATUS_OK) {
+    if (temp_status == SL_STATUS_OK) {
 
       // Retrieve the actual packet node data from the removed buffer
-      sli_si91x_queue_packet_t *node = sl_si91x_host_get_buffer_data(temp_packet, 0, NULL);
+      sli_si91x_queue_packet_t *temp_node = sl_si91x_host_get_buffer_data(temp_packet, 0, NULL);
 
       // Free the host packet memory associated with the node (TX packet memory)
-      sl_si91x_host_free_buffer(node->host_packet);
+      sl_si91x_host_free_buffer(temp_node->host_packet);
 
       // Free the temporary buffer memory that held the packet
       sl_si91x_host_free_buffer(temp_packet);
     }
   }
-
   VERIFY_STATUS_AND_RETURN(status);
 
   // Process the response packet and return the firmware status
@@ -1335,48 +1213,40 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
   return convert_and_save_firmware_status(firmware_status);
 }
 
-sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
-                                             sl_wifi_buffer_t *buffer,
-                                             uint32_t wait_time)
+static sl_status_t sl_si91x_driver_send_data_packet(sl_wifi_buffer_t *buffer, uint32_t wait_time)
 {
   UNUSED_PARAMETER(wait_time);
-
-  //! Enter Critical Section
-  __disable_irq();
-
-  // Add the packet to the queue with atomic action and trigger a bus event
-  sl_si91x_host_add_to_queue_with_atomic_action(queue_type, buffer, NULL, NULL);
-
-  sl_si91x_host_set_bus_event(SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT);
-
-  //! Exit Critical Section
-  __enable_irq();
+  sli_si91x_append_to_buffer_queue(&sli_tx_data_queue, buffer);
+  CORE_irqState_t state = CORE_EnterAtomic();
+  tx_generic_socket_data_queues_status |= SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT;
+  sli_si91x_set_event(SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT);
+  CORE_ExitAtomic(state);
 
   return SL_STATUS_OK;
 }
 
 sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
-                                               sl_si91x_queue_type_t queue_type,
+                                               sl_si91x_command_type_t command_type,
                                                void *data,
                                                uint32_t data_length)
 {
 
   sli_si91x_queue_packet_t *node = NULL;
   sl_status_t return_status;
-  sl_si91x_driver_context_t context = { 0 };
+  //  sl_si91x_driver_context_t context = { 0 };
   sl_wifi_buffer_t *raw_rx_buffer;
   sl_wifi_buffer_t *buffer;
   sl_si91x_packet_t *raw_rx_packet;
   sl_status_t status;
 
-  if (queue_type == SI91X_BT_CMD_QUEUE) {
+  if (command_type == SI91X_BT_CMD) {
     // BLE packet is created in upper layer, no allocations required here.
     raw_rx_buffer = (sl_wifi_buffer_t *)data;
   } else {
-    status = sl_si91x_allocate_command_buffer(&raw_rx_buffer,
-                                              (void **)&raw_rx_packet,
-                                              sizeof(sl_si91x_packet_t) + data_length,
-                                              SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+    status = sli_si91x_allocate_command_buffer(&raw_rx_buffer,
+                                               (void **)&raw_rx_packet,
+                                               sizeof(sl_si91x_packet_t) + data_length,
+                                               SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
     VERIFY_STATUS_AND_RETURN(status);
 
     memset(raw_rx_packet->desc, 0, sizeof(raw_rx_packet->desc));
@@ -1389,10 +1259,10 @@ sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
     raw_rx_packet->command = (uint16_t)command;
   }
 
-  return_status = sl_si91x_allocate_command_buffer(&buffer,
-                                                   (void **)&node,
-                                                   sizeof(sli_si91x_queue_packet_t),
-                                                   SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  return_status = sli_si91x_allocate_command_buffer(&buffer,
+                                                    (void **)&node,
+                                                    sizeof(sli_si91x_queue_packet_t),
+                                                    SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
 
   if (return_status != SL_STATUS_OK) {
     sl_si91x_host_free_buffer(raw_rx_buffer);
@@ -1408,25 +1278,17 @@ sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
 
   // Configure the node representing the command packet
   node->host_packet       = raw_rx_buffer;
-  node->firmware_queue_id = firmware_queue_id[queue_type];
-  node->command_type      = (sl_si91x_command_type_t)queue_type;
+  node->firmware_queue_id = firmware_queue_id[command_type];
+  node->command_type      = command_type;
   node->sdk_context       = NULL;
   node->flags             = SI91X_PACKET_WITH_ASYNC_RESPONSE;
 
-  // Configure the context for packet handling
-  context.packet  = node;
-  context.payload = &(queue_packet_id[queue_type]);
-
-  //! Enter Critical Section
-  __disable_irq();
-
-  // Add the command packet to the queue with atomic action and trigger a bus event
-  sl_si91x_host_add_to_queue_with_atomic_action(queue_type, buffer, &context, sl_si91x_atomic_packet_id_allocator);
-
-  sl_si91x_host_set_bus_event(SL_SI91X_TX_PENDING_FLAG(queue_type));
-
-  //! Exit Critical Section
-  __enable_irq();
+  CORE_irqState_t irqState = CORE_EnterAtomic();
+  buffer->id               = 0; // Does not use packet ID as async packets do not have a matching response
+  sli_si91x_append_to_buffer_queue(&cmd_queues[command_type].tx_queue, buffer);
+  tx_command_queues_status |= SL_SI91X_TX_PENDING_FLAG(command_type);
+  sli_si91x_set_event(SL_SI91X_TX_PENDING_FLAG(command_type));
+  CORE_ExitAtomic(irqState);
 
   return SL_STATUS_OK;
 }
@@ -1482,10 +1344,10 @@ sl_status_t sli_verify_device_boot(uint32_t *rom_version)
  * @return SL_STATUS_OK if the values are retrieved correctly,
  * SL_TIMEOUT if the buffer is not allocated in time, SL_ERROR otherwise
  *****************************************************************************/
-sl_status_t sl_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
-                                             void **buffer,
-                                             uint32_t requested_buffer_size,
-                                             uint32_t wait_duration_ms)
+sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
+                                              void **buffer,
+                                              uint32_t requested_buffer_size,
+                                              uint32_t wait_duration_ms)
 {
   // Allocate a buffer from the SI91x host for WLAN control messages
   sl_status_t status =
@@ -1507,7 +1369,7 @@ sl_status_t sl_si91x_allocate_data_buffer(sl_wifi_buffer_t **host_buffer,
   sl_status_t status =
     sl_si91x_host_allocate_buffer(host_buffer,
                                   SL_WIFI_TX_FRAME_BUFFER,
-                                  sizeof(sl_si91x_packet_t) + sizeof(sl_si91x_socket_send_request_t) + data_size,
+                                  sizeof(sl_si91x_packet_t) + sizeof(sli_si91x_socket_send_request_t) + data_size,
                                   wait_duration_ms);
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -1527,11 +1389,16 @@ sl_status_t sli_wifi_select_option(const uint8_t configuration)
   status = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_OUT, 2, (uint8_t *)&boot_command);
   VERIFY_STATUS_AND_RETURN(status);
 
-  if (configuration == BURN_NWP_FW) {
+  if ((configuration == BURN_NWP_FW) || (configuration == BURN_M4_FW)) {
     boot_command = RSI_HOST_INTERACT_REG_VALID_FW | configuration;
   } else {
     boot_command = RSI_HOST_INTERACT_REG_VALID | configuration;
   }
+
+  if (configuration == BURN_M4_FW) {
+    boot_command |= M4_FW_IMAGE_NUMBER;
+  }
+
   // Write the configuration to the SI91x host for option selection
   status = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&boot_command);
   VERIFY_STATUS_AND_RETURN(status);
@@ -1543,7 +1410,7 @@ sl_status_t sli_wifi_select_option(const uint8_t configuration)
       status = sl_si91x_bus_read_memory(RSI_HOST_INTF_REG_OUT, 2, (uint8_t *)&read_value);
       VERIFY_STATUS_AND_RETURN(status);
 
-      if (configuration == BURN_NWP_FW) {
+      if ((configuration == BURN_NWP_FW) || (configuration == BURN_M4_FW)) {
         if (read_value == (RSI_HOST_INTERACT_REG_VALID | RSI_SEND_RPS_FILE)) {
           return SL_STATUS_OK;
         }
@@ -1605,7 +1472,7 @@ sl_status_t sl_si91x_enable_radio(void)
 {
   uint8_t data       = 1;
   sl_status_t status = sl_si91x_driver_send_command(RSI_WLAN_REQ_RADIO,
-                                                    SI91X_WLAN_CMD_QUEUE,
+                                                    SI91X_WLAN_CMD,
                                                     &data,
                                                     1,
                                                     SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1619,7 +1486,7 @@ sl_status_t sl_si91x_disable_radio(void)
 {
   uint8_t data       = 0;
   sl_status_t status = sl_si91x_driver_send_command(RSI_WLAN_REQ_RADIO,
-                                                    SI91X_WLAN_CMD_QUEUE,
+                                                    SI91X_WLAN_CMD,
                                                     &data,
                                                     1,
                                                     SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1632,7 +1499,7 @@ sl_status_t sl_si91x_disable_radio(void)
 sl_status_t sl_si91x_write_calibration_data(const si91x_calibration_data_t *data)
 {
   sl_status_t status = sl_si91x_driver_send_command(RSI_WLAN_REQ_CALIB_WRITE,
-                                                    SI91X_WLAN_CMD_QUEUE,
+                                                    SI91X_WLAN_CMD,
                                                     data,
                                                     sizeof(si91x_calibration_data_t),
                                                     SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1718,7 +1585,7 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
 
     // Send the driver command
     status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_CERTIFICATE,
-                                          SI91X_WLAN_CMD_QUEUE,
+                                          SI91X_WLAN_CMD,
                                           &chunk_ptr,
                                           (sizeof(sl_si91x_cert_info_t) + data_size),
                                           SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1749,7 +1616,7 @@ sl_status_t sl_si91x_set_rtc_timer(const sl_si91x_module_rtc_time_t *timer)
 
   // Send set RTC timer request
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_SET_RTC_TIMER,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         timer,
                                         sizeof(sl_si91x_module_rtc_time_t),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1772,7 +1639,7 @@ sl_status_t sl_si91x_get_rtc_timer(sl_si91x_module_rtc_time_t *response)
 
   // Send get RTC timer request
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_RTC_TIMER,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         NULL,
                                         0,
                                         SL_SI91X_WAIT_FOR_RESPONSE(30000),
@@ -1809,7 +1676,7 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
       request.region_code                   = (uint8_t)region_code;
 
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_REGION,
-                                            SI91X_WLAN_CMD_QUEUE,
+                                            SI91X_WLAN_CMD,
                                             &request,
                                             sizeof(sl_si91x_set_region_request_t),
                                             SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1829,7 +1696,7 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
         request.region_code                   = (uint8_t)region_code;
 
         status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_REGION,
-                                              SI91X_WLAN_CMD_QUEUE,
+                                              SI91X_WLAN_CMD,
                                               &request,
                                               sizeof(sl_si91x_set_region_request_t),
                                               SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1898,7 +1765,7 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
           return SL_STATUS_NOT_SUPPORTED;
       }
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_REGION_AP,
-                                            SI91X_WLAN_CMD_QUEUE,
+                                            SI91X_WLAN_CMD,
                                             &request,
                                             sizeof(sl_si91x_set_region_ap_request_t),
                                             SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1948,7 +1815,7 @@ sl_status_t sl_si91x_command_to_write_common_flash(uint32_t write_address,
       send_size = sizeof(sl_si91x_request_ta2m4_t);
 
       status = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
-                                            SI91X_COMMON_CMD_QUEUE,
+                                            SI91X_COMMON_CMD,
                                             &ta_to_m4_request,
                                             send_size,
                                             SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -1985,7 +1852,7 @@ sl_status_t sl_si91x_command_to_write_common_flash(uint32_t write_address,
       // Calculate the send size and send the command to write to common flash
       send_size = sizeof(sl_si91x_request_ta2m4_t) - MAX_CHUNK_SIZE + chunkSize;
       status    = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
-                                            SI91X_COMMON_CMD_QUEUE,
+                                            SI91X_COMMON_CMD,
                                             &ta_to_m4_request,
                                             send_size,
                                             SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -2028,7 +1895,7 @@ sl_status_t sl_si91x_command_to_read_common_flash(uint32_t read_address, size_t 
     uint32_t send_size = sizeof(sl_si91x_read_flash_request_t);
 
     status = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
-                                          SI91X_COMMON_CMD_QUEUE,
+                                          SI91X_COMMON_CMD,
                                           &m4_to_ta_read_request,
                                           send_size,
                                           SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -2076,7 +1943,7 @@ sl_status_t sl_si91x_m4_ta_secure_handshake(uint8_t sub_cmd_type,
 
   // Send the secure handshake command to the M4 core
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         handshake_request,
                                         sizeof(sl_si91x_ta_m4_handshake_parameters_t) + input_len,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -2095,7 +1962,7 @@ static sl_status_t sl_si91x_soft_reset(void)
     return SL_STATUS_NOT_INITIALIZED;
   }
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_SOFT_RESET,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         NULL,
                                         0,
                                         SL_SI91X_WAIT_FOR_RESPONSE(30000),
@@ -2113,13 +1980,8 @@ sl_status_t sl_si91x_assert()
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
   }
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ASSERT,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        NULL,
-                                        0,
-                                        SL_SI91X_WAIT_FOR(30000),
-                                        NULL,
-                                        NULL);
+  status =
+    sl_si91x_driver_send_command(RSI_COMMON_REQ_ASSERT, SI91X_WLAN_CMD, NULL, 0, SL_SI91X_WAIT_FOR(30000), NULL, NULL);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }
@@ -2138,7 +2000,7 @@ sl_status_t sl_si91x_get_ram_log(uint32_t address, uint32_t length)
   }
   // Send RAM log request
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_RAM_DUMP,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         &ram,
                                         sizeof(sl_si91x_ram_dump_t),
                                         SL_SI91X_WAIT_FOR(31000),
@@ -2153,7 +2015,7 @@ sl_status_t sl_si91x_transmit_test_start(const sl_si91x_request_tx_test_info_t *
   sl_status_t status = SL_STATUS_OK;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_TX_TEST_MODE,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         tx_test_info,
                                         sizeof(sl_si91x_request_tx_test_info_t),
                                         SL_SI91X_WAIT_FOR(30100),
@@ -2170,7 +2032,7 @@ sl_status_t sl_si91x_transmit_test_stop(void)
   tx_test_info.enable                          = 0;
   // Send the transmit test stop command
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_TX_TEST_MODE,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &tx_test_info,
                                         sizeof(sl_si91x_request_tx_test_info_t),
                                         SL_SI91X_WAIT_FOR(30100),
@@ -2194,7 +2056,7 @@ sl_status_t sl_si91x_calibration_write(sl_si91x_calibration_write_t calib_write)
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_CALIB_WRITE,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &calib_write,
                                         sizeof(sl_si91x_calibration_write_t),
                                         SL_SI91X_WAIT_FOR(30000),
@@ -2215,7 +2077,7 @@ sl_status_t sl_si91x_calibration_read(sl_si91x_calibration_read_t target, sl_si9
   SL_VERIFY_POINTER_OR_RETURN(calibration_read, SL_STATUS_NULL_POINTER);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_CALIB_READ,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &target,
                                         sizeof(sl_si91x_calibration_read_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(30100),
@@ -2245,7 +2107,7 @@ sl_status_t sl_si91x_frequency_offset(const sl_si91x_freq_offset_t *frequency_ca
 
   // Send the frequency offset calibration command to the SI91x WLAN module
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_FREQ_OFFSET,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         frequency_calibration,
                                         sizeof(sl_si91x_freq_offset_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(35000),
@@ -2266,7 +2128,7 @@ sl_status_t sl_si91x_evm_offset(const sl_si91x_evm_offset_t *evm_offset)
   SL_VERIFY_POINTER_OR_RETURN(evm_offset, SL_STATUS_NULL_POINTER);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EVM_OFFSET,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         evm_offset,
                                         sizeof(sl_si91x_evm_offset_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(35000),
@@ -2287,7 +2149,7 @@ sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write)
   SL_VERIFY_POINTER_OR_RETURN(evm_write, SL_STATUS_NULL_POINTER);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EVM_WRITE,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         evm_write,
                                         sizeof(sl_si91x_evm_write_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(35000),
@@ -2308,7 +2170,7 @@ sl_status_t sl_si91x_dpd_calibration(const sl_si91x_get_dpd_calib_data_t *dpd_ca
   SL_VERIFY_POINTER_OR_RETURN(dpd_calib_data, SL_STATUS_NULL_POINTER);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_GET_DPD_DATA,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         dpd_calib_data,
                                         sizeof(sl_si91x_get_dpd_calib_data_t),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -2330,7 +2192,7 @@ sl_status_t sl_si91x_efuse_read(const sl_si91x_efuse_read_t *efuse_read, uint8_t
   SL_VERIFY_POINTER_OR_RETURN(efuse_read_buf, SL_STATUS_NULL_POINTER);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EFUSE_READ,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         efuse_read,
                                         sizeof(sl_si91x_efuse_read_t),
                                         SL_SI91X_WAIT_FOR_RESPONSE(30100),
@@ -2406,7 +2268,7 @@ sl_status_t sl_si91x_configure_timeout(sl_si91x_timeout_type_t timeout_type, uin
   timeout_request.timeout_bitmap = BIT(timeout_type);
   timeout_request.timeout_value  = timeout_value;
   status                         = sl_si91x_driver_send_command(RSI_WLAN_REQ_TIMEOUT,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         &timeout_request,
                                         sizeof(sl_si91x_request_timeout_t),
                                         SL_SI91X_WAIT_FOR(30100),
@@ -2520,11 +2382,11 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
 
   ext_desc_size = TRANSCEIVER_TX_DATA_EXT_DESC_SIZE;
 
-  // Allocate a command buffer with space for the command data and metadata
-  status = sl_si91x_allocate_command_buffer(&buffer,
-                                            (void **)&packet,
-                                            sizeof(sl_si91x_packet_t) + ext_desc_size + mac_hdr_len + payload_len,
-                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  // Allocate a data buffer with space for the data and metadata
+  status = sl_si91x_allocate_data_buffer(&buffer,
+                                         (void **)&packet,
+                                         sizeof(sl_si91x_packet_t) + ext_desc_size + mac_hdr_len + payload_len,
+                                         SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   VERIFY_STATUS_AND_RETURN(status);
 
   // If the packet is not allocated successfully, return an allocation failed error
@@ -2586,7 +2448,7 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   memcpy(&host_desc[16], &control->token, TRANSCEIVER_TX_DATA_EXT_DESC_SIZE);
 
   // Send command packet to the SI91x socket data queue and await a response
-  return sl_si91x_driver_send_data_packet(SI91X_SOCKET_DATA_QUEUE, buffer, wait_time);
+  return sl_si91x_driver_send_data_packet(buffer, wait_time);
 }
 
 sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags)
@@ -2674,7 +2536,6 @@ sl_status_t sl_si91x_set_fast_fw_up(void)
   return retval;
 }
 
-#ifdef SLI_SI91X_MCU_INTERFACE
 void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer)
 {
   CORE_irqState_t state = CORE_EnterAtomic();
@@ -2711,8 +2572,6 @@ sl_status_t sli_si91x_pop_from_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_w
   return status;
 }
 
-#endif
-
 sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version)
 {
   sl_status_t status       = SL_STATUS_OK;
@@ -2724,7 +2583,7 @@ sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version)
   SL_WIFI_ARGS_CHECK_NULL_POINTER(version);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_FULL_FW_VERSION,
-                                        SI91X_WLAN_CMD_QUEUE,
+                                        SI91X_WLAN_CMD,
                                         NULL,
                                         0,
                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
@@ -2742,7 +2601,7 @@ sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version)
   }
 
   if (packet->length > 0) {
-    sl_wifi_firmware_version_t *response = (sl_wifi_firmware_version_t *)packet->data;
+    const sl_wifi_firmware_version_t *response = (const sl_wifi_firmware_version_t *)packet->data;
 
     if (response == NULL) {
       return SL_STATUS_NULL_POINTER;
@@ -2766,7 +2625,7 @@ sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size)
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(buffer);
 
-  sl_si91x_firmware_header_t *fw = (sl_si91x_firmware_header_t *)buffer;
+  const sl_si91x_firmware_header_t *fw = (const sl_si91x_firmware_header_t *)buffer;
 
   *fw_image_size = (fw->image_size + sizeof(sl_si91x_firmware_header_t));
 
@@ -2780,7 +2639,7 @@ sl_status_t sl_si91x_set_nwp_config_request(sl_si91x_nwp_configuration_t nwp_con
   if ((nwp_config.code & SL_SI91X_XO_CTUNE_FROM_HOST) || (nwp_config.code & SL_SI91X_ENABLE_NWP_WDT_FROM_HOST)
       || (nwp_config.code & SL_SI91X_DISABLE_NWP_WDT_FROM_HOST)) {
     status = sl_si91x_driver_send_command(RSI_COMMON_REQ_SET_CONFIG,
-                                          SI91X_COMMON_CMD_QUEUE,
+                                          SI91X_COMMON_CMD,
                                           &nwp_config,
                                           sizeof(sl_si91x_nwp_configuration_t),
                                           SL_SI91X_WAIT_FOR_RESPONSE(3000),
@@ -2790,5 +2649,63 @@ sl_status_t sl_si91x_set_nwp_config_request(sl_si91x_nwp_configuration_t nwp_con
   } else
     return SL_STATUS_NOT_SUPPORTED;
 
+  return status;
+}
+
+sl_status_t sl_si91x_get_nwp_config(const sl_si91x_nwp_get_configuration_t *nwp_config, uint8_t *response)
+{
+  sl_status_t status        = SL_STATUS_OK;
+  sl_wifi_buffer_t *buffer  = NULL;
+  sl_si91x_packet_t *packet = NULL;
+
+  if (nwp_config->sub_command_type == GET_OPN_BOARD_CONFIG) {
+    status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_CONFIG,
+                                          SI91X_COMMON_CMD,
+                                          nwp_config,
+                                          sizeof(sl_si91x_nwp_get_configuration_t),
+                                          SL_SI91X_WAIT_FOR_RESPONSE(3000),
+                                          NULL,
+                                          &buffer);
+    if (status != SL_STATUS_OK) {
+      if (buffer != NULL)
+        sl_si91x_host_free_buffer(buffer);
+    }
+    VERIFY_STATUS_AND_RETURN(status);
+
+    packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    memcpy(response, packet->data, packet->length);
+    sl_si91x_host_free_buffer(buffer);
+  } else {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+  return status;
+}
+
+sl_status_t sl_si91x_debug_log(sl_si91x_assertion_t *assertion)
+{
+  sl_status_t status                = SL_STATUS_OK;
+  sl_si91x_debug_log_t debug_config = { 0 };
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  if ((debug_config.assertion_type > SL_SI91X_ASSERTION_TYPE_ALL)
+      || (debug_config.assertion_level > SL_SI91X_ASSERTION_LEVEL_MAX)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  debug_config.assertion_type  = assertion->assert_type;
+  debug_config.assertion_level = assertion->assert_level;
+
+  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_DEBUG_LOG,
+                                        SI91X_COMMON_CMD,
+                                        &debug_config,
+                                        sizeof(sl_si91x_debug_log_t),
+                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        NULL,
+                                        NULL);
+
+  VERIFY_STATUS_AND_RETURN(status);
   return status;
 }

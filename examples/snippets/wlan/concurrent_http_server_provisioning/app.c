@@ -42,6 +42,7 @@
 #include "login.h"
 #include "jsmn.h"
 #include "sl_http_server.h"
+#include "sl_si91x_socket_utility.h"
 
 /******************************************************
  *                      Macros
@@ -236,6 +237,21 @@ sl_net_wifi_psk_credential_entry_t wifi_ap_credential = { .type        = SL_NET_
                                                           .data_length = sizeof(WIFI_AP_CREDENTIAL) - 1,
                                                           .data        = WIFI_AP_CREDENTIAL };
 
+static sl_si91x_socket_config_t socket_config = {
+  TOTAL_SOCKETS,                   // Total sockets
+  TOTAL_TCP_SOCKETS,               // Total TCP sockets
+  TOTAL_UDP_SOCKETS,               // Total UDP sockets
+  TCP_TX_ONLY_SOCKETS,             // TCP TX only sockets
+  TCP_RX_ONLY_SOCKETS,             // TCP RX only sockets
+  UDP_TX_ONLY_SOCKETS,             // UDP TX only sockets
+  UDP_RX_ONLY_SOCKETS,             // UDP RX only sockets
+  TCP_RX_HIGH_PERFORMANCE_SOCKETS, // TCP RX high performance sockets
+  TCP_RX_WINDOW_SIZE_CAP,          // TCP RX window size
+  TCP_RX_WINDOW_DIV_FACTOR         // TCP RX window division factor
+};
+
+extern osMutexId_t printf_mutex;
+
 /******************************************************
  *               Function Declarations
  ******************************************************/
@@ -250,6 +266,7 @@ sl_status_t default_handler(sl_http_server_t *handle, sl_http_server_request_t *
 sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server_request_t *req);
 static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+uint8_t start_wifi_throughput();
 
 /******************************************************
  *               Function Definitions
@@ -264,9 +281,9 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
-  printf("in join CB\r\n");
+  LOG_PRINT("in join CB\r\n");
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    printf("F: Join Event received with %lu bytes payload\n", result_length);
+    LOG_PRINT("F: Join Event received with %lu bytes payload\n", result_length);
     app_cb = MODULE_DISCONNECT_STATE;
     return SL_STATUS_FAIL;
   }
@@ -288,6 +305,11 @@ static void application_start(void *argument)
                                                           { .uri = "/connect", .handler = connect_data_handler } };
 
   sl_http_server_config_t server_config = { 0 };
+  printf_mutex                          = osMutexNew(NULL);
+  if (printf_mutex == NULL) {
+    printf("Failed to create printf_mutex\r\n");
+    return;
+  }
 
   int return_value;
 
@@ -298,20 +320,20 @@ static void application_start(void *argument)
 
         status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, &sl_wifi_default_concurrent_v6_configuration, NULL, NULL);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
           return;
         }
 
         sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
         sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
-        printf("\r\nWi-Fi AP interface init Success");
+        LOG_PRINT("\r\nWi-Fi AP interface init Success");
 
         status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nAP started\r\n");
+        LOG_PRINT("\r\nAP started\r\n");
 
         is_provisioning = 1;
         if (app_cb == INITIAL_STATE)
@@ -329,17 +351,17 @@ static void application_start(void *argument)
 
         status = sl_http_server_init(&server_handle, &server_config);
         if (status != SL_STATUS_OK) {
-          printf("\r\nHTTP server init failed:%lx\r\n", status);
+          LOG_PRINT("\r\nHTTP server init failed:%lx\r\n", status);
           return;
         }
-        printf("\r\nHttp Init done\r\n");
+        LOG_PRINT("\r\nHttp Init done\r\n");
 
         status = sl_http_server_start(&server_handle);
         if (status != SL_STATUS_OK) {
-          printf("\r\nServer start fail:%lx\r\n", status);
+          LOG_PRINT("\r\nServer start fail:%lx\r\n", status);
           return;
         }
-        printf("\r\nServer start done\r\n");
+        LOG_PRINT("\r\nServer start done\r\n");
 
         osDelay(10000);
 
@@ -358,24 +380,24 @@ static void application_start(void *argument)
 
         status = sl_http_server_stop(&server_handle);
         if (status != SL_STATUS_OK) {
-          printf("\r\nServer stop fail:%lx\r\n", status);
+          LOG_PRINT("\r\nServer stop fail:%lx\r\n", status);
           return;
         }
-        printf("\r\nServer stop done\r\n");
+        LOG_PRINT("\r\nServer stop done\r\n");
 
         status = sl_http_server_deinit(&server_handle);
         if (status != SL_STATUS_OK) {
-          printf("\r\nServer deinit fail:%lx\r\n", status);
+          LOG_PRINT("\r\nServer deinit fail:%lx\r\n", status);
           return;
         }
-        printf("\r\nServer deinit done\r\n");
+        LOG_PRINT("\r\nServer deinit done\r\n");
 
         status = sl_net_deinit(SL_NET_WIFI_AP_INTERFACE);
         if (status != SL_STATUS_OK) {
-          printf("\r\nAp deinit : 0x%lx\r\n", status);
+          LOG_PRINT("\r\nAp deinit : 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nAP Deinit success\r\n");
+        LOG_PRINT("\r\nAP Deinit success\r\n");
 
         app_cb = STA_BRINGUP_STATE;
 
@@ -385,10 +407,10 @@ static void application_start(void *argument)
 
         status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_default_concurrent_v6_configuration, NULL, NULL);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to start Wi-Fi client interface: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to start Wi-Fi client interface: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nWi-Fi Client interface init\r\n");
+        LOG_PRINT("\r\nWi-Fi Client interface init\r\n");
 
         sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
         sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
@@ -396,18 +418,18 @@ static void application_start(void *argument)
         //  Keeping the station ipv4 record in profile_id_0
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile_4);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to set client profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nWi-Fi set client profile v4 success\r\n");
+        LOG_PRINT("\r\nWi-Fi set client profile v4 success\r\n");
 
         //  Keeping the station ipv6 record in profile_id_1
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_client_profile_6);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to set client profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nWi-Fi set client profile v6 success\r\n");
+        LOG_PRINT("\r\nWi-Fi set client profile v6 success\r\n");
 
         SL_DEBUG_LOG("\r\nSTA credentials through http server");
         sl_wifi_credential_t cred  = { 0 };
@@ -431,10 +453,10 @@ static void application_start(void *argument)
           sl_wifi_set_join_callback(join_callback_handler, NULL);
           status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, 15000);
         } else {
-          printf("\r\nFailed to set credentials; status: %lu\n", status);
+          LOG_PRINT("\r\nFailed to set credentials; status: %lu\n", status);
         }
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
           //! If scan failed retry again after 5 seconds
           if (status == 0x10003) {
             if (retry) {
@@ -447,7 +469,7 @@ static void application_start(void *argument)
           }
           status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
           if (status != SL_STATUS_OK) {
-            printf("\r\nSTA deinit : 0x%lx\r\n", status);
+            LOG_PRINT("\r\nSTA deinit : 0x%lx\r\n", status);
           }
           app_cb = INITIAL_STATE;
           break;
@@ -455,68 +477,68 @@ static void application_start(void *argument)
 
         status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &profile);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
           return;
         }
 
         status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
         if (status != SL_STATUS_OK) {
-          printf("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
+          LOG_PRINT("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nIPv4 address configuration is done");
+        LOG_PRINT("\r\nIPv4 address configuration is done");
 
         if (profile.ip.type == SL_IPV4) {
           ip_address.type = SL_IPV4;
           memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
-          printf("\r\nClient IPv4 : ");
+          LOG_PRINT("\r\nClient IPv4 : ");
           print_sl_ip_address(&ip_address);
         }
 
         //  Station ipv6 config using profile_id_1
         status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
           return;
         }
 
         status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
         if (status != SL_STATUS_OK) {
-          printf("\r\nIPv6 address configuration is failed : 0x%lx\r\n", status);
+          LOG_PRINT("\r\nIPv6 address configuration is failed : 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nIPv6 address configuration is done");
+        LOG_PRINT("\r\nIPv6 address configuration is done");
 
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to set client profile: 0x%lx\r\n", status);
           return;
         }
 
         status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to get client_v6 profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to get client_v6 profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nClient IPv6 : ");
+        LOG_PRINT("\r\nClient IPv6 : ");
 
         if (profile.ip.type == SL_IPV6) {
           sl_ip_address_t link_local_address = { 0 };
           link_local_address.ip.v6           = profile.ip.ip.v6.link_local_address;
           link_local_address.type            = SL_IPV6;
-          printf("\nLink Local Address: ");
+          LOG_PRINT("\nLink Local Address: ");
           print_sl_ip_address(&link_local_address);
 
           sl_ip_address_t global_address = { 0 };
           global_address.ip.v6           = profile.ip.ip.v6.global_address;
           global_address.type            = SL_IPV6;
-          printf("Global Address: ");
+          LOG_PRINT("Global Address: ");
           print_sl_ip_address(&global_address);
 
           sl_ip_address_t gateway = { 0 };
           gateway.ip.v6           = profile.ip.ip.v6.gateway;
           gateway.type            = SL_IPV6;
-          printf("Gateway Address: ");
+          LOG_PRINT("Gateway Address: ");
           print_sl_ip_address(&gateway);
         }
 
@@ -528,10 +550,10 @@ static void application_start(void *argument)
 
         status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, &sl_wifi_default_concurrent_v6_configuration, NULL, NULL);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nWi-Fi AP interface init\r\n");
+        LOG_PRINT("\r\nWi-Fi AP interface init\r\n");
 
         sl_net_inet_addr(DEFAULT_WIFI_AP_MODULE_IP4_ADDRESS, (uint32_t *)&wifi_ap_profile_4.ip.ip.v4.ip_address.bytes);
         sl_net_inet_addr(DEFAULT_WIFI_AP_NS_MODULE_IP4_ADDRESS, (uint32_t *)&wifi_ap_profile_4.ip.ip.v4.netmask.bytes);
@@ -542,7 +564,7 @@ static void application_start(void *argument)
                                      hex_addr,
                                      (unsigned int *)ip_addr);
         if (return_value != 0x1) {
-          printf("\r\nIPv6 conversion failed.\r\n");
+          LOG_PRINT("\r\nIPv6 conversion failed.\r\n");
           return;
         }
         return_value = sl_inet_pton6(DEFAULT_WIFI_AP_GATEWAY6_ADDRESS,
@@ -550,7 +572,7 @@ static void application_start(void *argument)
                                      hex_addr,
                                      (unsigned int *)gateway);
         if (return_value != 0x1) {
-          printf("\r\nIPv6 conversion failed.\r\n");
+          LOG_PRINT("\r\nIPv6 conversion failed.\r\n");
           return;
         }
 
@@ -559,48 +581,48 @@ static void application_start(void *argument)
 
         status = sl_wifi_get_channel(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &client_channel);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to get client channel: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to get client channel: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nSuccess to get client channel\r\n");
+        LOG_PRINT("\r\nSuccess to get client channel\r\n");
 
         wifi_ap_profile_4.config.channel.channel = client_channel.channel;
         wifi_ap_profile_6.config.channel.channel = client_channel.channel;
 
         status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_ap_profile_4);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set AP profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to set AP profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nSuccess to set AP v4 profile \r\n");
+        LOG_PRINT("\r\nSuccess to set AP v4 profile \r\n");
 
         status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_ap_profile_6);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set AP profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to set AP profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nSuccess to set AP v6 profile \r\n");
+        LOG_PRINT("\r\nSuccess to set AP v6 profile \r\n");
 
         status = sl_net_set_credential(SL_NET_USER_CREDENTIAL_ID,
                                        wifi_ap_credential.type,
                                        &wifi_ap_credential.data,
                                        wifi_ap_credential.data_length);
         if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set credentials: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nFailed to set credentials: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nWi-Fi set credential success\n");
+        LOG_PRINT("\r\nWi-Fi set credential success\n");
 
         status = sl_si91x_configure_ip_address(&wifi_ap_profile_4.ip, SL_SI91X_WIFI_AP_VAP_ID);
         if (status != SL_STATUS_OK) {
-          printf("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
+          LOG_PRINT("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
           return;
         }
         status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_ap_profile_4);
 
         if (wifi_ap_profile_4.ip.type == SL_IPV4) {
           ip_address.type = SL_IPV4;
-          printf("\r\nAP IPv4 : ");
+          LOG_PRINT("\r\nAP IPv4 : ");
           memcpy(&ip_address.ip.v4.bytes, &wifi_ap_profile_4.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
           print_sl_ip_address(&ip_address);
         }
@@ -609,36 +631,42 @@ static void application_start(void *argument)
 
         status = sl_si91x_configure_ip_address(&wifi_ap_profile_6.ip, SL_SI91X_WIFI_AP_VAP_ID);
         if (status != SL_STATUS_OK) {
-          printf("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
+          LOG_PRINT("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
           return;
         }
 
-        printf("\r\nAP IPv6 : ");
+        LOG_PRINT("\r\nAP IPv6 : ");
         if (wifi_ap_profile_6.ip.type == SL_IPV6) {
           sl_ip_address_t link_local_address = { 0 };
           link_local_address.ip.v6           = wifi_ap_profile_6.ip.ip.v6.link_local_address;
           link_local_address.type            = SL_IPV6;
-          printf("\nLink Local Address: ");
+          LOG_PRINT("\nLink Local Address: ");
           print_sl_ip_address(&link_local_address);
           sl_ip_address_t global_address = { 0 };
           global_address.ip.v6           = wifi_ap_profile_6.ip.ip.v6.global_address;
           global_address.type            = SL_IPV6;
-          printf("Global Address: ");
+          LOG_PRINT("Global Address: ");
           print_sl_ip_address(&global_address);
 
           sl_ip_address_t gateway = { 0 };
           gateway.ip.v6           = wifi_ap_profile_6.ip.ip.v6.gateway;
           gateway.type            = SL_IPV6;
-          printf("Gateway Address: ");
+          LOG_PRINT("Gateway Address: ");
           print_sl_ip_address(&gateway);
         }
 
         status = sl_wifi_start_ap(SL_WIFI_AP_2_4GHZ_INTERFACE, &wifi_ap_profile_4.config);
         if (status != SL_STATUS_OK) {
-          printf("\r\nAp start fail: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nAp start fail: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nAP started\r\n");
+        LOG_PRINT("\r\nAP started\r\n");
+
+        status = sl_si91x_config_socket(socket_config);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("Socket config failed: %ld \r\n", status);
+        }
+        LOG_PRINT("Socket config Done : \r\n");
 
 #if HTTP_SERVER_ENABLE
         server_config.port            = HTTP_SERVER_PORT;
@@ -648,17 +676,17 @@ static void application_start(void *argument)
 
         status = sl_http_server_init(&server_handle, &server_config);
         if (status != SL_STATUS_OK) {
-          printf("\r\nHTTP server init failed:%lx\r\n", status);
+          LOG_PRINT("\r\nHTTP server init failed:%lx\r\n", status);
           return;
         }
-        printf("\r\nHttp Init done\r\n");
+        LOG_PRINT("\r\nHttp Init done\r\n");
 
         status = sl_http_server_start(&server_handle);
         if (status != SL_STATUS_OK) {
-          printf("\r\nServer start fail:%lx\r\n", status);
+          LOG_PRINT("\r\nServer start fail:%lx\r\n", status);
           return;
         }
-        printf("\r\nServer start done\r\n");
+        LOG_PRINT("\r\nServer start done\r\n");
 #if HTTP_SERVER_RESPONSE
         is_server_running = true;
         while (is_server_running) { //Server is exited when we receive the credentials
@@ -681,14 +709,7 @@ static void application_start(void *argument)
 
       case DATA_TRANSFER_STATE:
 
-        for (size_t i = 0; i < sizeof(data_buffer); i++)
-          data_buffer[i] = 'A' + (i % 26);
-
-        printf("\r\nSending UDP Data over IPv6 on STA VAP");
-        send_data_to_udp_server();
-
-        printf("\r\nReceving TCP Data over IPv4 on AP VAP");
-        receive_data_from_tcp_client();
+        start_wifi_throughput();
 
         if (app_cb == DATA_TRANSFER_STATE)
           app_cb = WAIT_STATE;
@@ -696,7 +717,7 @@ static void application_start(void *argument)
         break;
 
       case WAIT_STATE:
-
+        osDelay(1000);
         break;
 
       case MODULE_DISCONNECT_STATE:
@@ -704,26 +725,26 @@ static void application_start(void *argument)
         //! Upon rejoin failure MODULE_DISCONNECT_STATE is called. Hence, pulling down HTTP server & AP
         status = sl_http_server_stop(&server_handle);
         if (status != SL_STATUS_OK) {
-          printf("\r\n Server stop fail:%lx\r\n", status);
+          LOG_PRINT("\r\n Server stop fail:%lx\r\n", status);
           return;
         }
-        printf("\r\n Server stop done\r\n");
+        LOG_PRINT("\r\n Server stop done\r\n");
 
         status = sl_http_server_deinit(&server_handle);
         if (status != SL_STATUS_OK) {
-          printf("\r\n Server deinit fail:%lx\r\n", status);
+          LOG_PRINT("\r\n Server deinit fail:%lx\r\n", status);
           return;
         }
-        printf("\r\nServer deinit done\r\n");
+        LOG_PRINT("\r\nServer deinit done\r\n");
 
         osDelay(2000);
 
         status = sl_net_down(SL_NET_WIFI_AP_INTERFACE);
         if (status != SL_STATUS_OK) {
-          printf("\r\nAp stop fail: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nAp stop fail: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nAP Disconnected\r\n");
+        LOG_PRINT("\r\nAP Disconnected\r\n");
 
         app_cb = STA_BRINGUP_STATE;
 
@@ -746,9 +767,9 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   UNUSED_PARAMETER(arg);
   UNUSED_PARAMETER(event);
 
-  printf("Remote Client connected: ");
+  LOG_PRINT("Remote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
-  printf("\n");
+  LOG_PRINT("\n");
   if (is_provisioning)
     app_cb = PROVISION_STATE;
 
@@ -761,9 +782,9 @@ static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *da
   UNUSED_PARAMETER(arg);
   UNUSED_PARAMETER(event);
 
-  printf("Remote Client disconnected: ");
+  LOG_PRINT("Remote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);
-  printf("\n");
+  LOG_PRINT("\n");
 
   return SL_STATUS_OK;
 }
@@ -772,7 +793,7 @@ sl_status_t login_request_handler(sl_http_server_t *handle, sl_http_server_reque
 {
   sl_http_server_response_t http_response = { 0 };
 
-  printf("Got request %s with data length : %lu\n", req->uri.path, req->request_data_length);
+  LOG_PRINT("Got request %s with data length : %lu\n", req->uri.path, req->request_data_length);
 
   // Set the response code to 200 (OK)
   http_response.response_code = SL_HTTP_RESPONSE_OK;
@@ -793,7 +814,7 @@ sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server_reques
   sl_http_recv_req_data_t recvData        = { 0 };
   sl_http_server_response_t http_response = { 0 };
 
-  printf("Got request %s with data length : %lu\n", req->uri.path, req->request_data_length);
+  LOG_PRINT("Got request %s with data length : %lu\n", req->uri.path, req->request_data_length);
   if (req->request_data_length > 0) {
     recvData.request       = req;
     recvData.buffer        = (uint8_t *)response;
@@ -801,7 +822,7 @@ sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server_reques
 
     sl_http_server_read_request_data(handle, &recvData);
     response[recvData.received_data_length] = 0;
-    printf("Got request data as : %s\n", response);
+    LOG_PRINT("Got request data as : %s\n", response);
   }
 
   // Set the response code to 200 (OK)
@@ -826,7 +847,7 @@ sl_status_t default_handler(sl_http_server_t *handle, sl_http_server_request_t *
   sl_http_server_response_t http_response = { 0 };
   sl_http_header_t header                 = { .key = "Server", .value = "SI917-HTTPServer" };
 
-  printf("Got request %s with data length : %lu\n", req->uri.path, req->request_data_length);
+  LOG_PRINT("Got request %s with data length : %lu\n", req->uri.path, req->request_data_length);
   if (req->request_data_length > 0) {
     recvData.request       = req;
     recvData.buffer        = (uint8_t *)response;
@@ -834,7 +855,7 @@ sl_status_t default_handler(sl_http_server_t *handle, sl_http_server_request_t *
 
     sl_http_server_read_request_data(handle, &recvData);
     response[recvData.received_data_length] = 0;
-    printf("Got request data as : %s\n", response);
+    LOG_PRINT("Got request data as : %s\n", response);
   }
 
   http_response.response_code = SL_HTTP_RESPONSE_NOT_FOUND;
@@ -870,13 +891,13 @@ void parse_json_response()
   jsmn_init(&p);
   r = jsmn_parse(&p, response, strlen(response), t, sizeof(t) / sizeof(t[0]));
   if (r < 0) {
-    printf("Failed to parse JSON: %d\n", r);
+    LOG_PRINT("Failed to parse JSON: %d\n", r);
     return;
   }
 
   /* Assume the top-level element is an object */
   if (r < 1 || t[0].type != JSMN_OBJECT) {
-    printf("Object expected\n");
+    LOG_PRINT("Object expected\n");
     return;
   }
 
@@ -910,7 +931,7 @@ void parse_json_response()
                response + t[i + 1].start);
       i++;
     } else {
-      printf("Unexpected key: %.*s\n", t[i].end - t[i].start, response + t[i].start);
+      LOG_PRINT("Unexpected key: %.*s\n", t[i].end - t[i].start, response + t[i].start);
     }
   }
 }
@@ -927,143 +948,5 @@ sl_wifi_security_t string_to_security_type(const char *securityType)
     return SL_WIFI_WPA_WPA2_MIXED;
   } else {
     return SL_WIFI_SECURITY_UNKNOWN;
-  }
-}
-
-void receive_data_from_tcp_client(void)
-{
-  int server_socket                 = -1;
-  int client_socket                 = -1;
-  int socket_return_value           = 0;
-  struct sockaddr_in server_address = { 0 };
-  socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = HIGH_PERFORMANCE_SOCKET;
-
-  int read_bytes                = 1;
-  uint32_t total_bytes_received = 0;
-
-  server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (server_socket < 0) {
-    printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
-    return;
-  }
-  printf("\r\nServer Socket ID : %d\r\n", server_socket);
-
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
-  if (socket_return_value < 0) {
-    printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
-    close(client_socket);
-    return;
-  }
-
-  socket_return_value =
-    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
-
-  server_address.sin_family = AF_INET;
-  server_address.sin_port   = LISTENING_PORT;
-
-  socket_return_value = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
-  if (socket_return_value < 0) {
-    printf("\r\nSocket bind failed with bsd error: %d\r\n", errno);
-    close(server_socket);
-    return;
-  }
-
-  socket_return_value = listen(server_socket, BACK_LOG);
-  if (socket_return_value < 0) {
-    printf("\r\nSocket listen failed with bsd error: %d\r\n", errno);
-    close(server_socket);
-    return;
-  }
-  printf("\r\nListening on Local Port : %d\r\n", LISTENING_PORT);
-
-  client_socket = accept(server_socket, NULL, NULL);
-  if (client_socket < 0) {
-    printf("\r\nSocket accept failed with bsd error: %d\r\n", errno);
-    close(server_socket);
-    return;
-  }
-  printf("\r\nClient Socket ID : %d\r\n", client_socket);
-
-  printf("\r\nTCP_RX Throughput test start\r\n");
-  start = osKernelGetTickCount();
-  while (read_bytes > 0) {
-    read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
-    if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      close(server_socket);
-      return;
-    }
-    total_bytes_received = total_bytes_received + read_bytes;
-    now                  = osKernelGetTickCount();
-
-    if ((now - start) > TEST_TIMEOUT) {
-      printf("\r\nTest Time Out: %ld ms\r\n", (now - start));
-      break;
-    }
-  }
-  printf("\r\nTCP_RX Throughput test finished\r\n");
-  printf("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
-
-  close(client_socket);
-}
-
-void send_data_to_udp_server(void)
-{
-  int client_socket                   = -1;
-  uint32_t total_bytes_sent           = 0;
-  struct sockaddr_in6 server_address6 = { 0 };
-  socklen_t socket_length             = sizeof(struct sockaddr_in6);
-  int sent_bytes                      = 1;
-  uint32_t start                      = 0;
-  uint32_t now                        = 0;
-
-  client_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-  if (client_socket < 0) {
-    printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
-    return;
-  }
-  printf("\r\nSocket ID : %d\r\n", client_socket);
-
-  server_address6.sin6_family = AF_INET6;
-  server_address6.sin6_port   = SERVER_PORT;
-
-  int status = sl_inet_pton6(SERVER_IP,
-                             SERVER_IP + strlen(SERVER_IP),
-                             address_buffer,
-                             (unsigned int *)server_address6.sin6_addr.__u6_addr.__u6_addr32);
-  if (status != 0x1) {
-    printf("\r\nIPv6 conversion failed.\r\n");
-    return;
-  }
-
-  printf("\r\nUDP_TX Throughput test start\r\n");
-  start = osKernelGetTickCount();
-  while (total_bytes_sent < BYTES_TO_SEND) {
-    sent_bytes =
-      sendto(client_socket, data_buffer, UDP_BUFFER_SIZE, 0, (struct sockaddr *)&server_address6, socket_length);
-    now = osKernelGetTickCount();
-
-    if ((now - start) > TEST_TIMEOUT) {
-      printf("\r\nTime Out: %ld\r\n", (now - start));
-      break;
-    }
-
-    if (sent_bytes < 0) {
-      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
-      close(client_socket);
-      break;
-    }
-    total_bytes_sent = total_bytes_sent + sent_bytes;
-
-    printf("\r\nUDP_TX Throughput test finished\r\n");
-    printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-
-    close(client_socket);
   }
 }

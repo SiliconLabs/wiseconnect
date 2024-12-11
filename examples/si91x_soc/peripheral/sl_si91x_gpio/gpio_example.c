@@ -24,8 +24,6 @@
 #include "sl_si91x_peripheral_gpio.h"
 #include "gpio_example.h"
 
-#include "sl_si91x_clock_manager.h"
-
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -73,9 +71,6 @@
 
 #define UULP_MASK        0x00
 #define UULP_GPIO_INTR_2 2 // UULP GPIO pin interrupt 2
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -118,21 +113,9 @@ void GRP_IRQ1_Handler(void);
 void UULP_PIN_IRQ_Handler(void);
 void ULP_PIN_IRQ_Handler(void);
 void ULP_GROUP_IRQ_Handler(void);
-
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * GPIO example initialization function. It initializes HP/ULP clock, pin mode,
  * direction and configure pin and group interrupts
@@ -142,9 +125,6 @@ void gpio_example_init(void)
   uint8_t get_pin, direction;
   uint32_t get_port;
   sl_si91x_gpio_version_t version;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   //Version information of gpio
   version = sl_si91x_gpio_get_version();
@@ -522,19 +502,19 @@ void GRP_IRQ1_Handler(void)
 void UULP_PIN_IRQ_Handler(void)
 {
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_1) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_1);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_0_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_2) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_2);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_1_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_3) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_3);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_2_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_4) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_4);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_3_BIT);
   }
   if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_5) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_INTR_5);
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTERRUPT_4_BIT);
   }
 }
 

@@ -5,9 +5,11 @@ description: >
   This component puts Data segment in PSRAM memory region
 category: Device|Si91x|MCU|Peripheral|PSRAM Driver|PSRAM Linker Configurations
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 define:
   - name: NO_DATA_SEGMENT_IN_PSRAM
-    condition: [device_needs_ram_execution]
 provides:
   - name: data_segment_in_psram
 requires:

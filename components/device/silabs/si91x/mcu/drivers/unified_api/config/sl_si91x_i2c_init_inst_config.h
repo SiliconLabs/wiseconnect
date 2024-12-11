@@ -62,15 +62,16 @@ extern "C" {
 // <i> Selection of the I2C Mode.
 #define SL_I2C_INSTANCE_OPERATING_MODE SL_I2C_STANDARD_MODE
 
-// <o SL_I2C_INSTANCE_TRANSFER_TYPE> Transfer Type
-//   <SL_I2C_USING_INTERRUPT=> Using Interrupt
-//   <SL_I2C_USING_DMA=> Using DMA
-// <i> Selection of the I2C Mode.
-#define SL_I2C_INSTANCE_TRANSFER_TYPE SL_I2C_USING_INTERRUPT
+// <q SL_I2C_INSTANCE_INIT_DMA> DMA
+// <i> Default: 0
+#define SL_I2C_INSTANCE_INIT_DMA 0
 
 // </h>
 /******************************************************************************/
 // <<< end of configuration section >>>
+
+// Previously, SL_I2C_INSTANCE_TRANSFER_TYPE was updated directly through UC. Now, it is updated indirectly through SL_I2C_INSTANCE_INIT_DMA.
+#define SL_I2C_INSTANCE_TRANSFER_TYPE SL_I2C_INSTANCE_INIT_DMA
 
 #define SL_I2C_INSTANCE_SCL_PORT SL_SI91X_I2C0_SCL_PORT
 #define SL_I2C_INSTANCE_SCL_PIN  SL_SI91X_I2C0_SCL_PIN

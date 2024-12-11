@@ -12,7 +12,7 @@
 #warning "Simple LED Driver GPIO pins not configured-Appropriate pins should be selected for OPN"
 
 #if USER_CONFIGURATION_ENABLE
-#ifdef SL_SI91X_ACX_MODULE
+#if defined(SL_SI91X_ACX_MODULE) || defined(SLI_SI915)
 // <<< sl:start pin_tool >>>
 // <gpio> SL_SI91X_LED_0
 // $[GPIO_SL_SI91X_LED_0]

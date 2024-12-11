@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_dac.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -45,7 +57,7 @@ extern RSI_UDMA_HANDLE_T udmaHandle1;
 #define DAC_SAMPLE_RATE_32KSPS 32000
 #define DAC_SAMPLE_RATE_80KSPS 80000
 #define DAC_CLK_SRC_32KHZ      32000
-#define DAC_CLK_SRC_32MHZ      32000000
+#define DAC_CLK_SRC_MHZ        32000000
 
 dac_config_t dac_callback_fun;
 uint8_t dac_pong_enable_sel = 0;
@@ -87,7 +99,7 @@ uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc
   } else {
     //Set the DAC threshold value
     RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP, DAC_FIFO_THR);
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
     // Configure the DAC control parameter
     RSI_DAC_Config(AUX_ADC_DAC_COMP, operation_mode, ENABLE, DISABLE, ENABLE);
 #else
@@ -100,7 +112,7 @@ uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc
   }
 
 #ifndef SL_SI91X_DAC
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
   //Configure DAC output on AGPIO4
   DAC_PinMux(0);
 #else
@@ -153,7 +165,7 @@ rsi_error_t DAC_Start(uint8_t operation_mode)
 {
   // FIFO mode enable
   if (operation_mode) {
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP, operation_mode);
     NVIC_EnableIRQ(ADC_IRQn);
 #endif
@@ -254,16 +266,16 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
       if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
         // Program in PS2 state  Need to integrate
         // Configured DAC clock as 32Mhz RC
-        RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-        clk_div_fac = (uint16_t)ceil((2 * RSI_CLK_GetBaseClock(ULPSS_AUX)) / sampl_rate);
+        RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+        clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_MHZ) / sampl_rate);
         // Configure the DAC division factor for required sampling rate
         RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
         return (uint32_t)((clk_div_fac * sampl_rate) / 2);
       } else {
         if (sampl_rate > DAC_SAMPLE_RATE_32KSPS && sampl_rate < DAC_SAMPLE_RATE_80KSPS) {
           // Configured DAC clock as 32Mhz RC
-          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * RSI_CLK_GetBaseClock(ULPSS_AUX)) / sampl_rate);
+          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_MHZ) / sampl_rate);
           if (clk_div_fac > 0x03FF) {
             clk_div_fac = 0x03FF;
           }
@@ -271,9 +283,10 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
           RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);
         } else {
+          RSI_ULPSS_RefClkConfig(ULPSS_ULP_MHZ_RC_CLK);
           // Configured DAC clock as 32Mhz RC
-          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * RSI_CLK_GetBaseClock(ULPSS_AUX)) / sampl_rate);
+          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_MHZ) / sampl_rate);
           // Configure the DAC division factor for required sampling rate
           RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);
@@ -294,7 +307,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
 rsi_error_t DAC_PinMux(uint8_t pin_sel)
 {
   if (pin_sel) {
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
     RSI_EGPIO_UlpPadReceiverDisable(DAC_OUT_AGPIO15); //REN disable
     // Configure ULP_GPIO15 in analog mode
     RSI_EGPIO_SetPinMux(EGPIO1, 0, DAC_OUT_AGPIO15, EGPIO_PIN_MUX_MODE7);
@@ -367,7 +380,7 @@ rsi_error_t RSI_DAC_Config(AUX_ADC_DAC_COMP_Type *pstcDAC,
   if (static_fifo_mode == 0) {
     pstcDAC->AUXDAC_CONIG_1_b.AUXDAC_DYN_EN = 1U;
   }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (static_fifo_mode == 1) {
     pstcDAC->AUXDAC_CTRL_1_b.DAC_FIFO_AEMPTY_THRESHOLD = 0;
     pstcDAC->AUXDAC_CONIG_1_b.AUXDAC_DYN_EN            = 1U;
@@ -464,7 +477,7 @@ rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, int16_t *data, uin
       data++;
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     pstcDAC->AUXDAC_DATA_REG_b.AUXDAC_DATA = (unsigned int)((*data) & 0x03FF);
     data++;
 #endif
@@ -645,7 +658,7 @@ rsi_error_t RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t fi
 rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
   /*==============================================*/
   /**
@@ -663,7 +676,7 @@ rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_EMPTY_INTR_MASK  = 0;
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_AEMPTY_INTR_MASK = 0;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /// @cond PRIVATE
   if (oper_mode == STATIC_MODE_EN) {
     pstcDAC->INTR_MASK_REG_b.DAC_STATIC_MODE_DATA_INTR_MASK = 0;
@@ -689,7 +702,7 @@ rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
   /*==============================================*/
   /**
@@ -707,7 +720,7 @@ rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_EMPTY_INTR_MASK  = 1;
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_AEMPTY_INTR_MASK = 1;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /// @cond PRIVATE
   if (oper_mode == STATIC_MODE_EN) {
     pstcDAC->INTR_MASK_REG_b.DAC_STATIC_MODE_DATA_INTR_MASK = 1;
@@ -733,7 +746,7 @@ rsi_error_t RSI_DAC_InterruptClr(AUX_ADC_DAC_COMP_Type *pstcDAC)
 #ifdef CHIP_9118
   pstcDAC->AUXDAC_CTRL_1_b.DAC_FIFO_FLUSH = 1U;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   int32_t dac_data_read = 0;
   dac_data_read         = pstcDAC->AUXDAC_DATA_REG_b.AUXDAC_DATA;
 #endif

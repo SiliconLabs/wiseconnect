@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
  * @file i2c_follower_example.h
- * @brief I2C Follower examples functions
+ * @brief I2C Follower Blocking example functions
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>

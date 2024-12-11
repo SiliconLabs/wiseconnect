@@ -1,4 +1,4 @@
-# Wi-Fi - HTTP OTAF TWT Update
+# Wi-Fi - HTTP/HTTPS OTAF TWT Update
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ This application demonstrates how to update new firmware to SiWx91x using a loca
 
 > **Note:** By enabling HTTPS_SUPPORT Flag in `app.c` file, the same HTTP_OTAF application is used for HTTPS_OTAF.
 
-In this application, the SiWx91x connects to an Access Point, configures an HTTP/HTTPS client, and establishes connection with the HTTP/HTTPS server (Apache server) or the cloud storage server (i.e., AWS S3 bucket/Azure Blob storage). After successful HTTP/HTTPS connection, the SiWx91x sends the firmware file request (HTTP GET Request) to the remote server, which responds with the firmware file.
+In this application, the SiWx91x connects to an access point, configures an HTTP/HTTPS client, and establishes connection with the HTTP/HTTPS server (Apache server) or the cloud storage server (i.e., AWS S3 bucket/Azure Blob storage). After successful HTTP/HTTPS connection, the SiWx91x sends the firmware file request (HTTP GET Request) to the remote server, which responds with the firmware file.
 
 The server transferred firmware file gets loaded/updated in the SiWx91x flash memory. After successful firmware update, the [sl_si91x_http_otaf()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-fw-upgrade/service-firmware-upgrade-functions#sl-si91x-http-otaf) API returns a success response.
 
@@ -43,12 +43,13 @@ The server transferred firmware file gets loaded/updated in the SiWx91x flash me
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -68,46 +69,49 @@ The server transferred firmware file gets loaded/updated in the SiWx91x flash me
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and the development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit your requirements and the development environment. Read through the following sections and make any changes needed.
 
-- The application uses the default configurations as provided in the **DEFAULT_WIFI_CLIENT_PROFILE** in **sl_net_default_values.h** and the user can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **DEFAULT_WIFI_CLIENT_PROFILE** in **sl_net_default_values.h** and you can choose to configure these parameters as needed.
 
 - In the Project explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable SiWx91x to connect to your Wi-Fi network.
 
 - STA instance related parameters
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network shall be advertised and Si91X module is connected to it.
 
     ```c
     #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
     ```
 
-  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the access point is configured in WPA-PSK/WPA2-PSK security modes.
 
     ```c
     #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
     ```
 
-  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the access point is configured in WPA/WPA2 or mixed security modes.
 
     ```c
     #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA2 
     ```
 
 - Other STA instance configurations can be modified if required in **DEFAULT_WIFI_CLIENT_PROFILE** configuration structure.
+> Note: 
+> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
-- Below mentioned configurations in ``app.c`` file can be configured as per requirements
+- The following configurations in the ``app.c`` file can be configured as per requirements.
 
-  - Select Firmware update type
+  - Select firmware update type.
 
   - For NWP firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE. For Combined firmware upgrade, set FW_UPDATE_TYPE to COMBINED_FW_UPDATE.
 
@@ -121,7 +125,7 @@ The application can be configured to suit user requirements and the development 
     #define FW_UPDATE_TYPE TA_FW_UPDATE
     ```
 
-- Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which the firmware files need to be downloaded, the below mentioned parameters need to be configured.
+- Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which the firmware files need to be downloaded, the parameters described below need to be configured.
 - Configure FLAGS to choose the version and security type to be enabled.
 
   Valid configurations are:
@@ -132,34 +136,34 @@ The application can be configured to suit user requirements and the development 
   #define HTTP_V_1_1       BIT(6)         // Set HTTP_V_1_1 to use HTTP version 1.1
   ```
 
-- In the application, the **AWS_ENABLE** macro is enabled by default. Depending on the requirements, the user can enable downloading firmware from Azure Blob storage (Enable Macro **AZURE_ENABLE**).
-- Else if both **AWS_ENABLE** and **AZURE_ENABLE** macros are disabled, HTTP/HTTPS Apache server can be used to download the firmware.<br>
+- In the application, the **AWS_ENABLE** macro is enabled by default. Depending on the requirements, you can enable downloading firmware from Azure Blob storage (Enable Macro **AZURE_ENABLE**).
+- Else, if both **AWS_ENABLE** and **AZURE_ENABLE** macros are disabled, HTTP/HTTPS Apache server can be used to download the firmware.<br>
 - In the application, the following parameters should be configured:
-  - HTTP_PORT refers to HTTP Server port number
-  - HTTP_SERVER_IP_ADDRESS refers to HTTP Server IP address
-  - HTTP_URL refers to HTTP resource name
-  - HTTP_HOSTNAME refers to HTTP server hostname
-  - HTTP_EXTENDED_HEADER refers to HTTP extended header. If NULL default extented header is filled
-  - USERNAME refers to the username to be used to access the HTTP resource
-  - PASSWORD refers to the password to be used to access the HTTP resource
+  - HTTP_PORT refers to HTTP Server port number.
+  - HTTP_SERVER_IP_ADDRESS refers to HTTP Server IP address.
+  - HTTP_URL refers to HTTP resource name.
+  - HTTP_HOSTNAME refers to HTTP server hostname.
+  - HTTP_EXTENDED_HEADER refers to HTTP extended header. If NULL, default extented header is filled
+  - USERNAME refers to the username to be used to access the HTTP resource.
+  - PASSWORD refers to the password to be used to access the HTTP resource.
   <br>
 
 - For **Apache HTTP Server**:
 
-  - Provide the PC IP where Apache server is running in HTTP_SERVER_IP_ADDRESS
-  - Provide the firmware package name uploaded in Apache server in HTTP_URL
+  - Provide the PC IP where Apache server is running in HTTP_SERVER_IP_ADDRESS.
+  - Provide the firmware package name uploaded in Apache server in HTTP_URL.
 
     ```c
     //Sample configurations
     #define FLAGS                   0
     #define HTTP_PORT               80
     #define HTTP_SERVER_IP_ADDRESS  "192.168.xxx.xxx"
-    #define HTTP_URL                "Firmware/firmware.rps" //firmware file name to download
+    #define HTTP_URL                "Firmware/firmware.rps" //Firmware file name to download
     #define HTTP_HOSTNAME           "192.168.xxx.xxx"
     #define USERNAME                "admin"
     #define PASSWORD                "admin"
     ```
-    > **Note:** Refer to [Configuring and Uploading Firmware on Apache HTTP](#configuring-and-uploading-firmware-on-apache-http) section on how to set up Apache Server.
+    > **Note:** Refer to the [Configuring and Uploading Firmware on Apache HTTP](#configuring-and-uploading-firmware-on-apache-http) section for information on how to set up an Apache Server.
 
 - For **Apache HTTPS Server**:
    - Include Root certificate pem file for SSL connection.
@@ -170,7 +174,7 @@ The application can be configured to suit user requirements and the development 
      #define FLAGS                   HTTPS_SUPPORT
      #define HTTP_PORT               443
      #define HTTP_SERVER_IP_ADDRESS  "192.168.xxx.xxx"
-     #define HTTP_URL                "Firmware/firmware.rps" //firmware file name to download
+     #define HTTP_URL                "Firmware/firmware.rps" //Firmware file name to download
      #define HTTP_HOSTNAME           "192.168.xxx.xxx"
      #define USERNAME                "admin"
      #define PASSWORD                "admin"
@@ -185,7 +189,7 @@ The application can be configured to suit user requirements and the development 
   
     > Example: For S3 bucket URL <https://example.s3.ap-south-1.amazonaws.com/firmware.rps>", hostname will be "example.s3.ap-south-1.amazonaws.com".
 
-  - Extract the firmware package name from URL `https://<Your-S3-Bucket-name>.s3.<Your-nearest-S3-location>.amazonaws.com/firmware.rps` and provide it in **HTTP_URL**
+  - Extract the firmware package name from URL `https://<Your-S3-Bucket-name>.s3.<Your-nearest-S3-location>.amazonaws.com/firmware.rps` and provide it in **HTTP_URL**.
 
     > Example: For S3 bucket URL "<https://example.s3.ap-south-1.amazonaws.com/firmware.rps>", HTTP_URL will be "firmware.rps".
   
@@ -195,13 +199,13 @@ The application can be configured to suit user requirements and the development 
     #include "aws_starfield_ca.pem.h"          //CA certificate
     #define FLAGS                              HTTPS_SUPPORT
     #define HTTP_PORT                          443
-    #define HTTP_URL                           "firmware.rps" //firmware file name to download
+    #define HTTP_URL                           "firmware.rps" //Firmware file name to download
     #define USERNAME                           ""
     #define PASSWORD                           ""
     char *hostname                             ="example.s3.ap-south-1.amazonaws.com";
     ```
 
-    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the S3 bucket URL that was created has public access provided. Refer to [Configuring AWS S3 Bucket](#configuring-aws-s3-bucket) section on how to upload Firmware in AWS S3 Bucket.
+    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the S3 bucket URL that was created has public access provided. Refer to the [Configuring AWS S3 Bucket](#configuring-aws-s3-bucket) section for information on how to upload firmware in the AWS S3 Bucket.
 
     - For Private resource: While trying to download the private resource, make sure to create the pre-signed URL and use it in the HTTP_URL as shown below.
       ```C
@@ -227,20 +231,20 @@ The application can be configured to suit user requirements and the development 
     #include "azure_baltimore_ca.pem.h"        //Baltimore Root CA
     #define FLAGS                             HTTPS_SUPPORT
     #define HTTP_PORT                         443
-    #define HTTP_URL                          "rps/firmware.rps" //firmware file name to download
+    #define HTTP_URL                          "rps/firmware.rps" //Firmware file name to download
     #define USERNAME                          ""
     #define PASSWORD                          ""
     char *hostname                            ="example.blob.core.windows.net";
     ```
 
-    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the Azure Blob storage URL that was created has public access provided. Refer to [Configuring Azure Blob Storage](#configuring-azure-blob-storage) on how to upload Firmware in Azure Blob storage.
+    > **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the Azure Blob storage URL that was created has public access provided. Refer to [Configuring Azure Blob Storage](#configuring-azure-blob-storage) for information on how to upload Firmware in Azure Blob storage.
 
 - The **station_init_configuration** from `app.c` should be modified as per the requirements below:
 
   - For **Apache HTTP Server**:
 
     ```c
-    // station_init_configuration structure should contain below configurations
+    // station_init_configuration structure should contain the following configurations:
     .tcp_ip_feature_bit_map     = (TCP_IP_FEAT_DHCPV4_CLIENT | TCP_IP_FEAT_HTTP_CLIENT | TCP_IP_FEAT_EXTENSION_VALID)
     .ext_tcp_ip_feature_bit_map = EXT_FEAT_HTTP_OTAF_SUPPORT
     ```
@@ -248,7 +252,7 @@ The application can be configured to suit user requirements and the development 
   - For **Apache HTTPS Server**:
 
     ```c
-    // station_init_configuration structure should contain the configurations below:
+    // station_init_configuration structure should contain the following configurations:
     .tcp_ip_feature_bit_map     = (TCP_IP_FEAT_DHCPV4_CLIENT | TCP_IP_FEAT_HTTP_CLIENT| TCP_IP_FEAT_EXTENSION_VALID | TCP_IP_FEAT_SSL)
 
     .ext_tcp_ip_feature_bit_map = EXT_FEAT_HTTP_OTAF_SUPPORT
@@ -257,7 +261,7 @@ The application can be configured to suit user requirements and the development 
   - For **AWS S3 Bucket** and **Azure Blob Storage**:
 
     ```c
-    // station_init_configuration structure should contain the configurations below:
+    // station_init_configuration structure should contain the following configurations:
     .tcp_ip_feature_bit_map     = (TCP_IP_FEAT_DHCPV4_CLIENT | TCP_IP_FEAT_HTTP_CLIENT| TCP_IP_FEAT_EXTENSION_VALID | TCP_IP_FEAT_SSL | TCP_IP_FEAT_DNS_CLIENT)
 
     .ext_tcp_ip_feature_bit_map = (EXT_FEAT_HTTP_OTAF_SUPPORT | EXT_TCP_IP_SSL_16K_RECORD)
@@ -266,13 +270,13 @@ The application can be configured to suit user requirements and the development 
 - Certificate Loading
   - The **[sl_net_set_credential()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API expects the certificate in the form of a linear array. Convert the pem certificate into a linear array form using the python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
 
-  - For example : If the certificate is ca-certificate.pem, enter the command in the following way:
+  - For example: If the certificate is ca-certificate.pem, enter the command in the following way:
    `python certificate_script.py ca-certificate.pem`
    - The script will generate ca-certificate.pem in which one linear array named ca-certificate contains the certificate.
 
   - Root CA certificate needs to be converted as mentioned above.
 
-  - After the conversion, place the converted file in `<SDK>/resources/certificates/` path and include the certificate file in ``app.c``.
+  - After the conversion, place the converted file in the `<SDK>/resources/certificates/` path and include the certificate file in ``app.c``.
 
 - For HTTPS Apache server
 
@@ -321,10 +325,10 @@ The application can be configured to suit user requirements and the development 
 
     
    The following are the parameter descriptions:
-    - twt_enable  :  1- Setup ; 0 - teardown
-    - tx_latency  :  The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
-    - rx_latency : The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
-    - avg_tx_throughput  :  This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10 Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20 Mbps by default).
+    - twt_enable:  1- Setup ; 0 - teardown
+    - tx_latency:  The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, the maximum allowed Tx latency is the same as rx_latency. Otherwise, valid values are in the range of [200 ms - 6 hrs].
+    - rx_latency: The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
+    - avg_tx_throughput:  This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10 Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20 Mbps by default).
 
     For more information on parameters, refer to [sl_wifi_twt_selection_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t).
 
@@ -406,11 +410,11 @@ The application can be configured to suit user requirements and the development 
     - **twt_enable**:  1- Setup ; 0 - teardown
     - **twt_flow_id**: range 0-7 or 0xFF
     - **twt_req_params**: Structure with parameters in case of setup and NULL in case of teardown.
-    - **wake_duration**: This is the nominal minimum wake duration of TWT. This is the time for which DUT will be in wake state for Transmission or reception of data. Allowed values range is  0-255.
+    - **wake_duration**: This is the nominal minimum wake duration of TWT. This is the time for which DUT will be in wake state for transmission or reception of data. Allowed values range is  0-255.
     - **wake_duration_unit**: This parameter defines unit for wake_duration. Allowed values are  0 (256 uS) and 1 (1024 uS).
     - **wake_duration_tol**: This is the tolerance allowed for wake duration in case of suggested TWT. Received TWT wake duration from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-255.
     - **wake_int_exp**: TWT Wake interval exponent. It is exponent to base 2. Allowed values are 0 - 31.
-    - **wake_int_exp_tol**: This is the allowed tolerance for wake_int_exp in case of suggest TWT request. Received TWT wake interval exponent from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0 - 31.
+    - **wake_int_exp_tol**: This is the allowed tolerance for wake_int_exp in case of Suggest TWT request. Received TWT wake interval exponent from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0 - 31.
     - **wake_int_mantissa**: This is the TWT wake interval mantissa. Allowed values are 0-65535.
     - **wake_int_mantissa_tol**: This is tolerance allowed for wake_int_mantissa in case of suggested TWT. Received TWT wake interval mantissa from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-65535.
     - **implicit_twt**: If enabled (1), the TWT requesting STA calculates the Next TWT by adding a fixed value to the current TWT value. Explicit TWT is currently not allowed.
@@ -433,15 +437,15 @@ The application can be configured to suit user requirements and the development 
     
     >**Note:**
     >- TWT Wake duration depends on the wake duration unit. For example, for the above configuration, the wake duration value is  (0xE0 * 256 = 57.3 msec).
-    >- TWT Wake interval is calculated as mantissa *2 ^ exp.  For example, for the above configuration, wake interval value is (0x1B00* 2^13  = 55.2 sec).
+    >- TWT Wake interval is calculated as mantissa 2 ^ exp.  For example, for the above configuration, wake interval value is (0x1B00 * 2^13  = 55.2 sec).
     >- Configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP.
-    >- There might be disconnections while using TWT with wake interval greater than 4sec when connected to an AP with non-zero GTK key renewal time.
+    >- There might be disconnections while using TWT with wake interval greater than 4 sec when connected to an AP with non-zero GTK key renewal time.
     >- Keep Alive timeout should be non-zero when negotiated TWT setup is **unannounced**, otherwise there might be disconnections.
 
 - iTWT Teardown Configuration
   
   To teardown TWT session, use the matching TWT teardown API corresponding to the TWT setup configuration API:
-    1. For TWT parameters Auto Selection API, call the following API to teardown :
+    1. For TWT parameters Auto Selection API, call the following API to teardown:
     ```c
         status = sl_wifi_target_wake_time_auto_selection(twt_selection);
     ```
@@ -489,7 +493,7 @@ The application can be configured to suit user requirements and the development 
   2. iTWT setup is recommended after IP assignment/TCP connection/application connection.
   3. When using sl_wifi_target_wake_time_auto_selection API, Rx Latency should be less than TCP / ARP Timeouts at the remote side.
   4. When using sl_wifi_enable_target_wake_time, TWT interval configured should be less than TCP / ARP Timeouts at the remote side.
-  5. For iTWT, GTK Interval should be kept maximum possible value or zero. If GTK interval is not configurable, recommended TWT interval (in case of sl_wifi_enable_target_wake_time) / RX Latency (in case of sl_wifi_target_wake_time_auto_selection API) is less than 4 sec.
+  5. For iTWT, GTK Interval should be kept at maximum possible value or zero. If GTK interval is not configurable, recommended TWT interval (in case of sl_wifi_enable_target_wake_time) / RX Latency (in case of sl_wifi_target_wake_time_auto_selection API) is less than 4 sec.
   6. When sl_wifi_enable_target_wake_time API is used, configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP. Using TWT wakeup interval less than or equal to 1 min is recommended.
   7. WLAN Keep Alive timeout should **not** be disabled when sl_wifi_target_wake_time_auto_selection API is used or when unannounced TWT session is set up using sl_wifi_enable_target_wake_time API. It is recommended to use WLAN Keep Alive timeout of 30 sec, which is the default timeout even if not configured specifically by the user.
   8. Disable power save and suspend any active TWT sessions before triggering HTTP OTAF.
@@ -500,7 +504,7 @@ The application can be configured to suit user requirements and the development 
 
    - ALARM timer-based - In this method, an ALARM timer is run that wakes up the M4 processor every **ALARM_PERIODIC_TIME** time period.
       - We can enable the ALARM timer-wakeup by adding the preprocessor macro "ALARM_TIMER_BASED_WAKEUP" for the example.
-      - In the Project explorer pane, expand as follows: wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
+      - In the Project explorer pane, expand as follows: wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c.
    - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
       - We can enable the Button press-based wakeup by adding the preprocessor macro "BUTTON_BASED_WAKEUP" for the example.
    - Wireless-based - When an RX packet is to be received by the NWP, the M4 processor is woken up.
@@ -508,7 +512,9 @@ The application can be configured to suit user requirements and the development 
 
 **Note:**
 > AWS has announced that there will be changes in their root CA chain. More details can be found in the reference links.(https://aws.amazon.com/blogs/security/acm-will-no-longer-cross-sign-certificates-with-starfield-class-2-starting-august-2024/)
-> We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`
+> We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`.
+> Alternate certification chains support is added. With this, as opposed to requiring full chain validation, only the peer certificate must validate to a trusted certificate. This allows loading intermediate root CAs as trusted.
+> The default CA certificate is the Starfield Combined CA certificate. To use the Intermediate Amazon Root CA 1 certificate, define the `SL_SI91X_AWS_IOT_ROOT_CA1` macro in the application.
 
 ## Test the Application
 
@@ -533,7 +539,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Configuring AWS S3 Bucket
 
-- Sign into the Amazon S3 console at <https://console.aws.amazon.com/s3/>.
+- Sign in to the Amazon S3 console at <https://console.aws.amazon.com/s3/>.
 - Choose **Create bucket**.
 
    ![Create bucket](resources/readme/image388.png)
@@ -618,6 +624,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 * Upon successfully adding, you should now see the EXPLORER tab on your Azure Storage Explorer displaying all the storages available in your account.
 
   ![Display all the storages available in your account](resources/readme/image404.png)
+  
 * In the Azure Portal, search for Storage Explorer and perform the same steps. However, this is in preview so it is better to use Windows Azure Storage Explorer.
 * Create a new blob container as shown below.
 
@@ -723,7 +730,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Configure HTTPD.conf file for Wamp-Apache Server
   - Open httpd.conf file in C:\wamp64\bin\apache\apache2.4.46\conf\httpd.conf
-  - Search or Find "DocumentRoot" and change it to below configuration. Save the file and Exit
+  - Search or Find "DocumentRoot" and change it to below configuration. Save the file and exit.
 
    ```sh
     "${INSTALL_DIR}/www/Firmware"
@@ -741,7 +748,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 >- <http://192.168.1.4/Firmware/firmware.rps>
 >- <http://192.168.1.4/Firmware/firmware1.rps>
 
-- Entering the `http://<your-ip-address>/<Sub-Resource-Directory>` in your browser should load a window as shown below. Clicking on any link should download the Firmware files.
+- Entering the `http://<your-ip-address>/<Sub-Resource-Directory>` in your browser should load a window as shown below. Clicking on any link should download the firmware files.
 
    ![Webpage in browser](resources/readme/image415.png)
 
@@ -809,7 +816,7 @@ HTTPs server configuration for Apache requires Wamp server. If you have not inst
 
 - **HTTPD configuration**
   - Open ``httpd.conf`` file in "C:\wamp64\bin\apache\apache2.4.46\conf"
-  - Uncomment the below shown lines in that file. Save and Exit.
+  - Uncomment the lines in that file (shown below). Save and exit.
 
   ```sh
   LoadModule ssl_module modules/mod_ssl.so
@@ -817,10 +824,10 @@ HTTPs server configuration for Apache requires Wamp server. If you have not inst
   LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
   ```
 
-  - Open "php.ini" file in "C:\wamp64\bin\php\php5.6.40" and uncomment the below line in the file.
+  - Open "php.ini" file in "C:\wamp64\bin\php\php5.6.40" and uncomment the following line in the file.
   
       `extension=php_openssl.dll`
-  - Open ``httpd-ssl.conf`` file in "C:\wamp64\bin\apache\apache2.4.46\conf\extra" and update the below paths with proper information (i.e., provide system relative paths).
+  - Open ``httpd-ssl.conf`` file in "C:\wamp64\bin\apache\apache2.4.46\conf\extra" and update the following paths with the proper information (i.e., provide system relative paths).
 
   ``` sh
   <VirtualHost default:443>
@@ -835,13 +842,13 @@ HTTPs server configuration for Apache requires Wamp server. If you have not inst
   SSLCertificateKeyFile "C:/wamp64/bin/apache/apache2.4.46/conf/private.key" 
   ```
 
-  - Run command below to check if the configurations given above are proper or not. If the configurations are correct, the command will return "Syntax OK".
+  - Run the command below to check if the configurations given above are proper or not. If the configurations are correct, the command will return "Syntax OK".
 
       `httpd.exe -t`
 - **Configure HTTPS Wamp-Apache Server to download firmware**
-  - Goto the Wamp Root directory "C:\wamp64" and navigate to "www".
+  - Go to the Wamp Root directory "C:\wamp64" and navigate to "www".
   - Create a new folder in that directory "Firmware". [Folder Structure: C:\wamp64\www\Firmware]
-  - In the "Firmware" folder, create an "index.html" file and write following contents to the file.
+  - In the "Firmware" folder, create an "index.html" file and write the following contents to the file.
 
   ```html
       <!DOCTYPE html>
@@ -865,7 +872,8 @@ HTTPs server configuration for Apache requires Wamp server. If you have not inst
       <a href="<your-firmware-file>-2.rps" download>Download_Version_4</a>
   ```
 
-- Save the file and Exit.
+- Save the file and exit.
+
 - **Restart Server**
 >
 > - Open RUN, "WIN+R" → "services.msc" → ENTER.

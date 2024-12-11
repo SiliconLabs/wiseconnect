@@ -97,6 +97,14 @@
 {%-   set rtt = 1 %}
 {% endif %}
 
+{%- if nvm3_flash_size %}
+	{%- set nvm_size = nvm3_size | first%}
+	{%- set app_flash_size = app_flash_size - nvm_size %}
+{%- endif %}
+
+{%- if nvm3_enable or littlefs_enable %}
+	{%- set nvm_app_max_flash_size = max_flash_size | first %}
+{%- endif %}
 
  MEMORY
  {
@@ -117,8 +125,10 @@
  }
 {%- endif %}
 
+{%- if (nvm3_enable and text_segment_in_psram) %}
+_last_rom_location = ORIGIN(rom);
+{%- endif %}
 {%- if psram_present and psram_linker_config_enabled %}
-
 _last_psram_location = ORIGIN(psram);
 _last_ram_location = ORIGIN(ram);
 {%- endif %}
@@ -130,14 +140,15 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.isr_vector))
+		. = ALIGN(32);
 		{% if (psram_present and psram_linker_config_enabled and ram_execution) %}
 		KEEP(*(.reset_handler))	
-        *(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *port.o *heap_*.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *UDMA.o *sl_rsi_utility.o *ipmu_apis.o *rsi_d_cache.o *sli_si91x_power_manager.o *sl_si91x_power_manager.o *sl_platform.o) .text*)		
+        *(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *port.o *heap_*.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *UDMA.o *sl_rsi_utility.o *ipmu_apis.o *rsi_d_cache.o *sli_si91x_power_manager.o *sl_si91x_power_manager.o *sl_si91x_clock_manager.o	*sli_si91x_clock_manager.o *sl_platform.o) .text*)
 		 {%- else %}
-			*(EXCLUDE_FILE(*UDMA.o *rsi_d_cache.o).text*)        
+			*(EXCLUDE_FILE(*UDMA.o *rsi_d_cache.o).text*)
+		{% endif %}        
 			 KEEP(*(.init))
-			 KEEP(*(.fini))
-    {% endif %}	
+			 KEEP(*(.fini))	
 
 		/* .ctors */
 		*crtbegin.o(.ctors)
@@ -191,6 +202,10 @@ SECTIONS
 	{% endif %} 
 	__exidx_end = .;
 	__etext = .;
+
+{%- if (nvm3_enable and text_segment_in_psram) %}
+	__nvm3text = _last_rom_location;
+{% endif %}	
 	
 {% if data_segment_in_psram %}
 	{% if psram_present and psram_linker_config_enabled %}
@@ -245,14 +260,20 @@ SECTIONS
 		    *rsi_d_cache.o(.text*)
 		    *sl_si91x_power_manager.o(.text*)
 		    *sli_si91x_power_manager.o(.text*)
+				*sl_si91x_clock_manager.o(.text*)
+				*sli_si91x_clock_manager.o(.text*)
 		    *sl_si91x_power_manager.o(.data*)
 		    *sli_si91x_power_manager.o(.data*)
+				*sl_si91x_clock_manager.o(.data*)
+				*sli_si91x_clock_manager.o(.data*)
 		    *sl_platform.o(.text*)
-		    *UDMA.o(.text*)			    
+		    *UDMA.o(.text*) 
 		{% else %}
 		    *UDMA.o(.text*)
 		    *rsi_d_cache.o(.text*)
-		{% endif %}    	    	    
+		{% endif %}
+		    /* ipmu calibration data */
+		    *(.common_ipmu_ram*)    	    	    
 	    	__sleep_code_end__ = .;
 			/* _ecode is used in code startup code */
 			_ecode = __sleep_code_end__;	
@@ -344,12 +365,20 @@ SECTIONS
 		    *port.o(.text*)
 		    *heap_*.o(.text*)
 		    *rsi_d_cache.o(.text*)
-		    *sl_platform.o(.text*)		    
+		    *sl_platform.o(.text*)
+		    *sl_si91x_power_manager.o(.text*)
+		    *sli_si91x_power_manager.o(.text*)
+				*sl_si91x_clock_manager.o(.text*)
+				*sli_si91x_clock_manager.o(.text*)
 	  		*(.data*)
+	  		/* ipmu calibration data */
+	  		*(.common_ipmu_ram*)
 	  {% elif (not data_segment_in_psram and not ram_execution) %}
 	      *UDMA.o(.text*)
 	      *rsi_d_cache.o(.text*)
 	      *(.data*)
+	      /* ipmu calibration data */
+	      *(.common_ipmu_ram*)
 	  {%- else %}
         *(.data*)
 	  {% endif %}
@@ -501,4 +530,71 @@ SECTIONS
 	{%- endif %}
 {%- endif %}	
 {% endif %}
+
+{%- if flash_present %}
+{%- if nvm3_enable %}
+  __ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};
+  {%- if app_flash_size >= nvm_app_max_flash_size %}
+   __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % nvm_app_max_flash_size }};
+   {%- else %}
+   __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % app_flash_size }};
+  {% endif %}
+	   /* This is where we handle flash storage blocks. We use dummy sections for finding the configured
+   * block sizes and then "place" them at the end of flash when the size is known. */
+  .internal_storage1 (DSECT) : {
+    KEEP(*(.internal_storage1*))
+  } > rom
+  .nvm (DSECT) : {
+    KEEP(*(.simee*))
+  } > rom
+ 
+  linker_nvm_end = __main_flash_end__;
+  linker_nvm_begin = linker_nvm_end - SIZEOF(.nvm);
+  linker_nvm_size = SIZEOF(.nvm);
+  linker_storage_end = linker_nvm_begin;
+  __nvm3Base = linker_nvm_begin;	
+  linker_storage_begin = linker_storage_end - SIZEOF(.internal_storage1);
+  linker_storage_size = SIZEOF(.internal_storage1);
+ {%- if text_segment_in_psram %}
+  ASSERT((linker_storage_begin >= (__nvm3text + SIZEOF(.data))), "FLASH memory overflowed !")
+ {%- else %}
+  ASSERT((linker_storage_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
+ {%- endif %} 
+ 
+{%- endif %}  /* nvm3 enable*/
+{%- endif %}  /* Flash Present*/
+
+{%- if flash_present %}
+{%- if littlefs_enable %}
+{%- if nvm3_enable %}
+  __main_flash_end__ = linker_nvm_begin;
+{%- elif app_flash_size >= nvm_app_max_flash_size %}
+  __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % nvm_app_max_flash_size }};
+{%- else %}
+  __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % app_flash_size }};
+{%- endif %}
+	   /* This is where we handle littlefs flash storage blocks. We use dummy sections for finding the configured
+   * block sizes and then "place" them at the end of flash when the size is known. */
+  .internal_storage2 (DSECT) : {
+    KEEP(*(.internal_storage2*))
+  } > rom
+  .littlefs (DSECT) : {
+    KEEP(*(.ltfs*))
+  } > rom
+ 
+  linker_littlefs_end = __main_flash_end__;
+  linker_littlefs_begin = linker_littlefs_end - SIZEOF(.littlefs);
+  linker_littlefs_size = SIZEOF(.littlefs);
+  linker_storage2_end = linker_littlefs_begin;
+  __littlefsBase = linker_littlefs_begin;
+  linker_storage2_begin = linker_storage2_end - SIZEOF(.internal_storage2);
+  linker_storage2_size = SIZEOF(.internal_storage2);
+ {%- if text_segment_in_psram %}
+  ASSERT((linker_storage2_begin >= (__nvm3text + SIZEOF(.data))), "FLASH memory overflowed !")
+ {%- else %}
+  ASSERT((linker_storage2_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
+ {%- endif %}
+ 
+{%- endif %}  /* littlefs_enable */
+{%- endif %}  /* Flash Present */
 }

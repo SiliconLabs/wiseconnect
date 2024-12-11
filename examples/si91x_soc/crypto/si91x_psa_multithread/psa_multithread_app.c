@@ -46,7 +46,7 @@ void test_psa_sha_256()
                                    0x21, 0x67, 0xf6, 0xec, 0xed, 0xd4, 0x19, 0xdb, 0x06, 0xc1 };
 
   //! Hash Buffer
-  uint8_t hash_buf[SL_SI91x_SHA_256_DIGEST_LEN] = { 0 };
+  uint8_t hash_buf[SL_SI91X_SHA_256_DIGEST_LEN] = { 0 };
 
   //! Hash length
   size_t hash_len;

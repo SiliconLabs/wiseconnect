@@ -5,6 +5,9 @@ description: >
   Install this component to enable execution of User Files which are added in this component from RAM
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 ui_hints:
   visibility: never
 provides:

@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_usart.h
- * @brief USART API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_usart.h
+* @brief USART API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_USART_H
 #define SL_SI91X_USART_H
@@ -251,9 +251,9 @@ typedef struct {
  * @param[in] usart_handle Pointer to the USART/UART driver.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, UART/USART initialization done properly.
-*         - SL_STATUS_FAIL (0x0001) - Function failed, UART/USART initialization failed.
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+*         - SL_STATUS_OK  - Success, UART/USART initialization done properly.
+*         - SL_STATUS_FAIL  - Function failed, UART/USART initialization failed.
+*         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -269,8 +269,8 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
  * @param[in] usart_handle Pointer to the USART/UART driver.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, UART/USART deinitialization done properly.
- *         - SL_STATUS_FAIL (0x0001) - Fail, UART/USART deinitialization failed.
+*         - SL_STATUS_OK  - Success, UART/USART deinitialization done properly.
+*         - SL_STATUS_FAIL  - Fail, UART/USART deinitialization failed.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
@@ -304,9 +304,9 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success.
-*         - SL_STATUS_BUSY (0x0004) - Driver is busy.
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+*         - SL_STATUS_OK  - Success.
+*         - SL_STATUS_BUSY  - Driver is busy.
+*         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -335,9 +335,9 @@ void sl_si91x_usart_unregister_event_callback(void);
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success.
-*         - SL_STATUS_BUSY (0x0004) - Driver is busy.
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+*         - SL_STATUS_OK  - Success.
+*         - SL_STATUS_BUSY  - Driver is busy.
+*         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -371,10 +371,10 @@ void sl_si91x_usart_multiple_instance_unregister_event_callback(usart_peripheral
  * @param[in] data_length Length of the data to be sent.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, data transfer completed.
-*         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+*         - SL_STATUS_OK  - Success, data transfer completed.
+*         - SL_STATUS_FAIL  - Function failed, data transfer failed.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -396,10 +396,10 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
  * @param[in] data_length Length of the data to be transferred.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, data transfer completed.
-*         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+*         - SL_STATUS_OK  - Success, data transfer completed.
+*         - SL_STATUS_FAIL  - Function failed, data transfer failed.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -421,10 +421,10 @@ sl_status_t sl_si91x_usart_async_send_data(sl_usart_handle_t usart_handle, const
  * @param[in] data_length Length of the data to be received.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, data received successfully.
-*         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+*         - SL_STATUS_OK  - Success, data received successfully.
+*         - SL_STATUS_FAIL  - Function failed, data transfer failed.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -446,10 +446,10 @@ sl_status_t sl_si91x_usart_receive_data(sl_usart_handle_t usart_handle, void *da
  * @param[in] data_length Length of the data to be received.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, data received successfully.
-*         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+*         - SL_STATUS_OK  - Success, data received successfully.
+*         - SL_STATUS_FAIL  - Function failed, data transfer failed.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -473,10 +473,10 @@ sl_status_t sl_si91x_usart_async_receive_data(sl_usart_handle_t usart_handle, vo
  * @param[in] data_length Length of the data to be received.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, data transfer completed.
- *         - SL_STATUS_FAIL (0x0001) - Function failed, data transfer failed.
- *         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+*         - SL_STATUS_OK  - Success, data transfer completed.
+*         - SL_STATUS_FAIL  - Function failed, data transfer failed.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -530,11 +530,11 @@ uint32_t sl_si91x_usart_get_rx_data_count(sl_usart_handle_t usart_handle);
  * configurations are taken directly from the UC and this parameter is not considered.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, UART/USART initialization done properly.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_NOT_SUPPORTED (0x000F) - Feature not supported.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
-*         - SL_STATUS_INVALID_MODE (0x0024) - USART invalid mode of operation.
+*         - SL_STATUS_OK  - Success, UART/USART initialization done properly.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_NOT_SUPPORTED  - Feature not supported.
+*         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+*         - SL_STATUS_INVALID_MODE  - USART invalid mode of operation.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -553,11 +553,11 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
  * @param[in] control_configuration Pointer to the USART configurations.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, UART/USART initialization done properly.
-*         - SL_STATUS_BUSY (0x0004) - Busy, data transfer is already in progress.
-*         - SL_STATUS_NOT_SUPPORTED (0x000F) - Feature not supported.
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
-*         - SL_STATUS_INVALID_MODE (0x0024) - USART invalid mode of operation.
+*         - SL_STATUS_OK  - Success, UART/USART initialization done properly.
+*         - SL_STATUS_BUSY  - Busy, data transfer is already in progress.
+*         - SL_STATUS_NOT_SUPPORTED  - Feature not supported.
+*         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+*         - SL_STATUS_INVALID_MODE  - USART invalid mode of operation.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -594,8 +594,8 @@ sl_usart_status_t sl_si91x_usart_get_status(sl_usart_handle_t usart_handle);
  * @param[in] control The USART modem control.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, UART/USART initialization done properly.
-*         - SL_STATUS_NOT_SUPPORTED (0x000F) - Feature not supported.
+*         - SL_STATUS_OK  - Success, UART/USART initialization done properly.
+*         - SL_STATUS_NOT_SUPPORTED  - Feature not supported.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -637,8 +637,8 @@ sl_usart_version_t sl_si91x_usart_get_version(void);
  * @param[in] usart_config Pointer to the USART configurations structure.
  * 
  * @return sl_status_t Status code indicating the result:
-*         - SL_STATUS_OK (0x0000) - Success, UART/USART configurations retrieved successfully.
-*         - SL_STATUS_NULL_POINTER (0x0022) - Invalid NULL pointer received as argument.
+*         - SL_STATUS_OK  - Success, UART/USART configurations retrieved successfully.
+*         - SL_STATUS_NULL_POINTER  - Invalid NULL pointer received as argument.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

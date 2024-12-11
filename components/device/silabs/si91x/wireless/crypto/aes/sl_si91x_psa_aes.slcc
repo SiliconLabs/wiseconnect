@@ -5,18 +5,23 @@ description: >
 label: PSA AES
 category: Device|Si91x|MCU|PSA Crypto
 quality: production
+metadata:
+  sbom:
+   license: MSLA
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/aes
 provides:
 - name: sl_si91x_psa_aes
 source:
 - path: src/sl_si91x_psa_aes.c
-define:
-- name: SLI_CIPHER_DEVICE_SI91X
-requires:
-- name: sl_si91x_aes
-
 include:
+- path: inc
 - path: inc
   file_list:
     - path: sl_si91x_psa_aes.h
+
+define:
+- name: SLI_CIPHER_DEVICE_SI91X
+
+requires:
+- name: sl_si91x_aes
 

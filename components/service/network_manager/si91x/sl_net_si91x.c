@@ -47,15 +47,19 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_dns.h"
 
+typedef enum { SLI_SI91X_CLIENT = 0, SLI_SI91X_AP = 1, SLI_SI91X_MAX_INTERFACES } sli_si91x_interfaces_t;
+
 static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interface,
                                                     const sl_ip_address_t *ip_address,
                                                     uint8_t command_type);
-sl_status_t sl_net_host_get_by_name(const char *host_name,
-                                    const uint32_t timeout,
-                                    const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
-                                    sl_ip_address_t *sl_ip_address);
+sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
+                                        const uint32_t timeout,
+                                        const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
+                                        sl_ip_address_t *sl_ip_address);
 
 extern bool device_initialized;
+
+static sl_ip_management_t dhcp_type[SLI_SI91X_MAX_INTERFACES] = { 0 };
 
 sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
                                     const void *configuration,
@@ -98,6 +102,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   // Configure the IP address settings
   status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
   VERIFY_STATUS_AND_RETURN(status);
+  dhcp_type[SLI_SI91X_CLIENT] = profile.ip.mode;
 
   // Set the client profile
   status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
@@ -114,7 +119,7 @@ sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
 
 sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
                                 const void *configuration,
-                                void *workspace,
+                                const void *workspace,
                                 sl_net_event_handler_t event_handler)
 {
   UNUSED_PARAMETER(interface);
@@ -152,6 +157,7 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
   }
   status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_AP_VAP_ID);
   VERIFY_STATUS_AND_RETURN(status);
+  dhcp_type[SLI_SI91X_AP] = profile.ip.mode;
 
   // Set the AP profile
   status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
@@ -202,7 +208,7 @@ static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interfac
   multicast.type[0] = command_type;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MULTICAST,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &multicast,
                                         sizeof(multicast),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -214,10 +220,10 @@ static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interfac
 }
 
 // Resolve a host name to an IP address using DNS
-sl_status_t sl_net_host_get_by_name(const char *host_name,
-                                    const uint32_t timeout,
-                                    const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
-                                    sl_ip_address_t *sl_ip_address)
+sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
+                                        const uint32_t timeout,
+                                        const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
+                                        sl_ip_address_t *sl_ip_address)
 {
   // Check for a NULL pointer for sl_ip_address
   SL_WIFI_ARGS_CHECK_NULL_POINTER(sl_ip_address);
@@ -225,7 +231,7 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
   sl_status_t status;
   sl_si91x_packet_t *packet;
   sl_wifi_buffer_t *buffer                       = NULL;
-  sl_si91x_dns_response_t *dns_response          = { 0 };
+  const sl_si91x_dns_response_t *dns_response    = { 0 };
   sl_si91x_dns_query_request_t dns_query_request = { 0 };
 
   // Determine the wait period based on the timeout value
@@ -235,7 +241,7 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
   memcpy(dns_query_request.url_name, host_name, sizeof(dns_query_request.url_name));
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_DNS_QUERY,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &dns_query_request,
                                         sizeof(dns_query_request),
                                         wait_period,
@@ -258,7 +264,7 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, sl_net_dns_address_t *address)
+sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, const sl_net_dns_address_t *address)
 {
   UNUSED_PARAMETER(interface);
   sl_status_t status                                  = 0;
@@ -310,7 +316,7 @@ sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, sl_net_dns_addre
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_DNS_SERVER_ADD,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &dns_server_add_request,
                                         sizeof(dns_server_add_request),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -318,4 +324,71 @@ sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, sl_net_dns_addre
                                         NULL);
 
   return status;
+}
+
+sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
+                                const sl_net_ip_configuration_t *ip_config,
+                                uint32_t timeout)
+{
+  uint8_t vap_id                   = 0;
+  sl_net_ip_configuration_t config = { 0 };
+
+  if (SL_NET_WIFI_CLIENT_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
+    vap_id                      = SL_SI91X_WIFI_CLIENT_VAP_ID;
+    dhcp_type[SLI_SI91X_CLIENT] = ip_config->mode;
+  } else if (SL_NET_WIFI_AP_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
+    vap_id                  = SL_SI91X_WIFI_AP_VAP_ID;
+    dhcp_type[SLI_SI91X_AP] = ip_config->mode;
+  } else {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
+  memcpy(&config, ip_config, sizeof(sl_net_ip_configuration_t));
+  return sli_si91x_configure_ip_address(&config, vap_id, timeout);
+}
+
+sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_address_t *ip_address, uint32_t timeout)
+{
+  uint8_t vap_id                      = 0;
+  sl_status_t status                  = 0;
+  sl_net_ip_configuration_t ip_config = { 0 };
+
+  if (SL_NET_WIFI_CLIENT_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
+    vap_id           = SL_SI91X_WIFI_CLIENT_VAP_ID;
+    ip_address->mode = dhcp_type[SLI_SI91X_CLIENT];
+  } else if (SL_NET_WIFI_AP_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
+    vap_id           = SL_SI91X_WIFI_AP_VAP_ID;
+    ip_address->mode = dhcp_type[SLI_SI91X_AP];
+    return SL_STATUS_OK;
+  } else {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
+  ip_config.mode = SL_IP_MANAGEMENT_DHCP;
+#ifdef SLI_SI91X_ENABLE_IPV6
+  ip_config.type = SL_IPV6;
+#else
+  ip_config.type = SL_IPV4;
+#endif
+  status = sli_si91x_configure_ip_address(&ip_config, vap_id, timeout);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  ip_address->type = ip_config.type;
+  // Copy the IPv4 addresses to the address structure
+  memcpy(ip_address->v4.ip_address.bytes, (const uint8_t *)ip_config.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
+  memcpy(ip_address->v4.netmask.bytes, (const uint8_t *)ip_config.ip.v4.netmask.bytes, sizeof(sl_ipv4_address_t));
+  memcpy(ip_address->v4.gateway.bytes, (const uint8_t *)ip_config.ip.v4.gateway.bytes, sizeof(sl_ipv4_address_t));
+
+  // Copy the IPv6 addresses to the address structure
+  memcpy(&ip_address->v6.link_local_address.bytes,
+         (const uint8_t *)ip_config.ip.v6.link_local_address.bytes,
+         sizeof(sl_ipv6_address_t));
+  memcpy(&ip_address->v6.global_address.bytes,
+         (const uint8_t *)ip_config.ip.v6.global_address.bytes,
+         sizeof(sl_ipv6_address_t));
+  memcpy(&ip_address->v6.gateway.bytes, (const uint8_t *)ip_config.ip.v6.gateway.bytes, sizeof(sl_ipv6_address_t));
+
+  return SL_STATUS_OK;
 }

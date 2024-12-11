@@ -10,9 +10,9 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: simplicity_sdk, version: 2024.6.2}
+sdk: {id: simplicity_sdk, version:  "2024.12.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.4}
+- {id: wiseconnect3_sdk, version: 3.4.0}
 source:
   - path: app.c
   - path: main.c
@@ -32,7 +32,7 @@ define:
 provides:
 - {name: si91x_soc}
 component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_memory_default_config}
 - {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: syscalls}
 - id: rsilib_userconfig
@@ -43,6 +43,8 @@ component:
   from: wiseconnect3_sdk
 - id: sleeptimer
 - id: memlcd_917
+  from: wiseconnect3_sdk
+- id: sl_power_manager
   from: wiseconnect3_sdk
 - id: cmsis_spi
   from: wiseconnect3_sdk
@@ -56,10 +58,7 @@ component:
 - instance: [btn0]
   from: wiseconnect3_sdk
   id: sl_si91x_button_917
-- id: sl_clock_manager
-  from: wiseconnect3_sdk
 requires:
-- name: cmsis_common
 - name: component_catalog
 - name: sl_si91x_mcu
 - name: wiseconnect3_common

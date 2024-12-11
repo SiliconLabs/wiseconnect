@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-- This application contains an example code to demonstrate the GPIO/LED toggle functionality
+This application contains an example code to demonstrate the GPIO/LED toggle functionality.
 
 ## Prerequisites/Setup Requirements
 
@@ -21,6 +21,7 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
@@ -34,20 +35,21 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-- Configure the following parameter in blinky.c file, update/modify following macro if required.
+Configure the following parameter in blinky.c file. Update or modify following macro if required.
 
   ```C
     #define TOGGLE_DELAY_MS 500//  configured for 500 ms   
-  ```   
+  ```
 
 ## Test the Application
 
@@ -58,8 +60,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   > **Note:**
   >
   > LED0 will continuously be turned on and off.
- 
-
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

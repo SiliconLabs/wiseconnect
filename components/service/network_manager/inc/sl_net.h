@@ -35,6 +35,10 @@
 /** 
  * \addtogroup NET_INTERFACE_FUNCTIONS Network Interface
  * 
+ * @note Stack overflows may occur if you invoke functions or use your own variables or data structures while handling callbacks.
+ *       Please configure the stack size by modifying the pre-processor macro `SL_SI91X_EVENT_HANDLER_STACK_SIZE` as
+ *       per your application's requirements. See [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-preprocessor-build-settings/list-of-preprocessor-build-settings)
+ *       for the instructions for modifying a pre-processor macro.
  * @note Event/Callback handlers must not contain function calls or code which can block or delay the execution of 
  *       the event/callback handler as it will cause all the other events to queue up and delay the execution of 
  *       other events since all the events are invoked and handled from a single thread.
@@ -160,6 +164,54 @@ sl_status_t sl_net_down(sl_net_interface_t interface);
 /** @} */
 
 /** 
+ * \addtogroup NET_IP_MANAGEMENT_FUNCTIONS IP Management
+ * \ingroup SL_NET_FUNCTIONS
+ * @{ */
+
+/***************************************************************************/ /**
+ * @brief
+ *   Configure IP address of given interface.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_net_up should be called before this API.
+ * @param[in] interface
+ *   Interface identified by @ref sl_net_interface_t
+ * @param[in] ip_config
+ *   Multicast IP address of type @ref sl_net_ip_configuration_t
+ * @param[in] timeout
+ *   The maximum time to wait for the IP address Configuration, in milliseconds.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+@note
+ * - This API doesn't support async mode operation, so passing 0 in timeout parameter leads to an error.
+ ******************************************************************************/
+sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
+                                const sl_net_ip_configuration_t *ip_config,
+                                uint32_t timeout);
+
+/***************************************************************************/ /**
+ * @brief 
+ *   This function retrieves the IP address of the specified network interface.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_net_up should be called before this API.
+ * @param[in] interface
+ *   Interface identified by @ref sl_net_interface_t
+ * @param[in] ip_address
+ *   IP address of type @ref sl_net_ip_address_t
+ * @param[in] timeout
+ *   The maximum time to wait for the IP address retrieval, in milliseconds.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+@note
+ * - This API doesn't support async mode operation, so passing 0 in timeout parameter leads to an error.
+ * - If the interface is setup in SL_IP_MANAGEMENT_STATIC_IP mode, this API only returns its mode and doesn't return ip address.
+ ******************************************************************************/
+sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_address_t *ip_address, uint32_t timeout);
+
+/** @} */
+
+/** 
  * \addtogroup NET_PROFILE_FUNCTIONS Network Profiles
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
@@ -273,6 +325,15 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   If the credential is NULL or the credential length is zero, this API will return an error `SL_STATUS_INVALID_PARAMETER`.
+ * @note
+ * - Certificates should follow the standard array format.  
+ * - After every 64 bytes, the special character `\n` should be used as a delimiter.
+ * - The private key is prefixed with a header like "-----BEGIN PRIVATE KEY-----" line and postfixed with an footer like"-----END PRIVATE KEY-----". 
+ * - Certificates are prefixed with a header like "-----BEGIN CERTIFICATE-----" line and postfixed with an footer like"-----END CERTIFICATE-----" line. 
+ * - Text outside the prefix and postfix lines is ignored and can be used for metadata.
+ * - The above mentioned Headers and Footers might vary 
+ * - This API does not support the OPEN Security type for Wi-Fi client credentials.
  ******************************************************************************/
 sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
                                   sl_net_credential_type_t type,
@@ -339,10 +400,6 @@ sl_status_t sl_net_delete_credential(sl_net_credential_id_t id, sl_net_credentia
 
 /** @} */
 
-// /** \addtogroup NET_CERTIFICATE_FUNCTIONS Certificate API
-//  * \ingroup SL_NET_FUNCTIONS
-//  * @{ */
-
 /***************************************************************************/ /**
  * @brief 
  * @param[in] id
@@ -361,15 +418,13 @@ sl_status_t sl_net_set_certificate(sl_net_certificate_id_t id, const void *data,
  * @note
  *   This API is not yet implemented.
  ******************************************************************************/
-sl_status_t sl_net_get_certificate(sl_net_certificate_id_t id, void *data, uint32_t data_length);
+sl_status_t sl_net_get_certificate(sl_net_certificate_id_t id, const void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
  * @note
  *   This API is not yet implemented.
  ******************************************************************************/
 sl_status_t sl_net_verify_certificate();
-
-// /** @} */
 
 /***************************************************************************/ /**
  * @brief
@@ -495,7 +550,7 @@ sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface);
  */
 sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
                                 const void *configuration,
-                                void *context,
+                                const void *context,
                                 sl_net_event_handler_t event_handler);
 
 /**

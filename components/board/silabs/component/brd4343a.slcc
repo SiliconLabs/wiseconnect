@@ -5,6 +5,9 @@
 - description: Board support for BRD4343A.
 - category: Board|Radio Board
 - quality: production
+- metadata:
+    sbom:
+      license: Zlib
 - root_path: components/board/silabs/config/brd4343a
 - ui_hints:
     visibility: never
@@ -15,7 +18,6 @@
   - name: external_flash_none
   - name: external_psram_none
   - name: rsilib_board
-  - name: si91x_common_flash
   - name: si91x_32kHz_external_oscillator
 - provides:
   - name: brd4343a
@@ -47,34 +49,34 @@
     value: 136323072 # 0x0820 2000
     priority: -1
     condition:
-      - si917_mem_config_1
+      - si91x_mem_config_1
   - name: device_flash_size
     value: 2093056 # 0x001F F000
     priority: -1
     condition:
-      - si917_mem_config_1
+      - si91x_mem_config_1
   # Medium Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
     priority: -1
     condition:
-      - si917_mem_config_2
+      - si91x_mem_config_2
   - name: device_flash_size
     value: 2093056 # 0x001F F000
     priority: -1
     condition:
-      - si917_mem_config_2
+      - si91x_mem_config_2
   # Advanced Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
     priority: -1
     condition:
-      - si917_mem_config_3
+      - si91x_mem_config_3
   - name: device_flash_size
     value: 2093056 # 0x001F F000
     priority: -1
     condition:
-      - si917_mem_config_3
+      - si91x_mem_config_3
 - tag:
   - board:pn:BRD4343
   - board:variant:A

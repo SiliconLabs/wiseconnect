@@ -28,11 +28,11 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static const uint8_t sha_digest_len_table[] = { [SL_SI91x_SHA_1]   = SL_SI91x_SHA_1_DIGEST_LEN,
-                                                [SL_SI91x_SHA_256] = SL_SI91x_SHA_256_DIGEST_LEN,
-                                                [SL_SI91x_SHA_384] = SL_SI91x_SHA_384_DIGEST_LEN,
-                                                [SL_SI91x_SHA_512] = SL_SI91x_SHA_512_DIGEST_LEN,
-                                                [SL_SI91x_SHA_224] = SL_SI91x_SHA_224_DIGEST_LEN };
+static const uint8_t sha_digest_len_table[] = { [SL_SI91X_SHA_1]   = SL_SI91X_SHA_1_DIGEST_LEN,
+                                                [SL_SI91X_SHA_256] = SL_SI91X_SHA_256_DIGEST_LEN,
+                                                [SL_SI91X_SHA_384] = SL_SI91X_SHA_384_DIGEST_LEN,
+                                                [SL_SI91X_SHA_512] = SL_SI91X_SHA_512_DIGEST_LEN,
+                                                [SL_SI91X_SHA_224] = SL_SI91X_SHA_224_DIGEST_LEN };
 
 static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
                                          uint8_t *msg,
@@ -79,7 +79,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   send_size = sizeof(sl_si91x_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_len;
 
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
+                                        SI91X_COMMON_CMD,
                                         request,
                                         send_size,
                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),

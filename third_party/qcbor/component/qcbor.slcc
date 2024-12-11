@@ -5,6 +5,15 @@ description: >
   QCBOR is a Concise Binary Object Representation (CBOR) encoder/decoder library
 category: Third Party
 quality: production
+metadata:
+  sbom:
+    license: BSD-3-Clause
+    upstream:
+      name: QCBOR
+      version: 1.2
+      supplier: laurencelundblade
+      url: https://github.com/laurencelundblade/QCBOR
+      package_url: pkg:github/laurencelundblade/QCBOR@v1.2
 component_root_path: "third_party/qcbor"
 source:
   - path: "src/ieee754.c"

@@ -33,7 +33,9 @@
 #define ADC_DATA_CLEAR        0xF7FF     // Clear the data if 12th bit is enabled
 #define VREF_VALUE            3.3        // reference voltage
 #define ADC_PING_BUFFER       0x24060800 // ADC buffer starting address
-#define ULP_ADC_CLK_SOURCE    20000000   // ulp adc clock source
+
+#define MS_DELAY_COUNTER  4600 // Delay count
+#define FIVE_SECOND_DELAY 5000 // giving the 5 second delay in between state changes
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -63,6 +65,7 @@ static sl_power_state_t current_power_state = SL_SI91X_POWER_MANAGER_PS4;
 static void callback_event(uint8_t channel_no, uint8_t event);
 static void adc_read_data_static_mode(void);
 static void adc_read_data_fifo_mode(void);
+static void delay(uint32_t idelay);
 static void configuring_ps2_power_state(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -74,7 +77,11 @@ static void configuring_ps2_power_state(void);
 void adc_example_init(void)
 {
   sl_adc_version_t version;
-  sl_adc_channel_config.channel                        = SL_ADC_CHANNEL_1;
+#ifdef SLI_SI915
+  sl_adc_channel_config.channel = SL_ADC_CHANNEL_2;
+#else
+  sl_adc_channel_config.channel = SL_ADC_CHANNEL_1;
+#endif
   adc_channel                                          = sl_adc_channel_config.channel;
   sl_adc_channel_config.rx_buf[adc_channel]            = adc_output;
   sl_adc_channel_config.chnl_ping_address[adc_channel] = ADC_PING_BUFFER; /* ADC Ping address */
@@ -141,9 +148,9 @@ void adc_example_process_action(void)
         if (!sl_adc_config.operation_mode) {
           adc_read_data_fifo_mode();
         } else {
-          chnl0_complete_flag = false;
           adc_read_data_static_mode();
         }
+        chnl0_complete_flag = false;
         // current mode being updated with power state transition to change the
         // power state mode
         ulp_adc_current_mode = SL_ULP_ADC_POWER_STATE_TRANSITION;
@@ -152,6 +159,10 @@ void adc_example_process_action(void)
     case SL_ULP_ADC_POWER_STATE_TRANSITION:
       if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
         DEBUGOUT("Switching adc from PS4->PS2 state \n");
+        // Stop the ADC
+        status = sl_si91x_adc_stop(sl_adc_config);
+        // De-initialise the ADC
+        status = sl_si91x_adc_deinit(sl_adc_config);
         // Control power management by adjusting clock references and shutting down
         // the power supply
         sl_si91x_wireless_shutdown();
@@ -161,13 +172,16 @@ void adc_example_process_action(void)
           DEBUGOUT("sl_si91x_power_manager_add_ps_requirement: Error Code : %lu \n", status);
           break;
         }
-        /* Due to calling trim_efuse API om power manager it will change the clock
+        /* Due to calling trim_efuse API on power manager it will change the clock
     frequency, if we are not initialize the debug again it will print the
     garbage data or no data in console output. */
         DEBUGINIT();
         // Configuring the ps2 power state by configuring
         // the ram retention and removing the unused peripherals
         configuring_ps2_power_state();
+        // Adding 5 seconds delay for verifying the current consumption
+        delay(FIVE_SECOND_DELAY);
+        adc_example_init();
         // current power state is updated to PS2
         current_power_state = SL_SI91X_POWER_MANAGER_PS2;
         // current mode is updated with process action for verifying the
@@ -175,6 +189,10 @@ void adc_example_process_action(void)
         ulp_adc_current_mode = SL_ULP_ADC_PROCESS_ACTION;
       } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS2) {
         DEBUGOUT("Switching the adc from PS2->PS4 state\n");
+        // Stop the ADC
+        status = sl_si91x_adc_stop(sl_adc_config);
+        // De-initialise the ADC
+        status = sl_si91x_adc_deinit(sl_adc_config);
         // switching the power state from PS2 to PS4 mode
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         if (status != SL_STATUS_OK) {
@@ -185,6 +203,9 @@ void adc_example_process_action(void)
     frequency, if we are not initialize the debug again it will print the
     garbage data or no data in console output. */
         DEBUGINIT();
+        // Adding 5 seconds delay for verifying the current consumption
+        delay(FIVE_SECOND_DELAY);
+        adc_example_init();
         // current power state is updated to last enum after the power state cycle
         // is completed
         current_power_state = LAST_ENUM_POWER_STATE;
@@ -192,21 +213,19 @@ void adc_example_process_action(void)
         // triggering and processing
         ulp_adc_current_mode = SL_ULP_ADC_PROCESS_ACTION;
       } else {
-        if (!sl_adc_config.operation_mode) {
-          //  stop the adc
-          status = sl_si91x_adc_stop(sl_adc_config);
-          if (status != SL_STATUS_OK) {
-            DEBUGOUT("sl_si91x_adc_stop: Error Code : %lu \n", status);
-          }
-          DEBUGOUT("ADC stopped successfully \n");
-          //  de initializing the adc
-          status = sl_si91x_adc_deinit(sl_adc_config);
-          if (status != SL_STATUS_OK) {
-            DEBUGOUT("sl_si91x_adc_deinit: Error Code : %lu \n", status);
-          }
-          chnl0_complete_flag = false;
-          DEBUGOUT("ADC deinit successfully \n");
+        //  stop the adc
+        status = sl_si91x_adc_stop(sl_adc_config);
+        if (status != SL_STATUS_OK) {
+          DEBUGOUT("sl_si91x_adc_stop: Error Code : %lu \n", status);
         }
+        DEBUGOUT("ADC stopped successfully \n");
+        //  de initializing the adc
+        status = sl_si91x_adc_deinit(sl_adc_config);
+        if (status != SL_STATUS_OK) {
+          DEBUGOUT("sl_si91x_adc_deinit: Error Code : %lu \n", status);
+        }
+        chnl0_complete_flag = false;
+        DEBUGOUT("ADC deinit successfully \n");
         ulp_adc_current_mode = SL_ULP_ADC_TRANSMISSION_COMPLETED;
       }
       break;
@@ -231,6 +250,16 @@ static void callback_event(uint8_t channel_no, uint8_t event)
     }
   } else if (event == SL_ADC_STATIC_MODE_EVENT) {
     chnl0_complete_flag = true;
+  }
+}
+
+/*******************************************************************************
+ * Delay function for 1ms
+ ******************************************************************************/
+static void delay(uint32_t idelay)
+{
+  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
+    __NOP();
   }
 }
 

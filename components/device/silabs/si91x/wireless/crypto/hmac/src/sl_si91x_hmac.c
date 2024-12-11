@@ -60,7 +60,7 @@ static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
   request->current_chunk_length = chunk_length;
   memcpy(request->hmac_data, data, chunk_length);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   request->key_info.key_type                         = config->key_config.B0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.B0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.B0.key_slot;
@@ -77,7 +77,7 @@ static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
 
   status =
     sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD_QUEUE,
+                                 SI91X_COMMON_CMD,
                                  request,
                                  (sizeof(sl_si91x_hmac_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
@@ -151,7 +151,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   key_length = config->key_config.B0.key_size;
 #else
   key_length = config->key_config.A0.key_length;
@@ -164,7 +164,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 
   memset(data, 0, total_length);
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   memcpy(data, config->key_config.B0.key, key_length); // Copy key into data
 #else
   memcpy(data, config->key_config.A0.key, key_length); // Copy key into data

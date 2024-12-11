@@ -14,10 +14,10 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.4
+  version: 3.4.0
 source:
 - path: app.c
 - path: main.c
@@ -35,7 +35,7 @@ component:
 - id: freertos_heap_4
 - id: syscalls
   from: wiseconnect3_sdk
-- id: si917_memory_default_config
+- id: si91x_memory_default_config
   from: wiseconnect3_sdk
 - id: wiseconnect3_common
   from: wiseconnect3_sdk
@@ -73,6 +73,9 @@ other_file:
 - path: resources/readme/aws_bucket_getting_url_1.png
 - path: resources/readme/aws_bucket_getting_url_2.png
 - path: resources/readme/aws_bucket_public_access.png
+- path: resources/readme/Presigned_URL.png
+- path: resources/readme/Time_interval_presigned_URL.png
+- path: resources/readme/Presigned_URL_created.png
 - path: resources/readme/image388.png
 - path: resources/readme/image389.png
 - path: resources/readme/image390.png

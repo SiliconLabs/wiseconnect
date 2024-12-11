@@ -28,7 +28,7 @@ extern "C" {
  * @defgroup  Board_Drivers BOARD: Common board components used with board drivers
  * @{
  */
-#include "RTE_Device_917.h"
+#include "em_device.h"
 
 #define SL_SI91X_GPIO_6_PORT RTE_GPIO_6_PORT
 #define SL_SI91X_GPIO_6_PAD  RTE_GPIO_6_PAD

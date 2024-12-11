@@ -42,6 +42,7 @@
 #include <string.h>
 #if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
+#include "sl_si91x_power_manager.h"
 #endif
 
 #define RSI_BLE_LOCAL_NAME (void *)"BLE_PERIPHERAL"
@@ -282,9 +283,7 @@ static const sl_wifi_device_configuration_t config = {
                    .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
-#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP),
 #ifdef RSI_PROCESS_MAX_RX_DATA
@@ -355,9 +354,6 @@ void ble_per(void *unused)
   sl_wifi_firmware_version_t version         = { 0 };
   uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN] = { 0 };
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-  sl_si91x_hardware_setup();
-#endif
   //! Wi-Fi initialization
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
@@ -366,6 +362,7 @@ void ble_per(void *unused)
   }
   LOG_PRINT("\r\nWireless Initialization Success\n");
 
+#ifndef SL_SI91X_ACX_MODULE
   //! set region support
   status = sl_si91x_set_device_region(config.boot_config.oper_mode, config.band, config.region_code);
   if (status != SL_STATUS_OK) {
@@ -373,6 +370,7 @@ void ble_per(void *unused)
   } else {
     LOG_PRINT("\r\nSet Region Success\r\n");
   }
+#endif
 
   //!  WLAN radio deinit
   status = sl_si91x_disable_radio();
@@ -484,6 +482,7 @@ void ble_per(void *unused)
     status = rsi_ble_per_transmit(&rsi_ble_per_tx);
     if (status != RSI_SUCCESS) {
       LOG_PRINT("\n per transmit cmd failed : 0x%lX \n", status);
+      return;
     } else {
       LOG_PRINT("\nRSI_BLE_PER_TRANSMIT_MODE \n"
                 "cmd id: 0x%X \n"
@@ -541,9 +540,10 @@ void ble_per(void *unused)
     rsi_ble_per_rx.rf_type                      = BLE_INTERNAL_RF;
     rsi_ble_per_rx.rf_chain                     = BT_HP_CHAIN_BIT;
     //! start the Receive PER functionality
-    rsi_ble_per_receive(&rsi_ble_per_rx);
+    status = rsi_ble_per_receive(&rsi_ble_per_rx);
     if (status != RSI_SUCCESS) {
       LOG_PRINT("\n per receive cmd failed : %lx \n", status);
+      return;
     } else {
       LOG_PRINT("\nRSI_BLE_PER_RECEIVE_MODE \n"
                 "cmd id: 0x%X \n"
@@ -602,7 +602,7 @@ void ble_per(void *unused)
     if (!(P2P_STATUS_REG & TA_wakeup_M4)) {
       P2P_STATUS_REG &= ~M4_wakeup_TA;
       LOG_PRINT("\r\n M4 sleep");
-      sl_si91x_m4_sleep_wakeup();
+      sl_si91x_power_manager_sleep();
     }
 #else
     //To get tx_done logs properly and to avoid application hang issue due to continuous stats added 1sec delay.

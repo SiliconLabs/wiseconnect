@@ -1,47 +1,50 @@
-/************************************************************************************
- * @file sl_si91x_clock_manager.c
- * @brief Clock Manager Service API implementation
- ************************************************************************************
- * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
- ************************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ************************************************************************************/
+/******************************************************************************
+* @file sl_si91x_clock_manager.c
+* @brief Clock Manager Service API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #include "sl_si91x_clock_manager.h"
 #include "rsi_rom_clks.h"
-
+#include "rsi_rom_ulpss_clk.h"
 /************************************************************************************
  *************************  DEFINES / MACROS  ***************************************
  ************************************************************************************/
-#define MANUAL_LOCK            1                       // Manual lock enable
-#define BYPASS_MANUAL_LOCK     1                       // Bypass manual lock enable
-#define SOC_PLL_MM_COUNT_LIMIT 0xA4                    // Soc pll count limit
-#define DIVISION_FACTOR        0                       // Division factor
-#define QSPI_ODD_DIV_ENABLE    0                       // Odd division enable for QSPI clock
-#define QSPI_SWALLO_ENABLE     0                       // Swallo enable for QSPI clock
-#define QSPI_DIVISION_FACTOR   0                       // Division factor for QSPI clock
-#define PLL_PREFETCH_LIMIT     ((uint32_t)(120000000)) // 120 MHz Limit for pll clock
+#define MANUAL_LOCK            1             // Manual lock enable
+#define BYPASS_MANUAL_LOCK     1             // Bypass manual lock enable
+#define SOC_PLL_MM_COUNT_LIMIT 0xA4          // Soc pll count limit
+#define DIVISION_FACTOR        0             // Division factor
+#define QSPI_ODD_DIV_EN        0             // Odd division enable for QSPI clock
+#define QSPI_SWALLO_EN         0             // Swallo enable for QSPI clock
+#define QSPI_DIV_FACTOR        2             // Division factor for QSPI clock
+#define QSPI2_DIV_FACTOR       2             // Division factor for QSPI2 clock
+#define PLL_PREFETCH_LIMIT     (120000000UL) // 120MHz Limit for pll clock
+#define SOC_PLL_FREQ           (180000000UL) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_FREQ          (180000000UL) // 180MHz default Interface PLL Clock as source to all peripherals
 /************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
  ************************************************************************************/
@@ -57,19 +60,73 @@ static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 /************************************************************************************
  *************************  GLOBAL FUNCTION DEFINITIONS  ****************************
  ************************************************************************************/
-
+/***************************************************************************/
 /**
- * @fn	        sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_source,
-                                                          uint32_t pll_freq)
- * @brief		    This API is used to configure the m4_soc clocks
- * @param[in]   clk_source: Enum values of different Core source clocks. See #M4_SOC_CLK_SRC_SEL_T and NOTE for more info
- * @param[in]   pll_freq: M4 Core Frequency value (in MHz) to set
- * @return 		  returns zero \ref RSI_OK on success, corresponding error code on failure
- * @note        For using UlpRefClk clksource need to configure M4ssRefClk frequency. For that need to call \ref RSI_CLK_M4ssRefClkConfig Api first
- *              -  For using SocPllCLK clksource need to configure SocPll frequency. For that need to call \ref RSI_CLK_SetSocPllFreq Api first
- *							-  For using IntfPllCLK clksource need to configure IntfPll frequency. For that need to call \ref RSI_CLK_SetIntfPllFreq Api first
- *							-  For using Sleep clksource need to configure Sleep Clock. For that need to call \ref RSI_CLK_SlpClkConfig Api first
- */
+ * @brief Initializes the M4_SOC and other required clocks.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_clock_manager_init(void)
+{
+#ifdef SL_SI91X_REQUIRES_INTF_PLL
+  M4CLK_Type *pCLK = M4CLK;
+#endif
+  sl_status_t status = SL_STATUS_OK;
+
+#ifdef SL_SI91X_ULP_STATE_ENABLE
+  //Trimming the RC_32MHz clock down to 20MHz, which is utilized in the PS2 state
+  RSI_IPMU_M20rcOsc_TrimEfuse();
+  // Sets FSM HF frequency to 20MHz
+  RSI_PS_FsmHfFreqConfig(20);
+  // Updated the clock global variables
+  RSI_PS_PS2UpdateClockVariable();
+#endif
+  // Configure FSM Low Frequency Clock
+  // FSM based on XTAL or EXT_OSC has been done in SystemCoreClockUpdate
+
+  /* Configure Ref clock to 40Mhz crystal */
+  RSI_CLK_M4ssRefClkConfig(M4CLK, EXT_40MHZ_CLK);
+  RSI_ULPSS_RefClkConfig(ULPSS_40MHZ_CLK);
+
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_FREQ);
+
+#ifdef SL_SI91X_REQUIRES_INTF_PLL
+  // Configuring the interface PLL clock to 180MHz used by the peripherals whose source clock in INTF_PLL
+  sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_FREQ, PLL_REF_CLK_VAL_XTAL);
+
+// Configure QSPI clock with INTF PLL as input source
+#if defined(CLOCK_ROMDRIVER_PRESENT)
+  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(pCLK, QSPI_INTFPLLCLK, QSPI_SWALLO_EN, QSPI_ODD_DIV_EN, QSPI_DIV_FACTOR);
+#endif
+
+#ifdef SLI_SI91X_MCU_PSRAM_PRESENT
+  // Configure QSPI2 clock with INTF PLL as input source
+#if defined(CLOCK_ROMDRIVER_PRESENT)
+  ROMAPI_M4SS_CLK_API->clk_qspi_2_clk_config(pCLK, QSPI_INTFPLLCLK, QSPI_SWALLO_EN, QSPI_ODD_DIV_EN, QSPI2_DIV_FACTOR);
+#endif
+#endif
+#endif /* SL_SI91X_REQUIRES_INTF_PLL */
+
+  return status;
+}
+/***************************************************************************/
+/**
+ * @brief To configure the M4 core clock source and configure the PLL frequency if selected as source.
+ * 
+ * @param[in] clk_source Enum value representing different core clock sources.
+ * @param[in] pll_freq Desired M4 core frequency in MHz.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_source, uint32_t pll_freq)
 {
   M4CLK_Type *pCLK         = M4CLK;
@@ -77,7 +134,7 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
   rsi_error_t error_status = RSI_OK;
   sl_status_t status;
 
-  // PLL reference clock set to XTAL_CLK by default
+  // PLL reference clock set to XTAL_CLK for PLL configuration
   uint32_t pll_ref_clk = PLL_REF_CLK_VAL_XTAL;
 
   // Validating for correct Clock Source input
@@ -86,16 +143,25 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
     return status;
   }
 
-  // Changing M4SOC clock to M4_ULPREFCLK
+  // Configure the registers for clock less than 120MHz
+  if (pll_freq < PLL_PREFETCH_LIMIT) {
+    RSI_PS_PS4ClearRegisters();
+  }
+  // Changing M4 SOC clock to M4_ULPREFCLK
   error_status = RSI_CLK_M4SocClkConfig(pCLK, M4_ULPREFCLK, 0);
   status       = convert_rsi_to_sl_error_code(error_status);
   if (status != SL_STATUS_OK) {
     return status;
   }
 
-  if (clk_source == M4_INTFPLLCLK) {
+  // Configure the required PLL Clocks with desired frequency before configuring it to M4 Core
+  if (clk_source == M4_ULPREFCLK) {
+    // ULP REF clock has already been set as M4 SoC source by now
+    UNUSED_PARAMETER(pll_freq);
+    return status;
+  } else if (clk_source == M4_INTFPLLCLK) {
     // RSI API to set INTF PLL clock frequency
-    error_status = sl_si91x_clock_manager_set_pll_freq(INFT_PLL, pll_freq, pll_ref_clk);
+    error_status = sl_si91x_clock_manager_set_pll_freq(INTF_PLL, pll_freq, pll_ref_clk);
   } else if (clk_source == M4_SOCPLLCLK) {
     // RSI API to set SOC PLL clock frequency
     error_status = sl_si91x_clock_manager_set_pll_freq(SOC_PLL, pll_freq, pll_ref_clk);
@@ -117,20 +183,28 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
   return status;
 }
 
+/***************************************************************************/
 /**
- * @fn	        sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pll_freq, uint32_t pll_ref_clk)
- * @brief		    This API is used to set the selected PLL clock to particular frequency
- * @param[in]	  pll_type: PLL type to configure
- * @return 		  returns zero \ref RSI_OK on success, corresponding error code on failure
- */
+ * @brief To set the selected PLL (Phase-Locked Loop) clock to the desired frequency.
+ * 
+ * @param[in] pll_type Enum specifying the type of PLL to configure.
+ * @param[in] pll_freq Desired frequency for the PLL clock (in MHz).
+ * @param[in] pll_ref_clk Reference clock frequency for the PLL configuration.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pll_freq, uint32_t pll_ref_clk)
 {
   M4CLK_Type *pCLK         = M4CLK;
   rsi_error_t error_status = RSI_OK;
   sl_status_t status;
 
-  // Configure the registers for clock more than 120 MHz in PS4
-  if (pll_ref_clk >= PLL_PREFETCH_LIMIT) {
+  // Configure the registers for clock more than 120MHz in PS4
+  if (pll_freq >= PLL_PREFETCH_LIMIT) {
     RSI_PS_PS4SetRegisters();
   }
 
@@ -143,7 +217,7 @@ sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pl
       error_status = RSI_CLK_SetSocPllFreq(pCLK, pll_freq, pll_ref_clk);
       break;
 
-    case INFT_PLL:
+    case INTF_PLL:
       // RSI API to set INTF PLL clock frequency
       error_status = RSI_CLK_SetIntfPllFreq(pCLK, pll_freq, pll_ref_clk);
       break;
@@ -161,24 +235,109 @@ sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pl
   return status;
 }
 
+/***************************************************************************/
 /**
- * @fn	        sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *core_clock)
- * @brief		    This API is used to read the currently active m4_soc clock source and frequency
- * @param[in]	  core_clock: Pointer to fill core clock frequency
- * @return 		  returns the currently active core clock source of type sl_si91x_m4_soc_clk_src_sel_t
- */
-sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *core_clock)
+ * @brief To read the currently active M4 core clock source and its frequency.
+ * 
+ * @param[out] core_clock Pointer to a variable where the current core clock frequency will be stored (in MHz).
+ * 
+ * @return sl_si91x_m4_soc_clk_src_sel_t The currently active core clock source:
+ *         - 0: M4_ULPREFCLK
+ *         - 2: M4_SOCPLLCLK
+ *         - 3: M4_MODEMPLLCLK1
+ *         - 4: M4_INTFPLLCLK
+ *         - 5: M4_SLEEPCLK
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *m4_core_clk_freq)
 {
   M4CLK_Type *pCLK = M4CLK;
-  sl_si91x_m4_soc_clk_src_sel_t clk_src;
+  sl_si91x_m4_soc_clk_src_sel_t m4_core_clk_src;
 
   // return currently active core clock frequency via the pointer by reference
-  *core_clock = system_clocks.soc_clock;
+  *m4_core_clk_freq = system_clocks.soc_clock;
 
   // read currently active core clock source
-  clk_src = pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL;
+  m4_core_clk_src = pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL;
 
-  return clk_src;
+  return m4_core_clk_src;
+}
+
+/***************************************************************************/
+/**
+ * @brief Gets the selected PLL (Phase-Locked Loop) clock to the desired frequency.
+ * 
+ * @param[in] pll_type Enum specifying the type of PLL to configure.
+ * 
+ * @return uint32_t PLL frequency value in MHz.
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+uint32_t sl_si91x_clock_manager_get_pll_freq(PLL_TYPE_T pll_type)
+{
+  uint32_t pll_freq = 0;
+
+  switch (pll_type) {
+    case SOC_PLL:
+      // return currently configured SOC PLL frequency
+      pll_freq = system_clocks.soc_clock;
+      break;
+
+    case INTF_PLL:
+      // return currently configured INTF PLL frequency
+      pll_freq = system_clocks.intf_pll_clock;
+      break;
+
+    case I2S_PLL:
+      // return currently configured I2S PLL frequency
+      pll_freq = system_clocks.i2s_pll_clock;
+      break;
+
+    default:
+      break;
+  }
+
+  return pll_freq;
+}
+/***************************************************************************/
+/**
+ * @brief Controls the selected PLL (Phase-Locked Loop) clock.
+ * 
+ * @param[in] pll_type Enum specifying the type of PLL to control.
+ * @param[in] enable Boolean value to enable (true) or disable (false) the PLL.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_clock_manager_control_pll(PLL_TYPE_T pll_type, bool enable)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  switch (pll_type) {
+    case SOC_PLL:
+      // Turn On/Off the SOC PLL
+      enable ? RSI_CLK_SocPllTurnOn() : RSI_CLK_SocPllTurnOff();
+      break;
+
+    case INTF_PLL:
+      // Turn On/Off the INTF PLL
+      enable ? RSI_CLK_IntfPLLTurnOn() : RSI_CLK_IntfPLLTurnOff();
+      break;
+
+    case I2S_PLL:
+      // Turn On/Off the I2S PLL
+      enable ? RSI_CLK_I2sPllTurnOn() : RSI_CLK_I2sPllTurnOff();
+      break;
+
+    default:
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+  }
+
+  return status;
 }
 /*******************************************************************************
  * To validate the RSI error code

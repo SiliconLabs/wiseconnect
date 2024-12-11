@@ -22,6 +22,15 @@
 
 void sl_si91x_led_init(const sl_led_t *handle)
 {
+#ifdef SI917Y_DEVKIT
+  if (handle->led_number == 0U) {
+    /*Enable clock*/
+    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
+  } else {
+    /*Enable clock*/
+    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+  }
+#else
   if (handle->led_number == 0U) {
     /*Enable clock*/
     sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
@@ -29,6 +38,7 @@ void sl_si91x_led_init(const sl_led_t *handle)
     /*Enable clock*/
     sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
   }
+#endif
   sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { handle->port, handle->pin }, GPIO_OUTPUT };
   sl_gpio_set_configuration(sl_gpio_pin_config);
 }

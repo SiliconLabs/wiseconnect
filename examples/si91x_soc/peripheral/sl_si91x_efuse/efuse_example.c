@@ -18,7 +18,6 @@
 #include "rsi_debug.h"
 
 #include "sl_si91x_efuse.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -36,9 +35,6 @@
 
 /* Since efuse is a one-time programmable, WRITE_ENABLE macro must not be enabled unless user wants to use efuse write */
 #define WRITE_ENABLE 0 // Enables efuse write if set to '1'
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
@@ -51,20 +47,9 @@ uint16_t address_value_2         = 0;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * EFUSE example initialization function
  ******************************************************************************/
@@ -72,9 +57,6 @@ void efuse_example_init(void)
 {
   sl_efuse_version_t version;
   sl_status_t status;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
     /* Version information of EFUSE */

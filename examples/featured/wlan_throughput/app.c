@@ -97,11 +97,6 @@
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
-#endif
-
 /*=======================================================================*/
 // NWP buffer allocation parameters
 /*=======================================================================*/
@@ -164,19 +159,25 @@ static const sl_wifi_device_configuration_t throughput_configuration = {
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_WPS_DISABLE),
-                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
-                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
+#if (THROUGHPUT_TYPE == TLS_TX || THROUGHPUT_TYPE == TLS_RX)
+                                              | SL_SI91X_TCP_IP_FEAT_SSL
+#endif
+                                              ),
                    .custom_feature_bit_map =
                      (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
-                   .bt_feature_bit_map = 0,
-                   .ext_tcp_ip_feature_bit_map =
-                     (SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
-                      | SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS | SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE),
+                   .bt_feature_bit_map         = 0,
+                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
+                                                  | SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE
+#if (THROUGHPUT_TYPE == TLS_TX || THROUGHPUT_TYPE == TLS_RX)
+                                                  | SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS
+#endif
+                                                  ),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
                    .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP },
@@ -209,9 +210,6 @@ void receive_data_from_tls_server(void);
 void send_data_to_tls_server(void);
 static void application_start(void *argument);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
-#ifdef SLI_SI91X_MCU_INTERFACE
-void switch_m4_frequency(void);
-#endif
 
 /******************************************************
  *               Function Definitions
@@ -225,9 +223,9 @@ void app_init(const void *unused)
 
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000);             // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
-  result         = (result / 1000000);                  // bps to Mbps
+  float duration = ((test_timeout) / 1000);                    // ms to sec
+  float result   = ((float)total_num_of_bytes * 8) / duration; // bytes to bps
+  result         = (result / 1000000);                         // bps to Mbps
   printf("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 
@@ -268,19 +266,6 @@ void data_callback(uint32_t sock_no,
     has_data_received = 1;
   }
 }
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-void switch_m4_frequency(void)
-{
-  /*Switch M4 SOC clock to Reference clock*/
-  /*Default keep M4 in reference clock*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-  /*Configure the PLL frequency*/
-  RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-  /*Switch M4 clock to PLL clock for speed operations*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-}
-#endif
 
 static void application_start(void *argument)
 {
@@ -323,11 +308,6 @@ static void application_start(void *argument)
     return;
   }
   printf("\r\nWi-Fi client connected\r\n");
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-  switch_m4_frequency();
-  SysTick_Config(SystemCoreClock / (1000));
-#endif
 
   status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
@@ -411,6 +391,8 @@ void send_data_to_tcp_server(void)
     sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;
@@ -453,11 +435,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(server_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(server_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -511,11 +493,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(server_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -605,6 +587,8 @@ void send_data_to_udp_server(void)
       break;
     }
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;
@@ -733,11 +717,11 @@ void receive_data_from_tls_server(void)
     return;
   }
 
-  socket_return_value = sl_si91x_setsockopt_async(client_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(client_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -783,11 +767,11 @@ void receive_data_from_tls_server(void)
     return;
   }
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(client_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -876,6 +860,8 @@ void send_data_to_tls_server(void)
     sent_bytes = send(client_socket, data_buffer, TLS_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;

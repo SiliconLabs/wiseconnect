@@ -23,11 +23,11 @@ Before running the application, the user will need the following things to setup
 
 ### Hardware Requirements
 
-- A Windows PC.
+- A Windows PC
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes](https://www.silabs.com) for details.
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4342A [SiWx917-RB4342A]
@@ -35,6 +35,7 @@ Before running the application, the user will need the following things to setup
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
@@ -62,7 +63,7 @@ Before running the application, the user will need the following things to setup
 
 ## Getting Started
 
-### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -78,13 +79,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
-  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
-   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
-   - After connecting all the boards, the setup should look like the image shown below:
+  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the steps below:
+   	- Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
+   	- Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   	- After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
-   - Connect the setup to the computer.
-  - Open the BLE PER µVision project - **ble_per.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → ble_per → keil_project**. 
+   	- Connect the setup to the computer.
+  	- Open the BLE PER µVision project - **ble_per.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → ble_per → keil_project**. 
 
 ## Application Build Environment
 
@@ -92,7 +93,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-- Open `app.c` file and update or modify following macros:
+- Open `app.c` file and update or modify the following macros:
 
   - `RSI_CONFIG_PER_MODE` refers configuration mode BT PER TX or RX
 
@@ -101,13 +102,13 @@ The application can be configured to suit your requirements and development envi
                                   OR
     #define RSI_CONFIG_PER_MODE RSI_BLE_PER_RECEIVE_MODE
   ```
-  - `CMD_ID` refers the command id for transmit or receive
+  - `CMD_ID` refers to the command id for transmit or receive.
   
   ```c
     #define BLE_TRANSMIT_CMD_ID 0x13
     #define BLE_RECEIVE_CMD_ID  0x14
   ```
-  - `PAYLOAD_TYPE` refers type of payload to be transmitted
+  - `PAYLOAD_TYPE` refers to the type of payload to be transmitted.
   
   ```c
     #define DATA_PRBS9                 0x00
@@ -130,14 +131,14 @@ The application can be configured to suit your requirements and development envi
   ```c
     #define BLE_TX_PKT_LEN                32
   ```
-  - `BLE_RX_CHNL_NUM`- Receive channel index, as per the Bluetooth standard.i.e, 0 to 39
-  - `BLE_TX_CHNL_NUM` - Transmit channel index, as per the Bluetooth standard. i.e, 0 to 39
+  - `BLE_RX_CHNL_NUM`- Receive channel index, as per the Bluetooth standard, i.e, 0 to 39.
+  - `BLE_TX_CHNL_NUM` - Transmit channel index, as per the Bluetooth standard, i.e, 0 to 39.
   
   ```c
     #define BLE_RX_CHNL_NUM 10
     #define BLE_TX_CHNL_NUM 10
   ```
-  - `BLE_PHY_RATE`: ,2Mbps - 2 , 125Kbps - 4, 500Kbps - 8
+  - `BLE_PHY_RATE`: 2 Mbps - 2 , 125 Kbps - 4, 500 Kbps - 8
   
   ```c
     #define LE_ONE_MBPS         1
@@ -146,31 +147,31 @@ The application can be configured to suit your requirements and development envi
     #define LE_500_KBPS_CODED   8
     #define BLE_PHY_RATE LE_ONE_MBPS
   ```
-  - `SCRAMBLER_SEED`: Initial seed to be used for whitening. It should be set to '0' in order to disable whitening.
+  - `SCRAMBLER_SEED`: Initial seed to be used for whitening. It should be set to '0' to disable whitening.
   
   ```c
     #define SCRAMBLER_SEED 0
   ```
-  - `TX_MODE`: Burst mode - 0 Continuous mode - 1
+  - `TX_MODE`: Burst mode - 0, Continuous mode - 1
   
   ```c
     #define BURST_MODE      0
     #define CONTINUOUS_MODE 1
   ```
-  - `HOPPING TYPE` : no hopping -0 fixed hopping - 1 random hopping - 2
+  - `HOPPING TYPE` : No hopping -0, fixed hopping - 1, random hopping - 2
   
   ```c
     #define NO_HOPPING     0
     #define FIXED_HOPPING  1
     #define RANDOM_HOPPING 2
   ```
-  - `ANT_SEL` : onchip antenna - 2 u.f.l - 3
+  - `ANT_SEL` : On-chip antenna - 2 u.f.l - 3
   
   ```c
     #define ONBOARD_ANT_SEL 2
     #define EXT_ANT_SEL     3
   ```
-  - `RF_TYPE` : External RF – 0 Internal RF – 1
+  - `RF_TYPE` : External RF – 0, Internal RF – 1
   
   ```c
     #define BLE_EXTERNAL_RF 0
@@ -185,7 +186,7 @@ The application can be configured to suit your requirements and development envi
     #define BT_HP_CHAIN_BIT   2
     #define BT_LP_CHAIN_BIT   3
   ```
-  - `PLL MODE` : PLL_MODE0 – 0 PLL_MODE1 – 1
+  - `PLL MODE` : PLL_MODE0 – 0, PLL_MODE1 – 1
   
   ```c
     #define PLL_MODE_0 0
@@ -199,7 +200,7 @@ The application can be configured to suit your requirements and development envi
     #define LOOP_BACK_MODE_DISABLE 0
   ```
 
-  Set below macro to update Max TX power and offset
+  Set the following macro to update Max TX power and offset:
 ```c
 #define GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE 1 //! To update gain table and max tx power and offsets
 ```
@@ -212,14 +213,18 @@ int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
                                                        uint8_t req_type)
 ```
 ---
+
+> Note: 
+> The user can configure default region specific regulatory information using `sl_wifi_region_db_config.h'.
+
 **Note!**
-* This command must be used immediately after opermode request
-* Internally, the firmware maintains two tables
+* This command must be used immediately after opermode request.
+* Internally, the firmware maintains two tables.
     * Gain table holding Max Tx power values for all regions
     * Gain table with Max power vs offset values for each channel of all regions
-* There are 5 regions supported and are FCC, ETSI, TELEC, KCC, WORLDWIDE. These FCC/ETSI/TELEC/KCC gain table max power level and offset values should be loaded in end-to-end mode via BLE User Gain table. This has to be called upon every boot-up since this information is not saved inside flash. SoC uses these tables in FCC/ETSI/TELEC/KCC to limit power and not to violate allowed limits.
-* For Worldwide region firmware uses Worldwide values for Tx. For other regions(FCC/ETSI/TELEC/KCC), Firmware uses min value out of Worldwide & Region based values for Tx.  Also there will be part to part variation across chips and offsets are estimated during manufacturing flow which will be applied as correction factor during normal mode of operation.
-* This frame has to be used by customers who has done FCC/ETSI/TELEC/KCC certification with their own antenna. All other customers should not use this. Inappropriate use of this frame may result in violation of FCC/ETSI/TELEC/KCC or any certifications and Silicon labs is not liable for that.
+* The five regions supported are FCC, ETSI, TELEC, KCC, and WORLDWIDE. These FCC/ETSI/TELEC/KCC gain table max power levels and offset values should be loaded in end-to-end mode via the BLE User Gain table. This has to be called upon every boot-up since this information is not saved inside flash. SoC uses these tables in FCC/ETSI/TELEC/KCC to limit power and avoid violating allowed limits.
+* For Worldwide region, the firmware uses Worldwide values for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of Worldwide and Region based values for Tx. Also, there will be part-to-part variation across chips and offsets are estimated during manufacturing flow which will be applied as a correction factor during normal mode of operation.
+* This frame must be used by customers who have done FCC/ETSI/TELEC/KCC certification with their own antenna. All other customers should not use this. Inappropriate use of this frame may result in violation of FCC/ETSI/TELEC/KCC or any certifications and Silicon labs is not liable for these uses.
 
 ---
 
@@ -251,7 +256,7 @@ The following arrays will be used to update_gain_table based on `node_id` and `r
 **Gain Table Max Power Array Format**
 
 ```c
-uint8_t _Si917_BLE_REGION_BASED_MAXPOWER_XX[] = {}; //! Fill the user gain table max power values in the below mentioned way.
+uint8_t _Si917_BLE_REGION_BASED_MAXPOWER_XX[] = {}; //! Fill the user gain table max power values as shown below.
 
 <TABLE NAME>[] = { 
                    <REGION NAME 1>, <MAX POWER>, 
@@ -354,42 +359,42 @@ uint8_t Si917_BLE_REGION_BASED_LP_CHAIN_10DBM_OFFSET_XX[] = {};  // Fill the use
 | `WORLDWIDE`    | `3`       |
 | `KCC`          | `4`       |
 
-- Open `ble_config.h` file and update/modify following macros,
+- Open `ble_config.h` file and update/modify the following macros:
 
   ```c
     #define RSI_BLE_PWR_INX                                30
     #define RSI_BLE_PWR_SAVE_OPTIONS                       BLE_DISABLE_DUTY_CYCLING
   ```
 
-  > **Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
+  > **Note:** `ble_config.h` files are already set with desired configuration in the respective example folders. The user does not need to change these for each example.
   
 ## Test the Application
 
-### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 
 - Build the application.
 - Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
 Follow the steps as mentioned for the successful execution of the application:
 
-1. After the program gets executed, Silicon Labs module starts BLE PER transmit or BLE PER receive.
+1. After the program gets executed, the Silicon Labs module starts BLE PER transmit or BLE PER receive.
 
 2. The BLE-PER-RX can be validated between two SiWx91x device modes.
-    - Configure a SiWx91x device in PER-TX mode and configure another SiWx91x device in BLE PER RX mode.
+    - Configure an SiWx91x device in PER-TX mode and configure another SiWx91x device in BLE PER RX mode.
 
 3. If the SiWx91x device is configured in BLE-PER-TX Mode, the SiWx91x device sends the packets with the configured mode in the configured channel.
 
-4. Check for BLE PER stats whatever configured values are affecting or not.
+4. Check the BLE PER stats to see if configured values are affected or not.
 
-5. After successful program execution the prints in Tera Term looks as shown following.
+5. After successful program execution, the prints in Tera Term appear as shown in the following images.
 
 ### BLE-PER-TX
 

@@ -216,7 +216,7 @@ static const SPI_RESOURCES SSI_MASTER_Resources = {
     SPI_MASTER_MODE,
     {
     SSI_INTFPLLCLK,
-    ULP_SSI_ULP_32MHZ_RC_CLK,
+    ULP_SSI_ULP_MHZ_RC_CLK,
     0,
     }
 };
@@ -317,7 +317,7 @@ static const SPI_RESOURCES SSI_SLAVE_Resources = {
 #endif
 #endif
                                                    },
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                    SSISlave_IRQn,
 #endif
 #ifdef	CHIP_9118
@@ -341,7 +341,7 @@ static const SPI_RESOURCES SSI_SLAVE_Resources = {
     SPI_SLAVE_MODE,
     {
     SSI_INTFPLLCLK,
-    ULP_SSI_ULP_32MHZ_RC_CLK,
+    ULP_SSI_ULP_MHZ_RC_CLK,
     0,
     }
 };
@@ -471,7 +471,7 @@ static const SPI_RESOURCES SSI_ULP_MASTER_Resources = {
     SPI_ULP_MASTER_MODE,
     {
     SSI_INTFPLLCLK,
-    ULP_SSI_ULP_32MHZ_RC_CLK,
+    ULP_SSI_REF_CLK,
     0,
     }
 };
@@ -504,12 +504,12 @@ ARM_SPI_CAPABILITIES SPI_GetCapabilities(void)
 static int32_t SSI_MASTER_Initialize(ARM_SPI_SignalEvent_t pSignalEvent)             
    { 		 
 		 /*Power up the ssi*/
-		#if defined(SLI_SI917)
+		#if defined(SLI_SI917) || defined(SLI_SI915)
 		RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 		#else
 		RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
 		#endif
-		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+     #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Initialize(pSignalEvent, &SSI_MASTER_Resources,
 		   &UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
 		 #else
@@ -519,7 +519,7 @@ static int32_t SSI_MASTER_Initialize(ARM_SPI_SignalEvent_t pSignalEvent)
 	 }
 static int32_t SSI_MASTER_Uninitialize (void)
 { 
-			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Uninitialize(&SSI_MASTER_Resources,&UDMA0_Resources);
 		 #else
 return SPI_Uninitialize (&SSI_MASTER_Resources,&UDMA0_Resources); 
@@ -527,7 +527,7 @@ return SPI_Uninitialize (&SSI_MASTER_Resources,&UDMA0_Resources);
 }
 static int32_t SSI_MASTER_PowerControl(ARM_POWER_STATE state)
 {
-	 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_PowerControl(state, &SSI_MASTER_Resources);
 	#else
 return SPI_PowerControl (state, &SSI_MASTER_Resources); 
@@ -535,7 +535,7 @@ return SPI_PowerControl (state, &SSI_MASTER_Resources);
 }
 static int32_t SSI_MASTER_Send (const void *data, uint32_t num)
 { 
-			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Send(data, num, &SSI_MASTER_Resources,&UDMA0_Resources,
                         udma0_chnl_info,
                         udmaHandle0);
@@ -547,7 +547,7 @@ return SPI_Send (data, num, &SSI_MASTER_Resources,&UDMA0_Resources,
 }
 static int32_t SSI_MASTER_Receive (void *data, uint32_t num)
 { 
-			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Receive(data, num, &SSI_MASTER_Resources,&UDMA0_Resources,
                         udma0_chnl_info,
                         udmaHandle0);
@@ -559,7 +559,7 @@ static int32_t SSI_MASTER_Receive (void *data, uint32_t num)
 }
 static int32_t SSI_MASTER_Transfer(const void *data_out, void *data_in, uint32_t num)
  {
-	 		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	 		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Transfer(data_out, data_in, num, &SSI_MASTER_Resources,&UDMA0_Resources,
                         udma0_chnl_info,
                         udmaHandle0);
@@ -571,7 +571,7 @@ static int32_t SSI_MASTER_Transfer(const void *data_out, void *data_in, uint32_t
  }
 static uint32_t SSI_MASTER_GetDataCount(void)
 {
-		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_GetDataCount(&SSI_MASTER_Resources);
 		 #else	
 return SPI_GetDataCount (&SSI_MASTER_Resources); 
@@ -617,7 +617,7 @@ static int32_t SSI_MASTER_Control(uint32_t control, uint32_t arg)
 	}
 	 #endif
 	#if (defined(SSI_ROMDRIVER_PRESENT))
-  #if ((defined(A11_ROM)) && (defined(SLI_SI917)) && (defined(SLI_SI917B0)))
+  #if (defined(A11_ROM) && (defined(SLI_SI917) || defined(SLI_SI915)) && defined(SLI_SI917B0))
   return ROMAPI_SSI_API->SPI_Control(control, arg, &SSI_MASTER_Resources,ssi_get_clock,spi_slavenumber);
 	#else
 	return ROMAPI_SSI_API->SPI_Control(control, arg, &SSI_MASTER_Resources,ssi_get_clock);
@@ -629,7 +629,7 @@ static int32_t SSI_MASTER_Control(uint32_t control, uint32_t arg)
 	}
 static ARM_SPI_STATUS SSI_MASTER_GetStatus (void)
 	{
-				 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+				 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_GetStatus(&SSI_MASTER_Resources);
 		 #else
    return SPI_GetStatus (&SSI_MASTER_Resources); 
@@ -637,7 +637,7 @@ static ARM_SPI_STATUS SSI_MASTER_GetStatus (void)
 	}
 void SSI_MASTER_IRQHandler (void) 
 {		 
-	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_IRQHandler(&SSI_MASTER_Resources);
 		 #else 
 SPI_IRQHandler (&SSI_MASTER_Resources);
@@ -646,7 +646,7 @@ SPI_IRQHandler (&SSI_MASTER_Resources);
 #if defined(SSI_MASTER_TX_DMA_Instance) && (SSI_MASTER_TX_DMA_Instance == 1)
 void SSI_MASTER_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh) 
 {
-		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_UDMA_Tx_Event(event,(uint8_t)dmaCh, &SSI_MASTER_Resources);
 		 #else
 SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_MASTER_Resources);	
@@ -656,7 +656,7 @@ SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_MASTER_Resources);
 #if defined(SSI_MASTER_RX_DMA_Instance) && (SSI_MASTER_RX_DMA_Instance == 1)
 void SSI_MASTER_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh) 
 {		 
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_UDMA_Rx_Event(event,(uint8_t)dmaCh, &SSI_MASTER_Resources);
 		 #else
 SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_MASTER_Resources);	
@@ -687,12 +687,12 @@ ARM_DRIVER_SPI Driver_SSI_MASTER = {
 static int32_t SSI_SLAVE_Initialize (ARM_SPI_SignalEvent_t pSignalEvent)
 { 
 		 /*Power up the ssi*/
-		#if defined(SLI_SI917)
+		#if defined(SLI_SI917) || defined(SLI_SI915)
 		RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 		#else
 		RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
 		#endif
-	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Initialize(pSignalEvent, &SSI_SLAVE_Resources,
 	&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
 		 #else
@@ -702,7 +702,7 @@ return SPI_Initialize (pSignalEvent, &SSI_SLAVE_Resources,
 }
 static int32_t SSI_SLAVE_Uninitialize (void)
 {
-		#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+		#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Uninitialize(&SSI_SLAVE_Resources,&UDMA0_Resources);
 	#else
 return SPI_Uninitialize (&SSI_SLAVE_Resources,&UDMA0_Resources); 
@@ -710,7 +710,7 @@ return SPI_Uninitialize (&SSI_SLAVE_Resources,&UDMA0_Resources);
 }
 static int32_t SSI_SLAVE_PowerControl (ARM_POWER_STATE state)
 {
-			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_PowerControl(state, &SSI_SLAVE_Resources);
 	#else
 return SPI_PowerControl (state, &SSI_SLAVE_Resources);
@@ -718,7 +718,7 @@ return SPI_PowerControl (state, &SSI_SLAVE_Resources);
 }
 static int32_t SSI_SLAVE_Send (const void *data, uint32_t num) 
 { 
-		#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+		#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Send(data, num, &SSI_SLAVE_Resources,&UDMA0_Resources,
                         udma0_chnl_info,
                         udmaHandle0);
@@ -730,7 +730,7 @@ static int32_t SSI_SLAVE_Send (const void *data, uint32_t num)
 }
 static int32_t SSI_SLAVE_Receive(void *data, uint32_t num)
 {
-		#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+		#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Receive(data, num, &SSI_SLAVE_Resources,&UDMA0_Resources,
                         udma0_chnl_info,
                         udmaHandle0);
@@ -742,7 +742,7 @@ static int32_t SSI_SLAVE_Receive(void *data, uint32_t num)
 }
 static int32_t SSI_SLAVE_Transfer(const void *data_out, void *data_in, uint32_t num) 
 { 
-			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Transfer(data_out, data_in, num, &SSI_SLAVE_Resources,&UDMA0_Resources,
                         udma0_chnl_info,
                         udmaHandle0);
@@ -754,7 +754,7 @@ static int32_t SSI_SLAVE_Transfer(const void *data_out, void *data_in, uint32_t 
 }
 static uint32_t       SSI_SLAVE_GetDataCount(void)
 {
-	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_GetDataCount(&SSI_SLAVE_Resources);
 	#else 
 return SPI_GetDataCount (&SSI_SLAVE_Resources);
@@ -766,7 +766,7 @@ static int32_t  SSI_SLAVE_Control (uint32_t control, uint32_t arg)
    uint32_t ssi_get_clock=0;
   int32_t status         = 0;
 	#if (defined(SSI_ROMDRIVER_PRESENT))
-  #if ((defined(A11_ROM)) && (defined(SLI_SI917)) && (defined(SLI_SI917B0)))
+  #if (defined(A11_ROM) && (defined(SLI_SI917) || defined(SLI_SI915)) && defined(SLI_SI917B0))
   return ROMAPI_SSI_API->SPI_Control(control, arg, &SSI_SLAVE_Resources,ssi_get_clock,0);
 	#else
 	return ROMAPI_SSI_API->SPI_Control(control, arg, &SSI_SLAVE_Resources,ssi_get_clock);
@@ -782,7 +782,7 @@ static int32_t  SSI_SLAVE_Control (uint32_t control, uint32_t arg)
 }
 static ARM_SPI_STATUS SSI_SLAVE_GetStatus(void)
 {
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_GetStatus(&SSI_SLAVE_Resources);
 	#else
 return SPI_GetStatus (&SSI_SLAVE_Resources);
@@ -790,7 +790,7 @@ return SPI_GetStatus (&SSI_SLAVE_Resources);
 }
 void SSI_SLAVE_IRQHandler (void)
 {     
-	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_IRQHandler(&SSI_SLAVE_Resources);
 	#else
 SPI_IRQHandler (&SSI_SLAVE_Resources); 
@@ -799,7 +799,7 @@ SPI_IRQHandler (&SSI_SLAVE_Resources);
 #if defined(SSI_SLAVE_TX_DMA_Instance) && (SSI_SLAVE_TX_DMA_Instance == 1)
 void SSI_SLAVE_UDMA_Tx_Event  (uint32_t event, uint32_t dmaCh) 
 {	
-	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
 #else
 SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
@@ -810,7 +810,7 @@ SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);
 #if defined(SSI_SLAVE_RX_DMA_Instance) && (SSI_SLAVE_RX_DMA_Instance == 1)
 void  SSI_SLAVE_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh)
 {
-	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+	#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
 #else
 SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
@@ -842,7 +842,7 @@ static int32_t SSI_ULP_MASTER_Initialize (ARM_SPI_SignalEvent_t pSignalEvent)
 {
 		/*power up the ssi peripheral*/
 		RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_SSI);
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Initialize (pSignalEvent, &SSI_ULP_MASTER_Resources,
 	                &UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);
 #else
@@ -854,7 +854,7 @@ static int32_t SSI_ULP_MASTER_Uninitialize(void)
 { 
 	/*power down the ulp ssi peripheral*/
 	RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_SSI);
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Uninitialize (&SSI_ULP_MASTER_Resources,&UDMA1_Resources);
 #else
 	return SPI_Uninitialize (&SSI_ULP_MASTER_Resources,&UDMA1_Resources);
@@ -862,7 +862,7 @@ static int32_t SSI_ULP_MASTER_Uninitialize(void)
 }
 static int32_t        SSI_ULP_MASTER_PowerControl (ARM_POWER_STATE state)
 {
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_PowerControl (state, &SSI_ULP_MASTER_Resources);
 #else
 return SPI_PowerControl (state, &SSI_ULP_MASTER_Resources);
@@ -870,7 +870,7 @@ return SPI_PowerControl (state, &SSI_ULP_MASTER_Resources);
 }
 static int32_t SSI_ULP_MASTER_Send (const void *data, uint32_t num)
  { 
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Send (data, num, &SSI_ULP_MASTER_Resources,
 		              &UDMA1_Resources,udma1_chnl_info,udmaHandle1); 
 #else
@@ -880,7 +880,7 @@ static int32_t SSI_ULP_MASTER_Send (const void *data, uint32_t num)
  }
 static int32_t SSI_ULP_MASTER_Receive (void *data, uint32_t num)
 {
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Receive (data, num, &SSI_ULP_MASTER_Resources,
 	                &UDMA1_Resources,udma1_chnl_info,udmaHandle1); 
 #else
@@ -890,7 +890,7 @@ static int32_t SSI_ULP_MASTER_Receive (void *data, uint32_t num)
 }
 static int32_t SSI_ULP_MASTER_Transfer (const void *data_out, void *data_in, uint32_t num)
  {
- 			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+ 			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_Transfer (data_out, data_in, num, &SSI_ULP_MASTER_Resources,
 		                &UDMA1_Resources,udma1_chnl_info,udmaHandle1);
 #else
@@ -900,7 +900,7 @@ static int32_t SSI_ULP_MASTER_Transfer (const void *data_out, void *data_in, uin
  }
 static uint32_t       SSI_ULP_MASTER_GetDataCount        (void)
 {
-			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
        return ROMAPI_SSI_API->SPI_GetDataCount (&SSI_ULP_MASTER_Resources);
 #else
 return SPI_GetDataCount (&SSI_ULP_MASTER_Resources);
@@ -925,7 +925,7 @@ static int32_t        SSI_ULP_MASTER_Control(uint32_t control, uint32_t arg)
 	}
 	 #endif
 	#if (defined(SSI_ROMDRIVER_PRESENT))
-  #if ((defined(A11_ROM)) && (defined(SLI_SI917)) && (defined(SLI_SI917B0)))
+  #if (defined(A11_ROM) && (defined(SLI_SI917) || defined(SLI_SI915)) && defined(SLI_SI917B0))
   return ROMAPI_SSI_API->SPI_Control(control, arg, &SSI_ULP_MASTER_Resources,ssi_get_clock,spi_slavenumber);
   #else
   return ROMAPI_SSI_API->SPI_Control(control, arg, &SSI_ULP_MASTER_Resources,ssi_get_clock);
@@ -937,7 +937,7 @@ static int32_t        SSI_ULP_MASTER_Control(uint32_t control, uint32_t arg)
 }
 static ARM_SPI_STATUS SSI_ULP_MASTER_GetStatus           (void)
 {
-			#if (defined(A11_ROM)) &&( defined(SSI_ROMDRIVER_PRESENT)) &&( defined(SLI_SI917))
+      #if ((defined(A11_ROM)) &&( defined(SSI_ROMDRIVER_PRESENT)) &&( defined(SLI_SI917) || defined(SLI_SI915)))
        return ROMAPI_SSI_API->SPI_GetStatus (&SSI_ULP_MASTER_Resources);
 #else
 return SPI_GetStatus (&SSI_ULP_MASTER_Resources);
@@ -945,7 +945,7 @@ return SPI_GetStatus (&SSI_ULP_MASTER_Resources);
 }
 void SSI_ULP_MASTER_IRQHandler (void)
 {
-#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_IRQHandler (&SSI_ULP_MASTER_Resources);
 #else
 SPI_IRQHandler (&SSI_ULP_MASTER_Resources);
@@ -954,7 +954,7 @@ SPI_IRQHandler (&SSI_ULP_MASTER_Resources);
 #if defined(SSI_ULP_MASTER_TX_DMA_Instance) && (SSI_ULP_MASTER_TX_DMA_Instance == 1)
 void          SSI_ULP_MASTER_UDMA_Tx_Event     (uint32_t event, uint32_t dmaCh)
 {
-			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
 #else
 SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
@@ -965,7 +965,7 @@ SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
 #if defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1)
 void SSI_ULP_MASTER_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh)
 {
-			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
+			#if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
         ROMAPI_SSI_API->SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
 #else
 SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
@@ -1032,23 +1032,50 @@ void SSI_SetFifoThreshold(uint8_t ssi_instance)
 {
   do {
     if (ssi_instance == SPI_MASTER_MODE) {
-#if defined SL_SSI_MASTER_DMA_CONFIG_ENABLE 
+      // Configuring DMA thresholds based on SSI instances.
+#if defined SL_SSI_PRIMARY_DMA_CONFIG_ENABLE
+#ifdef SSI_INSTANCE_CONFIG
+      SSI_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_PRIMARY_TX_FIFO_THRESHOLD;
+      SSI_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_PRIMARY_RX_FIFO_THRESHOLD;
+#endif
+#elif defined SL_SSI_MASTER_DMA_CONFIG_ENABLE
+// DMA threshold configuration based on SSI unknown instance name.
+#ifdef SSI_CONFIG
       SSI_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
       SSI_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
+#endif
 #endif
       break;
     }
     if (ssi_instance == SPI_SLAVE_MODE) {
-#if defined SL_SSI_SLAVE_DMA_CONFIG_ENABLE
+      // Configuring DMA thresholds based on SSI instances.
+#if defined SL_SSI_SECONDARY_DMA_CONFIG_ENABLE
+#ifdef SSI_INSTANCE_CONFIG
+      SSI_SLAVE_Resources.reg->TXFTLR_b.TFT = SL_SSI_SECONDARY_TX_FIFO_THRESHOLD;
+      SSI_SLAVE_Resources.reg->RXFTLR_b.RFT = SL_SSI_SECONDARY_RX_FIFO_THRESHOLD;
+#endif
+#elif defined SL_SSI_SLAVE_DMA_CONFIG_ENABLE
+// DMA threshold configuration based on SSI unknown instance name.
+#ifdef SSI_CONFIG
       SSI_SLAVE_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
       SSI_SLAVE_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
+#endif
 #endif
       break;
     }
     if (ssi_instance == SPI_ULP_MASTER_MODE) {
-#if defined SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE
-      SSI_ULP_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
-      SSI_ULP_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
+      // Configuring DMA thresholds based on SSI instances.
+#if defined SL_SSI_ULP_PRIMARY_DMA_CONFIG_ENABLE
+#ifdef SSI_INSTANCE_CONFIG
+      SSI_ULP_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_ULP_PRIMARY_TX_FIFO_THRESHOLD;
+      SSI_ULP_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_ULP_PRIMARY_RX_FIFO_THRESHOLD;
+#endif
+#elif defined SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE
+// DMA threshold configuration based on SSI unknown instance name.
+#ifdef SSI_CONFIG
+        SSI_ULP_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
+        SSI_ULP_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
+#endif
 #endif
       break;
     }

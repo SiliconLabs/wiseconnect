@@ -131,7 +131,7 @@ sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config,
   length = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE + strlen(config->host_name) + 1;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &req,
                                         length,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -151,7 +151,7 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns)
   length           = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &req,
                                         length,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
@@ -273,7 +273,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
   length += strlen(service->service_message) + 1 + (sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         &req,
                                         length,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,

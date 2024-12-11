@@ -87,10 +87,15 @@ sha_mode
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
 - Flash, run and debug the application.
+
+## Note
+
+- The SDK does not properly handle rx packet lengths over 1616 bytes due to the rx_buffer being capped at 1616 bytes, which may cause data corruption if the input message size exceeds the expected length. Therefore, the ECDSA application limits the input message length to 1000 bytes.
+- If the user provides an input message longer than 1000 bytes, the firmware will return "SL_STATUS_SI91X_CRYPTO_INPUT_MSG_LENGTH_EXCEEDED".
 
 ## Application Output
 

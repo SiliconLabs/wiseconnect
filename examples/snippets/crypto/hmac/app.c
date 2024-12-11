@@ -33,10 +33,12 @@
 #include "sl_net.h"
 #include "sl_wifi.h"
 #include "sl_si91x_hmac.h"
+#include "sl_si91x_wrap.h"
 
 /******************************************************
  *                    Constants
  ******************************************************/
+#define USE_WRAPPED_KEYS
 
 /******************************************************
  *               Variable Definitions
@@ -68,7 +70,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -102,6 +104,13 @@ uint8_t digest[64] = { 0x80, 0xb2, 0x42, 0x63, 0xc7, 0xc1, 0xa3, 0xeb, 0xb7, 0x1
                        0x95, 0xe6, 0x4f, 0x73, 0xf6, 0x3f, 0x0a, 0xec, 0x8b, 0x91, 0x5a, 0x98, 0x5d, 0x78, 0x65, 0x98 };
 */
 
+#ifdef USE_WRAPPED_KEYS
+#define WRAPPED_KEY_BUFLEN 512
+sl_si91x_wrap_config_t wrap_config = { 0 };
+uint8_t wrapped_key[WRAPPED_KEY_BUFLEN]; //Buffer to store wrapped key output
+uint8_t wrap_iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+#endif
+
 sl_si91x_hmac_config_t config = { 0 };
 
 /******************************************************
@@ -129,12 +138,40 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi Init Success\r\n");
 
-  config.hmac_mode              = SL_SI91X_HMAC_SHA_512;
-  config.msg_length             = sizeof(msg);
-  config.msg                    = msg;
-  config.key_config.B0.key_size = sizeof(key);
+  memset(&config, 0, sizeof(sl_si91x_hmac_config_t));
+  config.hmac_mode       = SL_SI91X_HMAC_SHA_512;
+  config.msg_length      = sizeof(msg);
+  config.msg             = msg;
+  int wrap_hmac_sha_mode = config.hmac_mode;
+
+#ifdef USE_WRAPPED_KEYS
+  wrap_config.key_type     = SL_SI91X_TRANSPARENT_KEY;
+  wrap_config.key_size     = sizeof(key);
+  wrap_config.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
+  memset(wrapped_key, 0, sizeof(wrapped_key));
+  memcpy(wrap_config.key_buffer, key, wrap_config.key_size);
+  memcpy(wrap_config.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
+  wrap_config.padding       = SL_SI91X_HMAC_PADDING;
+  wrap_config.hmac_sha_mode = wrap_hmac_sha_mode;
+
+  status = sl_si91x_wrap(&wrap_config, wrapped_key);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nWrap failed, Error Code : 0x%lX\r\n", status);
+  }
+  printf("\r\nWrap success\r\n");
+
+  config.key_config.B0.key_type = SL_SI91X_WRAPPED_KEY;
+  config.key_config.B0.key      = wrapped_key;
+  config.key_config.B0.key_size =
+    wrap_config.key_size; // key_size is updated to the padded and wrapped key's size in "sl_si91x_wrap" API
+  config.key_config.B0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
+  memcpy(config.key_config.B0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
+
+#else
   config.key_config.B0.key_type = SL_SI91X_TRANSPARENT_KEY;
   config.key_config.B0.key      = key;
+  config.key_config.B0.key_size = sizeof(key);
+#endif
 
   status = sl_si91x_hmac(&config, digest);
   if (status != SL_STATUS_OK) {

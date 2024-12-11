@@ -1,13 +1,14 @@
 <?xml version="1.0" ?>
 <demos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/Demo.ecore">
+
 <demo name="brd4338a.demo.cli_demo_soc" label="Cli Demo (SoC)">
     <description>The CLI Demo application is a command-line interface (CLI) application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.</description>
     <property key="demos.blurb" value="Cli Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4338a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4338a/cli_demo_soc.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
-    <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd4338a/cli_demo_soc.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
     <property key="readmeFiles" value="examples/snippets/cli_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -17,9 +18,9 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd2605a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd2605a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
-    <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd2605a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -29,9 +30,9 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4338a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4338a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
-    <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd4338a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -41,9 +42,9 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4342a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4342a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
-    <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd4342a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -53,9 +54,21 @@
     <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd4343a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd4343a/out_of_box_demo.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
-    <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd4343a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
+    <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+<demo name="brd2708a.demo.out_of_box_demo" label="Out of Box Demo (SoC)">
+    <description>This application demonstrates the WLAN, BLE, MCU peripheral features and NWP (network processor) powersave capabilities of SiWG917 with a ready to go, minimal software installation experience.</description>
+    <property key="demos.blurb" value="Out of Box Demo (SoC)"/>
+    <property key="core.partCompatibility" value=".*"/>
+    <property key="core.boardCompatibility" value="brd2708a"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd2708a/out_of_box_demo.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -65,10 +78,22 @@
     <property key="demos.blurb" value="Wi-Fi - SiWx917 Dev Kit (BRD2605A)"/>
     <property key="core.partCompatibility" value=".*"/>
     <property key="core.boardCompatibility" value="brd2605a"/>
-    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.3.4/demos/brd2605a/siwx917_dev_kit.rps"/>
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.3.4/connectivity_firmware/standard/SiWG917-B.2.12.3.3.0.3.rps"/>
-    <property key="demos.firmwareFile.version" value="1711.2.12.3.3.0.3"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd2605a/siwx917_dev_kit.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
     <property key="readmeFiles" value="examples/si91x_soc/siwx917_dev_kit/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+<demo name="brd4338a.demo.wifi_commander_soc" label="Wi-Fi - Commander (SoC)">
+    <description>Wi-Fi Commander application</description>
+    <property key="demos.blurb" value="Wi-Fi - Commander (SoC)"/>
+    <property key="core.partCompatibility" value=".*"/>
+    <property key="core.boardCompatibility" value="brd4338a"/>
+    <property key="demos.imageFile" value="asset://extension.wiseconnect_3.4.0/demos/brd4338a/wifi_commander_soc.rps"/>
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_3.4.0/connectivity_firmware/standard/SiWG917-B.2.13.3.0.0.11.rps"/>
+    <property key="demos.firmwareFile.version" value="1711.2.13.3.0.0.11"/>
+    <property key="readmeFiles" value="examples/demos/wifi_commander/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
   </demo>

@@ -36,7 +36,7 @@
  ***************************  DEFINES / MACROS   *******************************
  ******************************************************************************/
 #define PS4_SOC_FREQ          180000000 // PLL out clock 180MHz
-#define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 32MHZ
+#define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock
 #define DVISION_FACTOR        0         // Division factor
 #define ADC_MAX_OP_VALUE      4096      // ADC maximum output value
 #define DIVISION_MULTIPLIER \

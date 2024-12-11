@@ -87,7 +87,7 @@
 ******************************************************/
 
 #define CERTIFICATE_INDEX 0
-#define LOAD_CERTIFICATES 1
+#define LOAD_CERTIFICATE  1
 
 #define DNS_REQ_COUNT 5
 #define DNS_TIMEOUT   20000
@@ -132,7 +132,7 @@
 /**
  * @brief Timeout for MQTT_ProcessLoop in milliseconds.
  */
-#define sampleazureiotPROCESS_LOOP_TIMEOUT_MS (500U)
+#define sampleazureiotPROCESS_LOOP_TIMEOUT_MS (1000U)
 
 /**
  * @brief Delay (in ticks) between consecutive cycles of MQTT publish operations in a
@@ -164,7 +164,9 @@
 *               Function Declarations
 ******************************************************/
 static void application_start(void *argument);
+#if LOAD_CERTIFICATE
 sl_status_t load_certificates_in_flash(void);
+#endif
 sl_status_t create_tls_client(void);
 static void azure_iot_mqtt_demo();
 int32_t TLS_Socket_Recv(NetworkContext_t *pNetworkContext, void *pBuffer, size_t bytesToRecv);
@@ -300,7 +302,7 @@ static void application_start(void *argument)
   print_sl_ip_address(&ip_address);
   printf("\r\n");
 
-#if LOAD_CERTIFICATES
+#if LOAD_CERTIFICATE
   status = load_certificates_in_flash();
   if (status != SL_STATUS_OK) {
     printf("\r\n Error while loading certificates: 0x%lx\r\n", status);
@@ -324,6 +326,7 @@ static void application_start(void *argument)
   printf("\r\nDemo is completed\r\n");
 }
 
+#if LOAD_CERTIFICATE
 sl_status_t load_certificates_in_flash(void)
 {
   sl_status_t status;
@@ -380,6 +383,7 @@ sl_status_t load_certificates_in_flash(void)
 #endif
   return SL_STATUS_OK;
 }
+#endif
 
 sl_status_t create_tls_client(void)
 {
@@ -396,7 +400,7 @@ sl_status_t create_tls_client(void)
   do {
 
     status =
-      sl_net_host_get_by_name((const char *)democonfigHOSTNAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+      sl_net_dns_resolve_hostname((const char *)democonfigHOSTNAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     if (status == SL_STATUS_OK) {
       break;
     }

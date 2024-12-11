@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_comparator.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -198,7 +210,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
     }
   }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /* Enable comparator1 */
   if (comp_number == COMP1) {
     RSI_COMP_IntrEnableDisable(comp_number, DISABLE);
@@ -274,7 +286,7 @@ rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
       NVIC_EnableIRQ(COMP1_IRQn);
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_COMP_IntrEnableDisable(COMP1, DISABLE);
 
     comp->BOD_b.BOD_THRSH = (unsigned int)(value_thrsh & 0x1F);
@@ -304,7 +316,7 @@ rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
       NVIC_EnableIRQ(COMP2_IRQn);
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_COMP_IntrEnableDisable(COMP2, DISABLE);
 
     comp->BOD_b.BOD_THRSH = (unsigned int)(value_thrsh & 0x1F);
@@ -357,7 +369,7 @@ rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scala
       NVIC_EnableIRQ(COMP1_IRQn);
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_COMP_IntrEnableDisable(COMP1, DISABLE);
 
     comp->BOD_b.REFBUF_VOLT_SEL = (unsigned int)(scalar_factor_value & 0x0F);
@@ -387,7 +399,7 @@ rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scala
       NVIC_EnableIRQ(COMP2_IRQn);
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_COMP_IntrEnableDisable(COMP2, DISABLE);
 
     comp->BOD_b.REFBUF_VOLT_SEL = (unsigned int)(scalar_factor_value & 0x0F);
@@ -468,7 +480,7 @@ rsi_error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig)
     }
   }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (comp_number == COMP1) {
     /* Mask the comparator1 interrupt */
     if (MaskConfig) {

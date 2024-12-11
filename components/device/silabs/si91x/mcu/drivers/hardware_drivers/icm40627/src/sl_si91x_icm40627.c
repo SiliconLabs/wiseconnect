@@ -71,10 +71,19 @@ sl_status_t sl_si91x_icm40627_init(sl_ssi_handle_t ssi_driver_handle)
 {
   sl_status_t status;
   uint8_t ssi_data;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data_in[ssi_data_length];
+  uint8_t temp = 0;
 
   /* Disable I2C interface, use SPI */
-  ssi_data = (uint8_t)SL_ICM40627_INTF_CONFIG0_BIT_UI_SIFS_CFG_DISABLE_I2C;
-  status   = icm40627_write_register(ssi_driver_handle, (uint8_t)SL_ICM40627_REG_INTF_CONFIG0, &ssi_data, 1);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INTF_CONFIG0, ssi_data_in, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    // If it fails to execute the API, it will not execute rest of the things
+    return status;
+  }
+  temp = ssi_data_in[ssi_data_length - 1];
+  temp |= SL_ICM40627_INTF_CONFIG0_BIT_UI_SIFS_CFG_DISABLE_I2C;
+  status = icm40627_write_register(ssi_driver_handle, (uint8_t)SL_ICM40627_REG_INTF_CONFIG0, &temp, 1);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -92,6 +101,9 @@ sl_status_t sl_si91x_icm40627_init(sl_ssi_handle_t ssi_driver_handle)
 
   /* calibrate sensor */
   sl_si91x_icm40627_calibrate_accel_and_gyro(ssi_driver_handle, accel, gyro);
+
+  /* enable the sensor */
+  sl_si91x_icm40627_enable_sensor(ssi_driver_handle, true, true, true);
 
   return SL_STATUS_OK;
 }
@@ -266,8 +278,6 @@ sl_status_t sl_si91x_icm40627_get_temperature_data(sl_ssi_handle_t ssi_driver_ha
   uint8_t data1_in[ssi_data_length];
   int16_t raw_temp_data;
 
-  sl_si91x_icm40627_enable_sensor(ssi_driver_handle, true, true, true);
-
   /* Read temperature registers */
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_TEMP_DATA0, data0_in, ssi_data_length);
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_TEMP_DATA1, data1_in, ssi_data_length);
@@ -276,7 +286,7 @@ sl_status_t sl_si91x_icm40627_get_temperature_data(sl_ssi_handle_t ssi_driver_ha
   raw_temp_data = (int16_t)((data1_in[ssi_data_length - 1] << 8) + data0_in[ssi_data_length - 1]);
 
   /* Calculate the Centigrade value from the raw reading */
-  *temperature = (raw_temp_data / 132.48f) + 25.0f;
+  *temperature = ((float)raw_temp_data / 132.48f) + 25.0f;
 
   return SL_STATUS_OK;
 }
@@ -296,9 +306,6 @@ sl_status_t sl_si91x_icm40627_get_accel_data(sl_ssi_handle_t ssi_driver_handle, 
   uint8_t raw_data_z1[ssi_data_length];
   float accel_res;
   int16_t temp;
-
-  /* Enable accelerometer sensor */
-  sl_si91x_icm40627_enable_sensor(ssi_driver_handle, true, false, false);
 
   /* Retrieve the current resolution */
   sl_si91x_icm40627_get_accel_resolution(ssi_driver_handle, &accel_res);
@@ -346,9 +353,6 @@ sl_status_t sl_si91x_icm40627_get_gyro_data(sl_ssi_handle_t ssi_driver_handle, f
   /* Retrieve the current resolution */
   sl_si91x_icm40627_get_gyro_resolution(ssi_driver_handle, &gyro_res);
 
-  /* enable gyro sensor */
-  sl_si91x_icm40627_enable_sensor(ssi_driver_handle, false, true, false);
-
   /* Read the six raw data registers into data array */
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_DATA_X0, raw_data_x0, ssi_data_length);
   icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_DATA_X1, raw_data_x1, ssi_data_length);
@@ -375,12 +379,16 @@ sl_status_t sl_si91x_icm40627_get_gyro_data(sl_ssi_handle_t ssi_driver_handle, f
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_accel_resolution(sl_ssi_handle_t ssi_driver_handle, float *accel_res)
 {
+  sl_status_t status;
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
 
   /* Read the actual acceleration full scale setting */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
-  ssi_data[ssi_data_length - 1] &= SL_ICM40627_SHIFT_ACCEL_FS;
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  ssi_data[ssi_data_length - 1] &= SL_ICM40627_MASK_ACCEL_FS_SEL;
 
   /* Calculate the resolution */
   switch (ssi_data[ssi_data_length - 1]) {
@@ -413,11 +421,15 @@ sl_status_t sl_si91x_icm40627_get_accel_resolution(sl_ssi_handle_t ssi_driver_ha
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_gyro_resolution(sl_ssi_handle_t ssi_driver_handle, float *gyro_res)
 {
+  sl_status_t status;
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
 
   /* Read the actual gyroscope full scale setting */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   ssi_data[ssi_data_length - 1] &= 0xF0;
 
   /* Calculate the resolution */
@@ -451,7 +463,19 @@ sl_status_t sl_si91x_icm40627_get_gyro_resolution(sl_ssi_handle_t ssi_driver_han
 // ******************************************************************************/
 sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, bool accel, bool gyro, bool temp)
 {
-  uint8_t pwrManagement = 0x00;
+  sl_status_t status;
+  uint8_t pwrManagement    = 0x00;
+  uint8_t gyroOn           = 0x40;
+  uint8_t gyroOff          = 0x00;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_PWR_MGMT0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  pwrManagement = ssi_data[ssi_data_length - 1];
 
   /* To enable the accelerometer */
   if (accel) {
@@ -463,8 +487,21 @@ sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, b
   /* To enable gyro */
   if (gyro) {
     pwrManagement |= SL_ICM40627_PWR_MGMT0_GYRO_MODE_LN;
+
+    /*Set value to 0x40 when turning on gyroscope.*/
+    status =
+      icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ON_OFF_CONFIG, &gyroOn, ssi_data_length - 1);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
   } else {
     pwrManagement &= SL_ICM40627_PWR_MGMT0_GYRO_MODE_DIS;
+    /*Set value to 0 when turning off gyroscope.*/
+    status =
+      icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ON_OFF_CONFIG, &gyroOff, ssi_data_length - 1);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
   }
 
   /* To enable the temperature sensor */
@@ -475,10 +512,210 @@ sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, b
   }
 
   /* Write back the modified values */
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_PWR_MGMT0, &pwrManagement, 2);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_PWR_MGMT0, &pwrManagement, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* Wait 200ms to complete the write */
   sl_sleeptimer_delay_millisecond(200);
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Enables or disables the sleep mode of the device
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_enable_sleep_mode(sl_ssi_handle_t ssi_driver_handle, bool enable)
+{
+  sl_status_t status;
+  uint8_t reg;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS3, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  reg = ssi_data[ssi_data_length - 1];
+
+  if (enable) {
+    /* Sleep: Set the SLEEP interrupt bit and clear the WAKE interrupt bit */
+    reg |= SL_ICM40627_BIT_MASK_SLEEP_INT;
+    reg &= ~(SL_ICM40627_BIT_MASK_WAKE_INT);
+  } else {
+    /* Wake Up: Clear the SLEEP interrupt bit and set the wake interrupt bit */
+    reg &= ~(SL_ICM40627_BIT_MASK_SLEEP_INT);
+    reg |= SL_ICM40627_BIT_MASK_WAKE_INT;
+  }
+
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS3, &reg, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Sets the sample rate for both the accelerometer and the gyroscope.
+ ******************************************************************************/
+float sl_si91x_icm40627_set_sample_rate(sl_ssi_handle_t ssi_driver_handle, float sample_rate)
+{
+  uint8_t accel_sample_rate_setting;
+  uint8_t gyro_sample_rate_setting;
+
+  /* Map sample_rate to corresponding register values using range checks */
+  if (sample_rate > 6000.0f && sample_rate <= 8000.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_8000;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_8000;
+    sample_rate               = 8000.0f;
+  } else if (sample_rate > 3000.0f && sample_rate <= 6000.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_4000;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_4000;
+    sample_rate               = 4000.0f;
+  } else if (sample_rate > 1500.0f && sample_rate <= 3000.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_2000;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_2000;
+    sample_rate               = 2000.0f;
+  } else if (sample_rate > 750.0f && sample_rate <= 1500.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_1000;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_1000;
+    sample_rate               = 1000.0f;
+  } else if (sample_rate > 375.0f && sample_rate <= 750.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_500;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_500;
+    sample_rate               = 500.0f;
+  } else if (sample_rate > 100.0f && sample_rate <= 375.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_200;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_200;
+    sample_rate               = 200.0f;
+  } else if (sample_rate > 75.0f && sample_rate <= 100.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_100;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_100;
+    sample_rate               = 100.0f;
+  } else if (sample_rate > 37.0f && sample_rate <= 75.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_50;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_50;
+    sample_rate               = 50.0f;
+  } else if (sample_rate > 18.0f && sample_rate <= 37.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_25;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_25;
+    sample_rate               = 25.0f;
+  } else if (sample_rate > 9.0f && sample_rate <= 18.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_12_5;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_12_5;
+    sample_rate               = 12.5f;
+  } else if (sample_rate > 6.0f && sample_rate <= 9.0f) {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_6_25;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_12_5;
+    sample_rate               = 6.25f;
+  } else {
+    accel_sample_rate_setting = SL_ICM40627_ACCEL_ODR_VALUE_3_125;
+    gyro_sample_rate_setting  = SL_ICM40627_GYRO_ODR_VALUE_12_5;
+    sample_rate               = 3.125f;
+  }
+
+  /* Set the sample rate for gyroscope and accelerometer */
+  sl_si91x_icm40627_gyro_set_sample_rate(ssi_driver_handle, gyro_sample_rate_setting);
+  sl_si91x_icm40627_accel_set_sample_rate(ssi_driver_handle, accel_sample_rate_setting);
+
+  /* Return the actual sample rate set */
+  return sample_rate;
+}
+
+/***************************************************************************/ /**
+ *    Sets the Output Data Rate of the gyroscope
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_gyro_set_sample_rate(sl_ssi_handle_t ssi_driver_handle, uint8_t gyro_ODR)
+{
+  sl_status_t status;
+  uint8_t reg;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  /* Validate gyro_ODR */
+  switch (gyro_ODR) {
+    case SL_ICM40627_GYRO_ODR_VALUE_8000:
+    case SL_ICM40627_GYRO_ODR_VALUE_4000:
+    case SL_ICM40627_GYRO_ODR_VALUE_2000:
+    case SL_ICM40627_GYRO_ODR_VALUE_1000:
+    case SL_ICM40627_GYRO_ODR_VALUE_500:
+    case SL_ICM40627_GYRO_ODR_VALUE_200:
+    case SL_ICM40627_GYRO_ODR_VALUE_100:
+    case SL_ICM40627_GYRO_ODR_VALUE_50:
+    case SL_ICM40627_GYRO_ODR_VALUE_25:
+    case SL_ICM40627_GYRO_ODR_VALUE_12_5:
+      /* Valid ODR - proceed */
+      break;
+    default:
+      /* Invalid ODR */
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  /* Read the ICM40627_REG_GYRO_CONFIG0 register */
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  reg = ssi_data[ssi_data_length - 1];
+  reg &= ~(SL_ICM40627_MASK_GYRO_ODR_VALUE);
+
+  /* Write the new bandwidth value to the gyro config register */
+  reg |= (gyro_ODR & SL_ICM40627_MASK_GYRO_ODR_VALUE);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &reg, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Sets the Output Data Rate of the accelerometer
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_accel_set_sample_rate(sl_ssi_handle_t ssi_driver_handle, uint8_t accel_ODR)
+{
+  sl_status_t status;
+  uint8_t reg;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  /* Validate accel_ODR */
+  switch (accel_ODR) {
+    case SL_ICM40627_ACCEL_ODR_VALUE_8000:
+    case SL_ICM40627_ACCEL_ODR_VALUE_4000:
+    case SL_ICM40627_ACCEL_ODR_VALUE_2000:
+    case SL_ICM40627_ACCEL_ODR_VALUE_1000:
+    case SL_ICM40627_ACCEL_ODR_VALUE_500:
+    case SL_ICM40627_ACCEL_ODR_VALUE_200:
+    case SL_ICM40627_ACCEL_ODR_VALUE_100:
+    case SL_ICM40627_ACCEL_ODR_VALUE_50:
+    case SL_ICM40627_ACCEL_ODR_VALUE_25:
+    case SL_ICM40627_ACCEL_ODR_VALUE_12_5:
+    case SL_ICM40627_ACCEL_ODR_VALUE_6_25:
+    case SL_ICM40627_ACCEL_ODR_VALUE_3_125:
+      /* Valid ODR - proceed */
+      break;
+    default:
+      /* Invalid ODR */
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  /* Read the ICM40627_REG_ACCEL_CONFIG0 register */
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  reg = ssi_data[ssi_data_length - 1];
+  reg &= ~(SL_ICM40627_MASK_ACCEL_ODR_VALUE);
+
+  /* Write the new bandwidth value to the accel config register */
+  reg |= (accel_ODR & SL_ICM40627_MASK_ACCEL_ODR_VALUE);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &reg, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   return SL_STATUS_OK;
 }
@@ -488,17 +725,26 @@ sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, b
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t gyro_ODR)
 {
+  sl_status_t status;
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
   /* Read the GYRO_CONFIG_1 register */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  temp = ssi_data[ssi_data_length - 1];
+  temp &= ~(SL_ICM40627_MASK_GYRO_UI_FILT_BW);
+  temp |= (gyro_ODR & SL_ICM40627_MASK_GYRO_UI_FILT_BW);
 
   /* Write the new bandwidth value to the gyro config register */
-  temp = gyro_ODR | ssi_data[ssi_data_length - 1];
-
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &temp, ssi_data_length - 1);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &temp, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   return SL_STATUS_OK;
 }
@@ -508,17 +754,26 @@ sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_hand
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t accel_ODR)
 {
+  sl_status_t status;
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
   /* Read the GYRO_CONFIG_1 register */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  temp = ssi_data[ssi_data_length - 1];
+  temp &= ~(SL_ICM40627_MASK_ACCEL_UI_FILT_BW);
+  temp |= (accel_ODR & SL_ICM40627_MASK_ACCEL_UI_FILT_BW);
 
   /* Write the new bandwidth value to the accel config register */
-  temp = accel_ODR | ssi_data[ssi_data_length - 1];
-
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   return SL_STATUS_OK;
 }
@@ -528,15 +783,26 @@ sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_han
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_accel_full_scale(sl_ssi_handle_t ssi_driver_handle, uint8_t accelFs)
 {
+  sl_status_t status;
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
-  ssi_data[ssi_data_length - 1] |= accelFs;
-  temp = ssi_data[ssi_data_length - 1];
+  accelFs &= SL_ICM40627_MASK_ACCEL_FS_SEL;
 
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  temp = ssi_data[ssi_data_length - 1];
+  temp &= ~(SL_ICM40627_MASK_ACCEL_FS_SEL);
+  temp |= accelFs;
+
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   return SL_STATUS_OK;
 }
@@ -546,17 +812,130 @@ sl_status_t sl_si91x_icm40627_set_accel_full_scale(sl_ssi_handle_t ssi_driver_ha
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_set_gyro_full_scale(sl_ssi_handle_t ssi_driver_handle, uint8_t gyroFs)
 {
+  sl_status_t status;
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
-  ssi_data[ssi_data_length - 1] |= gyroFs;
-  temp = ssi_data[ssi_data_length - 1];
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &temp, ssi_data_length - 1);
+  temp = ssi_data[ssi_data_length - 1];
+  temp &= ~(SL_ICM40627_MASK_GYRO_FS_SEL);
+  temp |= gyroFs;
+
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &temp, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Enables or disables the interrupts in the ICM40627 chip
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_enable_interrupt(sl_ssi_handle_t ssi_driver_handle, bool dataReadyEnable, bool womEnable)
+{
+  sl_status_t status;
+  uint8_t intEnable        = 0;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE1, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  /* Enable one or both of the interrupt sources if required */
+  if (womEnable) {
+    intEnable = (ssi_data[ssi_data_length - 1] | SL_ICM40627_BIT_MASK_WOM_X_INT1_EN | SL_ICM40627_BIT_MASK_WOM_Y_INT1_EN
+                 | SL_ICM40627_BIT_MASK_WOM_Z_INT1_EN);
+  }
+  /* Write value to register */
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE1, &intEnable, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  /* All interrupts are disabled by default */
+  intEnable = 0;
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE0, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  if (dataReadyEnable) {
+    intEnable = ssi_data[ssi_data_length - 1] | SL_ICM40627_MASK_UI_DRDY_INT1_EN;
+  }
+  /* Write value to register */
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_INT_SOURCE0, &intEnable, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Reads the interrupt status registers of the ICM40627 chip
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_read_interrupt_status(sl_ssi_handle_t ssi_driver_handle, uint32_t *intStatus)
+{
+  sl_status_t status;
+  uint8_t reg_status;
+  uint8_t reg_status2;
+  uint8_t reg_status3;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  reg_status = ssi_data[ssi_data_length - 1];
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS2, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  reg_status2 = ssi_data[ssi_data_length - 1];
+
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS3, ssi_data, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  reg_status3 = ssi_data[ssi_data_length - 1];
+
+  *intStatus = 0;                              // Clear all bits
+  *intStatus |= (uint32_t)reg_status;          // Bits 0-7 from reg_status
+  *intStatus |= ((uint32_t)reg_status2 << 8);  // Bits 8-15 from reg_status2
+  *intStatus |= ((uint32_t)reg_status3 << 16); // Bits 16-23 from reg_status3
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************/ /**
+ *    Checks if new data is available for read
+ ******************************************************************************/
+bool sl_si91x_icm40627_is_data_ready(sl_ssi_handle_t ssi_driver_handle)
+{
+  bool ret;
+  uint8_t status;
+  uint32_t ssi_data_length = 2;
+  uint8_t ssi_data[ssi_data_length];
+
+  ret = false;
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_INT_STATUS, ssi_data, ssi_data_length);
+
+  status = ssi_data[ssi_data_length - 1];
+  if (status & SL_ICM40627_MASK_DATA_RDY_INT) {
+    ret = true;
+  }
+
+  return ret;
 }
 
 /***************************************************************************/ /**
@@ -569,7 +948,9 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
                                                        float *accel_bias_scaled,
                                                        float *gyro_bias_scaled)
 {
-  uint8_t data[13];
+  sl_status_t status;
+  uint8_t data_length = 13;
+  uint8_t data[data_length];
   uint16_t i, packet_count, fifo_count;
   int32_t gyro_bias[3]  = { 0, 0, 0 };
   int32_t accel_bias[3] = { 0, 0, 0 };
@@ -584,27 +965,32 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   uint8_t countl[ssi_data_length], counth[ssi_data_length];
   uint8_t sensor_write_fifo         = 0x0F;
   fifo_count                        = 0;
-  uint8_t sensor_disable_write_fifo = 0x08;
-  /* Number of data sets (3 axis of accel an gyro, two bytes each = 12 bytes) */
-  packet_count = fifo_count / 12;
+  uint8_t sensor_disable_write_fifo = 0x00;
 
   /* Disable all sensors */
   sl_si91x_icm40627_enable_sensor(ssi_driver_handle, false, false, false);
 
   /* 246Hz BW for the accelerometer and 200Hz for the gyroscope */
-  sl_si91x_icm40627_set_accel_bandwidth(ssi_driver_handle, SL_ICM40627_ACCEL_BW_8000HZ);
-  sl_si91x_icm40627_set_gyro_bandwidth(ssi_driver_handle, SL_ICM40627_GYRO_BW_12_5HZ);
+  sl_si91x_icm40627_set_accel_bandwidth(ssi_driver_handle, 0xF0);
+  sl_si91x_icm40627_set_gyro_bandwidth(ssi_driver_handle, 0x0F);
 
   /* Set the most sensitive range: 2G full scale and 250dps full scale */
   sl_si91x_icm40627_set_accel_full_scale(ssi_driver_handle, SL_ICM40627_ACCEL_FULLSCALE_2G);
   sl_si91x_icm40627_set_gyro_full_scale(ssi_driver_handle, SL_ICM40627_GYRO_FULLSCALE_250DPS);
+
+  /*Set the output data rate as 1kHz*/
+  sl_si91x_icm40627_accel_set_sample_rate(ssi_driver_handle, SL_ICM40627_ACCEL_ODR_VALUE_1000);
+  sl_si91x_icm40627_gyro_set_sample_rate(ssi_driver_handle, SL_ICM40627_GYRO_ODR_VALUE_1000);
 
   /* Retrieve the resolution per bit */
   sl_si91x_icm40627_get_accel_resolution(ssi_driver_handle, &accel_res);
   sl_si91x_icm40627_get_gyro_resolution(ssi_driver_handle, &gyro_res);
 
   /* Disable the FIFO */
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG, &disable_fifo, ssi_data_length - 1);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG, &disable_fifo, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* Enable the accelerometer and the gyro */
   sl_si91x_icm40627_enable_sensor(ssi_driver_handle, true, true, false);
@@ -614,10 +1000,17 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   sl_sleeptimer_delay_millisecond(50);
 
   /* Reset the FIFO */
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG, &reset_fifo, ssi_data_length - 1);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG, &reset_fifo, ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   // Enable the different sensors to write to the FIFO
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG1, &sensor_write_fifo, ssi_data_length);
+  status =
+    icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG1, &sensor_write_fifo, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* The max FIFO size is 4096 bytes, but is limited to 512. */
   while (fifo_count < FIFO_SAMPLE_COUNT) {
@@ -630,21 +1023,33 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   }
 
   /* Disable accelerometer and gyro to store the data in FIFO */
-  icm40627_write_register(ssi_driver_handle,
-                          SL_ICM40627_REG_FIFO_CONFIG1,
-                          &sensor_disable_write_fifo,
-                          ssi_data_length - 1);
+  status = icm40627_write_register(ssi_driver_handle,
+                                   SL_ICM40627_REG_FIFO_CONFIG1,
+                                   &sensor_disable_write_fifo,
+                                   ssi_data_length - 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* Read FIFO sample count */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_COUNTH, counth, ssi_data_length);
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_COUNTL, countl, ssi_data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_COUNTH, counth, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_COUNTL, countl, ssi_data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* Convert to a 16 bit value */
   fifo_count = ((uint16_t)(counth[ssi_data_length - 1] << 8) | countl[ssi_data_length - 1]);
 
+  /* Number of data sets (3 axis of accel an gyro, two bytes each = 12 bytes) */
+  packet_count = fifo_count / 12;
+
   /* Retrieve the data from the FIFO */
   for (i = 0; i < packet_count; i++) {
-    icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_DATA, data, sizeof(data));
+    icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_DATA, data, data_length);
     /* Convert to 16 bit signed accel and gyro x,y and z values */
     accel_temp[0] = ((int16_t)(data[1] << 8) | data[2]);
     accel_temp[1] = ((int16_t)(data[3] << 8) | data[4]);
@@ -685,21 +1090,33 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   gyro_bias_scaled[2] = (float)gyro_bias[2] * gyro_res;
 
   /* Read stored gyro trim values. After reset these values are all 0 */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, data, sizeof(data));
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, data, data_length);
   gyro_bias_stored[0] = (int16_t)data[1];
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   uint8_t temp = data[1];
   gyro_bias_stored[0] |= (int16_t)((temp & 0x0F) << 8);
   gyro_bias_stored[1] = (int16_t)((temp & 0xF0) << 4);
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   gyro_bias_stored[1] |= (int16_t)data[1];
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER3, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER3, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   gyro_bias_stored[2] = (int16_t)data[1];
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER4, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER4, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   temp = data[1];
   gyro_bias_stored[2] |= (int16_t)((temp & 0x0F) << 8);
 
@@ -722,18 +1139,30 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
 
   /* Read factory accelerometer trim values */
   accel_bias_factory[0] = (int16_t)((temp & 0xF0) << 4);
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, data, sizeof(data));
+  status                = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   accel_bias_factory[0] |= (int16_t)data[1];
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER6, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER6, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   accel_bias_factory[1] |= (int16_t)data[1];
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   temp = data[1];
   accel_bias_factory[1] |= (int16_t)((temp & 0x0F) << 8);
   accel_bias_factory[2] = (int16_t)((temp & 0xF0) << 4);
 
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, data, sizeof(data));
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, data, data_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   accel_bias_factory[2] |= (int16_t)data[1];
 
   accel_bias_factory[0] -= ((accel_bias[0] / 8) & ~1);
@@ -752,15 +1181,42 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   data[8] = accel_bias_factory[2] & 0xFF;
 
   /* Write the  gyro and accel bias values to the chip */
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, &data[0], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, &data[1], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, &data[2], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER3, &data[3], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER4, &data[4], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, &data[5], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER6, &data[6], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, &data[7], 1);
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, &data[8], 1);
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, &data[0], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, &data[1], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, &data[2], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER3, &data[3], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER4, &data[4], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, &data[5], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER6, &data[6], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, &data[7], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, &data[8], 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* Convert the values to G for displaying */
   accel_bias_scaled[0] = (float)accel_bias[0] * accel_res;
@@ -769,7 +1225,10 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
 
   /* Disable the FIFO */
   disable_fifo = 0x00;
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG, &disable_fifo, 1);
+  status       = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_FIFO_CONFIG, &disable_fifo, 1);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
   /* Disable all sensors */
   sl_si91x_icm40627_enable_sensor(ssi_driver_handle, false, false, false);

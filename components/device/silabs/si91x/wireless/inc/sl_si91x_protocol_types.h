@@ -76,7 +76,7 @@
 // Websocket max host length
 #define RSI_WEBS_MAX_HOST_LENGTH 51
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
 #else
 #define SI91X_MAX_SIZE_OF_EXTENSION_DATA 64
@@ -124,13 +124,11 @@
 /****************************** POWER RELATED DEFINES END ***********************************/
 
 // **************************** Macros for BG scan **************************************/
-#define SI91X_BG_SCAN_DISABLE      0
-#define SI91X_BG_SCAN_ENABLE       1
-#define SI91X_INSTANT_SCAN_DISABLE 0
-#define SI91X_INSTANT_SCAN_ENABLE  1
+#define SI91X_BG_SCAN_DISABLE 0
+#define SI91X_BG_SCAN_ENABLE  1
 
 //**************************** Macros for BG end *********************************/
-#define NUMBER_OF_BSD_SOCKETS 10
+#define NUMBER_OF_SOCKETS 20
 
 //**************************** Macros for WPS Method request START *********************************/
 
@@ -434,7 +432,28 @@ typedef struct {
 
   /// vap id, 0 - station and 1 - AP
   uint8_t vap_id;
-} sl_si91x_req_ipv4_params_t;
+
+  /// FQDN flag
+  uint8_t fqdn_flag[4];
+
+  /// minimum interval for DHCP discover retries
+  uint16_t dhcp_discover_rtr_interval_min;
+
+  /// minimum interval for DHCP request retries
+  uint16_t dhcp_request_rtr_interval_min;
+
+  /// maximum interval for DHCP discover retries
+  uint16_t dhcp_discover_rtr_interval_max;
+
+  /// maximum interval for DHCP request retries
+  uint16_t dhcp_request_rtr_interval_max;
+
+  /// maximum number of DHCP discover retries
+  uint8_t dhcp_discover_max_retries;
+
+  /// maximum number of DHCP request retries
+  uint8_t dhcp_request_max_retries;
+} SL_ATTRIBUTE_PACKED sl_si91x_req_ipv4_params_t;
 
 /// IPV4 ipconfig command response  structure
 typedef struct {
@@ -489,7 +508,7 @@ typedef struct {
   /// Mac address
   uint8_t mac_address[6];
 
-} sl_si91x_rsp_ipv6_params_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_rsp_ipv6_params_t;
 
 /// Structure for firmware upgradation
 typedef struct {
@@ -527,7 +546,7 @@ typedef struct {
 
   uint8_t ssid[RSI_SSID_LEN]; ///< SSID of connected access point
 
-  uint8_t mac_address[6]; ///< Mac address
+  uint8_t mac_address[6]; ///< MAC address
 
   uint8_t sec_type; ///< Security type
 
@@ -556,7 +575,7 @@ typedef struct {
     uint8_t ipv6_address[16]; ///<  remote IPv6 Address
   } dest_ip_addr;             ///< Destination IP address
   uint16_t max_count;         ///< maximum no of LTCP sockets on same port
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   uint16_t tos; ///< type of service
 
 #else
@@ -564,7 +583,7 @@ typedef struct {
 
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   uint32_t ssl_bitmap; ///< ssl version select bit map
 
 #else
@@ -580,7 +599,7 @@ typedef struct {
   uint8_t vap_id;                                      ///< VAPID
   uint8_t socket_cert_inx;                             ///< socket cert inx
   uint32_t ssl_ciphers_bitmap;                         ///< ssl ciphers bitmap
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   uint32_t ssl_ext_ciphers_bitmap;          ///< ssl extended ciphers bitmap
   uint8_t max_retransmission_timeout_value; ///< max retransmission timeout value
 #endif
@@ -589,7 +608,7 @@ typedef struct {
   uint16_t no_of_tls_extensions;                                ///< number of TLS extensions
   uint16_t total_extension_length;                              ///< total extension length
   uint8_t tls_extension_data[SI91X_MAX_SIZE_OF_EXTENSION_DATA]; ///< TLS extension data
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   uint16_t recv_buff_len; ///< receive buffer length
 #endif
 
@@ -614,6 +633,7 @@ typedef struct {
   uint8_t mss[2];          ///< 2 bytes, Remote peer MSS size
   uint8_t window_size[4];  ///< 4 bytes, Remote peer Window size
 } sl_si91x_socket_create_response_t;
+#pragma pack()
 
 #pragma pack(1)
 /// Socket close command request structure
@@ -643,10 +663,10 @@ typedef struct {
   uint16_t dest_port;   ///< destination port
   union {
     uint8_t ipv4_address[RSI_IP_ADDRESS_LEN];     ///< 4 bytes, IPv4 Address of the remote device
-    uint8_t ipv6_address[RSI_IP_ADDRESS_LEN * 4]; ///< 4 bytes, IPv6 Address of the remote device
+    uint8_t ipv6_address[RSI_IP_ADDRESS_LEN * 4]; ///< 16 bytes, IPv6 Address of the remote device
   } dest_ip_addr;                                 ///< IP address of the remote device
   uint8_t send_buffer[];                          ///< data buffer to send
-} sl_si91x_socket_send_request_t;
+} sli_si91x_socket_send_request_t;
 #pragma pack()
 
 /// socket accept request structure
@@ -1035,32 +1055,6 @@ typedef struct {
   uint8_t read_timeout[2];
 } sl_si91x_req_socket_read_t;
 
-/// Socket recieve response
-typedef struct {
-  /// 2 bytes, the ip version of the ip address , 4 or 6
-  uint16_t ip_version;
-
-  /// 2 bytes, the socket number associated with this read event
-  uint16_t socket_id;
-
-  /// 4 bytes, length of data received
-  uint32_t length;
-
-  /// 2 bytes, offset of data from start of buffer
-  uint16_t offset;
-
-  /// 2 bytes, port number of the device sending the data to us
-  uint16_t dest_port;
-
-  union {
-    /// 4 bytes, IPv4 Address of the device sending the data to us
-    uint8_t ipv4_address[4];
-
-    /// 4 bytes, IPv6 Address of the device sending the data to us
-    uint8_t ipv6_address[16];
-  } dest_ip_addr; ///< Destination IP address
-} si91x_rsp_socket_recv_t;
-
 /// Si91x specific time value
 typedef struct {
   uint32_t tv_sec;  ///< Time in Seconds
@@ -1069,8 +1063,8 @@ typedef struct {
 
 /// The select socket array manager.  */
 typedef struct {
-  uint32_t fd_array[(NUMBER_OF_BSD_SOCKETS + 31) / 32]; ///< Bit map of SOCKET Descriptors.
-  int32_t fd_count;                                     ///< How many are SET
+  uint32_t fd_array[(NUMBER_OF_SOCKETS + 31) / 32]; ///< Bit map of SOCKET Descriptors.
+  int32_t fd_count;                                 ///< How many are SET
 } sl_si91x_fd_set_t;
 
 /// Si91x specifc socket select request structure
@@ -1489,7 +1483,7 @@ typedef struct {
   uint16_t reserved;    ///< Reserved
   uint16_t no_of_pkts;  ///< Number of packets
   uint32_t delay;       ///< Delay
-#if defined(SLI_SI917) || defined(DOXYGEN)
+#if defined(SLI_SI917) || defined(DOXYGEN) || defined(SLI_SI915)
   uint8_t enable_11ax; ///< 11AX_ENABLE 0-disable, 1-enable
   uint8_t coding_type; ///< Coding_type 0-BCC 1-LDPC
   uint8_t nominal_pe;  ///< Indicates Nominal T-PE value. 0-0Us 1-8Us 2-16Us
@@ -1590,7 +1584,7 @@ typedef struct {
   int8_t
     gain_offset_ch14; ///< gain_offset_channel-14 - gain_offset in dBm that is applied for transmissions in channel-14.
 
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
   /// RSI EVM Data
   struct rsi_evm_data_t {
     int8_t evm_offset[5]; ///< Evm offset
@@ -1658,8 +1652,40 @@ typedef struct {
 
 /// Si91x specific efuse read
 typedef struct {
-  uint32_t efuse_read_addr_offset; ///< Efuse read addr offset
-  uint16_t efuse_read_data_len;    ///< Efuse read data length
+  ///  Efuse read addr offset
+  /**
+ *
+ *  |efuse_read_addr_offset | Component           | Parameter                             | Size in bytes| Description                                                                                                                                    |
+ *  |-----------------------|---------------------|---------------------------------------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+ *  |       144             | WLAN info-Cust      | Magic byte                            |1             |Magic byte for WLAN Customer info                                                                                                               |
+ *  |       145             |                     | Reserved                              |1             |Reserved                                                                                                                                        |
+ *  |       146             |                     | Mac address                           |6             |If this MAC address is set, it overrides the WLAN MAC address set by Silabs.                                                                    |
+ *  |       152             | BT/BLE info-Cust    | Magic byte                            |1             |Magic byte for BLE Customer info                                                                                                                |
+ *  |       153             |                     | Reserved                              |1             |Reserved                                                                                                                                        |
+ *  |       154             |                     | Mac address                           |6             |If this MAC address is set, it overrides the BLE MAC address set by Silabs.                                                                     |
+ *  |       160             | XO_offset_cust      | Magic byte                            |1             |0x000B => XO_offset is set by customer.                                                                                                         |
+ *  |       161             |                     | XO_offset                             |1             |If a valid XO_OFFSET is programmed here, the one in location 259 is ignored, and this one is taken; otherwise, the one in location 259 is taken.|
+ *  |       162             | Gain_offset_cust    | customer_gain_offset_1_3p3            |1             |Gain offset for channel 1,2,3                                                                                                                                   |
+ *  |       163             |                     | customer_gain_offset_6_3p3            |1             |Gain offset for channel 4,5,6,7,8                                                                                                                               |
+ *  |       164             |                     | customer_gain_offset_11_3p3           |1             |Gain offset for channel 9,10,11,12,13, optional 14 (this is used if 168 magic byte is not set)                                                                  |
+ *  |       165             |                     | customer_gain_offset_1_1p8            |1             |(For future use)                                                                                                                                       |
+ *  |       166             |                     | customer_gain_offset_6_1p8            |1             |(For future use)                                                                                                                                                |
+ *  |       167             |                     | customer_gain_offset_11_1p8           |1             |(For future use)                                                                                                                                                |
+ *  |       168             |                     | customer_gain_offset_14_3p3_magic_byte|1             |Magic byte for customer gain offset CH14 0xAB                                                                                                   |
+ *  |       169             |                     | customer_gain_offset_14_3p3           |1             |Customer gain offset for CH14, this is valid only when the Magic byte is valid when 168 Location.                                               |
+ *  |       170             |                     | Anti-Rollback space for M4 image      |8             |Anti-Rollback bit map. 64 bits represent the version numbers for Anti-Rollback base.                                                             |
+ *  |       178             | Customer EVM Offset | Magic byte                            |1             |0xAB => Magic byte set by customer while loading the offset                                                                                     |
+ *  |       179             |                     | evm_offset_11B                        |1             |EVM offset of 11B rates                                                                                                                                                |
+ *  |       180             |                     | evm_offset_11G_6M_24M_11N_MCS0_MSC2   |1             |EVM offset of 11G 6, 9, 12, 18, 24M and 11N MCS0, MCS1, MCS2                                                                                                                                            |
+ *  |       181             |                     | evm_offset_11G_36M_54M_11N_MCS3_MSC7  |1             |EVM offset of 11G 36,48,54M and 11N MCS4, MCS5, MCS6                                                                                                                                               |
+ *  |       182             |                     | evm_offset_11N_MCS0                   |1             |EVM offset of 11N MCS0                                                                                                                                           |
+ *  |       183             |                     | evm_offset_11N_MCS7                   |1             |EVM offset of 11N MCS7                                                                                                                          |
+ *  |       184             |                     | Reserved for Customer                 |71            |Reserved for future use                                                                                                                         |
+ *  |       255             |                     | OTP_Lock_1                            |1             |Bit 0 : 1 -> Lock, 0 -> Unlocked (if Bit 0 in OTP_Lock_1 is set, it means locations (128-255) in efuse would not be writable.) Bit 1 : Debug port was opened. If Bit 1 is set, it implies that the debug port was opened using token exchange at least once in the lifetime of the device. Bit 2-7 : Reserved.                                                 |
+ * */
+  uint32_t efuse_read_addr_offset;
+  ///  Efuse read data length
+  uint16_t efuse_read_data_len;
 } sl_si91x_efuse_read_t;
 
 /// Si91x specific rejoin parameters
@@ -1712,6 +1738,12 @@ typedef struct {
 } sl_si91x_advance_stats_response_t;
 /** @} */
 
+/// Debug log structure
+typedef struct {
+  uint32_t assertion_type;  ///< Assertion type. It must be in the range of 0 to 15 (both included).
+  uint32_t assertion_level; ///< Assertion level. It must be in the range of 0 to 15 (both included).
+} sl_si91x_debug_log_t;
+
 //! @cond Doxygen_Suppress
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
 typedef struct crypto_key_s {
@@ -1746,7 +1778,8 @@ typedef struct {
 
 typedef struct {
   uint32_t key_type;
-  uint32_t reserved;
+  uint16_t padding;
+  uint16_t hmac_sha_mode;
   uint32_t key_size;
   uint32_t wrap_iv_mode;
   uint8_t *wrap_iv;
@@ -1923,7 +1956,7 @@ typedef struct {
   uint16_t total_msg_length;
   uint16_t current_chunk_length;
   uint32_t encrypt_decryption;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_key_descriptor_t key_info;
 #else
   uint32_t key_length;
@@ -1935,7 +1968,8 @@ typedef struct {
 
 typedef struct {
   uint32_t key_type;
-  uint32_t reserved;
+  uint16_t padding;
+  uint16_t hmac_sha_mode;
   uint32_t key_size;
   uint32_t wrap_iv_mode;
   uint8_t wrap_iv[16];
@@ -1955,7 +1989,7 @@ typedef struct {
   uint8_t hmac_sha_flags;
   uint16_t total_length;
   uint16_t current_chunk_length;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_key_descriptor_t key_info;
 #else
   uint32_t key_length;
@@ -1983,7 +2017,7 @@ typedef struct {
   uint16_t current_chunk_length;           ///< Current chunk length
   uint16_t ad_length;                      ///< AD length
   uint32_t tag_length;                     ///< Tag length
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_key_descriptor_t key_info;      ///< Key info
 #else
   uint32_t key_length;                   ///< Key length
@@ -2003,7 +2037,7 @@ typedef struct {
   uint16_t current_chunk_length;
   uint16_t ad_length;
   uint16_t dma_use;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   uint32_t gcm_mode;
   sl_si91x_key_descriptor_t key_info;
 #else
@@ -2025,7 +2059,7 @@ typedef struct {
   uint16_t encrypt_decryption;
   uint32_t dma_use;
   uint8_t nonce[SL_SI91X_IV_SIZE];
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_key_descriptor_t key_info;
 #else
   uint8_t key_chacha[SL_SI91X_KEY_BUFFER_SIZE];
@@ -2047,7 +2081,7 @@ typedef struct {
   uint8_t signature_length;
   uint16_t current_chunk_length;
   uint16_t msg_len;
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   sl_si91x_key_descriptor_t key_info;
 #else
   uint32_t key_length;

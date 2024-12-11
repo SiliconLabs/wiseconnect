@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_gspi.h
- * @brief GSPI API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_gspi.h
+* @brief GSPI API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_GSPI_H
 #define SL_SI91X_GSPI_H
@@ -196,6 +196,7 @@ typedef struct {
 
 /***************************************************************************/
 /**
+ * @brief This API is no longer supported due to the restriction on peripheral drivers to configuring clocks.
  * @brief To configure the clock for the GSPI module.
  * 
  * @details This API sets the clock for the GSPI peripheral. It configures the PLL clock and 
@@ -204,11 +205,7 @@ typedef struct {
  * @param[in] clock_configuration Pointer to the clock configuration structure \ref sl_gspi_clock_config_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -221,16 +218,13 @@ sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configur
  * @details This API initializes the GSPI module. If DMA is enabled, it also initializes the DMA module. 
  * The API takes the address of a pointer to store the GSPI primary handle, which can be used for subsequent function calls.
  * 
- * @pre Pre-condition:
- *      - \ref sl_si91x_gspi_configure_clock must be called before this function.
- * 
  * @param[in] instance GSPI instance \ref sl_gspi_instance_t.
  * @param[in] gspi_handle Double pointer to the GSPI driver handle \ref sl_gspi_handle_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -248,8 +242,8 @@ sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gs
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * 
@@ -283,22 +277,21 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
  *   Swap Read and Swap Write can be used only if the bit_width is configured as 16.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
  * @param[in] control_configuration Pointer to the configuration structure \ref sl_gspi_control_config_t.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_NOT_SUPPORTED (0x000F) - Parameter is not supported.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_MODE (0x0024) - Secondary select mode is invalid.
- *         - SL_STATUS_INVALID_TYPE (0x0026) - SPI frame format is not valid.
- *         - SL_STATUS_INVALID_RANGE (0x0028) - Data bits (frame length) are not in range.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_NOT_SUPPORTED  - Parameter is not supported.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_MODE  - Secondary select mode is invalid.
+ *         - SL_STATUS_INVALID_TYPE  - SPI frame format is not valid.
+ *         - SL_STATUS_INVALID_RANGE  - Data bits (frame length) are not in range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -314,7 +307,6 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number
@@ -324,11 +316,11 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
  * @param[in] data_length (uint32_t) Number of data items to receive.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -343,7 +335,6 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number 
@@ -353,11 +344,11 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
  * @param[in] data_length (uint32_t) Number of data items to send.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -372,7 +363,6 @@ sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *da
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number 
@@ -383,11 +373,11 @@ sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *da
  * @param[in] data_length (uint32_t) Number of data items to receive.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_FAIL (0x0001) - Function failed.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -405,17 +395,16 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
  * it can be turned on/off at runtime by using this API.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
  * @param[in] value (boolean_t) Enable or Disable.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_MODE (0x0024) - Mode is invalid (fails to activate primary).
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_MODE  - Mode is invalid (fails to activate primary).
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -435,9 +424,9 @@ sl_status_t sl_si91x_gspi_set_master_state(sl_gspi_handle_t gspi_handle, boolean
  *            ( \ref sl_gspi_signal_event_t).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_BUSY (0x0004) - Driver is busy.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -477,7 +466,6 @@ sl_gspi_version_t sl_si91x_gspi_get_version(void);
  * It is used to poll the busy status of the GSPI Primary.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  * 
@@ -495,7 +483,6 @@ sl_gspi_status_t sl_si91x_gspi_get_status(sl_gspi_handle_t gspi_handle);
  * of data bytes received.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  * 
@@ -513,7 +500,6 @@ uint32_t sl_si91x_gspi_get_rx_data_count(sl_gspi_handle_t gspi_handle);
  * of data bytes sent.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_gspi_configure_clock 
  *  - \ref sl_si91x_gspi_init 
  *  - \ref sl_si91x_gspi_set_configuration
  * 
@@ -553,8 +539,8 @@ uint32_t sl_si91x_gspi_get_frame_length(void);
  * @param[in] number Secondary number ( \ref sl_gspi_slave_number_t).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter
+ *         - SL_STATUS_OK  - Success
+ *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -621,14 +607,13 @@ __STATIC_INLINE sl_status_t sl_si91x_gspi_set_slave_number(uint8_t number)
  * 
  * @n @section GSPI_Usage Usage
  * After specifying the GSPI configuration through the @ref sl_gspi_control_config_t structure, you can use the following common GSPI functions to initiate and configure GSPI:
- * 1. @ref sl_si91x_gspi_configure_clock - Configures the GSPI clock.
- * 2. @ref sl_si91x_gspi_init - Initializes the GSPI module.
- * 3. @ref sl_si91x_gspi_set_configuration - Sets the GSPI configuration.
- * 4. @ref sl_si91x_gspi_register_event_callback - Registers a callback for GSPI events.
- * 5. @ref sl_si91x_gspi_send_data - Sends data using the GSPI.
- * 6. @ref sl_si91x_gspi_receive_data - Receives data using the GSPI.
- * 7. @ref sl_si91x_gspi_transfer_data - Transfers data using the GSPI.
- * 8. @ref sl_si91x_gspi_deinit - De-initializes the GSPI module.
+ * 1. @ref sl_si91x_gspi_init - Initializes the GSPI module.
+ * 2. @ref sl_si91x_gspi_set_configuration - Sets the GSPI configuration.
+ * 3. @ref sl_si91x_gspi_register_event_callback - Registers a callback for GSPI events.
+ * 4. @ref sl_si91x_gspi_send_data - Sends data using the GSPI.
+ * 5. @ref sl_si91x_gspi_receive_data - Receives data using the GSPI.
+ * 6. @ref sl_si91x_gspi_transfer_data - Transfers data using the GSPI.
+ * 7. @ref sl_si91x_gspi_deinit - De-initializes the GSPI module.
  */
 /** @} (end addtogroup GSPI) */
 

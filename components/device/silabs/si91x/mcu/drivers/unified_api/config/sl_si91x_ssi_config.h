@@ -56,18 +56,18 @@ extern "C" {
 
 // <o SL_SPI_BAUD> Bit Rate (Bits/Second) <500000-40000000>
 // <i> Default: 10000000
-#define SL_SPI_BAUD 10000000 // speed at which data transmitted through SPI ; Max is 40000000
+#define SL_SPI_BAUD 10000000 // speed at which data transmitted through SPI ; Max is 10000000
 
 // <o SL_SSI_BIT_WIDTH> Data Width <4-16>
 // <i> Default: 8
 #define SL_SSI_BIT_WIDTH 8
 
 // <o SL_SSI_DEVICE_MODE> Mode
-//   <SL_SSI_MASTER_ACTIVE=> Master
-//   <SL_SSI_SLAVE_ACTIVE=> Slave
-//   <SL_SSI_ULP_MASTER_ACTIVE=> ULP Master
+//   <SL_SSI_PRIMARY_ACTIVE=> Master
+//   <SL_SSI_SECONDARY_ACTIVE=> Slave
+//   <SL_SSI_ULP_PRIMARY_ACTIVE=> ULP Master
 // <i> Selection of SSI Device Mode.
-#define SL_SSI_DEVICE_MODE SL_SSI_MASTER_ACTIVE
+#define SL_SSI_DEVICE_MODE SL_SSI_PRIMARY_ACTIVE
 
 // <o SL_SSI_RECEIVE_SAMPLE_DELAY> Rx Sample Delay <0-63>
 // <i> Default: 0

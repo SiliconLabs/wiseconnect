@@ -1,19 +1,31 @@
 /*******************************************************************************
 * @file  rsi_ipmu.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 /**
  * Includes
@@ -134,8 +146,9 @@ extern "C" {
 #define DUAL_FLASH_IPMU_VALUES_OFFSET MCU_MANF_DATA_BASE_ADDR
 #endif
 
-#ifdef SLI_SI917
-#if (((defined SLI_SI917) || (defined CHIP_917_6x6)) && (defined SLI_SI917B0))
+#if defined(SLI_SI917) || defined(SLI_SI915)
+#if (((defined SLI_SI917 || defined SLI_SI915) && (defined SLI_SI917B0 || defined SLI_SI915)) \
+     || (defined CHIP_917_6x6 && (defined SLI_SI917B0 || defined SLI_SI915)))
 #ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
 #define PACKAGE_TYPE_VALUES_OFFSET_COMMON_FLASH 0x8160292
 #define SILICON_REV_VALUES_OFFSET_COMMON_FLASH  0x8160293
@@ -191,7 +204,7 @@ extern "C" {
 #define ULPCLKS_DOUBLER_XTAL_REG_OFFSET 0x101
 #define ULPCLKS_32KRO_CLK_REG_OFFSET    0x102
 #define ULPCLKS_32KRC_CLK_REG_OFFSET    0x103
-#define ULPCLKS_32MRC_CLK_REG_OFFSET    0x104
+#define ULPCLKS_MRC_CLK_REG_OFFSET      0x104
 #define ULPCLKS_HF_RO_CLK_REG_OFFSET    0x105
 #define ULPCLKS_REFCLK_REG_ADDR         0x106
 #define ULPCLKS_TRIM_SEL_REG_ADDR       0x107
@@ -201,7 +214,7 @@ extern "C" {
 #define ULPCLKS_32KXTAL_CLK_REG_OFFSET  0x10E
 #define BG_SCDC_PROG_REG_1_OFFSET       0x127
 #define iPMU_SPARE_REG1_OFFSET          0x140
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define BG_SCDC_PROG_REG_3_ADDR 0x12B
 #endif
 
@@ -216,7 +229,7 @@ extern "C" {
 #define ULPCLKS_DOUBLER_XTAL_REG_OFFSET     0x101
 #define ULPCLKS_32KRO_CLK_REG_OFFSET        0x102
 #define ULPCLKS_32KRC_CLK_REG_OFFSET        0x103
-#define ULPCLKS_32MRC_CLK_REG_OFFSET        0x104
+#define ULPCLKS_MRC_CLK_REG_OFFSET          0x104
 #define ULPCLKS_HF_RO_CLK_REG_OFFSET        0x105
 #define ULPCLKS_REF_CLK_REG_OFFSET          0x106
 #define ULPCLKS_TRIM_SEL_REG_OFFSET         0x107
@@ -275,7 +288,7 @@ extern "C" {
 
 //! NWP_FSM_FIRST_BOOTUP  defines
 #define nwp_ulp_32khz_xtal_clk_en     BIT(18)
-#define nwp_ulp_32mhz_rc_clk_en       BIT(19)
+#define nwp_ulp_mhz_rc_clk_en         BIT(19)
 #define nwp_ulp_20mhz_ring_osc_clk_en BIT(20)
 #define nwp_ulp_doubler_clk_en        BIT(21)
 
@@ -296,7 +309,7 @@ extern "C" {
 #define doubler_en BIT(21)
 
 //! ULPCLKS_32MRC_CLK_REG defines
-#define rc_32mhz_en BIT(21)
+#define rc_mhz_en BIT(21)
 
 //! ULPCLKS_HF_RO_CLK_REG defines
 #define ro_hf_en BIT(21)
@@ -347,7 +360,7 @@ extern "C" {
 
 //! MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP defines
 #define mcu_ulp_32khz_xtal_clk_en     BIT(18)
-#define mcu_ulp_32mhz_rc_clk_en       BIT(19)
+#define mcu_ulp_mhz_rc_clk_en         BIT(19)
 #define mcu_ulp_20mhz_ring_osc_clk_en BIT(20)
 #define mcu_ulp_doubler_clk_en        BIT(21)
 
@@ -384,8 +397,8 @@ extern "C" {
 #define RO_TRIM_VALUE_LF                0x1F0
 #define MASK32KRO_TRIM_VALUE_WRITE_BITS 0x1F0000
 #define MASK32KRC_TRIM_VALUE_WRITE_BITS 0x1FC000
-#define TRIM_MSB_32MHZ                  20
-#define TRIM_LSB_32MHZ                  14
+#define TRIM_MSB_MHZ                    20
+#define TRIM_LSB_MHZ                    14
 #define PARTICULAR_FREQ_MIN             10
 #define PARTICULAR_FREQ_MAX             100
 #define MIN_DIFF_FREQ                   3
@@ -428,7 +441,7 @@ typedef struct retention_boot_status_word_s {
 #define ACCELARATOR      6
 #define WC_SIMULATANEOUS 7
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 //! Product modes
 #define WISEMCU     0
 #define WCPLUS      3
@@ -467,7 +480,6 @@ typedef struct npss_boot_status_word_0_s {
   unsigned int ta_flash_address_width_valid : 1;
   unsigned int ta_flash_address_width : 2;
   unsigned int ta_flash_type : 4;
-  //  unsigned int ta_dual_flash : 1;
   unsigned int fips_enable : 1;
   unsigned int usb_fclk_div_factor : 2;
 #define BBFF_DATA_VALID BIT(27)
@@ -655,7 +667,7 @@ typedef struct efuse_ipmu_s {
 } __attribute__((__packed__)) efuse_ipmu_t;
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 typedef struct efuse_ipmu_s {
   unsigned int trim_0p5na1 : 1;
   unsigned int bg_r_vdd_ulp : 5;

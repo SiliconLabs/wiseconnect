@@ -11,12 +11,12 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 requires:
-  - name: wiseconnect_toolchain_psram_linker    
+  - name: wiseconnect_toolchain_psram_linker
 source:
   - path: main.c
 toolchain_settings:
@@ -29,8 +29,8 @@ component:
     from: wiseconnect3_sdk
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
-    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk   
 other_file:
   - path: ./resources/readme/setupdiagram.png
   - path: ./resources/readme/outputConsole_PSRAM_DRIVER_Example.png

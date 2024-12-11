@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_vad.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -52,7 +64,7 @@ rsi_error_t VAD_Init(VAD_SignalEvent_t Event)
 
   if (!(event.clk_config)) {
     // Configure the fast and slow clock for VAD
-    RSI_ULPSS_VadClkConfig(ULPCLK, ULP_VAD_32KHZ_RC_CLK, ULP_VAD_32MHZ_RC_CLK, 4);
+    RSI_ULPSS_VadClkConfig(ULPCLK, ULP_VAD_32KHZ_RC_CLK, ULP_VAD_MHZ_RC_CLK, 4);
     event.clk_config = 1U;
   }
 
@@ -130,7 +142,7 @@ int32_t VAD_Process(int16_t *wr_buf, int32_t dc_est)
 
   if (energy_status) {
     // Enable Fast clock for VAD for fast post processing
-    RSI_VAD_FastClkEnable(ULP_VAD_32MHZ_RC_CLK, 0);
+    RSI_VAD_FastClkEnable(ULP_VAD_MHZ_RC_CLK, 0);
     event.callb_event(VAD_ENERGY_DETECT);
   }
   return dc_est1;

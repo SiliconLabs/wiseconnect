@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_adc.h
- * @brief ADC API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_adc.h
+* @brief ADC API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_ADC_H_
 #define SL_SI91X_ADC_H_
@@ -141,8 +141,8 @@ typedef enum {
 typedef struct {
   uint16_t threshold1;      ///< Threshold 1 value.
   uint16_t threshold2;      ///< Threshold 2 value.
-  uint8_t *threshold1_cond; ///< Condition for Threshold 1 (e.g., Equal, Greater, Lesser).
-  uint8_t *threshold2_cond; ///< Condition for Threshold 2 (e.g., Equal, Greater, Lesser).
+  uint8_t *threshold1_cond; ///< Condition for Threshold 1 (for example, Equal, Greater, Lesser).
+  uint8_t *threshold2_cond; ///< Condition for Threshold 2 (for example, Equal, Greater, Lesser).
   uint8_t range;            ///< Range of the threshold.
 } sl_adc_threshold_config_t;
 
@@ -183,18 +183,18 @@ typedef struct {
  * values in the clock configuration structure.
  * 
  * @details This API configures the ADC clock. The ADC clock configurations include:
- *         - `soc_pll_clock` (Frequency range from 1 MHz to 180 MHz)
- *         - `soc_pll_reference_clock` (Frequency range from 15 MHz to 65 MHz)
+ *         - `soc_pll_clock` (Frequency range from 1 to 180 MHz)
+ *         - `soc_pll_reference_clock` (Frequency range from 15 to 65 MHz)
  *         - `division_factor` (0 to 1023)
  * 
  * @param[in] clock_configuration Pointer to the clock structure variables ( \ref sl_adc_clock_config_t)
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured the clock.
- *         - SL_STATUS_FAIL (0x0001)              - Function failed.
- *         - SL_STATUS_NOT_INITIALIZED (0x0011)   - Clock is not initialized.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
+ *         - SL_STATUS_OK                 - Successfully configured the clock.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_NOT_INITIALIZED    - Clock is not initialized.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -216,15 +216,15 @@ sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configurat
  * 
  * @param[in] adc_channel_config ADC channels configuration structure variable, see \ref sl_adc_channel_config_t.
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
- * @param[in] vref_value Reference voltage (range from 1.8V to 3.6V).
+ * @param[in] vref_value Reference voltage (range from 1.8 to 3.6 V).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully initialized the ADC.
- *         - SL_STATUS_BUSY (0x0004)              - The function is already active.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
- *         - SL_STATUS_INVALID_COUNT (0x002B)     - Mismatch count.
+ *         - SL_STATUS_OK                 - Successfully initialized the ADC.
+ *         - SL_STATUS_BUSY               - The function is already active.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
+ *         - SL_STATUS_INVALID_COUNT      - Mismatch count.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -250,10 +250,10 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
  * @param[in] adc_config ADC configuration structure variable, see \ref sl_adc_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured the ADC channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022)      - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully configured the ADC channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -277,9 +277,9 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
  * @param[in] callback_event Pointer to the function that should be called during an interrupt event, see \ref sl_adc_callback_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)           - Successfully registered the callback.
- *         - SL_STATUS_BUSY (0x0004)         - Driver is busy.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK            - Successfully registered the callback.
+ *         - SL_STATUS_BUSY          - Driver is busy.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -317,7 +317,7 @@ void sl_si91x_adc_unregister_event_callback(void);
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully configured the sampling rate.
+ *         - SL_STATUS_OK  - Successfully configured the sampling rate.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -345,8 +345,8 @@ sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured ping and pong memory address and length.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully configured ping and pong memory address and length.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -370,8 +370,8 @@ sl_status_t sl_si91x_adc_configure_ping_pong_memory_address(sl_adc_internal_conf
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully enabled ping-pong for the given channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully enabled ping-pong for the given channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -396,8 +396,8 @@ sl_status_t sl_si91x_adc_enable_ping_pong(uint8_t channel_num);
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully disabled the ping-pong for the given channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully disabled the ping-pong for the given channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -419,8 +419,8 @@ sl_status_t sl_si91x_adc_disable_ping_pong(uint8_t channel_num);
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully enabled DMA for the given channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully enabled DMA for the given channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -445,8 +445,8 @@ sl_status_t sl_si91x_adc_internal_per_channel_dma_enable(uint8_t channel_num);
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully disabled DMA for the given channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully disabled DMA for the given channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -470,9 +470,9 @@ sl_status_t sl_si91x_adc_internal_per_channel_dma_disable(uint8_t channel_num);
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured to static mode.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully configured to static mode.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -500,9 +500,9 @@ sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_chann
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured to FIFO mode.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully configured to FIFO mode.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -523,8 +523,8 @@ sl_status_t sl_si91x_adc_configure_fifo_mode(sl_adc_channel_config_t adc_channel
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully enabled the given channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully enabled the given channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -547,8 +547,8 @@ sl_status_t sl_si91x_adc_channel_enable(uint8_t channel_num);
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully disabled the given channel.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully disabled the given channel.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -570,7 +570,7 @@ sl_status_t sl_si91x_adc_channel_disable(uint8_t channel_num);
  *  - ADC_POWER_OFF - Power down ADC power gates.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the power mode.
+ *         - SL_STATUS_OK  - Successfully set the power mode.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -594,7 +594,7 @@ sl_status_t sl_si91x_adc_set_power_mode(POWER_STATE state);
  *                  0 - To disable bypass noise averaging mode.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_OK  - Success.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -616,7 +616,7 @@ sl_status_t sl_si91x_adc_set_noise_average_mode(boolean_t state);
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully enabled the ADC temperature sensor.
+ *         - SL_STATUS_OK  - Successfully enabled the ADC temperature sensor.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -641,9 +641,9 @@ sl_status_t sl_si91x_adc_temperature_sensor_enable(void);
  * @param[in] adc_fifo_threshold ADC FIFO structure variable like an empty FIFO, a full FIFO threshold level, see \ref sl_adc_fifo_thrld_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully configured FIFO threshold.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully configured FIFO threshold.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -666,7 +666,7 @@ sl_status_t sl_si91x_adc_fifo_threshold_configuration(sl_adc_config_t adc_config
  * @param[in] adc_threshold ADC threshold configuration structure variable, see \ref sl_adc_threshold_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully configured ADC threshold.
+ *         - SL_STATUS_OK  - Successfully configured ADC threshold.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -690,9 +690,9 @@ sl_status_t sl_si91x_adc_threshold_configuration(sl_adc_threshold_config_t adc_t
  * @param[in] channel_num Channel number.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully read the data.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully read the data.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -717,9 +717,9 @@ sl_status_t sl_si91x_adc_read_data(sl_adc_channel_config_t adcchconfig, uint8_t 
  * @param[out] adc_value Store the reading data in adc_value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully read the data.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
- *         - SL_STATUS_INVALID_RANGE (0x0028)     - Mismatch range.
+ *         - SL_STATUS_OK                 - Successfully read the data.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -761,8 +761,8 @@ uint32_t sl_si91x_adc_get_sampling_rate(uint8_t channel_num);
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully deinitialized the ADC.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully deinitialized the ADC.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -784,8 +784,8 @@ sl_status_t sl_si91x_adc_deinit(sl_adc_config_t adc_config);
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully started the ADC.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully started the ADC.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -809,8 +809,8 @@ sl_status_t sl_si91x_adc_start(sl_adc_config_t adc_config);
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000)                - Successfully stopped the ADC operation.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_OK                 - Successfully stopped the ADC operation.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).

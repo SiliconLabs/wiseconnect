@@ -1,19 +1,31 @@
 /*******************************************************************************
 * @file  rsi_power_save.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 /**
  * Includes
@@ -41,7 +53,7 @@ extern "C" {
 #define M4SS_PWRGATE_ULP_IID      BIT(14)
 #define M4SS_PWRGATE_ULP_SDIO_SPI BIT(11)
 #define M4SS_PWRGATE_ULP_RPDMA    BIT(9)
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #define M4SS_PWRGATE_ULP_EFUSE_PERI   BIT(4)
 #define M4SS_PWRGATE_ULP_QSPI_ICACHE  BIT(13)
 #define M4SS_PWRGATE_ULP_M4_DEBUG_FPU BIT(17)
@@ -112,7 +124,7 @@ extern "C" {
 #define ALARM_BASED_WAKEUP    BIT(26)
 #define SDCSS_BASED_WAKEUP    BIT(25)
 #define ULPSS_BASED_WAKEUP    BIT(24)
-#ifndef SLI_SI917B0
+#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
 #define WAKEIF_BASED_WAKEUP BIT(22)
 #else
 #define SYSRTC_BASED_WAKEUP BIT(22)
@@ -279,7 +291,7 @@ extern "C" {
 #define BGPMU_SLEEP_EN_R BIT(16)
 
 /*Retention sleep configurations*/
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 
 //!PSRAM only initialized upon wakeup and it branches to PSRAM
 #define SL_SI91X_MCU_WAKEUP_PSRAM_MODE 1
@@ -309,7 +321,7 @@ extern "C" {
 #define P2P_STATUS_REGISTER        *(volatile uint32_t *)(0x46008000 + 0x174) // P2P status register
 #define M4SS_P2P_INTR_SET_REGISTER *(volatile uint32_t *)(0x46008000 + 0x16C) // P2P interrupt set register
 
-typedef enum FSM_CLK { FSM_NO_CLOCK = 0, FSM_20MHZ_RO = 1, FSM_32MHZ_RC = 2, FSM_40MHZ_XTAL = 4 } FSM_CLK_T;
+typedef enum FSM_CLK { FSM_NO_CLOCK = 0, FSM_20MHZ_RO = 1, FSM_MHZ_RC = 2, FSM_40MHZ_XTAL = 4 } FSM_CLK_T;
 
 typedef enum AON_CLK { KHZ_RO_CLK_SEL = 1, KHZ_RC_CLK_SEL = 2, KHZ_XTAL_CLK_SEL = 4 } AON_CLK_T;
 
@@ -436,7 +448,7 @@ typedef enum NPSS_COMPARATOR {
 
 #define NWP_FSM_SLEEP_WAKEUP_MODES *(volatile uint32_t *)0x41300100
 #define COUNT_TICK_ENABLE          0x1
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 #define MCURET_BOOTSTATUS_REG *(volatile uint32_t *)(MCU_NPSS_BASE_ADDR + 0x604)
 #define KEY_SIZE_IN_DWORDS    8
 
@@ -592,7 +604,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps4tops2(ULP_MODE_T enCtxSel,
   /*PMU off delay */
   MCU_FSM->MCU_FSM_POWER_CTRL_AND_DELAY_b.PS2_PMU_LDO_OFF_DELAY = PMU_LDO_OFF_DELAY;
 
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
   /*Bridge clock disable*/
   ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP2M4_A2A_BRDG_CLK_EN_b = 0;
 #endif
@@ -662,13 +674,13 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
     __ASM("NOP");
   }
 
-  while ((M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS))
+  while (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)
     ;
 
   /*Disable ulp mode isolation */
-  BATT_FF->M4_ULP_MODE_CONFIG = (uint32_t)((BATT_FF->M4_ULP_MODE_CONFIG) & (uint32_t)(~(0x3F)));
+  BATT_FF->M4_ULP_MODE_CONFIG &= ~(0x3F);
 
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
   /*Disables clock to ULP-M4SS AHB-AHB Bridge since the MCU is in PS2 state logically*/
   ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP2M4_A2A_BRDG_CLK_EN_b = 1;
 #endif
@@ -677,7 +689,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
   MCU_FSM->MCU_FSM_PERI_CONFIG_REG_b.M4SS_CONTEXT_SWITCH_TOP_ULP_MODE = 0;
   // NOTE :  nopes issue issue is fixed by adding this bit
   /*  Wait for Status bit indicating Functional transition from PS4 to PS2*/
-  while ((M4_ULP_SLP_STATUS_REG & ULP_MODE_AFTR_CLK_SW))
+  while (M4_ULP_SLP_STATUS_REG & ULP_MODE_AFTR_CLK_SW)
     ;
 
   /* Setting RETN_LDO voltage to 0.7V */
@@ -685,13 +697,13 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
 
   /* enabling the RETN_LDO LP MODE  */
   RSI_IPMU_RetnLdoLpmode();
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
   M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
   for (x = 0; x < 200; x++) {
     __ASM("NOP");
   }
-#ifndef SLI_SI917
+#if !defined(SLI_SI917) && !defined(SLI_SI915)
   M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
   return RSI_OK;
@@ -710,7 +722,6 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
  */
 STATIC INLINE void RSI_PS_PowerStateChangePs4toPs3(void)
 {
-  //FIXME: programming SOC LDO voltage high/low values who needs to program?
   /*Clear the MCU_SOC_LDO_LVL */
   BATT_FF->MCU_PMU_LDO_CTRL_CLEAR = MCU_SOC_LDO_LVL;
 }
@@ -1090,7 +1101,6 @@ STATIC INLINE void RSI_PS_PowerSupplyDisable(uint32_t mask)
 STATIC INLINE void RSI_PS_FsmHfClkSel(FSM_CLK_T fsmHfClk)
 {
   MCU_FSM->MCU_FSM_CLKS_REG_b.HF_FSM_CLK_SELECT = fsmHfClk;
-  //FIXME:wait logic cross check
   while (MCU_FSM->MCU_FSM_CLKS_REG_b.HF_FSM_CLK_SWITCHED_SYNC != 1)
     ;
 }
@@ -1116,7 +1126,6 @@ STATIC INLINE void RSI_PS_FsmHfFreqConfig(uint32_t freq)
 STATIC INLINE void RSI_PS_FsmLfClkSel(AON_CLK_T fsmLfClk)
 {
   MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.AON_KHZ_CLK_SEL = fsmLfClk;
-  //FIXME:wait logic check if it is working RTC blocked mode
   while (MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.AON_KHZ_CLK_SEL_CLOCK_SWITCHED != 1)
     ;
 }
@@ -1133,7 +1142,7 @@ STATIC INLINE void RSI_PS_PmuGoodTimeDurationConfig(uint8_t pmuDuration)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_PMU_POWERGOOD_DURATION_COUNT =
     (unsigned int)(pmuDuration & 0x1F);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_PMU_POWERGOOD_DURATION_COUNT =
     (unsigned int)(pmuDuration & 0x7F);
 #endif
@@ -1152,7 +1161,7 @@ STATIC INLINE void RSI_PS_XtalGoodTimeDurationConfig(uint8_t xtalDuration)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_XTAL_GOODTIME_DURATION_COUNT =
     (unsigned int)(xtalDuration & 0x1F);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_XTAL_GOODTIME_DURATION_COUNT =
     (unsigned int)(xtalDuration & 0x7F);
 #endif
@@ -1487,7 +1496,7 @@ STATIC INLINE void RSI_ConfigPmuShutDown(uint8_t cntrl, uint8_t enable)
 
 /**
  *@fn              STATIC INLINE void RSI_ChangeTassRefClock(void)
- *@brief           This API is used to change the TASS reference clock to 32MHz RC , This API is used only in MCU mode , should not be used in WiSeMCU mode.
+ *@brief           This API is used to change the TASS reference clock to MHz RC , This API is used only in MCU mode , should not be used in WiSeMCU mode.
  *@return     none
  */
 STATIC INLINE void RSI_ChangeTassRefClock(void)
@@ -1502,7 +1511,7 @@ STATIC INLINE void RSI_ChangeTassRefClock(void)
  */
 STATIC INLINE void RSI_SetRegSpiDivision(uint8_t div)
 {
-  *(volatile uint32_t *)(REG_SPI_BASE_ADDR_ULP + 0x00) &= (uint32_t)(~(0xF));
+  *(volatile uint32_t *)(REG_SPI_BASE_ADDR_ULP + 0x00) &= ~0xF;
   *(volatile uint32_t *)(REG_SPI_BASE_ADDR_ULP + 0x00) |= div;
 }
 
@@ -1616,6 +1625,20 @@ STATIC INLINE void RSI_PS_PS4SetRegisters(void)
 }
 
 /**
+ *@fn         void RSI_PS_PS4ClearRegisters(void)
+ *@brief      This API is used to clear the MISC registers for clock less than 120 MHz for core
+ *@return     none
+ */
+STATIC INLINE void RSI_PS_PS4ClearRegisters(void)
+{
+  // Clears the prefetch and registering when SOC clock is less than 120 MHz
+  ICACHE2_ADDR_TRANSLATE_1_REG &= ~BIT(21); // Clearing Icache registering when clock frequency is less than 120 MHz
+  // When set, enables registering in M4-NWP AHB2AHB. This will have performance penalty. This has to be set above 100 MHz
+  MISC_CFG_SRAM_REDUNDANCY_CTRL &= ~BIT(4);
+  MISC_CONFIG_MISC_CTRL1 &= ~BIT(4); // Disable Register ROM as clock frequency is less than 120 MHz
+}
+
+/**
  *@fn         void RSI_PS_PS2UpdateClockVariable(void)
  *@brief      This API is used update the global clock variable after clock setting in PS2
  *@return     none
@@ -1623,7 +1646,7 @@ STATIC INLINE void RSI_PS_PS4SetRegisters(void)
 STATIC INLINE void RSI_PS_PS2UpdateClockVariable(void)
 {
   // Updates the system clock.
-  system_clocks.rc_32mhz_clock = 20000000;
+  system_clocks.rc_mhz_clock = 20000000;
   // Updating the systemcoreclock variable.
   SystemCoreClock = 20000000;
 }

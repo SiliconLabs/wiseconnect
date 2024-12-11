@@ -51,6 +51,9 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
+#if (SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE))
+#include "sl_si91x_power_manager.h"
+#endif
 /*=======================================================================*/
 //   ! MACROS
 /*=======================================================================*/
@@ -1443,6 +1446,10 @@ static void rsi_ble_on_smp_passkey_display(rsi_bt_event_smp_passkey_display_t *s
   memcpy(&rsi_ble_conn_info[ble_conn_id].rsi_ble_smp_passkey_display,
          smp_passkey_display,
          sizeof(rsi_bt_event_smp_passkey_display_t));
+
+  //! set connection specific event
+  //! signal connection specific task
+  rsi_ble_app_set_task_event(ble_conn_id, RSI_BLE_SMP_PASSKEY_DISPLAY_EVENT);
 }
 
 /*==============================================*/
@@ -1684,7 +1691,7 @@ void rsi_common_sleep_task()
     //! if events are not received loop will be continued.
     if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && !(check_pending_events())) {
       P2P_STATUS_REG &= ~M4_wakeup_TA;
-      sl_si91x_m4_sleep_wakeup();
+      sl_si91x_power_manager_sleep();
     }
   }
 }

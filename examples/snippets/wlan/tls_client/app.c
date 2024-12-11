@@ -96,7 +96,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -250,18 +250,25 @@ sl_status_t send_data_from_tls_socket()
   while (packet_count < NUMBER_OF_PACKETS) {
     return_value = send(client_socket1, DATA, strlen(DATA), 0);
     if (return_value < 0) {
+      if (errno == ENOBUFS)
+        continue;
       printf("\r\nSocket1 send failed with bsd error: %d\r\n", errno);
       close(client_socket1);
       close(client_socket2);
       return SL_STATUS_FAIL;
     }
 
-    return_value = send(client_socket2, DATA, strlen(DATA), 0);
-    if (return_value < 0) {
-      printf("\r\nSocket2 send failed with bsd error: %d\r\n", errno);
-      close(client_socket1);
-      close(client_socket2);
-      return SL_STATUS_FAIL;
+    while (1) {
+      return_value = send(client_socket2, DATA, strlen(DATA), 0);
+      if (return_value < 0) {
+        if (errno == ENOBUFS)
+          continue;
+        printf("\r\nSocket2 send failed with bsd error: %d\r\n", errno);
+        close(client_socket1);
+        close(client_socket2);
+        return SL_STATUS_FAIL;
+      }
+      break;
     }
     packet_count++;
   }
@@ -302,11 +309,11 @@ sl_status_t set_tls_extensions(int client_socket)
   // Copy the SNI data into the value field
   memcpy(sni_value->value, TLS_SNI_EXTENSION, sni_length);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
-                                                         SOL_SOCKET,
-                                                         SO_TLS_ALPN,
-                                                         sni_value,
-                                                         sizeof(sl_si91x_socket_type_length_value_t) + sni_length);
+  socket_return_value = setsockopt(client_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_TLS_ALPN,
+                                   sni_value,
+                                   sizeof(sl_si91x_socket_type_length_value_t) + sni_length);
 
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option SNI extension failed with bsd error: %d\r\n", errno);
@@ -337,11 +344,11 @@ sl_status_t set_tls_extensions(int client_socket)
   // Copy the ALPN data into the value field
   memcpy(alpn_value->value, TLS_ALPN_EXTENSION, alpn_length);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
-                                                         SOL_SOCKET,
-                                                         SO_TLS_ALPN,
-                                                         alpn_value,
-                                                         sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
+  socket_return_value = setsockopt(client_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_TLS_ALPN,
+                                   alpn_value,
+                                   sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
 
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option ALPN extension failed with bsd error: %d\r\n", errno);

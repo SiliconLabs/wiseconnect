@@ -65,17 +65,13 @@
 #define TIMEOUT_MS        10000
 #define WIFI_SCAN_TIMEOUT 10000
 
-#define BYTES_TO_RECEIVE           (1 << 28)              //256MB
-#define TEST_TIMEOUT               (30000 * tick_count_s) //30sec
+#define BYTES_TO_RECEIVE           (1 << 28) //256MB
+#define TEST_TIMEOUT               (30000)   //30sec
 #define BACK_LOG                   1
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
-#ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
-#endif
 
-#if SSL
-#include "cacert.pem.h" //! Include SSL CA certificate
+#if ENABLE_TLS
+#include "cacert.pem.h" //! Include TLS CA certificate
 // Load certificate to device flash :
 // Certificate could be loaded once and need not be loaded for every boot up
 #endif
@@ -88,12 +84,6 @@ uint8_t data_buffer[BUFFER_SIZE];
 volatile uint8_t wlan_data_rcv;
 volatile uint8_t wlan_completed;
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-uint32_t tick_count_s = 10;
-#else
-uint32_t tick_count_s = 1;
-#endif
-
 /*=======================================================================*/
 //   ! EXTERN VARIABLES
 /*=======================================================================*/
@@ -105,9 +95,9 @@ extern osSemaphoreId_t ble_conn_sem;
 void wlan_throughput_task(void);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000) / tick_count_s; // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration;    // bytes to bits
-  result         = (result / 1000000);                     // bps to Mbps
+  float duration = ((test_timeout) / 1000);                    // ms to sec
+  float result   = ((float)total_num_of_bytes * 8) / duration; // bytes to bps
+  result         = (result / 1000000);                         // bps to Mbps
   LOG_PRINT("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 static sl_si91x_socket_config_t socket_config = {
@@ -143,12 +133,12 @@ void data_callback(uint32_t sock_no,
     has_data_received = 1;
   }
 }
-#if SSL && LOAD_CERTIFICATE
+#if ENABLE_TLS && LOAD_CERTIFICATE
 sl_status_t clear_and_load_certificates_in_flash(void)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  // Load SSL CA certificate
+  // Load TLS CA certificate
   status =
     sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
@@ -279,6 +269,8 @@ void send_data_to_udp_server(void)
     sent_bytes =
       sendto(client_socket, data_buffer, UDP_BUFFER_SIZE, 0, (struct sockaddr *)&server_address, socket_length);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       LOG_PRINT("\r\nsendto failed with bsd error:%d\r\n", errno);
       close(client_socket);
       return;
@@ -348,14 +340,14 @@ void receive_data_from_udp_client(void)
 #else
 void receive_data_from_udp_client(void)
 {
-  int client_socket                 = -1;
-  uint32_t total_bytes_received     = 0;
-  int socket_return_value           = 0;
-  int read_bytes                    = 1;
-  uint32_t start                    = 0;
-  uint32_t now                      = 0;
+  int client_socket = -1;
+  uint32_t total_bytes_received = 0;
+  int socket_return_value = 0;
+  int read_bytes = 1;
+  uint32_t start = 0;
+  uint32_t now = 0;
   struct sockaddr_in server_address = { 0 };
-  socklen_t socket_length           = sizeof(struct sockaddr_in);
+  socklen_t socket_length = sizeof(struct sockaddr_in);
 
   client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
@@ -365,7 +357,7 @@ void receive_data_from_udp_client(void)
   LOG_PRINT("\r\nSocket ID : %d\r\n", client_socket);
 
   server_address.sin_family = AF_INET;
-  server_address.sin_port   = DEVICE_PORT;
+  server_address.sin_port = DEVICE_PORT;
 
   socket_return_value = bind(client_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
@@ -393,7 +385,7 @@ void receive_data_from_udp_client(void)
       measure_and_print_throughput(total_bytes_received, (now - start));
 #if CONTINUOUS_THROUGHPUT
       total_bytes_received = 0;
-      start                = osKernelGetTickCount();
+      start = osKernelGetTickCount();
 #else
       break;
 #endif
@@ -440,6 +432,8 @@ void send_data_to_tcp_server(void)
   while (1) {
     sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       LOG_PRINT("\nTCP send failed\n");
       break;
     } else if (sent_bytes > 0) {
@@ -489,11 +483,11 @@ void receive_data_from_tcp_client(void)
   }
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(server_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(server_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -544,17 +538,17 @@ void receive_data_from_tcp_client(void)
 #else
 void receive_data_from_tcp_client(void)
 {
-  int server_socket                 = -1;
-  int client_socket                 = -1;
-  int socket_return_value           = 0;
+  int server_socket = -1;
+  int client_socket = -1;
+  int socket_return_value = 0;
   struct sockaddr_in server_address = { 0 };
-  socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
-  uint32_t total_bytes_received     = 0;
-  uint32_t start                    = 0;
-  uint32_t now                      = 0;
-  int read_bytes                    = 1;
-  sl_status_t status                = SL_STATUS_FAIL;
+  socklen_t socket_length = sizeof(struct sockaddr_in);
+  uint8_t high_performance_socket = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t total_bytes_received = 0;
+  uint32_t start = 0;
+  uint32_t now = 0;
+  int read_bytes = 1;
+  sl_status_t status = SL_STATUS_FAIL;
 
   server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
@@ -563,18 +557,18 @@ void receive_data_from_tcp_client(void)
   }
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(server_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
     return;
   }
   server_address.sin_family = AF_INET;
-  server_address.sin_port   = DEVICE_PORT;
+  server_address.sin_port = DEVICE_PORT;
 
   socket_return_value = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
@@ -615,7 +609,7 @@ void receive_data_from_tcp_client(void)
       } else if (errno == ENOTCONN) {
         LOG_PRINT("\r\nRemote server terminated\r\n");
       } else {
-        LOG_PRINT("\r\nSSL recv failed with BSD error = %d\r\n", errno);
+        LOG_PRINT("\r\nTLS recv failed with BSD error = %d\r\n", errno);
       }
       close(client_socket);
       close(server_socket);
@@ -623,13 +617,13 @@ void receive_data_from_tcp_client(void)
     }
 
     total_bytes_received = total_bytes_received + read_bytes;
-    now                  = osKernelGetTickCount();
+    now = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {
       LOG_PRINT("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
       measure_and_print_throughput(total_bytes_received, (now - start));
 #if CONTINUOUS_THROUGHPUT
       total_bytes_received = 0;
-      start                = osKernelGetTickCount();
+      start = osKernelGetTickCount();
 #else
       break;
 #endif
@@ -643,7 +637,7 @@ void receive_data_from_tcp_client(void)
 }
 #endif
 
-void send_data_to_ssl_server(void)
+void send_data_to_tls_server(void)
 {
   int client_socket                 = -1;
   int socket_return_value           = 0;
@@ -670,7 +664,7 @@ void send_data_to_ssl_server(void)
   }
 
   server_address.sin_family = AF_INET;
-  server_address.sin_port   = SSL_SERVER_PORT;
+  server_address.sin_port   = TLS_SERVER_PORT;
   sl_net_inet_addr(SERVER_IP_ADDRESS, &server_address.sin_addr.s_addr);
 
   socket_return_value = connect(client_socket, (struct sockaddr *)&server_address, socket_length);
@@ -679,13 +673,15 @@ void send_data_to_ssl_server(void)
     close(client_socket);
     return;
   }
-  LOG_PRINT("\r\nSocket connected to SSL server\r\n");
+  LOG_PRINT("\r\nSocket connected to TLS server\r\n");
 
-  LOG_PRINT("\r\nSSL_TX Throughput test start\r\n");
+  LOG_PRINT("\r\nTLS_TX Throughput test start\r\n");
   start = osKernelGetTickCount();
   while (1) {
-    sent_bytes = send(client_socket, data_buffer, SSL_BUFFER_SIZE, 0);
+    sent_bytes = send(client_socket, data_buffer, TLS_BUFFER_SIZE, 0);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       break;
     } else if (sent_bytes > 0) {
       total_bytes_sent = total_bytes_sent + sent_bytes;
@@ -706,13 +702,13 @@ void send_data_to_ssl_server(void)
     }
   }
 
-  LOG_PRINT("\r\nSSL_TX Throughput test finished\r\n");
+  LOG_PRINT("\r\nTLS_TX Throughput test finished\r\n");
   close(client_socket);
 
   return;
 }
 
-void receive_data_from_ssl_client(void)
+void receive_data_from_tls_client(void)
 {
   int client_socket                 = -1;
   int socket_return_value           = 0;
@@ -736,11 +732,11 @@ void receive_data_from_ssl_client(void)
     return;
   }
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(client_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with BSD error: %d\r\n", errno);
     close(client_socket);
@@ -748,7 +744,7 @@ void receive_data_from_ssl_client(void)
   }
 
   server_address.sin_family = AF_INET;
-  server_address.sin_port   = SSL_SERVER_PORT;
+  server_address.sin_port   = TLS_SERVER_PORT;
   sl_net_inet_addr(SERVER_IP_ADDRESS, &server_address.sin_addr.s_addr);
 
   socket_return_value = connect(client_socket, (struct sockaddr *)&server_address, socket_length);
@@ -757,9 +753,9 @@ void receive_data_from_ssl_client(void)
     close(client_socket);
     return;
   }
-  LOG_PRINT("\r\nSocket connected to SSL server\r\n");
+  LOG_PRINT("\r\nSocket connected to TLS server\r\n");
 
-  LOG_PRINT("\r\nSSL_RX Throughput test start\r\n");
+  LOG_PRINT("\r\nTLS_RX Throughput test start\r\n");
   uint32_t start = osKernelGetTickCount();
   uint32_t now   = start;
   int read_bytes = 1;
@@ -772,12 +768,12 @@ void receive_data_from_ssl_client(void)
         if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
           continue;
         } else {
-          LOG_PRINT("\r\nSSL recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+          LOG_PRINT("\r\nTLS recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
         }
       } else if (errno == ENOTCONN) {
         LOG_PRINT("\r\nRemote server terminated\r\n");
       } else {
-        LOG_PRINT("\r\nSSL recv failed with BSD error = %d\r\n", errno);
+        LOG_PRINT("\r\nTLS recv failed with BSD error = %d\r\n", errno);
       }
       close(client_socket);
       return;
@@ -797,28 +793,13 @@ void receive_data_from_ssl_client(void)
     }
   }
 
-  LOG_PRINT("\r\nSSL_RX Throughput test finished\r\n");
+  LOG_PRINT("\r\nTLS_RX Throughput test finished\r\n");
   close(client_socket);
   return;
 }
-#ifdef SLI_SI91X_MCU_INTERFACE
-void switch_m4_frequency(void)
-{
-  /*Switch M4 SOC clock to Reference clock*/
-  /*Default keep M4 in reference clock*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-  /*Configure the PLL frequency*/
-  RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-  /*Switch M4 clock to PLL clock for speed operations*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-}
-#endif
+
 void wlan_throughput_task(void)
 {
-#ifdef SLI_SI91X_MCU_INTERFACE
-  switch_m4_frequency();
-  SysTick_Config(SystemCoreClock / (1000 * tick_count_s));
-#endif
 
   for (size_t i = 0; i < sizeof(data_buffer); i++)
     data_buffer[i] = 'A' + (i % 26);
@@ -836,11 +817,11 @@ void wlan_throughput_task(void)
     case TCP_RX: {
       receive_data_from_tcp_client();
     } break;
-    case SSL_TX: {
-      send_data_to_ssl_server();
+    case TLS_TX: {
+      send_data_to_tls_server();
     } break;
-    case SSL_RX: {
-      receive_data_from_ssl_client();
+    case TLS_RX: {
+      receive_data_from_tls_client();
     } break;
 
       return;

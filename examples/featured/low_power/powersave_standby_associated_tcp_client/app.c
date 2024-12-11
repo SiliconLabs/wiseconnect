@@ -34,6 +34,7 @@
 #include "errno.h"
 #include "sl_wifi.h"
 #include "sl_net.h"
+#include "sl_net_wifi_types.h"
 #include "socket.h"
 #include "sl_utility.h"
 #include "sl_net_si91x.h"
@@ -42,13 +43,14 @@
 #include <string.h>
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_power_manager.h"
 #include "sl_si91x_m4_ps.h"
 #endif
 
 /******************************************************
  *                      Macros
  ******************************************************/
-#define SERVER_IP_ADDRESS               "192.168.0.175"
+#define SERVER_IP_ADDRESS               "2401:4901:1221:10eb:ddf3:2995:542c:3f9a"
 #define DATA                            "HellofromTCPclient!!!"
 #define SERVER_PORT                     5001
 #define NUMBER_OF_PACKETS               1000
@@ -74,12 +76,15 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                       | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                       ),
-                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+#ifdef SLI_SI91X_ENABLE_IPV6
+                                              | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
+#endif
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -140,12 +145,12 @@ static void application_start(void *argument)
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
-    printf("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
+    printf("\r\n Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
     return;
   }
   status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
   if (status == SL_STATUS_OK) {
-    printf("Device MAC address: %x:%x:%x:%x:%x:%x\r\n",
+    printf("\r\n Device MAC address: %x:%x:%x:%x:%x:%x\r\n",
            mac_addr.octet[0],
            mac_addr.octet[1],
            mac_addr.octet[2],
@@ -153,11 +158,11 @@ static void application_start(void *argument)
            mac_addr.octet[4],
            mac_addr.octet[5]);
   } else {
-    printf("Failed to get mac address: 0x%lx\r\n", status);
+    printf("\r\n Failed to get mac address: 0x%lx\r\n", status);
   }
   status = sl_wifi_get_firmware_version(&version);
   if (status != SL_STATUS_OK) {
-    printf("\r\nFailed to fetch firmware version: 0x%lx\r\n", status);
+    printf("\r\n Failed to fetch firmware version: 0x%lx\r\n", status);
   } else {
     print_firmware_version(&version);
   }
@@ -167,39 +172,40 @@ static void application_start(void *argument)
 
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
-    printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
+    printf("\r\n Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
   }
-  printf("\r\nWi-Fi client connected\r\n");
+  printf("\r\n Wi-Fi client connected\r\n");
 
   status = sl_wifi_filter_broadcast(BROADCAST_DROP_THRESHOLD, BROADCAST_IN_TIM, BROADCAST_TIM_TILL_NEXT_COMMAND);
   if (status != SL_STATUS_OK) {
-    printf("\r\nsl_wifi_filter_broadcast Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\n sl_wifi_filter_broadcast Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
   // set performance profile
   status = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
-    printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\n Power save configuration Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
 
   status = send_data_to_tcp_server();
   if (status != SL_STATUS_OK) {
-    printf("\r\nSend data failed with status %lx\r\n", status);
+    printf("\r\n Send data failed with status %lx\r\n", status);
     return;
   }
-  printf("\r\nExample Demonstration Completed\r\n");
+  printf("\r\n Send data completed successfully %lx\r\n", status);
+  printf("\r\n Example Demonstration Completed\r\n");
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 
 #if (SL_SI91X_TICKLESS_MODE == 0)
-  sl_si91x_m4_sleep_wakeup();
+  sl_si91x_power_manager_sleep();
 #else
   osSemaphoreId_t wait_semaphore;
   wait_semaphore = osSemaphoreNew(1, 0, NULL);
   if (wait_semaphore == NULL) {
-    printf("Failed to create semaphore\r\n");
+    printf("\r\n Failed to create semaphore\r\n");
     return;
   }
   // Waiting forever using semaphore to put M4 to sleep in tick less mode
@@ -211,40 +217,115 @@ static void application_start(void *argument)
 
 sl_status_t send_data_to_tcp_server(void)
 {
-  int client_socket                 = -1;
-  int return_value                  = 0;
-  sl_ipv4_address_t ip              = { 0 };
-  uint16_t tcp_keep_alive           = TCP_KEEP_ALIVE_TIME;
-  struct sockaddr_in server_address = { 0 };
+  sl_status_t status                   = SL_STATUS_OK;
+  int client_socket                    = -1;
+  int return_value                     = 0;
+  sl_ip_address_t ip_address           = { 0 };
+  sl_net_wifi_client_profile_t profile = { 0 };
+  uint16_t tcp_keep_alive              = TCP_KEEP_ALIVE_TIME;
 
-  sl_net_inet_addr(SERVER_IP_ADDRESS, (uint32_t *)&ip);
-
-  server_address.sin_family      = AF_INET;
-  server_address.sin_port        = SERVER_PORT;
-  server_address.sin_addr.s_addr = ip.value;
-
-  //!Create socket
-  client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  printf("\n Client Socket: %d\n", client_socket);
-  if (client_socket < 0) {
-    printf("\r\nSocket Create failed with bsd error: %d\r\n", errno);
-    return SL_STATUS_FAIL;
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  if (status != SL_STATUS_OK) {
+    printf("\r\n Failed to get client profile: 0x%lx\r\n", status);
+    return status;
   }
+  printf("\r\n Client profile is fetched successfully\r\n");
 
-  return_value = setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &tcp_keep_alive, sizeof(tcp_keep_alive));
-  printf("\n Client Socket: %d\n", client_socket);
-  if (return_value < 0) {
-    printf("\r\nTCP KA configuration failed: %d\r\n", errno);
-    return SL_STATUS_FAIL;
+  if (profile.ip.type == SL_IPV4) { /*IPv4*/
+    ip_address.type = SL_IPV4;
+    memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
+    print_sl_ip_address(&ip_address);
+
+    struct sockaddr_in server_address = { 0 };
+    status                            = sl_net_inet_addr(SERVER_IP_ADDRESS, (uint32_t *)&ip_address);
+    if (status != SL_STATUS_OK) {
+      printf("\r\n IPv4 conversion failed.\r\n");
+      return SL_STATUS_FAIL;
+    }
+
+    server_address.sin_family      = AF_INET;
+    server_address.sin_port        = SERVER_PORT;
+    server_address.sin_addr.s_addr = ip_address.ip.v4.value;
+
+    //!Create socket
+    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    printf("\r\n Client Socket: %d\n", client_socket);
+    if (client_socket < 0) {
+      printf("\r\n Socket Create failed with bsd error: %d\r\n", errno);
+      return SL_STATUS_FAIL;
+    }
+    //!Keep Alive
+    return_value = setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &tcp_keep_alive, sizeof(tcp_keep_alive));
+    printf("\r\n Client Socket: %d\n", client_socket);
+    if (return_value < 0) {
+      printf("\r\n TCP Keep Alive configuration failed: %d\r\n", errno);
+      return SL_STATUS_FAIL;
+    }
+    //! Socket connect
+    return_value = connect(client_socket, (struct sockaddr *)&server_address, sizeof(struct sockaddr_in));
+    if (return_value < 0) {
+      printf("\r\n Socket Connect failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      return SL_STATUS_FAIL;
+    }
+    printf("\r\n Socket Connected\r\n");
+
+  } else if (profile.ip.type == SL_IPV6) { /*IPv6*/
+    sl_ip_address_t link_local_address = { 0 };
+    memcpy(&link_local_address.ip.v6, &profile.ip.ip.v6.link_local_address, SL_IPV6_ADDRESS_LENGTH);
+    link_local_address.type = SL_IPV6;
+    printf("\r\n Link Local Address: ");
+    print_sl_ip_address(&link_local_address);
+
+    sl_ip_address_t global_address = { 0 };
+    memcpy(&global_address.ip.v6, &profile.ip.ip.v6.global_address, SL_IPV6_ADDRESS_LENGTH);
+    global_address.type = SL_IPV6;
+    printf("\r\n Global Address: ");
+    print_sl_ip_address(&global_address);
+
+    sl_ip_address_t gateway = { 0 };
+    memcpy(&gateway.ip.v6, &profile.ip.ip.v6.gateway, SL_IPV6_ADDRESS_LENGTH);
+    gateway.type = SL_IPV6;
+    printf("\r\n Gateway Address: ");
+    print_sl_ip_address(&gateway);
+
+    struct sockaddr_in6 server_address6 = { 0 };
+    uint8_t address_buffer[SL_IPV6_ADDRESS_LENGTH];
+
+    status = sl_inet_pton6(SERVER_IP_ADDRESS,
+                           SERVER_IP_ADDRESS + strlen(SERVER_IP_ADDRESS),
+                           address_buffer,
+                           (unsigned int *)server_address6.sin6_addr.__u6_addr.__u6_addr32);
+    if (status != 0x1) {
+      printf("\r\n IPv6 conversion failed.\r\n");
+      return SL_STATUS_FAIL;
+    }
+
+    server_address6.sin6_family = AF_INET6;
+    server_address6.sin6_port   = SERVER_PORT;
+
+    //!Create socket
+    client_socket = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+    if (client_socket < 0) {
+      printf("\r\n Socket Create failed with bsd error: %d\r\n", errno);
+      return SL_STATUS_FAIL;
+    }
+    //!Keep alive
+    return_value = setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &tcp_keep_alive, sizeof(tcp_keep_alive));
+    printf("\r\n Client Socket: %d\n", client_socket);
+    if (return_value < 0) {
+      printf("\r\n TCP KA configuration failed: %d\r\n", errno);
+      return SL_STATUS_FAIL;
+    }
+    //! Socket connect
+    return_value = connect(client_socket, (struct sockaddr *)&server_address6, sizeof(struct sockaddr_in6));
+    if (return_value < 0) {
+      printf("\r\n Socket Connect failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      return SL_STATUS_FAIL;
+    }
+    printf("\r\n Socket Connected\r\n");
   }
-  //! Socket connect
-  return_value = connect(client_socket, (struct sockaddr *)&server_address, sizeof(struct sockaddr_in));
-  if (return_value < 0) {
-    printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
-    close(client_socket);
-    return SL_STATUS_FAIL;
-  }
-  printf("\r\n Socket Connected\r\n");
 
   //! send data
 #if SEND_TCP_DATA
@@ -253,6 +334,8 @@ sl_status_t send_data_to_tcp_server(void)
   while (packet_count < NUMBER_OF_PACKETS) {
     sent_bytes = send(client_socket, DATA, strlen(DATA), 0);
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       PRINT_STATUS(ERROR_TAG, SL_STATUS_FAIL);
       close(client_socket);
       return SL_STATUS_FAIL;

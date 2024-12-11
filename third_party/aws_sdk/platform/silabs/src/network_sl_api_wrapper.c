@@ -47,6 +47,7 @@ osSemaphoreId_t select_sem;
 #define SL_CERT_INDEX_0   0
 #define MQTT_TLS_PORT 443
 #define ALPN_AMZN_MQTT_CA "x-amzn-mqtt-ca"
+#define SEMAPHORE_TIMEOUT_MS 10000
 
 /******************************************************
 *               Variable Declarations
@@ -159,7 +160,7 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
     }
 
     uint8_t certificate_index = SL_CERT_INDEX_0;
-    if (sl_si91x_set_custom_sync_sockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
+    if (setsockopt(n->socket_id, SOL_SOCKET, SL_SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
       return sli_si91x_get_aws_error(errno);
     }
 
@@ -187,9 +188,9 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
       // Copy the ALPN data into the value field
       memcpy(alpn_value->value, ALPN_AMZN_MQTT_CA, alpn_length);
 
-      socket_return_value = sl_si91x_set_custom_sync_sockopt(n->socket_id,
+      socket_return_value = setsockopt(n->socket_id,
                                                       SOL_SOCKET,
-                                                      SO_TLS_ALPN,
+                                                      SL_SO_TLS_ALPN,
                                                       alpn_value,
                                                       sizeof(sl_si91x_socket_type_length_value_t) + alpn_length);
 
@@ -228,12 +229,12 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
 
   do {
 #ifdef SLI_SI91X_ENABLE_IPV6
-	  status = sl_net_host_get_by_name((char *)pNetwork->tlsConnectParams.pDestinationURL,
+	  status = sl_net_dns_resolve_hostname(pNetwork->tlsConnectParams.pDestinationURL,
 	                                        SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
 	  									                    SL_NET_DNS_TYPE_IPV6, 
 	                                        &dns_query_response);
 #else
-    status = sl_net_host_get_by_name((char *)pNetwork->tlsConnectParams.pDestinationURL,
+    status = sl_net_dns_resolve_hostname(pNetwork->tlsConnectParams.pDestinationURL,
                                        SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
                                        SL_NET_DNS_TYPE_IPV4, 
                                        &dns_query_response);
@@ -301,7 +302,14 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
   }
 
   if(pub_state == 1){    //This check is for handling PUBACK in QOS1
-  osSemaphoreAcquire(select_sem, osWaitForever);
+  // Attempt to acquire the semaphore with a timeout.
+  osStatus_t select_status = osSemaphoreAcquire(select_sem, SEMAPHORE_TIMEOUT_MS);
+
+  // Check if semaphore acquisition timed out.
+  if (select_status == osErrorTimeout) {
+      SL_DEBUG_LOG("Error: Semaphore acquisition timed out. Puback not received.\n");
+      return MQTT_REQUEST_TIMEOUT_ERROR; // Return an error code indicating that the MQTT request timed out.
+  }
   qos1_publish_handle = 1;
   pub_state = 0;
   select_given        = 0;

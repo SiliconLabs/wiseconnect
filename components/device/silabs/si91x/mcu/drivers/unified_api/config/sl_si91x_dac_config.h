@@ -59,8 +59,8 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <dac signal=OUT> SL_DAC0
-// $[DAC_SL_DAC0]
+// <dac0 signal=OUT> SL_DAC0
+// $[DAC0_SL_DAC0]
 #ifndef SL_DAC0_PERIPHERAL
 #define SL_DAC0_PERIPHERAL DAC0
 #endif
@@ -75,7 +75,7 @@ extern "C" {
 #ifndef SL_DAC0_OUT_LOC
 #define SL_DAC0_OUT_LOC 0
 #endif
-// [DAC_SL_DAC0]$
+// [DAC0_SL_DAC0]$
 // <<< sl:end pin_tool >>>
 
 // Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output is internally redirected to OPAMP pin GPIO_30.

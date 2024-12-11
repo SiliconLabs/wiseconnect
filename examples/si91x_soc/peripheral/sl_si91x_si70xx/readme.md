@@ -16,11 +16,11 @@
 
 ## Purpose/Scope
 
-- This application demonstrate the si70xx RHT sensor, which measures the relative humidity and temperature via I2C interface for every 2 seconds.
+This application demonstrate the si70xx RHT sensor, which measures the relative humidity and temperature via I2C interface for every 2 seconds.
 
 ## About Example Code
 
-- This example demonstrates the measurement of relative humidity and temperature for every 2 seconds. Also shows how to use different APIs present via I2C interface.
+This example demonstrates the measurement of relative humidity and temperature for every 2 seconds. Also shows how to use different APIs present via I2C interface.
 
 ## Prerequisites/Setup Requirements
 
@@ -32,8 +32,8 @@
 ### Software Requirements
 
 - Simplicity Studio
-- Serial console Setup
-  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+- Serial console setup
+  - For serial console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -43,33 +43,36 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-- Configure the following macros in si70xx_example.c file and update/modify following macros if required.
+- Configure the following macros in the `si70xx_example.c` file and update/modify following macros, if required.
 
-- `I2C instance`: Select I2C instance for communication. By default I2C2 is selected.
+- `I2C instance`: Select I2C instance for communication through UC from the Si70xx Humidity and Temperature Sensor slcp component.
+ By default I2C2 is selected.
 
-  ```C
-    #define I2C SL_I2C2 // I2C 2 instance
-  ```
+   ![Figure: Si70xx UC](resources/uc_screen/si70xx_uc_screen.png)
 
 ### Pin Configuration
 
 Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 
-| Description  | GPIO       | Connector |
-| -------------| -----------| ----------|
-| I2C_SDA      | ULP_GPIO_6 | EXP_16    |
-| I2C_SCL      | ULP_GPIO_7 | EXP_15    |
+| Description  | 917 GPIO  | 915 GPIO  | Breakout pin |
+| -------------| -----------| -----------| ----------|
+| I2C_SDA      | ULP_GPIO_6 |   GPIO_6   | EXP_16    |
+| I2C_SCL      | ULP_GPIO_7 |   GPIO_7   | EXP_15    |
 
-> **Note:** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
+>**Note:** Make sure the pin configurations are in the `RTE_Device_xxx.h` file:
+>
+> - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
+> - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
 ## Test the Application
 
@@ -77,13 +80,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. When the application runs, it measures relative humidity and temperature for every 2 seconds.
-3. Connect oscilloscope to Evaluation kit board's ULP_GPIO_6(EXP16), ULP_GPIO_7(EXP15) and observe the temperature and humidity data on I2C line.
-4. After successful program execution the prints in serial console looks as shown below.
+3. Connect an oscilloscope to the Evaluation Kit board's ULP_GPIO_6(EXP16) / GPIO_6(EXP16) and ULP_GPIO_7(EXP15) / GPIO_7(EXP15) and observe the temperature and humidity data on I2C line.
+4. After successful program execution, the prints in the serial console looks as shown below.
 
    ![Figure: Introduction](resources/readme/output1.png)
 
    ![Figure: Introduction](resources/readme/output2.png)
-
 
 > **Note:**
 >

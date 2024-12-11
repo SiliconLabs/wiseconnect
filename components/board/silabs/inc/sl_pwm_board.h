@@ -28,7 +28,7 @@ extern "C" {
  * @defgroup  Board_Drivers BOARD: Common board components used with board drivers
  * @{
  */
-#include "RTE_Device_917.h"
+#include "em_device.h"
 
 #define SL_SI91X_PWM_0L_PORT RTE_PWM_1L_PORT
 #define SL_SI91X_PWM_0L_PIN  RTE_PWM_1L_PIN

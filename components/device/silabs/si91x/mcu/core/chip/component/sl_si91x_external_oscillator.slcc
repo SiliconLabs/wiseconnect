@@ -1,6 +1,9 @@
 id: si91x_32kHz_external_oscillator
 label: SI91X 32kHz EXTERNAL OSCILLATOR
 package: platform
+metadata:
+  sbom:
+    license: MSLA
 description: >
   This component provides the provision to select the UULP GPIO for connecting the external oscillator.
 category: Device|Si91x|MCU|Core

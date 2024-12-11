@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_sysrtc.h
- * @brief Sysrtc API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_sysrtc.h
+* @brief Sysrtc API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_SYSRTC_H
 #define SL_SI91X_SYSRTC_H
@@ -150,8 +150,8 @@ typedef struct {
  * @param[in] config_ptr Pointer to the SYSRTC configuration structure \ref sl_sysrtc_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, SYSRTC initialized properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, SYSRTC initialized properly.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -161,15 +161,15 @@ sl_status_t sl_si91x_sysrtc_init(const sl_sysrtc_config_t *config_ptr);
 /**
  * @brief To configure the SYSRTC input clock source frequency.
  * 
- * @details This API configures the clock source for the SYSRTC. It allows the selection of 32kHz RC, 32kHz RO, or 1kHz RO clock sources based on user input.
+ * @details This API configures the clock source for the SYSRTC. It allows the selection of 32 KHz RC, 32 KHz RO, or 1 KHz RO clock sources based on user input.
  *          For using the 1kHz clock source, pass the division factor value as '16'; otherwise, pass '0'.
  * 
  * @param[in] clk_ptr Pointer to the clock configuration structure \ref sl_sysrtc_clock_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Clock source parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, timer clock-source parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Clock source parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -190,9 +190,9 @@ sl_status_t sl_si91x_sysrtc_configure_clock(sl_sysrtc_clock_config_t *clk_ptr);
  * @param[in] config_ptr Pointer to the group configuration structure \ref sl_sysrtc_group_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Counter direction parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Counter direction parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -217,10 +217,10 @@ sl_status_t sl_si91x_sysrtc_configure_group(sl_sysrtc_group_number_t group_numbe
  * @param[in] interrupt_enable_ptr Pointer to the interrupt enable structure \ref sl_sysrtc_interrupt_enables_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully registered timer timeout callback.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered; unregister the previous callback before registering a new one.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The interrupt_enable_ptr parameter is a null pointer.
+ *         - SL_STATUS_OK  - Successfully registered timer timeout callback.
+ *         - SL_STATUS_BUSY  - The callback is already registered; unregister the previous callback before registering a new one.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The interrupt_enable_ptr parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -242,9 +242,9 @@ sl_status_t sl_si91x_sysrtc_register_callback(sl_sysrtc_callback_t on_sysrtc_cal
  * @param[in] interrupt_enabled_handle Pointer to the interrupt enable structure \ref sl_sysrtc_interrupt_enables_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully unregistered timer interrupt callback.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The interrupt_enabled_handle parameter is a null pointer.
+ *         - SL_STATUS_OK  - Successfully unregistered timer interrupt callback.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The interrupt_enabled_handle parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -266,8 +266,8 @@ sl_status_t sl_si91x_sysrtc_unregister_callback(sl_sysrtc_group_number_t group_n
  * @param[in] compare_value Compare register value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number or channel parameter has an invalid value.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number or channel parameter has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -286,9 +286,9 @@ sl_status_t sl_si91x_sysrtc_set_compare_value(sl_sysrtc_group_number_t group_num
  * @param[out] compare_value Pointer to the variable to store the compare value read.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number or channel parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The compare_value parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number or channel parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The compare_value parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -311,8 +311,8 @@ sl_status_t sl_si91x_sysrtc_get_compare_value(sl_sysrtc_group_number_t group_num
  * @param[in] group_number SYSRTC group number to use.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number parameter has an invalid value.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number parameter has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -334,8 +334,8 @@ sl_status_t sl_si91x_sysrtc_sets_register_capture_input(sl_sysrtc_group_number_t
  * @param[in] group_number SYSRTC group number to use.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number parameter has an invalid value.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number parameter has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -357,8 +357,8 @@ sl_status_t sl_si91x_sysrtc_set_gpio_as_capture_input(sl_sysrtc_group_number_t g
  * @param[in] channel Channel number to use.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number or channel parameter has an invalid value.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number or channel parameter has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -374,8 +374,8 @@ sl_status_t sl_si91x_sysrtc_set_compare_output_gpio(sl_sysrtc_group_number_t gro
  * @param[in] count_value Pointer to the variable to store the count value read.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, count value retrieved properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The count_value parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, count value retrieved properly.
+ *         - SL_STATUS_NULL_POINTER  - The count_value parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -391,9 +391,9 @@ sl_status_t sl_si91x_sysrtc_get_count(uint32_t *count_value);
  * @param[out] capture_value Pointer to the variable to store the capture value read.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The capture_value parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The capture_value parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -410,9 +410,9 @@ sl_status_t sl_si91x_sysrtc_get_capture_value(sl_sysrtc_group_number_t group_num
  * @param[out] compare_output_bit Pointer to the variable to store the compare output.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The group_number or channel parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The compare_output_bit parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number or channel parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The compare_output_bit parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -429,8 +429,8 @@ sl_status_t sl_si91x_sysrtc_get_compare_output(sl_sysrtc_group_number_t group_nu
  * @param[in] running_status Pointer to the variable to store the SYSRTC running status.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The running_status parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_NULL_POINTER  - The running_status parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -445,8 +445,8 @@ sl_status_t sl_si91x_sysrtc_is_running(boolean_t *running_status);
  * @param[in] lock_status Pointer to the variable to store SYSRTC lock status.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, parameters configured properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The lock_status parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_NULL_POINTER  - The lock_status parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

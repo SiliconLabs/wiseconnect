@@ -140,15 +140,15 @@ static const console_descriptive_command_t _set_nvm_profile_command = {
 };
 
 extern sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments);
-static const char *_sl_net_host_get_by_name_arg_help[] = {
+static const char *_sl_net_dns_resolve_hostname_arg_help[] = {
   0,
   0,
   0,
 };
 
-static const console_descriptive_command_t _sl_net_host_get_by_name_command = {
+static const console_descriptive_command_t _sl_net_dns_resolve_hostname_command = {
   .description   = "DNS resolution",
-  .argument_help = _sl_net_host_get_by_name_arg_help,
+  .argument_help = _sl_net_dns_resolve_hostname_arg_help,
   .handler       = sl_dns_hostgetbyname_command_handler,
   .argument_list = { CONSOLE_ARG_STRING,
                      CONSOLE_OPTIONAL_ARG('t', CONSOLE_ARG_UINT),
@@ -718,15 +718,16 @@ static const console_descriptive_command_t _wifi_get_tx_power_command = { .descr
                                                                           .argument_list = { CONSOLE_ARG_END } };
 
 extern sl_status_t wifi_init_command_handler(console_args_t *arguments);
-static const char *_wifi_init_arg_help[] = {
-  0,
-};
+static const char *_wifi_init_arg_help[] = { 0, 0, 0 };
 
 static const console_descriptive_command_t _wifi_init_command = {
   .description   = "Init Wi-Fi interface",
   .argument_help = _wifi_init_arg_help,
   .handler       = wifi_init_command_handler,
-  .argument_list = { CONSOLE_OPTIONAL_ARG('i', CONSOLE_ENUM_ARG(wifi_init_mode)), CONSOLE_ARG_END }
+  .argument_list = { CONSOLE_OPTIONAL_ARG('i', CONSOLE_ENUM_ARG(wifi_init_mode)),
+                     CONSOLE_OPTIONAL_ARG('b', CONSOLE_ARG_INT),
+                     CONSOLE_OPTIONAL_ARG('r', CONSOLE_ENUM_ARG(wifi_init_region)),
+                     CONSOLE_ARG_END }
 };
 
 extern sl_status_t wifi_iot_socket_accept_handler(console_args_t *arguments);
@@ -1011,17 +1012,15 @@ static const console_descriptive_command_t _wifi_send_raw_data_command = {
 
 extern sl_status_t wifi_set_advanced_client_config_command_handler(console_args_t *arguments);
 static const char *_wifi_set_advanced_client_config_arg_help[] = {
-  0,
-  0,
-  0,
-  0,
+  0, 0, 0, 0, 0,
 };
 
 static const console_descriptive_command_t _wifi_set_advanced_client_config_command = {
   .description   = "Set advanced client config",
   .argument_help = _wifi_set_advanced_client_config_arg_help,
   .handler       = wifi_set_advanced_client_config_command_handler,
-  .argument_list = { CONSOLE_OPTIONAL_ARG('r', CONSOLE_ARG_UINT),
+  .argument_list = { CONSOLE_OPTIONAL_ARG('o', CONSOLE_ARG_UINT),
+                     CONSOLE_OPTIONAL_ARG('r', CONSOLE_ARG_UINT),
                      CONSOLE_OPTIONAL_ARG('i', CONSOLE_ARG_UINT),
                      CONSOLE_OPTIONAL_ARG('b', CONSOLE_ARG_UINT),
                      CONSOLE_OPTIONAL_ARG('f', CONSOLE_ARG_UINT),
@@ -1290,7 +1289,7 @@ static const console_descriptive_command_t _wifi_transmit_test_start_command = {
 
 extern sl_status_t sl_wifi_ax_transmit_test_start_command_handler(console_args_t *arguments);
 static const char *_wifi_ax_transmit_test_start_arg_help[] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 static const console_descriptive_command_t _wifi_ax_transmit_test_start_command = {
@@ -1302,7 +1301,7 @@ static const console_descriptive_command_t _wifi_ax_transmit_test_start_command 
                      CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
                      CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
                      CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
-                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
+                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
 };
 
 extern sl_status_t sl_wifi_transmit_test_stop_command_handler(console_args_t *arguments);
@@ -1327,10 +1326,300 @@ static const console_descriptive_command_t _wifi_update_gain_table_command = {
   .handler       = sl_wifi_update_gain_table_command_handler,
   .argument_list = { CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
 };
+
+extern sl_status_t set_region_configuration_handler(console_args_t *arguments);
+static const char *_set_region_configuration_arg_help[] = { 0, 0 };
+
+static const console_descriptive_command_t _set_region_configuration = {
+  .description   = "Set region configuration",
+  .argument_help = _set_region_configuration_arg_help,
+  .handler       = set_region_configuration_handler,
+  .argument_list = { CONSOLE_OPTIONAL_ARG('a', CONSOLE_ENUM_ARG(wifi_init_mode)),
+                     CONSOLE_ENUM_ARG(wifi_init_region),
+                     CONSOLE_ARG_END }
+};
+
+extern sl_status_t wifi_radio_deinit_command_handler(console_args_t *arguments);
+static const char *wifi_radio_deinit_arg_help[] = {};
+
+static const console_descriptive_command_t _wifi_radio_deinit = { .description   = "Wifi radio deinit",
+                                                                  .argument_help = wifi_radio_deinit_arg_help,
+                                                                  .handler       = wifi_radio_deinit_command_handler,
+                                                                  .argument_list = { CONSOLE_ARG_END } };
+
+//_ble_user_gain_max_power
+extern sl_status_t ble_user_gain_table_max_power_handler(console_args_t *arguments);
+static const char *_ble_user_gain_table_max_power_arg_help[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+static const console_descriptive_command_t _ble_user_gain_table_max_power = {
+  .description   = "User gain table max power",
+  .argument_help = _ble_user_gain_table_max_power_arg_help,
+  .handler       = ble_user_gain_table_max_power_handler,
+  .argument_list = { CONSOLE_ENUM_ARG(ble_user_gain_table_region), // CONSOLE_OPTIONAL_ARG('a', CONSOLE_ARG_UINT),
+                     CONSOLE_ARG_UINT,                             //CONSOLE_OPTIONAL_ARG('d', CONSOLE_ARG_UINT),
+                     CONSOLE_ENUM_ARG(ble_user_gain_table_region),
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ENUM_ARG(ble_user_gain_table_region),
+                     CONSOLE_ARG_UINT,                             // CONSOLE_OPTIONAL_ARG('a', CONSOLE_ARG_UINT),
+                     CONSOLE_ENUM_ARG(ble_user_gain_table_region), //CONSOLE_OPTIONAL_ARG('d', CONSOLE_ARG_UINT),
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ENUM_ARG(ble_user_gain_table_region),
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_END }
+};
+
+extern sl_status_t ble_user_gain_table_max_power_offset_handler(console_args_t *arguments);
+static const char *_ble_user_gain_table_max_power_offset_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_user_gain_table_max_power_offset = {
+  .description   = "User gain table max power offset",
+  .argument_help = _ble_user_gain_table_max_power_offset_arg_help,
+  .handler       = ble_user_gain_table_max_power_offset_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t ble_user_gain_table_lp_chain_0dBm_offset_handler(console_args_t *arguments);
+static const char *_ble_user_gain_table_lp_chain_0dBm_offset_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_user_gain_table_lp_chain_0dBm_offset = {
+  .description   = "User gain table LP chain 0dBm offset",
+  .argument_help = _ble_user_gain_table_lp_chain_0dBm_offset_arg_help,
+  .handler       = ble_user_gain_table_lp_chain_0dBm_offset_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t ble_user_gain_table_lp_chain_8dBm_offset_handler(console_args_t *arguments);
+static const char *_ble_user_gain_table_lp_chain_8dBm_offset_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_user_gain_table_lp_chain_8dBm_offset = {
+  .description   = "User gain table LP chain 8dBm offset",
+  .argument_help = _ble_user_gain_table_lp_chain_8dBm_offset_arg_help,
+  .handler       = ble_user_gain_table_lp_chain_8dBm_offset_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t ble_tx_test_mode_handler(console_args_t *arguments);
+static const char *_ble_tx_test_mode_arg_help[] = {
+  0,
+  0,
+  0,
+  0,
+};
+
+static const console_descriptive_command_t _ble_tx_test_mode = { .description   = "BLE TX Testmode",
+                                                                 .argument_help = _ble_tx_test_mode_arg_help,
+                                                                 .handler       = ble_tx_test_mode_handler,
+                                                                 .argument_list = {
+                                                                   CONSOLE_ARG_UINT,
+                                                                   CONSOLE_ARG_UINT,
+                                                                   CONSOLE_OPTIONAL_ARG('a', CONSOLE_ARG_UINT),
+                                                                   CONSOLE_OPTIONAL_ARG('b', CONSOLE_ARG_UINT),
+                                                                   CONSOLE_ARG_END } };
+
+//_ble_tx_test_mode
+extern sl_status_t ble_rx_test_mode_handler(console_args_t *arguments);
+static const char *_ble_rx_test_mode_arg_help[] = {
+  0,
+  0,
+};
+
+static const console_descriptive_command_t _ble_rx_test_mode = {
+  .description   = "BLE RX Testmode",
+  .argument_help = _ble_rx_test_mode_arg_help,
+  .handler       = ble_rx_test_mode_handler,
+  .argument_list = { CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
+};
+
+//_ble_end_test_mode
+extern sl_status_t ble_end_test_command_handler(console_args_t *arguments);
+static const char *_ble_end_test_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_end_test_mode = { .description   = "BLE End test commands",
+                                                                  .argument_help = _ble_end_test_arg_help,
+                                                                  .handler       = ble_end_test_command_handler,
+                                                                  .argument_list = { CONSOLE_ARG_END } };
+
+extern sl_status_t rsi_ble_per_transmit_command_handler(console_args_t *arguments);
+static const char *_ble_per_transmit_arg_help[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+static const console_descriptive_command_t _ble_per_transmit_command = {
+  .description   = "Start BLE PER transmission",
+  .argument_help = _ble_per_transmit_arg_help,
+  .handler       = rsi_ble_per_transmit_command_handler,
+  .argument_list = { CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT,
+                     CONSOLE_OPTIONAL_ARG('a', CONSOLE_ARG_UINT),
+                     CONSOLE_OPTIONAL_ARG('d', CONSOLE_ARG_UINT),
+                     CONSOLE_OPTIONAL_ARG('c', CONSOLE_ARG_UINT),
+                     CONSOLE_OPTIONAL_ARG('n', CONSOLE_ARG_UINT),
+                     CONSOLE_OPTIONAL_ARG('p', CONSOLE_ARG_UINT),
+                     CONSOLE_OPTIONAL_ARG('s', CONSOLE_ARG_UINT),
+                     CONSOLE_ARG_END }
+};
+
+extern sl_status_t rsi_ble_per_receive_command_handler(console_args_t *arguments);
+static const char *_ble_per_receive_arg_help[] = {
+  0, 0, 0, 0, 0,
+};
+
+static const console_descriptive_command_t _ble_per_receive_command = { .description   = "Start BLE PER reception",
+                                                                        .argument_help = _ble_per_receive_arg_help,
+                                                                        .handler = rsi_ble_per_receive_command_handler,
+                                                                        .argument_list = {
+                                                                          CONSOLE_ARG_UINT,
+                                                                          CONSOLE_ARG_UINT,
+                                                                          CONSOLE_ARG_UINT,
+                                                                          CONSOLE_OPTIONAL_ARG('a', CONSOLE_ARG_UINT),
+                                                                          CONSOLE_OPTIONAL_ARG('b', CONSOLE_ARG_UINT),
+                                                                          CONSOLE_ARG_END } };
+
+extern sl_status_t rsi_bt_per_stats_command_handler(console_args_t *arguments);
+static const char *_bt_per_stats_arg_help[] = {};
+
+static const console_descriptive_command_t _bt_per_stats_command = { .description   = "Read the BLE PER statistics",
+                                                                     .argument_help = _bt_per_stats_arg_help,
+                                                                     .handler       = rsi_bt_per_stats_command_handler,
+                                                                     .argument_list = { CONSOLE_ARG_END } };
+
+extern sl_status_t rsi_bt_get_local_name_command_handler(console_args_t *arguments);
+static const char *_bt_get_local_name_arg_help[] = {};
+
+static const console_descriptive_command_t _bt_get_local_name_command = { .description   = "Get BLE device name",
+                                                                          .argument_help = _bt_get_local_name_arg_help,
+                                                                          .handler =
+                                                                            rsi_bt_get_local_name_command_handler,
+                                                                          .argument_list = { CONSOLE_ARG_END } };
+
+extern sl_status_t rsi_bt_set_local_name_command_handler(console_args_t *arguments);
+static const char *_bt_set_local_name_arg_help[] = {};
+
+static const console_descriptive_command_t _bt_set_local_name_command = {
+  .description   = "Set BLE device name to a predefined value",
+  .argument_help = _bt_set_local_name_arg_help,
+  .handler       = rsi_bt_set_local_name_command_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t rsi_bt_get_local_device_address_command_handler(console_args_t *arguments);
+static const char *_bt_get_local_device_address_arg_help[] = {};
+
+static const console_descriptive_command_t _bt_get_local_device_address_command = {
+  .description   = "Get BLE device address",
+  .argument_help = _bt_get_local_device_address_arg_help,
+  .handler       = rsi_bt_get_local_device_address_command_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t rsi_ble_set_advertise_data_command_handler(console_args_t *arguments);
+static const char *_ble_set_advertise_data_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_set_advertise_data_command = {
+  .description   = "Set BLE advertising data to device name",
+  .argument_help = _ble_set_advertise_data_arg_help,
+  .handler       = rsi_ble_set_advertise_data_command_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t rsi_ble_start_advertising_command_handler(console_args_t *arguments);
+static const char *_ble_start_advertising_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_start_advertising_command = {
+  .description   = "Start BLE advertising",
+  .argument_help = _ble_start_advertising_arg_help,
+  .handler       = rsi_ble_start_advertising_command_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+
+extern sl_status_t rsi_ble_stop_advertising_command_handler(console_args_t *arguments);
+static const char *_ble_stop_advertising_arg_help[] = {};
+
+static const console_descriptive_command_t _ble_stop_advertising_command = {
+  .description   = "Stop BLE advertising",
+  .argument_help = _ble_stop_advertising_arg_help,
+  .handler       = rsi_ble_stop_advertising_command_handler,
+  .argument_list = { CONSOLE_ARG_END }
+};
+extern sl_status_t wifi_reset_command_handler(console_args_t *arguments);
+static const char *wifi_reset_arg_help[] = {};
+
+static const console_descriptive_command_t wifi_reset_command = { .description   = "Reset the device.",
+                                                                  .argument_help = wifi_reset_arg_help,
+                                                                  .handler       = wifi_reset_command_handler,
+                                                                  .argument_list = { CONSOLE_ARG_END } };
+
+extern sl_status_t sl_si91x_calibration_write_command_handler(console_args_t *arguments);
+static const char *_si91x_calibration_write_arg_help[] = {
+  0, 0, 0, 0, 0, 0,
+};
+
+static const console_descriptive_command_t _si91x_calibration_write_command = {
+  .description   = "Write Calibration data",
+  .argument_help = _si91x_calibration_write_arg_help,
+  .handler       = sl_si91x_calibration_write_command_handler,
+  .argument_list = { CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_INT,
+                     CONSOLE_ARG_INT,
+                     CONSOLE_ARG_INT,
+                     CONSOLE_OPTIONAL_ARG('c', CONSOLE_ARG_INT),
+                     CONSOLE_OPTIONAL_ARG('t', CONSOLE_ARG_UINT),
+                     CONSOLE_ARG_END }
+};
+
+extern sl_status_t sl_si91x_calibration_read_command_handler(console_args_t *arguments);
+static const char *_si91x_calibration_read_arg_help[] = {
+  0,
+};
+
+static const console_descriptive_command_t _si91x_calibration_read_command = {
+  .description   = "Read Calibration data",
+  .argument_help = _si91x_calibration_read_arg_help,
+  .handler       = sl_si91x_calibration_read_command_handler,
+  .argument_list = { CONSOLE_OPTIONAL_ARG('t', CONSOLE_ARG_UINT), CONSOLE_ARG_END }
+};
+
+extern sl_status_t sl_si91x_frequency_offset_command_handler(console_args_t *arguments);
+static const char *_si91x_frequency_offset_arg_help[] = {
+  0,
+};
+
+static const console_descriptive_command_t _si91x_frequency_offset_command = {
+  .description   = "Calibrate frequency offset",
+  .argument_help = _si91x_frequency_offset_arg_help,
+  .handler       = sl_si91x_frequency_offset_command_handler,
+  .argument_list = { CONSOLE_ARG_INT, CONSOLE_ARG_END }
+};
+
 const console_database_t console_command_database = { CONSOLE_DATABASE_ENTRIES(
   { "get", &_get_command },
   { "help", &_help_command },
   { "list", &_list_command },
+  { "reset", &wifi_reset_command },
+  { "set_region_configuration", &_set_region_configuration },
+  { "wifi_radio_deinit", &_wifi_radio_deinit },
+  { "ble_per_transmit", &_ble_per_transmit_command },
+  { "ble_per_receive", &_ble_per_receive_command },
+  { "bt_per_stats", &_bt_per_stats_command },
+  { "ble_user_gain_max_power", &_ble_user_gain_table_max_power },
+  { "ble_user_gain_max_power_offset", &_ble_user_gain_table_max_power_offset },
+  { "ble_user_gain_lp_chain_0dBm_offset", &_ble_user_gain_table_lp_chain_0dBm_offset },
+  { "ble_user_gain_table_lp_chain_8dBm_offset", &_ble_user_gain_table_lp_chain_8dBm_offset },
+  { "ble_tx_test_mode", &_ble_tx_test_mode },
+  { "ble_rx_test_mode", &_ble_rx_test_mode },
+  { "ble_end_test_mode", &_ble_end_test_mode },
+  { "bt_get_local_name", &_bt_get_local_name_command },
+  { "bt_get_local_device_address", &_bt_get_local_device_address_command },
+  { "bt_set_local_name", &_bt_set_local_name_command },
+  { "ble_set_advertise_data", &_ble_set_advertise_data_command },
+  { "ble_start_advertising", &_ble_start_advertising_command },
+  { "ble_stop_advertising", &_ble_stop_advertising_command },
   { "net_deinit", &_net_deinit_command },
   { "net_down", &_net_down_command },
   { "net_init", &_net_init_command },
@@ -1340,7 +1629,7 @@ const console_database_t console_command_database = { CONSOLE_DATABASE_ENTRIES(
   { "rtt", &_rtt_command },
   { "set", &_set_command },
   { "set_nvm_profile", &_set_nvm_profile_command },
-  { "sl_net_host_get_by_name", &_sl_net_host_get_by_name_command },
+  { "sl_net_dns_resolve_hostname", &_sl_net_dns_resolve_hostname_command },
   { "sl_net_ping", &_sl_net_ping_command },
   { "sl_si91x_get_ram_log", &_sl_si91x_get_ram_log_command },
   { "start_dhcp", &_start_dhcp_command },
@@ -1425,4 +1714,7 @@ const console_database_t console_command_database = { CONSOLE_DATABASE_ENTRIES(
   { "wifi_transmit_test_start", &_wifi_transmit_test_start_command },
   { "wifi_ax_transmit_test_start", &_wifi_ax_transmit_test_start_command },
   { "wifi_transmit_test_stop", &_wifi_transmit_test_stop_command },
-  { "wifi_update_gain_table", &_wifi_update_gain_table_command }, ) };
+  { "wifi_update_gain_table", &_wifi_update_gain_table_command },
+  { "si91x_calibration_write", &_si91x_calibration_write_command },
+  { "si91x_calibration_read", &_si91x_calibration_read_command },
+  { "si91x_frequency_offset", &_si91x_frequency_offset_command }, ) };

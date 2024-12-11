@@ -20,7 +20,7 @@
 #include "rsi_debug.h"
 #include "sl_ulp_timer_instances.h"
 #include "sl_si91x_ulp_timer_common_config.h"
-#include "sl_si91x_clock_manager.h"
+
 #include "rsi_rom_clks.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -42,12 +42,6 @@
 #define INITIAL_COUNT                7000      // Count configured at timer init
 #define SYNC_TIME                    5000      // Delay to sync master and slave
 #define RECEIVE_SYNC_TIME            500       // Delay to settle the slave after send
-
-#define SOC_PLL_CLK          ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK         ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
-#define QSPI_ODD_DIV_ENABLE  0                       // Odd division enable for QSPI clock
-#define QSPI_SWALLO_ENABLE   0                       // Swallo enable for QSPI clock
-#define QSPI_DIVISION_FACTOR 0                       // Division factor for QSPI clock
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -68,42 +62,22 @@ static gspi_mode_enum_t current_mode = SL_GSPI_TRANSFER_DATA;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static sl_status_t init_clock_configuration_structure(sl_gspi_clock_config_t *clock_config);
 static void compare_loop_back_data(void);
 static void callback_event(uint32_t event);
 static boolean_t transfer_complete  = false;
 static boolean_t begin_transmission = true;
 static void init_timer_for_sync(void);
 static void wait_for_sync(uint16_t time_ms);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-
-  // Configure QSPI clock as input source
-  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
-                                           QSPI_INTFPLLCLK,
-                                           QSPI_SWALLO_ENABLE,
-                                           QSPI_ODD_DIV_ENABLE,
-                                           QSPI_DIVISION_FACTOR);
-}
 /*******************************************************************************
  * GSPI example initialization function
  ******************************************************************************/
 void gspi_example_init(void)
 {
   sl_status_t status;
-  sl_gspi_clock_config_t clock_config;
   sl_gspi_version_t version;
   sl_gspi_status_t gspi_status;
   sl_gspi_control_config_t config;
@@ -113,9 +87,6 @@ void gspi_example_init(void)
   config.slave_select_mode = SL_GSPI_MASTER_HW_OUTPUT;
   config.swap_read         = GSPI_SWAP_READ_DATA;
   config.swap_write        = GSPI_SWAP_WRITE_DATA;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   // Filling the data out array with integer values
   for (uint16_t i = 0; i < GSPI_BUFFER_SIZE; i++) {
@@ -128,19 +99,6 @@ void gspi_example_init(void)
     version = sl_si91x_gspi_get_version();
     DEBUGOUT("GSPI version is fetched successfully \n");
     DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
-    // Filling up the structure with the default clock parameters
-    status = init_clock_configuration_structure(&clock_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("init_clock_configuration_structure: Error Code : %lu \n", status);
-      break;
-    }
-    // Configuration of clock with the default clock parameters
-    status = sl_si91x_gspi_configure_clock(&clock_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_gspi_clock_configuration: Error Code : %lu \n", status);
-      break;
-    }
-    DEBUGOUT("Clock configuration is successful \n");
     // Pass the address of void pointer, it will be updated with the address
     // of GSPI instance which can be used in other APIs.
     status = sl_si91x_gspi_init(SL_GSPI_MASTER, &gspi_driver_handle);
@@ -304,33 +262,6 @@ void gspi_example_process_action(void)
     case SL_GSPI_TRANSMISSION_COMPLETED:
       break;
   }
-}
-
-/*******************************************************************************
- * Function to fill the structure provided in argument by the default
- * clock paramteres
- * 
- * @param[in] clock_config pointer to the clock configuration structure
- * @return status (sl_status_t)
- *         SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer.
- *         SL_STATUS_OK (0x0000) - Success
- ******************************************************************************/
-static sl_status_t init_clock_configuration_structure(sl_gspi_clock_config_t *clock_config)
-{
-  sl_status_t status;
-  if (clock_config == NULL) {
-    status = SL_STATUS_NULL_POINTER;
-  } else {
-    clock_config->soc_pll_mm_count_value     = GSPI_SOC_PLL_MM_COUNT_LIMIT;
-    clock_config->intf_pll_500_control_value = GSPI_INTF_PLL_500_CTRL_VALUE;
-    clock_config->intf_pll_clock             = GSPI_INTF_PLL_CLK;
-    clock_config->intf_pll_reference_clock   = GSPI_INTF_PLL_REF_CLK;
-    clock_config->soc_pll_clock              = GSPI_SOC_PLL_CLK;
-    clock_config->soc_pll_reference_clock    = GSPI_SOC_PLL_REF_CLK;
-    clock_config->division_factor            = GSPI_DVISION_FACTOR;
-    status                                   = SL_STATUS_OK;
-  }
-  return status;
 }
 
 /*******************************************************************************

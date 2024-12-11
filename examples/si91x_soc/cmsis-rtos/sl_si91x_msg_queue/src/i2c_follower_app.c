@@ -33,7 +33,6 @@
 #define OWN_I2C_ADDR                         0x50        // Own I2C address
 #define RX_LENGTH                            BUFFER_SIZE // Number of bytes to receive
 #define TX_LENGTH                            BUFFER_SIZE // Number of bytes to send
-#define OFFSET_LENGTH                        1           // Offset length
 #define FIFO_THRESHOLD                       0x0         // FIFO threshold
 #define ZERO_FLAG                            0           // Zero flag, No argument
 #define PINMUX_MODE                          6           // I2C pinmux mode
@@ -48,7 +47,7 @@
 #define ULP_GPIO_SCL                         11          // SCL ULP GPIO Pin number
 #define INTERNAL_PULLUP                      1           // Internal Pull-up enable
 #define I2C_INSTANCE                         2           // I2C Instance for Pin configuration
-#define I2C                                  I2C2        // I2C Instance
+#define I2C                                  ULP_I2C     // I2C Instance
 #define MAX_7BIT_ADDRESS                     127         // Maximum 7-bit address
 #define REFERENCE_CLOCK_FREQUENCY            (32000000u) // Reference clock frequency
 #define HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY (40000000u) // High speed mode reference clock frequency
@@ -62,12 +61,6 @@
 #define OUTPUT                               1           // Output value set
 #define HOST_MIN                             24          // GPIO host pad minimum pin number
 #define HOST_MAX                             31          // GPIO host pad maximum pin number
-
-#if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
-#define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
-#define SOC_PLL_CLK ((uint32_t)(32000000)) // 32MHz default SoC PLL Clock as source to Processor for ULP instance
-#endif
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -122,7 +115,7 @@ static uint32_t read_count          = 0;
 static uint8_t *write_data;
 static uint8_t *read_data;
 static uint8_t i2c_write_buffer[BUFFER_SIZE];
-static uint8_t i2c_read_buffer[BUFFER_SIZE + OFFSET_LENGTH];
+static uint8_t i2c_read_buffer[BUFFER_SIZE];
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -134,7 +127,6 @@ static void i2c_clock_init(I2C_TypeDef *i2c);
 static void compare_data(void);
 static void handle_follower_transmit_irq(void);
 static void handle_follower_receive_irq(void);
-static void default_clock_configuration(void);
 
 /*******************************************************************************
  *************************** GLOBAL VARIABLES   *******************************
@@ -144,12 +136,6 @@ extern osMessageQueueId_t mid_usart_msg_queue; // message queue id
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-}
 /*******************************************************************************
  * I2C example initialization function
  ******************************************************************************/
@@ -157,9 +143,6 @@ void i2c_follower_example_init(void)
 {
   i2c_clock_init(I2C);
   sl_i2c_init_params_t config;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   // Filling the structure with default values.
   config.clhr = SL_I2C_STANDARD_BUS_SPEED;
@@ -201,7 +184,7 @@ void i2c_follower_example_process_action(void)
       case RECEIVE_DATA:
         if (receive_data_flag) {
           // Validation for executing the API only once.
-          i2c_receive_data(i2c_read_buffer, RX_LENGTH + OFFSET_LENGTH, OWN_I2C_ADDR);
+          i2c_receive_data(i2c_read_buffer, RX_LENGTH, OWN_I2C_ADDR);
           receive_data_flag = false;
         }
         if (i2c_receive_complete) {
@@ -231,7 +214,7 @@ void i2c_follower_example_process_action(void)
           DEBUGOUT("I2C_Task: Data read from UART_Message_Queue successfully and forwarding to Leader\n");
 
           // Validation for executing the API only once.
-          i2c_send_data(i2c_write_buffer, TX_LENGTH + OFFSET_LENGTH, OWN_I2C_ADDR);
+          i2c_send_data(i2c_write_buffer, TX_LENGTH, OWN_I2C_ADDR);
           send_data_flag = false;
         }
         if (i2c_send_complete) {
@@ -351,7 +334,7 @@ static void compare_data(void)
 static void i2c_clock_init(I2C_TypeDef *i2c)
 {
   if ((uint32_t)i2c == I2C0_BASE) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -362,7 +345,7 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
     RSI_CLK_I2CClkConfig(M4CLK, 1, I2C1_INSTAN);
   }
   if ((uint32_t)i2c == I2C1_BASE) {
-#if defined(SLI_SI917)
+#if defined(SLI_SI917) || defined(SLI_SI915)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -714,23 +697,23 @@ void I2C1_IRQHandler(void)
 }
 
 /*******************************************************************************
- * IRQ handler for I2C2.
+ * IRQ handler for I2C2 (ULP_I2C).
  ******************************************************************************/
 void I2C2_IRQHandler(void)
 {
   uint32_t status = 0;
   uint32_t clear  = 0;
   // Checking interrupt status
-  status = I2C2->IC_INTR_STAT;
+  status = ULP_I2C->IC_INTR_STAT;
   if (status & SL_I2C_EVENT_TRANSMIT_ABORT) {
-    uint32_t tx_abrt = I2C2->IC_TX_ABRT_SOURCE;
+    uint32_t tx_abrt = ULP_I2C->IC_TX_ABRT_SOURCE;
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_NOACK) {
       // Clearing interrupt by reading the respective bit
-      clear = I2C2->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = ULP_I2C->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_READ) {
       // Clearing interrupt by reading the respective bit
-      clear = I2C2->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = ULP_I2C->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_HIGH_SPEED_ACK) {
     }
@@ -757,45 +740,45 @@ void I2C2_IRQHandler(void)
     if (tx_abrt & SL_I2C_ABORT_USER_ABORT) {
     }
     if (tx_abrt & SL_I2C_ABORT_SDA_STUCK_AT_LOW) {
-      I2C2->IC_ENABLE_b.SDA_STUCK_RECOVERY_ENABLE = 0x1;
+      ULP_I2C->IC_ENABLE_b.SDA_STUCK_RECOVERY_ENABLE = 0x1;
     }
     // Clearing all interrupts
-    clear = I2C2->IC_CLR_INTR;
+    clear = ULP_I2C->IC_CLR_INTR;
     // Disables the interrupts.
-    sl_si91x_i2c_disable_interrupts(I2C2, SL_I2C_EVENT_TRANSMIT_EMPTY);
+    sl_si91x_i2c_disable_interrupts(ULP_I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
   }
   if (status & (SL_I2C_EVENT_SCL_STUCK_AT_LOW)) {
     // Clearing interrupt by reading the respective bit
-    clear                = I2C2->IC_CLR_INTR;
-    I2C2->IC_ENABLE_b.EN = 0;
+    clear                   = ULP_I2C->IC_CLR_INTR;
+    ULP_I2C->IC_ENABLE_b.EN = 0;
     return;
   }
   if (status & (SL_I2C_EVENT_MST_ON_HOLD)) {
     // Clearing interrupt by reading the respective bit
-    clear = I2C2->IC_CLR_INTR;
+    clear = ULP_I2C->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_START_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    clear = I2C2->IC_CLR_START_DET_b.CLR_START_DET;
+    clear = ULP_I2C->IC_CLR_START_DET_b.CLR_START_DET;
     return;
   }
   if (status & (SL_I2C_EVENT_STOP_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    clear              = I2C2->IC_CLR_STOP_DET_b.CLR_STOP_DET;
+    clear              = ULP_I2C->IC_CLR_STOP_DET_b.CLR_STOP_DET;
     uint32_t maskReg   = 0;
-    maskReg            = I2C2->IC_INTR_MASK;
+    maskReg            = ULP_I2C->IC_INTR_MASK;
     I2C0->IC_INTR_MASK = (maskReg & (~SL_I2C_EVENT_RECEIVE_FULL));
     return;
   }
   if (status & (SL_I2C_EVENT_ACTIVITY_ON_BUS)) {
     // Clearing interrupt by reading the respective bit
-    clear = I2C2->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
+    clear = ULP_I2C->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
     return;
   }
   if (status & (SL_I2C_EVENT_READ_REQ)) {
     // Clearing interrupt by reading the respective bit
-    clear = I2C2->IC_CLR_RD_REQ_b.CLR_RD_REQ;
+    clear = ULP_I2C->IC_CLR_RD_REQ_b.CLR_RD_REQ;
     return;
   }
   if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
@@ -805,23 +788,23 @@ void I2C2_IRQHandler(void)
     handle_follower_receive_irq();
   }
   if (status & (SL_I2C_EVENT_RECEIVE_UNDER)) {
-    clear = I2C2->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
+    clear = ULP_I2C->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_OVER)) {
-    clear = I2C2->IC_CLR_RX_OVER_b.CLR_RX_OVER;
+    clear = ULP_I2C->IC_CLR_RX_OVER_b.CLR_RX_OVER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_DONE)) {
-    sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_RECEIVE_DONE);
+    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_RECEIVE_DONE);
     return;
   }
   if (status & (SL_I2C_EVENT_GENERAL_CALL)) {
-    sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_GENERAL_CALL);
+    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_GENERAL_CALL);
     return;
   }
   if (status & (SL_I2C_EVENT_RESTART_DET)) {
-    sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_RESTART_DET);
+    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_RESTART_DET);
     return;
   }
   // to avoid unused variable warning

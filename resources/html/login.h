@@ -92,6 +92,7 @@ unsigned char login_content[] =
   "<select id=\"security-type\" name=\"security-type\">"
   "<option value=\"WPA\">WPA</option>"
   "<option value=\"WPA2\">WPA2</option>"
+  "<option value=\"WPA3\">WPA3</option>"
   "<option value=\"Mixed Mode\">Mixed Mode</option>"
   "</select>"
   "</div>"

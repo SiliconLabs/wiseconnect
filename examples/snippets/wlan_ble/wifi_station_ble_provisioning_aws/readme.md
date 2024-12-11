@@ -1,15 +1,16 @@
 # BLE Wi-Fi Provisioning with AWS IoT MQTT
 
 ## Table of Contents
-  - [Purpose / Scope](#purpose--scope)
-  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-    - [Hardware Requirements](#hardware-requirements)
-      - [Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)](#base-board-pin-configuration-for-i2c-b0-boardbrd4338a-soc-boards)
-      - [I2C2](#i2c2)
+
+- [Purpose / Scope](#purpose--scope)
+- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+    - [Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)](#base-board-pin-configuration-for-i2c-b0-boardbrd4338a-soc-boards)
     - [Software Requirements](#software-requirements)
     - [Setup Diagram](#setup-diagram)
   - [Getting Started](#getting-started)
     - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Configuring the BLE application](#configuring-the-ble-application)
     - [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-below-parameters-in-aws_iot_configh-file-present-at-projectconfig)
   - [Test the Application](#test-the-application)
     - [Application Output](#application-output)
@@ -22,11 +23,11 @@
   
 ## Purpose / Scope
 
-In this application, the Bluetooth Low Energy (BLE) and Simplicity Connect Application (formerly EFR Connect App) are used for provisioning the SiWx917 to a Wi-Fi Network. The SiWx917 acts as a Wi-Fi station and connects to the AWS cloud via MQTT. After the connection is established, it subscribes to MQTT_TOPIC1. The application then publishes a message to the cloud on MQTT_TOPIC2, and thereafter the SiWx917 is put into Associated Power Save mode.
+In this application, the Bluetooth Low Energy (BLE) and Simplicity Connect Application (formerly EFR Connect App) are used for provisioning the SiWx917 to a Wi-Fi Network. SiWx917 acts as a Wi-Fi station and connects to the AWS cloud via MQTT. After the connection is established, it subscribes to MQTT_TOPIC1. The application then publishes a message to the cloud on MQTT_TOPIC2, and thereafter the SiWx917 is put into Associated Power Save mode.
 
-## Soc Mode:
+## Soc Mode
 
-Si917 connected to LM75 Temperature Sensor via I2C interface collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set into associated power save. Next, the application works differently in NCP and SoC modes as defined below.  
+Si917 connected to LM75 Temperature Sensor via I2C interface collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set into associated power save. The application works differently in NCP and SoC modes as defined below.  
 
 If macro **SL_SI91X_TICKLESS_MODE** enabled, then the M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
@@ -38,9 +39,14 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 - **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
-- **Button-based Wakeup**:The device can also be awakened by a button signal.
+- **Button-based Wakeup**:
+  - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
+  - To enable wakeup based on button press, configure the PM Wakeup Source and enable the GPIO Wakeup in the software components.
 
-- **Alarm-based Wakeup**:The device can also be awakened by setting the timeout to the appropriate duration in the osSemaphoreAcquire function.
+- **Alarm-based Wakeup**:
+  - ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
+  - To enable wakeup based on Alarm, configure the PM Wakeup Source and enable the Calendar Wakeup in the software components.
+  - By default, the alarm time is set to 5 seconds. Users can configure this as needed when enabling Calendar Wakeup in the PM Wakeup Source Configuration.
 
 After M4 processor wakes up via any of the above processes, the application publishes the **MQTT_publish_QOS0_PAYLOAD** message on the **MQTT_TOPIC2** topic.
 
@@ -56,30 +62,30 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 - Once in every **PUBLISH_PERIODICITY** time period.
 - When an incoming publish is received by the application.
 
-
 **NOTE:** The bold texts are the macros defined in the application. You can find more details about them in the [Application Configuration Parameters](#application-configuration-parameters)
 
 ## Prerequisites / Setup Requirements
 
 ### Hardware Requirements
 
-- A Windows PC 
+- A Windows PC
 - USB-C cable
 - A Wireless Access Point (which has an active internet access)
 - Android Phone or iPhone with **Simplicity Connect App (formerly EFR Connect App)** App, which is available in Play Store and App Store.
-- LM75 Temperature Sensor (in-built sensor available on WSDK/WPK board)
+- **Temperature Sensor Requirement**: Please note that an external LM75 temperature sensor must be connected for the application to function correctly, as the WSDK/WPK board does not have a built-in sensor.
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
-    - Radio Boards 
-     - BRD4338A [SiWx917-RB4338A]
-     - BRD4339B [SiWx917-RB4339B]
-     - BRD4340A [SiWx917-RB4340A]
-  	 - BRD4343A [SiWx917-RB4343A]
-  - Kits
-   - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-   - SiWx917 Pro Kit [Si917-PK6032A]
-   
+    - Radio Boards
+      - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
+      - BRD4340A [SiWx917-RB4340A]
+      - BRD4343A [SiWx917-RB4343A]
+    - Kits
+      - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+      - SiWx917 Pro Kit [Si917-PK6032A]
+      - SiWx917 AC1 Module Explorer Kit (BRD2708A)
+
 - **NCP Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
@@ -88,7 +94,7 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Interface and Host MCU Supported
-    - SPI - EFR32 & STM32 
+    - SPI - EFR32 & STM32
     - UART - EFR32
 
 #### Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)
@@ -102,7 +108,7 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 
 ### Software Requirements
 
-- Simplicity Studio 
+- Simplicity Studio
 - Serial terminal for viewing the print [Tera term](https://tera-term.en.softonic.com/)
 - Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ) from Play store/App store.
 
@@ -110,11 +116,13 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 
   ![](resources/readme/wifi_station_ble_provisioning_aws_soc_ncp.png)
 
+The diagram below illustrates the detailed flow of the application:
+
   ![Setup diagram of WLAN Station BLE Provisioning with AWS cloud ](resources/readme/image_aws1.png)
 
 ## Getting Started
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+The below instructions are provided in [here]( https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 - Install Simplicity Studio and WiSeConnect 3 extension
 - Connect your device to the computer
@@ -127,19 +135,21 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-```c
 For SoC Mode only:
 
- Below is the default configuration for I2C2 instance define in <wiseconnect3/config/RTE_Device_917.h>.
+- Below is the default configuration for I2C2 instance define in wiseconnect3/components/boards/silabs/config/brd4338a/RTE_Device_917.h.
+- I2C2 is utilized for communication with the temperature sensor.
 
-#define RTE_I2C2_SCL_PORT_ID 0
+    ```c
 
-#define RTE_I2C2_SDA_PORT_ID 0
-```
+    #define RTE_I2C2_SCL_PORT_ID 0
+
+    #define RTE_I2C2_SDA_PORT_ID 0
+    ```
 
  Open `wifi_app.c` file and update/modify the following macros:
 
-   Modify the MQTT topics and give different names for both topics the SiWx917 is subscribed to: MQTT_TOPIC1 and publishing to MQTT_TOPIC2. 
+   Modify the MQTT topics and give different names for both topics the SiWx917 is subscribed to: MQTT_TOPIC1 and publishing to MQTT_TOPIC2.
    MQTT web application is subscribed to `MQTT_TOPIC2` and publishing on `MQTT_TOPIC1`.
 
 ```c
@@ -147,94 +157,98 @@ For SoC Mode only:
 #define MQTT_TOPIC2               "si91x_status" //! Publish topic to send the status from application to cloud
 ```
 
-   **NOTE:** You can change the topic names, which are `aws_status` and `si91x_status`.
-
-  
+   **Note:** You can change the topic names, which are `aws_status` and `si91x_status`.
 
 ```c
 #define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save.
 
 #define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
 ```
+
+### Configuring the BLE Application
+
 Open `ble_app.c` file and update/modify following macros:
 
-   **Configuring the BLE Application**
+- `RSI_BLE_CHAR_SERV_UUID` refers to the attribute type of the characteristics to be added in a service.
 
-   `RSI_BLE_CHAR_SERV_UUID` refers to the attribute type of the characteristics to be added in a service.
+  ```c
+  #define  RSI_BLE_CHAR_SERV_UUID                         0x2803
+  ```
 
-```c
-#define  RSI_BLE_CHAR_SERV_UUID                         0x2803
-```
+- `RSI_BLE_CLIENT_CHAR_UUID` refers to the attribute type of the client characteristics descriptor to be added in a service.
 
-   `RSI_BLE_CLIENT_CHAR_UUID` refers to the attribute type of the client characteristics descriptor to be added in a service.
+  ```c
+  #define RSI_BLE_CLIENT_CHAR_UUID                        0x2902
+  ```
 
-```c
-#define RSI_BLE_CLIENT_CHAR_UUID                        0x2902
-```
+- `RSI_BLE_NEW_SERVICE_UUID` refers to the attribute value of the newly created service.
 
-   `RSI_BLE_NEW_SERVICE_UUID` refers to the attribute value of the newly created service.
+  ```c
+  #define  RSI_BLE_NEW_SERVICE_UUID                       0xAABB
+  ```
 
-```c
-#define  RSI_BLE_NEW_SERVICE_UUID                       0xAABB
-```
+- `RSI_BLE_ATTRIBUTE_1_UUID` refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
 
-   `RSI_BLE_ATTRIBUTE_1_UUID` refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
-
-```c
-#define  RSI_BLE_ATTRIBUTE_1_UUID                        0x1AA1
-```
+  ```c
+  #define  RSI_BLE_ATTRIBUTE_1_UUID                        0x1AA1
+  ```
   
-   `RSI_BLE_ATTRIBUTE_2_UUID` refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+- `RSI_BLE_ATTRIBUTE_2_UUID` refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
 
-```c
-#define RSI_BLE_ATTRIBUTE_2_UUID                         0x1BB1
-```
+  ```c
+  #define RSI_BLE_ATTRIBUTE_2_UUID                         0x1BB1
+  ```
 
-   `RSI_BLE_ATTRIBUTE_3_UUID` refers to the attribute type of the third attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+- `RSI_BLE_ATTRIBUTE_3_UUID` refers to the attribute type of the third attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
 
-```c
-#define RSI_BLE_ATTRIBUTE_3_UUID                         0x1CC1
-```
+   ```c
+   #define RSI_BLE_ATTRIBUTE_3_UUID                         0x1CC1
+   ```
 
-   `RSI_BLE_MAX_DATA_LEN` refers to the Maximum length of the attribute data.
+- `RSI_BLE_MAX_DATA_LEN` refers to the Maximum length of the attribute data.
 
-```c
-#define RSI_BLE_MAX_DATA_LEN                               20
-```
+   ```c
+   #define RSI_BLE_MAX_DATA_LEN                               20
+   ```
 
-  **The following are the **non-configurable** macros in the application.**
+The following are the **non-configurable** macros in the application.
 
-   `RSI_BLE_APP_DEVICE_NAME` refers to the name of the Silicon Labs device to appear during scanning by remote devices. Use the same name as mentioned.
-```c
-#define  RSI_BLE_APP_DEVICE_NAME               "BLE_CONFIGURATOR"
-```
+- `RSI_BLE_APP_DEVICE_NAME` refers to the name of the Silicon Labs device to appear during scanning by remote devices. Use the same name as mentioned.
 
+   ```c
+   #define  RSI_BLE_APP_DEVICE_NAME               "BLE_CONFIGURATOR"
+   ```
 
-   RSI_BLE_ATT_PROPERTY_READ is used to set the READ property to an attribute value. 
+- `RSI_BLE_ATT_PROPERTY_READ` is used to set the READ property to an attribute value.
 
-```c
-#define  RSI_BLE_ATT_PROPERTY_READ                    0x02
-```
+   ```c
+   #define  RSI_BLE_ATT_PROPERTY_READ                    0x02
+   ```
 
-   `RSI_BLE_ATT_PROPERTY_WRITE` is used to set the WRITE property to an attribute value.
+- `RSI_BLE_ATT_PROPERTY_WRITE` is used to set the WRITE property to an attribute value.
 
-```c
-#define RSI_BLE_ATT_PROPERTY_WRITE                       0x08
-```
+   ```c
+   #define RSI_BLE_ATT_PROPERTY_WRITE                       0x08
+   ```
 
-   `RSI_BLE_ATT_PROPERTY_NOTIFY` is used to set the NOTIFY property to an attribute value.
+- `RSI_BLE_ATT_PROPERTY_NOTIFY` is used to set the NOTIFY property to an attribute value.
 
-```c
-#define  RSI_BLE_ATT_PROPERTY_NOTIFY                      0x10
-```
+  ```c
+  #define  RSI_BLE_ATT_PROPERTY_NOTIFY                      0x10
+  ```
+
+**Note:**
+
+- By default, values are configured as shown above.
+- Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
+
 ### Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`
 
-> - Before configuring the parameters in `aws_iot_config.h`, register the SiWx917 device in the AWS IoT registry by following the steps mentioned in [Create an AWS Thing](#create-an-aws-thing) section.
->
-> - Configure AWS_IOT_MQTT_HOST macro with the device data endpoint to connect to AWS. To get the device data endpoint in the AWS IoT Console, navigate to Settings, copy the Endpoint, and define the AWS_IOT_MQTT_HOST macro with this value.
->
->   ![AWS_IOT_MQTT_HOST_NAME](resources/readme/aws_iot_mqtt_host_url_1.png)
+Before configuring the parameters in `aws_iot_config.h`, register the SiWx917 device in the AWS IoT registry by following the steps mentioned in the [Create an AWS Thing](#create-an-aws-thing) section.
 
+Configure AWS_IOT_MQTT_HOST macro with the device data endpoint to connect to AWS. To get the device data endpoint in the AWS IoT Console, navigate to Settings, copy the Endpoint, and define the AWS_IOT_MQTT_HOST macro with this value.
+
+![AWS_IOT_MQTT_HOST_NAME](resources/readme/aws_iot_mqtt_host_url_1.png)
 
  ```c
    //AWS Host name 
@@ -248,18 +262,19 @@ Open `ble_app.c` file and update/modify following macros:
    // Thing Name of the Shadow this device is associated with 
    #define AWS_IOT_MY_THING_NAME      "silicon_labs_thing"    
 ```
-> - To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must have a device certificate, private key, and CA certificate, which are downloaded during the creation/registration of AWS Thing.
-> 
-> - By default, the device certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the device certificate and private key to the SiWx917, the device certificate and private key should be converted into a C-array. For converting the certificates and private key into a C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
->
-> - By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
+
+To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must have a device certificate, private key, and CA certificate, which are downloaded during the creation/registration of AWS Thing.
+
+By default, the device certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the device certificate and private key to the SiWx917, the device certificate and private key should be converted into a C-array. For converting the certificates and private key into a C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
+
+By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format.
 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+The below instructions are provied in [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 - Build the application.
 - Flash, run, and debug the application.
@@ -315,56 +330,59 @@ Follow the steps below for successful execution of the application:
   ![](resources/readme/output3.png)
 
 **Note:**
-- To learn more about aws mqtt apis error codes, refer to the wiseconnect3\third_party\aws_sdk\include\aws_iot_error.h file.
+
+- To learn more about aws mqtt apis error codes, refer to the `aws_iot_error.h` file present in the `<SDK>\third_party\aws_sdk\include\`.
 - If the user is calling select and experiencing long wait times, and if no data is received, it is the user's responsibility to manage sending the keepalive packets to maintain the connection.
   
 ### MQTT Connection
 
-- After successful Wi-Fi connection, the application connects to AWS Core and subscribes to a topic. It then publishes a message on the subscribed topic and waits to receive the data published on the subscribed topic from the cloud.
+- After successfully connecting to Wi-Fi, the application establishes a connection to AWS IoT Core. It subscribes to a topic (`MQTT_TOPIC2`) and publishes a message on another topic (`MQTT_TOPIC1`). The application then waits to receive data published on the subscribed topic from the cloud.
 
-- You can use any MQTT client and connect to the AWS cloud for subscribe and publishing messages.
-To do that, 
-1. Go to the  [AWS IoT console](https://console.aws.amazon.com/iot/home). In the navigation pane, under Manage, choose All devices, and then choose Things.
+- You can use any MQTT client to connect to the AWS IoT cloud for subscribing and publishing messages.
 
-2. Click on the thing you have created. Go to activity as shown below. Click on MQTT test client as shown below.
+  1. Go to the  [AWS IoT console](https://console.aws.amazon.com/iot/home). In the navigation pane, under Manage, choose All devices, and then choose Things.
 
-   ![](resources/readme/aws_screen.png)
+  2. Click on the thing you have created. Go to activity as shown below. Click on MQTT test client as shown below.
 
+     ![](resources/readme/aws_screen.png)
 
-3. Then subscribe to a topic that is configured in the application, give the name of the topic, and click on subscribe as shown below. You can see the published data from the device.
+  3. Then subscribe to a topic that is configured in the application, give the name of the topic, and click on subscribe as shown below. You can see the published data from the device.
 
-   ![](resources/readme/aws_screen1.png)
-   
-   ![](resources/readme/aws_screen2.png)
+     ![](resources/readme/aws_screen1.png)
 
-4. To publish data from AWS, enter the name of the topic configured in the application and write down the data at Message payload as shown below. Then click on publish.
+     ![](resources/readme/aws_screen2.png)
 
-   ![](resources/readme/aws_screen3.png)
+  4. To publish data from AWS, enter the name of the topic configured in the application and write down the data at Message payload as shown below. Then click on publish.
+
+     ![](resources/readme/aws_screen3.png)
 
 ## Additional Information
 
 ### Current Measurement using Simplicity Studio Energy Profiler
 
-Using Simplicity Studio Energy Profiler for current measurement:
+To use Simplicity Studio Energy Profiler for current measurements, complete the following steps.
   
-- After flashing the application code to the module, the energy profiler can be used for current consumption measurements.
+After flashing the application code to the module, the energy profiler can be used for current consumption measurements.
 
-- From tools, choose Energy Profiler and click "OK".
+1. From tools, choose Energy Profiler and click **OK**.
 
-  ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_6.png)
+   ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_6.png)
 
-- From Quick Access, choose Start Energy Capture option.
+2. From Quick Access, choose **Start Energy Capture** option.
 
-  ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
+   ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
 
-  **NOTE** : The measured current may vary if the scenario is performed in an open environment. AP to AP variation is also observed.
-  **NOTE** : To achieve the lowest power numbers in connected sleep, in SoC mode, configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to without RAM retention, i.e., `sl_si91x_configure_ram_retention` should not be done.
+   **NOTE** :
 
-- Average current consumption measured in power-meter
+    - The measured current may vary if the scenario is performed in an open environment. AP to AP variation is also observed.
+    - To achieve the lowest power numbers in connected sleep, in SoC mode, configure mem_config to
+  `MEMORY_MCU_ADVANCED_WIRELESS_BASIC` in software components and M4 to without RAM retention, i.e., `sl_si91x_configure_ram_retention` should not be done.
+
+- Average current consumption measured in energy profiler.
 
   ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
 
- **NOTE:**
+**NOTE:**
 
 For NCP mode, following defines have to enabled manually in preprocessor setting of example project
 
@@ -390,11 +408,12 @@ For NCP mode, following defines have to enabled manually in preprocessor setting
 
 - After running the above commands, two new files are created as below:
 
-  ```sh
-  aws_client_certificate.pem.crt.h
-  aws_client_private_key.pem.key.h
-  ```
-- After converting the device certificate and private key to C - array, it is essential to include the device certificate: aws_client_certificate.pem.crt.h and private key: aws_client_private_key.pem.key.h in the wifi_app.c.
+   ```sh
+   aws_client_certificate.pem.crt.h
+   aws_client_private_key.pem.key.h
+   ```
+
+- After converting the device certificate and private key to C - array, it is essential to include the device certificate: `aws_client_certificate.pem.crt.h` and private key: `aws_client_private_key.pem.key.h` in the `<SDK>/resources/certificates` folder.
 
 - Ensure to load the device certificate and private key to SiWx917 using [sl_net_set_credential()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential) API.
 
@@ -407,11 +426,11 @@ For NCP mode, following defines have to enabled manually in preprocessor setting
 - Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
 
 - The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
- 
+
   > **NOTE :**
   > Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/aws_starfield_ca.pem.h).
   >
-  > AWS has announced that there will be changes in their root CA chain. More details can be found in the reference link:(https://aws.amazon.com/blogs/security/acm-will-no-longer-cross-sign-certificates-with-starfield-class-2-starting-august-2024/)
+  > AWS has announced that there will be changes in their root CA chain. More details can be found in the reference link: [here](https://aws.amazon.com/blogs/security/acm-will-no-longer-cross-sign-certificates-with-starfield-class-2-starting-august-2024/)
   >
   > We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`
   >
@@ -419,71 +438,73 @@ For NCP mode, following defines have to enabled manually in preprocessor setting
   >
   > The StarField Root CA certificate is an expected/required certificate which usually comes pre-installed in the operating systems and plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
   >
-  > On SiWx91x device, we do not maintain the root CA trust repository due to memory constraints, so it is mandatory to load Starfield Root CA certificate for successful mutual authentication to the AWS server.
+  > On a SiWx91x device, we do not maintain the root CA trust repository due to memory constraints, so it is mandatory to load Starfield Root CA certificate for successful mutual authentication to the AWS server.
   >
   > The certificate chain sent by AWS server is as below:
-  > Starfield Class 2 :
+  > **Starfield Class 2**:
   > id-at-commonName=Amazon,RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
   > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
   > id-at-commonName=Starfield Services Root Certificate Authority - G2,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at- stateOrProvinceName=Arizona,id-at-countryName=US
   >id-at-organizationalUnitName=Starfield Class 2 Certification Authority,id-at-organizationName=Starfield Technologies, Inc.,id-at-countryName=US
   >
-  > Starfield G2:
+  > **Starfield G2**:
   > id-at-commonName=Amazon RSA 2048 M01,id-at-organizationName=Amazon,id-at-countryName=US
   > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
   > id-at-commonName=Starfield Services Root Certificate Authority - G2,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at-stateOrProvinceName=Arizona,id-at-countryName=US
   >
   > To authenticate the AWS server on SiWx91x, first validate the Root CA (validate the Root CA received with the Root CA loaded on the device). Once the Root CA validation is successful, other certificates sent from the AWS server are validated.
-  > If intermediate CA certificates are loaded instead of the Starfield Root CA certificate, the SiWx91x will not authenticate to the AWS server, resulting in a Handshake error.
+  > Alternate certification chains support is added. With this, as opposed to requiring full chain validation, only the peer certificate must validate to a trusted certificate. This allows loading intermediate root CA's as trusted.
+  > The default CA certificate is the Starfield Combined CA certificate. To use the Intermediate Amazon Root CA 1 certificate, define the `SL_SI91X_AWS_IOT_ROOT_CA1` macro in the application.
 
 ### Create an AWS Thing
 
 Create a thing in the AWS IoT registry to represent your IoT device.
 
-- In the [AWS IoT console](https://console.aws.amazon.com/iot/home), in the navigation pane, under Manage, choose All devices, and then choose Things.
+1. In the [AWS IoT console](https://console.aws.amazon.com/iot/home), in the navigation pane, under **Manage**, choose **All devices**, and then choose **Things**.
 
-  ![AWS console](resources/readme/aws_create_thing_step1.png)
+   ![AWS console](resources/readme/aws_create_thing_step1.png)
 
-- If **No things** message is displayed, click on **Create things**.
+2. If **No things** message is displayed, click on **Create things**.
 
-  ![AWS thing](resources/readme/aws_create_thing_step2.png)
+   ![AWS thing](resources/readme/aws_create_thing_step2.png)
 
-- On the **Create things** page, choose **Create single thing** and click next.
+3. On the **Create things** page, choose **Create single thing** and click next.
 
-  ![AWS thing creation](resources/readme/aws_create_thing_step3.png)
+   ![AWS thing creation](resources/readme/aws_create_thing_step3.png)
 
-- On the **Specify thing properties** page, enter a name for your IoT thing (for example, **Test_IoT**), and choose **Unnamed shadow (classic)** in the Device Shadow section, then choose **Next**. You cannot change the name of a thing after you create it. To change a thing's name, you must create a new thing, give it a new name, and then delete the old thing.
+4. On the **Specify thing properties** page, enter a name for your IoT thing (for example, **Test_IoT**), and choose **Unnamed shadow (classic)** in the Device Shadow section, then choose **Next**. You cannot change the name of a thing after you create it. To change a thing's name, you must create a new thing, give it a new name, and then delete the old thing.
 
-  ![Add Device 1](resources/readme/aws_create_thing_step4.png)
+   ![Add Device 1](resources/readme/aws_create_thing_step4.png)
 
-- During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
+5. During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
 
-  ![Add Device 2](resources/readme/aws_create_thing_step5.png)
+   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- Attach the policy to the thing created.
-  -  If you have any existing policy, attach it and click on create thing.
+6. Attach the policy to the thing created.
+
+   - If you have an existing policy, attach it and click on create thing.
 
      ![Attach policy](resources/readme/aws_choosing_policy.png)
 
-  -  If policy is not yet created, follow the steps below.
+   - If policy is not yet created, follow the steps below.
   
-     -   Choose **Create policy** and fill the fields as per your requirements.
-     
+     1. Choose **Create policy** and fill the fields as per your requirements.
+
          ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
 
-     - Give the **Name** to your Policy. Fill in the **Action** and **Resource ARN** fields as shown in the image below. Click on **Allow** under **Effect** and click **Create**.
-    
-       ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
+     2. Give the **Name** to your Policy. Fill in the **Action** and **Resource ARN** fields as shown in the image below. Click on **Allow** under **Effect** and click **Create**.
 
-     - Choose the created policy and click on **Create thing**.
+        ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
 
- - Choose the **Download** links to download the device certificate and private key. Note that Root CA certificate is already present in the SDK (aws_starfield_ca.pem.h), and can be directly used.
+     3. Choose the created policy and click on **Create thing**.
+
+7. Choose the **Download** links to download the device certificate and private key. Note that Root CA certificate is already present in the SDK (aws_starfield_ca.pem.h), and can be directly used.
   
     >**Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them securely.
 
     ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
 
-  - Click **Done**.
+8. Click **Done**.
 
-  - The created thing should now be visible on the AWS console (Manage > All devices > Things).
+   The created thing should now be visible on the AWS console (**Manage > All devices > Things**).
   

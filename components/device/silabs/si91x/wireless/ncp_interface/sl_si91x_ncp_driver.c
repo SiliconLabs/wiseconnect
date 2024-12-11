@@ -131,34 +131,38 @@ sl_status_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data)
       break;
 
     case RSI_PING_WRITE:
-      // To Do: Recheck the number bytes to written into memory
-      retval = sl_si91x_bus_write_memory(0x51400, 2048, (uint8_t *)((uint32_t)data));
-      VERIFY_STATUS_AND_RETURN(retval);
-
-      // To Do: Recheck the number bytes to written into memory
-      retval = sl_si91x_bus_write_memory(0x51400 + 2048, 2048, (uint8_t *)((uint32_t)data + 2048));
-      VERIFY_STATUS_AND_RETURN(retval);
-
+#ifdef SLAVE_MODE_TRANSFER
+      // Bootloader expects 4KB of data.
+      retval = sli_si91x_bus_write_slave(RSI_PING_PONG_CHUNK_SIZE, (uint8_t *)data);
+#else
+      for (uint32_t offset = 0; offset < 4096; offset += 1024) {
+        retval = sl_si91x_bus_write_memory(0x51400 + offset, 1024, (uint8_t *)((uint32_t)data + offset));
+        VERIFY_STATUS_AND_RETURN(retval);
+      }
+#endif
       local  = (RSI_PING_AVAIL | RSI_HOST_INTERACT_REG_VALID);
       retval = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&local);
       break;
 
     case RSI_PONG_WRITE:
-      // To Do: Recheck the number bytes to written into memory
-      retval = sl_si91x_bus_write_memory(0x52400, 2048, (uint8_t *)((uint32_t)data));
-      VERIFY_STATUS_AND_RETURN(retval);
-
-      // To Do: Recheck the number bytes to written into memory
-      retval = sl_si91x_bus_write_memory(0x52400 + 2048, 2048, (uint8_t *)((uint32_t)data + 2048));
-      VERIFY_STATUS_AND_RETURN(retval);
+#ifdef SLAVE_MODE_TRANSFER
+      // Bootloader expects 4KB of data.
+      retval = sli_si91x_bus_write_slave(RSI_PING_PONG_CHUNK_SIZE, (uint8_t *)data);
+#else
+      for (uint32_t offset = 0; offset < 4096; offset += 1024) {
+        retval = sl_si91x_bus_write_memory(0x52400 + offset, 1024, (uint8_t *)((uint32_t)data + offset));
+        VERIFY_STATUS_AND_RETURN(retval);
+      }
+#endif
 
       // Perform the write operation
       local  = (RSI_PONG_AVAIL | RSI_HOST_INTERACT_REG_VALID);
       retval = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&local);
       break;
 
+    case BURN_M4_FW:
     case BURN_NWP_FW:
-      cmd    = BURN_NWP_FW | RSI_HOST_INTERACT_REG_VALID;
+      cmd    = type | RSI_HOST_INTERACT_REG_VALID;
       retval = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&cmd);
       VERIFY_STATUS_AND_RETURN(retval);
 

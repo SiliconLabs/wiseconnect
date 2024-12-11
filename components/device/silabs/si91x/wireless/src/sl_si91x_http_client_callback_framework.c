@@ -96,7 +96,7 @@ static sl_status_t sl_si91x_http_client_put_delete(void)
   uint16_t packet_len   = sizeof(sl_si91x_http_client_put_request_t) - SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_PUT,
-                                        SI91X_NETWORK_CMD_QUEUE,
+                                        SI91X_NETWORK_CMD,
                                         request,
                                         packet_len,
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,

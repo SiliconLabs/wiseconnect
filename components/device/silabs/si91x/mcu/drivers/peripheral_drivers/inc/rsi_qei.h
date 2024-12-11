@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_qei.h
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -19,6 +31,9 @@
 
 #include "base_types.h"
 #include "rsi_ccp_common.h"
+#include "rsi_pll.h"
+#include "rsi_rom_clks.h"
+#include "rsi_rom_egpio.h"
 
 #ifndef RSI_QEI_H
 #define RSI_QEI_H
@@ -102,9 +117,16 @@ extern "C" {
 #define QEI_ENCODING_MODE_1X 0x00
 #define QEI_ENCODING_MODE_2X 0x01
 #define QEI_ENCODING_MODE_4X 0x02
+
+#define INDEX_MATCH_VALUE_MASK 0x03 // Mask for the index match value (2 bits)
+
 /** @addtogroup SOC25
 * @{
 */
+
+// Function prototypes
+void RSI_QEI_Enable(QEI_Type *pstcQei);
+void RSI_QEI_Disable(QEI_Type *pstcQei);
 /*===================================================*/
 /**
  * @fn          STATIC INLINE void RSI_QEI_SetConfiguration(volatile QEI_Type  *pstcQei, uint32_t configParms)   
@@ -303,6 +325,19 @@ STATIC INLINE boolean_t RSI_QEI_GetDirection(volatile QEI_Type *pstcQei)
 
 /*===================================================*/
 /**
+ * @fn          STATIC INLINE boolean_t RSI_QEI_GetDirection(volatile QEI_Type  *pstcQei)
+ * @brief     Sets the direction of the QEI interfaced motor
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      returns 1: (+) Positive direction \ref QEI_STATUS_REG_b
+ *                      0: (-) Negative direction \ref QEI_STATUS_REG_b
+ */
+STATIC INLINE void RSI_QEI_SetDirection(volatile QEI_Type *pstcQei, boolean_t direction)
+{
+  pstcQei->QEI_CTRL_REG_SET_b.POS_CNT_DIR_FRM_REG = direction;
+}
+
+/*===================================================*/
+/**
  * @fn          STATIC INLINE int32_t RSI_QEI_GetStatus(volatile QEI_Type  *pstcQei)
  * @brief	    Gets the status of the QEI module
  * @param[in]   pstcQei : Pointer to the QEI register instance
@@ -324,6 +359,44 @@ STATIC INLINE void RSI_QEI_StartVelocityCounter(volatile QEI_Type *pstcQei)
 {
   // Enable velocity counter
   pstcQei->QEI_CTRL_REG_SET = BIT(11);
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE void RSI_QEI_ConfigureTimerMode(volatile QEI_Type *pstcQei, boolean_t timer_mode)
+ * @brief       Configures the timer mode for the QEI module.
+ * @param[in]   pstcQei : Pointer to the QEI register instance (e.g., QEI_CTRL_REG_SET).
+ * @param[in]   timer_mode : Boolean value to enable (1) or disable (0) timer mode.
+ * @return      none
+ */
+STATIC INLINE void RSI_QEI_ConfigureTimerMode(volatile QEI_Type *pstcQei, boolean_t timer_mode)
+{
+  if (timer_mode == TRUE) {
+    // Enable timer mode by setting the appropriate bit in the control register
+    pstcQei->QEI_CTRL_REG_SET |= BIT(10);
+  } else {
+    // Disable timer mode by clearing the appropriate bit in the control register
+    pstcQei->QEI_CTRL_REG_SET &= ~BIT(10);
+  }
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE void RSI_QEI_Swap_PhaseAB(volatile QEI_Type *pstcQei, boolean_t swap_select)
+ * @brief       Swaps the phase A and phase B signals for the QEI module.
+ * @param[in]   pstcQei : Pointer to the QEI register instance (e.g., QEI_CTRL_REG_SET).
+ * @param[in]   swap_select : Boolean value to enable (1) or disable (0) phase swapping.
+ * @return      none
+ */
+STATIC INLINE void RSI_QEI_Swap_PhaseAB(volatile QEI_Type *pstcQei, boolean_t swap_select)
+{
+  if (swap_select == 1) {
+    // Enable phase swapping by setting the appropriate bit in the control register
+    pstcQei->QEI_CTRL_REG_SET |= QEI_SWAP_PHASE_AB_B;
+  } else {
+    // Disable phase swapping by clearing the appropriate bit in the control register
+    pstcQei->QEI_CTRL_REG_SET &= ~QEI_SWAP_PHASE_AB_B;
+  }
 }
 
 /*===================================================*/
@@ -524,10 +597,113 @@ STATIC INLINE uint32_t RSI_QEI_GetMode(volatile QEI_Type *pstcQei)
   return pstcQei->QEI_CNTLR_INIT_REG_b.QEI_ENCODING_MODE;
 }
 
-// Function prototypes
-void RSI_QEI_Enable(volatile QEI_Type *pstcQei);
-void RSI_QEI_Disable(volatile QEI_Type *pstcQei);
-void IRQ049_Handler(void);
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE void RSI_QEI_VelocityValueToCompare(volatile QEI_Type *pstcQei, uint32_t Velocity)
+ * @brief       Sets the velocity value for comparison in the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @param[in]   Velocity : The velocity value to set
+ */
+STATIC INLINE void RSI_QEI_VelocityValueToCompare(volatile QEI_Type *pstcQei, uint32_t velocity)
+{
+  pstcQei->QEI_VELOCITY_REG = velocity;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE void RSI_QEI_SetPosition(volatile QEI_Type *pstcQei, uint32_t Position)
+ * @brief       Sets the current position in the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @param[in]   Position : The position value to set
+ */
+STATIC INLINE void RSI_QEI_SetPosition(volatile QEI_Type *pstcQei, uint32_t position)
+{
+  pstcQei->QEI_POSITION_CNT_REG = position;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE void RSI_QEI_SetIndex(volatile QEI_Type *pstcQei, uint32_t Index)
+ * @brief       Sets the index count value in the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @param[in]   Index : The index value to set
+ */
+STATIC INLINE void RSI_QEI_SetIndex(volatile QEI_Type *pstcQei, uint32_t index)
+{
+  pstcQei->QEI_INDEX_CNT_REG = index;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE uint32_t RSI_QEI_GetClrIntrStatus(volatile QEI_Type *pstcQei)
+ * @brief       Retrieves the interrupt acknowledgment status for the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      Returns the acknowledged interrupt status
+ */
+STATIC INLINE uint32_t RSI_QEI_GetClrIntrStatus(volatile QEI_Type *pstcQei)
+{
+  return pstcQei->QEI_INTR_ACK_REG;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE void RSI_QEI_SetIndexMatchValue(volatile QEI_Type *pstcQei, uint32_t Match_Value)
+ * @brief       Sets the index match value in the QEI control register.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @param[in]   Match_Value : The index match value to set (limited to 2 bits)
+ */
+STATIC INLINE void RSI_QEI_SetIndexMatchValue(volatile QEI_Type *pstcQei, uint32_t match_Value)
+{
+  pstcQei->QEI_CNTLR_INIT_REG_b.INDEX_MATCH_VALUE = (unsigned int)(match_Value & INDEX_MATCH_VALUE_MASK);
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE uint32_t RSI_QEI_GetIndexMatchValue(volatile QEI_Type *pstcQei)
+ * @brief       Retrieves the index match value from the QEI control register.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      Returns the current index match value
+ */
+STATIC INLINE uint32_t RSI_QEI_GetIndexMatchValue(volatile QEI_Type *pstcQei)
+{
+  return pstcQei->QEI_CNTLR_INIT_REG_b.INDEX_MATCH_VALUE;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE uint32_t RSI_QEI_GetControls(volatile QEI_Type *pstcQei)
+ * @brief       Retrieves the current control settings for the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      Returns the current control register settings
+ */
+STATIC INLINE uint32_t RSI_QEI_GetControls(volatile QEI_Type *pstcQei)
+{
+  return pstcQei->QEI_CNTLR_INIT_REG;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE uint32_t RSI_QEI_GetSetConfiguration(volatile QEI_Type *pstcQei)
+ * @brief       Retrieves the set configuration settings for the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      Returns the set configuration register
+ */
+STATIC INLINE uint32_t RSI_QEI_GetSetConfiguration(volatile QEI_Type *pstcQei)
+{
+  return pstcQei->QEI_CTRL_REG_SET;
+}
+
+/*===================================================*/
+/**
+ * @fn          STATIC INLINE uint32_t RSI_QEI_GetClrConfiguration(volatile QEI_Type *pstcQei)
+ * @brief       Retrieves the clear configuration settings for the QEI.
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      Returns the clear configuration register
+ */
+STATIC INLINE uint32_t RSI_QEI_GetClrConfiguration(volatile QEI_Type *pstcQei)
+{
+  return pstcQei->QEI_CTRL_REG_RESET;
+}
 
 #ifdef __cplusplus
 }

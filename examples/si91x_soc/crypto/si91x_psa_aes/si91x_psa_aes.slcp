@@ -14,7 +14,7 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 readme:
   - path: readme.md
 source:
@@ -38,7 +38,7 @@ component:
   - id: psa_crypto_cipher_ctr
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: wiseconnect3_common
     from: wiseconnect3_sdk
@@ -63,7 +63,7 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

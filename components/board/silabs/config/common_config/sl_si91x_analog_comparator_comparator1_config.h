@@ -37,31 +37,28 @@
 // <h>Analog Comparator Configuration
 
 #define SL_ANALOG_COMPARATOR_COMPARATOR1 1
-#define SL_ANALOG_COMPARATOR_COMPARATOR2 2
-
-#define SL_ANALOG_COMPARTOR_DEFAULT SL_ANALOG_COMPARATOR_COMPARATOR2
 
 // <o SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT> Non-inverting Input
-//   <SL_COMPARATOR_GPIO_INPUT_0=> External Input-0
-//   <SL_COMPARATOR_GPIO_INPUT_1=> External Input-1
-//   <SL_COMPARATOR_DAC_OUTPUT=> DAC OUTPUT as comparator input
-//   <SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT=> Reference buffer output as comparator input
-//   <SL_COMPARATOR_REFERENCE_SCALER_OUTPUT=> Reference scaler output as comparator input
-//   <SL_COMPARATOR_RESISTOR_BANK_OUTPUT=> Resistor bank output as comparator input
-//   <SL_COMPARATOR_OPAMP1_OUTPUT=> OPAMP1 output as comparator input
+//   <SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0=> External Input-0
+//   <SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1=> External Input-1
+//   <SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT=> DAC OUTPUT as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT=> Reference buffer output as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT=> Reference scaler output as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT=> Resistor bank output as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT=> OPAMP1 output as comparator input
 // <i> Selection of Comparator Non-inverting input
-#define SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT SL_COMPARATOR_GPIO_INPUT_1
+#define SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1
 
 // <o SL_ANALOG_COMPARATOR_INVERTING_INPUT> Inverting Input
-//   <SL_COMPARATOR_GPIO_INPUT_0=> External Input-0
-//   <SL_COMPARATOR_GPIO_INPUT_1=> External Input-1
-//   <SL_COMPARATOR_DAC_OUTPUT=> DAC OUTPUT as comparator input
-//   <SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT=> Reference buffer output as comparator input
-//   <SL_COMPARATOR_REFERENCE_SCALER_OUTPUT=> Reference scaler output as comparator input
-//   <SL_COMPARATOR_RESISTOR_BANK_OUTPUT=> Resistor bank output as comparator input
-//   <SL_COMPARATOR_OPAMP1_OUTPUT=> OPAMP1 output as comparator input
+//   <SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0=> External Input-0
+//   <SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1=> External Input-1
+//   <SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT=> DAC OUTPUT as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT=> Reference buffer output as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT=> Reference scaler output as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT=> Resistor bank output as comparator input
+//   <SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT=> OPAMP1 output as comparator input
 // <i> Selection of Comparator Inverting input
-#define SL_ANALOG_COMPARATOR_INVERTING_INPUT SL_COMPARATOR_GPIO_INPUT_1
+#define SL_ANALOG_COMPARATOR_INVERTING_INPUT SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1
 
 #define SL_ANALOG_COMPARATOR_HYSTERSIS_VALUE SL_COMPARATOR_HYSTERSIS_VALUE_0
 
@@ -71,8 +68,8 @@
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <comp signal=COMP_P1,COMP_N1> SL_COMP1
-// $[COMP_SL_COMP1]
+// <comp1 signal=COMP_P1,COMP_N1> SL_COMP1
+// $[COMP1_SL_COMP1]
 #ifndef SL_COMP1_PERIPHERAL
 #define SL_COMP1_PERIPHERAL COMP1
 #endif
@@ -98,14 +95,14 @@
 #ifndef SL_COMP1_N1_LOC
 #define SL_COMP1_N1_LOC 1
 #endif
-// [COMP_SL_COMP1]$
+// [COMP1_SL_COMP1]$
 // <<< sl:end pin_tool >>>
 
-#if (SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT == SL_COMPARATOR_GPIO_INPUT_1)
+#if (SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
 #define SL_ANALOG_COMPARATOR_NON_INVERTING_PIN_INPUT SL_COMP1_P1_LOC
 #endif
-#if (SL_ANALOG_COMPARATOR_INVERTING_INPUT == SL_COMPARATOR_GPIO_INPUT_1)
+#if (SL_ANALOG_COMPARATOR_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
 #define SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT SL_COMP1_N1_LOC
 #endif
 
-#endif // SL_ANALOG_COMPARATOR_COMPARATOR1_CONFIG_H
+#endif // SL_SI91X_ANALOG_COMPARATOR_COMPARATOR1_CONFIG_H

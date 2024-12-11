@@ -1,7 +1,7 @@
 /***************************************************************************/
 /**
  * @file ulp_i2c_leader_example.h
- * @brief ULP_I2C Leader examples functions
+ * @brief ULP_I2C Leader Blocking examples functions
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>

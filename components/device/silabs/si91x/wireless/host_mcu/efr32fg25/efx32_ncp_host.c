@@ -67,7 +67,7 @@ static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *us
 static void gpio_interrupt(uint8_t interrupt_number)
 {
   UNUSED_PARAMETER(interrupt_number);
-  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   //  GPIO_IntClear(0xAAAA);
 }
 
@@ -86,7 +86,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
   return GPIO_PinInGet(WAKE_INDICATOR_PIN.port, WAKE_INDICATOR_PIN.pin);
 }
 
-sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
 {
   UNUSED_PARAMETER(config);
   if (!host_initialized) {

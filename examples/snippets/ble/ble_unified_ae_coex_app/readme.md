@@ -22,6 +22,8 @@ This application demonstrates how to configure SiWx91x in Extended Advertising m
 - Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
+  - Kits
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - PSRAM Mode:  
   - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
 - NCP Mode:
@@ -49,10 +51,11 @@ This application demonstrates how to configure SiWx91x in Extended Advertising m
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -262,7 +265,10 @@ The application can be configured to suit your requirements and development envi
        #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                 0
        ```
 
- >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
+ >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
+
+> **Note:** 
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h` 
    
 
 ## Test the Application

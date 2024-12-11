@@ -24,7 +24,7 @@
 #include "sl_si91x_dac.h"
 #include "sl_si91x_dac_config.h"
 #endif
-#include "sl_si91x_clock_manager.h"
+
 #include "rsi_rom_clks.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -38,12 +38,6 @@
 #define ADC_DATA_CLEAR        0xF7FF     // Clear the data if 12th bit is enabled
 #define VREF_VALUE            3.3        // reference voltage
 #define ADC_PING_BUFFER       0x0000A000 // ADC buffer starting address
-
-#define SOC_PLL_CLK          ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK         ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
-#define QSPI_ODD_DIV_ENABLE  0                       // Odd division enable for QSPI clock
-#define QSPI_SWALLO_ENABLE   0                       // Swallo enable for QSPI clock
-#define QSPI_DIVISION_FACTOR 0                       // Division factor for QSPI clock
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -54,7 +48,6 @@ static uint8_t adc_channel = 0;
 #ifdef DAC_FIFO_MODE_EN
 static boolean_t dac_fifo_intr_flag = false;
 #endif
-static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -65,23 +58,6 @@ static void dac_callback_event(uint8_t event);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-
-  // Configure QSPI clock as input source
-  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
-                                           QSPI_INTFPLLCLK,
-                                           QSPI_SWALLO_ENABLE,
-                                           QSPI_ODD_DIV_ENABLE,
-                                           QSPI_DIVISION_FACTOR);
-}
 /*******************************************************************************
  * ADC example initialization function
  ******************************************************************************/
@@ -93,11 +69,12 @@ void adc_fifo_mode_example_init(void)
   adc_clock_config.soc_pll_clock           = PS4_SOC_FREQ;
   adc_clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
   adc_clock_config.division_factor         = DVISION_FACTOR;
-  sl_adc_channel_config.channel            = SL_ADC_CHANNEL_1;
-  adc_channel                              = sl_adc_channel_config.channel;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
+#ifdef SLI_SI915
+  sl_adc_channel_config.channel = SL_ADC_CHANNEL_2;
+#else
+  sl_adc_channel_config.channel = SL_ADC_CHANNEL_1;
+#endif
+  adc_channel = sl_adc_channel_config.channel;
 
 #ifdef DAC_FIFO_MODE_EN
   sl_dac_clock_config_t dac_clock_config;
@@ -191,7 +168,6 @@ void adc_fifo_mode_example_process_action(void)
   uint32_t sample_length;
   float vout = 0.0f;
   if (data_sample_complete_flag) {
-    data_sample_complete_flag = false;
     // ADC operation mode on FIFO mode, it will execute, here it will give equivalent voltage of 12 bit adc output.
     status = sl_si91x_adc_read_data(sl_adc_channel_config, adc_channel);
     if (status != SL_STATUS_OK) {
@@ -236,6 +212,7 @@ void adc_fifo_mode_example_process_action(void)
       }
       DEBUGOUT("ADC Measured input[%ld] :%0.2fV \n", sample_length, (double)vout);
     }
+    data_sample_complete_flag = false;
   }
 }
 

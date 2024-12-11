@@ -3,7 +3,7 @@
 * @brief I2c driver instance configuration file.
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -39,7 +39,7 @@ extern "C" {
 #include "sl_si91x_i2c.h"
 /******************************************************************************/
 /******************************* I2C Configuration **************************/
-// <h> I2C2 Configuration
+// <h> I2C2 (ULP_I2C) Configuration
 
 // <o SL_I2C_I2C2_MODE> Mode
 //   <SL_I2C_LEADER_MODE=> Leader mode
@@ -55,19 +55,20 @@ extern "C" {
 // <i> Selection of the I2C Mode.
 #define SL_I2C_I2C2_OPERATING_MODE SL_I2C_STANDARD_MODE
 
-// <o SL_I2C_I2C2_TRANSFER_TYPE> Transfer Type
-//   <SL_I2C_USING_INTERRUPT=> Using Interrupt
-//   <SL_I2C_USING_DMA=> Using DMA
-// <i> Selection of the I2C Mode.
-#define SL_I2C_I2C2_TRANSFER_TYPE SL_I2C_USING_INTERRUPT
+// <q SL_I2C_I2C2_INIT_DMA> DMA
+// <i> Default: 0
+#define SL_I2C_I2C2_INIT_DMA 0
 
 // </h> End I2C2 Configuration
 /******************************************************************************/
 // <<< end of configuration section >>>
 
+// Previously, SL_I2C_I2C2_TRANSFER_TYPE was updated directly through UC. Now, it is updated indirectly through SL_I2C_I2C2_INIT_DMA.
+#define SL_I2C_I2C2_TRANSFER_TYPE SL_I2C_I2C2_INIT_DMA
+
 // <<< sl:start pin_tool >>>
-// <i2c signal=SCL,SDA> SL_ULP_I2C
-// $[I2C_SL_ULP_I2C]
+// <ulp_i2c signal=SCL,SDA> SL_ULP_I2C
+// $[ULP_I2C_SL_ULP_I2C]
 #ifndef SL_ULP_I2C_PERIPHERAL
 #define SL_ULP_I2C_PERIPHERAL ULP_I2C
 #endif
@@ -93,7 +94,7 @@ extern "C" {
 #ifndef SL_ULP_I2C_SDA_LOC
 #define SL_ULP_I2C_SDA_LOC 6
 #endif
-// [I2C_SL_ULP_I2C]$
+// [ULP_I2C_SL_ULP_I2C]$
 // <<< sl:end pin_tool >>>
 
 #define SL_I2C_I2C2_SCL_PORT 0

@@ -66,7 +66,7 @@ enum calib_cmd_types {
   CALIB_WRITE,
   EVM_OFFSET,
   EVM_WRITE,
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   DPD_CALIB_WRITE
 #endif
 };
@@ -102,7 +102,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .mode        = BURST_MODE,
   .channel     = 1,
   .aggr_enable = 0,
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,
@@ -168,7 +168,7 @@ static const sl_wifi_device_configuration_t calibration_configuration = {
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
                       | SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -280,7 +280,7 @@ void validate_input_cmd()
 {
   size_t buffer_len = strlen(buffer);
 
-  if ((strncasecmp((const char *)buffer, (const char *)"sl_", strlen("sl_")) != 0)
+  if (((strncasecmp((const char *)buffer, (const char *)"sl_", strlen("sl_")) != 0))
       || (buffer_len < MIN_CALIB_COMMAND_LENGTH) || (buffer_len > MAX_CALIB_COMMAND_LENGTH)) {
     cmd_valid = false;
   } else {

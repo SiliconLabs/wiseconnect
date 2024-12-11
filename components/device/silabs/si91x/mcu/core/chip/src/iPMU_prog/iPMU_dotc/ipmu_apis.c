@@ -1,26 +1,36 @@
 #ifdef SLI_SI91X_MCU_ENABLE_IPMU_APIS
-/*******************************************************************************
+/******************************************************************************
 * @file  ipmu_apis.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include <stdint.h>
 #include "rsi_ipmu.h"
-//#ifdef PTE_DEEP_SLEEP_APP
 #include "rsi_system_config.h"
-//#endif
 #define IPMU_DOTC_PROG
 #define IPMU_CALIB_DATA
 typedef uint16_t uint16;
@@ -109,13 +119,13 @@ void ipmu_init_mcu(void)
 #endif
 #ifdef SLI_SI91X_MCU_INTERFACE
   if (HF_RC_CLK_MODE == 0) {
-    /* program the trim value for 32Mhz RC oscillator */
+    /* program the trim value for 20Mhz RC oscillator */
     RSI_IPMU_M20rcOsc_TrimEfuse(); //M20RC_EFUSE
   } else if (HF_RC_CLK_MODE == 1) {
     /* program the trim value for 32Mhz RC  oscillator */
     RSI_IPMU_M32rc_OscTrimEfuse(); //M32RC_EFUSE
   }
-  /* program the trim value for 32MHz doubler  */
+  /* program the trim value for RC 32MHz doubler  */
   RSI_IPMU_DBLR32M_TrimEfuse();  //DBLR_EFUSE
                                  /* program the trim value for 20MHz RC oscillator */
   RSI_IPMU_M20roOsc_TrimEfuse(); //M20RO_EFUSE
@@ -268,7 +278,7 @@ void update_ipmu_calib_data(const efuse_ipmu_t *ipmu_calib_data)
   update_ipmu_data(BG_BLACKOUT_REG_OFFSET, ULP_SPI, data, mask);
 
   //ROW 7,17
-  update_ipmu_data(ULPCLKS_32MRC_CLK_REG_OFFSET, ULP_SPI, (ipmu_calib_data->trim_sel << 14), MASK_BITS(7, 14));
+  update_ipmu_data(ULPCLKS_MRC_CLK_REG_OFFSET, ULP_SPI, (ipmu_calib_data->trim_sel << 14), MASK_BITS(7, 14));
 
   //ROW 9
   update_ipmu_data(ULPCLKS_DOUBLER_XTAL_REG_OFFSET, ULP_SPI, (ipmu_calib_data->del_2x_sel << 15), MASK_BITS(6, 15));
@@ -329,7 +339,7 @@ void update_ipmu_calib_data(const efuse_ipmu_t *ipmu_calib_data)
   update_ipmu_data(SPARE_REG_3_OFFSET, PMU_SPI, data, mask);
 
   //ROW 48
-  data = (((ipmu_calib_data->dpwm_freq_trim)) << 13);
+  data = (ipmu_calib_data->dpwm_freq_trim) << 13;
   mask = MASK_BITS(4, 13);
   update_ipmu_data(PMU_ADC_REG_OFFSET, PMU_SPI, data, mask);
 
@@ -382,12 +392,12 @@ uint32_t init_ipmu_calib_data(uint32_t m4_present)
     return 1;
   }
 #endif
-  if ((*(uint8 *)(MANF_DATA_BASE_ADDR + IPMU_VALUES_OFFSET) == 0x00)) {
-    //NO CALIB DATA. Return
+  if (*(uint8 *)(MANF_DATA_BASE_ADDR + IPMU_VALUES_OFFSET) == 0x00) {
+    // NO CALIB DATA. Return
     return 1;
   }
-  if ((*(uint8 *)(MANF_DATA_BASE_ADDR + IPMU_VALUES_OFFSET) == 0xFF)) {
-    //NO CALIB DATA. Return
+  if (*(uint8 *)(MANF_DATA_BASE_ADDR + IPMU_VALUES_OFFSET) == 0xFF) {
+    // NO CALIB DATA. Return
     return 1;
   }
   memcpy(ipmu_calib_data_p, (efuse_ipmu_t *)(MANF_DATA_BASE_ADDR + IPMU_VALUES_OFFSET), sizeof(efuse_ipmu_t));
@@ -491,9 +501,9 @@ void shut_down_non_wireless_mode_pds(void)
   reg_val &= ~(cmp_npss_pg_enb | ulp_ang_clks_pg_enb | wurx_corr_pg_enb | wurx_pg_enb | auxadc_pg_enb | auxdac_pg_enb);
   PMU_DIRECT_ACCESS(POWERGATE_REG_WRITE_OFFSET) = reg_val;
 #ifndef SLI_SI91X_MCU_INTERFACE
-  // 32MHz RC
-  PMU_DIRECT_ACCESS(ULPCLKS_32MRC_CLK_REG_OFFSET) &= ~rc_32mhz_en;
-  MCU_FSM_DIRECT_ACCESS(MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP) &= ~mcu_ulp_32mhz_rc_clk_en;
+  // MHz RC
+  PMU_DIRECT_ACCESS(ULPCLKS_MRC_CLK_REG_OFFSET) &= ~rc_mhz_en;
+  MCU_FSM_DIRECT_ACCESS(MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP) &= ~mcu_ulp_mhz_rc_clk_en;
 #endif
 #if 0
   reg_val = (PMU_DIRECT_ACCESS(POWERGATE_REG_READ_OFFSET) >> 5);
@@ -529,10 +539,10 @@ void shut_down_non_wireless_mode_pds(void)
   MCU_FSM_DIRECT_ACCESS(MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP) &= ~mcu_ulp_doubler_clk_en;
   ULP_DIRECT_ACCESS(NWP_FSM_FIRST_BOOTUP) &= ~nwp_ulp_doubler_clk_en;
 
-  // 32MHz RC
-  PMU_DIRECT_ACCESS(ULPCLKS_32MRC_CLK_REG_OFFSET) &= ~rc_32mhz_en;
-  MCU_FSM_DIRECT_ACCESS(MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP) &= ~mcu_ulp_32mhz_rc_clk_en;
-  ULP_DIRECT_ACCESS(NWP_FSM_FIRST_BOOTUP) &= ~nwp_ulp_32mhz_rc_clk_en;
+  // MHz RC
+  PMU_DIRECT_ACCESS(ULPCLKS_MRC_CLK_REG_OFFSET) &= ~rc_mhz_en;
+  MCU_FSM_DIRECT_ACCESS(MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP) &= ~mcu_ulp_mhz_rc_clk_en;
+  ULP_DIRECT_ACCESS(NWP_FSM_FIRST_BOOTUP) &= ~nwp_ulp_mhz_rc_clk_en;
 
   // Tempsense_RO
   TS_ENABLE_AND_TEMPERATURE_DONE &= ~temp_sens_en;
@@ -545,8 +555,6 @@ void shut_down_non_wireless_mode_pds(void)
   reg_val &= ~(auxadc_pg_enb | auxdac_pg_enb);
   PMU_DIRECT_ACCESS(POWERGATE_REG_WRITE_OFFSET) = reg_val;
 #endif
-
-  //PMU_DIRECT_ACCESS(SELECT_BG_CLK_OFFSET) &= ~(latch_transparent_lf | latch_transparent_hf | latch_top_spi); //! Added by Nagaraj
 }
 #ifdef SLI_SI91X_MCU_INTERFACE
 void ipmu_init(void);
@@ -564,7 +572,7 @@ void ipmu_init(void)
 #endif
   uint32_t pmu_1p2_ctrl_word;
   uint32_t bypass_curr_ctrl_data;
-  retention_boot_status_word_t *retention_reg = (retention_boot_status_word_t *)MCURET_BOOTSTATUS;
+  const retention_boot_status_word_t *retention_reg = (const retention_boot_status_word_t *)MCURET_BOOTSTATUS;
 
   //! If M4 present and host interface with M4(M4 master) case, total IPMU and MCU FSM registers has to be initialised in M4.
   //! Always NWP FSM registers has to be programmed here.
@@ -612,7 +620,9 @@ void ipmu_init(void)
 #endif
 
 #ifdef IPMU_DOTC_PROG
-    //program_ipmu_data(lp_scdc_extcapmode);
+#if 0
+    program_ipmu_data(lp_scdc_extcapmode);
+#endif
 #else
     PMU_DIRECT_ACCESS(BG_SCDC_PROG_REG_2_OFFSET);
     PMU_DIRECT_ACCESS(SCDC_CTRL_REG_0_OFFSET)    = 0x3e002f;
@@ -653,7 +663,7 @@ void ipmu_init(void)
     // Setting VOUTBCK_LOW to 1.25V based on the data obtained from Calibration Data
     bypass_curr_ctrl_data = PMU_SPI_DIRECT_ACCESS(PMU_1P3_CTRL_REG_OFFSET);
     pmu_1p2_ctrl_word     = ((bypass_curr_ctrl_data >> 17) & 0xF) - 2;
-    bypass_curr_ctrl_data = (uint32_t)PMU_SPI_DIRECT_ACCESS(BYPASS_CURR_CTRL_REG_OFFSET);
+    bypass_curr_ctrl_data = PMU_SPI_DIRECT_ACCESS(BYPASS_CURR_CTRL_REG_OFFSET);
     bypass_curr_ctrl_data &= (uint32_t)(~(0xF << 5));
     PMU_SPI_DIRECT_ACCESS(BYPASS_CURR_CTRL_REG_OFFSET) = (bypass_curr_ctrl_data | (pmu_1p2_ctrl_word << 5));
 
@@ -676,8 +686,8 @@ void ipmu_init(void)
   //BIT(16) is added for smooth reset of bandgap in 1.4REV Silicon
   ULP_DIRECT_ACCESS(NWPAON_POR_CTRL_BITS) |= (poc_cntrl_reg_0 | BIT(16));
 
-  //! 32MHz disable from NWP
-  ULP_DIRECT_ACCESS(NWP_FSM_FIRST_BOOTUP) &= ~nwp_ulp_32mhz_rc_clk_en;
+  //! RC MHz disable from NWP
+  ULP_DIRECT_ACCESS(NWP_FSM_FIRST_BOOTUP) &= ~nwp_ulp_mhz_rc_clk_en;
 
   TASS_FSM_CTRL_BYPASS &= ~ta_pmu_shut_down_bypass;
   TASS_FSM_CTRL_BYPASS &= ~ta_pmu_shut_down_bypass_cntrl;

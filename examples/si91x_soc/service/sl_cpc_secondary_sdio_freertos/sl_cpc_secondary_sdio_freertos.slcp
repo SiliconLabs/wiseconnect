@@ -1,0 +1,92 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_cpc_secondary_sdio_freertos
+label: SI91x - SoC Peripheral CPC Secondary SDIO - FreeRTOS
+description: |
+  Start a CPC over SDIO interface
+category: Example|peripheral
+package: platform
+quality: experimental
+source:
+  - path: app.c
+  - path: main.c
+  - path: cpc_app.c
+include:
+  - path: .
+    file_list:
+    - path: app.h
+    - path: cpc_app.h
+sdk:
+  id: simplicity_sdk
+  version: 2024.12.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.0
+toolchain_settings: []
+component:
+  - id: sl_system
+  - id: status
+  - id: enum
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_sdio_secondary
+    from: wiseconnect3_sdk
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
+  - id: cpc_security_secondary_none
+  - id: cpc_secondary_driver_sdio_917
+    instance: [exp]
+  - id: sl_si91x_cpc_sdio
+    from: wiseconnect3_sdk
+  - id: cpc_secondary
+  - id: si91x_debug
+    from: wiseconnect3_sdk
+  - id: freertos
+  - id: emlib_core
+  - id: sl_assert
+  - id: sl_common
+
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+
+requires:
+  - name: udma_linker_config
+  - name: sleeptimer
+  - name: sleeptimer_sysrtc
+    condition: [si91x_b0_chip]
+define:
+  - name: RSI_M4_INTERFACE
+  - name: SYSCALLS_WRITE
+configuration:
+  - name: SL_CPC_USER_ENDPOINT_MAX_COUNT
+    value: 2
+provides:
+  - name: si91x_soc
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/cpc_introduction_picture.png
+  - path: resources/readme/daemon_picture.png
+  - path: resources/readme/setup_diagram.png
+  - path: resources/readme/help_command.png
+  - path: resources/readme/write_and_read_.png
+  - path: resources/readme/sapi_perf.png
+  - path: resources/readme/set_up_connection.png
+
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -21,18 +21,17 @@
 #include "sl_sleeptimer.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_driver_gpio.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 
-#define TX_THRESHOLD       0       // tx threshold value
-#define RX_THRESHOLD       0       // rx threshold value
-#define I2C                SL_I2C2 // I2C 2 instance
-#define DELAY_PERIODIC_MS1 2000    // sleeptimer1 periodic timeout in ms
-#define MODE_0             0       // Initializing GPIO MODE_0 value
-#define OUTPUT_VALUE       1       // GPIO output value
+#define TX_THRESHOLD       0                     // tx threshold value
+#define RX_THRESHOLD       0                     // rx threshold value
+#define I2C                VEML6035_I2C_INSTANCE // I2C 2 instance
+#define DELAY_PERIODIC_MS1 2000                  // sleeptimer1 periodic timeout in ms
+#define MODE_0             0                     // Initializing GPIO MODE_0 value
+#define OUTPUT_VALUE       1                     // GPIO output value
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -53,7 +52,7 @@ void light_sensor_init(void)
   sl_i2c_config_t i2c_config;
 
   i2c_config.mode           = SL_I2C_LEADER_MODE;
-  i2c_config.transfer_type  = SL_I2C_USING_INTERRUPT;
+  i2c_config.transfer_type  = SL_I2C_USING_NON_DMA;
   i2c_config.operating_mode = SL_I2C_STANDARD_MODE;
   i2c_config.i2c_callback   = i2c_leader_callback;
 

@@ -21,7 +21,7 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_si91x_ssi.h"
 #include "rsi_rom_clks.h"
-#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -36,9 +36,6 @@
 #define SSI_MASTER_BAUDRATE                10000000  // SSI baudrate
 #define SSI_MASTER_RECEIVE_SAMPLE_DELAY    0         // By default sample delay is 0
 #define DELAY_PERIODIC_MS1                 2000      //sleeptimer1 periodic timeout in ms
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -56,20 +53,9 @@ static uint32_t ssi_slave_number = SSI_SLAVE_0;
 static sl_status_t ssi_master_init_clock_configuration_structure(sl_ssi_clock_config_t *clock_config);
 static void ssi_master_callback_event_handler(uint32_t event);
 static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle, void *data);
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * RHT example initialization function
  ******************************************************************************/
@@ -87,9 +73,6 @@ void icm40627_example_init(void)
   ssi_master_config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
   ssi_master_config.baud_rate            = SSI_MASTER_BAUDRATE;
   ssi_master_config.receive_sample_delay = SSI_MASTER_RECEIVE_SAMPLE_DELAY;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
 #if defined(SENSOR_ENABLE_GPIO_MAPPED_TO_UULP)
   if (sl_si91x_gpio_driver_get_uulp_npss_pin(SENSOR_ENABLE_GPIO_PIN) != 1) {
@@ -188,9 +171,9 @@ void icm40627_example_init(void)
     sl_status = sl_si91x_icm40627_get_device_id(ssi_driver_handle, &dev_id);
     if ((sl_status == SL_STATUS_OK) && (dev_id == ICM40627_DEVICE_ID)) {
       DEBUGOUT("Successfully verified ICM40627 Device by ID\n");
-      break;
     } else {
       DEBUGOUT("ICM40627 Get Device ID failed\n");
+      break;
     }
 
     // Initializes sensor and reads electronic ID 1st byte

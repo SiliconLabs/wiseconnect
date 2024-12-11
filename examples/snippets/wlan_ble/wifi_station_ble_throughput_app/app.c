@@ -98,7 +98,7 @@ static const sl_wifi_device_configuration_t config = {
                    .custom_feature_bit_map =
                      (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
@@ -170,7 +170,7 @@ void rsi_wlan_ble_app_init(void)
   }
   LOG_PRINT("\r\nWi-Fi initialization is successful\n");
 
-#if SSL && LOAD_CERTIFICATE
+#if ENABLE_TLS && LOAD_CERTIFICATE
   clear_and_load_certificates_in_flash();
 #endif
 

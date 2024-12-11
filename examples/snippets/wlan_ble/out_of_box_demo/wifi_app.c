@@ -53,7 +53,11 @@
 #include "app.h"
 #include "glib.h"
 #include "dmd.h"
+#if defined(SLI_SI917) || defined(SLI_SI917B0)
 #include "RTE_Device_917.h"
+#else
+#include "RTE_Device_915.h"
+#endif
 #include "rsi_retention.h"
 #include "sl_status.h"
 #include "rsi_ccp_user_config.h"
@@ -215,7 +219,7 @@ uint8_t yield;
 uint8_t disconnect_flag = 0;
 char *hostname          = "www.silabs.com";
 
-uint8_t mqtt_connected = 0;
+volatile uint8_t mqtt_connected = 0;
 
 //LCD related variables
 GLIB_Context_t glibContext;
@@ -419,7 +423,9 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   memset(scan_result, 0, scanbuf_size);
   memcpy(scan_result, result, scanbuf_size);
 
-  callback_status = show_scan_results();
+  if (result_length != 0) {
+    callback_status = show_scan_results();
+  }
 
   return SL_STATUS_OK;
 }
@@ -463,7 +469,7 @@ void ping_silabs()
 
   do {
     //! Getting IP address of the remote server using DNS request
-    status = sl_net_host_get_by_name((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status = sl_net_dns_resolve_hostname((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
@@ -701,7 +707,8 @@ sl_status_t mqtt_example()
 
   do {
 
-    status = sl_net_host_get_by_name((const char *)mqtt_hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status =
+      sl_net_dns_resolve_hostname((const char *)mqtt_hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
@@ -719,6 +726,7 @@ sl_status_t mqtt_example()
 
   printf("\r\nResolved test.mosquitto.org's IP address = %s\n", server_ip);
 
+  mqtt_broker_configuration.ip.type        = SL_IPV4;
   mqtt_broker_configuration.ip.ip.v4.value = dns_query_rsp.ip.v4.value;
 
   sl_mac_address_t mac_addr = { 0 };
@@ -834,11 +842,13 @@ void wifi_app_task(void)
         wifi_client_profile.config.security = sec_type;
 
         // Set the custom Wi-Fi client profile
-        status =
-          sl_net_set_credential(wifi_client_profile.config.credential_id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
-        if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
-          continue;
+        if (sec_type != SL_WIFI_OPEN) {
+          status =
+            sl_net_set_credential(wifi_client_profile.config.credential_id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
+          if (status != SL_STATUS_OK) {
+            printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
+            continue;
+          }
         }
 
         status =

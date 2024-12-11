@@ -33,8 +33,8 @@
 #include "sl_additional_status.h"
 #include "sli_cmsis_os2_ext_task_register.h"
 
-/// Converted firmware status index
-#define CONVERTED_FIRMWARE_STATUS_INDEX 0
+/// External variable representing the index of the thread local array at which the firmware status will be stored.
+extern sli_task_register_id_t sli_fw_status_storage_index;
 
 /** \addtogroup SI91X_DRIVER_FUNCTIONS 
  * \ingroup SL_SI91X_API
@@ -53,7 +53,7 @@ static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
 {
   sl_status_t status = SL_STATUS_FAIL;
 
-  sli_osTaskRegisterGetValue(NULL, CONVERTED_FIRMWARE_STATUS_INDEX, &status);
+  sli_osTaskRegisterGetValue(NULL, sli_fw_status_storage_index, &status);
   return status;
 }
 /** @} */
@@ -64,7 +64,7 @@ static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
  * @param packet packet that contains the frame status which needs to be extracted.
  * @return  frame status
  *****************************************************************************/
-static inline uint16_t get_si91x_frame_status(sl_si91x_packet_t *packet)
+static inline uint16_t get_si91x_frame_status(const sl_si91x_packet_t *packet)
 {
   return (uint16_t)(packet->desc[12] + (packet->desc[13] << 8));
 }
@@ -77,7 +77,7 @@ static inline uint16_t get_si91x_frame_status(sl_si91x_packet_t *packet)
  *****************************************************************************/
 static inline void save_si91x_firmware_status(sl_status_t converted_firmware_status)
 {
-  sli_osTaskRegisterSetValue(NULL, CONVERTED_FIRMWARE_STATUS_INDEX, converted_firmware_status);
+  sli_osTaskRegisterSetValue(NULL, sli_fw_status_storage_index, converted_firmware_status);
 }
 
 /******************************************************************************
@@ -168,3 +168,35 @@ void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_bu
  *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sli_si91x_pop_from_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
+
+/**
+ * @brief
+ *   Allocate a buffer to send a command
+ * @param[out] host_buffer
+ *   Destination buffer object
+ * @param[out] buffer
+ *   Start of the internal buffer data
+ * @param[in] requested_buffer_size
+ *   Requested buffer size
+ * @param[in] wait_duration_ms
+ *   Duration to wait for buffer to become available
+ * @return sl_status_t Returns the status of the operation. A value of 0 (SL_STATUS_OK) indicates success.
+ *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ */
+sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
+                                              void **buffer,
+                                              uint32_t requested_buffer_size,
+                                              uint32_t wait_duration_ms);
+
+/******************************************************************************
+ * @brief
+ *   Check if buffer queue is empty
+ * @param[in] queue
+ *   Requested buffer size
+ * @return
+ *   true if empty; false if not empty.
+ *****************************************************************************/
+static inline bool sli_si91x_buffer_queue_empty(sl_si91x_buffer_queue_t *queue)
+{
+  return (queue->head == NULL);
+}

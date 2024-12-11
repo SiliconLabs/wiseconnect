@@ -1,27 +1,41 @@
 /*******************************************************************************
-* @file  rsi_utils.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
-
+ * @file  rsi_utils.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 /*
   Include files
  */
 
-#include <string.h>
-
 #include "rsi_common.h"
+#include <sl_string.h>
+
+#define MAX_MAC_ADDRESS_STRING_LENGTH  17
+#define MAX_IPV4_ADDRESS_STRING_LENGTH 15
+
 /*
   Global defines
  */
@@ -146,18 +160,19 @@ int8_t rsi_ascii_hex2num(int8_t ascii_hex_in)
 
   return RSI_SUCCESS;
 }
+
 /*=============================================================================*/
 /**
  * @fn          int8 rsi_char_hex2dec(int8_t *cBuf)
  * @brief       Convert given ASCII hex notation to decimal notation (used for mac address). 
- * @param[in]   cBuf - ASCII hex notation string 
+ * @param[in]   cBuf - ASCII hex notation string
  * @return      Integer Value
  */
-
 int8_t rsi_char_hex2dec(int8_t *cBuf)
 {
-  int8_t k = 0;
-  for (uint8_t i = 0; i < strlen((char *)cBuf); i++) {
+  int8_t k       = 0;
+  size_t buf_len = sl_strlen((char *)cBuf);
+  for (uint8_t i = 0; i < buf_len; i++) {
     k = ((k * 16) + rsi_ascii_hex2num(cBuf[i]));
   }
   return k;
@@ -178,9 +193,10 @@ uint8_t *rsi_ascii_dev_address_to_6bytes_rev(uint8_t *hex_addr, int8_t *ascii_ma
   uint8_t byteNum; // which byte in the 32Bithex_address
   int8_t cBuf[6];  // temporary buffer
 
-  byteNum = 5;
-  cBufPos = 0;
-  for (uint8_t i = 0; i < strlen((char *)ascii_mac_address); i++) {
+  byteNum        = 5;
+  cBufPos        = 0;
+  size_t buf_len = sl_strnlen((char *)ascii_mac_address, MAX_MAC_ADDRESS_STRING_LENGTH);
+  for (uint8_t i = 0; i < buf_len; i++) {
     // this will take care of the first 5 octets
     if (ascii_mac_address[i] == ':') {                                 // we are at the end of the address octet
       cBuf[cBufPos]       = 0;                                         // terminate the string
@@ -190,7 +206,7 @@ uint8_t *rsi_ascii_dev_address_to_6bytes_rev(uint8_t *hex_addr, int8_t *ascii_ma
       cBuf[cBufPos++] = ascii_mac_address[i];
     }
   }
-  // handle the last octet						// we are at the end of the string with no .
+  // handle the last octet            // we are at the end of the string with no .
   cBuf[cBufPos]     = 0x00;                                      // terminate the string
   hex_addr[byteNum] = (uint8_t)rsi_char_hex2dec((int8_t *)cBuf); // convert the strint to an integer
 
@@ -202,7 +218,7 @@ uint8_t *rsi_ascii_dev_address_to_6bytes_rev(uint8_t *hex_addr, int8_t *ascii_ma
  * @fn          int8_t hex_to_ascii(uint8_t hex_num)
  * @brief       Hex to ascii conversion.
  * @param[in]   hex_num - hex number
- * @return      Ascii value for given hex value	
+ * @return      Ascii value for given hex value
  */
 
 int8_t hex_to_ascii(uint8_t hex_num)
@@ -381,13 +397,14 @@ int8_t asciihex_2_num(int8_t ascii_hex_in)
 /**
  * @fn          int8_t rsi_charhex_2_dec(int8_t *cBuf)
  * @brief       Convert given ASCII hex notation to decimal notation (used for mac address). 
- * @param[in]   cBuf - ASCII hex notation string. 
+ * @param[in]   cBuf - ASCII hex notation string.
  * @return      value in integer  
  */
 int8_t rsi_charhex_2_dec(int8_t *cBuf)
 {
-  int8_t k = 0;
-  for (uint8_t i = 0; i < strlen((char *)cBuf); i++) {
+  int8_t k       = 0;
+  size_t buf_len = sl_strlen((char *)cBuf);
+  for (uint8_t i = 0; i < buf_len; i++) {
     k = ((k * 16) + asciihex_2_num(cBuf[i]));
   }
   return k;
@@ -407,9 +424,10 @@ void rsi_ascii_mac_address_to_6bytes(uint8_t *hexAddr, int8_t *asciiMacAddress)
   uint8_t byteNum; // which byte in the 32BitHexAddress
   int8_t cBuf[6];  // temporary buffer
 
-  byteNum = 0;
-  cBufPos = 0;
-  for (uint8_t i = 0; i < strlen((char *)asciiMacAddress); i++) {
+  byteNum        = 0;
+  cBufPos        = 0;
+  size_t buf_len = sl_strnlen((char *)asciiMacAddress, MAX_MAC_ADDRESS_STRING_LENGTH);
+  for (uint8_t i = 0; i < buf_len; i++) {
     // this will take care of the first 5 octets
     if (asciiMacAddress[i] == ':') {                                   // we are at the end of the address octet
       cBuf[cBufPos]      = 0;                                          // terminate the string
@@ -441,9 +459,10 @@ void rsi_ascii_dot_address_to_4bytes(uint8_t *hexAddr, int8_t *asciiDotAddress)
   int8_t cBuf[4];
   // character buffer
 
-  byteNum = 0;
-  cBufPos = 0;
-  for (uint8_t i = 0; i < strlen((char *)asciiDotAddress); i++) {
+  byteNum        = 0;
+  cBufPos        = 0;
+  size_t buf_len = sl_strnlen((char *)asciiDotAddress, MAX_IPV4_ADDRESS_STRING_LENGTH);
+  for (uint8_t i = 0; i < buf_len; i++) {
     // this will take care of the first 3 octets
     if (asciiDotAddress[i] == '.') {
       // we are at the end of the address octet

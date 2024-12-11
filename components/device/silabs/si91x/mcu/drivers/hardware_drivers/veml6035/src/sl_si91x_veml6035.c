@@ -56,7 +56,8 @@ static sl_status_t veml6035_write_register_field(sl_i2c_instance_t i2c_instance,
                                                  uint8_t reg,
                                                  uint16_t data,
                                                  uint16_t mask);
-static void wait_till_i2c_gets_idle(I2C_TypeDef *i2c);
+static void wait_till_i2c_gets_idle(sl_i2c_instance_t i2c_instance);
+static void *veml6035_get_i2c_base_address(sl_i2c_instance_t i2c_instance);
 /** @endcond */
 
 /**************************************************************************/ /**
@@ -540,7 +541,7 @@ static sl_status_t veml6035_read_register(sl_i2c_instance_t i2c_instance, uint8_
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   *data = (uint16_t)(i2c_read_data[1] << 8) + (uint16_t)i2c_read_data[0];
 
   return status;
@@ -613,7 +614,7 @@ static sl_status_t veml6035_write_register(sl_i2c_instance_t i2c_instance, uint8
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+  wait_till_i2c_gets_idle(i2c_instance);
   return status;
 }
 /*******************************************************************************
@@ -622,10 +623,34 @@ static sl_status_t veml6035_write_register(sl_i2c_instance_t i2c_instance, uint8
  * @param i2c (I2C_TypeDef) Pointer to the I2C base address.
  * @return none
  ******************************************************************************/
-static void wait_till_i2c_gets_idle(I2C_TypeDef *i2c)
+static void wait_till_i2c_gets_idle(sl_i2c_instance_t i2c_instance)
 {
-  // waiting for I2C to be in idle state
+  I2C0_Type *i2c;
+
+  // Updating i2c pointer as per instance number
+  i2c = (I2C0_Type *)veml6035_get_i2c_base_address(i2c_instance);
+  // Checking I2C ACTIVITY bit status
   while (i2c->IC_STATUS_b.ACTIVITY)
     ;
+}
+/*******************************************************************************
+ * Function to return pointer to I2C instance base address as per I2C instance
+ *number
+ *
+ * @param i2c_instance   I2C Instance \ref sl_i2c_instance_t
+ * @return Pointer(void*) to i2c instance base address
+ ******************************************************************************/
+static void *veml6035_get_i2c_base_address(sl_i2c_instance_t i2c_instance)
+{
+  I2C0_Type *i2c = NULL;
+  // Updating i2c pointer as per instance number
+  if (i2c_instance == SL_I2C0) {
+    i2c = ((I2C0_Type *)I2C0_BASE);
+  } else if (i2c_instance == SL_I2C1) {
+    i2c = ((I2C0_Type *)I2C1_BASE);
+  } else if (i2c_instance == SL_ULP_I2C) {
+    i2c = ((I2C0_Type *)I2C2_BASE);
+  }
+  return i2c;
 }
 /** @endcond */

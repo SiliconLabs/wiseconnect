@@ -34,7 +34,6 @@
 #include "sl_si91x_led.h"
 #include "rsi_debug.h"
 #include <stdint.h>
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -48,25 +47,18 @@
 #define COMPARE_CHANNEL SL_SYSRTC_CHANNEL_1 // Channel Number
 #endif
 
-#if (SL_SYSRTC_CLK_SRC == CLK_RO_1KHZ)
-#define CLOCKS_PER_MILLISECONDS 1 // clocks per milliseconds for 1khz clock frequency
-#else
-#define CLOCKS_PER_MILLISECONDS 32 // clocks per milliseconds for 32khz clock frequency
+#if (SL_SYSRTC_CLK_SRC == CLK_RC_32KHZ)
+#define SYSRTC_COMPARE_VALUE 32000 // Channel compare value for 32khz RC clock frequency
+#elif (SL_SYSRTC_CLK_SRC == CLK_32KHZ_XTAL)
+#define SYSRTC_COMPARE_VALUE 32768 // Channel compare value for 32.768khz XTAL clock frequency
 #endif
 
-#define TIME_DELAY_IN_MILLISECONDS 1000 // time delay in milliseconds
-#define COMPARE_VALUE_32KHZ  \
-  ((CLOCKS_PER_MILLISECONDS) \
-   * (TIME_DELAY_IN_MILLISECONDS)) // Channel compare value for 1-sec delay with 32kHZ clock frequency
-#define COUNTER_VALUE1   0         // Counter register start value
-#define COUNTER_VALUE2   0         // Counter register value for overflow interrupt
-#define ZER0_COUNT_VALUE 0         // for count value zero
-#define ZER0_INTERRUPT   0         // for interrupt count value zero
-#define TENTH_INTERRUPT  10        // for tenth interrupt count
-#define LED1             1         // For On-board LED-0
-
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+#define COUNTER_VALUE1   0  // Counter register start value
+#define COUNTER_VALUE2   0  // Counter register value for overflow interrupt
+#define ZER0_COUNT_VALUE 0  // for count value zero
+#define ZER0_INTERRUPT   0  // for interrupt count value zero
+#define TENTH_INTERRUPT  10 // for tenth interrupt count
+#define LED1             1  // For On-board LED-0
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -79,7 +71,6 @@ static uint32_t counter_value1 = COUNTER_VALUE1;
      && (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 0))
 static uint32_t counter_value2 = COUNTER_VALUE2;
 #endif
-static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -91,16 +82,6 @@ static sl_sysrtc_interrupt_enables_t interrupt_enabled;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
 * SYSRTC example initialization function
 ******************************************************************************/
@@ -157,8 +138,6 @@ void sysrtc_example_init(void)
   interrupt_enabled.group1_overflow_interrupt_is_enabled = false;
 #endif
 
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
   do {
 
     // Configuring SYSRTC clock source
@@ -176,7 +155,7 @@ void sysrtc_example_init(void)
     }
     DEBUGOUT("SYSRTC initialization is done successfully \n");
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1))
-    uint32_t compare_value = COMPARE_VALUE_32KHZ;
+    uint32_t compare_value = SYSRTC_COMPARE_VALUE;
     // Configuring sysrtc group0, enabling its compare channel
     status = sl_si91x_sysrtc_configure_group(SL_SYSRTC_GROUP, &sysrtc_group_config_handle);
     if (status != SL_STATUS_OK) {
@@ -203,7 +182,7 @@ void sysrtc_example_init(void)
 #endif
 #if (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 1)
     uint32_t current_count = 0;
-    uint32_t compare_value = COMPARE_VALUE_32KHZ;
+    uint32_t compare_value = SYSRTC_COMPARE_VALUE;
     const sl_sysrtc_group_capture_channel_input_edge_config_t group_capture_channel_config =
       SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_DEFAULT;
     // configuring input edge for capture channel
@@ -276,7 +255,7 @@ void sysrtc_callback(void *callback_flags)
   // to avoid unused variable warning
   (void)callback_flags;
   state = !state;
-#ifdef SL_SI91X_ACX_MODULE
+#if defined(SL_SI91X_ACX_MODULE) || defined(SLI_SI915)
   // To toggle LED0
   sl_si91x_led_toggle(SL_LED_LED0_PIN);
 #else
@@ -285,7 +264,7 @@ void sysrtc_callback(void *callback_flags)
 #endif
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE))
   static uint8_t interrupt_count = 0;
-  uint32_t compare_value         = COMPARE_VALUE_32KHZ;
+  uint32_t compare_value         = SYSRTC_COMPARE_VALUE;
   uint32_t current_count         = 0;
   // Incrementing interrupt count
   interrupt_count++;

@@ -89,6 +89,7 @@
 // HTTP OTAF
 #define HTTP_OTAF 2
 
+//! set 1 for selecting SL_SI91X_HTTPS_CERTIFICATE_INDEX_1, set 2 for selecting SL_SI91X_HTTPS_CERTIFICATE_INDEX_2
 #define CERTIFICATE_INDEX 0
 
 #define DNS_TIMEOUT         20000
@@ -186,7 +187,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -221,7 +222,9 @@ static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
                                                    uint16_t *data,
                                                    uint32_t data_length,
                                                    void *arg);
+#if LOAD_CERTIFICATE
 static sl_status_t clear_and_load_certificates_in_flash(void);
+#endif
 
 /******************************************************
  *               Function Definitions
@@ -232,6 +235,7 @@ void app_init(const void *unused)
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
+#if LOAD_CERTIFICATE
 sl_status_t clear_and_load_certificates_in_flash(void)
 {
   sl_status_t status;
@@ -262,6 +266,7 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 
   return status;
 }
+#endif
 
 sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
 {
@@ -284,6 +289,13 @@ void application_start(const void *unused)
   sl_status_t status = SL_STATUS_OK;
   uint16_t flags     = FLAGS;
   char server_ip[16];
+
+  if (CERTIFICATE_INDEX == 1) {
+    flags |= SL_SI91X_HTTPS_CERTIFICATE_INDEX_1;
+  } else if (CERTIFICATE_INDEX == 2) {
+    flags |= SL_SI91X_HTTPS_CERTIFICATE_INDEX_2;
+  }
+
 #if (FW_UPDATE_TYPE == TA_FW_UPDATE)
   sl_wifi_firmware_version_t version = { 0 };
 #endif
@@ -341,7 +353,8 @@ void application_start(const void *unused)
 #if defined(AWS_ENABLE) || defined(AZURE_ENABLE)
         do {
           //! Getting IP address of the AWS server using DNS request
-          status = sl_net_host_get_by_name((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+          status =
+            sl_net_dns_resolve_hostname((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
           dns_retry_count--;
         } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 

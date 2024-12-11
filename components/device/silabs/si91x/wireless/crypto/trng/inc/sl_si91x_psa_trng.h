@@ -21,6 +21,7 @@
 #include "string.h"
 /* Include file for error code conversion */
 #include "sl_si91x_crypto.h"
+#include "psa/crypto.h"
 
 /***************************************************************************/ /**
  * @fn          psa_status_t sl_si91x_psa_get_random()

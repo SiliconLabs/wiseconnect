@@ -7,6 +7,9 @@ description: >
 category: Device|Si91x|MCU|Core
 label: RAM Execution
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 provides:
   - name: device_needs_ram_execution
 define:

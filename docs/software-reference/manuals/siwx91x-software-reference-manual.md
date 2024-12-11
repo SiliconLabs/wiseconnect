@@ -1,24 +1,46 @@
 # SiWx917 Software Reference
 
-## Overview
-
-This reference manual provides information about the software on the SiWx917™, the first chip in the SiWx91x™ chipset family. It is intended to provide all the details required for a smooth developer experience.
-
-The SiWx91x is the industry's first wireless microcontroller unit (MCU) family with a comprehensive multiprotocol wireless subsystem. It has an integrated ultra-low-power microcontroller, a built-in wireless subsystem, advanced security, high-performance mixed-signal peripherals, and integrated power management.
+## Introduction
+This reference manual provides detailed information about the software architecture, features, and functionalities of the SiWx917™, the first chip in the SiWx91x™ chipset family. This manual is designed to assist developers in leveraging the full potential of the SiWx917 for their applications.
 
 The SiWx917 system-on-chip (SoC) has two processing cores:
-- Network wireless processor, also known as the **NWP**
-- ARM Cortex M4 application processor, also known as the **MCU**
+- **Network Wireless Processor (NWP)**: Handles network and wireless communication tasks.
+- **ARM Cortex M4 Application Processor (MCU)**: Manages user applications and provides high-performance computing capabilities.
 
-The SiWx917 operates either with two flash memories, one for the MCU and the other for the NWP, or with a shared flash memory. There is a shared SRAM used by both the processors. The NWP provides support for in-built network and wireless stacks. These are accessed by an application running on the MCU via pre-defined APIs provided as part of the WiSeConnect™ SDK. Both the processors are connected over an AHB interface. Functioning in both the MCU and NWP is achieved via state machines present in the firmware. 
+The SiWx917 operates with two flash memory options: common flash or dual flash. In the common flash configuration, both the MCU and the NWP share the same flash memory, while in the dual flash configuration, each processor has its own dedicated flash memory. Additionally, a shared SRAM is accessible by both processors, allowing for efficient data exchange.
 
-MCU applications can be developed, compiled, and run on the SiWx917 using the WiSeConnect SDK v3.x extension (or **WiSeconnect 3** extension) on Simplicity Studio. NWP firmware is available as a pre-built binary with the WiSeConnect SDK package. See the [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) documentation for more details.
+The NWP includes support for in-built network and wireless protocol stacks, which applications running on the MCU can access via pre-defined APIs provided by the WiSeConnect™ SDK. Both the processors are connected over an AHB interface. The MCU and NWP rely on firmware-based state machines to manage and coordinate their individual and joint functionalities. These state machines control the operational flow within each processor, ensuring that each one transitions through specific states required for seamless processing and reliable performance
+
+MCU applications can be developed, compiled, and run on the SiWx917 using the WiSeConnect SDK v3.x extension (or **WiSeconnect 3** extension) on Simplicity Studio. The NWP firmware is available as a pre-built binary with the WiSeConnect SDK package. See the [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) documentation for more details.
 
 >**Note:** RTOS support is available at Application and Service level. Applications developers must use the correct RTOS primitives when accessing MCU peripherals from multiple SW threads. When using RTOS, developers need to configure interrupt priorities for all MCU interrupts being used in the application.
 
+### Key Features
+
+The SiWx91x is the industry's first wireless microcontroller unit (MCU) family with a comprehensive multiprotocol wireless subsystem. It has an integrated ultra-low-power microcontroller, a built-in wireless subsystem, advanced security, high-performance mixed-signal peripherals, and integrated power management.
+
+Key features of the SiWx917 include:
+
+ * Dual processing cores: Network wireless processor (NWP) and ARM Cortex M4 application processor (MCU)
+ * Support for multiple flash memory configurations: separate flash for MCU and NWP or shared flash memory
+ * Shared SRAM for both processors
+ * In-built network and wireless stacks accessible via pre-defined APIs in the WiSeConnect™ SDK
+ * Advanced security features
+ * High-performance mixed-signal peripherals
+ * Integrated power management
+These features make the SiWx917 a versatile and powerful solution for a wide range of applications, providing developers with the tools they need for efficient and effective development.
+
+## System Processor
+
+The SiWx917 family include ARM® Cortex®-M4 processor for user application. The Cortex-M4 processor is a high performance 32-bit processor designed for the micro-controller market. It offers significant benefits to developers, including:
+-  Outstanding processing performance combined with fast interrupt handling
+-  Enhanced system debug with extensive break-point and trace capabilities
+-  Efficient processor core, system and memories
+-  Ultra-low power consumption with integrated sleep modes
+
 ## Software Architecture
 
-This section provides an overview of the SiWx917 software components. The SiWx917 firmware consists of the MCU application and NWP wireless firmware. The MCU application uses the [WiSeConnect SDK](http://github.com/siliconlabs/wiseconnect) which includes source code in C and example applications with cloud SDKs, sensor-hub, MCU peripherals, Wi-Fi, BLE, and low-level MCU drivers.
+This section provides an overview of the software components of the SiWx917. The firmware architecture is divided into two main parts: the MCU application and the NWP (Network wireless Processor) wireless firmware. The MCU application uses the [WiSeConnect SDK](http://github.com/SiliconLabs/wiseconnect) which includes source code in C and example applications with cloud SDKs, sensor-hub, MCU peripherals, Wi-Fi, BLE, and low-level MCU drivers.
 
 The following diagram illustrates the software architecture of the SiWx917:
 
@@ -26,117 +48,136 @@ The following diagram illustrates the software architecture of the SiWx917:
 
 ### SiWx91x MCU
 
-The ARM Cortex M4 application processor (MCU) on the SiWx917 is a high-performance, 32-bit processor which can operate up to 180 MHz. 
+The SiWx917 features an ARM Cortex M4 application processor (MCU) that operates at high performance, reaching speeds up to 180 MHz.
 
-The MCU provides a rich set of core peripherals such as the systick timer, FPU, NVIC, etc.
+This processor is equipped with a variety of core peripherals, including systick timer, FPU, NVIC, etc.
 
-The WiSeConnect SDK provides CMSIS supported drivers for a few peripherals while the remaining are supported by non-CMSIS drivers.
+The WiSeConnect SDK offers CMSIS-supported drivers for several peripherals, while others are managed by non-CMSIS drivers. The following diagram highlights the different peripheral blocks, indicating both CMSIS and non-CMSIS peripherals, as well as the ultra-low-power (ULP) peripherals.
 
-The following diagram shows CMSIS and non-CMSIS peripherals in different blocks. It also higlights the ultra-low-power (ULP) peripherals.
+For more details on MCU Peripherals, see the [SiWx917 Reference Manual](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf)
 
-For more details on MCU Peripherals, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
+![SiWx917 MCU Architecture](./resources/SiWx917_mcu_architecture.png)
 
-![SiWx917 MCU Architecture](./resources/SiWx917_mcu_architecture.PNG)
-
->**Note:** SIO and VAD are not supported.
-
-- When using any low-power instance in high-power mode with DMA enabled, it is recommended to allocate buffers in the ULP Memory block. For more information on buffer allocation, please refer to the following examples: ULP_I2S, ULP_UDMA, ULP_SSI, and ULP_UART.
-
-### Bootup Flow
-
-This section describes the SiWx917's software execution flow from bootup until the MCU application starts running.
-
-SiWx917 has two bootloaders - the security bootloader and the application bootloader. The security bootloader is part of TASS ROM and the application bootloader is part of M4SS ROM. Secure Boot is implemented in the security bootloader.
-
-On bootup, the security bootloader:
-- Configures the module hardware based on the configuration present in the e-fuse and flash memory. 
-- Authenticates the flash configuration settings.
-- Passes the required information from the e-fuse to the application bootloader.
-- Uses public and private key-based digital signatures to authenticate the firmware images.
-- Invokes the application bootloader.
-
-![TA and M4 bootloader flow](./resources/boot_up_flow.png)
-
-## WiSeConnect SDK Programming Model
-
+- When using low-power features in high-power mode with DMA enabled, it is recommended to use the ULP Memory block for buffer storage. For more details on buffer allocation, refer to the example applications: ULP_I2S, ULP_UDMA, ULP_SSI, and ULP_UART.
 ### Application Flow
 
 The following diagram demonstrates the flow of code in an SiWx917 MCU application code created using the WiSeConnect SDK.
 
-Code blocks in green represent SiWx91x MCU APIs and code blocks in orange represent Wireless APIs. See the [WiSeConnect API Reference Guide](http://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary/) for more information.
+Code blocks in green represent SiWx91x MCU APIs and code blocks in orange represent Wireless APIs. For further details, see the [WiSeConnect API Reference Guide](http://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary/).
 
 ![Application Flow](./resources/application_flow.png)
 
-### Clock Configuration
+## Memory Architecture
+The SiWx917 SoC contains the following memory components:
+  
+  **On-chip SRAM**
+  The SoC features on-chip Static Random Access Memory (SRAM) available in configurations of 192 KB, 256 KB, or 320 KB. This SRAM is crucial for storing critical data and variables during program execution, including stack and heap areas.
 
-The SiWx917 clock subsystem facilitates changing the clock source and/or frequency for different functionalities to fine tune the power usage and performance of a given application. The subsystems supports configuring on-chip clocks such as ULP clock oscillators and high-freqeuency PLLs, or clocks to processor, high-speed interfaces, and peripherals (including MCU HP, MCU ULP and UULP Vbat).
+  **Ultra-Low Power (ULP) Memory**
+  ULP memory is of size 8 KB. This can be accessed in PS4/PS3/PS2/PS1 states. This is mainly used for sensor data collection from ULP peripherals. In PS2 state, processor will be accessing this memory directly without going through ICM and AHB2AHB bridge. This will reduce the cycles required to access this memory
+  
+  **Read-Only Memory (ROM)**
+  The SoC includes 64 KB of non-volatile M4 ROM, which stores essential firmware and system-level software that do not change during normal operations. This memory holds bootloaders and critical code required for the SoC’s startup processes.
+  
+  **Quad SPI Flash Memory**
+  The Quad SPI flash memory, with a capacity of up to 8 MB depending on the package configuration, improves data transfer rates using the Quad Serial Peripheral Interface (Quad SPI). This non-volatile memory is suitable for storing large applications, firmware images, and data logs, and can be rewritten as needed
+  
+  **Quad SPI PSRAM**
+  PSRAM (Pseudo Static RAM) in the SiWx917 supports capacities of up to 8 MB, depending on the package configuration. By utilizing Quad SPI, it enables high-speed access, making it ideal for temporary storage of data or buffers in applications that require rapid data handling.
 
-* Multiple high-frequency clocks generated by PLLs
-  * High-frequency Clock from 1 MHz - 180 MHz (SOC_PLL_CLK)
-  * High-frequency Interface Clock from 1 MHz - 180 MHz (INTF_PLL_CLK)
-  * Defined frequencies for I2S Interface (I2S_PLL_CLK)
-* Multiple clocks generated by ULP Clock Oscillators. These are low-power clock oscillators
-  * External Crystal Clock (XTAL_CLK)
-  * RC MHz Clock (RC_MHZ_CLK)
-  * Doubler Clock (DOUBLER_CLK)
-  * RC 32 kHz Clock (RC_32KHZ_CLK)
-  * XTAL 32 kHz clock (XTAL_32KHZ_CLK)
-* Configurable independent division factors for varying the frequencies of different functional blocks
-* Configurable independent clock gating for different functional blocks
+  **e-Fuse**
+  The SiWx917 features 32 bytes of M4 eFuse and it is available for cusmoer applications. These e-fuses enable secure and permanent storage of important configuration settings, such as unique device identifiers and security keys. Once programmed, e-fuses remain unchanged, ensuring that critical settings are preserved.
 
-By default the MCU clock is configured to 40 MHz using the **XTAL_CLK** clock source.
+For detailed information on the memory components, please refer [SiWx917 SoC Memory Map Application Note](https://www.silabs.com/documents/public/application-notes/an1416-siwx917-soc-memory-map.pdf)
 
-The following example code snippet illustrates setting the SOCPLL clock (1 MHz to 180 MHz) as MCUSOC-Clock:
+#### PSRAM
 
-```C
-#include "sl_si91x_clock_manager.h"
+The PSRAM on the SiWx917 provides additional RAM space to the MCU application beyond the SRAM. It is available in either stacked or external configurations, depending on the package. The stacked version offers enhanced security for application execution and data storage. The MCU application can use the PSRAM for additional RAM space beyond the SRAM.
 
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180 MHz default SoC PLL Clock as source to Processor
+The SiWx917 provides the PSRAM in a ready-to-use state upon boot up. During boot up, the bootloader:
+- Initializes the PSRAM die according to the chip and PSRAM configurations in the master boot record (MBR).
+- Makes the PSRAM available as in-system memory. 
 
-// Core Clock runs at 180 MHz SOC PLL Clock
-sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-```
-> **Note**
-1. **Clock Manager** component needs to be installed to use this function.
-2. For reference, look into example applications where the MCU clock is reconfigured to 180 MHz in the application using the function **default_clock_configuration();**
+The application may use the PSRAM for different memory segments like .data, .bss, .stack, .heap, .text, or user defined segments. Different PSRAM components are available in the Simplicity Studio application project depending on the memory segments required. See the components starting from Segments in PSRAM in the [Peripherals](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-sdk-changes/application-components#peripherals) section of the **Application Components** documentation page.
+
+PSRAM can be used for runtime data storage as well as for executing MCU applications. It utilizes D-cache and I-cache to enhance memory access performance for both data and instructions.
+
+There is a provision to modify the PSRAM configuration settings in addition to boot up and default settings with the help of driver APIs which are part of the WiSeConnect SDK. These additional configurations include interface mode, read/write type, clock, pinset, and others. The WiSeConnect SDK offers various [examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/) to demonstrate the use of PSRAM memory and driver APIs.
+
+The PSRAM interface comes with security features which allow the user to protect the data stored in the PSRAM.  It is possible to configure up to four secure segments within the PSRAM by specifying each segment's start address and length in the MBR. Each secure segment represents a designated memory area where data protection is applied, allowing users to choose specific areas of memory that require enhanced security. This segmentation flexibility lets users secure only the data that needs protection. 
+An inline AES engine within the Quad SPI controller encrypts and decrypts data on the fly for these secure segments, supporting CTR mode with a key size of either 128 or 256 bits. The security configurations for these secure segments are locked in place at system boot-up; they can only be written once and cannot be modified afterward, providing write protection for the security settings.
+
+The WiSeConnect SDK provides a power save mechanism for the PSRAM which effectively utilizes the hardware power handles and sleep features of the PSRAM die across sleep and wakeup to minimize power consumption.
+
+For more information on the memory architecture and hardware interfaces of PSRAM, see the **SiWx917 Memory Architecture** and **SiWx917 SPI Flash/PSRAM Controller** sections of the [SiWx917 Reference Manual](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf)
+
+> **Note:** Currently, the radio boards map the CSN0 to drive the PSRAM die and thus enable CSN0 address space 0x0A00_0000-0x0AFF_FFFF.
+
+#### Recommendations
+
+- **Cache Coherency:** This is especially crucial when a buffer placed in PSRAM is accessed by both the NWP and M4 cores for bidirectional transactions. While the M4 core accesses PSRAM through cache, the Master (NWP core and DMA) interacts with PSRAM directly. Therefore, if PSRAM is used as a shared buffer, it's essential to move such buffers to SRAM.
+- Only the Text and Data segments are recommended for installation in Wireless Applications from PSRAM.
+- **BSS & Heap region:** In PSRAM enabled demos, moving of text, data and stack segments to PSRAM is allowed. BSS and Heap should still be in SRAM. For Wi-Fi and BLE applications, the BSS and heap regions are not configured to PSRAM.
+
+#### Flash and PSRAM Combinations
+
+This section describes the package combinations of flash and PSRAM provided by the SiWx917. Users can select the appropriate combination based on their application requirements.
+
+The available PSRAM options depend on the flash configuration of the SiWx917 package:
+* In the common flash configuration, both the NWP and MCU will use the same flash memory which is either stacked or external.
+* In the dual flash configuration, the NWP uses stacked flash and MCU uses external flash.
+
+The following table shows the possible combinations and the available options to add on PSRAM:
+
+| **Modes**    | **Common flash**    | **External**     |   **PSRAM (Stacked)** |  **PSRAM (External)** |
+| -------------|----------------|------------------|--------------------- |-------------------------|
+| Common Flash | Yes [0:5]      |      Yes[46-51]/[52-57]   |   No            |       Yes[46-51]/[52-57]     |
+|              | Yes [46:51]    |      Yes[52-57]           |  Yes[0-5]       |       Yes[52-57]    |
+| Dual Flash   | Yes [0:5]      |      Yes [46-51]/[52-57]  |         No      |       No             |
+|              | Yes [46:51]    |      Yes [52:57]          |         No      |       Yes [52:57]    |
+
+**Note:** The above flash configurations may vary based on the IC/OPN. Users should select the appropriate configuration according to their specific IC/OPN. Please refer to the [SiWx917 SoC Memory Map Application Note](https://www.silabs.com/documents/public/application-notes/an1416-siwx917-soc-memory-map.pdf) for memory configuration details. See the **OPN** section in the datasheet for more information.
+
+## Clock Architecture
+
+The SiWx917 clock subsystem is designed to facilitate dynamic adjustments of the clock source and frequency for various functionalities, enabling fine-tuning of power usage and performance for specific applications. This subsystem supports the configuration of on-chip clocks, including ULP clock oscillators, high-frequency PLLs, and clocks for the processor and peripherals (including MCU HP, MCU ULP, and UULP Vbat).
+
+**High-Frequency Clocks:**
+  * 40MHZ_XTAL_CLK
+  * RC_32MHZ_CLK 
+  * SOC_PLL_CLK 
+  * INTF_PLL_CLK
+  * I2S_PLL_CLK
+
+**Low-Power Clocks Generated by ULP Clock Oscillators:**
+  * XTAL_32KHZ_CLK: External Crystal Clock
+  * RC_32KHZ_CLK: 32 kHz clock generated by the RC oscillator
+  * XTAL_32KHZ_CLK: 32 kHz clock from the external oscillator
+  
+When **Power Manager** component is installed, the default power state is set to **PS3 Powersave** where MCU core clock is set to 40 MHz and QSPI clock will be configured to 10 MHz.
+
+**PS4 Performance Mode:**
+To configure the core to maximum clock speed,set power state to **PS4 Performance** where the M4 Core clock is configured to 180 MHz.
+In this mode, enabling the SL_SI91X_REQUIRES_INTF_PLL define will configure the QSPI clock speed to 45 MHz.
 
 ### External Oscillator(32 kHz) Usage with UULP_GPIOs
 
-This section explains the procedure for utilizing a 32 kHz external oscillator with UULP_GPIOs. To enable this, users must install the "si91x_32kHz_external_oscillator" component, which provides the necessary configurations for UULP_GPIOs. Additionally, this component includes a UC for selecting the appropriate UULP_GPIO. The component switches the LF-FSM clock to the internal 32 kHz RC oscillator.
+This section outlines how to utilize a 32 kHz external oscillator with UULP_GPIOs. To enable this functionality, users must install the "si91x_32kHz_external_oscillator" component, which provides the necessary configurations for the UULP_GPIOs. Additionally, this component includes a UC for selecting the appropriate UULP_GPIO. The component switches the LF-FSM clock to the internal 32 kHz RC oscillator.
  
-> **Note** 
-Switching the LF-FSM clock to the internal 32 kHz RC oscillator may result in timer drifts due to the change in the clock source.
+> **Note**: 
+> - For module boards, this component will be installed by default, and for ICs, the default configuration is an external 32.768kHz XTAL available on pins XTAL_32KHz_P and XTAL_32KHz_N.
+> - Switching the LF-FSM clock to the internal 32 kHz RC oscillator may result in timer drifts due to the change in the clock source.
 
-### User callback recommendation
-- In RTOS environment, Signaling mechanisms (Semaphore/Mutex/EventFlag etc.) are recommended instead of "Variables/Flags" from user callbacks to detect "*Transfer Complete*" for high-speed communication peripherals.
+### Recommendations
+- It is strongly recommended not to use RO clock in MCU
+- Configure the clock source and frequency based on the application's power and performance requirements.
+- Use low-power clock oscillators for energy-efficient applications.
+- In an RTOS environment, it is recommended to use signaling mechanisms (such as Semaphore, Mutex, or EventFlag) rather than using simple "Variables/Flags" within user callbacks to detect "*Transfer Complete*" for high-speed communication peripherals. This approach helps to ensure thread safety and reliable communication
 
-Refer to the below GSPI callback's sample code snippet demonstrating Mutex mechanism when RTOS is used:
+Refer to the User callback recommendation code snippet in the [Appendices](#user-callback-recommendation) for details on how to override the default SysTick handler in the CMSIS wrapper.
 
-```C
-/*******************************************************************************
- * Callback event function
- * It is responsible for the event which are triggered by GSPI interface
- * It updates the respective member of the structure as the event is triggered.
- ******************************************************************************/
-static void user_callback(uint32_t event)
-{
-  switch (event) {
-    case SL_GSPI_TRANSFER_COMPLETE:
-#if defined(SL_CATALOG_KERNEL_PRESENT)
-      osMutexRelease(mutex_id);
-#else
-      gspi_transfer_complete = true;
-#endif
-      break;
+## Power Architecture
 
-    case SL_GSPI_DATA_LOST:
-      break;
-
-    case SL_GSPI_MODE_FAULT:
-      break;
-  }
-}
-```
 ### Power Save
 
 The SiWx917 SoC supports sleep on both the MCU and NWP with or without RAM retention.
@@ -144,7 +185,28 @@ The SiWx917 SoC supports sleep on both the MCU and NWP with or without RAM reten
 Sleep with RAM retention makes it possible for the configured SRAM banks to be retained across sleep and wakeup. It is possible to select sleep without RAM retention if the retention of SRAM banks is not required.
 
 Any peripherals (HP and ULP peripherals) that are initialized on powering up must be re-initialized at wakeup.
+#### Power States
+The power states available in different power modes (PS0, PS1, PS2, PS3, PS4) are listed below
+- Reset State
+- Active States
+  - Power State1 (PS1)
+  - Power State2 (PS2)
+  - Power State3 (PS3)
+  - Power State4 (PS4)
+- Standby States
+  - PS2-STANDBY
+  - PS3-STANDBY
+  - PS4-STANDBY
+- Sleep States
+  - PS2-SLEEP
+  - PS3-SLEEP
+  - PS4-SLEEP
+- Shutdown States (Deep Sleep state)
+  - Power State0 (PS0)
 
+After reset, the processor starts in PS4 state which is the highest activity state where the full functionality is available. The other Active
+states (PS2/PS3) will have limited functionality or Processing power.
+>**Note:** PS1 is not supported
 #### Sleep Wakeup Sequence
 
 **MCU Sleep Wakeup**
@@ -245,7 +307,7 @@ The wakeup mode defines the bootloader sequence the SiWx917 will undergo once it
 >**Note:**
 >* rsi_deepsleep_soc.c file should compiled to SRAM.
 >
->* Refer to the [Wi-Fi - TCP Tx on Periodic Wakeup (SoC)](https://github.com/SiliconLabs/wiseconnect/tree/master/examples/si91x_soc/wlan/tcp_tx_on_periodic_wakeup) example for a detailed >example of M4 sleep wakeup.
+>* Refer to the [Wi-Fi - TCP Tx on Periodic Wakeup (SoC)](https://github.com/SiliconLabs/wiseconnect/tree/master/examples/snippets/wlan/tcp_tx_on_periodic_wakeup) example for a detailed >example of M4 sleep wakeup.
 >
 >* Enable SL_SI91X_ENABLE_LOWPWR_RET_LDO macro to optimize the deepsleep >power number. By default, it is disabled.
 >
@@ -267,92 +329,124 @@ The following table describes the front-end switch selection for the SiWx917.
 > **Note:**
 >* SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This Internal RF Switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8dbm) mode is not supported in this configuration.
 >* VC1, VC2, and VC3 are control voltage pins of the radio frequency (RF) switch. See the Reference Schematics for details.
->* ULP_GPIO_0, ULP_GPIO_4, and ULP_GPIO_5 are reserved for TA when an external RF switch is used. Configuring these pins in the application may negatively impact RF performance. These GPIOs will be reserved only if the IC/Module has an onboard antenna.
+>* ULP_GPIO_0, ULP_GPIO_4, and ULP_GPIO_5 are reserved for NWP when an external RF switch is used. Configuring these pins in the application may negatively impact RF performance.
 
-### Preprocessor Macros
+### Recommendations
+- Select the appropriate power state based on the application's power consumption and performance requirements.
+- Use sleep states to conserve energy when the system is idle.
+- For any wakeup source, ensure the corresponding peripheral component is installed in powersave applications
+- SYSRTC and wake on wireless wakeup resources are enabled by default when tickeless idle mode is enabled. Avoid installing sleeptimer component in power save applications (where FreeRTOS tickless is enabled by default)
 
-#### SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+### Notes
+- After reset, the processor starts in PS4 state which is the highest activity state where the full functionality is available. The other Active states (PS2/PS3) will have limited functionality or processing power.
 
-Enable this macro to execute selected WiSeConnect SDK files from RAM. This is required to achieve atomicity during the simulataneous access of the flash by both the MCU and NWP.
+## Chip/Module Programming
 
-This is necessary in the following scenarios:
-* Wireless de-initialization,
-* Firmware update,
-* Throughput, and
-* Power save
+### ISP Mode
 
-The `SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION` macro will be enabled if the **device_needs_ram_execution** component is present in the example's slcp file. The slcp file can be edited in the example project in Simplicity Studio.
+The SiWx917 SoC provides a configuration option to enter In-System Programming (ISP) mode by setting GPIO_34 to a low state and then issuing a reset
 
-> **Note:** We recommend you install this component when your application implements one or more of the above scenarios.
+ISP mode enables the programming or re-programming of the flash memory using the security bootloader. The security bootloader can be directed to boot up in ISP mode by pulling down the GPIO_34 pin with a 100 ohms resistor. When ISP mode is enabled, the security bootloader does not initiate the execution of the code. Additionally, entering ISP mode disables the JTAG interface, allowing the flash to be re-programmed, regardless of whether the application code uses JTAG pins for functionality or not.
 
+JTAG or SWD interface can also be used to flash the binaries if ISP mode is enabled. This is particularly useful when programming fails due to the M4 being in sleep or similar scenarios. In such cases, the SiWx917 can be set to ISP mode, and the binary can be flashed via the Simplicity Commander using the SWD interface.
 
-### SLI_SI91X_MCU_4MB_LITE_IMAGE
+ISP mode is supported via the following interfaces:
 
-The current wireless flash image is 1.6 MB. A lite image has been implemented to free up the space for MCU applications.
-Lite config is used for 4 MB SoC OPN where 1.3 MB is allocated for the TA image and ~1MB reserved for the M4 image.
+| **Interface** |         **Pins**          |
+|---------------| --------------------------|
+| **UART**      | RX: GPIO_8, TX: GPIO_9    |
+| **SDIO**      | GPIO_25 - GPIO_30         |
+| **HSPI**      | GPIO_25 - GPIO_28         |
+| **JTAG/SWD**  | JTAG_TCK_SWCLK: GPIO_31   | 
+|               | JTAG_TDI: GPIO_32         |
+|               | JTAG_TMS_SWDIO: GPIO_33   |
+|               | JTAG_TDO_SWO: GPIO_34     |
 
-The `SLI_SI91X_MCU_4MB_LITE_IMAGE` macro will be enabled if the **lite_image_for_4mb** component is installed.
+## Firmware Upgrade
+Firmware  is  the  software  that  is  embedded  into  a  hardware  device.  It  contains  a  set  of  commands  that  control  the behavior  of  a  network  device. Whenever  a  new  firmware  version  is  available,  it  is  recommended  that  users  update their  devices  to  the  latest  version.  Complete  details  about  the  latest  firmware  will  be  available  in  the  Release  Notes (shared  as  part  of  the  release  package),  which  will  help  the  users  decide  whether  to  update  to  the  new  firmware  or not.
 
-For low-power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory. Refer to [Power manager integration guide](
-https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf
-) for more details.
+### Firmware File Format
 
-## Memory Organization
+The NWP Bootloader uses a proprietary format for its upgrade images, called RPS. These files have extension “.rps”. 
 
-This section provides an overview of the different memory regions of the SiWx917.
+The RPS Format is a binary executable format understood by the Bootloader to conduct integrity and authenticity verification, as well as to load and execute the application. The Firmware Image in RPS format includes an RPS header, Boot descriptors, Application's binary image and an optional trailer (digital signature).
 
-The SiWx917 SoC contains the following memory components:
-* On-chip SRAM of 192 KB, 256 KB, or 320 KB depending on chip configuration
-* 8 KB memory in the ultra-low-power (ULP) peripheral subsystem, primarily used by the ULP MCU peripherals
-* 64 KB of ROM
-* Quad SPI flash memory up to 8 MB depending on package configuration
-* Quad SPI PSRAM up to 8 MB depending on package configuration
-* e-Fuse of 32 bytes
+### SiWx917 Firmware Load and Update Process
 
-Detailed information on the memory components above coming soon in the **SiWx917 SoC Memory Map Application Note**.
+The firmware load process  loads  firmware  onto  SiWx917  device  for  the  first  time  in  the  case  of  new  devices. The firmware update process updates SiWx917 devices with the latest firmware by replacing the firmware already existing in the device. 
 
-### PSRAM
+The steps are as follows: 
+1. To  update  existing  firmware  or  a  device  without  firmware,  download  the  new  firmware  file  to  the  device’s  flash memory from host (MCU/PC) through any host interface or through OTA process.
+2. After reboot, the current firmware is replaced by the new firmware in flash memory, and the device is updated with the new firmware.
 
-The PSRAM on the SiWx917 provides additional RAM space to the MCU application beyond the SRAM. It is available in either the stacked or external form depending on package configuration. The stacked version offers better secure execution of the application and secure data storage. The MCU application can use the PSRAM for additional RAM space beyond the SRAM. 
+> **Note:** The device should be kept in ISP mode.
 
-The SiWx917 provides the PSRAM in a ready-to-use state upon boot up. During boot up, the bootloader:
-- Initializes the PSRAM die according to the chip and PSRAM configurations in the master boot record (MBR).
-- Makes the PSRAM available as in-system memory. 
+### SiWx917 Firmware Update Mechanisms
 
-The application may use the PSRAM for different memory segments like .data, .bss, .stack, .heap, .text, or user defined segments. Different PSRAM components are available in the Simplicity Studio application project depending on the memory segments required. See the components starting from **BSS Segment in PSRAM** in the [Peripherals](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-sdk-changes/application-components#peripherals) section of the **Application Components** documentation page.
+Firmware in the SiWx917 device can be updated using the following mechanisms:
 
-The PSRAM may be used for runtime data storage in addition to MCU application execution.
+1. **Firmware update via Over-The-Air (OTA)**: In this mechanism, firmware in the device can be updated by the following methods:
+   * **HTTP/S**: Firmware is updated by downloading the firmware file from a remote HTTP/S or cloud server via Wi-Fi. The firmware file is directly downloaded to the NWP flash location.
+   * **M4 as Host**: Using host interfaces – SPI/UART/SDIO or a remote TCP server via Wi-Fi or BLE, the firmware is received in chunks by the M4. The user can choose to send the firmware to the NWP Bootloader for upgrade or save it in the external flash as per their requirements.
 
-The PSRAM address space is mapped to 0x0A00_0000 - 0x0AFF_FFFF and 0x0B00_0000 - 0x0BFF_FFFF which is cached via D-cache and I-cache to improve the memory access performance for both data and instructions respectively. The address 0x0A00_0000 - 0x0AFF_FFFF drives the chip select CSN0 and 0x0B00_0000 - 0x0BFF_FFFF drives the chip select CSN1 of the PSRAM controller.
+2. **Firmware update via Bootloader**: In this mechanism, firmware in the device can be updated by the following methods:
+   * **Kermit**: Firmware is updated using the Kermit protocol in a serial terminal like Tera Term running on a Windows/Linux PC connected to the device through the UART interface in ISP mode.
+   * **External Host Interfaces - SPI/SDIO**: The following two methods of firmware update - SPI and SDIO use two different modes of operation called Master Mode and Slave Mode. These modes are selected by the Bootloader depending on the secure zone's status. When the secure zone is disabled, the device can receive the data in Master mode. If the secure zone is enabled, the device can receive the data only in Slave mode.
 
-There is a provision to modify the PSRAM configuration settings in addition to boot up and default settings with the help of driver APIs which are part of the WiSeConnect SDK. These additional configurations include interface mode, read/write type, clock, pinset, and others. The WiSeConnect SDK offers various [examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/) to demonstrate the use of PSRAM memory and driver APIs.
+#### SPI/SDIO
 
-The PSRAM interface comes with security features which allow the user to protect the data stored in the PSRAM. It is possbile to configure up to 4 secure segments (start address and length) in the MBR. The inline AES engine in the Quad SPI controller encrypts and decrypts the data on the fly. It supports the CTR mode of encryption and decryption with a key size of 128 or 256 bits. The security configurations can only be written once during system boot up and cannot be modified later, which provides write protection to the security configuration.
+* Enable the SPI/SDIO interface on the Host and read the register 0x4105003C, which should read out 0xAB11. This indicates that the NWP Bootloader is ready to receive commands from the Host.
+* Send the "Burn" command to the device. For NWP firmware, the command is 'B', and for M4 firmware, the command is '4'. This command should be written on register address 0x41050034. In the case of M4, the burn command should be OR'ed with value 0x1 to indicate the image number.
+* Once the NWP Bootloader receives this command, the device will respond with an acknowledgment, which will be (0xAB | '2') written on register 0x4105003C. This means the device has requested the Host to send the RPS file.
+* The Host now sends the RPS file in chunks of 4096 bytes.
 
-The WiSeConnect SDK provides a power save mechanism for the PSRAM which effectively utilizes the hardware power handles and sleep features of the PSRAM die across sleep and wakeup to minimize power consumption.
+##### Master Mode:
+* The Host should first write the 4096 bytes to the PING address and write 'I' | 0xAB on 0x41050034.
+* The device will respond with 0xAB | 'O' on 0x4105003C. The 'I' indicates that the Host has valid data in the device's PING memory address, and the 'O' response from the device indicates that it is now expecting the next chunk on the PONG address.
+* The next 4096 bytes are written to the PONG address, and 'O' | 0xAB is written on 0x41050034. The response after the device receives the data on 0x4105003C will be 0xAB | 'I'.
+* The PING and PONG addresses are 0x51400 and 0x52400, respectively.
+* When sending the last 4096 bytes of data, the Host should indicate End Of File to the device by writing 'E' | 0xAB on 0x41050034 along with the firmware chunk.
+* When the device identifies the End Of File command on the Host register, it will save the chunk in the appropriate location in flash and then start the verification of the newly received firmware.
+* If the firmware is verified correctly, the device Bootloader will move the firmware from the download area to the execution area and then update the FMC.
 
-For more information on the memory architecture and hardware interfaces of PSRAM, see the **SiWx917 Memory Architecture** and **SiWx917 SPI Flash/PSRAM Controller** sections of the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+##### Slave Mode:
+* In Slave mode, the Host would not know the PING and PONG addresses. So the Host would send the firmware chunk of 4096 bytes to the SPI/SDIO FIFO register. In Slave mode, the Host will also have to send firmware chunks and indicate PING and PONG validity using the HOST interact registers. For every chunk of data sent, dummy bytes have to be sent at the beginning as the Bootloader expects it (12 dummy bytes for SPI and 256 dummy bytes for SDIO).
+* The sending of the End Of File (EOF) command is the same in Slave mode as in Master mode.
+* The response to the EOF command will be 0xABAA in case of a successful update or 0xABCC in case of verification or update failure.
 
-> **Note:** Currently, the radio boards map the CSN0 to drive the PSRAM die and thus enable CSN0 address space 0x0A00_0000-0x0AFF_FFFF.
+#### Simplicity Commander Tool/Command Line Interface (CLI)
+Using the Simplicity Commander tool or by using the CLI commands, the firmware is updated.
 
-### Flash and PSRAM Combinations
+> **Note:** SiWx917 also supports Secure and Non-Secure Firmware updates. The above mechanisms are the same for both secure and non-secure updates, except that the firmware performs security-related integrity checks before loading the device with the new firmware.
 
-This section describes the package combinations of flash and PSRAM provided by the SiWx917. The combination may be selected by the user depending on the application being developed.
+### Secure Firmware Update
 
-The available PSRAM options depend on the flash configuration of the SiWx917 package:
-* In the common flash configuration, both the NWP and MCU will use the same flash memory which is either stacked or external.
-* In the dual flash configuration, the NWP uses stacked flash and MCU uses external flash.
+In the case of bootloader and OTA, a secure firmware update can be carried out by enabling security in the firmware image using the SiWx917 Manufacturing Utility (refer to the SiWx917 Manufacturing Utility User Guide). The process of firmware update remains the same for Non-Secure and Secure Firmware updates except that in the case of a secure firmware image, integrity checks are performed.
 
-The following table shows the possible combinations and the available options to add on PSRAM:
+> **Note:** For more information on firmware upgrades, see the Firmware Update App Note.
 
-| **Modes**    | **Flash type**         | **Flash Size** | **PSRAM (optional)**              
-| -------------|------------------------|----------------|---------------------
-| Common Flash | **Stacked**            | 4MB            | 2 MB (external) or 8 MB (external)  
-|              | **External**           | 8MB            | 2 MB (stacked)                                                  
-| Dual Flash   | **Stacked + External** | 4MB + 8MB      | 2 MB                               
-|              |                        | 4MB + 16MB     | 8 MB                               
+## Bootup Flow
+This section outlines the bootup sequence of the SiWx917, detailing the software execution flow from the initial bootup until the MCU application starts running. The SiWx917 employs two distinct bootloaders: the Security Bootloader and the Application Bootloader.
 
-See the **OPN** section in the datasheet for more information.
+### Bootloaders Overview:
+#### Security Bootloader: 
+This bootloader is embedded within the NWP ROM. It is responsible for implementing secure boot processes to ensure the integrity of the firmware.
+#### Application Bootloader: 
+This bootloader resides in the M4 ROM and manages the loading and execution of the application firmware.
+
+### Bootup Sequence: 
+Upon bootup, the Security Bootloader performs the following steps:
+1. **Hardware Configuration**: Configures the module hardware based on the settings stored in the e-fuse and flash memory.
+2. **Configuration Authentication**: Authenticates the flash configuration settings to ensure they are valid and secure.
+3. **Information Transfer**: Passes essential information from the e-fuse to the Application Bootloader for proper execution.
+4. **Firmware Authentication**: Utilizes public and private key-based digital signatures to authenticate firmware images, ensuring that only verified code is executed.
+5. **Invoke Application Bootloader**: Finally, it calls the Application Bootloader to initiate the application firmware loading process.
+
+**NWP and M4 Bootloader Flow**
+
+![NWP and M4 bootloader flow](./resources/boot_up_flow.png)
+
+## Services
 
 ### NVM3
 
@@ -368,37 +462,28 @@ For more detailed information about NVM3, refer to [Third Generation NonVolatile
 
 ![NVM3 implementation in Si91x common flash](./resources/NVM3_implementation_in_Si91x_Common_Flash.png)
 
-**NVM3 installation for Si91x:**
+**Procedure 1: Installing from Simplicity Studio**
 
-NVM3 in Si91x can be installed with two methods:
+1. **Launch the Application:**
+   - Open Simplicity Studio and navigate to your project.
+   - Double-click on the application `.slcp` file in the Project Explorer.
 
-Procedure 1:
+   ![application slcp](./resources/app_slcp.png)
 
-Installing from Simplicity Studio.
+2. **Select Software Components:**
+   - In the `.slcp` file, go to the "SOFTWARE COMPONENTS" tab.
+   - Enter "nvm3 for si91x" in the search bar.
+   - Select "NVM3 for Si91x" from the search results and click "Install".
 
-1. After launching the application, double click on application slcp in Project Explorer.
+   ![NVM3 component install](./resources/NVM3_select_and_install.png)
 
-![application slcp](./resources/app_slcp.png)
+**Procedure 2: Adding to the Application slcp File**
 
-2. Select SOFTWARE COMPONENTS in slcp.
+1. Add the following lines to the application `.slcp` file and launch the project in Simplicity Studio:
 
-![software components](./resources/software_components.png)
-
-3. Type "nvm3 for si91x" in search and select NVM3 for Si91x.
-
-![searching nvm3](./resources/slcp_search.png)
-
-4. Click install.
-
-![install component](./resources/install_component.png)
-
-Procedure 2:
-
-Add the below lines in the application slcp and launch the project in Simplicity Studio.
-
-requires:
-
-  -name: nvm3_lib
+   ```yaml
+   requires:
+     -name: nvm3_lib
 
 **NVM3 region in flash:**
 
@@ -406,29 +491,29 @@ NVM3 region is allocated at the end of the M4 flash. A separate nvm3 section is 
 
 ![NVM3 memory allocation](./resources/NVM3_memory_allocation.png)
 
-For example, refer to the below section of the .map file for nvm3 memory allocation in Si91x common flash (brd4338a), by default nvm3 size is 36 kB.
+For example, refer to the section of the .map file for NVM3 memory allocation in Si91x common flash (brd4338a). By default, the NVM3 size is 36 kB.
 
 ![NVM3 memory allocation example](./resources/NVM3_memory_allocation_example.png)
 
 **Configuring NVM3 Size:**
 
-1. Open nvm3_default_config.h from wiseconnect3\components\device\silabs\si91x\mcu\drivers\service\nvm3\inc\
+1. Open nvm3_default_config.h from `wiseconnect3/components/device/silabs/si91x/mcu/drivers/service/nvm3/inc/`
 2. Update NVM3_DEFAULT_NVM_SIZE
 
-For example, after updating NVM3_DEFAULT_NVM_SIZE to 51200, the nvm3 region in .map is updated as:
+For example, after updating NVM3_DEFAULT_NVM_SIZE to 51200, the NVM3 region in the .map file is updated as follows:
 
 ![NVM3 memory configuration example](./resources/NVM3_memory_config_example.png)
 
 **NVM3 usage in Si91x:**
 
-Wireless initialization needs to be done before using NVM3 APIs in common flash as TA M4 communication is required to perform flash writes/erases.
+Wireless initialization needs to be done before using NVM3 APIs in common flash as NWP M4 communication is required to perform flash writes/erases. sl_net_init() function initializes the specified network interface with the provided configuration, network context, and event handler.
 
-1. After successful wireless initialization, nvm3_initDefault() API will open nvm3 instance with default parameters.
-2. Any of the above default nvm3 parameters can be overridden by updating corresponding macros in nvm3_default_config.h.
-3. In NVM3 data is stored in the form of objects. An object is a combination of (key + data).
-4. A key can be an identifier of the data stored in NVM3.
-5. After successfully initializing NVM3, objects can be written in nvm3 using nvm3_writeData().
-6. Data can be read with nvm3_readData() using corresponding object key.
+1. After successful wireless initialization, the nvm3_initDefault() API will open the NVM3 instance with default parameters.
+2. Any of the default NVM3 parameters can be overridden by updating the corresponding macros in nvm3_default_config.h.
+3. In NVM3, data is stored in the form of objects. An object is a combination of a key and data.
+4. A key can be an identifier for the data stored in NVM3.
+5. After successfully initializing NVM3, objects can be written using nvm3_writeData().
+6. Data can be read using nvm3_readData() with the corresponding object key.
 7. Objects can also be deleted using nvm3_deleteObject().
 
 **Note:**
@@ -437,29 +522,54 @@ Wireless initialization needs to be done before using NVM3 APIs in common flash
 2. NVM3 APIs should not be called from an ISR.
 3. For more information about NVM3 usage, refer to [NVM3 - NVM Data Manager](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3).
 
-## Chip/Module Programming
 
-### ISP Mode
+### Watchdog Timer (WDT)
 
-The SiWx917 SoC provides a configuration option to enter the in-system programming (ISP) mode by asserting and resetting GPIO_34.
+The Watchdog Timer (WDT) is a crucial component for ensuring the reliability and stability of the system. It helps to recover from unexpected software failures by resetting the system if the software becomes unresponsive. The WDT manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability
 
-ISP mode enables the programming or re-programming of the flash memory using the security bootloader. It is possible to direct the security bootloader to boot up in ISP mode by pulling down the GPIO_34 pin with a 4.7K ohms resistor. The security bootloader does not initiate the execution of the code when ISP mode is enabled. Also, when the application code uses JTAG pins for functionality, entering ISP mode causes the JTAG to be disabled so that the flash may be re-programmed.
+#### Key Features
+- Programmable timeout intervals
+- Ability to generate system resets
+- Interrupt generation before reset for graceful shutdown
 
-ISP mode is supported via the following interfaces:
+#### WDT Manager installation and usage for Si91x:
 
-| **Interface** |         **Pins**          |
-|---------------| --------------------------|
-| **UART**      | RX: GPIO_8, TX: GPIO_9    |
-| **SDIO**      | GPIO_25 - GPIO_30         |
-| **HSPI**      | GPIO_25 - GPIO_30         |
+To configure and use the Watchdog Timer, follow these steps:
 
-## Trace and Debug Interfaces
+1. **Launch the Application**:
+   - Open Simplicity Studio and navigate to your project.
+   - Double-click on the application `.slcp` file in the Project Explorer.
 
-Trace and Debug functions are integrated into the MCU's ARM Cortex M4 processor, whose TPIU supports two output modes:
+   ![WDT Manager Configuration](./resources/launch_console.png)
+
+2. **Select Software Components**:
+   - In the `.slcp` file, go to the "SOFTWARE COMPONENTS" tab.
+   - Enter "WDT Manager" in the search bar.
+   - Select "WDT Manager" from the search results and click "Install".
+
+   ![WDT Manager Configuration](./resources/WDT_select_and_install.png)
+
+3. **Configure the WDT**:
+   - After installation, click on the "Configure" option for the WDT Manager.
+   - Set the WDT interrupt time according to your requirements. By default, it is configured for 32 seconds.
+
+   ![WDT Manager Configuration](./resources/WDT_configure.png)
+
+4. **Set the Interrupt Time**:
+   - Adjust the interrupt time as needed. If the WDT interrupt is not serviced and the WDT is not restarted, the system will reset after the configured system reset time (default is 4 seconds).
+
+   ![WDT Manager Configuration](./resources/WDT_timer_configuration.png)
+
+#### Recommendations
+- The WDT manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability
+- It is strongly recommended to use `sl_si91x_soc_nvic_reset()` API for system soft reset rather than the `sl_si91x_soc_soft_reset()` function, since this uses the WDT for soft reset, which is specifically intended for system reset recovery
+## Trace and Debug
+
+The SiWx917 integrates trace and debug functions within the ARM Cortex-M4 processor, featuring two output modes supported by the TPIU:
 * Clocked mode, using up to 4-bit parallel data output ports
 * SWV mode, using single-bit SWV output
 
-> **Note:** Trace and Debug components require a CLK supply on the **M4SS_TRACE_CLKIN pin**.
+> **Note:** A CLK supply is required on the **M4SS_TRACE_CLKIN pin** pin for trace and debug functionalities.
 
 ![Trace and Debug Interfaces](./resources/trace_debug_interface.png)
 
@@ -467,68 +577,170 @@ Trace and Debug functions are integrated into the MCU's ARM Cortex M4 processor,
 
 The SWV provides real-time data trace information from various sources within a Cortex-M4 device. It is transmitted via the **SWO** pin while your system processor continues to run at full speed. Information is available from the ITM and DWT units. SWV data trace is available via the SWO pin. 
 
-To setup the SWV, configure GPIO_12 pin in mode 8 (MCU_CLK_OUT) and connect to back to GPIO_15 pin configured in GPIO mode 6 (M4SS_TRACE_CLKIN). The MCU_CLK_OUT has a programmable divider option from the MCU clock. The MCU_CLK_OUT frequency must be less than 40 MHz to use the SWO function. After configuration, data traces can be observed with the supporting debug probes.
+**Setup Instructions:**
 
-MCU_CLK_OUT register details are present in the **SiWx917 MCU HP Clock Architecture > MCUHP_CLK_CONFIG_REG3** section of the  **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+ - Configure GPIO_12 in mode 8 (MCU_CLK_OUT) and connect it back to GPIO_15 (mode 6, M4SS_TRACE_CLKIN).
+ - Ensure that the MCU_CLK_OUT frequency is below 40 MHz for SWO functionality.
+ - After configuration, data traces can be viewed using compatible debug probes.
+
+For detailed information, refer to the **SiWx917 MCU HP Clock Architecture > MCUHP_CLK_CONFIG_REG3** in the **SiWx917 Reference Manual**.
 
 ### Embedded Trace Macrocell (ETM) Support
 
-The ETM provides high bandwidth instruction traces via four dedicated trace pins accessible on the 20-pin Cortex debug + ETM connector. The MCU_CLK_OUT frequency must be in the range of 40 MHz to 90 MHz to trace instructions using ETM.
+The Embedded Trace Macrocell (ETM) enables high-bandwidth instruction tracing through four dedicated trace pins accessible on the 20-pin Cortex debug + ETM connector.
+**Setup Instructions:**
 
-To setup ETM, configure the trace pins (GPIO_52 to GPIO_57) in mode 6 and GPIO_12 pin in mode 8 (MCU_CLK_OUT). By default, on power up these GPIO pins are mapped to the Cortex debug + ETM connector (20-pin). After configuration, instruction traces can be observed with the supporting debug probes.
+ - Configure GPIO_52 to GPIO_57 in mode 6 and GPIO_12 in mode 8 (MCU_CLK_OUT).
+ - The MCU_CLK_OUT frequency must be between 40 MHz and 90 MHz for effective instruction tracing.
 
-> **Note:** A free-running clock must be present on MCU_CLK_OUT (GPIO_12) before programming the trace pins, otherwise the IDE will display the **Trace HW not present** error.
+> **Note:** Ensure that a free-running clock is present on MCU_CLK_OUT (GPIO_12) prior to configuring the trace pins; otherwise, you may encounter **Trace HW not present** error in the IDE.
 
 ### VCOM
 
-The virtual COM (VCOM) port is available on the wireless pro kit mainboard (BRD4002A) and supports the following features:
-* Flash, erase, and debug over SWD
+The virtual COM (VCOM) port is available on the wireless pro kit mainboard (BRD4002A) and supports several functionalities:
+
+**Flash, Erase, and Debug over SWD:**
   * If the ULP UART peripheral is configured, VCOM cannot be used for debug prints because the ULP UART is mapped to the VCOM.
-  * To enable both the ULP UART and VCOM, configure UART1/UART2 instance for debug prints. In this case, a USB-to-TTL converter is required. See the [Console Input](https://docs.silabs.com/wiseconnect/3.1.0/wiseconnect-getting-started/getting-started-with-soc-mode#enter-the-console-input-for-other-boards) section for the BRD4325 series boards for instructions.
-  * If the ULP UART is functioning in the PS2 state, the UART1/UART2 cannot be used for debug prints.
-* UART RX and TX, for use in command line applications and debug prints
+  * To enable both the ULP UART and VCOM, configure the UART1/UART2 instance for debug prints. In this case, a USB-to-TTL converter is required. See the [Console Input](https://docs.silabs.com/wiseconnect/3.1.0/wiseconnect-getting-started/getting-started-with-soc-mode#enter-the-console-input-for-other-boards) section for the BRD4325 series boards for instructions.
+  * If the ULP UART is functioning in the PS2 state, UART1/UART2 cannot be used for debug prints.
+
+**UART RX and TX:**
+  * Use for command line applications and debug prints.
   * In this mode, ULP_GPIO_9 (RX) and ULP_GPIO_11 (TX) will be mapped to the MCU UART.
-* Flash programming in ISP mode
-  * In this mode, GPIO_8 (RX) and GPIO_9 (TX) will be mapped to TA UART.
-* VCOM disable procedure-
-  * VCOM can be disabled by the following steps (this will reset (VCOM enabled) upon power cycle of BRD4002A):
-    * Step 1: Open "Tools" from Simplicity Studio. Search for "Device Console" and click on OK.
-    * Step 2: Switch to "Admin" tab and press Enter. Issue the command "serial vcom ctrl sense deassert". VCOM LED on the BRD4002A will be turned OFF.
-> **Note:** Debug logs from the NWP can be fetched via the NWP UART which is available on the EXP header's EXP14 (UART_RX) and EXP12 (UART_TX) pins.
 
-## Firmware Upgrade
-Firmware  is  the  software  that  is  embedded  into  a  hardware  device.  It  contains  a  set  of  commands  that  control  the behavior  of  a  network  device. Whenever  a  new  firmware  version  is  available,  it  is  recommended  that  users  update their  devices  to  the  latest  version.  Complete  details  about  the  latest  firmware  will  be  available  in  the  Release  Notes (shared  as  part  of  the  release  package),  which  will  help  the  users  decide  whether  to  update  to  the  new  firmware  or not.
+**Flash Programming in ISP Mode:**
+  * In this mode, GPIO_8 (RX) and GPIO_9 (TX) will be mapped to the NWP UART.
 
-### Firmware File Format
+**VCOM Disable Procedure:**
+  * VCOM can be disabled by following these steps (note that VCOM will reset to enabled upon power cycle of BRD4002A):
+    * Step 1: Open "Tools" in Simplicity Studio. Search for "Device Console" and click OK.
+    * Step 2: Switch to the "Admin" tab and press Enter. Issue the command `serial vcom ctrl sense deassert`. The VCOM LED on the BRD4002A will turn OFF.
 
-The TA Bootloader uses a proprietary format for its upgrade images, called RPS. These files have extension “.rps”. 
+> **Note:** Debug logs from the NWP can be fetched via the NWP UART, which is available on the EXP header's EXP14 (UART_RX) and EXP12 (UART_TX) pins.
 
-The RPS Format is a binary executable format understood by the Bootloader to conduct integrity and authenticity verification, as well as to load and execute the application. The Firmware Image in RPS format includes an RPS header, Boot descriptors, Application's binary image and an optional trailer (digital signature).
+## Appendices
 
-### SiWx917 Firmware Load and Update Process
+### Appendix A: Preprocessor Macros
 
-The firmware load process  loads  firmware  onto  SiWx917  device  for  the  first  time  in  the  case  of  new  devices. The firmware update process updates SiWx917 devices with the latest firmware by replacing the firmware already existing in the device. 
+#### SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
 
-The steps are as follows: 
-1. To  update  existing  firmware  or  a  device  without  firmware,  download  the  new  firmware  file  to  the  device’s  flash memory from host (MCU/PC) through any host interface or through OTA process.
-2. After reboot, the current firmware is replaced by the new firmware in flash memory, and the device is updated with the new firmware.
+Enable this macro to execute selected WiSeConnect SDK files from RAM. This is required to achieve atomicity during the simulataneous access of the flash by both the MCU and NWP.
 
-### SiWx917 Firmware Update Mechanisms
+This is necessary in the following scenarios:
+* Wireless de-initialization,
+* Firmware update,
+* Throughput, and
+* Power save
 
-Firmware in the SiWx917 device can be updated using the following mechanisms:
+The `SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION` macro will be enabled if the **device_needs_ram_execution** component is present in the example's slcp file. The slcp file can be edited in the example project in Simplicity Studio.
 
-1. Firmware update via Over-The-Air (OTA): In this mechanism, firmware in the device can be updated by the following methods.
-   * HTTP/S: Firmware is updated by downloading the firmware file from a remote HTTP/S or cloud server via Wi-Fi. The firmware file is directly downloaded to TA flash location.
-   * M4  as  Host:  Using  host  interfaces  –  SPI/UART/SDIO  or  a  remote  TCP  server  via  Wi-Fi  or  BLE,  the firmware  is  reaching  in  chunks  to  M4.  The  user  can  choose  to  send  the  firmware  to  TA  Bootloader  for upgrade or save in the external flash as per their requirements.
+> **Note:** It is recommended you install this component when your application implements one or more of the above scenarios.
 
-2. Firmware update via Bootloader: In this mechanism firmware in the device can be updated by the following methods.
-   * Kermit:  Firmware  is  updated  using  Kermit  protocol  in  a  serial  terminal  like  Tera  Term  running  in  a Windows/Linux PC connected to the device through UART interface in ISP mode.
-   * Simplicity Commander Tool/ Command Line Interface (CLI): Using the Simplicity Commander tool or by using the CLI commands, the firmware is updated.
 
-> **Note:** SiWx917  also  has  Secure  and  Non-Secure  Firmware  updates.  The  above  mechanisms  are  same  for  both secure and non-secure updates, except that the firmware does security-related integrity checks before loading the device with the new firmware.
+#### SLI_SI91X_MCU_4MB_LITE_IMAGE
 
-### Secure Firmware Update
+The current wireless flash image is 1.6 MB. A lite image has been implemented to free up the space for MCU applications.
+The Lite configuration is used for 4 MB SoC OPN where 1.3 MB is allocated for the NWP image and approximately 1MB reserved for the M4 image.
 
-In  case  of  bootloader  and  OTA,  a secure  firmware  update  can be carried out by enabling the security  in  the  firmware  image using  the  SiWx917  Manufacturing  Utility  (refer  to  the  SiWx917  Manufacturing  Utility  User  Guide).  The  process  of firmware  update  remains the same  for  Non-Secure  and  Secure  Firmware  updates  except  that  in  the  case  of  secure firmware image, the integrity checks are done.
+The `SLI_SI91X_MCU_4MB_LITE_IMAGE` macro will be enabled if the **lite_image_for_4mb** component is installed.
 
-> **Note:** For more information on the Firmware upgradation, see the Firmware Update App Note.
+For low-power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory. Refer to [Power manager integration guide](
+https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf
+) for more details.
+
+### Appendix B: Code Snippets
+
+#### User callback recommendation
+
+Below is an example demonstrating the use of a Mutex mechanism in a GSPI callback when using an RTOS:
+
+```C
+// Example GSPI callback using Mutex
+void GSPI_TransferComplete_Callback(void) {
+    // Lock the mutex before accessing shared resources
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+
+    // Perform operations on shared resources
+
+    // Release the mutex after operations are complete
+    xSemaphoreGive(xMutex);
+}
+
+```
+
+### Appendix C: Custom Sys-Tick Handler
+
+When using the CMSIS_OS2 wrapper for FreeRTOS, the SysTick handler is provided by default. This handler increments the OS ticks with every SysTick interrupt. However, when tickless mode is enabled, the RTOS relies on the Sleep timer, and OS ticks are incremented in the Sleep timer IRQ handler. Thus, simultaneously using the SysTick and Sleep timer can affect the OS ticks.
+
+Recommendation: It is advisable not to use the SysTick while tickless mode is enabled. If it is necessary to use the SysTick, override the default SysTick handler in the CMSIS wrapper. The custom handler should not increment the OS ticks to avoid impacting the tick count.
+
+EX: To hide the SysTick handler in the cmsis_os2.c file, you can implement the following code snippet:
+
+```C
+#if (USE_CUSTOM_SYSTICK_HANDLER_IMPLIMENTATION == 0)
+  void SysTick_Handler (void) {
+  /* Clear overflow flag */
+  SysTick->CTRL;
+
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    /* Call tick handler */
+    xPortSysTickHandler();
+  }
+}
+#endif /* SysTick */
+```
+
+### Appendix D: Exception Handlers
+Exception handlers are critical for managing unexpected events and ensuring system stability. Implementing custom exception handlers allows developers to handle specific exceptions and perform necessary actions to maintain system reliability. 
+
+### Appendix E: Acronyms and Abbreviations
+
+| **Term** | **Description** |
+|----------|-----------------|
+| AHB (Advanced High-performance Bus) | A bus protocol used in ARM microcontrollers for high-speed data transfer. |
+| API (Application Programming Interface) | A set of functions and protocols that allow different software components to communicate. |
+| DWT (Data Watchpoint and Trace) | A component in ARM Cortex-M microcontrollers that provides data watchpoint and trace capabilities. |
+| ETM (Embedded Trace Macrocell) | A technology that provides instruction trace capabilities for ARM processors. |
+| FMC (Flash Memory Controller) | A controller that manages the reading, writing, and erasing of flash memory. |
+| FPU (Floating Point Unit) | A part of a computer system specially designed to carry out operations on floating-point numbers. |
+| GPIO (General-Purpose Input/Output) | A generic pin on an integrated circuit that can be controlled by software. |
+| ISP (In-System Programming) | A method of programming or reprogramming a device's flash memory while it is installed in the end system. |
+| ITM (Instrumentation Trace Macrocell) | A component in ARM Cortex-M microcontrollers that provides trace capabilities for debugging. |
+| MCU (Microcontroller Unit) | A small computer on a single integrated circuit containing a processor core, memory, and programmable input/output peripherals. |
+| NWP (Network Wireless Processor) | A processor dedicated to handling network and wireless communication tasks. |
+| OTA (Over-The-Air) | A method of distributing new software updates or configuration settings to devices wirelessly. |
+| PLL (Phase-Locked Loop) | A control system that generates a signal with a fixed relation to the phase of a reference signal. |
+| PSRAM (Pseudo Static Random Access Memory) | A type of RAM that combines the high density of DRAM with the ease-of-use of SRAM. |
+| RC (Resistor-Capacitor) | A type of electronic circuit used for filtering or timing applications. |
+| ROM (Read-Only Memory) | Non-volatile memory used to store firmware or software that is rarely changed. |
+| RPS (Remote Procedure Call) | A protocol that allows a program to request a service from a program located on another computer in a network. |
+| RTOS (Real-Time Operating System) | An operating system designed to serve real-time applications that process data as it comes in. |
+| SDK (Software Development Kit) | A collection of software development tools and libraries for creating applications. |
+| SDIO (Secure Digital Input Output) | An interface for connecting peripheral devices to a host controller. |
+| SPI (Serial Peripheral Interface) | A synchronous serial communication interface used for short-distance communication. |
+| SRAM (Static Random Access Memory) | A type of memory that uses bistable latching circuitry to store each bit. |
+| SWD (Serial Wire Debug) | A two-pin interface for debugging ARM Cortex-M microcontrollers. |
+| SWV (Serial Wire Viewer) | A real-time data trace technology for ARM Cortex-M microcontrollers. |
+| TPIU (Trace Port Interface Unit) | A unit that provides real-time trace data from a microcontroller. |
+| UART (Universal Asynchronous Receiver-Transmitter) | A hardware communication protocol that uses asynchronous serial communication with configurable speed. |
+| VCOM (Virtual COM Port) | A software interface that emulates a physical COM port. |
+| XTAL (Crystal Oscillator) | An electronic oscillator circuit that uses the mechanical resonance of a vibrating crystal to create an electrical signal with a precise frequency. |
+
+### Appendix F: Contact Information
+For further assistance and support, please contact:
+
+* Silicon Labs Support: [Silicon Labs Support] (https://www.silabs.com/support)
+* Sales Inquiries: [Contact Sales] (https://www.silabs.com/about-us/contact-sales)
+
+
+## References
+
+| **Reference** | **Link** |
+|---------------|----------|
+| SiWx917 Datasheet | [SiWx917 Datasheet](https://www.silabs.com/documents/public/data-sheets/SiWx917-datasheet.pdf) |
+| WiSeConnect SDK Documentation | [WiSeConnect SDK Documentation](http://docs.silabs.com/wiseconnect/latest/) |
+| Getting Started with WiSeConnect | [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) |
+| NVM3 - NVM Data Manager | [NVM3 Documentation](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3) |
+| Third Generation NonVolatile Memory (NVM3) Data Storage | [NVM3 Application Note](https://www.silabs.com/documents/public/application-notes/an1135-using-third-generation-nonvolatile-memory.pdf) |
+| Power Manager Integration Guide | [Power Manager Integration Guide](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf) |
+| SiWx917 Reference Manual | Contact [Silicon Labs Sales](https://www.silabs.com/about-us/contact-sales) for access. |

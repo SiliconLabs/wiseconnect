@@ -1,19 +1,31 @@
 /*******************************************************************************
 * @file  rsi_ipmu.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 /**
  * Includes
@@ -22,11 +34,16 @@
 #include "rsi_ipmu.h"
 #include "rsi_pll.h"
 #include "rsi_ulpss_clk.h"
+#include "sl_si91x_bjt_temperature_sensor.h"
+
 /**
  * Defines
  */
 #define SYSTEM_CLK_VAL_20MHZ ((uint32_t)(20000000)) // macro for 20MHz
-#define SYSTEM_CLK_VAL_32MHZ ((uint32_t)(32000000)) // macro for 32MHz
+#define SYSTEM_CLK_VAL_MHZ   ((uint32_t)(32000000)) // macro for 32MHz doubler
+
+extern adc_config_t sl_bjt_config;
+extern adc_ch_config_t sl_bjt_channel_config;
 
 /**
  * @fn          void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
@@ -51,7 +68,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
   poc_bias_efuse[2] = value;
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /* POC_BIAS_EFUSE */
   data  = (ipmu_calib_data->trim_0p5na1);
   mask  = MASK_BITS(22, 0);
@@ -71,7 +88,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
   bg_trim_efuse[4] = value;
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /* BG_TRIM_EFUSE */
   data  = (ipmu_calib_data->bg_r_ptat_vdd_ulp);
   mask  = MASK_BITS(22, 0);
@@ -309,24 +326,21 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
   }
 #endif
 
-  /* buck_trim_efuse = set_vref1p3 */
-  data  = ((ipmu_calib_data->set_vref1p3));
+  data  = ipmu_calib_data->set_vref1p3;
   mask  = MASK_BITS(22, 0);
   value = buck_trim_efuse[2];
   value &= ~mask;
   value |= data;
   buck_trim_efuse[2] = value;
 
-  /* ldosoc_trim_efuse = trim_r1_resistorladder  */
-  data  = ((ipmu_calib_data->trim_r1_resistorladder));
+  data  = ipmu_calib_data->trim_r1_resistorladder;
   mask  = MASK_BITS(22, 0);
   value = ldosoc_trim_efuse[2];
   value &= ~mask;
   value |= data;
   ldosoc_trim_efuse[2] = value;
 
-  /* dpwm_freq_trim_efuse = dpwm_freq_trim*/
-  data  = ((ipmu_calib_data->dpwm_freq_trim));
+  data  = ipmu_calib_data->dpwm_freq_trim;
   mask  = MASK_BITS(22, 0);
   value = dpwm_freq_trim_efuse[2];
   value &= ~mask;
@@ -335,7 +349,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
 
 #ifdef AT_EFUSE_DATA_1P19
   /* scdc_hpldo_trim */
-  data  = ((ipmu_calib_data->scdc_hpldo_trim));
+  data  = ipmu_calib_data->scdc_hpldo_trim;
   mask  = MASK_BITS(22, 0);
   value = hpldo_volt_trim_efuse[2];
   value &= ~mask;
@@ -343,7 +357,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
   hpldo_volt_trim_efuse[2] = value;
 
   /* scdc_dcdc_trim */
-  data  = ((ipmu_calib_data->scdc_dcdc_trim));
+  data  = ipmu_calib_data->scdc_dcdc_trim;
   mask  = MASK_BITS(22, 0);
   value = scdc_volt_trim_efuse[2];
   value &= ~mask;
@@ -397,7 +411,7 @@ void RSI_IPMU_InitCalibData(void)
   //rsi_cmd_m4_ta_secure_handshake(2,0,NULL,sizeof(efuse_ipmu_t),(uint8_t *)&global_ipmu_calib_data);
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
   /* Checks the Calibration values are present at MCU flash */
   if ((*(uint32_t *)(COMMON_FLASH_IPMU_VALUES_OFFSET)) == 0x00) {
@@ -442,7 +456,22 @@ void RSI_Ipmu_Init(void)
  */
 void RSI_Configure_Ipmu_Mode(void)
 {
-  configure_ipmu_mode(IPMU_MODE_VALUE);
+  double temperature = 0;
+
+#if defined(ENABLE_1P8V) || defined(SLI_SI915)
+  (void)temperature;
+  /*configures chip supply mode to HP-LDO */
+  configure_ipmu_mode(HP_LDO_MODE);
+#else
+  /* Read the temperature; if it is within the range of 0 to 60 degrees, switch the chip supply to SCDC mode. Otherwise, maintain the default LDO supply mode.*/
+  sl_si91x_bjt_temperature_sensor_init(sl_bjt_channel_config, sl_bjt_config);
+  sl_si91x_bjt_temperature_sensor_read_data(&temperature);
+  sl_si91x_bjt_temperature_sensor_deinit(sl_bjt_config);
+  if ((temperature > 0) && (temperature <= 60)) {
+    /*configures chip supply mode to SCDC */
+    configure_ipmu_mode(SCDC_MODE);
+  }
+#endif
 }
 void update_efuse_system_configs(int data, uint32_t config_ptr[])
 {
@@ -645,7 +674,7 @@ rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config)
   }
   for (index = 0; index < program_len; index++) {
     reg_addr       = config[(2U * index) + 1];
-    reg_write_data = config[(2U * (index + 1))];
+    reg_write_data = config[2U * (index + 1)];
 
     lsb = ((reg_write_data >> LSB_POSITION) & POSITION_BITS_MASK);
     msb = ((reg_write_data >> MSB_POSITION) & POSITION_BITS_MASK);
@@ -667,7 +696,7 @@ rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config)
       cnt++;
       write_bit_pos++;
     } while (cnt < (clear_cnt + lsb));
-    reg_write_data &= (write_mask);
+    reg_write_data &= write_mask;
     /*Write to the hardware register*/
     reg_write_data                 = (reg_read_data | (reg_write_data << lsb));
     *(volatile uint32_t *)reg_addr = reg_write_data;
@@ -708,7 +737,7 @@ uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
   }
   for (index = 0; index < program_len; index++) {
 
-    reg_write_data = config[(2U * (index + 1))];
+    reg_write_data = config[2U * (index + 1)];
 
     lsb = ((reg_write_data >> LSB_POSITION) & POSITION_BITS_MASK);
     msb = ((reg_write_data >> MSB_POSITION) & POSITION_BITS_MASK);
@@ -723,12 +752,11 @@ uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
     write_mask    = 0;
     write_bit_pos = 0;
     do {
-      //reg_read_data  &= ~BIT(cnt);
       write_mask |= BIT(write_bit_pos);
       cnt++;
       write_bit_pos++;
     } while (cnt < (clear_cnt + lsb));
-    reg_write_data &= (write_mask);
+    reg_write_data &= write_mask;
     /*Write to the hardware register*/
     reg_write_data = (reg_read_data | (reg_write_data << lsb));
   }
@@ -916,13 +944,13 @@ void RSI_IPMU_HP_LDO_Enable(void)
 
 rsi_error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
 {
-  system_clocks.rc_32mhz_clock = DEFAULT_32MHZ_RC_CLOCK;
+  system_clocks.rc_mhz_clock = DEFAULT_MHZ_RC_CLOCK;
 
-  if (system_clocks.m4_ref_clock_source == ULP_32MHZ_RC_CLK) {
-    system_clocks.m4ss_ref_clk = DEFAULT_32MHZ_RC_CLOCK;
+  if (system_clocks.m4_ref_clock_source == ULP_MHZ_RC_CLK) {
+    system_clocks.m4ss_ref_clk = DEFAULT_MHZ_RC_CLOCK;
   }
-  if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_32MHZ_RC_CLK) {
-    system_clocks.ulpss_ref_clk = DEFAULT_32MHZ_RC_CLOCK;
+  if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_MHZ_RC_CLK) {
+    system_clocks.ulpss_ref_clk = DEFAULT_MHZ_RC_CLOCK;
   }
 
   return RSI_IPMU_ProgramConfigData(m32rc_osc_trim_efuse);
@@ -942,11 +970,11 @@ rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
   error_status = RSI_IPMU_ProgramConfigData(m20rc_osc_trim_efuse);
 
   if (error_status == RSI_OK) {
-    system_clocks.rc_32mhz_clock = SYSTEM_CLK_VAL_20MHZ;
-    if (system_clocks.m4_ref_clock_source == ULP_32MHZ_RC_CLK) {
+    system_clocks.rc_mhz_clock = SYSTEM_CLK_VAL_20MHZ;
+    if (system_clocks.m4_ref_clock_source == ULP_MHZ_RC_CLK) {
       system_clocks.m4ss_ref_clk = SYSTEM_CLK_VAL_20MHZ;
     }
-    if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_32MHZ_RC_CLK) {
+    if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_MHZ_RC_CLK) {
       system_clocks.ulpss_ref_clk = SYSTEM_CLK_VAL_20MHZ;
     }
   }
@@ -963,7 +991,7 @@ rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
 
 rsi_error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
 {
-  system_clocks.doubler_clock = SYSTEM_CLK_VAL_32MHZ;
+  system_clocks.doubler_clock = SYSTEM_CLK_VAL_MHZ;
   return RSI_IPMU_ProgramConfigData(dblr_32m_trim_efuse);
 }
 
@@ -1120,7 +1148,6 @@ uint32_t RSI_IPMU_Auxadcgain_DiffEfuse(void)
 uint32_t RSI_IPMU_Auxadcoff_SeEfuse(void)
 {
   return RSI_APB_ProgramConfigData(auxadc_off_se_efuse);
-  ;
 }
 
 /*==============================================*/
@@ -1374,7 +1401,6 @@ void RSI_IPMU_32KHzROClkClib(void)
     ro32k_trim = ((ULP_SPI_MEM_MAP(ULPCLKS_CALIB_DONE_REG_ADDR) & RO_TRIM_VALUE_LF) >> 4);
     /*Mask the bits where the trim value need to write */
     ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &= (uint32_t)(~(MASK32KRO_TRIM_VALUE_WRITE_BITS));
-    ;
     /* Programming the calibrated trim to SPI register. */
     ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= (ro32k_trim << 16);
     /*  trim given from spi goes to the block */
@@ -1384,7 +1410,7 @@ void RSI_IPMU_32KHzROClkClib(void)
     no_of_tst_clk_khz_ro /= 1000;
     /* Check if it is less than a particular value */
     if (no_of_tst_clk_khz_ro < PARTICULAR_FREQ_MIN) {
-      ULP_SPI_MEM_MAP(iPMU_SPARE_REG1_OFFSET) |= (BIT(18) | BIT(19));
+      ULP_SPI_MEM_MAP(iPMU_SPARE_REG1_OFFSET) |= BIT(18) | BIT(19);
     }
     /* Check if it is greater than a particular value */
     if (no_of_tst_clk_khz_ro > PARTICULAR_FREQ_MAX) {
@@ -1427,8 +1453,7 @@ void RSI_IPMU_32KHzRCClkClib(void)
     /* Read calibrated trim value after low frequency calibration done */
     rc32k_trim = ((ULP_SPI_MEM_MAP(ULPCLKS_CALIB_DONE_REG_ADDR) & RC_TRIM_VALUE_LF) >> 4);
     /*Mask the bits where the trim value need to write */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) &= (uint32_t)(~(MASK32KRC_TRIM_VALUE_WRITE_BITS));
-    ;
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) &= (uint32_t)~MASK32KRC_TRIM_VALUE_WRITE_BITS;
     /* Programming the calibrated trim to SPI register. */
     ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) |= (rc32k_trim << 14);
     /*pointing the trim select to SPI */
@@ -1438,7 +1463,7 @@ void RSI_IPMU_32KHzRCClkClib(void)
     no_of_tst_clk_khz_rc /= 1000;
     /* Check if it is less than a particular value */
     if (no_of_tst_clk_khz_rc < PARTICULAR_FREQ_MIN) {
-      ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) |= (BIT(12) | BIT(13));
+      ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) |= BIT(12) | BIT(13);
     }
     /* Check if it is greater than a particular value */
     if (no_of_tst_clk_khz_rc > PARTICULAR_FREQ_MAX) {
@@ -1464,13 +1489,13 @@ uint32_t RSI_Clks_Trim32MHzRC(uint32_t freq)
   volatile uint32_t reg_read       = 0;
   volatile uint32_t trim_value     = 0;
 
-  system_clocks.rc_32mhz_clock = (freq);
+  system_clocks.rc_mhz_clock = freq;
 
-  if (system_clocks.m4_ref_clock_source == ULP_32MHZ_RC_CLK) {
-    system_clocks.m4ss_ref_clk = (freq);
+  if (system_clocks.m4_ref_clock_source == ULP_MHZ_RC_CLK) {
+    system_clocks.m4ss_ref_clk = freq;
   }
-  if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_32MHZ_RC_CLK) {
-    system_clocks.ulpss_ref_clk = (freq);
+  if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_MHZ_RC_CLK) {
+    system_clocks.ulpss_ref_clk = freq;
   }
 
   /*Multiple the input frequency value with 10 e.g:20MHz as 200 */
@@ -1480,37 +1505,37 @@ uint32_t RSI_Clks_Trim32MHzRC(uint32_t freq)
   no_oftst_clk = RSI_Clks_Calibration(ulp_ref_clk, none);
   no_oftst_clk = no_oftst_clk_f / 100000;
   /* Trims MHz RC clock to required frequency */
-  if (!(no_oftst_clk == (freq))) {
-    reg_read = ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET);
+  if (no_oftst_clk != freq) {
+    reg_read = ULP_SPI_MEM_MAP(ULPCLKS_MRC_CLK_REG_OFFSET);
     /* Clears Trim bits(14-20) for RC 32MHz clock */
-    reg_read &= (uint32_t)(~(0x7F << TRIM_LSB_32MHZ));
-    ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET) = (reg_read);
+    reg_read &= (uint32_t)(~(0x7F << TRIM_LSB_MHZ));
+    ULP_SPI_MEM_MAP(ULPCLKS_MRC_CLK_REG_OFFSET) = reg_read;
     /* check's from 20 bit to 14 bit  */
-    for (volatile uint32_t i = TRIM_MSB_32MHZ; i >= TRIM_LSB_32MHZ; i--) {
+    for (volatile uint32_t i = TRIM_MSB_MHZ; i >= TRIM_LSB_MHZ; i--) {
       /* Measures MHz RC clock Clock Frequency  */
       no_oftst_clk_f = RSI_Clks_Calibration(ulp_ref_clk, none);
       /*To get in three digit of Measured frequency value in MHz e.g:20MHz as 200 */
       no_oftst_clk = no_oftst_clk_f / 100000;
       /* Halt the process for less than 0.3MHZ even  */
-      if ((freq) - (no_oftst_clk) < MIN_DIFF_FREQ) {
+      if (freq - no_oftst_clk < MIN_DIFF_FREQ) {
         break;
       }
       /*Check whether the acquired frequency is higher than required frequency 
         If higher then clear the previous bit and set the present bit     */
-      if (no_oftst_clk >= (freq)) {
-        ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET) &= ~(BIT(i + 1));
-        ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET) |= BIT(i);
+      if (no_oftst_clk >= freq) {
+        ULP_SPI_MEM_MAP(ULPCLKS_MRC_CLK_REG_OFFSET) &= ~BIT(i + 1);
+        ULP_SPI_MEM_MAP(ULPCLKS_MRC_CLK_REG_OFFSET) |= BIT(i);
       }
       /* If lesser  set the present bit   */
       else {
-        ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET) |= BIT(i);
+        ULP_SPI_MEM_MAP(ULPCLKS_MRC_CLK_REG_OFFSET) |= BIT(i);
       }
     }
   }
   /* Trim bits(14-20) value for RC 32MHz clock   */
-  trim_value = ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET);
-  trim_value &= (0x7F << TRIM_LSB_32MHZ);
-  trim_value = trim_value >> TRIM_LSB_32MHZ;
+  trim_value = ULP_SPI_MEM_MAP(ULPCLKS_MRC_CLK_REG_OFFSET);
+  trim_value &= (0x7F << TRIM_LSB_MHZ);
+  trim_value = trim_value >> TRIM_LSB_MHZ;
 
   return trim_value;
 }
@@ -1553,7 +1578,7 @@ void RSI_IPMU_20M_ROClktrim(uint8_t clkfreq)
   /*  powergate enable for calibration domain   */
   ULP_SPI_MEM_MAP(ULPCLKS_TRIM_SEL_REG_ADDR) = ENABLE_CALIB_DOMAIN;
   /* Mask the bits to write required frequency for High frequency RO clock */
-  ULP_SPI_MEM_MAP(ULPCLKS_TRIM_SEL_REG_ADDR) &= (uint32_t)(~(0x3F));
+  ULP_SPI_MEM_MAP(ULPCLKS_TRIM_SEL_REG_ADDR) &= (uint32_t)~0x3F;
   /*It writes that at what frequency the ROMhz need to be trim    */
   ULP_SPI_MEM_MAP(ULPCLKS_TRIM_SEL_REG_ADDR) |= clkfreq;
   /* Select the RO50M clock to calibrate */
@@ -1563,9 +1588,8 @@ void RSI_IPMU_20M_ROClktrim(uint8_t clkfreq)
     ;
   /* Reading calibrated trim value */
   ro50m_trim = ((ULP_SPI_MEM_MAP(ULPCLKS_CALIB_DONE_REG_ADDR) & TRIM_VALUE_BITS) >> 11);
-  //  ro50m_trim = (ro50m_trim >> 11);
   /*Mask the bits where the trim value need to write */
-  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= (uint32_t)(~(MASK_TRIM_VALUE_WRITE_BITS));
+  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= (uint32_t)~MASK_TRIM_VALUE_WRITE_BITS;
   /* Programming the calibrated trim to SPI register. */
   ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= (ro50m_trim << 14);
   /* pointing the trim select to SPI i.e write default values to that register */
@@ -1610,18 +1634,14 @@ uint32_t RSI_Clks_Calibration(INPUT_CLOCK_T inputclk, SLEEP_CLOCK_T sleep_clk_ty
       M4CLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL = khz_xtal_clk;
     }
   }
-  /*Change test clock */
-  //  M4CLK->CLK_CALIB_CTRL_REG1_b.CC_CHANGE_TEST_CLK_b = 0x1;
   /* Select the clock to be calibrated*/
-  M4CLK->CLK_CALIB_CTRL_REG1_b.CC_CLKIN_SEL_b = (inputclk);
+  M4CLK->CLK_CALIB_CTRL_REG1_b.CC_CLKIN_SEL_b = inputclk;
   /* number of ref clock cycles to be considered for calibrating */
   M4CLK->CLK_CALIB_CTRL_REG2_b.CC_NUM_REF_CLKS = 39062;
-  /* Reset change test clock  */
-  //  M4CLK->CLK_CALIB_CTRL_REG1_b.CC_CHANGE_TEST_CLK_b = 0x0;
   /* Start clock calibration */
   M4CLK->CLK_CALIB_CTRL_REG1_b.CC_START_b = 0x1;
   /* Wait until the clock calibration done */
-  while (!(M4CLK->CLK_CALIB_STS_REG1_b.CC_DONE_b))
+  while (!M4CLK->CLK_CALIB_STS_REG1_b.CC_DONE_b)
     ;
 
   if ((M4CLK->CLK_CALIB_STS_REG1_b.CC_ERROR_b)) {
@@ -1629,7 +1649,7 @@ uint32_t RSI_Clks_Calibration(INPUT_CLOCK_T inputclk, SLEEP_CLOCK_T sleep_clk_ty
   }
 
   /*If cc_error is not set then the clock calibration is done. */
-  if (!(M4CLK->CLK_CALIB_STS_REG1_b.CC_ERROR_b)) {
+  if (!M4CLK->CLK_CALIB_STS_REG1_b.CC_ERROR_b) {
     /* number of test clock cycles occurred for the specified number
        of ref_clock cycles*/
     no_oftst_clk = M4CLK->CLK_CALIB_STS_REG2_b.CC_NUM_TEST_CLKS;
@@ -1650,7 +1670,7 @@ void RSI_IPMU_64KHZ_RCClktrim(void)
   uint32_t i;
   uint32_t status = 0;
 
-  system_clocks.rc_32khz_clock = (64000);
+  system_clocks.rc_32khz_clock = 64000;
 
   /*Enables RC clock and changes spi_trim select to 0*/
   ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_ADDR) = ENABLE_32KHZ_CLOCK_TRIM;
@@ -1658,9 +1678,9 @@ void RSI_IPMU_64KHZ_RCClktrim(void)
   /* Enable XTAL clock from NPSS */
   *(volatile uint32_t *)0x41300120 |= BIT(22);
 
-  /* wait for 1ms */
+  // Wait for 1ms using a delay loop
   for (i = 0; i < 10000; i++) {
-    ;
+    // Intentional empty loop body
   }
 
   /* Selects NPSS reference clock to be CLK-40M_SOC */
@@ -1673,14 +1693,14 @@ void RSI_IPMU_64KHZ_RCClktrim(void)
   *(volatile uint32_t *)0x24048610 = BIT(25) | BIT(28);
 
   /*Configure NPSS_GPIO_0 in mode 6 */
-  *(volatile uint32_t *)0x24048610 = (0x0000000E);
+  *(volatile uint32_t *)0x24048610 = 0x0000000E;
 
   /*Enable the low frequency clock calibration,enable the clock gate for npss ref clk and select the RC32K clock to calibrate */
   ULP_SPI_MEM_MAP(ULPCLKS_CALIB_REG_ADDR) = LOW_FREQ_CLOCK_CAL;
 
-  /* wait for 1us */
+  // Wait for 1us using a delay loop
   for (i = 0; i < 100; i++) {
-    ;
+    // Intentional empty loop body
   }
 
   /* wait till bit 21 becomes 1 Indicates calibration done indication*/
@@ -1688,7 +1708,7 @@ void RSI_IPMU_64KHZ_RCClktrim(void)
     ;
 
   /* Calibrated trim value and write the calibrated trim into EFUSE */
-  status = (ULP_SPI_MEM_MAP(0x30C) >> 4) & (0x7F);
+  status = (ULP_SPI_MEM_MAP(0x30C) >> 4) & 0x7F;
   status = ((status << 14) | BIT(11));
   ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_ADDR) |= status;
 

@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_adc.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -31,6 +43,7 @@
 //---------------------- Macros -----------------//
 #define ADC_CLK_SOURCE_32KHZ      32000
 #define ADC_CLK_SOURCE_20MHZ      20000000
+#define ADC_CLK_SOURCE_MHZ        32000000
 #define ADC_CLK_SOURCE_40MHZ      40000000
 #define MAXIMUM_ADC_SAMPLE_LEN    1023
 #define MINIMUM_ADC_SAMPLE_LEN    1
@@ -56,7 +69,7 @@ uint32_t auxadcCalibValueLoad = 0, auxadcCalibValue = 0;
 uint32_t calib_done = 0;
 // ADC ping or pong interrupt selection variable
 uint8_t pong_enable_sel[MAXIMUM_NUMBER_OF_CHANNEL];
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 extern dac_config_t dac_callback_fun;
 #endif
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
@@ -144,8 +157,8 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   // Power up of ADC block
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  // Select 32MHz RC clock for ADC
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+  // Select MHz RC clock for ADC
+  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
 
   // Clock division factor for calibration,Calibrate ADC on 4MHz clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
@@ -171,19 +184,27 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
 
     adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
   }
-  // Configure 32MHz RC clock to ADC
+  // Configure MHz RC clock to ADC
   else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_800KSPS) {
     // Select MHz RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-    /* Update the ADC clock source variable */
-    adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
+    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
   } else {
-    // Configure the 32MHz RC clock to ADC
+    // Configure the MHz RC clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+#ifdef SIMULATION
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
+#else
+      // Select MHz RC ULP reference clock
+      RSI_ULPSS_RefClkConfig(ULPSS_ULP_MHZ_RC_CLK);
+
       // Select 40MHz XTAL clock for ADC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
-      /* Update the ADC clock source variable */
-      adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
+
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
+#endif
     } else {
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
     }
@@ -202,13 +223,13 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac        = (float)((integer_val) & (0x3FFF));
+  frac = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac        = (float)((integer_val) & (0x3FFF));
+  frac = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
@@ -261,8 +282,8 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   // Power up of ADC block
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  // Select 32MHz RC clock for ADC
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+  // Select MHz RC clock for ADC
+  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
 
   // Clock division factor for calibration,Calibrate ADC on 4MHz clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
@@ -281,17 +302,33 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
     adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
   } else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_9KSPS
              && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_800KSPS) {
-    // Select 32MHz RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+    // Select MHz RC clock for ADC
+    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
 
-    adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
+    if (system_clocks.rc_mhz_clock == ADC_CLK_SOURCE_MHZ) {
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
+    } else {
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
+    }
   } else {
-    // Configure the 32MHz RC clock to ADC
+    // Configure the MHz RC clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-      // Select 40MHz XTAL clock for ADC
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
-      /* Update the ADC clock source variable */
-      adc_commn_config.adc_clk_src = RSI_CLK_GetBaseClock(ULPSS_AUX);
+#ifdef SIMULATION
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
+#else
+      // Select MHz RC ULP reference clock
+      RSI_ULPSS_RefClkConfig(ULPSS_ULP_MHZ_RC_CLK);
+
+      // Select MHz RC clock for ADC
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+
+      if (system_clocks.rc_mhz_clock == ADC_CLK_SOURCE_MHZ) {
+        adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
+      } else {
+        adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
+      }
+#endif
     } else {
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
     }
@@ -309,13 +346,13 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac        = (float)((integer_val) & (0x3FFF));
+  frac = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac        = (float)((integer_val) & (0x3FFF));
+  frac = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
@@ -444,7 +481,7 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
     // Configure the ADC in static mode
     RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_DI, adcConfig.operation_mode, 0, 0);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_DI, adcConfig.operation_mode, 0, 0, 0);
 #endif
 
@@ -457,7 +494,7 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
     // configures user given pins in analog mode
     ADC_PinMux(adcChConfig.pos_inp_sel[0], adcChConfig.neg_inp_sel[0], adcChConfig.input_type[0]);
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, 0, adcConfig.operation_mode);
 #endif
     adcInterConfig.achived_sampling_rate[0] = ((adc_commn_config.adc_clk_src / adc_commn_config.total_clk));
@@ -470,7 +507,7 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
       RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_EN, ADC_FIFOMODE_ENABLE, ADC_FIFO_THR, INTERNAL_DMA_EN);
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
     RSI_ADC_Config(AUX_ADC_DAC_COMP,
                    DYNAMIC_MODE_EN,
@@ -520,7 +557,7 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
 #ifdef CHIP_9118
       RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, ch_num);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
       RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, ch_num, adcConfig.operation_mode);
 #endif
 #endif
@@ -663,7 +700,7 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
     // Configure the ADC in static mode
     RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_DI, adcConfig.operation_mode, 0, 0);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_DI, adcConfig.operation_mode, 0, 0, 0);
 #endif
 
@@ -678,7 +715,7 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
                adcChConfig.neg_inp_sel[adc_channel],
                adcChConfig.input_type[adc_channel]);
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, adc_channel, adcConfig.operation_mode);
 #endif
     adcInterConfig.achived_sampling_rate[adc_channel] = ((adc_commn_config.adc_clk_src / adc_commn_config.total_clk));
@@ -691,7 +728,7 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
       RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_EN, ADC_FIFOMODE_ENABLE, ADC_FIFO_THR, INTERNAL_DMA_EN);
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
     RSI_ADC_Config(AUX_ADC_DAC_COMP,
                    DYNAMIC_MODE_EN,
@@ -743,7 +780,7 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
 #ifdef CHIP_9118
       RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, ch_num);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
       RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, adc_channel, adcConfig.operation_mode);
 #endif
 #endif
@@ -799,7 +836,7 @@ uint32_t ADC_GetSamplingRate(uint8_t ch_num)
 rsi_error_t ADC_Start(void)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /*==============================================*/
   /**
  * @fn        rsi_error_t ADC_Start(adc_config_t adcConfig)
@@ -817,7 +854,7 @@ rsi_error_t ADC_Start(void)
 #ifdef CHIP_9118
     RSI_ADC_Start(AUX_ADC_DAC_COMP);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_Start(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
 #endif
     // Read the dummy ADC output
@@ -830,7 +867,7 @@ rsi_error_t ADC_Start(void)
 #ifdef CHIP_9118
     RSI_ADC_Start(AUX_ADC_DAC_COMP);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_Start(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
 #endif
 #endif
@@ -839,7 +876,7 @@ rsi_error_t ADC_Start(void)
 #ifdef CHIP_9118
     RSI_ADC_Start(AUX_ADC_DAC_COMP);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_Start(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
 #endif
   }
@@ -859,7 +896,7 @@ rsi_error_t ADC_Start(void)
 rsi_error_t ADC_Deinit(void)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
   /*==============================================*/
   /**
@@ -905,7 +942,7 @@ rsi_error_t ADC_Stop(void)
 }
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
 /*==============================================*/
 /**
@@ -1016,7 +1053,7 @@ void ADC_IRQ_Handler(void)
   // Call ADC data acquisition complete event
   adc_commn_config.call_back_event(ADC_CHNL0_INTR, INTERNAL_DMA);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP);
 #endif
 }
@@ -1076,7 +1113,7 @@ rsi_error_t ADC_ChannelsDataSort(uint8_t data_select)
 #ifdef CHIP_9118
     *(volatile int16_t *)(((adcInterConfig.rx_buf[ch_num]) + ch_data[ch_num])) = channel_data;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     if (ch_num != 0) {
       *(volatile int16_t *)(((adcInterConfig.rx_buf[ch_num - 1]) + ch_data[ch_num - 1])) = (channel_data & 0x0fff);
     }
@@ -1085,7 +1122,7 @@ rsi_error_t ADC_ChannelsDataSort(uint8_t data_select)
 #ifdef CHIP_9118
     *(volatile int16_t *)(((adcInterConfig.rx_buf[ch_num]) + ch_data[ch_num])) = (channel_data & 0x0fff);
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     if (ch_num != 0) {
       *(volatile int16_t *)(((adcInterConfig.rx_buf[ch_num - 1]) + ch_data[ch_num - 1])) = (channel_data & 0x0fff);
     }
@@ -1101,7 +1138,7 @@ rsi_error_t ADC_ChannelsDataSort(uint8_t data_select)
       ch_data[ch_num] = 0;
     }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     ch_data[ch_num - 1]++;
 
     if (ch_data[ch_num - 1]
@@ -1642,7 +1679,7 @@ rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
                            uint8_t internal_dma_en)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /*==============================================*/
   /**
  * @fn           rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t multi_channel_en, uint8_t static_fifo_mode, uint8_t a_empty_threshold, uint8_t a_full_threshold, uint8_t internal_dma_en)
@@ -1678,7 +1715,7 @@ rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
 #ifdef CHIP_9118
   pstcADC->AUXADC_CTRL_1_b.ADC_STATIC_MODE = static_fifo_mode;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if ((static_fifo_mode == ADC_STATICMODE_ENABLE) || (static_fifo_mode == ADC_STATICMODE_THRESHOLD_EN)) {
     pstcADC->AUXADC_CTRL_1_b.ADC_STATIC_MODE = 1;
   } else {
@@ -1689,7 +1726,7 @@ rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
 #ifdef CHIP_9118
   pstcADC->AUXADC_CTRL_1_b.ADC_FIFO_THRESHOLD = fifo_threshold;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   pstcADC->ADC_FIFO_THRESHOLD = (unsigned int)(a_empty_threshold | a_full_threshold << 4);
 #endif
   pstcADC->AUXADC_CTRL_1_b.ADC_FIFO_FLUSH = 1;
@@ -1734,7 +1771,7 @@ rsi_error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
       pstcADC->AUXADC_CONFIG_1_b.AUXADC_DIFF_MODE = an_perif_adc_diffmode;
       pstcADC->AUXADC_CONFIG_1_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
       pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = (unsigned int)(an_perif_adc_diffmode & 0x01);
       pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = (unsigned int)(an_perif_adc_in_sel & 0x0F);
 #endif
@@ -1742,7 +1779,7 @@ rsi_error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
 #ifdef CHIP_9118
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = (unsigned int)(an_perif_adc_ip_sel & 0x1F);
 #endif
   }
@@ -1794,7 +1831,7 @@ rsi_error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_DIFF_MODE = an_perif_adc_diffmode;
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = (unsigned int)(an_perif_adc_diffmode & 0x01);
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = (unsigned int)(an_perif_adc_in_sel & 0x0F);
 #endif
@@ -1802,7 +1839,7 @@ rsi_error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
 #ifdef CHIP_9118
   pstcADC->AUXADC_CONFIG_1_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = (unsigned int)(an_perif_adc_ip_sel & 0x1F);
 #endif
   return RSI_OK;
@@ -1836,7 +1873,7 @@ rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_DIFF_MODE = an_perif_adc_diffmode;
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = (unsigned int)(an_perif_adc_diffmode & 0x01);
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = (unsigned int)(an_perif_adc_in_sel & 0x0F);
 #endif
@@ -1844,7 +1881,7 @@ rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
 #ifdef CHIP_9118
   pstcADC->AUXADC_CONFIG_1_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = (unsigned int)(an_perif_adc_ip_sel & 0x1F);
 #endif
   return RSI_OK;
@@ -1863,7 +1900,7 @@ rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
 rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /*==============================================*/
   /**
  * @fn           rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC,uint8_t oper_mode)
@@ -1878,7 +1915,7 @@ rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC)
 #ifdef CHIP_9118
   pstcADC->AUXADC_CONFIG_2_b.AUXADC_CONFIG_ENABLE = 1U;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (oper_mode == ADC_FIFOMODE_ENABLE) {
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_DYN_ENABLE = 1U;
   }
@@ -1899,7 +1936,7 @@ rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC)
 rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   /*==============================================*/
   /**
  * @fn           rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t oper_mode)
@@ -1916,7 +1953,7 @@ rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC)
 #ifdef CHIP_9118
   pstcADC->AUXADC_CONFIG_2_b.AUXADC_CONFIG_ENABLE = 0;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (oper_mode == ADC_FIFOMODE_ENABLE) {
     pstcADC->AUXADC_CONFIG_2_b.AUXADC_DYN_ENABLE = 0;
   }
@@ -2106,7 +2143,7 @@ rsi_error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on
 rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
   /*==============================================*/
   /**
@@ -2134,7 +2171,7 @@ rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t chan
     pstcADC->INTR_MASK_REG_b.ADC_FIFO_FULL_INTR_MASK     = 0;
   }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (oper_mode == ADC_STATICMODE_ENABLE) {
     pstcADC->INTR_MASK_REG_b.ADC_STATIC_MODE_DATA_INTR_MASK = 0;
   } else if (oper_mode == ADC_STATICMODE_THRESHOLD_EN) {
@@ -2164,7 +2201,7 @@ rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t chan
 rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 #endif
 /// @endcond
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
   /*==============================================*/
   /**
@@ -2192,7 +2229,7 @@ rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channe
     pstcADC->INTR_MASK_REG_b.ADC_FIFO_FULL_INTR_MASK     = 1;
   }
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   if (oper_mode == ADC_STATICMODE_ENABLE) {
     pstcADC->INTR_MASK_REG_b.ADC_STATIC_MODE_DATA_INTR_MASK = 1;
   } else if (oper_mode == ADC_STATICMODE_THRESHOLD_EN) {
@@ -2238,7 +2275,7 @@ uint32_t RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP_Type *pstcADC)
 #ifdef CHIP_9118
   return pstcADC->INTR_STATUS_REG_b.FIRST_MEM_SWITCH_INTR;
 #endif
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   return pstcADC->INTR_STATUS_REG;
 #endif
 }
@@ -2295,7 +2332,7 @@ rsi_error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC)
   return RSI_OK;
 }
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
 /*==============================================*/
 /**
@@ -2391,7 +2428,7 @@ rsi_error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint
   return RSI_OK;
 }
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
 /*==============================================*/
 /**
@@ -2406,7 +2443,7 @@ rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
   intr_status = RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP);
 
   if ((intr_status & ADC_STATIC_MODE_INTR) && (pstcADC->INTR_MASK_REG_b.ADC_STATIC_MODE_DATA_INTR_MASK == 0)) {
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
     RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP, 0, ADC_STATICMODE_ENABLE);
 #endif
     adc_commn_config.call_back_event(ADC_CHNL0_INTR, ADC_STATIC_MODE_CALLBACK);
@@ -2414,7 +2451,7 @@ rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
     RSI_ADC_ThreshInterruptClr(AUX_ADC_DAC_COMP);
     adc_commn_config.call_back_event(ADC_CHNL0_INTR, ADC_THRSHOLD_CALLBACK);
   }
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
   else if (intr_status & DAC_STATIC_MODE_INTR) {
     RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP, 1);
     dac_callback_fun.callback_event(DAC_STATIC_MODE_CALLBACK);
@@ -2685,7 +2722,7 @@ void UDMA_ADC_Init(void)
 }
 #endif
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
 
 /*==============================================*/
 /**

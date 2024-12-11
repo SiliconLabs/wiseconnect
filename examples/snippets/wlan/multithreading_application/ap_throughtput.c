@@ -87,10 +87,6 @@
 
 #define AP_VAP 1
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
-#endif
 /*****************************************************
  *                      Socket configuration
 *****************************************************/
@@ -138,18 +134,15 @@ void receive_data_from_tcp_client(void);
 void send_data_to_tcp_server(void);
 void throughput(void);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
-#ifdef SLI_SI91X_MCU_INTERFACE
-void switch_m4_frequency(void);
-#endif
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000);             // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
-  result         = (result / 1000000);                  // bps to Mbps
+  float duration = ((test_timeout) / 1000);                    // ms to sec
+  float result   = ((float)total_num_of_bytes * 8) / duration; // bytes to bps
+  result         = (result / 1000000);                         // bps to Mbps
   LOG_PRINT("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 
@@ -187,19 +180,6 @@ void data_callback(uint32_t sock_no,
     has_data_received = 1;
   }
 }
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-void switch_m4_frequency(void)
-{
-  /*Switch M4 SOC clock to Reference clock*/
-  /*Default keep M4 in reference clock*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-  /*Configure the PLL frequency*/
-  RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-  /*Switch M4 clock to PLL clock for speed operations*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-}
-#endif
 
 void throughput()
 {
@@ -262,8 +242,9 @@ void send_data_to_tcp_server(void)
     sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       LOG_PRINT("\r\nSocket send failed with bsd error: %d\r\n", errno);
-      close(client_socket);
       break;
     }
     total_bytes_sent = total_bytes_sent + sent_bytes;
@@ -304,11 +285,11 @@ void receive_data_from_tcp_client(void)
   }
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_setsockopt_async(server_socket,
-                                                  SOL_SOCKET,
-                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
-                                                  &high_performance_socket,
-                                                  sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt(server_socket,
+                                            SOL_SOCKET,
+                                            SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -316,7 +297,7 @@ void receive_data_from_tcp_client(void)
   }
 
   socket_return_value =
-    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = LISTENING_PORT;
@@ -366,11 +347,11 @@ void receive_data_from_tcp_client(void)
   }
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(server_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -378,7 +359,7 @@ void receive_data_from_tcp_client(void)
   }
 
   socket_return_value =
-    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = LISTENING_PORT;
@@ -464,6 +445,8 @@ void send_data_to_udp_server(void)
       break;
     }
     if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
       LOG_PRINT("\r\nSocket send failed with bsd error: %d\r\n", errno);
       close(client_socket);
       break;

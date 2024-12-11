@@ -147,7 +147,7 @@ static void application_start(void *argument)
   // Initialize the wireless interface and put the NWP in Standby with RAM retention mode.
   status = initialize_wireless();
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("Wireless API initialization failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -156,12 +156,19 @@ static void application_start(void *argument)
   // Subscribe the state transition callback events, the ored value of flag and function pointer is passed in this API.
   status = sl_si91x_power_manager_subscribe_ps_transition_event(&handle, &info);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("Power Manager transition event subscription failed, Error Code: 0x%lX \n", status);
     return;
   }
   DEBUGOUT("Power Manager transition event is subscribed \n");
   change_state = false;
+
+  // PS4 state requirement is added, it transits to PS4 state.
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+  }
 
   while (true) {
     power_manager_example_process_action();
@@ -240,20 +247,20 @@ static void wireless_sleep(boolean_t sleep_with_retention)
 
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
     return;
   }
   if (sleep_with_retention) {
     // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
-    ta_performance_profile.profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION;
+    ta_performance_profile.profile = DEEP_SLEEP_WITH_RAM_RETENTION;
   } else {
-    ta_performance_profile.profile = STANDBY_POWER_SAVE;
+    ta_performance_profile.profile = DEEP_SLEEP_WITHOUT_RAM_RETENTION;
   }
   // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -486,22 +493,29 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         // PS4 state requirement is removed.
         status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         if (status != SL_STATUS_OK) {
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         // PS3 state requirement is added, it transits to PS3 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         break;
 
       case SL_SI91X_POWER_MANAGER_PS2:
         remove_unused_peripherals();
+        // PS4 state requirement is removed.
+        status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+        if (status != SL_STATUS_OK) {
+          // If status is not OK, display the error info.
+          DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+        }
         // PS2 State requirement is added, it transits to PS2 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         break;
@@ -515,14 +529,14 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         // PS3 state requirement is removed.
         status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
 
         // PS4 state requirement is added, it transits to PS4 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         break;
@@ -532,14 +546,14 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         // PS3 state requirement is removed.
         status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
 
         // PS2 State requirement is added, it transits to PS2 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         break;
@@ -559,7 +573,7 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         // PS4 state requirement is added, it transits to PS4 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         break;
@@ -568,13 +582,13 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         // PS2 state requirement is removed as it was previously added.
         status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         // PS3 state requirement is added, it transits to PS3 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         break;
@@ -585,13 +599,13 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         // PS2 state requirement is removed as it was previously added.
         status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
         }
         // Add requirement for PS0 (sleep without retention), it transits to PS0 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS1);
         if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
+          // If status is not OK, display the error info.
           DEBUGOUT("sl_si91x_power_manager_add_ps_requirement failed, Error Code: 0x%lX \n", status);
         }
 
@@ -609,7 +623,7 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
     // Call the sleep function, it goes to PS4 sleep as current state is PS4.
     status = sl_si91x_power_manager_sleep();
     if (status != SL_STATUS_OK) {
-      // If status is not OK, return with the error code.
+      // If status is not OK, display the error info.
       DEBUGOUT("sl_si91x_power_manager_sleep failed, Error Code: 0x%lX \n", status);
       return;
     }
@@ -625,13 +639,13 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
     // PS4 state requirement is removed as it was previously added.
     status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
     if (status != SL_STATUS_OK) {
-      // If status is not OK, return with the error code.
+      // If status is not OK, display the error info.
       DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
     }
     // Add requirement for PS0 (sleep without retention), it transits to PS0 state.
     status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS0);
     if (status != SL_STATUS_OK) {
-      // If status is not OK, return with the error code.
+      // If status is not OK, display the error info.
       DEBUGOUT("sl_si91x_power_manager_add_ps_requirement failed, Error Code: 0x%lX \n", status);
     }
 
@@ -679,7 +693,7 @@ static void set_npss_wakeup_source(uint32_t wakeup_source)
       // Wakeup source is configured as second trigger.
       status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
       if (status != SL_STATUS_OK) {
-        // If status is not OK, return with the error code.
+        // If status is not OK, display the error info.
         DEBUGOUT("sl_si91x_power_manager_set_wakeup_sources failed, Error Code: 0x%lX \n", status);
         return;
       }
@@ -688,7 +702,7 @@ static void set_npss_wakeup_source(uint32_t wakeup_source)
       // Second trigger callback is configured.
       status = sl_si91x_calendar_register_sec_trigger_callback(on_sec_callback);
       if (status != SL_STATUS_OK) {
-        // If status is not OK, return with the error code.
+        // If status is not OK, display the error info.
         DEBUGOUT("sl_si91x_calendar_register_sec_trigger_callback failed, Error Code: 0x%lX \n", status);
         return;
       }
@@ -720,14 +734,14 @@ static void clear_npss_wakeup_source(uint32_t wakeup_source)
       // Second trigger callback is unregistered and disabled.
       status = sl_si91x_calendar_unregister_sec_trigger_callback();
       if (status != SL_STATUS_OK) {
-        // If status is not OK, return with the error code.
+        // If status is not OK, display the error info.
         DEBUGOUT("sl_si91x_calendar_register_sec_trigger_callback failed, Error Code: 0x%lX \n", status);
         return;
       }
       // Wakeup source is removed.
       status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, false);
       if (status != SL_STATUS_OK) {
-        // If status is not OK, return with the error code.
+        // If status is not OK, display the error info.
         DEBUGOUT("sl_si91x_power_manager_set_wakeup_sources failed, Error Code: 0x%lX \n", status);
         return;
       }
@@ -757,7 +771,7 @@ static void set_ulp_timer_wakeup_source(void)
   // ULP Timer initialization, the values are fetched from the UC.
   status = sl_si91x_ulp_timer_init(&sl_timer_clk_handle);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_ulp_timer_init failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -766,21 +780,21 @@ static void set_ulp_timer_wakeup_source(void)
   // ULP timer configurations are set, the values are fetched from the UC.
   status = sl_si91x_ulp_timer_set_configuration(&sl_timer_handle_timer0);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_ulp_timer_set_configuration failed, Error Code: 0x%lX \n", status);
     return;
   }
   // Callback is registered to enable the timer interrupt.
   status = sl_si91x_ulp_timer_register_timeout_callback(ULP_TIMER_INSTANCE, ulp_timer_callback);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_ulp_timer_register_timeout_callback failed, Error Code: 0x%lX \n", status);
     return;
   }
   // ULP based wakeup source is selected.
   status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, true);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_power_manager_set_wakeup_sources failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -788,7 +802,7 @@ static void set_ulp_timer_wakeup_source(void)
   // ULP Timer is started for timer 0.
   status = sl_si91x_ulp_timer_start(ULP_TIMER_INSTANCE);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_ulp_timer_start failed, Error Code: 0x%lX \n", status);
     return;
   }
@@ -805,21 +819,21 @@ static void clear_ulp_timer_wakeup_source(void)
   // After waking up, ulp timer is stopped.
   status = sl_si91x_ulp_timer_stop(ULP_TIMER_INSTANCE);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_ulp_timer_stop failed, Error Code: 0x%lX \n", status);
     return;
   }
   // After waking up, ulp timer callback is unregistered.
   status = sl_si91x_ulp_timer_unregister_timeout_callback(ULP_TIMER_INSTANCE);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_ulp_timer_unregister_timeout_callback failed, Error Code: 0x%lX \n", status);
     return;
   }
   // Once the sleep-wakeup is completed, ulp based wakeup source is removed.
   status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, false);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
+    // If status is not OK, display the error info.
     DEBUGOUT("sl_si91x_power_manager_set_wakeup_sources failed, Error Code: 0x%lX \n", status);
     return;
   }

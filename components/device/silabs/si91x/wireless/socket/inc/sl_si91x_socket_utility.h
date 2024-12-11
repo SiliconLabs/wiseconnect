@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_si91x_socket_utility.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/********************************************************************************
+ * @file  sl_si91x_socket_utility.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
@@ -67,8 +79,15 @@
 
 #define IS_POWER_OF_TWO(x) (x < 0) ? 0 : (x && (!(x & (x - 1))))
 
-sl_status_t sl_si91x_socket_init(void);
-sl_status_t sl_si91x_vap_shutdown(uint8_t vap_id);
+extern sli_si91x_socket_t *sli_si91x_sockets[NUMBER_OF_SOCKETS];
+
+sl_status_t sli_si91x_socket_init(uint8_t max_select_count);
+
+sl_status_t sli_si91x_socket_deinit(void);
+
+sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id);
+
+bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr);
 
 /**
  * @addtogroup SOCKET_CONFIGURATION_FUNCTION
@@ -158,26 +177,21 @@ void reset_socket_state(int socket);
  * @return 
  * sl_si91x_socket or NULL in case of invalid FD.
  */
-void get_free_socket(si91x_socket_t **socket, int *index);
+void get_free_socket(sli_si91x_socket_t **socket, int *index);
 
 /**
  * A internal function to get free socket.
  * @param socket_id 
  * Socket ID.
  */
-si91x_socket_t *get_si91x_socket(int socket_id);
-
-/**
- * A internal function to check whether a particular port is available or not.
- * @param port_number port_number which needs to be verified for availability.
- * @return True if available else false.
- */
-bool is_port_available(uint16_t port_number);
+sli_si91x_socket_t *get_si91x_socket(int32_t socket_id);
 
 sl_status_t sli_si91x_add_tls_extension(sli_si91x_tls_extensions_t *socket_tls_extensions,
                                         const sl_si91x_socket_type_length_value_t *tls_extension);
 
 sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const int *backlog);
+
+int sli_si91x_socket(int family, int type, int protocol, sl_si91x_socket_receive_data_callback_t callback);
 
 int sli_si91x_shutdown(int socket, int how);
 
@@ -185,7 +199,20 @@ int sli_si91x_connect(int socket, const struct sockaddr *addr, socklen_t addr_le
 
 int sli_si91x_bind(int socket, const struct sockaddr *addr, socklen_t addr_len);
 
-void handle_accept_response(int client_socket_id, const sl_si91x_rsp_ltcp_est_t *accept_response);
+int sli_si91x_accept(int socket,
+                     struct sockaddr *addr,
+                     socklen_t *addr_len,
+                     sl_si91x_socket_accept_callback_t callback);
+
+int sli_si91x_select(int nfds,
+                     fd_set *readfds,
+                     fd_set *writefds,
+                     fd_set *exceptfds,
+                     const struct timeval *timeout,
+                     sl_si91x_socket_select_callback_t callback);
+
+void handle_accept_response(sli_si91x_socket_t *si91x_client_socket, const sl_si91x_rsp_ltcp_est_t *accept_response);
+
 int handle_select_response(const sl_si91x_socket_select_rsp_t *response,
                            fd_set *readfds,
                            fd_set *writefds,
@@ -193,35 +220,38 @@ int handle_select_response(const sl_si91x_socket_select_rsp_t *response,
 
 uint8_t sli_si91x_socket_identification_function_based_on_socketid(sl_wifi_buffer_t *buffer, void *user_data);
 
-void set_select_callback(select_callback callback);
+void set_select_callback(sl_si91x_socket_select_callback_t callback);
 
-void sli_si91x_set_accept_callback(si91x_socket_t *server_socket, accept_callback callback, int32_t client_socket_id);
+void sli_si91x_set_accept_callback(sli_si91x_socket_t *server_socket,
+                                   sl_si91x_socket_accept_callback_t callback,
+                                   int32_t client_socket_id);
 
-void sli_si91x_set_remote_socket_termination_callback(remote_socket_termination_callback callback);
+void sli_si91x_set_remote_socket_termination_callback(sl_si91x_socket_remote_termination_callback_t callback);
 
-sl_status_t sli_si91x_sync_accept_command(si91x_socket_t *server_socket, void *cmd, uint32_t cmd_length);
+sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
+                                          uint32_t command,
+                                          const void *data,
+                                          uint32_t data_length,
+                                          uint32_t wait_period,
+                                          sl_wifi_buffer_t **response_buffer);
+
+int sli_si91x_get_socket_id(sl_si91x_packet_t *packet);
 
 /**
- * A utility function to send BSD management commands.
- * @param  command 				Command which needs to be sent to module.
- * @param  data 				Pointer to data segment of the request.
- * @param  data_length 			Length of data segment.
- * @param  queue 				Queue to which the commands needs to be enqueued.
- * @param  response_queue       Response queue.
- * @param  buffer				Buffer to hold address RX packet.
- * @param  response 			Double Pointer to response pointer, response pointer could be NULL in case of response bit not being set in wait_period, or if the sent command has failed.
- * @param  events_to_wait_for 	Pointer to events on which the API should wait on. This will be considered only in case of wait_period being null
- * @param  wait_period 			pointer to sl_si91x_wait_period_t to determine timeout and response bit. If this pointer is null, the function would block until it receives a response.
- * @param  sdk_context          SDK context.
- * @return sl_status 	 SL_STATUS_OK in case of success or appropriate sl_status error value.
+ * A internal function to find a socket with the matching ID and not in the exlcuded_state
+ * @param socket_id Socket ID
+ * @param excluded_state The socket state that the socket must not be
+ * @param role Socket role
  */
-sl_status_t sl_si91x_socket_driver_send_command(rsi_wlan_cmd_request_t command,
-                                                const void *data,
-                                                uint32_t data_length,
-                                                sl_si91x_queue_type_t queue,
-                                                sl_si91x_queue_type_t response_queue,
-                                                sl_wifi_buffer_t **buffer,
-                                                void **response,
-                                                const uint32_t *events_to_wait_for,
-                                                const sl_si91x_wait_period_t *wait_period,
-                                                void *sdk_context);
+sli_si91x_socket_t *sli_si91x_get_socket_from_id(int socket_id,
+                                                 sli_si91x_bsd_socket_state_t excluded_state,
+                                                 int16_t role);
+
+sl_status_t sli_si91x_send_socket_data(sli_si91x_socket_t *si91x_socket,
+                                       const sli_si91x_socket_send_request_t *request,
+                                       const void *data);
+int32_t sli_get_socket_command_from_host_packet(sl_wifi_buffer_t *buffer);
+
+void sli_si91x_set_socket_event(uint32_t event_mask);
+
+sl_status_t sli_si91x_flush_select_request_table(uint16_t error_code);

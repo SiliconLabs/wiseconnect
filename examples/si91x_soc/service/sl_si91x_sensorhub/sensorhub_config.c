@@ -84,14 +84,14 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
     .data_deliver.numofsamples = SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES,
   },*/
 
-  {
+  /*{
     .sensor_name            = "GY61",
     .sensor_id              = SL_SENSOR_ADC_GY_61_ID,
     .channel                = BIT(SL_SH_ADC_CH0_CHANNEL) | BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL),
     .sensor_bus             = SL_SH_ADC,
     .sensor_mode            = SL_SH_INTERRUPT_MODE,
     .data_deliver.data_mode = SL_SH_NO_DATA_MODE,
-  },
+  }, */
 
   {
     .sensor_name               = "LIGHT_SENSOR",
@@ -121,8 +121,7 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
     .sensor_bus             = SL_SH_GPIO,
     .sensor_id              = SL_GPIO_SENSE_BUTTON_ID,
     .sensor_mode            = SL_SH_INTERRUPT_MODE,
-    .sampling_intr_req_pin  = BUTTON_0_GPIO_PIN,
-    .sensor_intr_type       = SL_SH_FALL_EDGE,
+    .sampling_intr_req_pin  = SH_BUTTON_PIN,
     .data_deliver.data_mode = SL_SH_NO_DATA_MODE,
   }
 };

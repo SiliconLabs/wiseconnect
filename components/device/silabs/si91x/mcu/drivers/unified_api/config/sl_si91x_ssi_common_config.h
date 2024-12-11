@@ -38,17 +38,17 @@ extern "C" {
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>DMA Configuration
 
-// <q SL_SSI_MASTER_DMA_CONFIG_ENABLE> Master DMA
+// <q SL_SSI_PRIMARY_DMA_CONFIG_ENABLE> Primary DMA
 // <i> Default: 0
-#define SL_SSI_MASTER_DMA_CONFIG_ENABLE 0
+#define SL_SSI_PRIMARY_DMA_CONFIG_ENABLE 0
 
-// <q SL_SSI_SLAVE_DMA_CONFIG_ENABLE> Slave DMA
+// <q SL_SSI_SECONDARY_DMA_CONFIG_ENABLE> Secondary DMA
 // <i> Default: 0
-#define SL_SSI_SLAVE_DMA_CONFIG_ENABLE 0
+#define SL_SSI_SECONDARY_DMA_CONFIG_ENABLE 0
 
-// <q SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE> ULP Master DMA
+// <q SL_SSI_ULP_PRIMARY_DMA_CONFIG_ENABLE> ULP Primary DMA
 // <i> Default: 0
-#define SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE 0
+#define SL_SSI_ULP_PRIMARY_DMA_CONFIG_ENABLE 0
 
 // <o SL_SSI_TX_FIFO_THRESHOLD> TX FIFO Threshold <0-15>
 // <i> Default: 0

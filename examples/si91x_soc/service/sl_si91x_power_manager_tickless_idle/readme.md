@@ -2,36 +2,35 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Test the Application](#test-the-application)
-  - [Output console](#output-console)
+- [SL POWER MANAGER TICKLESS IDLE](#sl-power-manager-tickless-idle)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
- This application demonstrates the power manager service APIs, state transitions(PS4 and PS3) and sleep-wakeup (PS4 and PS3 sleep with RAM retention) with tick-less idle mode.
+ This application demonstrates the power manager service APIs, state transitions(PS4, PS3 and PS2) and sleep-wakeup (PS4, PS3 and PS2 sleep with RAM retention) with tick-less idle mode.
 
 ## Overview
 
 - Tick-less Mode, a capability offered by the FreeRTOS real-time operating system (RTOS), enables the system to diminish power usage by transitioning into a low-power state during periods of task inactivity.
 - According to the configuration in power_manager_tickless_idle example application, it updates the power state in the requirement as per the user selection upon OS timer expiration. It then determines the highest attainable operating state and begins the transition. When application gets the idle time, Power manager initiates the sleep.
-- Sleep - Demonstrations of wake-up with RAM retention are showcased in both PS4 and PS3 states, automatically adjusting to the attainable state.
+- Sleep - Demonstrations of wake-up with RAM retention are showcased in PS4, PS3 and PS2 states, automatically adjusting to the attainable state.
 
 ## About Example Code
 
-- Power Manager service is initialized in PS4 state with 32MHz clock (Power Save) using sl_si91x_power_manager_init.
+- Power Manager service is initialized in PS3 state with 40MHz clock (Power Save) using sl_si91x_power_manager_init.
 - At initialization, a thread is created and the application_start() function is called along the thread.
 - All the activities are handled in the application_start() function.
 - Firstly wifi is initialized, M4-NWP secure handshake is established to send commands to NWP, NWP is switched to STANDBY_WITH_RAM_RETENTION mode.
-- According to the revised implementation, the PS4 and PS3 powersave modes will continue to use the same clock frequency (32MHz).
 - All the possible events are `OR`'ed and passed to the `sl_si91x_power_manager_subscribe_ps_transition_event` along with the callback function address.
-- RAM retention is enabled and configured using `sl_si91x_power_manager_configure_ram_retention`.
 - On OS timer expiry, it updates the requirement and changes the highest attainable operating state and performs sleep-wakeup operations.
 - Wake-up Source is selected as SysRTC and wireless wake-up by default. Application will go to sleep as per the idle time provided by scheduler and it will wake-up with either wireless wake-up or SysRTC.
 
@@ -76,4 +75,4 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 3. After successful program execution, observe the prints in the serial console.
 
      ### Output console
-     > ![Figure: Output](resources/readme/powerManagerWirelessOutputConsole.png) 
+     > ![Figure: Output](resources/readme/output.png) 

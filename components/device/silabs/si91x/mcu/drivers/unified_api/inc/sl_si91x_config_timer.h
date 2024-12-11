@@ -1,33 +1,32 @@
-/***************************************************************************/
-/**
- * @file sl_si91x_config_timer.h
- * @brief Config-timer API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_config_timer.h
+* @brief Config-timer API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_CONFIG_TIMER_H
 #define SL_SI91X_CONFIG_TIMER_H
@@ -245,7 +244,7 @@ typedef struct {
 } sl_config_timer_config_t;
 
 /**
- * @brief Structure to hold the parameters of timer output compare unit (OCU) configurations.
+ * @brief Structure to hold the parameters of timer Output Compare Unit (OCU) configurations.
  */
 typedef struct {
   boolean_t is_counter0_ocu_output_enabled;    ///< True to enable OCU output of counter-0, false to disable it.
@@ -255,7 +254,6 @@ typedef struct {
     is_counter0_ocu_sync_enabled; ///< True to enable counter-0 output sync with other channels, false to disable it.
   boolean_t is_counter1_ocu_output_enabled;    ///< True to enable OCU output of counter-1, false to disable it.
   boolean_t is_counter1_ocu_dma_enabled;       ///< True to enable OCU DMA support of counter-1, false to disable it.
-  boolean_t is_counter1_ocu_mode_enabled;      ///< True to enable OCU 8-bit mode of counter-1, false to disable it.
   boolean_t is_counter1_ocu_8bit_mode_enabled; ///< True to enable OCU 8-bit mode of counter-1, false to disable it.
   boolean_t
     is_counter1_ocu_sync_enabled; ///< True to enable counter-1 output sync with other channels, false to disable it.
@@ -335,7 +333,7 @@ void sl_si91x_config_timer_init(void);
 
 /***************************************************************************/
 /**
- * @brief To set the config-timer mode as 32-bit or 16-bit counters.
+ * @brief To set the config-timer mode as 32 or 16-bit counters.
  * 
  * @details In 32-bit mode, Counter_1 and Counter_0 are merged and used as a single 32-bit counter.
  * In this mode, Counter_0 modes/triggers/enables are used.
@@ -346,8 +344,8 @@ void sl_si91x_config_timer_init(void);
  * @param[in] mode \ref sl_config_timer_mode_t for possible values.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer mode is set properly.
- *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, timer mode is set properly.
+ *         - SL_STATUS_INVALID_MODE  - 'mode' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -373,9 +371,9 @@ sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
  * @param[in] timer_config_ptr Pointer to CT config structure @ref sl_config_timer_config_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer configurations are set properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Counter direction parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, timer configurations are set properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Counter direction parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -405,8 +403,8 @@ void sl_si91x_config_timer_reset_configuration(void);
  * @param[in] ocu_config_ptr Pointer to CT OCU-config structure \ref sl_config_timer_ocu_config_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, OCU configurations are set properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, OCU configurations are set properly.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -436,8 +434,8 @@ void sl_si91x_config_timer_reset_ocu_configuration(void);
  * @param[in] ocu_params Pointer to CT OCU-config structure \ref sl_config_timer_ocu_control_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, OCU mode control parameters are set properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, OCU mode control parameters are set properly.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -457,8 +455,8 @@ sl_status_t sl_si91x_config_timer_set_ocu_control(sl_config_timer_ocu_control_t 
  * @param[in] wfg_config_ptr Pointer to CT WFG-config structure \ref sl_config_timer_wfg_config_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, WFG mode configurations are set properly.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, WFG mode configurations are set properly.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -483,8 +481,8 @@ sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_conf
  * @param[in] counter1_initial_value (uint32_t)
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, initial count is set properly.
- *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, initial count is set properly.
+ *         - SL_STATUS_INVALID_MODE  - 'mode' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -510,9 +508,9 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
  * @param[in] match_value (uint32_t)
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, match-value is set properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
- *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, match-value is set properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_INVALID_MODE  - 'mode' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -531,8 +529,8 @@ sl_status_t sl_si91x_config_timer_set_match_count(sl_config_timer_mode_t mode,
  * @param[out] match_value Gets the match value of the timer for the desired time period.
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_COUNT (0x002B) - Count is invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_COUNT  - Count is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -555,10 +553,10 @@ sl_status_t sl_si91x_config_timer_get_match_value(uint32_t time_period_in_us, ui
  * @param[out] count_value Pointer to the variable to store the count value
  *
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, count value is read properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter 'count_value' is a null pointer.
- *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, count value is read properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter 'count_value' is a null pointer.
+ *         - SL_STATUS_INVALID_MODE  - 'mode' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -580,8 +578,8 @@ sl_status_t sl_si91x_config_timer_get_count(sl_config_timer_mode_t mode,
  * @param[in] counter_number \ref sl_counter_number_t for possible values
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, counter resets properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, counter resets properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -601,8 +599,8 @@ sl_status_t sl_si91x_config_timer_reset_counter(sl_counter_number_t counter_numb
  * @param[in] counter_number \ref sl_counter_number_t for possible values
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer started properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, timer started properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -630,8 +628,8 @@ sl_status_t sl_si91x_config_timer_start_on_software_trigger(sl_counter_number_t 
  *             (selects input event for triggering counter-1 action)
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, input event is set properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Selected input event or action parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, input event is set properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Selected input event or action parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -660,9 +658,9 @@ sl_status_t sl_si91x_config_timer_select_action_event(sl_config_timer_action_t a
  *            \ref sl_config_action_event_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, AND event & OR event set properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - and-event or or-event or event-valid-bits value is invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_OK  - Success, AND event & OR event set properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - and-event or or-event or event-valid-bits value is invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -687,10 +685,10 @@ sl_status_t sl_si91x_config_timer_configure_action_event(sl_config_action_event_
  * @param[in]  interrupt_flags Pointer to the interrupt flags structure \ref sl_config_timer_interrupt_flags_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully registered timer timeout callback.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered, unregister
+ *         - SL_STATUS_OK  - Successfully registered timer timeout callback.
+ *         - SL_STATUS_BUSY  - The callback is already registered, unregister
  *                                    the previous callback before registering a new one.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER  - Parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -712,8 +710,8 @@ sl_status_t sl_si91x_config_timer_register_callback(sl_config_timer_callback_t o
  * @param[in] interrupt_flags Pointer to the interrupt flags structure \ref sl_config_timer_interrupt_flags_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully unregistered timer interrupt callback.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Parameter is a null pointer.
+ *         - SL_STATUS_OK  - Successfully unregistered timer interrupt callback.
+ *         - SL_STATUS_NULL_POINTER  - Parameter is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -722,24 +720,22 @@ sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_
 
 /***************************************************************************/
 /**
- * @brief To unregister the timer interrupt callback.
+ * @brief Configures the timer to resume or halt on a specific event.
  * 
- * @details This API disables interrupts as per the selected interrupt flag and unregisters 
- * the previously registered timer interrupt callback.
- *
- * @pre Pre-conditions:
- * - \ref sl_si91x_config_timer_register_callback(), first register a particular interrupt flag.
+ * This API configures the timer to either resume or halt based on a specified event.
  * 
- * @param[in] interrupt_flags Pointer to the interrupt flags structure \ref sl_config_timer_interrupt_flags_t
+ * @param[in] counter_number The counter number that triggers the timer to resume or halt.
  * 
- * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully unregistered timer interrupt callback.
- *         - SL_STATUS_NULL_POINTER (0x0022) - Parameter is a null pointer.
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - Null pointer is passed.
  * 
- * For more information on status codes, see 
+ * For more information on status codes, see
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- *******************************************************************************/
-sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_flags_t *interrupt_flags);
+ ******************************************************************************/
+sl_status_t sl_si91x_config_timer_resume_halt_event(sl_counter_number_t counter_number);
 
 /***************************************************************************/
 /**
@@ -756,9 +752,9 @@ sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_
  * @param[out] capture_value Pointer to the variable to store the count value at capture event (uint16_t*).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, capture count value is read properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter 'capture_value' is a null pointer.
+ *         - SL_STATUS_OK  - Success, capture count value is read properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter 'capture_value' is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -779,8 +775,8 @@ sl_status_t sl_si91x_config_timer_read_capture(sl_counter_number_t counter_numbe
  * @param[in] sync_counter_value The value to synchronize the counter output (uint8_t).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, counter output synced properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, counter output synced properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -801,8 +797,8 @@ sl_status_t sl_si91x_config_timer_set_counter_sync(sl_counter_number_t counter_n
  * @param[in] pin2 Counter1 output event for ADC trigger (0 to 31) \ref sl_config_timer_event_t
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, ADC trigger events set properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'pin1' or 'pin2' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success, ADC trigger events set properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'pin1' or 'pin2' parameter value is invalid.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -822,9 +818,9 @@ sl_status_t sl_si91x_config_timer_set_output_adc_pin(uint8_t pin1, uint8_t pin2)
  * @param[in] ocu_params Pointer to the OCU parameters structure (sl_config_timer_ocu_params_t*).
  * 
  * @return Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, compare values set properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter 'ocu_params' is a null pointer.
+ *         - SL_STATUS_OK  - Success, compare values set properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter 'ocu_params' is a null pointer.
  * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).

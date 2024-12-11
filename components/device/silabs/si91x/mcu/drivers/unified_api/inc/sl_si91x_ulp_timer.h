@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_ulp_timer.h
- * @brief ULP TIMER API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_ulp_timer.h
+* @brief ULP TIMER API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_ULP_TIMER_
 #define SL_SI91X_ULP_TIMER_
@@ -114,7 +114,7 @@ typedef enum {
   ULP_TIMER_32KHZ_RO_CLK_SRC,   ///< 32 kHz RO clock input source
   ULP_TIMER_32KHZ_RC_CLK_SRC,   ///< 32 kHz RC clock input source
   ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32 kHz XTAL clock input source
-  ULP_TIMER_32MHZ_RC_CLK_SRC,   ///< 32 MHz RC clock input source
+  ULP_TIMER_MHZ_RC_CLK_SRC,     ///< 32 MHz RC clock input source
   ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20 MHz RO clock input source
   ULP_TIMER_ULP_CLK_SRC_LAST,   ///< Last member of the enum for validation
 } ulp_timer_clk_input_source_t;
@@ -171,10 +171,10 @@ typedef struct {
  * @param[in] timer_clk_ptr Pointer to the timer clock configuration structure.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer clock type or timer clock source values are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer clock-source configuration structure members have invalid configurations.
+ *         - SL_STATUS_OK  - Success, timer clock-source parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Timer clock type or timer clock source values are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer
+ *         - SL_STATUS_INVALID_CONFIGURATION  - Timer clock-source configuration structure members have invalid configurations.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -198,10 +198,10 @@ sl_status_t sl_si91x_ulp_timer_init(ulp_timer_clk_src_config_t *timer_clk_ptr);
  * @param[in] timer_clk_ptr Pointer to the timer clock configuration structure \ref ulp_timer_clk_src_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer clock type or timer clock source values are invalid.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer. 
- *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer clock-source configuration structure members have invalid configurations.
+ *         - SL_STATUS_OK  - Success, timer clock-source parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Timer clock type or timer clock source values are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer. 
+ *         - SL_STATUS_INVALID_CONFIGURATION  - Timer clock-source configuration structure members have invalid configurations.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -221,12 +221,12 @@ sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer
  * @param[in] timer_config_ptr Pointer to the timer configuration structure \ref ulp_timer_config_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, timer parameters are configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer configuration structure member 'timer_direction' has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_MODE (0x0024) - Timer configuration structure member 'timer_mode' has an invalid value.
- *         - SL_STATUS_INVALID_TYPE (0x0026) - Timer configuration structure member 'timer_type' has an invalid value.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - Timer configuration structure member 'timer_num' has an invalid value.
+ *         - SL_STATUS_OK  - Success, timer parameters are configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Timer configuration structure member 'timer_direction' has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_MODE  - Timer configuration structure member 'timer_mode' has an invalid value.
+ *         - SL_STATUS_INVALID_TYPE  - Timer configuration structure member 'timer_type' has an invalid value.
+ *         - SL_STATUS_INVALID_INDEX  - Timer configuration structure member 'timer_num' has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -248,8 +248,8 @@ sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_confi
  * @param[in] timer_num Enum for ULP-timer number (0 to 3), see \ref ulp_timer_instance_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully started the timer instance.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully started the timer instance.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -270,8 +270,8 @@ sl_status_t sl_si91x_ulp_timer_start(ulp_timer_instance_t timer_num);
  * @param[in] timer_num Enum for ULP-timer number (0 to 3), see \ref ulp_timer_instance_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully stopped the timer instance.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully stopped the timer instance.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -293,8 +293,8 @@ sl_status_t sl_si91x_ulp_timer_stop(ulp_timer_instance_t timer_num);
  * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully restarted the timer instance.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully restarted the timer instance.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -319,9 +319,9 @@ sl_status_t sl_si91x_ulp_timer_restart(ulp_timer_instance_t timer_num);
  * @param[in] timer_type Enum for ULP-timer type, see \ref ulp_timer_type_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the timer type.
- *         - SL_STATUS_INVALID_TYPE (0x0026) - 'timer_type' parameter value is invalid.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully set the timer type.
+ *         - SL_STATUS_INVALID_TYPE  - 'timer_type' parameter value is invalid.
+ *         - SL_STATUS_INVALID_INDEX  - 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -344,9 +344,9 @@ sl_status_t sl_si91x_ulp_timer_set_type(ulp_timer_instance_t timer_num, ulp_time
  * @param[in] timer_direction Enum for ULP-timer direction, see \ref ulp_timer_direction_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the timer direction.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'timer_direction' parameter value is invalid.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully set the timer direction.
+ *         - SL_STATUS_INVALID_PARAMETER  - The 'timer_direction' parameter value is invalid.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -370,9 +370,9 @@ sl_status_t sl_si91x_ulp_timer_set_direction(ulp_timer_instance_t timer_num, ulp
  * @param[in] timer_mode Enum for ULP-timer mode, see \ref ulp_timer_mode_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the timer mode.
- *         - SL_STATUS_INVALID_MODE (0x0024) - The 'timer_mode' parameter value is invalid.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully set the timer mode.
+ *         - SL_STATUS_INVALID_MODE  - The 'timer_mode' parameter value is invalid.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -400,8 +400,8 @@ sl_status_t sl_si91x_ulp_timer_set_mode(ulp_timer_instance_t timer_num, ulp_time
  * @param[in] timer_match_value ULP-timer timeout value.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully set the timer match value.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully set the timer match value.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -424,9 +424,9 @@ sl_status_t sl_si91x_ulp_timer_set_count(ulp_timer_instance_t timer_num, uint32_
  * @param[out] count_value Pointer to the variable which will store the current count of the timer.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current count value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to the 'count_value' parameter is a null pointer.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully read the timer's current count value.
+ *         - SL_STATUS_NULL_POINTER  - The pointer to the 'count_value' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -450,9 +450,9 @@ sl_status_t sl_si91x_ulp_timer_get_count(ulp_timer_instance_t timer_num, uint32_
  * @param[out] timer_type Pointer to the variable which will store the current type of the timer.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current type.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to the 'timer_type' parameter is a null pointer.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully read the timer's current type.
+ *         - SL_STATUS_NULL_POINTER  - The pointer to the 'timer_type' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -475,9 +475,9 @@ sl_status_t sl_si91x_ulp_timer_get_type(ulp_timer_instance_t timer_num, uint32_t
  * @param[out] timer_mode Pointer to the variable which will store the current mode of the timer, see \ref ulp_timer_mode_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current mode.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to the 'timer_mode' parameter is a null pointer.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully read the timer's current mode.
+ *         - SL_STATUS_NULL_POINTER  - The pointer to the 'timer_mode' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -500,9 +500,9 @@ sl_status_t sl_si91x_ulp_timer_get_mode(ulp_timer_instance_t timer_num, uint32_t
  * @param[out] timer_direction Pointer to the variable which will store the current direction of the timer, see \ref ulp_timer_direction_t.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current direction.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to 'timer_direction' parameter is a null pointer.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully read the timer's current direction.
+ *         - SL_STATUS_NULL_POINTER  - The pointer to 'timer_direction' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -520,11 +520,11 @@ sl_status_t sl_si91x_ulp_timer_get_direction(ulp_timer_instance_t timer_num, uin
  * @param[in] on_timeout_callback Function pointer to the callback function to be called when the timer timeout interrupt occurs.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully registered the timer timeout callback.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered, unregister the previous callback before registering a new one.
- *         - SL_STATUS_ALLOCATION_FAILED (0x0019) - Timer interrupt enabling failed.
- *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to 'callback_data_input' parameter is a null pointer.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully registered the timer timeout callback.
+ *         - SL_STATUS_BUSY  - The callback is already registered, unregister the previous callback before registering a new one.
+ *         - SL_STATUS_ALLOCATION_FAILED - Timer interrupt enabling failed.
+ *         - SL_STATUS_NULL_POINTER  - The pointer to 'callback_data_input' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -543,9 +543,9 @@ sl_status_t sl_si91x_ulp_timer_register_timeout_callback(ulp_timer_instance_t ti
  * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully unregistered the timer timeout callback.
- *         - SL_STATUS_ALLOCATION_FAILED (0x0019) - Timer interrupt disabling failed.
- *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ *         - SL_STATUS_OK  - Successfully unregistered the timer timeout callback.
+ *         - SL_STATUS_ALLOCATION_FAILED - Timer interrupt disabling failed.
+ *         - SL_STATUS_INVALID_INDEX  - The 'timer_num' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -570,8 +570,8 @@ sl_status_t sl_si91x_ulp_timer_unregister_timeout_callback(ulp_timer_instance_t 
  *                            - '1' Odd Divider is selected
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'div_factor' is not valid according to `div_factor_type`.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The 'div_factor' is not valid according to `div_factor_type`.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -587,8 +587,8 @@ sl_status_t sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, ui
  * @param[in] xtal_pin Pin number of UULP_GPIO. Possible values are 0 to 4.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'xtal_pin' parameter value is invalid.
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The 'xtal_pin' parameter value is invalid.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/

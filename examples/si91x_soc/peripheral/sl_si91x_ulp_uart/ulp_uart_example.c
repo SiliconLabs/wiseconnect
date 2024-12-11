@@ -30,12 +30,17 @@
 
 #define ULP_UART_BUFFER_SIZE 1024   // Data send and receive length
 #define USART_BAUDRATE       115200 // Baud rate <9600-7372800>
-#define ULP_GPIO_PIN         2      // ULP GPIO to receive
-#define OUTPUT_VALUE         1      // GPIO output value
-#define ULP_GPIO_PORT        4      // GPIO Port no
-#define ULP_GPIO_TOGGLE      8      // ULP GPIO to toggle
-#define SET                  1      // Macro to set
-#define CLR                  0      // Macro to clear
+#ifdef SLI_SI915
+#define ULP_GPIO_PIN    5 // ULP GPIO to receive
+#define ULP_GPIO_TOGGLE 4 // ULP GPIO to toggle
+#else
+#define ULP_GPIO_PIN    2 // ULP GPIO to receive
+#define ULP_GPIO_TOGGLE 8 // ULP GPIO to toggle
+#endif
+#define OUTPUT_VALUE  1 // GPIO output value
+#define ULP_GPIO_PORT 4 // GPIO Port no
+#define SET           1 // Macro to set
+#define CLR           0 // Macro to clear
 #define NON_UC_DEFAULT_CONFIG \
   0 //  Enable this macro to set the default configurations in non_uc case, this is useful when someone don't want to use UC configuration
 #define ULP_BANK_OFFSET     0x800                                         // ULP Memory bank offset value.

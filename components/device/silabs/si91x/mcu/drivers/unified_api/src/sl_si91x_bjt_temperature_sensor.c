@@ -1,9 +1,9 @@
-/***************************************************************************/ /**
+/******************************************************************************
 * @file sl_si91x_bjt_temperature_sensor.c
 * @brief BJT temperature sensor API implementation
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -32,6 +32,11 @@
 #include "rsi_bod.h"
 #include "rsi_opamp.h"
 #include "rsi_ipmu.h"
+
+#ifdef SL_SI91X_ACX_MODULE
+#include "rsi_rom_egpio.h"
+#endif
+#include "rsi_rom_ulpss_clk.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -80,7 +85,12 @@ static void callback_event(uint8_t channel_no, uint8_t event);
 static sl_status_t validate_bjt_parameters(adc_config_t *sl_bjt_temperature_sensor_config);
 static sl_status_t validate_bjt_channel_parameters(adc_ch_config_t *sl_bjt_temperature_sensor_channel_config);
 static OPAMP_CONFIG_T UnityGB = { { /*opamp1_dyn_en;*/ 0,
+#ifdef SL_SI91X_ACX_MODULE
+                                    /*opamp1_sel_p_mux;*/ 5,
+#else
+
                                     /*opamp1_sel_p_mux;*/ 1,
+#endif
                                     /*opamp1_sel_n_mux;*/ 4,
                                     /*opamp1_lp_mode;*/ 0,
                                     /*opamp1_r1_sel;*/ 1,
@@ -258,6 +268,11 @@ sl_status_t sl_si91x_bjt_temperature_sensor_read_data(double *temp_data)
   uint8_t read_data             = 0;
   int32_t Voffset               = 0;
   uint32_t i                    = 0;
+
+#ifdef SL_SI91X_ACX_MODULE
+  RSI_EGPIO_UlpPadDriverDisableState(9, ulp_Pullup);
+#endif
+
   float adc_off = 0, Vbg = 0;
   do {
     if (temp_data == NULL) {
@@ -380,14 +395,18 @@ static sl_status_t sl_si91x_bjt_temperature_sensor_disable(void)
 sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperature_sensor_config)
 {
   sl_status_t status;
+  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
+
   do {
     status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
     if (status != SL_STATUS_OK) {
       break;
     }
-    status = sl_si91x_adc_stop(sl_bjt_temperature_sensor_config);
-    if (status != SL_STATUS_OK) {
-      break;
+    if (AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_ENABLE == ENABLE) {
+      status = sl_si91x_adc_stop(sl_bjt_temperature_sensor_config);
+      if (status != SL_STATUS_OK) {
+        break;
+      }
     }
     status = sl_si91x_adc_deinit(sl_bjt_temperature_sensor_config);
     if (status != SL_STATUS_OK) {

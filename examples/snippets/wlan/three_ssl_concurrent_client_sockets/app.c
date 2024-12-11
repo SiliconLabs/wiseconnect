@@ -116,7 +116,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -256,7 +256,8 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   do {
     //! Getting IP address of the AWS server using DNS request
-    status = sl_net_host_get_by_name((const char *)AWS_DOMAIN_NAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status =
+      sl_net_dns_resolve_hostname((const char *)AWS_DOMAIN_NAME, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count++;
   } while ((dns_retry_count < MAX_DNS_RETRY_COUNT) && (status != SL_STATUS_OK));
 
@@ -282,11 +283,8 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   //! Set certificate index for ssl socket
   ssl_certificate_index = SL_CERT_INDEX_0;
-  socket_status         = sl_si91x_set_custom_sync_sockopt(client_socket[0],
-                                                   SOL_SOCKET,
-                                                   SO_CERT_INDEX,
-                                                   &ssl_certificate_index,
-                                                   sizeof(ssl_certificate_index));
+  socket_status =
+    setsockopt(client_socket[0], SOL_SOCKET, SL_SO_CERT_INDEX, &ssl_certificate_index, sizeof(ssl_certificate_index));
   if (socket_status < 0) {
     printf("\r\n 1st SSL set certificate index failed with bsd error: %d\r\n", errno);
     close(client_socket[0]);
@@ -303,11 +301,8 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   //! Set certificate index for ssl socket
   ssl_certificate_index = SL_CERT_INDEX_1;
-  socket_status         = sl_si91x_set_custom_sync_sockopt(client_socket[1],
-                                                   SOL_SOCKET,
-                                                   SO_CERT_INDEX,
-                                                   &ssl_certificate_index,
-                                                   sizeof(ssl_certificate_index));
+  socket_status =
+    setsockopt(client_socket[1], SOL_SOCKET, SL_SO_CERT_INDEX, &ssl_certificate_index, sizeof(ssl_certificate_index));
   if (socket_status < 0) {
     printf("\r\n 2nd SSL Set certificate index failed with bsd error: %d\r\n", errno);
     close(client_socket[1]);
@@ -324,11 +319,8 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   //! Set certificate index for ssl socket
   ssl_certificate_index = SL_CERT_INDEX_2;
-  socket_status         = sl_si91x_set_custom_sync_sockopt(client_socket[2],
-                                                   SOL_SOCKET,
-                                                   SO_CERT_INDEX,
-                                                   &ssl_certificate_index,
-                                                   sizeof(ssl_certificate_index));
+  socket_status =
+    setsockopt(client_socket[2], SOL_SOCKET, SL_SO_CERT_INDEX, &ssl_certificate_index, sizeof(ssl_certificate_index));
   if (socket_status < 0) {
     printf("\r\n3rd SSL set certificate index failed with bsd error: %d\r\n", errno);
     close(client_socket[2]);
@@ -377,6 +369,10 @@ sl_status_t create_three_ssl_client_sockets(void)
   for (sock_id = 0; sock_id < MAX_SOCKET; sock_id++) {
     bytes_sent = send(client_socket[sock_id], &send_buffer, sizeof(send_buffer), 0);
     if (bytes_sent < 0) {
+      if (errno == ENOBUFS) {
+        sock_id--;
+        continue;
+      }
       printf("\r\nSend failed on client_socket %d with bsd error : %d\r\n", sock_id, errno);
       return SL_STATUS_FAIL;
     }

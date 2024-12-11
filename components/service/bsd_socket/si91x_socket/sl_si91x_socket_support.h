@@ -45,8 +45,8 @@
  * @brief Structure for query SiWx91x socket information.
  *
  * @details
- * The structure queries the information about a specific socket, in the SiWx91x series.
- * It includes details such as:socket identifier, type, source and destination ports,
+ * The structure queries the information about a specific socket in the SiWx91x series.
+ * It includes details such as: socket identifier, type, source and destination ports,
  * and the IP address of the remote host. The IP address can be either IPv4 or IPv6,
  * determined by the context structure which is used.
  */
@@ -80,50 +80,6 @@ typedef struct {
   sl_si91x_sock_info_query_t
     socket_info[SL_SI91X_SOCKET_INFO_RESPONSE_SOCKETS_COUNT]; ///< Array contains information about each open socket.
 } sl_si91x_socket_info_response_t;
-
-/**
- * @brief     Set SiWx91X specific socket options.
- * @param[in]  socket_id      
- * Identifier for the socket.
- * @param[in]  option_level   
- * Level at which the option is defined. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
- * @param[in]  option_name    
- * Name of the option to be set. Currently, @ref SO_CERT_INDEX, @ref SO_HIGH_PERFORMANCE_SOCKET, @ref SO_TLS_SNI, and @ref SO_TLS_ALPN only are supported.
- * @param[in]  option_value   
- * Pointer to the value for the option.
- * @param[in]  option_length  
- * Length of the option value.
- * @return     
- * Returns 0 on success or -1 on error (in this case, errno is set appropriately).
- *
- */
-int sl_si91x_set_custom_sync_sockopt(int socket_id,
-                                     int option_level,
-                                     int option_name,
-                                     const void *option_value,
-                                     socklen_t option_length);
-
-/**
- * @brief      Get SiWx91X specific socket options
- * @param[in]  socket_id      
- * Identifier for the socket.
- * @param[in]  option_level   
- * Level at which the option is defined. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
- * @param[in]  option_name    
- * Name of the option to be retrieved. Currently, ONLY @ref SO_CERT_INDEX is supported.
- * @param[in]  option_value   
- * Pointer to the value for the option.
- * @param[in]  option_length  
- * Pointer to the size of the option value.
- * @return     
- * Returns 0 on success, or -1 on error (in this case, errno is set appropriately).
- *
- */
-int sl_si91x_get_custom_sync_sockopt(int socket_id,
-                                     int option_level,
-                                     int option_name,
-                                     void *option_value,
-                                     socklen_t *option_length);
 
 /**
  * @brief

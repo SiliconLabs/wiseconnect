@@ -45,6 +45,7 @@
 
 #include "sl_si91x_socket_support.h"
 #include "sl_si91x_socket_constants.h"
+#include "sl_si91x_socket.h"
 
 /******************************************************
  *                      Macros
@@ -167,15 +168,23 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile = {
 };
 
 uint8_t data_buffer[TCP_BUFFER_SIZE];
+bool is_remote_terminated = 0;
 /******************************************************
  *               Function Declarations
  ******************************************************/
 void data_transfer_through_client_and_ap_interface();
 sl_status_t initialize_wifi_client_interface();
+void remote_terminate_callback(int socket_id, uint16_t port_number, uint32_t bytes_sent);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
+
+void remote_terminate_callback(int socket_id, uint16_t port_number, uint32_t bytes_sent)
+{
+  is_remote_terminated = 1;
+  printf("Remote client terminated on socket: %d, port: %d. Bytes sent: %ld.\r\n", socket_id, port_number, bytes_sent);
+}
 
 sl_status_t initialize_wifi_client_interface()
 {
@@ -338,6 +347,8 @@ void data_transfer_through_client_and_ap_interface()
   struct sockaddr_in server_address2 = { 0 };
   socklen_t socket_length            = sizeof(struct sockaddr_in);
 
+  sl_si91x_set_remote_termination_callback(remote_terminate_callback);
+
   //! Create server socket to listen for client connection from remote device
   server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
@@ -347,11 +358,11 @@ void data_transfer_through_client_and_ap_interface()
   printf("\r\nServer socket creation is successful, socket id: %d\r\n", server_socket);
 
   //! Set socket
-  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
-                                                         SOL_SOCKET,
-                                                         SO_HIGH_PERFORMANCE_SOCKET,
-                                                         &high_performance_socket,
-                                                         sizeof(high_performance_socket));
+  socket_return_value = setsockopt(server_socket,
+                                   SOL_SOCKET,
+                                   SL_SO_HIGH_PERFORMANCE_SOCKET,
+                                   &high_performance_socket,
+                                   sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with BSD error: %d\r\n", errno);
     close(server_socket);
@@ -416,7 +427,9 @@ void data_transfer_through_client_and_ap_interface()
     //! Receive data from remote device
     read_bytes = recv(client_socket1, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with BSD error:%d\r\n", errno);
+      if (!(is_remote_terminated)) {
+        printf("\r\nReceive failed with BSD error:%d\r\n", errno);
+      }
       break;
     }
 
@@ -426,13 +439,22 @@ void data_transfer_through_client_and_ap_interface()
     printf("\r\nSend data to the connected third party station from AP interface\r\n");
 
     //! Send received data to remote device
-    sent_bytes = send(client_socket2, data_buffer, read_bytes, 0);
-    if (sent_bytes < 0) {
-      printf("\r\nSend failed with BSD error:%d\r\n", errno);
+    while (1) {
+      sent_bytes = send(client_socket2, data_buffer, read_bytes, 0);
+      if (sent_bytes < 0) {
+        if (errno == ENOBUFS)
+          continue;
+        printf("\r\nSend failed with BSD error:%d\r\n", errno);
+        break;
+      }
+      printf("\r\nData sent: %s\r\n", data_buffer);
       break;
     }
-    printf("\r\nData sent: %s\r\n", data_buffer);
   }
+
+  printf("\r\nExample Demonstration Completed\r\n");
+
+  is_remote_terminated = 0;
 
   close(server_socket);
   close(client_socket1);

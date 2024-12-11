@@ -1,17 +1,29 @@
-/*******************************************************************************
+/******************************************************************************
 * @file  rsi_deepsleep_soc.c
-* @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -32,7 +44,7 @@ void fpuInit(void);
 #define M4SS_TASS_CTRL_SET_REG              (*(volatile uint32_t *)(0x24048400 + 0x34))
 #define M4SS_TASS_CTRL_CLEAR_REG            (*(volatile uint32_t *)(0x24048400 + 0x38))
 #define M4SS_TASS_CTRL_CLR_REG              (*(volatile uint32_t *)(0x24048400 + 0x38))
-#define MAX_NVIC_REGS                       4    // Max Interrupts register
+#define MAX_NVIC_REGS                       3    // Max Interrupts register
 #define MAX_IPS                             240  // Max Interrupt Priority registers
 #define MAX_SHP                             12   // Max System Handlers Priority registers
 #define NPSS_GPIO_CLR_VALUE                 0x3E // NPSS GPIO rising edge interrupt clear value
@@ -65,8 +77,6 @@ volatile uint32_t msp_value;
 volatile uint32_t psp_value;
 volatile uint32_t control_reg_val;
 uint32_t npss_gpio_config = 0;
-
-volatile uint32_t sl_magic_word_value = 0;
 
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
 extern char ram_vector[SI91X_VECTOR_TABLE_ENTRIES];
@@ -273,7 +283,7 @@ void RSI_PS_RestoreCpuContext(void)
  */
 void RSI_Set_Cntrls_To_M4(void)
 {
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   //!take TASS ref clock control to M4
   MCUAON_CONTROL_REG4 &= ~(MCU_TASS_REF_CLK_SEL_MUX_CTRL);
 #else
@@ -325,12 +335,14 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   volatile int enable_sdcss_based_wakeup = 0;
   volatile int enable_m4ulp_retention    = 0;
   volatile int Temp;
+
+  volatile uint8_t in_ps2_state = 0;
+
   uint32_t ipmuDummyRead         = 0;
   uint32_t m4ulp_ram_core_status = 0;
   uint32_t m4ulp_ram_peri_status = 0;
   uint32_t disable_pads_ctrl     = 0;
   uint32_t ulp_proc_clk          = 0;
-  volatile uint8_t in_ps2_state  = 0;
   sl_p2p_intr_status_bkp_t p2p_intr_status_bkp;
 
   /*Save the NVIC registers */
@@ -392,24 +404,26 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     RSI_IPMU_RetnLdoVoltsel();
   }
 
-  if (!((in_ps2_state) && (MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b))) {
+  if (!in_ps2_state && MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b
 #if (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
-    if (lf_clk_mode & BIT(4)) {
-      RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUTS);
-      /*configure the slope,nominal temperature and f2_nominal*/
-      RSI_TS_Config(MCU_TEMP, 25);
-      /*disable the bjt based temp sensor*/
-      RSI_TS_RoBjtEnable(MCU_TEMP, 0);
-      /*Enable the RO based temp sensor*/
-      RSI_TS_Enable(MCU_TEMP, 1);
-      /*update the temperature periodically*/
-      RSI_Periodic_TempUpdate(TIME_PERIOD, 1, 0);
-      /*read the temperature*/
-      Temp = (int)RSI_TS_ReadTemp(MCU_TEMP);
-      if (Temp > 45) {
-        // disable the XTAL CAP mode
-        RSI_IPMU_ProgramConfigData(lp_scdc_extcapmode);
-      }
+      && (lf_clk_mode & BIT(4))
+#endif
+  ) {
+#if (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
+    RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUTS);
+    /*configure the slope,nominal temperature and f2_nominal*/
+    RSI_TS_Config(MCU_TEMP, 25);
+    /*disable the bjt based temp sensor*/
+    RSI_TS_RoBjtEnable(MCU_TEMP, 0);
+    /*Enable the RO based temp sensor*/
+    RSI_TS_Enable(MCU_TEMP, 1);
+    /*update the temperature periodically*/
+    RSI_Periodic_TempUpdate(TIME_PERIOD, 1, 0);
+    /*read the temperature*/
+    Temp = (int)RSI_TS_ReadTemp(MCU_TEMP);
+    if (Temp > 45) {
+      // disable the XTAL CAP mode
+      RSI_IPMU_ProgramConfigData(lp_scdc_extcapmode);
     }
 #endif
 
@@ -419,10 +433,8 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 #endif
   }
 
-  if (!((lf_clk_mode == HF_MHZ_RO))) {
-    /*Clear IPMU BITS*/
-    RSI_PS_LatchCntrlClr(LATCH_TOP_SPI | LATCH_TRANSPARENT_HF | LATCH_TRANSPARENT_LF);
-  }
+  /*Clear IPMU BITS*/
+  RSI_PS_LatchCntrlClr(LATCH_TOP_SPI | LATCH_TRANSPARENT_HF | LATCH_TRANSPARENT_LF);
 
   ipmuDummyRead = MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP;
 
@@ -491,8 +503,8 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
   /* Reset M4_USING_FLASH bit before going to sleep */
   M4SS_P2P_INTR_CLR_REG = M4_USING_FLASH;
-  /*Before M4 is going to deep sleep , set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls from M4 to NWP */
-#ifdef SLI_SI917B0
+/*Before M4 is going to deep sleep , set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls from M4 to NWP */
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
   MCUAON_CONTROL_REG4 |= (MCU_TASS_REF_CLK_SEL_MUX_CTRL);
   MCUAON_CONTROL_REG4;
 #else
@@ -510,7 +522,10 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     /*do not save CPU context and go to deep sleep */
     __asm("WFI");
   }
-
+  //Disable the NVIC interrupts.
+  __asm volatile("cpsid i" ::: "memory");
+  __asm volatile("dsb");
+  __asm volatile("isb");
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
   /* if flash is not initialised ,then raise a request to NWP */
   if (!(in_ps2_state) && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
@@ -536,7 +551,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     M4SS_P2P_INTR_SET_REG = M4_USING_FLASH;
   }
 #endif
-
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
 #if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
   /* Exit PSRAM device from sleep */
@@ -562,9 +576,8 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
   if (!(in_ps2_state)) {
     //!Poll for flash magic word
-    while (MBR_MAGIC_WORD != 0x5A5A) {
-      sl_magic_word_value++;
-    }
+    while (MBR_MAGIC_WORD != 0x5A5A)
+      ;
   }
 #endif
 
@@ -580,11 +593,9 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   set_scdc(SL_SCDC_ACTIVE);
 
   /*Update the REG Access SPI division factor to increase the SPI read/write speed*/
-  if (lf_clk_mode == HF_MHZ_RO) {
-    RSI_SetRegSpiDivision(0U);
-  } else {
-    RSI_SetRegSpiDivision(1U);
-  }
+
+  RSI_SetRegSpiDivision(1U);
+
   /*IPMU dummy read to make IPMU block out of RESET*/
   ipmuDummyRead = ULP_SPI_MEM_MAP(0x144);
   // After Wakeup
@@ -622,24 +633,16 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     RSI_IPMU_ProgramConfigData(scdc_volt_sel2);
 #endif
   }
-  if (!(lf_clk_mode == HF_MHZ_RO)) {
-    /*Spare register write sequence*/
-    ipmuDummyRead          = ULP_SPI_MEM_MAP(0x1C1);
-    ULP_SPI_MEM_MAP(0x141) = ipmuDummyRead;
+  /*Spare register write sequence*/
+  ipmuDummyRead          = ULP_SPI_MEM_MAP(0x1C1);
+  ULP_SPI_MEM_MAP(0x141) = ipmuDummyRead;
 
-    ipmuDummyRead          = ULP_SPI_MEM_MAP(0x1C0);
-    ULP_SPI_MEM_MAP(0x140) = ipmuDummyRead;
-    RSI_PS_LatchCntrlSet(LATCH_TOP_SPI);
-  }
+  ipmuDummyRead          = ULP_SPI_MEM_MAP(0x1C0);
+  ULP_SPI_MEM_MAP(0x140) = ipmuDummyRead;
+  RSI_PS_LatchCntrlSet(LATCH_TOP_SPI);
+
   if (in_ps2_state) {
     /*Come out  of LP  mode */
-    /* enabling the RETN_LDO HP MODE */
-    RSI_IPMU_RetnLdoHpmode();
-  }
-  if (sleepType == SLEEP_WITHOUT_RETENTION) {
-    /* 	Increasing the bias current of RETN_LDO */
-    RSI_IPMU_PocbiasCurrent11();
-    RSI_IPMU_RO32khz_TrimEfuse();
     /* enabling the RETN_LDO HP MODE */
     RSI_IPMU_RetnLdoHpmode();
   }
@@ -665,11 +668,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 
   /*Initialize floating point unit  */
   fpuInit();
-
-#ifdef DEBUG_UART
-  /*Initialize UART after wake up*/
-  DEBUGINIT();
-#endif
 
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
   //passing the ram vector address to VTOR register

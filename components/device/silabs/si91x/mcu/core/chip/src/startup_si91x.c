@@ -396,6 +396,7 @@ __attribute__((used)) void Default_Handler(void)
 {
   /* Go into an infinite loop. */
   while (true) {
+    // This infinite loop is intentional to halt the system in case of an unexpected interrupt.
   }
 }
 

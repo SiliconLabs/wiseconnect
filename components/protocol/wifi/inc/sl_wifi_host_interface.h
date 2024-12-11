@@ -1,22 +1,38 @@
-/**
- * @file sl_wifi_host_interface.h
+/***************************************************************************/ /**
+ * @file  sl_wifi_host_interface.h
  * @brief This file defines the host interface for Wi-Fi operations.
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
- * This file contains the definitions and structures used for managing Wi-Fi buffers and their configurations.
- * It includes enumerations for buffer types and structures for buffer management.
+ * SPDX-License-Identifier: Zlib
  *
- * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
- * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
- * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
- * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
+ * The licensor of this software is Silicon Laboratories Inc.
  *
- * (c) Copyright 2024, Silicon Laboratories Inc. All rights reserved.
- */
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #pragma once
 
 #include "sl_status.h"
 #include "sl_slist.h"
+#include "sl_common.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -42,8 +58,10 @@ typedef struct {
   sl_slist_node_t node; ///< Pointer to the node of the list of which the buffer is part of
   uint32_t length;      ///< Size of the buffer in bytes
   uint8_t
-    type; ///< Indicates the buffer type (SL_WIFI_TX_FRAME_BUFFER, SL_WIFI_RX_FRAME_BUFFER, and so on.) corresponding to the buffer.
-  uint8_t data[]; ///< Stores the data (header + payload) to be send to NWP
+    type; ///< Indicates the buffer type (SL_WIFI_TX_FRAME_BUFFER, SL_WIFI_RX_FRAME_BUFFER, and so on) corresponding to the buffer.
+  uint8_t id;           ///< Buffer identifier. Can be used to uniquely identify a buffer. Loops every 256 packets.
+  uint8_t _reserved[2]; ///< Reserved.
+  uint8_t data[];       ///< Stores the data (header + payload) to be sent to NWP.
 } sl_wifi_buffer_t;
 
 /**

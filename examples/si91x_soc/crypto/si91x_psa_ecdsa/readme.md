@@ -39,7 +39,7 @@
 
 ## Getting Started
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Install Studio and WiSeConnect 3 extension
 - Connect your device to the computer
@@ -85,7 +85,7 @@ curve : SL_SI91X_ECC_SECP256R1
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
 - Flash, run and debug the application.

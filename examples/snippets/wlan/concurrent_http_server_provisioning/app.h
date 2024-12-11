@@ -28,6 +28,46 @@ void app_init(void);
 
 #define APP_BUF_SIZE 1600
 
+/*=======================================================================*/
+// TA buffer allocation parameters
+/*=======================================================================*/
+
+#ifndef TX_POOL_RATIO
+#define TX_POOL_RATIO 1
+#endif
+
+#ifndef RX_POOL_RATIO
+#define RX_POOL_RATIO 1
+#endif
+
+#ifndef GLOBAL_POOL_RATIO
+#define GLOBAL_POOL_RATIO 1
+#endif
+
+/*****************************************************
+ *                      Socket configuration
+*****************************************************/
+#define TOTAL_SOCKETS                   6  //@ Total number of sockets. TCP TX + TCP RX + UDP TX + UDP RX
+#define TOTAL_TCP_SOCKETS               1  //@ Total TCP sockets. TCP TX + TCP RX
+#define TOTAL_UDP_SOCKETS               5  //@ Total UDP sockets. UDP TX + UDP RX
+#define TCP_TX_ONLY_SOCKETS             0  //@ Total TCP TX only sockets. TCP TX
+#define TCP_RX_ONLY_SOCKETS             0  //@ Total TCP RX only sockets. TCP RX
+#define UDP_TX_ONLY_SOCKETS             5  //@ Total UDP TX only sockets. UDP TX
+#define UDP_RX_ONLY_SOCKETS             0  //@ Total UDP RX only sockets. UDP RX
+#define TCP_RX_HIGH_PERFORMANCE_SOCKETS 1  //@ Total TCP RX High Performance sockets
+#define TCP_RX_WINDOW_SIZE_CAP          44 //@ TCP RX Window size
+#define TCP_RX_WINDOW_DIV_FACTOR        44 //@ TCP RX Window division factor
+
+#define MAX_SERVER_CLEINT_SOCKETS \
+  (TOTAL_SOCKETS + TCP_RX_HIGH_PERFORMANCE_SOCKETS + TCP_RX_ONLY_SOCKETS) // client sockets + server sockets
+
+#define LOG_PRINT(...)                          \
+  {                                             \
+    osMutexAcquire(printf_mutex, 0xFFFFFFFFUL); \
+    printf(__VA_ARGS__);                        \
+    osMutexRelease(printf_mutex);               \
+  }
+
 //! Enumeration for states in application
 typedef enum app_state_e {
   INITIAL_STATE = 0,       // This state is to bring up module as AP.

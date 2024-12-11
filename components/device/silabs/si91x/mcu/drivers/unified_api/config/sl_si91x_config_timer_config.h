@@ -52,7 +52,7 @@
 //   <SL_COUNTER0_UP=> Up Counter
 //   <SL_COUNTER0_DOWN=> Down Counter
 //   <SL_COUNTER0_UP_DOWN=> Up-Down Counter
-// <i> Default: SL_COUNTER1_UP
+// <i> Default: SL_COUNTER0_UP
 #define SL_COUNTER0_DIRECTION_MACRO SL_COUNTER0_UP
 
 // <o SL_COUNTER1_DIRECTION_MACRO> Counter-1 : Direction
@@ -98,5 +98,47 @@ sl_config_timer_config_t ct_configuration = {
   .counter0_direction               = SL_COUNTER0_DIRECTION_MACRO,
   .counter1_direction               = SL_COUNTER1_DIRECTION_MACRO,
 };
+
+// <<< sl:start pin_tool >>>
+// <sct signal=IN0,OUT0,OUT1> SL_SCT
+// $[SCT_SL_SCT]
+#ifndef SL_SCT_PERIPHERAL
+#define SL_SCT_PERIPHERAL SCT
+#endif
+
+// SCT IN0 on GPIO_25
+#ifndef SL_SCT_IN0_PORT
+#define SL_SCT_IN0_PORT HP
+#endif
+#ifndef SL_SCT_IN0_PIN
+#define SL_SCT_IN0_PIN 25
+#endif
+#ifndef SL_SCT_IN0_LOC
+#define SL_SCT_IN0_LOC 0
+#endif
+
+// SCT OUT0 on GPIO_29
+#ifndef SL_SCT_OUT0_PORT
+#define SL_SCT_OUT0_PORT HP
+#endif
+#ifndef SL_SCT_OUT0_PIN
+#define SL_SCT_OUT0_PIN 29
+#endif
+#ifndef SL_SCT_OUT0_LOC
+#define SL_SCT_OUT0_LOC 10
+#endif
+
+// SCT OUT1 on GPIO_30
+#ifndef SL_SCT_OUT1_PORT
+#define SL_SCT_OUT1_PORT HP
+#endif
+#ifndef SL_SCT_OUT1_PIN
+#define SL_SCT_OUT1_PIN 30
+#endif
+#ifndef SL_SCT_OUT1_LOC
+#define SL_SCT_OUT1_LOC 12
+#endif
+// [SCT_SL_SCT]$
+// <<< sl:end pin_tool >>>
 
 #endif /* SL_SI91X_CONFIG_TIMER_CONFIG_H */

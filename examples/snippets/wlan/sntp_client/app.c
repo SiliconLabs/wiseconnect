@@ -85,7 +85,7 @@ static const sl_wifi_device_configuration_t sntp_client_configuration = {
                      (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -250,7 +250,7 @@ sl_status_t embedded_sntp_client(void)
   status = sl_net_set_dns_server(SL_NET_WIFI_CLIENT_INTERFACE, &dns_address);
 
   do {
-    status = sl_net_host_get_by_name(NTP_SERVER_IP, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &address);
+    status = sl_net_dns_resolve_hostname(NTP_SERVER_IP, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &address);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 

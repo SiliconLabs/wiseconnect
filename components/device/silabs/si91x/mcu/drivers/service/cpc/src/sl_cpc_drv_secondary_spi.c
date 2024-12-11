@@ -57,7 +57,7 @@
 #include "sli_cpc_crc.h"
 #include "sli_cpc_debug.h"
 #include "sl_cpc_config.h"
-#include "RTE_Device_917.h"
+#include "em_device.h"
 
 /*******************************************************************************
  *********************************   DEFINES   *********************************

@@ -1,10 +1,31 @@
-/*
- * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
- * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
- * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
- * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
- * (c) Copyright 2024, Silicon Laboratories Inc.  All rights reserved.
- */
+/***************************************************************************/ /**
+ * @file  sl_wifi_constants.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #ifndef _SL_WIFI_CONSTANTS_H_
 #define _SL_WIFI_CONSTANTS_H_
@@ -61,15 +82,17 @@
  * @note WPA3 Transition security type is not currently supported while running as an Access Point (AP).
  */
 typedef enum {
-  SL_WIFI_OPEN            = 0, ///< Wi-Fi Open security type
-  SL_WIFI_WPA             = 1, ///< Wi-Fi WPA security type
-  SL_WIFI_WPA2            = 2, ///< Wi-Fi WPA2 security type
-  SL_WIFI_WEP             = 3, ///< Wi-Fi WEP security type
-  SL_WIFI_WPA_ENTERPRISE  = 4, ///< Wi-Fi WPA enterprise security type
-  SL_WIFI_WPA2_ENTERPRISE = 5, ///< Wi-Fi WPA2 enterprise security type
-  SL_WIFI_WPA_WPA2_MIXED  = 6, ///< Wi-Fi WPA/WPA2 mixed security type that supports both WPA and WPA2
-  SL_WIFI_WPA3            = 7, ///< Wi-Fi WPA3 security type
-  SL_WIFI_WPA3_TRANSITION = 8, ///< Wi-Fi WPA3 Transition security type (not currently supported in AP mode)
+  SL_WIFI_OPEN                       = 0,  ///< Wi-Fi Open security type
+  SL_WIFI_WPA                        = 1,  ///< Wi-Fi WPA security type
+  SL_WIFI_WPA2                       = 2,  ///< Wi-Fi WPA2 security type
+  SL_WIFI_WEP                        = 3,  ///< Wi-Fi WEP security type
+  SL_WIFI_WPA_ENTERPRISE             = 4,  ///< Wi-Fi WPA enterprise security type
+  SL_WIFI_WPA2_ENTERPRISE            = 5,  ///< Wi-Fi WPA2 enterprise security type
+  SL_WIFI_WPA_WPA2_MIXED             = 6,  ///< Wi-Fi WPA/WPA2 mixed security type that supports both WPA and WPA2
+  SL_WIFI_WPA3                       = 7,  ///< Wi-Fi WPA3 security type
+  SL_WIFI_WPA3_TRANSITION            = 8,  ///< Wi-Fi WPA3 Transition security type (not currently supported in AP mode)
+  SL_WIFI_WPA3_ENTERPRISE            = 9,  ///< Wi-Fi WPA3 enterprise security type
+  SL_WIFI_WPA3_TRANSITION_ENTERPRISE = 10, ///< Wi-Fi WPA3 Transition enterprise security type
 
   SL_WIFI_SECURITY_UNKNOWN = 0xFFFF, ///< Wi-Fi Unknown Security type
 } sl_wifi_security_t;
@@ -112,10 +135,11 @@ typedef enum {
  * @brief Enumeration for Wi-Fi Credential Types.
  */
 typedef enum {
-  SL_WIFI_PSK_CREDENTIAL = 0, ///< Wi-Fi Personal Credential
-  SL_WIFI_PMK_CREDENTIAL,     ///< Wi-Fi Pairwise Master Key
-  SL_WIFI_WEP_CREDENTIAL,     ///< Wi-Fi WEP Credential
-  SL_WIFI_EAP_CREDENTIAL      ///< Wi-Fi Enterprise Client Credential
+  SL_WIFI_PSK_CREDENTIAL = 0,         ///< Wi-Fi Personal Credential
+  SL_WIFI_PMK_CREDENTIAL,             ///< Wi-Fi Pairwise Master Key
+  SL_WIFI_WEP_CREDENTIAL,             ///< Wi-Fi WEP Credential
+  SL_WIFI_EAP_CREDENTIAL,             ///< Wi-Fi Enterprise Client Credential
+  SL_WIFI_USER_CREDENTIAL = (1 << 31) ///< Wi-Fi User Credential
 } sl_wifi_credential_type_t;
 
 /**
@@ -222,7 +246,7 @@ typedef enum {
 typedef enum {
   SL_WIFI_SCAN_TYPE_ACTIVE = 0x00, ///< Active scan: Transmit probe requests and listen for responses
   SL_WIFI_SCAN_TYPE_PASSIVE =
-    0x01, ///< Passive scan. No active transmissions, listen for AP beacons and probe responses
+    0x01, ///< Passive scan: No active transmissions, listen for AP beacons and broadcast probe responses
   SL_WIFI_SCAN_TYPE_EXTENDED =
     0x02, ///< Extended Active scan. Transmit probe requests and listen for responses to get more than SL_WIFI_MAX_SCANNED_AP number of results
   SL_WIFI_SCAN_TYPE_PROHIBITED_CHANNELS = 0x04, ///< Scan channels prohibited by regulatory region
@@ -470,7 +494,7 @@ typedef enum {
   // Stats specific events
   SL_WIFI_STATS_EVENT = SL_WIFI_STATS_RESPONSE_EVENTS
                         | (1 << 16), ///< Event for Wi-Fi statistics. This feature is not supported in current release
-  SL_WIFI_STATS_AYSNC_EVENT =
+  SL_WIFI_STATS_ASYNC_EVENT =
     SL_WIFI_STATS_RESPONSE_EVENTS
     | (2
        << 16), ///< Event for Wi-Fi asynchronous statistics. Data would be of type [sl_si91x_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)
@@ -628,12 +652,13 @@ typedef enum {
  * @def SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)
  * @brief Macro to check for invalid Wi-Fi interfaces in API inputs.
  */
-#define SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)                                         \
-  {                                                                                             \
-    if (!((interface == SL_WIFI_CLIENT_INTERFACE) || (interface == SL_WIFI_CLIENT_INTERFACE)    \
-          || (interface == SL_WIFI_AP_INTERFACE) || (interface == SL_WIFI_2_4GHZ_INTERFACE))) { \
-      return SL_STATUS_WIFI_UNKNOWN_INTERFACE;                                                  \
-    }                                                                                           \
+#define SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)                                                   \
+  {                                                                                                       \
+    if (!((interface == SL_WIFI_CLIENT_INTERFACE) || (interface == SL_WIFI_AP_INTERFACE)                  \
+          || (interface == SL_WIFI_CLIENT_2_4GHZ_INTERFACE) || (interface == SL_WIFI_AP_2_4GHZ_INTERFACE) \
+          || (interface == SL_WIFI_2_4GHZ_INTERFACE))) {                                                  \
+      return SL_STATUS_WIFI_UNKNOWN_INTERFACE;                                                            \
+    }                                                                                                     \
   }
 
 /** @} */

@@ -46,22 +46,22 @@
 #include "sl_si91x_types.h"
 
 //! @cond Doxygen_Suppress
-#define NCP_HOST_COMMON_RESPONSE_EVENT   (1 << 3) // Indicates RX response received for COMMON command type
-#define NCP_HOST_WLAN_RESPONSE_EVENT     (1 << 4) // Indicates synchronous RX response received for WLAN command type
-#define NCP_HOST_WLAN_NOTIFICATION_EVENT (1 << 5) // Indicates asynchronous RX response received for WLAN command type
-#define NCP_HOST_NETWORK_RESPONSE_EVENT  (1 << 6) // Indicates synchronous RX response received for NETWORK command type
-#define NCP_HOST_NETWORK_NOTIFICATION_EVENT \
-  (1 << 7)                                      // Indicates asynchronous RX response received for NETWORK command type
-#define NCP_HOST_SOCKET_RESPONSE_EVENT (1 << 8) // Indicates RX response received for SOCKET command type
-#define NCP_HOST_SOCKET_NOTIFICATION_EVENT \
-  (1 << 9)                                   // Indicates asynchronous RX response received for SOCKET command type
-#define NCP_HOST_BT_RESPONSE_EVENT (1 << 10) // Indicates RX response received for BLE command type
 
 /// Low Transmit Power Threshold for Wi-Fi.
 #define SI91X_LOW_TRANSMIT_POWER_THRESHOLD 6
 
 /// Medium Transmit Power Threshold for Wi-Fi.
 #define SI91X_MEDIUM_TRANSMIT_POWER_THRESHOLD 4
+
+/**
+ * Stack size of the event handler thread that processes all Wi-Fi and networking callbacks.
+ * This value can be overridden by defining a new value for SL_SI91X_EVENT_HANDLER_STACK_SIZE in your project or
+ * adding -DSL_SI91X_EVENT_HANDLER_STACK_SIZE=<new value> to your compiler command line options.
+ */
+#ifndef SL_SI91X_EVENT_HANDLER_STACK_SIZE
+#define SL_SI91X_EVENT_HANDLER_STACK_SIZE 1536
+#endif
+typedef bool (*sli_si91x_wifi_buffer_comparator)(const sl_wifi_buffer_t *buffer, const void *userdata);
 
 typedef struct {
   sl_wifi_performance_profile_t wifi_performance_profile;
@@ -75,106 +75,125 @@ typedef union {
   uint16_t pte_crc;       ///< PTE CRC value
 } sl_si91x_efuse_data_t;
 
-/// \details Mutex ID identifies the mutex.
-typedef void *osMutexId_t;
-
-// Structure to represent a packet queue
-typedef struct {
-  sl_wifi_buffer_t *head;
-  sl_wifi_buffer_t *tail;
-  osMutexId_t mutex;
-  uint32_t flag;
-  uint32_t queued_packet_count;
-} si91x_packet_queue_t;
+typedef uint32_t sl_si91x_host_timestamp_t;
 
 void sli_handle_wifi_beacon(sl_si91x_packet_t *packet);
 sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
                                              sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters);
 void sli_wifi_flush_scan_results_database(void);
 
-typedef uint32_t sl_si91x_host_timestamp_t;
-
 typedef void (*sl_si91x_host_atomic_action_function_t)(void *user_data);
 typedef uint8_t (*sl_si91x_compare_function_t)(sl_wifi_buffer_t *node, void *user_data);
 typedef void (*sl_si91x_node_free_function_t)(sl_wifi_buffer_t *node);
 
-extern sl_si91x_performance_profile_t current_performance_profile; /*Indicates the current performance profile*/
+/* Indicates the current performance profile */
+extern sl_si91x_performance_profile_t current_performance_profile;
+extern volatile uint32_t tx_command_queues_status;
+extern volatile uint32_t tx_socket_command_queues_status;
+extern volatile uint32_t tx_socket_data_queues_status;
+extern volatile uint32_t tx_generic_socket_data_queues_status;
 
-sl_status_t convert_si91x_wifi_client_info(
-  sl_wifi_client_info_response_t *client_info_response,
-  sl_si91x_client_info_response
-    *sl_si91x_client_info_response); /*Function converts NWP client info to SDK client info*/
-sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(
-  rsi_wlan_cmd_response_t command,
-  uint16_t frame_status); /*Function converts NWP events to SDK events*/
+extern volatile uint32_t tx_command_queues_command_in_flight_status;
+extern volatile uint8_t tx_socket_command_command_in_flight_queues_status;
 
-sl_status_t save_sl_wifi_rate(
-  sl_wifi_rate_t transfer_rate); /*Function used to update the variable that stores the wifi rate*/
-sl_status_t get_saved_sl_wifi_rate(sl_wifi_rate_t *transfer_rate); /*Function used to retrieve the wifi rate*/
-void reset_sl_wifi_rate(); /*Function used to set wifi rate to default value of 1 Mbps*/
+/* Function converts NWP client info to SDK client info */
+sl_status_t convert_si91x_wifi_client_info(sl_wifi_client_info_response_t *client_info_response,
+                                           const sl_si91x_client_info_response *sl_si91x_client_info_response);
 
-sl_status_t get_rate_protocol_and_data_rate(
-  const uint8_t data_rate,
-  sl_wifi_rate_protocol_t *rate_protocol,
-  sl_wifi_rate_t *transfer_rate); /*Function used to retrieve protocol and transfer rate*/
+/* Function converts NWP events to SDK events */
+sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(rsi_wlan_cmd_response_t command, uint16_t frame_status);
 
-sl_status_t save_ap_configuration(
-  const sl_wifi_ap_configuration_t *wifi_ap_configuration); /*Function used to update the access point configuration*/
-sl_status_t get_saved_ap_configuration(
-  sl_wifi_ap_configuration_t *wifi_ap_confuguration); /*Function used to retrieve the access point configuration*/
-void reset_ap_configuration(); /*Function used to destroy the current access point configuration*/
+/* Function used to update the variable that stores the wifi rate */
+sl_status_t save_sl_wifi_rate(sl_wifi_rate_t transfer_rate);
 
-void save_tcp_auto_close_choice(
-  bool is_tcp_auto_close_enabled); /*Function used to set whether tcp auto close is enabled or disabled*/
-bool is_tcp_auto_close_enabled();  /*Function used to check whether tcp auto close is enabled or disabled*/
-void set_card_ready_required(bool card_ready_required); /*Function used to set whether card ready is required or not*/
-bool get_card_ready_required();                         /*Function used to check whether card ready is required or not*/
+/* Function used to retrieve the wifi rate */
+sl_status_t get_saved_sl_wifi_rate(sl_wifi_rate_t *transfer_rate);
 
-void save_max_tx_power(uint8_t max_scan_tx_power,
-                       uint8_t max_join_tx_power); /*Function used to set the maximum transmission power*/
-sl_wifi_max_tx_power_t get_max_tx_power();         /*Function used to get maximum transmission power*/
-void reset_max_tx_power(); /*Function used to set maximum transmission power to default value(31 dBm) */
+/* Function used to set wifi rate to default value of 1 Mbps */
+void reset_sl_wifi_rate();
 
-void save_wifi_current_performance_profile(
-  const sl_wifi_performance_profile_t *profile); /*Function used to set the current performance profile*/
-void get_wifi_current_performance_profile(
-  sl_wifi_performance_profile_t *profile); /*Function used to get current wifi performance profile*/
+/* Function used to retrieve protocol and transfer rate */
+sl_status_t get_rate_protocol_and_data_rate(const uint8_t data_rate,
+                                            sl_wifi_rate_protocol_t *rate_protocol,
+                                            sl_wifi_rate_t *transfer_rate);
 
-void save_bt_current_performance_profile(
-  const sl_bt_performance_profile_t *profile); /*Function used to set the bluetooth performance profile*/
-void get_bt_current_performance_profile(
-  sl_bt_performance_profile_t *profile); /*Function used to retrieve bluetooth performance profile*/
+/* Function used to update the access point configuration */
+sl_status_t save_ap_configuration(const sl_wifi_ap_configuration_t *wifi_ap_configuration);
 
-void get_coex_performance_profile(
-  sl_si91x_performance_profile_t *profile);        /*Function used to retrieve the coex performance profile*/
-void reset_coex_current_performance_profile(void); /*Function used to zero out the coex performance profile */
+/* Function used to retrieve the access point configuration */
+sl_status_t get_saved_ap_configuration(sl_wifi_ap_configuration_t *wifi_ap_confuguration);
 
-void save_boot_configuration(
-  const sl_si91x_boot_configuration_t *boot_configuration); /*Function used to update the boot configuration*/
-void get_saved_boot_configuration(
-  sl_si91x_boot_configuration_t *boot_configuration); /*Function used to retrieve the boot configuration*/
+/* Function used to destroy the current access point configuration */
+void reset_ap_configuration();
 
-void save_coex_mode(sl_si91x_coex_mode_t coex_mode); /*Function used to update the coex mode*/
-sl_si91x_coex_mode_t get_coex_mode(void);            /*Function used to retrieve the coex mode*/
+/* Function used to set whether tcp auto close is enabled or disabled */
+void save_tcp_auto_close_choice(bool is_tcp_auto_close_enabled);
 
-sl_status_t convert_sl_wifi_to_sl_si91x_encryption(
-  sl_wifi_encryption_t encryption_mode,
-  uint8_t *encryption_request); /*Function converts SDK encryption mode to NWP supported mode*/
+/* Function used to check whether tcp auto close is enabled or disabled */
+bool is_tcp_auto_close_enabled();
+void sli_si91x_save_tcp_ip_total_config_select_request(uint8_t tcp_ip_total_select);
+uint8_t sli_si91x_get_tcp_ip_total_config_select_request();
 
-/*********************************************************************************************
+/* Function used to set whether card ready is required or not */
+void set_card_ready_required(bool card_ready_required);
+
+/* Function used to check whether card ready is required or not */
+bool get_card_ready_required();
+
+/* Function used to set the maximum transmission power */
+void save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power);
+
+/* Function used to get maximum transmission power */
+sl_wifi_max_tx_power_t get_max_tx_power();
+
+/* Function used to set maximum transmission power to default value(31 dBm) */
+void reset_max_tx_power();
+
+/* Function used to set the current performance profile */
+void save_wifi_current_performance_profile(const sl_wifi_performance_profile_t *profile);
+
+/* Function used to get current wifi performance profile */
+void get_wifi_current_performance_profile(sl_wifi_performance_profile_t *profile);
+
+/* Function used to set the bluetooth performance profile */
+void save_bt_current_performance_profile(const sl_bt_performance_profile_t *profile);
+
+/* Function used to retrieve bluetooth performance profile */
+void get_bt_current_performance_profile(sl_bt_performance_profile_t *profile);
+
+/* Function used to retrieve the coex performance profile */
+void get_coex_performance_profile(sl_si91x_performance_profile_t *profile);
+
+/* Function used to zero out the coex performance profile */
+void reset_coex_current_performance_profile(void);
+
+/* Function used to update the boot configuration */
+void save_boot_configuration(const sl_si91x_boot_configuration_t *boot_configuration);
+
+/* Function used to retrieve the boot configuration */
+void get_saved_boot_configuration(sl_si91x_boot_configuration_t *boot_configuration);
+
+/* Function used to update the coex mode */
+void save_coex_mode(sl_si91x_coex_mode_t coex_mode);
+
+/* Function used to retrieve the coex mode */
+sl_si91x_coex_mode_t get_coex_mode(void);
+
+/* Function converts SDK encryption mode to NWP supported mode */
+sl_status_t convert_sl_wifi_to_sl_si91x_encryption(sl_wifi_encryption_t encryption_mode, uint8_t *encryption_request);
+
+/***************************************************************************/ /**
  * @brief
- * 	 A utility function computes coex performance profile internally and converts into sl_si91x_power_save_request_t.
- * @param profile
- *   Performance profile which needs to be converted to its equivalent si91x_power_save_request structure.
- * @param power_save_request
- *   Si91x specific structure that holds required configuration for the given performance profile.
- *   This is optional parameter.
- * @return coex_profile
- *   Coex power profile
+ *   Initializes new task register index for storing firmware status.
+ *
+ * @details
+ *   This function sets up the task register index to store the firmware status in thread-specific storage.
+ *   For all the threads at this index of the thread local array firmware status will be stored.
+ *
  * @return
- * 	 sl_status_t
- *********************************************************************************************/
-sl_status_t sl_si91x_send_power_save_request(sl_si91x_performance_profile_t profile);
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ ******************************************************************************/
+sl_status_t sli_fw_status_storage_index_init(void);
 
 /***************************************************************************/ /**
  * @brief
@@ -219,7 +238,7 @@ void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data);
 void sl_si91x_set_efuse_data(const sl_si91x_efuse_data_t *efuse_data);
 
 /**
- * A utility function to convert dBm value  to si91x specific power value
+ * A utility function to convert dBm value to si91x specific power value
  * @param wifi_max_tx_power which holds the join power value with dBm as units.
  * @return si91x power level
  */
@@ -239,87 +258,101 @@ sl_status_t sl_si91x_platform_init(void);
 sl_status_t sl_si91x_platform_deinit(void);
 
 // Event API
-void sl_si91x_host_set_event(uint32_t event_mask);       /*Function used to set specified flags for event*/
-void sl_si91x_host_set_bus_event(uint32_t event_mask);   /*Function used to set specified flags for event*/
-void sl_si91x_host_set_async_event(uint32_t event_mask); /*Function used to set specified flags for event*/
-uint32_t si91x_host_wait_for_event(uint32_t event_mask,
-                                   uint32_t timeout); /*Function used to wait for specific event to occur*/
-uint32_t si91x_host_wait_for_bus_event(uint32_t event_mask,
-                                       uint32_t timeout); /*Function used to wait for specific event to occur*/
-uint32_t si91x_host_wait_for_async_event(uint32_t event_mask,
-                                         uint32_t timeout);  /*Function used to wait for specific event to occur*/
-uint32_t si91x_host_clear_events(uint32_t event_mask);       /*Function used to clear flags for specific event*/
-uint32_t si91x_host_clear_bus_events(uint32_t event_mask);   /*Function used to clear flags for specific event*/
-uint32_t si91x_host_clear_async_events(uint32_t event_mask); /*Function used to clear flags for specific event*/
+/* Function used to set specified flags for event */
+void sli_si91x_set_event(uint32_t event_mask);
+
+/* Function used to set specified flags for async event */
+void sl_si91x_host_set_async_event(uint32_t event_mask);
+
+uint32_t sli_si91x_wait_for_event(uint32_t event_mask, uint32_t timeout);
+
+/* Function used to clear flags for specific event */
+uint32_t sli_si91x_clear_event(uint32_t event_mask);
+
+/* Function to send the requested Wi-Fi and BT/BLE performance profile to firmware */
+sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_t *wifi_profile,
+                                              const sl_bt_performance_profile_t *bt_profile);
 
 sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration_t *config);
 sl_status_t sl_si91x_host_deinit_buffer_manager(void);
+
+/* Function used to allocate memory */
 sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
                                           sl_wifi_buffer_type_t type,
                                           uint32_t buffer_size,
-                                          uint32_t wait_duration_ms); /*Function used to allocate memory*/
-void *sl_si91x_host_get_buffer_data(
-  sl_wifi_buffer_t *buffer,
-  uint16_t offset,
-  uint16_t *data_length); /*Function used to obtain pointer to a specified location in the buffer*/
-void sl_si91x_host_free_buffer(
-  sl_wifi_buffer_t *buffer); /*Function used to deallocate the memory associated with buffer*/
+                                          uint32_t wait_duration_ms);
 
-sl_status_t sl_si91x_host_add_to_queue(
-  sl_si91x_queue_type_t queue,
-  sl_wifi_buffer_t *buffer); /*Function enqueues response into corresponding response queue*/
-sl_status_t sl_si91x_host_add_to_queue_with_atomic_action(
-  sl_si91x_queue_type_t queue,
-  sl_wifi_buffer_t *buffer,
-  void *user_data,
-  sl_si91x_host_atomic_action_function_t handler); /*Function enqueues command into corresponding command queue*/
-sl_status_t sl_si91x_host_remove_from_queue(
-  sl_si91x_queue_type_t queue,
-  sl_wifi_buffer_t **buffer); /*Function dequeues responses from Asynch response queues*/
-sl_status_t sl_si91x_host_remove_node_from_queue(
-  sl_si91x_queue_type_t queue,
-  sl_wifi_buffer_t **buffer,
-  void *user_data,
-  sl_si91x_compare_function_t compare_function); /*Function dequeues response from Synch response queues*/
+/* Function used to obtain pointer to a specified location in the buffer */
+void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length);
+
+/* Function used to deallocate the memory associated with buffer */
+void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer);
+
+/* Function enqueues response into corresponding response queue */
+sl_status_t sli_si91x_add_to_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
+
+/* Function dequeues responses from Asynch response queues */
+sl_status_t sli_si91x_remove_from_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
+
 /* Function used to flush the pending TX packets from the specified queue */
-sl_status_t sl_si91x_host_flush_nodes_from_queue(sl_si91x_queue_type_t queue,
-                                                 void *user_data,
-                                                 sl_si91x_compare_function_t compare_function,
-                                                 sl_si91x_node_free_function_t node_free_function);
+sl_status_t sli_si91x_flush_nodes_from_queue(sli_si91x_command_queue_t *queue,
+                                             sl_si91x_node_free_function_t node_free_function);
+
+/* Function used to remove the buffer from the specified queue by using comparator */
+sl_status_t sli_si91x_remove_buffer_from_queue_by_comparator(sl_si91x_buffer_queue_t *queue,
+                                                             const void *user_data,
+                                                             sli_si91x_wifi_buffer_comparator comparator,
+                                                             sl_wifi_buffer_t **buffer);
+
+sl_status_t sli_si91x_flush_all_tx_wifi_queues(uint16_t frame_status);
 
 /* Function used to flush all the pending TX packets from the specified queue */
-sl_status_t sli_si91x_flush_queue_based_on_type(sl_si91x_queue_type_t queue,
-                                                sl_si91x_node_free_function_t node_free_function);
+sl_status_t sli_si91x_flush_queue_based_on_type(sli_si91x_command_queue_t *queue,
+                                                uint32_t event_mask,
+                                                uint16_t frame_status,
+                                                sl_si91x_compare_function_t compare_function,
+                                                void *user_data);
 
-uint32_t sl_si91x_host_queue_status(
-  sl_si91x_queue_type_t queue); /*Function used to check whether queue is empty or not*/
-
-uint32_t sl_si91x_host_get_queue_packet_count(
-  sl_si91x_queue_type_t queue); /*Function used to get the number of packets in the queue*/
+/* Function used to check whether queue is empty or not */
+uint32_t sl_si91x_host_queue_status(sl_si91x_buffer_queue_t *queue);
 
 // These aren't host APIs. These should go into a wifi bus API header
-sl_status_t sl_si91x_bus_read_memory(
-  uint32_t addr,
-  uint16_t length,
-  uint8_t *buffer); /*Function used to set buffer pointer to point to specified memory address*/
-sl_status_t sl_si91x_bus_write_memory(
-  uint32_t addr,
-  uint16_t length,
-  const uint8_t *buffer); /*Function used to set specified memory address to point to buffer*/
-sl_status_t sl_si91x_bus_read_register(uint8_t address,
-                                       uint8_t register_size,
-                                       uint16_t *output); /*Function used to read contents of the register*/
-sl_status_t sl_si91x_bus_write_register(uint8_t address,
-                                        uint8_t register_size,
-                                        uint16_t data);         /*Function used to write data into register*/
-sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer); /*Function used to read frame*/
-sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet,
-                                     const uint8_t *payloadparam,
-                                     uint16_t size_param); /*Function used to write frames*/
+/* Function used to set buffer pointer to point to specified memory address */
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer);
 
-sl_status_t sl_si91x_bus_init();               /*Function used to check the bus availability */
-sl_status_t sl_si91x_bus_rx_irq_handler(void); /*Function used to check the bus availability */
-void sl_si91x_bus_rx_done_handler(void);       /*Function used to check the bus availability */
+/* Function used to set specified memory address to point to buffer */
+sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
+
+/*==============================================*/
+/**
+ * @brief       Send chunk of data from Host to Si91x using SPI slave mode.
+ * @param[in]   data_length   -  Actual data length to send 
+ * @param[in]   buffer        - Pointer to data  
+ * @return      sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.  
+ *
+ */
+sl_status_t sli_si91x_bus_write_slave(uint32_t data_length, const uint8_t *buffer);
+
+/* Function used to read contents of the register */
+sl_status_t sl_si91x_bus_read_register(uint8_t address, uint8_t register_size, uint16_t *output);
+
+/* Function used to write data into register */
+sl_status_t sl_si91x_bus_write_register(uint8_t address, uint8_t register_size, uint16_t data);
+
+/* Function used to read frame */
+sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer);
+
+/* Function used to write frames */
+sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param);
+
+/* Function used to check the bus availability */
+sl_status_t sl_si91x_bus_init();
+
+/* Function used to check the bus availability */
+sl_status_t sl_si91x_bus_rx_irq_handler(void);
+
+/* Function used to check the bus availability */
+void sl_si91x_bus_rx_done_handler(void);
 
 /*==============================================*/
 /**
@@ -364,13 +397,16 @@ sl_status_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_bus_enable_high_speed(); /*Function used to start DMA channels for transmission and reception*/
+sl_status_t sl_si91x_bus_enable_high_speed();
 
-sl_status_t sl_si91x_bus_read_interrupt_status(
-  uint16_t *interrupt_status);                              /*Function used to read the interrupt register*/
-sl_status_t sl_si91x_bus_set_interrupt_mask(uint32_t mask); /*Function used to block specified interrupts*/
+/* Function used to read the interrupt register */
+sl_status_t sl_si91x_bus_read_interrupt_status(uint16_t *interrupt_status);
 
-void sl_si91x_ulp_wakeup_init(void); /*Function used to initialize SPI interface on ulp wakeup*/
+/* Function used to block specified interrupts */
+sl_status_t sl_si91x_bus_set_interrupt_mask(uint32_t mask);
+
+/* Function used to initialize SPI interface on ULP wakeup */
+void sl_si91x_ulp_wakeup_init(void);
 
 /**
  * @brief 
@@ -384,6 +420,8 @@ void sl_si91x_ulp_wakeup_init(void); /*Function used to initialize SPI interface
  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
  */
 sl_status_t sl_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t type, sl_wifi_credential_t *cred);
+
+sli_si91x_command_queue_t *sli_si91x_get_command_queue(sl_si91x_command_type_t type);
 
 bool sli_si91x_get_flash_command_status();
 
@@ -452,5 +490,32 @@ sl_si91x_host_timestamp_t sl_si91x_host_elapsed_time(uint32_t starting_timestamp
 bool sl_si91x_is_device_initialized(void);
 
 /** @} */
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+sl_status_t sli_si91x_flush_all_socket_command_queues(uint16_t frame_status, uint8_t vap_id);
+
+sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t index, uint16_t frame_status);
+
+sl_status_t sli_si91x_flush_all_socket_data_queues(uint8_t vap_id);
+
+sl_status_t sli_si91x_flush_socket_data_queues_based_on_queue_type(uint8_t index);
+#endif
+
+/**
+ * @brief Flushes all packets from the specified data transmission queue.
+ * @details This function removes all packets from the provided transmission queue (`tx_data_queue`) and frees the associated memory. It ensures thread-safe operation by preventing race conditions during the process.
+ *
+ * @param[in, out] tx_data_queue Pointer to the transmission data queue to be flushed. 
+ *                               The queue will be reset to an empty state after the function completes.
+ *
+ * @return 
+ * - `SL_STATUS_OK`: The operation was successful, and the queue has been flushed.
+ * - `SL_STATUS_FAIL`: The provided queue pointer is NULL.
+ *
+ * @note 
+ * - This function is typically used to clear transmission buffers in scenarios such as error recovery or reinitialization.
+ * - The function uses atomic operations to ensure that the queue is safely manipulated in multi-threaded environments.
+ * - The function resets the queue to an empty state after flushing all packets.
+ */
+sl_status_t sli_si91x_flush_generic_data_queues(sl_si91x_buffer_queue_t *tx_data_queue);
 
 #endif // _SL_RSI_UTILITY_H_

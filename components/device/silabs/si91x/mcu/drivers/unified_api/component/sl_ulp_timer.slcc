@@ -10,6 +10,9 @@ description: >
   which is the ULP-timer driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 ui_hints:
   visibility: never

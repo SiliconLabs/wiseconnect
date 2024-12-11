@@ -10,9 +10,9 @@ filter:
     value: ["BLE"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version: 2024.6.2}
+sdk: {id: simplicity_sdk, version:  "2024.12.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.4}
+- {id: wiseconnect3_sdk, version: 3.4.0}
 source:
   - path: app.c
   - path: main.c
@@ -23,12 +23,10 @@ include:
       - path: ble_config.h
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
-  - name: SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
   - name: SLI_SI91X_MCU_INTERFACE
   - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
 component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
-- {from: wiseconnect3_sdk, id: sllib_m4_power_save}
+- {from: wiseconnect3_sdk, id: si91x_memory_default_config}
 - {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: rsilib_userconfig}
 - {from: wiseconnect3_sdk, id: romdriver_egpio}

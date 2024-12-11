@@ -56,13 +56,13 @@ const char *ip_protocol_type[]          = { "tcp", "udp", NULL };
 const char *ipv4_or_ipv6_type[]         = { "ipv4", "ipv6", NULL };
 const char *net_interface_type[]        = { "ap", "bluetooth", "client", "ethernet", "thread", "zwave", NULL };
 const char *operating_band_type[]       = { "2.4g", "5g", "dual", NULL };
-const char *option_name_type[]          = { "SO_CERT_INDEX", "SO_KEEPALIVE", "SO_MAX_RETRANSMISSION_TIMEOUT_VALUE",
-                                            "SO_RCVTIMEO",   "TCP_ULP",      NULL };
+const char *option_name_type[]          = { "SL_SO_CERT_INDEX", "SO_KEEPALIVE", "SO_MAX_RETRANSMISSION_TIMEOUT_VALUE",
+                                            "SO_RCVTIMEO",      "TCP_ULP",      NULL };
 const char *performance_mode_type[]     = { "high_performance",
                                             "power_save",
                                             "power_save_low_latency",
-                                            "standby_power_save",
-                                            "standby_power_save_with_ram_retention",
+                                            "deep_sleep_without_ram_retention",
+                                            "deep_sleep_with_ram_retention",
                                             NULL };
 const char *rate_protocol_type[]        = { "802.11ax", "802.11b", "802.11g", "802.11n", "auto", NULL };
 const char *set_option_id_type[]        = { "fionbio", "keepalivetimeout", "recvtimeout", "sendtimeout", NULL };
@@ -80,10 +80,19 @@ const char *wifi_init_mode_type[]  = {
    "ap", "apsta", "ble_coex", "client", "client_ipv6", "eap", "transmit_test", NULL
 };
 const char *wifi_interface_type[] = { "ap", "ap_5g", "client", "client_5g", NULL };
-const char *wifi_security_type[]  = {
-   "open", "wep", "wpa", "wpa2", "wpa2_enterprise", "wpa3", "wpa3_transition", "wpa_enterprise", "wpa_wpa2_mixed", NULL
-};
-const char *wps_mode_type[] = { "pin", "push_button", NULL };
+const char *wifi_security_type[]  = { "open",
+                                      "wep",
+                                      "wpa",
+                                      "wpa2",
+                                      "wpa2_enterprise",
+                                      "wpa3",
+                                      "wpa3_transition",
+                                      "wpa_enterprise",
+                                      "wpa_wpa2_mixed",
+                                      "wpa3_enterprise",
+                                      "wpa3_transition_enterprise",
+                                      NULL };
+const char *wps_mode_type[]       = { "pin", "push_button", NULL };
 
 const arg_list_t console_argument_types[] = {
   [CONSOLE_TYPE(ap_client_deauth)]                = ap_client_deauth_type,
@@ -152,8 +161,8 @@ const value_list_t console_argument_values[] = {
   [CONSOLE_TYPE(performance_mode)] = (const uint32_t[]){ HIGH_PERFORMANCE,
                                                          ASSOCIATED_POWER_SAVE,
                                                          ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                         STANDBY_POWER_SAVE,
-                                                         STANDBY_POWER_SAVE_WITH_RAM_RETENTION },
+                                                         DEEP_SLEEP_WITHOUT_RAM_RETENTION,
+                                                         DEEP_SLEEP_WITH_RAM_RETENTION },
   [CONSOLE_TYPE(rate_protocol)]    = (const uint32_t[]){ SL_WIFI_RATE_PROTOCOL_AX_ONLY,
                                                          SL_WIFI_RATE_PROTOCOL_B_ONLY,
                                                          SL_WIFI_RATE_PROTOCOL_G_ONLY,
@@ -201,7 +210,9 @@ const value_list_t console_argument_values[] = {
                                                         SL_WIFI_WPA3,
                                                         SL_WIFI_WPA3_TRANSITION,
                                                         SL_WIFI_WPA_ENTERPRISE,
-                                                        SL_WIFI_WPA_WPA2_MIXED },
+                                                        SL_WIFI_WPA_WPA2_MIXED,
+                                                        SL_WIFI_WPA3_ENTERPRISE,
+                                                        SL_WIFI_WPA3_TRANSITION_ENTERPRISE },
   [CONSOLE_TYPE(wps_mode)]        = (const uint32_t[]){ SL_WIFI_WPS_PIN_MODE, SL_WIFI_WPS_PUSH_BUTTON_MODE },
 };
 

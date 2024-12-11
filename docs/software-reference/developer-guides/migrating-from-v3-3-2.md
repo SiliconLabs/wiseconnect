@@ -54,4 +54,4 @@ function, since this uses the WDT for soft reset, which is specifically intended
 
 | **Module** | **v3.3.2** | **v3.3.3** |
 |------------|------------|------------|
-| NONE |
+| Wi-Fi | si91x_socket_type_length_value_t | sl_si91x_socket_type_length_value_t |

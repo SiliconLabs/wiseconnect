@@ -25,7 +25,6 @@
 #include "sl_si91x_rgb_led_instances.h"
 #include "rsi_debug.h"
 #include "sl_si91x_rgb_led.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************

@@ -20,7 +20,7 @@
  * $Date:        1. December 2016
  * $Revision:    V2.4.4
  *
- * Project:      RTE Device Configuration for Si91x 2.0 B0 OPNS
+ * Project:      RTE Device Configuration for SiWG917 OPNS
  * -------------------------------------------------------------------------- */
 
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
@@ -1447,9 +1447,9 @@
 // <o> SSI_SLAVE_CS Pin <0=>Not Used <1=>GPIO_9 <2=>GPIO_25 <3=>GPIO_46 <4=>GPIO_53
 #ifndef SSI_SLAVE_CS0_LOC
 #ifdef SL_SI91X_ACX_MODULE
-#define RTE_SSI_SLAVE_CS_PORT_ID 1
-#else
 #define RTE_SSI_SLAVE_CS_PORT_ID 2
+#else
+#define RTE_SSI_SLAVE_CS_PORT_ID 1
 #endif
 
 #if (RTE_SSI_SLAVE_CS_PORT_ID == 0)
@@ -1523,8 +1523,13 @@
 #define RTE_SSI_ULP_MASTER 1
 
 // <e> Enable multiple CSN lines
+#ifdef SL_SI91X_ACX_MODULE
+#define ULP_SSI_CS0 0
+#define ULP_SSI_CS1 1
+#else
 #define ULP_SSI_CS0 1
 #define ULP_SSI_CS1 0
+#endif
 #define ULP_SSI_CS2 0
 
 // <o> SSI_ULP_MASTER_MISO Pin <0=>Not Used <1=>ULP_GPIO_2 <2=>ULP_GPIO_9
@@ -2863,7 +2868,7 @@
 #define RTE_GSPI_MASTER_MOSI_PIN  GSPI_MASTER_MOSI__PIN
 #if (GSPI_MASTER_MOSI_LOC == 16)
 #define RTE_GSPI_MASTER_MOSI_MUX 4
-#define RTE_GSPI_MASTER_MOSI_PAD 1
+#define RTE_GSPI_MASTER_MOSI_PAD 7
 #endif
 #if (GSPI_MASTER_MOSI_LOC == 17)
 #define RTE_GSPI_MASTER_MOSI_MUX 4
@@ -2961,8 +2966,8 @@
 // </e>(Generic SPI master)[Driver_GSPI_MASTER]
 
 // <o>(State Configurable Timer) Interface
-#define SCT_CLOCK_SOURCE   M4_SOCCLKFOROTHERCLKSCT
-#define SCT_CLOCK_DIV_FACT 1
+#define SCT_CLOCK_SOURCE   CT_INTFPLLCLK
+#define SCT_CLOCK_DIV_FACT 2
 
 //SCT_IN_0  <0=>GPIO_25  <1=>GPIO_64 <2=>GPIO_68
 

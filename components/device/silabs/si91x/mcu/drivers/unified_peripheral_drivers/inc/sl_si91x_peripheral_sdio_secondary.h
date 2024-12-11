@@ -1,26 +1,44 @@
-/*******************************************************************************
- * @file  sl_si91x_peripheral_sdio_secondary.h
- * @brief sdio secondary peripheral API's
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file  sl_si91x_peripheral_sdio_secondary.h
+* @brief sdio secondary peripheral API's
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #ifndef __SL_SI91X_PERIPHERAL_SDIO_SECONDARY_H_
 #define __SL_SI91X_PERIPHERAL_SDIO_SECONDARY_H_
 
 #include "si91x_device.h"
+#include "sl_component_catalog.h"
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef SL_CATALOG_KERNEL_PRESENT
+#include "rsi_m4.h"
 #endif
 
 /***************************************************************************/
@@ -55,7 +73,10 @@ extern "C" {
 #define M4_HOST_INTR_MASK_REG   (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x00))
 #define M4_HOST_INTR_STATUS_REG (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x04))
 #define M4_HOST_INTR_CLEAR      (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x08))
-#define MISC_CFG_HOST_CTRL      (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x0C))
+#ifndef MISC_CFG_HOST_CTRL
+#define MISC_CFG_HOST_CTRL (*(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x0C))
+#endif
+
 /** @endcond */
 
 // @brief SDIO Function1 interrupt enable bits.

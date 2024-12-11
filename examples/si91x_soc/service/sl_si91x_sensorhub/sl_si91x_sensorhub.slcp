@@ -7,10 +7,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.2
+  version:  "2024.12.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.4
+    version: 3.4.0
 source:
   - path: sensorhub_config.c
   - path: sensors/src/hub_hal_intf.c
@@ -63,7 +63,7 @@ component:
     from: wiseconnect3_sdk
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: si917_memory_default_config
+  - id: si91x_memory_default_config
     from: wiseconnect3_sdk
   - id: sl_adc
     from: wiseconnect3_sdk
@@ -85,21 +85,30 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+  - id: sl_power_manager
+    from: wiseconnect3_sdk  
+  - id: sl_si91x_button_917
+    instance:
+      - btn0
+    from: wiseconnect3_sdk
+  - id: gpio_ulp_component
+    from: wiseconnect3_sdk
 requires:
   - name: aws_sdk
 define:
   - name: SPI_MULTI_SLAVE
   - name: SSI_CONFIG
-  - name: SH_ADC_ENABLE
   - name: RTE_SSI_ULP_MASTER_RX_DMA
   - name: RTE_SSI_ULP_MASTER_TX_DMA
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SL_SI91X_ULP_STATE_ENABLE
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/image508b.png
   - path: resources/readme/image508c.png
   - path: resources/readme/image508d.png
   - path: resources/readme/setupdiagram.png
+  - path: resources/readme/wakeup.PNG
 readme:
   - path: readme.md
 ui_hints:

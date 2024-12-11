@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file
- * @brief System Real Time Counter (SYSRTC) peripheral API
- *******************************************************************************
- * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file  rsi_sysrtc.h
+* @brief System Real Time Counter (SYSRTC) peripheral API
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef RSI_SYSRTC_H
 #define RSI_SYSRTC_H
@@ -63,7 +63,7 @@ extern "C" {
 #define SYSRTC_GROUP_MAX_CHANNEL_CAPTURE 1u
 
 /// Sysrtc group number.
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(SLI_SI915)
 #if !defined(SYSRTC_GROUP_NUMBER)
 #define SYSRTC_GROUP_NUMBER 2u
 #endif
@@ -111,11 +111,11 @@ typedef enum {
 
 /// Capture input edge select.
 typedef enum {
-  RSI_SYSRTC_CLK_NONE       = 0, ///< No Clk selec.
-  RSI_SYSRTC_CLK_1kHz_clk   = 1, ///< 1Khz  clk select.
-  RSI_SYSRTC_CLK_32KHz_RO   = 2, ///< 32Khz RO clk select.
-  RSI_SYSRTC_CLK_32kHz_RC   = 4, ///< 32Khz RC clk select.
-  RSI_SYSRTC_CLK_32kHz_Xtal = 8, ///< 32Khz Xtal clk select.
+  RSI_SYSRTC_CLK_NONE       = 0, ///< No Clk select.
+  RSI_SYSRTC_CLK_1kHz_clk   = 1, ///< 1 khz  clk select.
+  RSI_SYSRTC_CLK_32KHz_RO   = 2, ///< 32 khz RO clk select.
+  RSI_SYSRTC_CLK_32kHz_RC   = 4, ///< 32 khz RC clk select.
+  RSI_SYSRTC_CLK_32kHz_Xtal = 8, ///< 32 khz XTAL or External Oscillator clk select.
 
 } rsi_sysrtc_clk_inp_t;
 

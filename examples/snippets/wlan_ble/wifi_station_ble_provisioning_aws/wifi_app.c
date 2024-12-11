@@ -282,11 +282,11 @@ void rsi_wlan_app_callbacks_init(void)
   sl_wifi_set_join_callback(join_callback_handler, NULL);
 }
 
-void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status1)
+void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status)
 {
   UNUSED_PARAMETER(fd_except);
   UNUSED_PARAMETER(fd_write);
-  UNUSED_PARAMETER(status1);
+  UNUSED_PARAMETER(status);
   //!Check the data pending on this particular socket descriptor
   if (FD_ISSET(mqtt_client.networkStack.socket_id, fd_read)) {
     osSemaphoreRelease(data_received_semaphore);
@@ -446,9 +446,13 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   memset(scan_result, 0, scanbuf_size);
   memcpy(scan_result, result, scanbuf_size);
 
-  callback_status = show_scan_results();
+  if (result_length != 0) {
+    callback_status = show_scan_results();
+  }
 
-  //  scan_complete = true;
+  // Send wlan scan result to BLE module
+  wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
+
   return SL_STATUS_OK;
 }
 
@@ -515,9 +519,6 @@ void wifi_app_task(void)
           LOG_PRINT("\r\nWLAN Scan Wait Failed, Error Code : 0x%lX\r\n", status);
           wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
-        } else {
-          // update wlan application state
-          wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
       } break;
 
@@ -531,19 +532,25 @@ void wifi_app_task(void)
         cred.type = SL_WIFI_PSK_CREDENTIAL;
         memcpy(cred.psk.value, pwd, strlen((char *)pwd));
 
-        status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
-        if (SL_STATUS_OK == status) {
-          LOG_PRINT("Credentials set, id : %lu\r\n", id);
-
-          access_point.ssid.length = strlen((char *)coex_ssid);
-          memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
-          access_point.security      = sec_type;
-          access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
-          access_point.credential_id = id;
-
-          LOG_PRINT("SSID %s\r\n", access_point.ssid.value);
-          status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
+        if (sec_type != SL_WIFI_OPEN) {
+          status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
+          if (SL_STATUS_OK == status) {
+            LOG_PRINT("Credentials set, id : %lu\r\n", id);
+          }
+          if (status != SL_STATUS_OK) {
+            printf("Credentials set failed, id : %lu\r\n", id);
+            continue;
+          }
         }
+        access_point.ssid.length = strlen((char *)coex_ssid);
+        memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
+        access_point.security      = sec_type;
+        access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
+        access_point.credential_id = id;
+
+        LOG_PRINT("SSID %s\r\n", access_point.ssid.value);
+        status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
+
         if (status != RSI_SUCCESS) {
           timeout = 1;
           wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
@@ -730,6 +737,12 @@ void wifi_app_mqtt_task(void)
 
     if (wifi_app_get_event() == WIFI_APP_DISCONN_NOTIFY_STATE) {
       LOG_PRINT("WLAN disconnect initiated\r\n");
+      rc = aws_iot_mqtt_disconnect(&mqtt_client);
+      if (SUCCESS != rc) {
+        LOG_PRINT("MQTT Disconnection error : %d\r\n", rc);
+      } else {
+        LOG_PRINT("MQTT Disconnection Successful\r\n");
+      }
       return;
     }
 
@@ -881,6 +894,7 @@ void wifi_app_mqtt_task(void)
           if (rc != SUCCESS) {
             LOG_PRINT("\r\nMqtt Publish for QOS0 failed with error: %d\r\n", rc);
             wlan_app_cb.state = WIFI_APP_MQTT_DISCONNECT;
+            break;
           }
 
           if (rc == MQTT_REQUEST_TIMEOUT_ERROR) {
@@ -922,7 +936,7 @@ void wifi_app_mqtt_task(void)
         if (select_given == 1 && (check_for_recv_data != 1)) {
           printf("M4 in sleep\r\n");
 #if (SL_SI91X_TICKLESS_MODE == 0)
-          sl_si91x_m4_sleep_wakeup();
+          sl_si91x_power_manager_sleep();
 #else
           if (osSemaphoreAcquire(data_received_semaphore, PUBLISH_PERIODICITY) == osOK) {
           }

@@ -16,14 +16,15 @@
 
 ## Purpose/Scope
 
-- This application demonstrate the DAC peripheral,
-  - Conversion of digital input to 10-bit analog output.
-  - Samples the data.
-  - Convert data into analog output based on operation mode.
+This application demonstrate the DAC peripheral, including:
+
+- Conversion of digital input to 10-bit analog output.
+- Samples the data.
+- Converting data into analog output based on operation mode.
 
 ## Overview
 
-- The DAC Controller works on a DAC with a resolution of 10bits at 5MHZ sampling frequency maximum.
+- The DAC Controller works on a DAC with a resolution of 10 bits at 5MHZ sampling frequency maximum.
 - For the clock setup to the DAC controller, the sample application default values are recommended.
 - There are three operating mode in AUX DAC controller:
   - Static Mode Operation: DAC will give out constant voltage output for a programmed DAC.
@@ -38,12 +39,13 @@
 
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
 - Simplicity Studio
-- Serial console Setup
-  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+- Serial console setup
+  - For serial console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -53,10 +55,11 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -65,8 +68,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Application Configuration Parameters
 
 - Configure UC from the slcp component.
-- Open **sl_si91x_dac.slcp** project file select **software component** tab and search for **DAC** in search bar.
-- Using configuration wizard one can configure different parameters. Below are the configuration screen, where user can select as per requirement.
+- Open the **sl_si91x_dac.slcp** project file, select the **Software Component** tab, and search for **DAC** in the search bar.
+- Use the configuration wizard to configure different parameters. Below are the configuration screen, where user can select as per requirement.
 
   - **DAC Peripheral Configuration**
 
@@ -76,13 +79,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
       ![Figure: Introduction](resources/uc_screen/sl_dac_uc_screen.png)
 
-- After running the application see the output on logic analyzer in GPIO_30[P35].
-- Apply the different voltages(1.8V to 3.6v) as reference voltage and input samples, based on this observe output in analyzer .
-- The output data should match the input sample that was supplied. Due to DAC electrical specifications the highest output voltage tolerance is 0.85v and lowest output voltage tolerance is 0.15v.
+- After running the application, see the output on logic analyzer in GPIO_30[P35].
+- Apply the different voltages (1.8V to 3.6v) as reference voltage and input samples, based on this observe output in analyzer.
+- The output data should match the input sample that was supplied. Due to DAC electrical specifications, the highest output voltage tolerance is 0.85v and lowest output voltage tolerance is 0.15v.
 
 ### Pin Configuration
 
-- Here mentioned pin numbers for BRD4338a (B0 2.0v boards), if user want to use different radio board, refer to board specific user guide.
+- The following table lists the mentioned pin numbers for BRD4338a. If you want to use a different radio board, see the board-specific user guide.
 
   | DAC | GPIO's |
   | --- | --- |
@@ -101,7 +104,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. By default DAC will be in Static mode. The output in this mode will be a constant voltage.
+2. By default, DAC will be in Static mode. The output in this mode will be a constant voltage.
 3. Make use of a logic analyzer to examine the output in GPIO_30[P35].
 
    - DAC Static mode:
@@ -126,16 +129,15 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
->- In the sl_ulp_dac_example.c file, on #line26, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is    selected, substitute '0' for this macro.
+>- In the `sl_ulp_dac_example.c file`, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
 >- Buffer length should be '1' for DAC static mode.
 >
  Use following formula to find equivalent output analog voltage of DAC
 >
 > DAC_output = ((input sample/1024(2^10)) * Vref Voltage);
 >
-> > **Note:** If input sample value is '0x33A' and voltage reference is 2.8v, then DAC_output = ((0x33A/1024) * 2.8).
-
-
+> **Note:** If input sample value is '0x33A' and voltage reference is 2.8v, then DAC_output = ((0x33A/1024) * 2.8).
+>
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

@@ -58,7 +58,7 @@
 /// Bitmap to enable TLS version 1.1
 #define SL_SI91X_TLS_V_1_1 BIT(4)
 
-#if defined(SLI_SI917) || defined(DOXYGEN)
+#if defined(SLI_SI917) || defined(DOXYGEN) || defined(SLI_SI915)
 /// Bitmap to enable TLS version 1.3
 #define SL_SI91X_TLS_V_1_3 BIT(8)
 #endif
@@ -94,6 +94,10 @@
 //! @cond Doxygen_Suppress
 // Upgrade images
 #define BURN_NWP_FW 'B'
+#define BURN_M4_FW  '4'
+
+// M4 FW image number for Bootloader
+#define M4_FW_IMAGE_NUMBER (1 << 8)
 
 // Bootloader selects default NWP FW image number
 #define SELECT_DEFAULT_NWP_FW_IMAGE_NUMBER '5'
@@ -210,7 +214,14 @@
 #define SL_SI91X_ENABLE_NWP_WDT_FROM_HOST  BIT(1)
 #define SL_SI91X_DISABLE_NWP_WDT_FROM_HOST BIT(2)
 
+//NWP Get configuration defines
+#define GET_OPN_BOARD_CONFIG 1
+
 //***************************** Macros for Crypto End **********************************/
+
+// Command packet 'unused' bytes
+#define SLI_SI91X_COMMAND_FLAGS_INDEX    10
+#define SLI_SI91X_COMMAND_RESPONSE_INDEX 11
 
 typedef struct {
   uint32_t buffer_full : 1;
@@ -239,22 +250,40 @@ typedef enum {
     3 ///< AP performs keepalive functionality by sending a NULL DATA packet to the station.
       ///< If no ACK is received from the station after a specific number of retries, the AP discards the station.
 } sl_si91x_ap_keepalive_type_t;
+
+/// Assertion type must be in the range of 0 to 15 (both included)
+typedef enum {
+  SL_SI91X_ASSERTION_TYPE_LMAC = 0, ///< Assertion type specific to the LMAC core.
+  SL_SI91X_ASSERTION_TYPE_SME  = 1, ///< Assertion type specific to the SME (Station Management Entity) core.
+  SL_SI91X_ASSERTION_TYPE_UMAC = 2, ///< Assertion type specific to the UMAC core.
+  SL_SI91X_ASSERTION_TYPE_NETX = 4, ///< Assertion type specific to the NETX (Networking Stack) core.
+  SL_SI91X_ASSERTION_TYPE_CA =
+    8, ///< Enables critical assertion indication and provides a RAM dump during critical assertions.
+  SL_SI91X_ASSERTION_TYPE_ALL = 15 ///< Enables assertion for all cores.
+} sl_si91x_assertion_type_t;
+
+/// Assertion level must be in the range of 0 to 15 (both included)
+typedef enum {
+  SL_SI91X_ASSERTION_LEVEL_MIN = 0, ///< Minimum assertion level. Indicates that an assertion is mandatory.
+  SL_SI91X_ASSERTION_LEVEL_SP  = 1, ///< Assertion for specific print messages, used for debugging or analysis.
+  SL_SI91X_ASSERTION_LEVEL_REC =
+    2, ///< Recoverable assertion level. Indicates that the system can recover from the assertion.
+  SL_SI91X_ASSERTION_LEVEL_INFO = 4, ///< Informational assertion level, used to log general information.
+  SL_SI91X_ASSERTION_LEVEL_MAX  = 15 ///< Maximum assertion level. Enables all types of print statements.
+} sl_si91x_assertion_level_t;
 /** @} */
 
 //! @cond Doxygen_Suppress
 typedef enum {
   SL_SI91X_RETURN_IMMEDIATELY              = 0,
-  SL_SI91X_WAIT_FOR_RESPONSE_BIT           = (1 << 30),
-  SL_SI91X_WAIT_FOR_EVER                   = (1 << 31),
+  SL_SI91X_WAIT_FOR_RESPONSE_BIT           = (1UL << 30),
+  SL_SI91X_WAIT_FOR_EVER                   = (1UL << 31),
+  SL_SI91X_WAIT_FOR_OTAF_RESPONSE          = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | SL_SI91X_WAIT_FOR_EVER),
   SL_SI91X_WAIT_FOR_SYNC_SCAN_RESULTS      = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 12000),
   SL_SI91X_WAIT_FOR_COMMAND_RESPONSE       = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 1000),
   SL_SI91X_WAIT_FOR_SOCKET_ACCEPT_RESPONSE = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 5000),
-#ifdef SLI_SI91X_MCU_INTERFACE
-  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = 3000,
-#else
-  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = 1000,
-#endif
-  SL_SI91X_WAIT_FOR_DNS_RESOLUTION = 20000,
+  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS        = 3000,
+  SL_SI91X_WAIT_FOR_DNS_RESOLUTION         = 20000,
 } sl_si91x_wait_period_t;
 
 #define SL_SI91X_WAIT_FOR(x)          (sl_si91x_wait_period_t)(x)
@@ -360,7 +389,7 @@ typedef enum {
   RSI_COMMON_REQ_IAP_GENERATE_SIGATURE = 0xB8
 #endif
 
-#ifdef RSI_PUF_ENABLE
+#ifdef SLI_PUF_ENABLE
   ,
   RSI_COMMON_REQ_PUF_ENROLL      = 0xD0,
   RSI_COMMON_REQ_PUF_DIS_ENROLL  = 0xD1,
@@ -381,7 +410,8 @@ typedef enum {
   RSI_COMMON_REQ_ASSERT        = 0xE1,
   RSI_COMMON_REQ_SET_RTC_TIMER = 0xE9,
   RSI_COMMON_REQ_GET_RTC_TIMER = 0xF2,
-  RSI_COMMON_REQ_SET_CONFIG    = 0xBA
+  RSI_COMMON_REQ_SET_CONFIG    = 0xBA,
+  RSI_COMMON_REQ_GET_CONFIG    = 0x0C
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_REQ_GPIO_CONFIG = 0x28
@@ -409,7 +439,7 @@ typedef enum {
   RSI_COMMON_RSP_UART_FLOW_CTRL_ENABLE = 0xA4,
   RSI_COMMON_RSP_TA_M4_COMMANDS        = 0xB0,
   RSI_COMMON_RSP_DEBUG_LOG             = 0x26
-#ifdef RSI_PUF_ENABLE
+#ifdef SLI_PUF_ENABLE
   ,
   RSI_COMMON_RSP_PUF_ENROLL      = 0xD0,
   RSI_COMMON_RSP_PUF_DIS_ENROLL  = 0xD1,
@@ -440,7 +470,8 @@ typedef enum {
   RSI_COMMON_RSP_ASSERT         = 0xE1,
   RSI_COMMON_RSP_SET_RTC_TIMER  = 0xE9,
   RSI_COMMON_RSP_GET_RTC_TIMER  = 0xF2,
-  RSI_COMMON_RSP_SET_CONFIG     = 0xBA
+  RSI_COMMON_RSP_SET_CONFIG     = 0xBA,
+  RSI_COMMON_RSP_GET_CONFIG     = 0x0C
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_RSP_GPIO_CONFIG = 0x28

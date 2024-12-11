@@ -1,32 +1,32 @@
-/***************************************************************************/ /**
- * @file sl_si91x_config-timer.c
- * @brief CONFIG TIMER API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file sl_si91x_config-timer.c
+* @brief CONFIG TIMER API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_config_timer.h"
 #include "sl_si91x_config_timer_config.h"
 #include "rsi_rom_ct.h"
@@ -35,15 +35,18 @@
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define RESET_VALUE                  0              ///< Macro for reset value
-#define MAX_VALID_BITS               15             ///< Macro for and/or event maximum valid bits
-#define MAX_ADC_PIN_NUMBER           15             ///< maximum pin number value for ADC output
-#define MAX_COUNT_VALUE_16BIT        65535          ///< maximum count value for 16-bit counter
-#define OCU_RESET_VALUE              0xFFFFFFFF     ///< reset value for ocu configuration
-#define CT_IRQHandler                IRQ034_Handler ///< renaming IRQ-handler for config-timer
-#define CONFIG_TIMER_RELEASE_VERSION 0              ///< Config-timer Release version
-#define CONFIG_TIMER_MAJOR_VERSION   0              ///< Config-timer SQA version
-#define CONFIG_TIMER_MINOR_VERSION   1              ///< Config-timer Developer version
+#define RESET_VALUE                  0              // Macro for reset value
+#define MAX_VALID_BITS               15             // Macro for and/or event maximum valid bits
+#define MAX_ADC_PIN_NUMBER           15             // maximum pin number value for ADC output
+#define MAX_COUNT_VALUE_16BIT        65535          // maximum count value for 16-bit counter
+#define OCU_RESET_VALUE              0xFFFFFFFF     // reset value for ocu configuration
+#define CT_IRQHandler                IRQ034_Handler // renaming IRQ-handler for config-timer
+#define CONFIG_TIMER_RELEASE_VERSION 0              // Config-timer Release version
+#define CONFIG_TIMER_MAJOR_VERSION   0              // Config-timer SQA version
+#define CONFIG_TIMER_MINOR_VERSION   1              // Config-timer Developer version
+#define COUNTER_0_UP_DOWN_MASK       0x00000030     // Mask to isolate bits 4 and 5
+#define COUNTER_1_UP_DOWN_MASK       0x00300000     // Mask to extract bits 21-20 (2 bits)
+#define BIT_0_MASK                   0x1            // Mask to extract bit 0
 
 /*******************************************************************************
  ***************************  Local TYPES  ********************************
@@ -60,6 +63,7 @@ static void *callback_flags                             = NULL;
  ******************************************************************************/
 static sl_status_t evaluate_config_params(sl_config_timer_config_t *config_handle_ptr, uint32_t *config_value);
 static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_handle_ptr, uint32_t *ocu_config_value);
+static sl_status_t validate_counter_configuration(sl_counter_number_t counter_number);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -354,9 +358,8 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
     }
     // Setting initial count value for 16-bit mode counter0 & counter1
     if (mode == SL_COUNTER_16BIT) {
-      //uint32_t _ORed_value = (uint32_t)((uint16_t)counter0_initial_value | counter1_initial_value);
-      RSI_CT_SetCount(CT, (uint16_t)counter0_initial_value);
-      RSI_CT_SetCount(CT, (counter1_initial_value << 16));
+      uint32_t _ORed_value = (counter0_initial_value) | (counter1_initial_value << 16);
+      RSI_CT_SetCount(CT, _ORed_value);
       break;
     }
   } while (false);
@@ -424,8 +427,74 @@ sl_status_t sl_si91x_config_timer_start_on_software_trigger(sl_counter_number_t 
   if (counter_number >= SL_COUNTER_NUMBER_LAST) {
     status = SL_STATUS_INVALID_PARAMETER;
   } else {
+    // validate the counter configuration
+    status = validate_counter_configuration(counter_number);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
     RSI_CT_StartSoftwareTrig(CT, counter_number);
     status = SL_STATUS_OK;
+  }
+  return status;
+}
+
+/*******************************************************************************
+* @brief: validate the counter configuration
+*******************************************************************************/
+static sl_status_t validate_counter_configuration(sl_counter_number_t counter_number)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  // Read the value of the register
+  uint32_t ctrl_set_reg_value = CT->CT_GEN_CTRL_SET_REG;
+  uint32_t counter_reg_value  = CT->CT_COUNTER_REG; // Read the value of the counter register
+  uint8_t counter_type        = (ctrl_set_reg_value & BIT_0_MASK);
+
+  if (counter_type == SL_COUNTER_16BIT) {
+    if (counter_number == SL_COUNTER_0) {
+      // Extract the COUNTER_0_UP_DOWN field (bits 4-5) directly from the register
+      uint32_t counter0_direction     = (ctrl_set_reg_value & COUNTER_0_UP_DOWN_MASK);
+      uint16_t counter0_initial_value = (uint16_t)(counter_reg_value & 0xFFFF); // Extract lower 16 bits for Counter 0
+      uint32_t counter0_match_value   = CT->CT_MATCH_REG_b.COUNTER_0_MATCH;
+
+      // Check the direction based on the extracted value
+      if (counter0_direction == COUNTER0_UP) {
+        if (counter0_match_value < counter0_initial_value) {
+          status = SL_STATUS_INVALID_PARAMETER;
+        }
+      } else if (counter0_direction == COUNTER0_DOWN) {
+        if (counter0_match_value > counter0_initial_value) {
+          status = SL_STATUS_INVALID_PARAMETER;
+        }
+      } else if (counter0_direction == COUNTER0_UP_DOWN) {
+        if (counter0_match_value == counter0_initial_value) {
+          status = SL_STATUS_INVALID_PARAMETER;
+        }
+      }
+    }
+
+    else if (counter_number == SL_COUNTER_1) {
+      // Extract the COUNTER_1_UP_DOWN field (bits 21-20) directly from the register
+      uint32_t counter1_direction = (ctrl_set_reg_value & COUNTER_1_UP_DOWN_MASK);
+      uint16_t counter1_initial_value =
+        (uint16_t)((counter_reg_value >> 16) & 0xFFFF); // Extract upper 16 bits for Counter 1
+      uint32_t counter1_match_value = CT->CT_MATCH_REG_b.COUNTER_1_MATCH;
+
+      // Check the direction based on the extracted value
+      if (counter1_direction == COUNTER1_UP) {
+        if (counter1_match_value < counter1_initial_value) {
+          status = SL_STATUS_INVALID_PARAMETER;
+        }
+      } else if (counter1_direction == COUNTER1_DOWN) {
+        if (counter1_match_value > counter1_initial_value) {
+          status = SL_STATUS_INVALID_PARAMETER;
+        }
+      } else if (counter1_direction == COUNTER1_UP_DOWN) {
+        if (counter1_match_value == counter1_initial_value) {
+          status = SL_STATUS_INVALID_PARAMETER;
+        }
+      }
+    }
   }
   return status;
 }
@@ -1061,7 +1130,7 @@ static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_
     if (ocu_config_handle_ptr->is_counter1_ocu_dma_enabled) {
       *ocu_config_value |= SL_COUNTER1_OCU_DMA_ENABLE;
     }
-    if (ocu_config_handle_ptr->is_counter1_ocu_mode_enabled) {
+    if (ocu_config_handle_ptr->is_counter1_ocu_8bit_mode_enabled) {
       *ocu_config_value |= SL_COUNTER1_OCU_8BIT_ENABLE;
     }
     if (ocu_config_handle_ptr->is_counter1_ocu_sync_enabled) {

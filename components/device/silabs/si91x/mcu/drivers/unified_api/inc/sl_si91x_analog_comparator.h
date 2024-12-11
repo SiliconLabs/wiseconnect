@@ -1,33 +1,32 @@
-/***************************************************************************/
-/**
- * @file  sl_si91x_analog_comparator.h
- * @brief Analog Comparator API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+/******************************************************************************
+* @file  sl_si91x_analog_comparator.h
+* @brief Analog Comparator API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #ifndef SL_SI91X_ANALOG_COMPARATOR_H
 #define SL_SI91X_ANALOG_COMPARATOR_H
@@ -52,6 +51,17 @@ extern "C" {
 // Macros for analog comparator parameters
 // -----------------------------------------------------------------------------
 
+//Macros over enum used for preprocessing stage comparison in config.h
+#define SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0        0 ///< External GPIO input 0
+#define SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1        1 ///< External GPIO input 1
+#define SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT        2 ///< Input from DAC output.
+#define SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT 3 ///< Input from reference buffer output
+#define SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT 4 ///< Input from reference scaler output
+#define SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT   5 ///< Input from resistor bank output
+#define SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT     6 ///< Input from OPAMP1 output
+#define SL_COMPARATOR_INPUT_FROM_OPAMP2_OUTPUT     7 ///< Input from OPAMP2 output
+#define SL_COMPARATOR_INPUT_FROM_OPAMP3_OUTPUT     8 ///< Input from OPAMP3 output
+
 // Data Types
 /***************************************************************************/
 /**
@@ -72,16 +82,21 @@ typedef enum {
  * @brief Enumeration to represent the types of analog comparator inputs.
  */
 typedef enum {
-  SL_COMPARATOR_GPIO_INPUT_0,            ///< Select GPIO input for comparator non-inverting input
-  SL_COMPARATOR_GPIO_INPUT_1,            ///< Select GPIO input for comparator non-inverting input
-  SL_COMPARATOR_DAC_OUTPUT,              ///< Selects DAC output as comparator input
-  SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT, ///< Selects reference buffer output as comparator input
-  SL_COMPARATOR_REFERENCE_SCALER_OUTPUT, ///< Selects reference scaler output as comparator input
-  SL_COMPARATOR_RESISTOR_BANK_OUTPUT,    ///< Selects resistor bank output as comparator input
-  SL_COMPARATOR_OPAMP1_OUTPUT,           ///< Selects OPAMP1 output as comparator input
-  SL_COMPARATOR_OPAMP2_OUTPUT,           ///< Selects OPAMP2 output as comparator input
-  SL_COMPARATOR_OPAMP3_OUTPUT,           ///< Selects OPAMP3 output as comparator input
-  SL_COMPARATOR_INPUT_LAST,              ///< Last member of enum for validation
+  SL_COMPARATOR_GPIO_INPUT_0 =
+    SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0, ///< Select GPIO input for comparator non-inverting input
+  SL_COMPARATOR_GPIO_INPUT_1 =
+    SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1, ///< Select GPIO input for comparator non-inverting input
+  SL_COMPARATOR_DAC_OUTPUT = SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT, ///< Selects DAC output as comparator input
+  SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT =
+    SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT, ///< Selects reference buffer output as comparator input
+  SL_COMPARATOR_REFERENCE_SCALER_OUTPUT =
+    SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT, ///< Selects reference scaler output as comparator input
+  SL_COMPARATOR_RESISTOR_BANK_OUTPUT =
+    SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT, ///< Selects resistor bank output as comparator input
+  SL_COMPARATOR_OPAMP1_OUTPUT = SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT, ///< Selects OPAMP1 output as comparator input
+  SL_COMPARATOR_OPAMP2_OUTPUT = SL_COMPARATOR_INPUT_FROM_OPAMP2_OUTPUT, ///< Selects OPAMP2 output as comparator input
+  SL_COMPARATOR_OPAMP3_OUTPUT = SL_COMPARATOR_INPUT_FROM_OPAMP3_OUTPUT, ///< Selects OPAMP3 output as comparator input
+  SL_COMPARATOR_INPUT_LAST,                                             ///< Last member of enum for validation
 } sl_analog_comparator_inputs_t;
 
 /**
@@ -99,41 +114,40 @@ typedef enum {
 /**
  * @brief Enumeration to represent BOD threshold values for resistor bank output.
  * 
- * @note Values of the enumerator are calculated using VBAT = 3.5066 volts and these values vary from board to board.
+ * @note Values of the enumerator are calculated using VBAT = 3.5066 V and these values vary from board to board.
  */
 typedef enum {
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_33_VOLT, ///< Threshold value to get 2.33V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_27_VOLT, ///< Threshold value to get 2.27V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_21_VOLT, ///< Threshold value to get 2.21V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_15_VOLT, ///< Threshold value to get 2.15V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_10_VOLT, ///< Threshold value to get 2.10V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_05_VOLT, ///< Threshold value to get 2.05V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_00_VOLT, ///< Threshold value to get 2.00V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_95_VOLT, ///< Threshold value to get 1.95V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_91_VOLT, ///< Threshold value to get 1.91V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_86_VOLT, ///< Threshold value to get 1.86V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_82_VOLT, ///< Threshold value to get 1.82V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_79_VOLT, ///< Threshold value to get 1.79V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_75_VOLT, ///< Threshold value to get 1.75V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_71_VOLT, ///< Threshold value to get 1.71V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_68_VOLT, ///< Threshold value to get 1.68V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_64_VOLT, ///< Threshold value to get 1.64V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_61_VOLT, ///< Threshold value to get 1.61V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_58_VOLT, ///< Threshold value to get 1.58V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_55_VOLT, ///< Threshold value to get 1.55V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_53_VOLT, ///< Threshold value to get 1.53V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_50_VOLT, ///< Threshold value to get 1.50V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_47_VOLT, ///< Threshold value to get 1.47V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_45_VOLT, ///< Threshold value to get 1.45V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_42_VOLT, ///< Threshold value to get 1.42V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_40_VOLT, ///< Threshold value to get 1.40V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_38_VOLT, ///< Threshold value to get 1.38V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_35_VOLT, ///< Threshold value to get 1.35V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_33_VOLT, ///< Threshold value to get 1.33V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_31_VOLT, ///< Threshold value to get 1.31V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_29_VOLT, ///< Threshold value to get 1.29V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_27_VOLT, ///< Threshold value to get 1.27V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_25_VOLT, ///< Threshold value to get 1.25V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_27_VOLT, ///< Threshold value to get 2.27 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_21_VOLT, ///< Threshold value to get 2.21 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_15_VOLT, ///< Threshold value to get 2.1 5V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_10_VOLT, ///< Threshold value to get 2.10 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_05_VOLT, ///< Threshold value to get 2.05 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_00_VOLT, ///< Threshold value to get 2.00 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_95_VOLT, ///< Threshold value to get 1.95 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_91_VOLT, ///< Threshold value to get 1.91 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_86_VOLT, ///< Threshold value to get 1.86 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_82_VOLT, ///< Threshold value to get 1.82 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_79_VOLT, ///< Threshold value to get 1.79 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_75_VOLT, ///< Threshold value to get 1.75 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_71_VOLT, ///< Threshold value to get 1.71 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_68_VOLT, ///< Threshold value to get 1.68 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_64_VOLT, ///< Threshold value to get 1.64 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_61_VOLT, ///< Threshold value to get 1.61 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_58_VOLT, ///< Threshold value to get 1.58 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_55_VOLT, ///< Threshold value to get 1.55 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_53_VOLT, ///< Threshold value to get 1.53 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_50_VOLT, ///< Threshold value to get 1.50 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_47_VOLT, ///< Threshold value to get 1.47 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_45_VOLT, ///< Threshold value to get 1.45 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_42_VOLT, ///< Threshold value to get 1.42 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_40_VOLT, ///< Threshold value to get 1.40 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_38_VOLT, ///< Threshold value to get 1.38 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_35_VOLT, ///< Threshold value to get 1.35 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_33_VOLT, ///< Threshold value to get 1.33 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_31_VOLT, ///< Threshold value to get 1.31 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_29_VOLT, ///< Threshold value to get 1.29 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_27_VOLT, ///< Threshold value to get 1.27 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_25_VOLT, ///< Threshold value to get 1.25 V as resistor bank output voltage.
   SL_COMPARATOR_THRESHOLD_VALUE_LAST,          ///< Last member of enum for validation.
 } sl_analog_comparator_threshold_values_t;
 
@@ -141,17 +155,17 @@ typedef enum {
  * @brief Enumeration to represent scale factor values for reference scaler output.
  */
 typedef enum {
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_1_VOLT, ///< Scale factor value to get 0.1V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_2_VOLT, ///< Scale factor value to get 0.2V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_3_VOLT, ///< Scale factor value to get 0.3V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_4_VOLT, ///< Scale factor value to get 0.4V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_5_VOLT, ///< Scale factor value to get 0.5V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_6_VOLT, ///< Scale factor value to get 0.6V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_7_VOLT, ///< Scale factor value to get 0.7V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_8_VOLT, ///< Scale factor value to get 0.8V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_9_VOLT, ///< Scale factor value to get 0.9V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_VOLT,   ///< Scale factor value to get 1V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_1_VOLT, ///< Scale factor value to get 1.1V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_1_VOLT, ///< Scale factor value to get 0.1 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_2_VOLT, ///< Scale factor value to get 0.2 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_3_VOLT, ///< Scale factor value to get 0.3 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_4_VOLT, ///< Scale factor value to get 0.4 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_5_VOLT, ///< Scale factor value to get 0.5 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_6_VOLT, ///< Scale factor value to get 0.6 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_7_VOLT, ///< Scale factor value to get 0.7 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_8_VOLT, ///< Scale factor value to get 0.8 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_9_VOLT, ///< Scale factor value to get 0.9 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_VOLT,   ///< Scale factor value to get 1 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_1_VOLT, ///< Scale factor value to get 1.1 V as reference scaler output voltage
   SL_COMPARATOR_SCALE_FACTOR_VALUE_LAST,         ///< Last member of enum for validation
 } sl_analog_comparator_scale_factor_values_t;
 
@@ -175,8 +189,8 @@ typedef struct {
 /**
  * @brief  To initialize the Analog Comparator and configure the necessary clocks and reference voltage.
  * 
- * @details This API enables the system core clock and auxiliary clock with a 32MHz RC clock.
- *          It also configures the reference LDO voltage to 3.3V.
+ * @details This API enables the system core clock and auxiliary clock with a MHz RC clock.
+ *          It also configures the reference LDO voltage to 3.3 V.
  *
  * @note This function must be called before using any other analog comparator functions.
  * @note The system core clock must be properly configured.
@@ -197,8 +211,8 @@ void sl_si91x_analog_comparator_init(void);
  * @param[in] comparator_config_ptr Pointer to analog comparator configuration structure \ref sl_analog_comparator_config_t
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Success, analog comparator parameters configured properly.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Analog comparator configuration structure member has an invalid value.
+ *         - SL_STATUS_OK  - Success, analog comparator parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - Analog comparator configuration structure member has an invalid value.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -219,10 +233,10 @@ sl_status_t sl_si91x_analog_comparator_set_configurations(sl_analog_comparator_c
  * @param[in] on_comparator_callback Callback function pointer @ref sl_analog_comparator_callback_t, to be invoked when a comparator interrupt occurs.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully registered comparator interrupt callback.
- *         - SL_STATUS_BUSY (0x0004) - The callback is already registered. Unregister the existing callback before registering a new one.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - @ref sl_analog_comparator_callback_t comparator_number parameter has an invalid value.
- *         - SL_STATUS_NULL_POINTER (0x0022) - @ref sl_analog_comparator_callback_t on_comparator_callback parameter is a null pointer.
+ *         - SL_STATUS_OK  - Successfully registered comparator interrupt callback.
+ *         - SL_STATUS_BUSY  - The callback is already registered. Unregister the existing callback before registering a new one.
+ *         - SL_STATUS_INVALID_PARAMETER  - @ref sl_analog_comparator_callback_t comparator_number parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER  - @ref sl_analog_comparator_callback_t on_comparator_callback parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -243,8 +257,8 @@ sl_status_t sl_si91x_analog_comparator_register_callback(sl_analog_comparator_nu
  * @param[in] comp_number For comparator number, see \ref sl_analog_comparator_number_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully unregistered comparator interrupt callback.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - comparator_number parameter has an invalid value.
+ *         - SL_STATUS_OK  - Successfully unregistered comparator interrupt callback.
+ *         - SL_STATUS_INVALID_PARAMETER  - comparator_number parameter has an invalid value.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -265,8 +279,8 @@ sl_status_t sl_si91x_analog_comparator_unregister_callback(sl_analog_comparator_
  * @param[in] threshold_value For comparator resistor bank, see \ref sl_analog_comparator_threshold_values_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully configured the resistor bank threshold.
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - threshold_value parameter has an invalid value.
+ *         - SL_STATUS_OK  - Successfully configured the resistor bank threshold.
+ *         - SL_STATUS_INVALID_PARAMETER  - threshold_value parameter has an invalid value.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -290,9 +304,9 @@ sl_status_t sl_si91x_analog_comparator_set_resistor_bank_threshold(
  * @param[in] scale_factor_value For comparator's reference scale, see \ref sl_analog_comparator_scale_factor_values_t for possible values.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK (0x0000) - Successfully configured the reference scaler output.
+ *         - SL_STATUS_OK  - Successfully configured the reference scaler output.
  *           For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - scale_factor_value parameter has an invalid value.
+ *         - SL_STATUS_INVALID_PARAMETER  - scale_factor_value parameter has an invalid value.
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_analog_comparator_set_reference_scaler_output(
@@ -332,7 +346,7 @@ void sl_si91x_analog_comparator_deinit(void);
  *
  * **Key Features**:
  * - Both comparators can take inputs from GPIOs.
- * - Each comparator has 9 different input sources, 2 of which are external GPIO pin inputs.
+ * - Each comparator has nine different input sources, two of which are external GPIO pin inputs.
  * - Multiple comparison scenarios:
  *   - Compare external pin inputs.
  *   - Compare external pin input to internal voltages.

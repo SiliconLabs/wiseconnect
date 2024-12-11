@@ -31,7 +31,6 @@
 #ifndef SL_SI91X_MEMLCD_CONFIG_H
 #define SL_SI91X_MEMLCD_CONFIG_H
 
-// <<< Use Configuration Wizard in Context Menu >>>
 #ifdef __cplusplus
 extern "C" {
 #endif

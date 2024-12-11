@@ -1,4 +1,4 @@
-id: si917_mem_config_1
+id: si91x_mem_config_1
 label: 'MEMORY_MCU_BASIC_WIRELESS_ADVANCED'
 package: platform
 description: >
@@ -7,8 +7,11 @@ description: >
   MCU and advance features on the wireless subsystem. This is the default configuration.
 category: Device|Si91x|Memory Configuration
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 provides:
-  - name: si917_mem_config_1
+  - name: si91x_mem_config_1
 define:
   - name: SL_SI91X_SI917_RAM_MEM_CONFIG
     value: '1'
