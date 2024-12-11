@@ -108,7 +108,7 @@ sl_websocket_error_t sl_websocket_close(sl_websocket_client_t *handle);
  *
  * @details
  *   This function deinitializes the WebSocket client by freeing allocated resources and resetting the state.
- *   It should be called only after the WebSocket connection has been closed as it also ensures that if the socket remains open after the @ref sl_websocket_close is invoked, it attempts to close the socket as part of its cleanup process.
+ *   It should be called only after the WebSocket connection has been closed because it also attempts to close the socket as part of its cleanup process if the socket remains open after the @ref sl_websocket_close is invoked.
  *   Therefore, calling this function is mandatory whenever a WebSocket connection is terminated, ensuring proper cleanup.
  *
  * @pre

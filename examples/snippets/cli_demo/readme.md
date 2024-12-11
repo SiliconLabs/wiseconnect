@@ -1,4 +1,4 @@
-# Cli Demo
+# CLI Demo
 
 ## Table of Contents
 
@@ -20,13 +20,13 @@ The CLI Demo application is a command-line interface (CLI) application designed 
 ### Hardware Requirements
 
 - A Windows PC.
-- 802.11 ax/b/g/n Access point - For Signaling mode or End to End mode testing.
-- Spectrum Analyzer for TX RF measurement(PER-TX) - For Non -signaling mode testing. 
-- Signal Generator for RX RF measurement (PER_RX) - For Non -signaling mode testing. 
+- 802.11 ax/b/g/n access point - For Signaling mode or End-to-End mode testing.
+- Spectrum Analyzer for TX RF measurement (PER-TX) - For Non -signaling mode testing. 
+- Signal Generator for RX RF measurement (PER_RX) - For Non-signaling mode testing. 
 - A Micro-coaxial connector plug to SMA-female cable (RF connector) for connecting the U.Fl port of the Si917 radio board to the Spectrum Analyzer or Signal Generator.
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
@@ -39,9 +39,9 @@ The CLI Demo application is a command-line interface (CLI) application designed 
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -91,7 +91,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-- The application uses the default configurations as provided in the **wifi_commands.c** and user can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **wifi_commands.c** and the user can choose to configure these parameters as needed.
  
 > **Note** :
 
@@ -104,24 +104,24 @@ The application can be configured to suit your requirements and development envi
 
 > - The included cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
-## Test the application
+## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application in Studio.
-- Flash, run and debug the application
+- Flash, run, and debug the application.
 
 ![cli_demo_Output](resources/readme/Ready.PNG)
 
 
 
-## **Common commands**
+## **Common Commands**
 1. set_region_configuration
 2. wifi_radio_deinit
 3. reset
 
 ## **set_region_configuration:**
-Set a particular region
+Set a particular region.
 
 **Syntax:**
 ```perl
@@ -134,7 +134,7 @@ set_region_configuration [-a operating_mode] <region>
 |*region*        |us → United states, eu → Europen Union, jp → Japan, world →  World wide domain, kr → Korean, sg → Singapore(not currently supported) |
 
 ### **wifi_radio_deinit:**
-Deinitlize the Wi-Fi radio
+Deinitlize the Wi-Fi radio.
 
 **Syntax:**
 ```perl
@@ -142,7 +142,7 @@ wifi_radio_deinit
 ```
 
 ### **reset:**
-Reset the device
+Reset the device.
 
 **Syntax:**
 ```perl
@@ -153,7 +153,7 @@ reset
 
 
 
- **Here are List of those commands:**
+ **Here is a list of those commands:**
 
 1. help
 2. wifi_init
@@ -191,27 +191,31 @@ reset
 
     And so on...
 
-### Below are the examples of the commands on how to enter those commands in the Serial Debug Assistant
+### Below are examples of how to enter those commands in the Serial Debug Assistant.
 
-- **help Command:-** 
- **![Help_command](resources/readme/Ready.PNG)**
+- **help Command:** 
+ 
+ 
+  **![Help_command](resources/readme/Ready.PNG)**
 
-- After issuing the **help** command in serial Debug assistant it will display all the commands of the CLI demo on the Serial Debug screen as shown in the below image.
-**![Prints](resources/readme/CLI_help.PNG)**
+- After issuing the **help** command in the Serial Debug Assistant, the Assistang will display all the commands of the CLI demo on the Serial Debug screen as shown in the image below.
 
 
-## Wi-Fi CLI examples:
+  **![Prints](resources/readme/CLI_help.PNG)**
+
+
+## Wi-Fi CLI Examples:
 
 1. [Transmit & Receive Test commands for Wi-Fi (WLAN RF test - Tx & Rx)](#below-are-the-commands-to-run-the-rf-test-example)
 2. [Station mode and Power save mode example](#below-are-the-cli-commands-for-the-siwg917-for-station-mode-in-power-save)
-3. [Access point Mode](#below-are-the-cli-commands-for-the-siwg917-in-access-point-mode)
+3. [Access Point Mode](#below-are-the-cli-commands-for-the-siwg917-in-access-point-mode)
 4. [Concurrent Mode - Access point+Station mode](#below-are-the-cli-commands-for-the-siwg917-in-concurrent-mode)
 5. [Station ping](#below-are-the-cli-commands-for-connecting-to-the-access-point--router-and-pinging-the-gateway)
 6. [Calibration - Gain offset correction](#steps--commands-to-run-the-gain-offset-correction)
 7. [Calibration - Frequency offset correction](#commands-to-run-the-frequency-offset-correction)
 
 
-### **Below are the Commands to run the RF test example.**
+### **Below are the commands to run the RF test example.**
 
 - **Transmit Test Commands for Wi-Fi**
 ![Tx Commands](resources/readme/tx_commands.png)
@@ -229,12 +233,12 @@ By default antenna type should be set to 0.
 
     e.g., wifi_transmit_test_start 127 0 100 1 1.
 
-- For Wi-Fi 6 or 802.11ax mode RF test, issue the below command. 
+- For Wi-Fi 6 or 802.11ax mode RF test, issue the following command. 
 4. wifi_ax_transmit_test_start **power** **data rate** **length** **mode** **channel** **aggr.enable** **enable_11ax** **coding_type** **nominal_pe** **ul_dl** **he_ppdu_type** **beam_change** **bw** **stbc** **tx_bf** **gi_ltf** **dcm** **nsts_midamble** **spatial_reuse** **bss_color** **he_siga2_reserved** **ru_allocation** **n_heltf_tot** **sigb_dcm** **sigb_mcs** **user_sta_id** **user_idx** **sigb_compression_field**
 
     e.g., wifi_ax_transmit_test_start 127 263 1500 0 1 1 1 0 2 1 0 0 0 0 0 0 0 0 0 0 0 192 1 0 0 0 0 0
 
-  **power**: Set transmit power in dbm. Valid values are from 2dBm to 21dBm.
+  **power**: Set transmit power in dbm. Valid values are from 2 dBm to 21 dBm.
 
   **data rate**: Set transmit data rate
 
@@ -247,13 +251,14 @@ The values for the data rates can be obtained from the **sl_wifi_constants.h** f
 [24 ... 260] bytes in continuous mode
 
 **mode**: Transmit mode
+
 **![Tx modes](resources/readme/tx_modes.png)**
 
 **Note**:
 
-**Burst Mode**
-DUT transmits a burst of packets with the given power, rate, length in the channel configured. The burst size will be 
-determined by the **length** parameter, if it the **length** parameter is zero, then DUT keeps transmitting till 
+**Burst Mode**:
+DUT transmits a burst of packets with the given power, rate, and length in the channel configured. The burst size will be 
+determined by the **length** parameter. If the **length** parameter is zero, then DUT keeps transmitting till 
 stop API is called.
 
 **Continuous Mode**:
@@ -264,22 +269,22 @@ The DUT transmits a spectrum only at the center frequency of the channel. A basi
 wave and is usually referred to as a continuous wave (CW) signal. A basic signal source produces sine waves. Ideally, the 
 sine wave is perfect. In the frequency domain, it is viewed as a single line at some specified frequency.
 
-**Continuous Wave Mode (Non-Modulation) in Single Tone Mode (Center frequency -2.5 MHz)**:
+**Continuous Wave Mode (Non-Modulation) in Single Tone Mode (Center Frequency -2.5 MHz)**:
 The DUT transmits a spectrum that is generated at -2.5 MHz from the center frequency of the channel selected. Some amount 
 of carrier leakage will be seen at Center Frequency.
-For example, for 2412 MHz the output will be seen at 2409.5 MHz.
+For example, for 2412 MHz, the output will be seen at 2409.5 MHz.
 
-**Continuous Wave Mode (Non-Modulation) in Single Tone Mode (Center frequency +5 MHz)**:
+**Continuous Wave Mode (Non-Modulation) in Single Tone Mode (Center Frequency +5 MHz)**:
 The DUT transmits a spectrum that is generated at 5 MHz from the center frequency of the channel selected. Some amount of 
 carrier leakage will be seen at Center Frequency.
-For example, for 2412 MHz the output will be seen at 2417 MHz. 
+For example, for 2412 MHz, the output will be seen at 2417 MHz. 
 
 >**Note**
 >
->1. Before starting CW mode, it is required to start Continuous mode with >power and channel values which is intended to be used 
+>1. Before starting CW mode, it is required to start Continuous mode with power and channel values, which are intended to be used 
 >in CW mode as follows:
 >
->    a. Start Continuous mode with intended power value and channel value; >pass any valid values for rate and length.
+>    a. Start Continuous mode with intended power value and channel value; pass any valid values for rate and length.
 >
 >    b. Stop Continuous mode.
 >
@@ -287,21 +292,22 @@ For example, for 2412 MHz the output will be seen at 2417 MHz.
 >
 >2. To switch CW mode, stop PER mode and then give CW mode.
 >
->3. Generally, it is recommended to measure the TX power with “Burst mode” >or “Continuous mode” only. "Continuous wave 
->mode" for TX power measurement is not recommended. "Continuous wave mode" >can be used for certification purposes and 
+>3. Generally, it is recommended to measure the TX power with “Burst mode” or “Continuous mode” only. "Continuous wave 
+>mode" for TX power measurement is not recommended. "Continuous wave mode" can be used for certification purposes and 
 >to measure the frequency error. 
 >
 >    **channel**: Set the Channel number.
 
-- The wifi 6 parameter descriptions are mentioned in the [sl_si91x_protocol_types.h](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-driver/sl-si91x-request-tx-test-info-t) file of the SDK.
+- The Wi-Fi 6 parameter descriptions are mentioned in the [sl_si91x_protocol_types.h](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-driver/sl-si91x-request-tx-test-info-t) file of the SDK.
 >
 >5. **wifi_transmit_test_stop** is used for stopping the Transmit test.
 
-**Note**: The current CLI supports input parameters upto 30 parameters, if the user wants to increase the inputs parameters then it can configured in the settings of the CLI application --> Properties> GNU ARM C compiler -> preprocessor -->  SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT=30 as shown in below image.
+**Note**: The current CLI supports input parameters up to 30 parameters. If you want to increase the input parameters, configure these in the settings of the CLI application --> Properties> GNU ARM C compiler -> preprocessor -->  SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT=30 as shown in the image below.
 
 **![Max_arg_count](resources/readme/max_arg.PNG)**
 
-- Configure below parameter in **wifi_commands.c** to enable AGGREGATION support
+- Configure the following parameter in **wifi_commands.c** to enable AGGREGATION support: 
+
   .feature_bit_map = SL_SI91X_FEAT_AGGREGATION
 
 **Additional sample commands for Wi-Fi 6 RF Test**
@@ -316,16 +322,16 @@ For example, for 2412 MHz the output will be seen at 2417 MHz.
   | TB PPDU 2x HE-LTF + 1.6us nDCM   | TB PPDUDU |   2x        |  1.6us |  nDCM        | 26Tone      |   RU8         |     7          | MCS6     |  1500   | wifi_ax_transmit_test_start 10 262 1500 0 1 1 0 2 1 2 0 0 0 0 1 0 0 0 0 0 7 1 0 0 0 7 0
   | TB PPDU 2x HE-LTF + 1.6us nDCM   | TB PPDUDU |   2x        |  1.6us |  nDCM        | 26Tone      |   RU9         |     8          | MCS6     |  1500   | wifi_ax_transmit_test_start 10 262 1500 0 1 1 0 2 1 2 0 0 0 0 1 0 0 0 0 0 8 1 0 0 0 8 0
 
-**Receive test Commands**
+**Receive test commands**
 
 **NOTE**:
-    Receive stats testing should be done in a controlled environment (RF shield box or chamber).
+    Run receive stats testing in a controlled environment (RF shield box or chamber).
 **![Rx_commands](resources/readme/CLI_PER_Rx.PNG)**
 **![Rx_stats](resources/readme/PER_Rx.PNG)**
 
 **Receive Test Commands for the CLI**:
 
-1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode.
+1. wifi_init -i **mode** for initializing the Wi-Fi interface and for selecting the mode.
 
     e.g., wifi_init -i transmit_test
 
@@ -344,26 +350,26 @@ By default antenna type should be set to 0.
 
 ### **Below are the CLI commands for the SiWG917 for station mode in Power save:**
 
-- Below are the commands for station mode:-
+- Below are the commands for station mode:
 **![Prints](resources/readme/station.PNG)**
 
-- Below are the commands for the SiWG917 in power save mode:-
+- Below are the commands for the SiWG917 in power save mode:
 **![Prints](resources/readme/powersave.PNG)**
 **Note:** In the CLI power save mode, only TA will be in power save mode. 
 
-1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode.
+1. wifi_init -i **mode** for initializing the Wi-Fi interface and for selecting the mode.
 
    e.g., wifi_init -i client
 
-2. wifi_scan -s **SSID** or wifi_scan for scanning an Access point with the SSID mentioned in the command.
+2. wifi_scan -s **SSID** or wifi_scan for scanning an access point with the SSID mentioned in the command.
 Or
-scan all the Access points available in the vicinity respectively.  
+scan all the access points available in the vicinity respectively.  
 
    e.g., wifi_scan -s **SILABS** or wifi_scan
 
 
    
-3. wifi_connect **SSID** -p **PASSWORD** for connecting/joining to the configured Access Point.
+3. wifi_connect **SSID** -p **PASSWORD** for connecting/joining to the configured access point.
 
    e.g., wifi_connect SILABS -p 12345678
 
@@ -382,22 +388,22 @@ and throughput is maximum.
 **power_save** - Power save mode when SiWG917 is associated 
 with an access point. It is associated power save.
 
-**standby_power_save** - The SiWG917 is not associated with an access point, RAM is not retained in this mode.
+**standby_power_save** - The SiWG917 is not associated with an access point. RAM is not retained in this mode.
 
-**standby_power_save_with_ram_retention** - The SiWG917 is not associated with an access point, ram is retained in this mode.
+**standby_power_save_with_ram_retention** - The SiWG917 is not associated with an access point. RAM is retained in this mode.
 
-**power_save_low_latency** - Power save mode when the SiWG917 is associated with an access point, with higher 
+**power_save_low_latency** - Power save mode when the SiWG917 is associated with an access point with higher 
 throughput than ASSOCIATED_POWER_SAVE. This is not supported 
 for BT/BLE.
 
 
 
-### **Below are the CLI commands for the SiWG917 in Access point mode:**
+### **Below are the CLI commands for the SiWG917 in Access Point mode:**
 
-- Below are the commands for the SiWG917 in Access point mode:-
+- Below are the commands for the SiWG917 in Access Point mode:
 **![Prints](resources/readme/AP_mode.png)**
 
-1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode.
+1. wifi_init -i **mode** for initializing the Wi-Fi interface and for selecting the mode.
 
    e.g., wifi_init -i ap
 
@@ -405,7 +411,7 @@ for BT/BLE.
   
     e.g., wifi_start_ap -a SILABS_AP -b wpa2 -c ccmp -d 9 -l 4 -n 100
 
-3. wifi_get_client_info for getting the Mac address and IP address of the clients that is connected to the Access point(SiG917).
+3. wifi_get_client_info for getting the Mac address and IP address of the clients that is connected to the access point (SiG917).
   
     e.g., wifi_get_client_info
 
@@ -423,7 +429,7 @@ for BT/BLE.
 
 
 
-1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode.
+1. wifi_init -i **mode** for initializing the Wi-Fi interface and for selecting the mode.
 
    e.g., wifi_init -i apsta
 
@@ -431,13 +437,13 @@ for BT/BLE.
   
     e.g., wifi_start_ap -a SILABS_AP -b wpa2 -c ccmp -d 9 -l 4 -n 100
 
-3. wifi_scan -s **SSID** or wifi_scan for scanning an Access point with the SSID mentioned in the command.
+3. wifi_scan -s **SSID** or wifi_scan for scanning an access point with the SSID mentioned in the command.
 Or
-scan all the Access points available in the vicinity respectively.  
+scan all the access points available in the vicinity respectively.  
 
    e.g., wifi_scan -s **SILABS** or wifi_scan
 
-4. wifi_connect **SSID** -p **PASSWORD** for connecting/joining to the configured Access Point.
+4. wifi_connect **SSID** -p **PASSWORD** for connecting/joining to the configured access point.
 
    e.g., wifi_connect SILABS -p 12345678
 
@@ -446,12 +452,12 @@ scan all the Access points available in the vicinity respectively.
 
    e.g., start_dhcp -i ipv4 -m dhcp  
 
-**Note: Please make sure that the channel number of the Access point and the station mode are the same.** 
+**Note: Ensure that the channel number of the access point and the station mode are the same.** 
 
 
 
 
-### **Below are the CLI commands for connecting to the Access point / Router and pinging the gateway.**
+### **Below are the CLI commands for connecting to the access point / router and pinging the gateway.**
 
 **![Prints](resources/readme/ping_w.PNG)**
 
@@ -463,9 +469,9 @@ scan all the Access points available in the vicinity respectively.
 
 
 
-## Steps to create a CLI commands based on the application available in the release. 
+## Steps to create a CLI command based on the application available in the release. 
 
-**For example: If the user wants to create a CLI command for Station ping example.**
+**For example, if the user wants to create a CLI command for Station ping example:**
 
   Refer to the flow of the station ping example available in the release/SDK. 
 
@@ -477,25 +483,25 @@ scan all the Access points available in the vicinity respectively.
 
   d. ping to the gateway address. 
 
-### **Below are the CLI commands for Calibration.**
+### **Below are the CLI commands for calibration.**
 
 **Calibration write**
  
  si91x_calibration_write **flags** **gain_offset_low** **gain_offset_mid** **gain_offset_high** -c **xo_ctune** -t **target**
 
-### Steps & Commands to run the Gain offset correction
+### Steps/commands to run the Gain offset correction
 1. Initialize --->  wifi_init -i transmit_test
 2. Antenna command ---> wifi_set_antenna -i client -a 0
 3. Transmit test command ---> wifi_transmit_test_start 18 0 100 0 1
 4. Si91x_calibration_write command ---> si91x_calibration_write 16 10 0 0 -c 0 -t 1
-5. reset the board
+5. Reset the board
 6. Issue the initialization command again ---> wifi_init -i transmit_test
 7. Antenna command ---> wifi_set_antenna -i client -a 0
 8. Transmit test command ---> wifi_transmit_test_start 18 0 100 0 1
 
 
 
- ## **Frequency offset**
+ ## **Frequency Offset**
 
 ### **Commands to run the Frequency offset correction**
 
@@ -508,7 +514,7 @@ scan all the Access points available in the vicinity respectively.
 4. si91x_frequency_offset 70
 5. si91x_calibration_write 2 0 0 0 -t 1
 
-**Note**: -t parameter is the target for efuse or flash, 0 represents burn into efuse and 1 represents burn into flash. 
+**Note**: -t parameter is the target for efuse or flash, 0 represents burn into efuse, and 1 represents burn into flash. 
 
  **Steps/commands to run the calibration example**
 
@@ -516,17 +522,17 @@ scan all the Access points available in the vicinity respectively.
  2. Antenna command
  3. Transmit test command
  4. Si91x_calibration_write command
- 5. reset the board
+ 5. Reset the board
  6. Issue the initialisation command again
  7. Antenna command
- 8. Transmit test command. 
+ 8. Transmit test command 
 
 The change in the Transmit power will be observed on the display of the spectrum analyzer. 
 
-Below is the link for the [calibration application note](https://www.silabs.com/documents/public/application-notes/an1436-siwx917-qms-crystal-calibration-application-note.pdf)
+Refer to the [calibration application note](https://www.silabs.com/documents/public/application-notes/an1436-siwx917-qms-crystal-calibration-application-note.pdf) for more information.
 
 
-**Here are the few examples for the si91x_calibration_write in channel 1, 6 and 11.** 
+**Here are the few examples for the si91x_calibration_write in channel 1, 6, and 11.** 
 
 **For channel 1**
 
@@ -538,7 +544,7 @@ The above command will increase the Transmit power to 2 dBm in channel 1. The se
 
 si91x_calibration_write 32 4 0 0 -c 0 -t 1
 
-The above command will decrease the Transmit power to 2 dBm in channel 6. . 
+The above command will decrease the Transmit power to 2 dBm in channel 6.  
 
 **For channel 11**
 
@@ -546,10 +552,10 @@ si91x_calibration_write 64 0 0 -2 -c 0 -t 1
 
 The above command will increase the Transmit power to 1 dBm in channel 11.
 
-**Note:** For updating the gain table, The user can configure the gain_table_payload[] of sl_wifi_update_gain_table_command_handler in wifi_command.c file.
+**Note:** To update the gain table, configure the gain_table_payload[] of sl_wifi_update_gain_table_command_handler in wifi_command.c file.
 
-**Note:** For changing the UART instance of the CLI_demo example refer to the VCOM section of the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
-The changes needs to be done in rsi_debug.c file and RTE_Device_917.h file 
+**Note:** For changing the UART instance of the CLI_demo example, refer to the VCOM section of the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+The changes needs to be configured in rsi_debug.c file and RTE_Device_917.h file. 
 
 
 # **CLI Commands for BLE**
@@ -584,11 +590,11 @@ ble_per_transmit <enable> <pkt_len> <phy_rate> <channel> <tx_power> <transmit_mo
 |*tx_power*      |Power index                                                                                |
 |*transmit_mode* |0 → Burst, 1 → Continuous stream, 2 → Continuous Wave (CW)                                 |
 |*ant_sel*       |Optional, 2 → ONBOARD_ANT_SEL, 3 → EXT_ANT_SEL (Default)                                   |
-|*inter_pkt_gap* |Optional, Number of 1250 us slots to be skipped between two packets (Default 0)            |                               |
-|*rf_chain*      |Optional, RF Chain (HP/LP) to be used: 2 → BT_HP_CHAIN (Default), 3 → BT_LP_CHAIN.         |
-|*num_pkts*      |Optional, Number of packets to be transmitted, Use 0 (Default) for continuous transmission |
-|*scrambler_seed*|Optional, Initial seed to be used for whitening, Use 5 for the continuous mode|
-|payload_type    | Optional, Type of payload data sequence, Refer to the "https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-ble/rsi-ble-per-transmit-s#payload-type" |
+|*inter_pkt_gap* |Optional. Number of 1250 us slots to be skipped between two packets (Default 0)            |                               |
+|*rf_chain*      |Optional. RF Chain (HP/LP) to be used: 2 → BT_HP_CHAIN (Default), 3 → BT_LP_CHAIN.         |
+|*num_pkts*      |Optional. Number of packets to be transmitted. Use 0 (Default) for continuous transmission |
+|*scrambler_seed*|Optional. Initial seed to be used for whitening. Use 5 for the continuous mode|
+|payload_type    | Optional. Type of payload data sequence. Refer to the "https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-ble/rsi-ble-per-transmit-s#payload-type" |
 
 **Example:**
 >```perl
@@ -607,7 +613,7 @@ ble_per_receive <enable> <phy_rate> <channel> [-a <ant_sel>] [-c <rf_chain>]
 |Parameter       |Description                                                                                |
 |----------------|-------------------------------------------------------------------------------------------|
 |*enable*        |Enable/disable BLE per RX, 1 → PER Receive Enable, 0 → PER Receive Disable.              |
-|*phy_rate*      |1 → 1Mbps, 2 → 2 Mbps, 4 → 125 Kbps Coded, 8 → 500 Kbps Coded.                             |
+|*phy_rate*      |1 → 1 Mbps, 2 → 2 Mbps, 4 → 125 Kbps Coded, 8 → 500 Kbps Coded.                             |
 |*channel*       |BLE channel                                                                                |
 |*ant_sel*       |Optional, 2 → ONBOARD_ANT_SEL, 3 → EXT_ANT_SEL (Default)                                   |
 |*rf_chain*      |Optional, RF Chain (HP/LP) to be used: 2 → BT_HP_CHAIN (Default), 3 → BT_LP_CHAIN.         |
@@ -616,7 +622,7 @@ ble_per_receive <enable> <phy_rate> <channel> [-a <ant_sel>] [-c <rf_chain>]
 >```
 
 ### **bt_per_stats**
-Read BLE transmit & receive statistics
+Read BLE transmit and receive statistics
 
 **Syntax:**
 ```perl
@@ -770,7 +776,7 @@ ble_user_gain_max_power_offset
 
 ### **ble_user_gain_lp_chain_0dBm_offset**
 
-Set the Max power offsets of the user gain table for 0dBm in LP chain
+Set the Max power offsets of the user gain table for 0 dBm in LP chain
 
 **Syntax:**
 ```perl
@@ -783,7 +789,7 @@ ble_user_gain_lp_chain_0dBm_offset
 
 ### **ble_user_gain_table_lp_chain_8dBm_offset**
 
-Set the Max power offsets of the user gain table for 8dBm in LP chain
+Set the Max power offsets of the user gain table for 8 dBm in LP chain
 
 **Syntax:**
 ```perl
@@ -806,7 +812,7 @@ Used to configure the SiWx917 device as a Peripheral device.
 
 ### **bt_set_local_name**
 
-Set local name "SL_CLI_DEMO" to the device.
+Set local name "SL_CLI_DEMO" to the device
 
 **Syntax:**
 ```perl
@@ -819,7 +825,7 @@ bt_set_local_name
 
 ### **bt_get_local_device_address**
 
-Get the local device address.
+Get the local device address
 
 **Syntax:**
 ```perl
@@ -832,7 +838,7 @@ bt_get_local_device_address
 
 ### **bt_get_local_name**
 
-Set the Advertise data.
+Set the Advertise data
 
 **Syntax:**
 ```perl
@@ -845,7 +851,7 @@ bt_get_local_name
 
 ### **ble_set_advertise_data**
 
-Get the local device name.
+Get the local device name
 
 **Syntax:**
 ```perl
@@ -887,7 +893,7 @@ ble_stop_advertising
 
 ## BLE PER TX
 
-1. Init BLE mode:
+1. Init BLE mode
 >```perl
 >wifi_init -i ble
 >```
@@ -906,7 +912,7 @@ ble_stop_advertising
 
 ## BLE PER RX
 
-1. Init BLE mode:
+1. Init BLE mode
 >```perl
 >wifi_init -i ble
 >```
@@ -916,12 +922,12 @@ ble_stop_advertising
 >set_region_configuration -a client world
 >```
 
-3. Enable PER RX mode with 1 Mbps PHY at channel 10:
+3. Enable PER RX mode with 1 Mbps PHY at channel 10
 >```perl
 >ble_per_receive 1 1 10
 >```
 
-4. Read PER statistics:
+4. Read PER statistics
 >```perl
 >bt_per_stats
 >```
@@ -929,7 +935,7 @@ ble_stop_advertising
 
 ## BLE User Gain Table
 
-1. Init BLE mode:
+1. Init BLE mode
 >```perl
 >wifi_init -i ble
 >```
@@ -944,7 +950,7 @@ ble_stop_advertising
 >wifi_radio_deinit
 >```
 
-4. Max power setting specified by the Gain Table:
+4. Max power setting specified by the Gain Table
 >```perl
 >ble_user_gain_max_power FCC 9 ETSI 19 TELEC 19 WORLD_WIDE 13 KCC 9
 >ble_user_gain_max_power_offset
@@ -960,7 +966,7 @@ ble_stop_advertising
 
 ## BLE DTM TX
 
-1. Init BLE mode:
+1. Init BLE mode
 >```perl
 >wifi_init -i ble
 >```
@@ -978,7 +984,7 @@ ble_stop_advertising
 
 ## BLE DTM RX
 
-1. Init BLE mode:
+1. Init BLE mode
 >```perl
 >wifi_init -i ble
 >```
@@ -1001,7 +1007,7 @@ ble_stop_advertising
 **![BLE DTM RX](resources/readme/ble_dtm_rx.png)**
 
 ## BLE device advertising
-1. Init BLE mode:
+1. Init BLE mode
 >```perl
 >wifi_init -i ble
 >```
@@ -1048,26 +1054,28 @@ ble_stop_advertising
    - The ‘key’ is the name of new command to be created, and the value is the structure variable for the command.
      **![keyvalue](resources/readme/picture1.png)**
 	
-Here the new command is: *cli_demo_new_cmd*
+	- Here the new command is: *cli_demo_new_cmd*. 
 The structure variable for the newly created command is *_cli_demo_new_cmd_command*.
 
 2. The *_cli_demo_new_cmd_command* structure variable should be declared in the **console_commands/src/console_command_database.c** file with the following fields:
 
     **![cmdstructure](resources/readme/picture2.png)**
 
-**The description of the new command:-**
+**The description of the new command:**
 
 - The description of the new command is a string which explains briefly about the command.
 
-**The command handler for the new command:-**
+**The command handler for the new command:**
 
 - In the above figure, *cli_demo_new_cmd_command_handler* is the command handler which needs to be defined.
-- For any new command, we have to declare a function in **console_commands/src/console_command_database.c** file with a specific proptotype as shown below.
-*extern sl_status_t cli_demo_new_cmd_command_handler( console_args_t* arguments );*
+- For any new command, we have to declare a function in **console_commands/src/console_command_database.c** file with a specific proptotype as shown below:
+
+
+  *extern sl_status_t cli_demo_new_cmd_command_handler( console_args_t* arguments );*
 
 - The function name can be anything, but the return type and argument must be as shown above.
 
-**The string array for argument description of the command handler:-**
+**The string array for argument description of the command handler:**
 
 - In the above figure, *_cli_demo_new_cmd_arg_help* is the string array which needs to be defined.
 - We need to define a string array in **console_commands/src/console_command_database.c** file which briefly explains about the arguments in the command handler. The declaration is as shown below.
@@ -1080,20 +1088,32 @@ We have given the description for all three strings as 0.
 
 - Referring to the *_cli_demo_new_cmd_command* structure variable image, { CONSOLE_OPTIONAL_ARG('s', CONSOLE_ARG_STRING ), CONSOLE_ARG_UINT, CONSOLE_ARG_INT, CONSOLE_ARG_END } }  are the list of datatypes corresponding to the list of arguments.
 - The data types CONSOLE_ARG_UINT corresponds to ‘uint’ , CONSOLE_ARG_INT corresponds to ‘int’, and CONSOLE_ARG_STRING corresponds to ‘string’. The list of arguments must end with CONSOLE_ARG_END.
-- The arguments can be mandatory or optional. The mandatory arguments are given directly, but optional arguments are given using an expression, CONSOLE_OPTIONAL_ARG(‘character’, datatype). The ‘character’ is an alphabet which is the user's choice and can be used to give an optional argument in a cli command. The datatype can be anything mentioned above.
+- The arguments can be mandatory or optional. The mandatory arguments are given directly, but optional arguments are given using an expression, CONSOLE_OPTIONAL_ARG (‘character’, datatype). The ‘character’ is an alphabet which is the user's choice and can be used to give an optional argument in a cli command. The datatype can be anything mentioned above.
 - In addition to standard data type arguments like uint, int, and string, there can be enums which can also be passed as arguments to a command. The arguments we need to pass in a command depend on what APIs we call in a command handler.  
-- For some of the wifi APIs we call inside a command handler, we may need to use the argument values as specified in the *console_argument_values* variable defined in **console_commands/src/console_argument_types.c** file. For passing those values in a cli command, we need to look for the corresponding argument types defined in the same file.
-For example:
-We may want to pass a data rate as *SL_WIFI_RATE_11B_1* enum value in a cli command, the corresponding uint32 array is mapped to *[CONSOLE_TYPE(data_rate)]*. We need to search for *data_rate_type* string array in the same file as shown below:
-The string corresponding to *SL_WIFI_RATE_11B_1* is "1Mbps". So *1Mbps* should be passed as an argument in the cli command.
+- For some of the Wi-Fi APIs, we call inside a command handler. We may need to use the argument values as specified in the *console_argument_values* variable defined in **console_commands/src/console_argument_types.c** file. For passing those values in a CLI command, we need to look for the corresponding argument types defined in the same file.
+For example, we may want to pass a data rate as *SL_WIFI_RATE_11B_1* enum value in a CLI command. The corresponding uint32 array is mapped to *[CONSOLE_TYPE(data_rate)]*. We need to search for *data_rate_type* string array in the same file as shown below. 
+The string corresponding to *SL_WIFI_RATE_11B_1* is "1Mbps". So *1Mbps* should be passed as an argument in the CLI command.
 In the command handler, the arguments passed in the cli command are internally mapped to corresponding enum values and can be accessed directly using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG().
-**![cmdhandler](resources/readme/picture8.png)**
-**![cmdhandler](resources/readme/picture9.png)**
-**![cmdhandler](resources/readme/picture10.png)**
+
+
+  **![cmdhandler](resources/readme/picture8.png)**
+
+
+  **![cmdhandler](resources/readme/picture9.png)**
+
+
+  **![cmdhandler](resources/readme/picture10.png)**
+
 
 - So, the overall changes we need to make in  **console_commands/src/console_command_database.c** file is as shown below:
-**![cmdhandler](resources/readme/picture5.png)**
-- So, the cli command that can be used with the above changes is *cli_demo_new_cmd -s Optional_String 1 2*.
+
+
+  **![cmdhandler](resources/readme/picture5.png)**
+  
+  
+- So, the CLI command that can be used with the above changes is *cli_demo_new_cmd -s Optional_String 1 2*.
 
 3. The command handler should be defined in a relevant file as shown below. The arguments can be accessed directly or by using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG() as shown below. 
+
+
 **![cmdhandler](resources/readme/picture6.png)**

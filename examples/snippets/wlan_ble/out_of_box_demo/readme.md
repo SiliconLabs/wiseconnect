@@ -84,7 +84,7 @@ To view the application prints on the console, refer [here](https://docs.silabs.
     ![OOB initialization screen v1.0](resources/readme/status_lcd1_v1_0.png)
 
     > Note:
-    > Dev Kit(BRD2605A) and Explorer Kits(BRD2708A) do not support display functionality.
+    > The Dev Kit (BRD2605A) and Explorer Kit (BRD2708A) do not support display functionality.
 
     It implies that an older version of OOB demo binary (older than v2.0) is running on the SiWG917 board. 
     
@@ -163,32 +163,33 @@ To view the application prints on the console, refer [here](https://docs.silabs.
 
 - NWP (network processor of SiWG917) enters connected sleep.  
 
-- To connect to a working MQTT broker and update the mqtt_hostname in the wifi_app.c file, follow these steps:
+- To connect to a working MQTT broker and update the mqtt_hostname in the `wifi_app.c` file, follow these steps:
 
-# Update MQTT Hostname in wifi_app.c
-- By default, the mqtt_hostname in the wifi_app.c file is set to "test.mosquitto.org".
-    ```c
-    char *mqtt_hostname = "test.mosquitto.org";     
-    ```
-- If you're using a different MQTT broker, replace "test.mosquitto.org" with the appropriate hostname.
+### Update MQTT Hostname in wifi_app.c
+
+- By default, the mqtt_hostname in the `wifi_app.c` file is set to "test.mosquitto.org".
+  
+  ```c
+  char *mqtt_hostname = "test.mosquitto.org";     
+  ```
+
+- If you are using a different MQTT broker, replace "test.mosquitto.org" with the appropriate hostname.
 
 - To check if the MQTT broker is working, you can use the online MQTT client available at the below link.
 
-
-**NOTE :**
-
-> If the default MQTT broker link is not working, you can try using other MQTT brokers listed on the webpage. For   instance, if "test.mosquitto.org" is not functioning, you can use "broker.mqtt.cool" as an alternative. Please follow the steps mentioned above to update the MQTT hostname.
-
+  >**NOTE :**
+  >
+  > If the default MQTT broker link is not working, you can try using other MQTT brokers listed on the webpage. For example, if "test.mosquitto.org" is not functioning, you can use "broker.mqtt.cool" as an alternative. Follow the steps mentioned above to update the MQTT hostname.
 
 - Go to the browser and open the [online mqtt client](https://testclient-cloud.mqtt.cool/).
 
   ![MQTT test client image-1](resources/readme/MQTT_testclient1.png)
 
-- Click on the dropdown option and select 'tcp://test.mosquitto.org:1883'
+- Click on the dropdown option and select 'tcp://test.mosquitto.org:1883'.
 
   ![MQTT test client image-2](resources/readme/MQTT_testclient2.png)
 
-- Click on "connect" to connect to the mosquitto broker
+- Click on "connect" to connect to the mosquitto broker.
 
   ![MQTT test client image-3](resources/readme/MQTT_testclient3.png)
 

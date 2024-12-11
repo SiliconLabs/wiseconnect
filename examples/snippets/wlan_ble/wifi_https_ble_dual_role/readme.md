@@ -70,8 +70,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 - [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -242,7 +242,7 @@ The application can be configured to suit your requirements and development envi
 
   - Configure below macros to set connection interval, connection latency and connection supervision timeout.
 
-    - Below configuration is for connection interval of 45ms, latency 0 and timeout as 400ms
+    - Below configuration is for connection interval of 45ms, latency 0 and timeout as 400ms.
 
       ```c
       #define CONN_INTERVAL_XX            36
@@ -286,7 +286,7 @@ The application can be configured to suit your requirements and development envi
     > **Note:** BY default, when 'HTTPS_DOWNLOAD' is set, SSL and LOAD_CERTIFICATE will be set to '1' as it is required for HTTPS download.
 
 > Note: 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
 
 - Build the application
 

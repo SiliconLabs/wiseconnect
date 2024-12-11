@@ -336,7 +336,7 @@ __STATIC_INLINE void sl_si91x_efuse_disable(void)
 * @section eFuse_Intro Introduction
 *
 * Electrically programmable fuses or eFuses are one-time programmable memory elements 
-* used to store configuration or data in integrated circuits (ICs).
+* used to store configuration or data in Integrated Circuits (ICs).
 * eFuses use 32-bit addressing with each address holding 8 bits of data.
 * The eFuse controller is used to program and read these bits.
 * @li Once information is programmed into an eFuse, it is typically irreversible.

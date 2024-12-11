@@ -29,7 +29,7 @@
 
 #pragma once
 
-// Define default region-specific configurations for 2.4GHz and 5GHz bands
+// Define default region-specific configurations for 2.4 GHz and 5 GHz bands
 const sl_si91x_set_region_ap_request_t default_US_region_2_4GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "US ",
@@ -48,7 +48,7 @@ const sl_si91x_set_region_ap_request_t default_US_region_5GHZ_configurations = {
   .channel_info[4]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 29 }
 };
 
-// Define default configurations for the European region for 2.4GHz and 5GHz bands
+// Define default configurations for the European region for 2.4 GHz and 5 GHz bands
 const sl_si91x_set_region_ap_request_t default_EU_region_2_4GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "EU ",
@@ -65,7 +65,7 @@ const sl_si91x_set_region_ap_request_t default_EU_region_5GHZ_configurations = {
   .channel_info[2]               = { .first_channel = 100, .no_of_channels = 11, .max_tx_power = 30 }
 };
 
-// Define default configurations for the Japanese region for 2.4GHz and 5GHz bands
+// Define default configurations for the Japanese region for 2.4 GHz and 5 GHz bands
 const sl_si91x_set_region_ap_request_t default_JP_region_2_4GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "JP ",
@@ -82,7 +82,7 @@ const sl_si91x_set_region_ap_request_t default_JP_region_5GHZ_configurations = {
   .channel_info[2]               = { .first_channel = 100, .no_of_channels = 11, .max_tx_power = 30 }
 };
 
-// Define default configurations for the Korean region for 2.4GHz and 5GHz bands
+// Define default configurations for the Korean region for 2.4 GHz and 5 GHz bands
 const sl_si91x_set_region_ap_request_t default_KR_region_2_4GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "KR ",
@@ -100,7 +100,7 @@ const sl_si91x_set_region_ap_request_t default_KR_region_5GHZ_configurations = {
   .channel_info[3]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 23 }
 };
 
-// Define default configurations for the Singapore region for 2.4GHz and 5GHz bands
+// Define default configurations for the Singapore region for 2.4 GHz and 5 GHz bands
 const sl_si91x_set_region_ap_request_t default_SG_region_2_4GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "SG ",
@@ -119,7 +119,7 @@ const sl_si91x_set_region_ap_request_t default_SG_region_5GHZ_configurations = {
   .channel_info[4]               = { .first_channel = 149, .no_of_channels = 4, .max_tx_power = 29 }
 };
 
-// Define default configurations for the China region for 2.4GHz and 5GHz bands
+// Define default configurations for the China region for 2.4 GHz and 5 GHz bands
 const sl_si91x_set_region_ap_request_t default_CN_region_2_4GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "CN ",

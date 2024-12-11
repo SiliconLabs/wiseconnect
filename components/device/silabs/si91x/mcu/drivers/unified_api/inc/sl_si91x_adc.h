@@ -141,8 +141,8 @@ typedef enum {
 typedef struct {
   uint16_t threshold1;      ///< Threshold 1 value.
   uint16_t threshold2;      ///< Threshold 2 value.
-  uint8_t *threshold1_cond; ///< Condition for Threshold 1 (e.g., Equal, Greater, Lesser).
-  uint8_t *threshold2_cond; ///< Condition for Threshold 2 (e.g., Equal, Greater, Lesser).
+  uint8_t *threshold1_cond; ///< Condition for Threshold 1 (for example, Equal, Greater, Lesser).
+  uint8_t *threshold2_cond; ///< Condition for Threshold 2 (for example, Equal, Greater, Lesser).
   uint8_t range;            ///< Range of the threshold.
 } sl_adc_threshold_config_t;
 
@@ -183,8 +183,8 @@ typedef struct {
  * values in the clock configuration structure.
  * 
  * @details This API configures the ADC clock. The ADC clock configurations include:
- *         - `soc_pll_clock` (Frequency range from 1 MHz to 180 MHz)
- *         - `soc_pll_reference_clock` (Frequency range from 15 MHz to 65 MHz)
+ *         - `soc_pll_clock` (Frequency range from 1 to 180 MHz)
+ *         - `soc_pll_reference_clock` (Frequency range from 15 to 65 MHz)
  *         - `division_factor` (0 to 1023)
  * 
  * @param[in] clock_configuration Pointer to the clock structure variables ( \ref sl_adc_clock_config_t)
@@ -216,7 +216,7 @@ sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configurat
  * 
  * @param[in] adc_channel_config ADC channels configuration structure variable, see \ref sl_adc_channel_config_t.
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
- * @param[in] vref_value Reference voltage (range from 1.8V to 3.6V).
+ * @param[in] vref_value Reference voltage (range from 1.8 to 3.6 V).
  * 
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Successfully initialized the ADC.

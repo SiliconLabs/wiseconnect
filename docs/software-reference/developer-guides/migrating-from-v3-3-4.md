@@ -8,6 +8,8 @@
   - [Update Files](#update-files)
   - [Update Macros](#update-macros)
   - [Deprecated Macros](#deprecated-macros)
+  - [Updated Default Clock Values](#updated-default-clock-values)
+  - [Updated GPIO Driver](#updated-gpio-driver)
 
 ## Overview
 
@@ -59,7 +61,7 @@ Refer to the tables in each of the sections that follow which map the v3.3.4 API
 - Removed `sl_si91x_soc_soft_reset()` API references from the SDK
 
 - Starting from version WC-3.4.0 of the SDK, important changes have been made regarding the management of sockets within the APIs sl_wifi_deinit(), sl_wifi_disconnect(), and sl_wifi_stop_ap(), as well as in cases where the Device Under Test (DUT) station encounters rejoin failures.
-The SDK no longer automatically forcefully closes any open sockets in these situations. As a result, it is now the user or application's responsibility to ensure that sockets are properly closed. If this step is overlooked, the sockets will remain in a disconnected or open state, which could result in unintended behavior in the application.
+The SDK no longer automatically forcefully closes any open sockets in these situations. As a result, it is now the user's or application's responsibility to ensure that sockets are properly closed. If this step is overlooked, the sockets will remain in a disconnected or open state, which could result in unintended behavior in the application.
 
 
 ### Update Files
@@ -178,4 +180,39 @@ If the 32.768 kHz XTAL is not available on the custom board designed with SiWx91
 
 By following these steps, you can ensure a smooth transition to the new default clock configurations in WiSeConnect™ SDK v3.4.0, resulting in improved system stability and performance.
 
-Please refer ERRATA for more details
+Please refer [SiWG917 SoC Errata](https://www.silabs.com/documents/public/errata/siwg917-soc-ic-errata.pdf) and [SiWG917 SoC Module Errata](https://www.silabs.com/documents/public/errata/siwg917-soc-module-errata.pdf)  for more details.
+
+### Updated GPIO Driver
+
+As part of the migration from WiSeConnect™ SDK v3.3.4 to v3.4.0, we recommend using the GPIO driver instead of the GPIO peripheral code.
+
+**Prerequisite**
+
+The "GPIO" component must be installed in order to use the GPIO Driver APIs.
+
+**GPIO Application Usage**
+
+In GPIO low level peripheral driver, GPIO IRQ handlers were defined within the application code. However, in v3.4.0, these handlers are now handled by the GPIO Driver. Therefore, it is recommended not to define IRQ handlers in the application. Instead, you should register a callback function, which will be invoked by the GPIO IRQ handler from the driver.
+
+
+| **Module**                 | **v3.3.4**                     | **v3.4.0**                     |
+|----------------------------|--------------------------------|--------------------------------|
+| GPIO Interrupt Configuration  | sl_gpio_configure_interrupt(port, pin, int_no, flags);<br>NVIC_EnableIRQ(IRQn);<br>NVIC_SetPriority(IRQn, priority); | sl_gpio_driver_configure_interrupt(*gpio, int_no, flags, gpio_callback, *avl_intr_no)|
+| GPIO Interrupt Handler<br>(example for PIN0)  | PIN_IRQ0_Handler(void)  | Register Callback function using configure interrupt API<br>gpio_pin_interrupt0_callback(pin_intr)<br> (example callback function name)|
+|                            |                                |
+
+Please refer to the example applications that demonstrate the usage of the GPIO.
+
+  | **Demonstration**          | **Example**                    |
+  |----------------------------|--------------------------------|
+  | HP GPIO Usage              | sl_si91x_gpio_detailed_example |
+  | ULP GPIO Usage             | sl_si91x_gpio_ulp_example      |
+  | UULP GPIO Usage            | sl_si91x_gpio_uulp_example     |
+  | GPIO Interrupts Usage      | sl_si91x_gpio_example          |
+  | GPIO Goup Interrupts Usage | sl_si91x_gpio_group_example    |
+  |                            |                                |
+
+**Reason for Change**
+
+These improvements aim to simplify the use of GPIO APIs and enhance usability, particularly with regard to GPIO interrupts. 
+

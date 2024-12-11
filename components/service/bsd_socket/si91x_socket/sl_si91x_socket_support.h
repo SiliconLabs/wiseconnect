@@ -45,8 +45,8 @@
  * @brief Structure for query SiWx91x socket information.
  *
  * @details
- * The structure queries the information about a specific socket, in the SiWx91x series.
- * It includes details such as:socket identifier, type, source and destination ports,
+ * The structure queries the information about a specific socket in the SiWx91x series.
+ * It includes details such as: socket identifier, type, source and destination ports,
  * and the IP address of the remote host. The IP address can be either IPv4 or IPv6,
  * determined by the context structure which is used.
  */

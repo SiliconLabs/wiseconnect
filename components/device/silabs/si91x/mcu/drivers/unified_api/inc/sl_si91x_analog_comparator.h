@@ -55,12 +55,12 @@ extern "C" {
 #define SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0        0 ///< External GPIO input 0
 #define SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1        1 ///< External GPIO input 1
 #define SL_COMPARATOR_INPUT_FROM_DAC_OUTPUT        2 ///< Input from DAC output.
-#define SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT 3 ///< Input from reference buffer output.
-#define SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT 4 ///< Input from reference scaler output.
-#define SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT   5 ///< Input from resistor bank output.
-#define SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT     6 ///< Input from OPAMP1 output.
-#define SL_COMPARATOR_INPUT_FROM_OPAMP2_OUTPUT     7 ///< Input from OPAMP2 output.
-#define SL_COMPARATOR_INPUT_FROM_OPAMP3_OUTPUT     8 ///< Input from OPAMP3 output.
+#define SL_COMPARATOR_INPUT_FROM_REF_BUFFER_OUTPUT 3 ///< Input from reference buffer output
+#define SL_COMPARATOR_INPUT_FROM_REF_SCALER_OUTPUT 4 ///< Input from reference scaler output
+#define SL_COMPARATOR_INPUT_FROM_RES_BANK_OUTPUT   5 ///< Input from resistor bank output
+#define SL_COMPARATOR_INPUT_FROM_OPAMP1_OUTPUT     6 ///< Input from OPAMP1 output
+#define SL_COMPARATOR_INPUT_FROM_OPAMP2_OUTPUT     7 ///< Input from OPAMP2 output
+#define SL_COMPARATOR_INPUT_FROM_OPAMP3_OUTPUT     8 ///< Input from OPAMP3 output
 
 // Data Types
 /***************************************************************************/
@@ -114,41 +114,40 @@ typedef enum {
 /**
  * @brief Enumeration to represent BOD threshold values for resistor bank output.
  * 
- * @note Values of the enumerator are calculated using VBAT = 3.5066 volts and these values vary from board to board.
+ * @note Values of the enumerator are calculated using VBAT = 3.5066 V and these values vary from board to board.
  */
 typedef enum {
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_33_VOLT, ///< Threshold value to get 2.33V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_27_VOLT, ///< Threshold value to get 2.27V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_21_VOLT, ///< Threshold value to get 2.21V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_15_VOLT, ///< Threshold value to get 2.15V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_10_VOLT, ///< Threshold value to get 2.10V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_05_VOLT, ///< Threshold value to get 2.05V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_00_VOLT, ///< Threshold value to get 2.00V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_95_VOLT, ///< Threshold value to get 1.95V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_91_VOLT, ///< Threshold value to get 1.91V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_86_VOLT, ///< Threshold value to get 1.86V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_82_VOLT, ///< Threshold value to get 1.82V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_79_VOLT, ///< Threshold value to get 1.79V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_75_VOLT, ///< Threshold value to get 1.75V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_71_VOLT, ///< Threshold value to get 1.71V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_68_VOLT, ///< Threshold value to get 1.68V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_64_VOLT, ///< Threshold value to get 1.64V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_61_VOLT, ///< Threshold value to get 1.61V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_58_VOLT, ///< Threshold value to get 1.58V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_55_VOLT, ///< Threshold value to get 1.55V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_53_VOLT, ///< Threshold value to get 1.53V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_50_VOLT, ///< Threshold value to get 1.50V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_47_VOLT, ///< Threshold value to get 1.47V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_45_VOLT, ///< Threshold value to get 1.45V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_42_VOLT, ///< Threshold value to get 1.42V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_40_VOLT, ///< Threshold value to get 1.40V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_38_VOLT, ///< Threshold value to get 1.38V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_35_VOLT, ///< Threshold value to get 1.35V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_33_VOLT, ///< Threshold value to get 1.33V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_31_VOLT, ///< Threshold value to get 1.31V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_29_VOLT, ///< Threshold value to get 1.29V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_27_VOLT, ///< Threshold value to get 1.27V as resistor bank output voltage.
-  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_25_VOLT, ///< Threshold value to get 1.25V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_27_VOLT, ///< Threshold value to get 2.27 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_21_VOLT, ///< Threshold value to get 2.21 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_15_VOLT, ///< Threshold value to get 2.1 5V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_10_VOLT, ///< Threshold value to get 2.10 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_05_VOLT, ///< Threshold value to get 2.05 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_2_00_VOLT, ///< Threshold value to get 2.00 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_95_VOLT, ///< Threshold value to get 1.95 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_91_VOLT, ///< Threshold value to get 1.91 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_86_VOLT, ///< Threshold value to get 1.86 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_82_VOLT, ///< Threshold value to get 1.82 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_79_VOLT, ///< Threshold value to get 1.79 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_75_VOLT, ///< Threshold value to get 1.75 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_71_VOLT, ///< Threshold value to get 1.71 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_68_VOLT, ///< Threshold value to get 1.68 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_64_VOLT, ///< Threshold value to get 1.64 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_61_VOLT, ///< Threshold value to get 1.61 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_58_VOLT, ///< Threshold value to get 1.58 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_55_VOLT, ///< Threshold value to get 1.55 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_53_VOLT, ///< Threshold value to get 1.53 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_50_VOLT, ///< Threshold value to get 1.50 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_47_VOLT, ///< Threshold value to get 1.47 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_45_VOLT, ///< Threshold value to get 1.45 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_42_VOLT, ///< Threshold value to get 1.42 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_40_VOLT, ///< Threshold value to get 1.40 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_38_VOLT, ///< Threshold value to get 1.38 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_35_VOLT, ///< Threshold value to get 1.35 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_33_VOLT, ///< Threshold value to get 1.33 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_31_VOLT, ///< Threshold value to get 1.31 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_29_VOLT, ///< Threshold value to get 1.29 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_27_VOLT, ///< Threshold value to get 1.27 V as resistor bank output voltage.
+  SL_COMPARATOR_THRESHOLD_VALUE_FOR_1_25_VOLT, ///< Threshold value to get 1.25 V as resistor bank output voltage.
   SL_COMPARATOR_THRESHOLD_VALUE_LAST,          ///< Last member of enum for validation.
 } sl_analog_comparator_threshold_values_t;
 
@@ -156,17 +155,17 @@ typedef enum {
  * @brief Enumeration to represent scale factor values for reference scaler output.
  */
 typedef enum {
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_1_VOLT, ///< Scale factor value to get 0.1V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_2_VOLT, ///< Scale factor value to get 0.2V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_3_VOLT, ///< Scale factor value to get 0.3V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_4_VOLT, ///< Scale factor value to get 0.4V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_5_VOLT, ///< Scale factor value to get 0.5V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_6_VOLT, ///< Scale factor value to get 0.6V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_7_VOLT, ///< Scale factor value to get 0.7V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_8_VOLT, ///< Scale factor value to get 0.8V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_9_VOLT, ///< Scale factor value to get 0.9V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_VOLT,   ///< Scale factor value to get 1V as reference scaler output voltage
-  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_1_VOLT, ///< Scale factor value to get 1.1V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_1_VOLT, ///< Scale factor value to get 0.1 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_2_VOLT, ///< Scale factor value to get 0.2 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_3_VOLT, ///< Scale factor value to get 0.3 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_4_VOLT, ///< Scale factor value to get 0.4 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_5_VOLT, ///< Scale factor value to get 0.5 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_6_VOLT, ///< Scale factor value to get 0.6 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_7_VOLT, ///< Scale factor value to get 0.7 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_8_VOLT, ///< Scale factor value to get 0.8 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_0_9_VOLT, ///< Scale factor value to get 0.9 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_VOLT,   ///< Scale factor value to get 1 V as reference scaler output voltage
+  SL_COMPARATOR_SCALE_FACTOR_VALUE_FOR_1_1_VOLT, ///< Scale factor value to get 1.1 V as reference scaler output voltage
   SL_COMPARATOR_SCALE_FACTOR_VALUE_LAST,         ///< Last member of enum for validation
 } sl_analog_comparator_scale_factor_values_t;
 
@@ -191,7 +190,7 @@ typedef struct {
  * @brief  To initialize the Analog Comparator and configure the necessary clocks and reference voltage.
  * 
  * @details This API enables the system core clock and auxiliary clock with a MHz RC clock.
- *          It also configures the reference LDO voltage to 3.3V.
+ *          It also configures the reference LDO voltage to 3.3 V.
  *
  * @note This function must be called before using any other analog comparator functions.
  * @note The system core clock must be properly configured.
@@ -347,7 +346,7 @@ void sl_si91x_analog_comparator_deinit(void);
  *
  * **Key Features**:
  * - Both comparators can take inputs from GPIOs.
- * - Each comparator has 9 different input sources, 2 of which are external GPIO pin inputs.
+ * - Each comparator has nine different input sources, two of which are external GPIO pin inputs.
  * - Multiple comparison scenarios:
  *   - Compare external pin inputs.
  *   - Compare external pin input to internal voltages.

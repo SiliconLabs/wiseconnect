@@ -68,7 +68,7 @@
 /*******************************************************************************
  ******************** Wake UP Alarm Defines / Macros  **************************
  ******************************************************************************/
-#define SL_ALARM_PERIODIC_TIME         10   ///< Periodic alarm configuration in milliseconds
+#define SL_ALARM_PERIODIC_TIME         10   ///< Periodic alarm configuration in milliseconds.
 #define RC_TRIGGER_TIME                5    ///< RC clock trigger time
 #define RO_TRIGGER_TIME                0    ///< RO clock trigger time
 #define NO_OF_HOURS_IN_A_DAY           24   ///< Number of hours in a day
@@ -116,15 +116,15 @@ typedef enum {
  * The events represent different states and actions of the sensors, such as creation, starting, stopping, and data readiness.
  */
 typedef enum {
-  SL_SENSOR_CREATION_FAILED, ///< Event indicating that sensor creation failed.
-  SL_SENSOR_STARTED,         ///< Event indicating that the sensor has started successfully.
-  SL_SENSOR_STOPPED,         ///< Event indicating that the sensor has stopped.
-  SL_SENSOR_DATA_READY,      ///< Event indicating that sensor data is ready to be read.
-  SL_SENSOR_CNFG_INVALID,    ///< Event indicating that the sensor configuration is invalid.
-  SL_SENSOR_START_FAILED,    ///< Event indicating that the sensor failed to start.
-  SL_SENSOR_STOP_FAILED,     ///< Event indicating that the sensor failed to stop.
-  SL_SENSOR_DELETED,         ///< Event indicating that the sensor has been deleted.
-  SL_SENSOR_DELETE_FAILED    ///< Event indicating that the sensor deletion failed.
+  SL_SENSOR_CREATION_FAILED, ///< Event indicating that sensor creation failed
+  SL_SENSOR_STARTED,         ///< Event indicating that the sensor has started successfully
+  SL_SENSOR_STOPPED,         ///< Event indicating that the sensor has stopped
+  SL_SENSOR_DATA_READY,      ///< Event indicating that sensor data is ready to be read
+  SL_SENSOR_CNFG_INVALID,    ///< Event indicating that the sensor configuration is invalid
+  SL_SENSOR_START_FAILED,    ///< Event indicating that the sensor failed to start
+  SL_SENSOR_STOP_FAILED,     ///< Event indicating that the sensor failed to stop
+  SL_SENSOR_DELETED,         ///< Event indicating that the sensor has been deleted
+  SL_SENSOR_DELETE_FAILED    ///< Event indicating that the sensor deletion failed
 } sl_sensorhub_event_t;
 
 /**

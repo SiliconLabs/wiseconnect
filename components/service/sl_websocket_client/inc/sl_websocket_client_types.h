@@ -95,8 +95,8 @@ typedef struct sl_websocket_client_s sl_websocket_client_t;
  * @details This structure holds the configuration parameters for initializing a WebSocket client.
  */
 typedef struct {
-  char *host;                                      /**< WebSocket server host (e.g., "example.com"). */
-  char *resource;                                  /**< WebSocket resource path (e.g., "/chat"). */
+  char *host;                                      /**< WebSocket server host (for example, "example.com"). */
+  char *resource;                                  /**< WebSocket resource path (for example, "/chat"). */
   uint16_t server_port;                            /**< WebSocket server port number. */
   uint16_t client_port;                            /**< Local client port number. */
   char *ip_address;                                /**< WebSocket server IP address. */
@@ -113,8 +113,8 @@ typedef struct {
  */
 typedef struct sl_websocket_client_s {
   int socket_fd;                                         /**< BSD socket file descriptor. */
-  char host[SL_SI91X_WEBSOCKET_MAX_HOST_LENGTH];         /**< WebSocket server host (e.g., "example.com"). */
-  char resource[SL_SI91X_WEBSOCKET_MAX_RESOURCE_LENGTH]; /**< WebSocket resource path (e.g., "/chat"). */
+  char host[SL_SI91X_WEBSOCKET_MAX_HOST_LENGTH];         /**< WebSocket server host (for example, "example.com"). */
+  char resource[SL_SI91X_WEBSOCKET_MAX_RESOURCE_LENGTH]; /**< WebSocket resource path (for example, "/chat"). */
   uint16_t server_port;                                  /**< WebSocket server port number. */
   uint16_t client_port;                                  /**< Local client port number. */
   sl_ip_address_t ip_address;                            /**< WebSocket server IP address. */
@@ -133,7 +133,7 @@ typedef struct sl_websocket_client_s {
  * @details This structure holds the parameters for sending a WebSocket frame, including the opcode, payload buffer, and payload length.
  */
 typedef struct {
-  sl_websocket_opcode_t opcode; /**< Opcode (TEXT, BINARY, etc.). */
+  sl_websocket_opcode_t opcode; /**< Opcode (TEXT, BINARY, and so on.). */
   const uint8_t *buffer;        /**< Pointer to the payload. */
   size_t length;                /**< Length of the payload. */
 } sl_websocket_send_request_t;

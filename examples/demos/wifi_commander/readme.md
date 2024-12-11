@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-The Wi-Fi commander application is a command-line interface application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.
+The Wi-Fi Commander application is a command-line interface application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.
 
 ## Prerequisites/Setup Requirements
 
@@ -36,7 +36,7 @@ The Wi-Fi commander application is a command-line interface application designed
 - Simplicity Studio
 - Wi-Fi commander tool
 
-Note : The user can use the Wi-Fi Commander tool to send commands and receive the corresponding responses and events.
+**Note:** The user can use the Wi-Fi Commander tool to send commands and receive the corresponding responses and events.
 
 ### Setup Diagram
 
@@ -58,14 +58,14 @@ Refer to the instructions here:
 
 ## Application Build Environment
 
-- The application uses the default Access Point (AP) configurations provided as below.
+- The application uses the default Access Point (AP) configurations provided as below:
 
   - Default SSID of the WiSeConnect soft AP that will be "MY_AP_SSID".
 
   - Default secret key of the WiSeConnect soft AP that will be "MY_AP_PASSPHRASE".
 
 > Note
-> If you wish to modify the above settings, you can also do by updating the configuration using the Wi-Fi commander tool.
+> If you want to modify the above settings, you can also do by updating the configuration using the Wi-Fi Commander tool.
 
 ## Test the application
 
@@ -78,28 +78,29 @@ Refer to the instructions here
 
 1. Connect the board to a PC via USB and start NCP Commander from Simplicity Studio.
 
-![step 1](resources/readme/wifi_commander_launcher.png)
+   ![step 1](resources/readme/wifi_commander_launcher.png)
 
 2. Select the interface that you will use to establish a connection.
-![step 2](resources/readme/wifi_commander_connection_interface.png)
+
+   ![step 2](resources/readme/wifi_commander_connection_interface.png)
 
 3. Select the serial port from the list and click on **Connect**.
 
-![step 3](resources/readme/wifi_commander_serial_port.png)
+   ![step 3](resources/readme/wifi_commander_serial_port.png)
 
 4. Click on the Access Point tab to set the default configuration, test the functionality, and view the corresponding responses and events.
 
-![step 4](resources/readme/wifi_commander_access_point.png)
+   ![step 4](resources/readme/wifi_commander_access_point.png)
 
-![step 5](resources/readme/wifi_commander_ap_settings.png)
+   ![step 5](resources/readme/wifi_commander_ap_settings.png)
 
 5. The expected outcome for the access point functionality by using default configuration.
 
-![step 5](resources/readme/wifi_commander_ap_outcome.png)
+   ![step 5](resources/readme/wifi_commander_ap_outcome.png)
 
 6. Click on the Smart Console tab, where you can enter commands and receive the corresponding responses and events.
 
-![step 7](resources/readme/wifi_commander_smart_console.png)
+   ![step 7](resources/readme/wifi_commander_smart_console.png)
 
 
 ### Below are the examples of the commands on how to enter those commands in the Wi-Fi Commander and get the responses

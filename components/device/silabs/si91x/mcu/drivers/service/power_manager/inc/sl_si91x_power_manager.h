@@ -60,7 +60,7 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Defines
 
-// Flags are used to subscribe to the Power Manager transition events, i.e., provides callback after state transitions.
+// Flags are used to subscribe to the Power Manager transition events, that is, provides callback after state transitions.
 // This can be used individually or can be ored and pass to the \ref sl_si91x_power_manager_subscribe_ps_transition_event.
 
 #define SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4 \
@@ -160,7 +160,7 @@ typedef struct {
   uint16_t m4ss_ram_size_kb;  ///< M4SS RAM size that needs to be restored.
   uint16_t ulpss_ram_size_kb; ///< ULPSS RAM size that needs to be restored.
   boolean_t
-    configure_ram_banks;    ///< Enable will set the RAM banks using size, disable will set RAM banks using bank number.
+    configure_ram_banks;    ///< Enable will set the RAM banks using size, disable sets RAM banks using bank number.
   uint32_t m4ss_ram_banks;  ///< M4SS RAM bank number that needs to be restored.
   uint32_t ulpss_ram_banks; ///< ULPSS RAM bank number that needs to be restored.
 } sl_power_ram_retention_config_t;
@@ -194,7 +194,7 @@ typedef enum {
 /// On ISR Exit Hook answer.
 typedef enum {
   SL_SI91X_POWER_MANAGER_ISR_IGNORE =
-    (1UL << 0UL), ///< The module did not trigger an ISR and it doesn't want to contribute to the decision.
+    (1UL << 0UL), ///< The module did not trigger an ISR and it does not want to contribute to the decision.
   SL_SI91X_POWER_MANAGER_ISR_SLEEP =
     (1UL << 1UL), ///< The module was the one that caused the system wakeup and the system SHOULD go back to sleep.
   SL_SI91X_POWER_MANAGER_ISR_WAKEUP =
@@ -789,7 +789,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *
 *   ***Add and remove requirements***
 *
-*   The driver/application can add and remove power state requirements at runtime. Adding requirement function calls will change the power state. Removing requirement function calls will not have any effect for state transition.
+*   The driver/application can add and remove power state requirements at runtime. Adding requirement function calls changes the power state. Removing requirement function calls will not have any effect for state transition.
 *   @ref sl_si91x_power_manager_add_peripheral_requirement()
 *
 *   @ref sl_si91x_power_manager_remove_peripheral_requirement()

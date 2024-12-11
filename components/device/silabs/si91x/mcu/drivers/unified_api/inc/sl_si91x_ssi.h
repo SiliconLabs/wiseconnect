@@ -193,9 +193,9 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config);
  *          Pass the address of the pointer for storing the SSI Primary/Secondary/ULP Primary
  *          handle, which can be used in the future for other function calls.
  *
- * @param[in] instance The instance of the SSI (Primary/Secondary/ULP Primary) ( \ref sl_ssi_instance_t).
+ * @param[in] instance The instance of the SSI (Primary/Secondary/ULP Primary) (\ref sl_ssi_instance_t).
  *
- * @param[in] ssi_handle Double pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Double pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  *
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Success.
@@ -212,7 +212,7 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
  * 
  * @details This API will uninitialize the SSI. If DMA is enabled, it also uninitializes the DMA module.
  *
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  *
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Success.
@@ -246,8 +246,8 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
  *          - Rx sample delay (0 to 63)
  * 
  * @param[in] ssi_handle Pointer to the SSI instance handle ( \ref sl_ssi_handle_t).
- * @param[in] control_configuration Pointer to the control config structure ( \ref sl_ssi_control_config_t).
- * @param[in] slave_number In the current implementation, the variable slave_number is unused ( \ref sl_ssi_slave_number_t).
+ * @param[in] control_configuration Pointer to the control config structure (\ref sl_ssi_control_config_t).
+ * @param[in] slave_number In the current implementation, the variable slave_number is unused (\ref sl_ssi_slave_number_t).
  * 
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Success.
@@ -278,7 +278,7 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
  *      - \ref sl_si91x_ssi_set_configuration 
  *      - \ref sl_si91x_ssi_set_slave_number
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] data Pointer to the variable which will store the received data.
  * @param[in] data_length (uint32_t) Number of data items to receive.
  * 
@@ -305,7 +305,7 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
  *      - \ref sl_si91x_ssi_set_configuration 
  *      - \ref sl_si91x_ssi_set_slave_number
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] data Pointer to the variable which will store the data to be sent.
  * @param[in] data_length (uint32_t) Number of data items to send.
  * 
@@ -333,7 +333,7 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
  *      - \ref sl_si91x_ssi_set_configuration 
  *      - \ref sl_si91x_ssi_set_slave_number
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] data_out Const pointer to the variable that has data which needs to be sent.
  * @param[in] data_in Pointer to the variable which will store the received data.
  * @param[in] data_length (uint32_t) Number of data items to receive.
@@ -377,7 +377,7 @@ sl_ssi_version_t sl_si91x_ssi_get_version(void);
  *      - \ref sl_si91x_ssi_init
  *      - \ref sl_si91x_ssi_set_configuration
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return sl_ssi_status_t Structure containing the transfer status.
  ******************************************************************************/
@@ -394,7 +394,7 @@ sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  *  
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t Value of the RX data count.
  ******************************************************************************/
@@ -411,7 +411,7 @@ uint32_t sl_si91x_ssi_get_rx_data_count(sl_ssi_handle_t ssi_handle);
  *      - \ref sl_si91x_ssi_init 
  *      - \ref sl_si91x_ssi_set_configuration 
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t Value of the TX data count.
  ******************************************************************************/
@@ -427,7 +427,7 @@ uint32_t sl_si91x_ssi_get_tx_data_count(sl_ssi_handle_t ssi_handle);
  *          it returns an error code as follows. Therefore, it is mandatory to unregister 
  *          the callback before registering another callback.
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt.
  * 
  * @return sl_status_t Status code indicating the result:
@@ -443,7 +443,7 @@ sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_
 /**
  * @brief To unregister the user event callback.
  * 
- * @details This API unregisters the callback, i.e., clears the callback function address
+ * @details This API unregisters the callback, that is, clears the callback function address
  *          and passes a NULL value to the variable.
  * 
  * @pre Pre-conditions:
@@ -458,7 +458,7 @@ void sl_si91x_ssi_unregister_event_callback(void);
  * @details The clock division factor is calculated based on the peripheral clock configured. 
  *          It decides the baud rate of SSI.
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t The value of the clock division factor in the range of 0 - 127.
  ******************************************************************************/
@@ -470,7 +470,7 @@ uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle);
  * 
  * @details This API retrieves the frame length, which ranges between 4 and 16 bits.
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t The value of the frame length.
  ******************************************************************************/
@@ -483,7 +483,7 @@ uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle);
  * @details This API retrieves the transmit FIFO threshold value, which controls the level of
  *          entries at which the transmit FIFO controller triggers an interrupt.
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t The value of the transmit FIFO threshold.
  ******************************************************************************/
@@ -496,7 +496,7 @@ uint32_t sl_si91x_ssi_get_tx_fifo_threshold(sl_ssi_handle_t ssi_handle);
  * @details This API retrieves the receiver FIFO threshold value, which controls the level of
  *          entries at which the receive FIFO controller triggers an interrupt.
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t The value of the receiver FIFO threshold.
  ******************************************************************************/
@@ -509,7 +509,7 @@ uint32_t sl_si91x_ssi_get_rx_fifo_threshold(sl_ssi_handle_t ssi_handle);
  * @details This API is used to delay the sample of the RX input signal. Each value represents 
  *          a single ssi_clk delay on the sample of the rxd signal.
  * 
- * @param[in] ssi_handle Pointer to the SSI driver handle ( \ref sl_ssi_handle_t).
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
  * @return uint32_t The value of the receiver sample delay.
  ******************************************************************************/
@@ -521,7 +521,7 @@ uint32_t sl_si91x_ssi_get_receiver_sample_delay(sl_ssi_handle_t ssi_handle);
  * 
  * @details For single secondary operation, this API also needs to be called before transferring the data.
  * 
- * @param[in] number Secondary number ( \ref sl_ssi_slave_number_t )
+ * @param[in] number Secondary number (\ref sl_ssi_slave_number_t )
  * 
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Success

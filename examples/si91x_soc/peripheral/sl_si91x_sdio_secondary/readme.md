@@ -13,14 +13,15 @@
 
 ## Purpose/Scope
 
-The SDIO Secondary application shows how to read and write data in SDIO Secondary
+The SDIO Secondary application shows how to read and write data in SDIO Secondary.
 
 ## About Example Code
 
-- This example demonstrates about soc clock setting, sdio secondary initialization, transmitting and receiving the data to and from the sdio master.
-- To initialize the sdio using \ref sl_si91x_sdio_secondary_init api.
-- To register sdio and dma callback \ref sl_si91x_sdio_secondary_register_event_callback api is used.
-- To transfer and receive data to and from the master \ref  sl_si91x_sdio_secondary_send and \ref sl_si91x_sdio_secondary_receive apis are used. send and receive apis will configure all dma descriptors and trigger the dma to send and receive the data.
+This example demonstrates about the SOC clock setting, SDIO secondary initialization, and transmitting and receiving the data to and from the SDIO master.
+
+- To initialize the SDIO using \ref sl_si91x_sdio_secondary_init API.
+- To register SDIO and DMA callback using \ref sl_si91x_sdio_secondary_register_event_callback API.
+- To transfer and receive data to and from the master using the \ref  sl_si91x_sdio_secondary_send and \ref sl_si91x_sdio_secondary_receive APIs.   Send and receive APIs will configure all DMA descriptors and trigger the DMA to send and receive the data.
 - Data will be received continuously after two seconds throughput will be calculated and printed over the console.
 
 ## Prerequisites/Setup Requirements
@@ -34,8 +35,8 @@ The SDIO Secondary application shows how to read and write data in SDIO Secondar
 ### Software Requirements
 
 - Simplicity Studio
-- Serial console Setup
-  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+- Serial console setup
+  - For serial console setup instructions, see the [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) section in the *WiSeConnect Developer's Guide*.
 
 ### Setup Diagram
 
@@ -49,8 +50,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -60,22 +61,22 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   >![Figure: Introduction](resources/uc_screen/sdio_secondary.png)
 
-- Modify current_mode in sdio_secondary_example.c file to configure current_mode for SDIO Secondary:
-  By default current mode is in RECEIVE_DATA
+- Modify current_mode in the `sdio_secondary_example.c` file to configure current_mode for SDIO Secondary.
+  By default current mode is in RECEIVE_DATA.
 
-   ```c
+  ```c
   /* Mode of Transmission */
   SEND_DATA /* Transmit data to the master  */
   RECEIVE_DATA /* Receive data from the master */
 
   /* Modify this macro to change mode of transmission for sdio secondary */
 
- current_mode = RECEIVE_DATA /*Default is receive mode, i.e., RX_PATH*/
+  current_mode = RECEIVE_DATA /*Default is receive mode, i.e., RX_PATH*/
+  ```
 
-   ```
+- Modify BLOCK_LEN and NO_OF_BLOCKS in the `sdio_secondary.c` file to configure size for application buffer:
 
-- Modify BLOCK_LEN and NO_OF_BLOCKS in sdio_secondary.c file to configure size for application buffer:
-
+  ```c
   #define BLOCK_LEN         256
   #define NO_OF_BLOCKS      4
   #define XFER_BUFFER_SIZE  (BLOCK_LEN * NO_OF_BLOCKS) /* Buffer size is 256B*4 = 1KB */
@@ -92,7 +93,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |GPIO_29   | P33 | SDIO_DATA2 |
 |GPIO_30   | P35 | SDIO_DATA3 |
 
-NOTE: pin configuration for SDIO Master.
+NOTE: Pin configuration for SDIO Master.
 
 ## Test the Application
 
@@ -111,7 +112,7 @@ NOTE:
 
    SDIO secondary receive data in 'xfer_buffer'
 
-- After successful program execution the prints in serial console looks as shown below.
+- After successful program execution, the prints in serial console looks as shown below.
 
   >![output](resources/readme/output_sdio.png)
 

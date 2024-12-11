@@ -135,7 +135,7 @@ typedef struct {
 /***************************************************************************/
 /**
  * @brief This API is no longer supported due to the restriction on peripheral drivers to configuring clocks.
- * @brief To configure and initialize Calendar (i.e., the RTC clock).
+ * @brief To configure and initialize Calendar (that is, the RTC clock).
  * 
  * @details This API is no longer supported due to the restriction on peripheral drivers to configure clock.
  *
@@ -150,7 +150,7 @@ sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type);
 
 /***************************************************************************/
 /**
- * @brief To configure and initialize Calendar (i.e., the RTC clock).
+ * @brief To configure and initialize Calendar (that is, the RTC clock).
  * 
  * @details Sets the date and time of the Calendar RTC.
  * The input parameters include a date-time structure, with the following members:
@@ -180,7 +180,7 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
 
 /***************************************************************************/
 /**
- * @brief To fetch the current date and time of an existing Calendar i.e., RTC clock.
+ * @brief To fetch the current date and time of an existing Calendar that is, RTC clock.
  * 
  * @details The input parameter consists of a date-time structure. The structure is updated with the current date-time parameters.
  * The members of the structure are listed below:

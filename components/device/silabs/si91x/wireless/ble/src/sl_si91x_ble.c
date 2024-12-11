@@ -41,8 +41,8 @@ extern bool device_initialized;
  * The function takes a backup of the current Bluetooth profile and computes the selected coexistence (coex) profile.
  * If the selected coex profile is the same as the current coex profile, the function returns SL_STATUS_OK.
  * Otherwise, the function sends a power save request with the selected coex profile.
- * If the power save request fails, the function restores the previous Bluetooth profile and returns the corresponding status.
- * If the selected coex profile is DEEP_SLEEP_WITHOUT_RAM_RETENTION, the device_initialized flag is set to false and the coex current performance profile is reset.
+ * If the power save request fails, the function restores the previous Bluetooth profile, and returns the corresponding status.
+ * If the selected coex profile is DEEP_SLEEP_WITHOUT_RAM_RETENTION, the device_initialized flag is set to false, and the coex current performance profile is reset.
  *
  * @param profile Pointer to the performance profile to be set.
  * @return SL_STATUS_OK if the performance profile is set successfully, or an appropriate error code if an error occurs.
@@ -69,8 +69,8 @@ sl_status_t sl_si91x_bt_set_performance_profile(const sl_bt_performance_profile_
   }
   get_coex_performance_profile(&selected_coex_profile_mode);
 
-  // Set device_initialized as false since RAM of module will be not retained
-  // in ULTRA_POWER_SAVE and module needs to be started from init again
+  // Set device_initialized as false since RAM of module would not be retained
+  // in ULTRA_POWER_SAVE and module needs to be started from init again.
   if (selected_coex_profile_mode == DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
     device_initialized = false;
     reset_coex_current_performance_profile();

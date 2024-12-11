@@ -244,7 +244,7 @@ typedef struct {
 } sl_config_timer_config_t;
 
 /**
- * @brief Structure to hold the parameters of timer output compare unit (OCU) configurations.
+ * @brief Structure to hold the parameters of timer Output Compare Unit (OCU) configurations.
  */
 typedef struct {
   boolean_t is_counter0_ocu_output_enabled;    ///< True to enable OCU output of counter-0, false to disable it.
@@ -333,7 +333,7 @@ void sl_si91x_config_timer_init(void);
 
 /***************************************************************************/
 /**
- * @brief To set the config-timer mode as 32-bit or 16-bit counters.
+ * @brief To set the config-timer mode as 32 or 16-bit counters.
  * 
  * @details In 32-bit mode, Counter_1 and Counter_0 are merged and used as a single 32-bit counter.
  * In this mode, Counter_0 modes/triggers/enables are used.

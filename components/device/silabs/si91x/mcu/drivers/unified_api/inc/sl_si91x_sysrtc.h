@@ -161,7 +161,7 @@ sl_status_t sl_si91x_sysrtc_init(const sl_sysrtc_config_t *config_ptr);
 /**
  * @brief To configure the SYSRTC input clock source frequency.
  * 
- * @details This API configures the clock source for the SYSRTC. It allows the selection of 32kHz RC, 32kHz RO, or 1kHz RO clock sources based on user input.
+ * @details This API configures the clock source for the SYSRTC. It allows the selection of 32 KHz RC, 32 KHz RO, or 1 KHz RO clock sources based on user input.
  *          For using the 1kHz clock source, pass the division factor value as '16'; otherwise, pass '0'.
  * 
  * @param[in] clk_ptr Pointer to the clock configuration structure \ref sl_sysrtc_clock_config_t.

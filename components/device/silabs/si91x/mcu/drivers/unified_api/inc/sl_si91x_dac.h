@@ -82,7 +82,7 @@ typedef enum {
 } sl_dac_callback_event_t;
 
 /**
- * @brief Enumeration for ADC channels. This enum is only used in the Reference voltage for ADC mode of DAC.
+ * @brief Enumeration for ADC channels. This enumeration is only used in the Reference voltage for ADC mode of DAC.
  * @note These enums are not used as SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC mode is not supported currently.
  */
 typedef enum {
@@ -142,7 +142,7 @@ typedef struct {
  * 
  * @details This API enables the DAC peripheral and sets the clock for the DAC controller.
  *
- * @param[in] dac_clock Pointer to the DAC clock configuration structure ( \ref sl_dac_clock_config_t).
+ * @param[in] dac_clock Pointer to the DAC clock configuration structure (\ref sl_dac_clock_config_t).
  *
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Successfully initialized the DAC.

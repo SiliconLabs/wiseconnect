@@ -289,7 +289,7 @@ typedef enum rsi_device_state_e {
  * @brief Structure representing the driver control block.
  *
  * This structure is used to define the parameters for the driver control block,
- * including endianness, global Bluetooth callback, common Bluetooth callback,
+ * that includes endianness, global Bluetooth callback, common Bluetooth callback,
  * BLE callback, and device state.
  */
 typedef struct rsi_driver_cb_s {

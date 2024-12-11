@@ -932,8 +932,8 @@ sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
  * 
  * @param[in] efuse_read
  *   Pointer to an @ref sl_si91x_efuse_read_t structure, which contains the Efuse read address offset and read data length.
- *   - Efuse Read Address Offset: Specifies the starting byte address in the Efuse memory to be read. Valid range: 144 to 255. For more information refer @ref sl_si91x_efuse_read_t.
- *   - Read Data Length: Specifies the number of bytes to read from the given offset. Please @ref sl_si91x_efuse_read_t for the length in bytes which can be read from each offset.
+ *   - Efuse Read Address Offset: Specifies the starting byte address in the Efuse memory to be read. Valid range: 144 to 255. For more information refer to @ref sl_si91x_efuse_read_t.
+ *   - Read Data Length: Specifies the number of bytes to read from the given offset. Please refer to @ref sl_si91x_efuse_read_t for the length in bytes which can be read from each offset.
  * 
  * @param[out] efuse_read_buf
  *   Pointer to a buffer where the read Efuse data will be stored.
@@ -941,7 +941,7 @@ sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
  * @note
- *   If a valid Efuse is not present on the device, this API will return the error SL_STATUS_SI91X_EFUSE_DATA_INVALID.
+ *   If a valid Efuse is not present on the device, this API returns the error SL_STATUS_SI91X_EFUSE_DATA_INVALID.
  *******************************************************************************/
 sl_status_t sl_si91x_efuse_read(const sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf);
 

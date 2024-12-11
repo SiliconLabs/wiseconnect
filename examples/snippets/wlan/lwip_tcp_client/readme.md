@@ -13,16 +13,16 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to transfer the TCP data using LWIP stack by configure the SiWx91x in client mode.
+This application demonstrates how to transfer the TCP data using LWIP stack by configuring the SiWx91x in client mode.
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
-- A Windows PC.
+- Windows PC
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
   	  - BRD4343A [SiWx917-RB4343A]
@@ -33,9 +33,9 @@ This application demonstrates how to transfer the TCP data using LWIP stack by c
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -70,19 +70,19 @@ The application can be configured to suit your requirements and development envi
 
 - STA instance related parameters
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network shall be advertised and Si91X module is connected to it.
  
    ```c
    #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
    ```
 
-  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the access point is configured in WPA-PSK/WPA2-PSK security modes.
 
    ```c 
    #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
    ```
   
-  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the access point is configured in WPA/WPA2 or mixed security modes.
 
    ```c
    #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2 
@@ -90,11 +90,11 @@ The application can be configured to suit your requirements and development envi
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 > Note: 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
-#### Configure the following parameters in **app.c** to test lwip app as per requirements
+#### Configure the following parameters in **app.c** to test LWIP app as per requirements
 
-- **app related parameters**
+- **App related parameters**
 
   - `SERVER_PORT` is the remote TCP server port number on the PC running iPerf.
 
@@ -144,8 +144,8 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
-- After the application gets executed successfully, The device will connect to the remote and transfer the 1000 tcp packets.
+- Flash, run, and debug the application.
+- After the application gets executed successfully, the device will connect to the remote and transfer the 1000 tcp packets.
 
 The iPerf command to start the TCP server is:
   

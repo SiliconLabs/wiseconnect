@@ -196,7 +196,7 @@ typedef enum rsi_ble_cmd_request_e {
   RSI_BLE_CMD_READ_TRANSMIT_POWER                    = 0x0172,
   RSI_BLE_CMD_READ_RF_PATH_COMP                      = 0x0173,
   RSI_BLE_CMD_WRITE_RF_PATH_COMP                     = 0x0174,
-  RSI_BLE_REQ_CONN_ENHANCE                           = 0x1FFF, // Please add new cmd ids above this cmd id.
+  RSI_BLE_REQ_CONN_ENHANCE                           = 0x1FFF, // Add new cmd ids above this cmd id.
 } rsi_ble_cmd_request_t;
 
 /// Enumeration for BLE command response codes
@@ -299,9 +299,10 @@ typedef enum rsi_ble_event_e {
   RSI_BLE_EVENT_GATT_ERROR_RESPONSE          = 0x1500,
   RSI_BLE_EVENT_GATT_DESC_VAL_RESPONSE       = 0x1501,
   RSI_BLE_EVENT_GATT_PRIMARY_SERVICE_BY_UUID = 0x1502,
-  RSI_BLE_EVENT_GATT_READ_CHAR_SERVS       = 0x1503, //read by type: read char, include serivces and read value by uuid.
-  RSI_BLE_EVENT_GATT_READ_INC_SERVS        = 0x1504, //read by type: read char, include serivces and read value by uuid.
-  RSI_BLE_EVENT_GATT_READ_VAL_BY_UUID      = 0x1505, //read by type: read char, include serivces and read value by uuid.
+  RSI_BLE_EVENT_GATT_READ_CHAR_SERVS =
+    0x1503, //read by type: read char, include serivces and read value by UUID (Universal Unique Identifier).
+  RSI_BLE_EVENT_GATT_READ_INC_SERVS        = 0x1504, //read by type: read char, include serivces and read value by UUID.
+  RSI_BLE_EVENT_GATT_READ_VAL_BY_UUID      = 0x1505, //read by type: read char, include serivces and read value by UUID.
   RSI_BLE_EVENT_GATT_READ_RESP             = 0x1506,
   RSI_BLE_EVENT_GATT_READ_BLOB_RESP        = 0x1507,
   RSI_BLE_EVENT_GATT_READ_MULTIPLE_RESP    = 0x1508,
@@ -388,7 +389,7 @@ typedef enum rsi_ble_callback_id_e {
  * @brief Structure representing the BLE request to set a random address.
  *
  * This structure is used to define the parameters for the BLE request to set a random address,
- * including the random address of the device to be set.
+ * which includes the random address of the device to be set.
  */
 typedef struct rsi_ble_req_rand_s {
   /** Random address of the device to be set */
@@ -410,40 +411,40 @@ typedef struct rsi_ble_req_adv_s {
   /** Advertising type used during advertising 
 -
 
-      1. Advertising will be visible(discoverable) to all the devices. Scanning/Connection is also accepted from all devices. 
+      1. Advertising would visible (discoverable) to all the devices. Scanning/Connection is also accepted from all devices. 
 -
 
       #define UNDIR_CONN     0x80 
 -
 
-      2. Advertising will be visible(discoverable) to the particular device mentioned in RSI_BLE_ADV_DIR_ADDR only. 
+      2. Advertising would be visible (discoverable) to the particular device mentioned in RSI_BLE_ADV_DIR_ADDR only. 
 -
 
-      Scanning and Connection will be accepted from that device only. 
+      Scanning and Connection would be accepted from that device only. 
 -
 
       #define DIR_CONN           0x81 
 -
 
-      3. Advertising will be visible(discoverable) to all the devices. Scanning will be accepted from all the devices. 
+      3. Advertising would be visible (discoverable) to all the devices. Scanning would be accepted from all the devices. 
 -
 
-      Connection will be not be accepted from any device. 
+      Connection would be not be accepted from any device. 
 -
 
       #define UNDIR_SCAN         0x82 
 -
 
-      4. Advertising will be visible(discoverable) to all the devices. Scanning and Connection will not be accepted from any device. 
+      4. Advertising would be visible(discoverable) to all the devices. Scanning and Connection would not be accepted from any device. 
 -
 
       #define UNDIR_NON_CONN       0x83 
 -
 
-      5. Advertising will be visible(discoverable) to the particular device mentioned in RSI_BLE_ADV_DIR_ADDR only. 
+      5. Advertising would be visible(discoverable) to the particular device mentioned in RSI_BLE_ADV_DIR_ADDR only. 
 -
 
-      Scanning and Connection will be accepted from that device only. 
+      Scanning and Connection would be accepted from that device only. 
 -
 
       #define DIR_CONN_LOW_DUTY_CYCLE      0x84  */
@@ -510,7 +511,7 @@ typedef struct rsi_ble_req_adv_s {
 // Advertising data command structure
 
 /**
- * @brief Structure representing the BLE request to set advertising data.
+ * @brief Structure represents the BLE request to set advertising data.
  *
  * This structure is used to define the parameters for the BLE request to set advertising data,
  * including the advertising data length and the advertising data itself.
@@ -566,10 +567,10 @@ typedef struct rsi_ble_req_acceptlist_using_payload_s {
 // Set BLE tx power cmd_ix=0x012D
 
 /**
- * @brief Structure representing the BLE request to set the transmission power.
+ * @brief Structure represents the BLE request to set the transmission power.
  *
  * This structure is used to define the parameters for the BLE request to set the transmission power,
- * including the transmission power value.
+ * which includes the transmission power value.
  */
 typedef struct rsi_ble_set_ble_tx_power_s {
   /** Transmission power value */
@@ -579,10 +580,10 @@ typedef struct rsi_ble_set_ble_tx_power_s {
 //Scan response data command structure
 
 /**
- * @brief Structure representing the set scan response data for the BLE scan request.
+ * @brief Structure represents the set scan response data for the BLE scan request.
  *
  * This structure is used to define the parameters to set scan response data for the BLE scan request,
- * including the scan response data length.
+ * which includes the scan response data length.
  */
 typedef struct rsi_ble_req_scanrsp_data_s {
   /** Scan response data length */
@@ -593,7 +594,7 @@ typedef struct rsi_ble_req_scanrsp_data_s {
 
 //Scan command structure
 /**
- * @brief Structure representing a BLE scan request.
+ * @brief Structure represents a BLE scan request.
  */
 typedef struct rsi_ble_req_scan_s {
 
@@ -653,7 +654,7 @@ typedef struct rsi_ble_req_scan_s {
   /** Scan window 
 -
 
-      The duration of the LE scan. LE_Scan_Window shall be less than or equal to LE_Scan_Interval 
+      The duration of the LE scan. LE_Scan_Window should be less than or equal to LE_Scan_Interval 
 -
 
       Range: 0x0004 to 0x4000 */
@@ -667,7 +668,7 @@ typedef struct rsi_ble_req_scan_s {
  * @brief Structure representing the BLE encryption request.
  *
  * This structure is used to define the parameters for the BLE encryption request,
- * including the encryption key and the data to be encrypted.
+ * which includes the encryption key and the data to be encrypted.
  */
 typedef struct rsi_ble_encrypt_s {
   /** Encryption key (16 bytes) */
@@ -680,7 +681,7 @@ typedef struct rsi_ble_encrypt_s {
  * @brief Structure representing a data packet.
  *
  * This structure is used to define the parameters for a data packet,
- * including an array to hold the data packet, up to 1024 bytes.
+ * which includes an array to hold the data packet, up to 1024 bytes.
  */
 typedef struct rsi_data_packet_s {
   /** Array to hold the data packet, up to 1024 bytes */
@@ -693,7 +694,7 @@ typedef struct rsi_data_packet_s {
  * @brief Structure representing the BLE accept list.
  *
  * This structure is used to define the parameters for the BLE accept list,
- * including the operation to add or delete the address, the device address, and the address type.
+ * which includes the operation to add or delete the address, the device address, and the address type.
  */
 typedef struct rsi_ble_accept_list_s {
   /** Bit used to add or delete the address from/to the allow list */
@@ -710,7 +711,7 @@ typedef struct rsi_ble_accept_list_s {
  * @brief Structure representing the BLE connection request.
  *
  * This structure is used to define the parameters for a BLE connection request,
- * including the address type and address of the device to connect, scan interval, scan window,
+ * which includes the address type and address of the device to connect, scan interval, scan window,
  * connection interval, connection latency, and supervision timeout.
  */
 typedef struct rsi_ble_req_conn_s {
@@ -736,7 +737,7 @@ typedef struct rsi_ble_req_conn_s {
  * @brief Structure representing the BLE enhanced connection request.
  *
  * This structure is used to define the parameters for a BLE enhanced connection request,
- * including the address type and address of the device to connect, filter policy, own address type,
+ * which includes the address type and address of the device to connect, filter policy, own address type,
  * scan interval, scan window, connection interval, connection latency, supervision timeout,
  * and connection event length.
  */
@@ -770,10 +771,10 @@ typedef struct rsi_ble_req_enhance_conn_s {
 //Disconnect command structure
 
 /**
- * @brief Structure representing the BLE request to disconnect.
+ * @brief Structure represents the BLE request to disconnect.
  *
  * This structure is used to define the parameters for the BLE request to disconnect,
- * including the device address and the type of disconnect operation.
+ * which includes the device address, and the type of disconnect operation.
  */
 typedef struct rsi_ble_req_disconnect_s {
   /** Address of the device to disconnect */
@@ -801,7 +802,7 @@ typedef struct rsi_ble_req_disconnect_s {
  * @brief Structure representing the BLE start encryption request.
  *
  * This structure is used to define the parameters for a BLE start encryption request,
- * including the address of the connected device, the remote device's Encrypted Diversifier (EDIV) value,
+ * which includes the address of the connected device, the remote device's Encrypted Diversifier (EDIV) value,
  * Random (RAND)  value, and Long Term Key (LTK) value.
  */
 typedef struct rsi_ble_start_encryption_s {
@@ -818,10 +819,10 @@ typedef struct rsi_ble_start_encryption_s {
 //SMP Pair Request command structure = 0x007C
 
 /**
- * @brief Structure representing the BLE Security Manager Protocol (SMP) pairing request.
+ * @brief Structure represents the BLE Security Manager Protocol (SMP) pairing request.
  *
  * This structure is used to define the parameters for a BLE SMP pairing request,
- * including the device address, IO capability, and MITM (Man-In-The-Middle) protection requirement.
+ * which includes the device address, IO capability, and MITM (Man-In-The-Middle) protection requirement.
  */
 typedef struct rsi_ble_req_smp_pair_s {
   /** Device address for the pairing request */
@@ -835,10 +836,10 @@ typedef struct rsi_ble_req_smp_pair_s {
 //SMP Response command structure = 0x007D
 
 /**
- * @brief Structure representing the BLE Security Manager Protocol (SMP) response.
+ * @brief Structure represents the BLE Security Manager Protocol (SMP) response.
  *
  * This structure is used to define the parameters for a BLE SMP response,
- * including the device address, IO capability, and Man-In-The-Middle (MITM) protection requirement.
+ * which includes the device address, IO capability, and Man-In-The-Middle (MITM) protection requirement.
  */
 typedef struct rsi_ble_smp_response_s {
   /** Device address for the SMP response */
@@ -869,10 +870,10 @@ typedef struct rsi_ble_smp_passkey_s {
 //LE ping get auth payload timeout command structure, cmd_ix - 0x00A1
 
 /**
- * @brief Structure representing the BLE command to get the LE ping timeout.
+ * @brief Structure represents the BLE command to get the LE ping timeout.
  *
  * This structure is used to define the parameters for a BLE command to get the LE ping timeout,
- * including the remote device address.
+ * which includes the remote device address.
  */
 typedef struct rsi_ble_get_le_ping_timeout_s {
   /** Remote device address (6 bytes) */
@@ -881,10 +882,10 @@ typedef struct rsi_ble_get_le_ping_timeout_s {
 
 //LE ping get auth payload timeout command structure, cmd_ix - 0x00A2
 /**
- * @brief Structure representing the BLE response for getting LE ping timeout.
+ * @brief Structure represents the BLE response for getting LE ping timeout.
  *
  * This structure is used to define the parameters for the BLE response to get the LE ping timeout,
- * including the address of the connected device and the LE ping timeout value.
+ * which includes the address of the connected device, and the LE ping timeout value.
  */
 typedef struct rsi_ble_rsp_get_le_ping_timeout_s {
   /** Address of the connected device */
@@ -898,7 +899,7 @@ typedef struct rsi_ble_rsp_get_le_ping_timeout_s {
  * @brief Structure representing the BLE request to set LE ping timeout.
  *
  * This structure is used to define the parameters for a BLE request to set the LE ping timeout,
- * including the address of the connected device and the LE ping timeout value to be set.
+ * which includes the address of the connected device, and the LE ping timeout value to be set.
  */
 typedef struct rsi_ble_set_le_ping_timeout_s {
   /** Address of the connected device */
@@ -911,11 +912,11 @@ typedef struct rsi_ble_set_le_ping_timeout_s {
  * @brief Structure representing the BLE resolving list entry.
  *
  * This structure is used to define the parameters for a BLE resolving list entry,
- * including the type of process (e.g., add, remove, clear), the address type and address of the remote device,
+ * which includes the type of process (for example, add, remove, clear), the address type and address of the remote device,
  * and the Identity Resolving Keys (IRKs) of both the peer and local devices.
  */
 typedef struct rsi_ble_resolvlist_s {
-  /** Type of process (e.g., add, remove, clear) */
+  /** Type of process (for example, add, remove, clear) */
   uint8_t process_type;
   /** Address type of the remote device */
   uint8_t remote_dev_addr_type;
@@ -930,7 +931,7 @@ typedef struct rsi_ble_resolvlist_s {
 //LE Get resolvlist size command structure, cmd_ix - 0x00AE
 
 /**
- * @brief Structure representing the BLE request to get the size of the resolving list.
+ * @brief Structure represents the BLE request to get the size of the resolving list.
  *
  * This structure is used to define the parameter for a BLE request to get the size of the resolving list.
  */
@@ -940,10 +941,10 @@ typedef struct rsi_ble_get_resolving_list_size_s {
 } rsi_ble_get_resolving_list_size_t;
 
 /**
- * @brief Structure representing the BLE request to enable or disable address resolution.
+ * @brief Structure represents the BLE request to enable or disable address resolution.
  *
  * This structure is used to define the parameters for a BLE request to enable or disable address resolution,
- * including the enable flag, reserved field for future use, and the timeout value for address resolution.
+ * which includes the enable flag, reserved field for future use, and the timeout value for address resolution.
  */
 typedef struct rsi_ble_set_addr_resolution_enable_s {
   /** Enable or disable address resolution */
@@ -957,10 +958,10 @@ typedef struct rsi_ble_set_addr_resolution_enable_s {
 //LE conn params update command structure, cmd_ix - 0x007A
 
 /**
- * @brief Structure representing the BLE command to update connection parameters.
+ * @brief Structure represents the BLE command to update connection parameters.
  *
  * This structure is used to define the parameters for a BLE command to update connection parameters,
- * including the address of the connected device, minimum and maximum connection intervals,
+ * which includes the address of the connected device, minimum and maximum connection intervals,
  * peripheral latency, and supervision timeout.
  */
 typedef struct rsi_ble_cmd_conn_params_update_s {
@@ -979,10 +980,10 @@ typedef struct rsi_ble_cmd_conn_params_update_s {
 //LE read phy request command structure, cmd_ix - 0x00B0
 
 /**
- * @brief Structure representing the BLE request to read PHY.
+ * @brief Structure represents the BLE request to read PHY.
  *
  * This structure is used to define the parameter for a BLE request to read the PHY,
- * including the address of the connected device.
+ * which includes the address of the connected device.
  */
 typedef struct rsi_ble_req_read_phy_s {
   /** Address of the connected device */
@@ -992,10 +993,10 @@ typedef struct rsi_ble_req_read_phy_s {
 //LE set phy command response structure, cmd_ix - 0x00B1
 
 /**
- * @brief Structure representing the BLE request to set PHY.
+ * @brief Structure represents the BLE request to set PHY.
  *
  * This structure is used to define the parameters for a BLE request to set the PHY,
- * including the address of the connected device, all PHYs preference, preferred TX PHY,
+ * which includes the address of the connected device, all PHYs preference, preferred TX PHY,
  * preferred RX PHY, reserved field for future use, and PHY options.
  */
 typedef struct rsi_ble_set_phy_s {
@@ -1016,11 +1017,11 @@ typedef struct rsi_ble_set_phy_s {
 //LE set data length command response structure, cmd_ix - 0x00B2
 
 /**
- * @brief Structure representing the BLE request to set data length.
+ * @brief Structure represents the BLE request to set data length.
  *
  * This structure is used to define the parameters for a BLE request to set the data length,
- * including the address of the connected device, the maximum number of payload octets that the local device will send,
- * and the maximum time that the local device will take to send the payload.
+ * which includes the address of the connected device, the maximum number of payload octets that the local device would send,
+ * and the maximum time that the local device would take to send the payload.
  */
 typedef struct rsi_ble_setdatalength_s {
   /** Address of the connected device */
@@ -1034,10 +1035,10 @@ typedef struct rsi_ble_setdatalength_s {
 //LE set privacy mode command structure, cmd_ix - 0x00B4
 
 /**
- * @brief Structure representing the BLE request to set privacy mode.
+ * @brief Structure represents the BLE request to set privacy mode.
  *
  * This structure is used to define the parameters for a BLE request to set the privacy mode,
- * including the address type and address of the remote device, and the privacy mode to be set.
+ * which includes the address type and address of the remote device, and the privacy mode to be set.
  */
 typedef struct rsi_ble_set_privacy_mode_s {
   /** Address type of the remote device */
@@ -1051,10 +1052,10 @@ typedef struct rsi_ble_set_privacy_mode_s {
 //LE cbfc connection req command structure, cmd_ix - 0x00B5
 
 /**
- * @brief Structure representing the BLE Credit Based Flow Control (CBFC) connection request.
+ * @brief Structure represents the BLE Credit Based Flow Control (CBFC) connection request.
  *
  * This structure is used to define the parameters for a BLE CBFC connection request,
- * including the address of the remote device and the Protocol/Service Multiplexer (PSM) value.
+ * which includes the address of the remote device and the Protocol/Service Multiplexer (PSM) value.
  */
 typedef struct rsi_ble_cbfc_conn_req_s {
   /** Address of the remote device */
@@ -1066,10 +1067,10 @@ typedef struct rsi_ble_cbfc_conn_req_s {
 //LE cbfc connection resp command structure, cmd_ix - 0x00B6
 
 /**
- * @brief Structure representing the BLE Credit Based Flow Control (CBFC) connection response.
+ * @brief Structure represents the BLE Credit Based Flow Control (CBFC) connection response.
  *
  * This structure is used to define the parameters for a BLE CBFC connection response,
- * including the address of the remote device, the Local Channel Identifier (LCID), and the result of the connection request.
+ * which includes the address of the remote device, the Local Channel Identifier (LCID), and the result of the connection request.
  */
 typedef struct rsi_ble_cbfc_conn_resp_s {
   /** Address of the remote device */
@@ -1083,10 +1084,10 @@ typedef struct rsi_ble_cbfc_conn_resp_s {
 //LE cbfc data TX command structure, cmd_ix - 0x00B7
 
 /**
- * @brief Structure representing the BLE Credit Based Flow Control (CBFC) data transmission.
+ * @brief Structure represents the BLE Credit Based Flow Control (CBFC) data transmission.
  *
  * This structure is used to define the parameters for a BLE CBFC data transmission,
- * including the address of the remote device, the Local Channel Identifier (LCID),
+ * which includes the address of the remote device, the Local Channel Identifier (LCID),
  * the length of the data to be transmitted, and the data to be transmitted.
  */
 typedef struct rsi_ble_cbfc_data_tx_s {
@@ -1103,10 +1104,10 @@ typedef struct rsi_ble_cbfc_data_tx_s {
 //LE cbfc disconn command structure, cmd_ix - 0x00B8
 
 /**
- * @brief Structure representing the BLE CBFC (Credit Based Flow Control) disconnection.
+ * @brief Structure represents the BLE CBFC (Credit Based Flow Control) disconnection.
  *
  * This structure is used to define the parameters for a BLE CBFC disconnection,
- * including the address of the remote device and the Local Channel Identifier (LCID).
+ * which includes the address of the remote device and the Local Channel Identifier (LCID).
  */
 typedef struct rsi_ble_cbfc_disconn_s {
   /** Address of the remote device */
@@ -1118,10 +1119,10 @@ typedef struct rsi_ble_cbfc_disconn_s {
 //LE RX text mode (cmd), cmd_ix = 0x00BB
 
 /**
- * @brief Structure representing the BLE RX test mode parameters.
+ * @brief Structure represents the BLE RX test mode parameters.
  *
  * This structure is used to define the parameters for a BLE RX test mode,
- * including the RX channel, PHY, and modulation type to be used for the test.
+ * which includes the RX channel, PHY, and modulation type to be used for the test.
  */
 typedef struct rsi_ble_rx_test_mode_s {
   /** RX channel to be used for the test */
@@ -1134,10 +1135,10 @@ typedef struct rsi_ble_rx_test_mode_s {
 
 //LE TX test mode (cmd), cmd_ix = 0x00BC
 /**
- * @brief Structure representing the BLE TX test mode parameters.
+ * @brief Structure represents the BLE TX test mode parameters.
  *
  * This structure is used to define the parameters for a BLE TX test mode,
- * including the TX channel, PHY, length of the data to be transmitted, and data mode to be used for the test.
+ * which includes the TX channel, PHY, length of the data to be transmitted, and data mode to be used for the test.
  */
 typedef struct rsi_ble_tx_test_mode_s {
   /** TX channel to be used for the test */
@@ -1153,7 +1154,7 @@ typedef struct rsi_ble_tx_test_mode_s {
 //LE End test mode (cmd), cmd_ix = 0x00BD
 
 /**
- * @brief Structure representing the BLE end test mode parameters.
+ * @brief Structure represents the BLE end test mode parameters.
  *
  * This structure is used to define the parameter for a BLE end test mode.
  * Number of TX / RX packets received are displayed when test is stopped.
@@ -1164,10 +1165,10 @@ typedef struct rsi_ble_end_test_mode_s {
 } rsi_ble_end_test_mode_t;
 
 /**
- * @brief Structure representing the BLE request to set LE Long Term Key (LTK) request reply.
+ * @brief Structure represents the BLE request to set LE Long Term Key (LTK) request reply.
  *
  * This structure is used to define the parameters for a BLE request to set the LE LTK request reply,
- * including the address of the remote device, the type of reply (e.g., positive or negative), 
+ * which includes the address of the remote device, the type of reply (for example, positive or negative), 
  * and the local Long Term Key (LTK).
  */
 typedef struct rsi_ble_set_le_ltkreqreply_s {
@@ -1182,10 +1183,10 @@ typedef struct rsi_ble_set_le_ltkreqreply_s {
 //SMP Pairing Failed (cmd), cmd_ix = 0x0111
 
 /**
- * @brief Structure representing the BLE Security Manager Protocol (SMP) pairing failure request.
+ * @brief Structure represents the BLE Security Manager Protocol (SMP) pairing failure request.
  *
  * This structure is used to define the parameters for a BLE SMP pairing failure request,
- * including the address of the remote device and the reason for the pairing failure.
+ * which includes the address of the remote device and the reason for the pairing failure.
  */
 typedef struct rsi_ble_req_smp_pair_failed_s {
   /** Address of the remote device */
@@ -1202,7 +1203,7 @@ typedef struct rsi_ble_req_smp_pair_failed_s {
  * @brief Structure representing the BLE request for profiles list.
  *
  * This structure is used to define the parameters for a BLE request to get the profiles list,
- * including the remote device address, the handle from which the profiles search will start,
+ * which includes the remote device address, the handle from which the profiles search would start,
  * and the handle at which the profiles search will stop.
  */
 typedef struct rsi_ble_req_profiles_list_s {
@@ -1217,10 +1218,10 @@ typedef struct rsi_ble_req_profiles_list_s {
 // GATT Profile request structure
 
 /**
- * @brief Structure representing the BLE request for a specific profile.
+ * @brief Structure represents the BLE request for a specific profile.
  *
  * This structure is used to define the parameters for a BLE request to get a specific profile,
- * including the remote device address, reserved bytes for future use, and the profile UUID.
+ * which includes the remote device address, reserved bytes for future use, and the profile UUID.
  */
 typedef struct rsi_ble_req_profile_s {
   /** Remote device address */
@@ -1237,10 +1238,10 @@ typedef struct rsi_ble_req_profile_s {
 // GATT multiple characteristic services request structure
 
 /**
- * @brief Structure representing the BLE request for characteristic services.
+ * @brief Structure represents the BLE request for characteristic services.
  *
  * This structure is used to define the parameters for a BLE request to get characteristic services,
- * including the remote device address, the handle from which the search will start, 
+ * which includes the remote device address, the handle from which the search will start, 
  * and the handle at which the search will end.
  */
 typedef struct rsi_ble_req_char_services_s {
@@ -1255,11 +1256,11 @@ typedef struct rsi_ble_req_char_services_s {
 // GATT include service query request structure
 
 /**
- * @brief Structure representing the BLE request for included services.
+ * @brief Structure represents the BLE request for included services.
  *
  * This structure is used to define the parameters for a BLE request to get included services,
- * including the remote device address, the handle from which the search will start,
- * and the handle at which the search will end.
+ * includes the remote device address, the handle from which the search would start,
+ * and the handle at which the search would end.
  */
 typedef struct rsi_ble_req_inc_services_s {
   /** Remote device address */
@@ -1273,11 +1274,11 @@ typedef struct rsi_ble_req_inc_services_s {
 // GATT read value by UUID request structure
 
 /**
- * @brief Structure representing the BLE request for characteristic value by UUID.
+ * @brief Structure represents the BLE request for characteristic value by UUID.
  *
  * This structure is used to define the parameters for a BLE request to get a characteristic value by UUID,
- * including the remote device address, the handle from which the search will start,
- * the handle at which the search will end, reserved bytes for future use, and the search UUID value.
+ * which includes the remote device address, the handle from which the search would start,
+ * the handle at which the search would end, reserved bytes for future use, and the search UUID value.
  */
 typedef struct rsi_ble_req_char_val_by_uuid_s {
   /** Remote device address */
@@ -1298,11 +1299,11 @@ typedef struct rsi_ble_req_char_val_by_uuid_s {
 // GATT multiple attribute descriptors request structure
 
 /**
- * @brief Structure representing the BLE request for attribute descriptors.
+ * @brief Structure represents the BLE request for attribute descriptors.
  *
  * This structure is used to define the parameters for a BLE request to get attribute descriptors,
- * including the remote device address, the handle from which the search will start,
- * and the handle at which the search will end.
+ * which includes the remote device address, the handle from which the search would start,
+ * and the handle at which the search would end.
  */
 typedef struct rsi_ble_req_att_descs_s {
   /** Remote device address */
@@ -1315,10 +1316,10 @@ typedef struct rsi_ble_req_att_descs_s {
 
 // GATT attribute value request structure
 /**
- * @brief Structure representing the BLE request for attribute value.
+ * @brief Structure represents the BLE request for attribute value.
  *
  * This structure is used to define the parameters for a BLE request to get an attribute value,
- * including the remote device address and the attribute handle.
+ * which includes the remote device address and the attribute handle.
  */
 typedef struct rsi_ble_req_att_value_s {
   /** Remote device address */
@@ -1330,10 +1331,10 @@ typedef struct rsi_ble_req_att_value_s {
 // GATT multiple attribute values request structure
 
 /**
- * @brief Structure representing the BLE request for multiple attribute values.
+ * @brief Structure represents the BLE request for multiple attribute values.
  *
  * This structure is used to define the parameters for a BLE request to get multiple attribute values,
- * including the remote device address, the number of attribute handles, reserved bytes for future use,
+ * which includes the remote device address, the number of attribute handles, reserved bytes for future use,
  * and the list of attribute handles.
  */
 typedef struct rsi_ble_req_multiple_att_val_s {
@@ -1353,10 +1354,10 @@ typedef struct rsi_ble_req_multiple_att_val_s {
 // GATT long attribute value request structure
 
 /**
- * @brief Structure representing the BLE request for a long attribute value.
+ * @brief Structure represents the BLE request for a long attribute value.
  *
  * This structure is used to define the parameters for a BLE request to get a long attribute value,
- * including the remote device address, the attribute handle, and the attribute value offset.
+ * which includes the remote device address, the attribute handle, and the attribute value offset.
  */
 typedef struct rsi_ble_req_long_att_value_s {
   /** Remote device address */
@@ -1373,11 +1374,11 @@ typedef struct rsi_ble_req_long_att_value_s {
 // GATT write attribute value request structure
 
 /**
- * @brief Structure representing the BLE request to set an attribute value.
+ * @brief Structure represents the BLE request to set an attribute value.
  *
  * This structure is used to define the parameters for a BLE request to set an attribute value,
- * including the remote device address, the attribute handle, the length of the attribute value,
- * and the attribute value itself. The module will receive the acknowledgement from the remote device.
+ * which includes the remote device address, the attribute handle, the length of the attribute value,
+ * and the attribute value itself. The module would receive the acknowledgement from the remote device.
  * 
  */
 typedef struct rsi_ble_set_att_val_s {
@@ -1393,10 +1394,10 @@ typedef struct rsi_ble_set_att_val_s {
 // GATT write attribute value without ack request structure
 
 /**
- * @brief Structure representing the BLE command to set an attribute value.
+ * @brief Structure represents the BLE command to set an attribute value.
  *
  * This structure is used to define the parameters for a BLE command to set an attribute value,
- * including the remote device address, the attribute handle, the length of the attribute value,
+ * which includes the remote device address, the attribute handle, the length of the attribute value,
  * and the attribute value itself. The module won't receive the acknowledgement from the remote device.
  */
 typedef struct rsi_ble_set_att_cmd_s {
@@ -1413,10 +1414,10 @@ typedef struct rsi_ble_set_att_cmd_s {
 // GATT write long attribute value request structure
 
 /**
- * @brief Structure representing the BLE command to set a long attribute value.
+ * @brief Structure represents the BLE command to set a long attribute value.
  *
  * This structure is used to define the parameters for a BLE command to set a long attribute value,
- * including the remote device address, the attribute handle, the attribute value offset,
+ * which includes the remote device address, the attribute handle, the attribute value offset,
  * the length of the attribute value, and the attribute value itself.
  */
 typedef struct rsi_ble_set_long_att_val_s {
@@ -1435,10 +1436,10 @@ typedef struct rsi_ble_set_long_att_val_s {
 // GATT prepare write value request structure
 
 /**
- * @brief Structure representing the BLE request to prepare a write operation.
+ * @brief Structure represents the BLE request to prepare a write operation.
  *
  * This structure is used to define the parameters for a BLE request to prepare a write operation,
- * including the remote device address, the attribute handle, the attribute value offset,
+ * which includes the remote device address, the attribute handle, the attribute value offset,
  * the length of the attribute value, and the attribute value itself.
  */
 typedef struct rsi_ble_req_prepare_write_s {
@@ -1457,10 +1458,10 @@ typedef struct rsi_ble_req_prepare_write_s {
 // GATT execute write request structure
 
 /**
- * @brief Structure representing the BLE request to execute a write operation.
+ * @brief Structure represents the BLE request to execute a write operation.
  *
  * This structure is used to define the parameters for a BLE request to execute a write operation,
- * including the remote device address and the execute flag indicating whether to write or not.
+ * which includes the remote device address and the execute flag indicating whether to write or not.
  */
 typedef struct rsi_ble_req_execute_write_s {
   /** Remote device address */
@@ -1472,10 +1473,10 @@ typedef struct rsi_ble_req_execute_write_s {
 //RSI_BLE_CONN_PARAM_RESP_CMD, cmd_id: 0x0105
 
 /**
- * @brief Structure representing the BLE command response for connection parameters.
+ * @brief Structure represents the BLE command response for connection parameters.
  *
  * This structure is used to define the parameters for a BLE command response to a connection parameter request,
- * including the remote device address and the status indicating whether to accept or reject the request.
+ * which includes the remote device address and the status indicating whether to accept or reject the request.
  */
 typedef struct rsi_ble_cmd_conn_param_resp {
   /** Remote device address */
@@ -1490,10 +1491,10 @@ typedef struct rsi_ble_cmd_conn_param_resp {
 // add new GATT service request structure
 
 /**
- * @brief Structure representing the BLE request to add a service.
+ * @brief Structure represents the BLE request to add a service.
  *
  * This structure is used to define the parameters for a BLE request to add a service,
- * including the service UUID, the number of attributes in the service, 
+ * which includes the service UUID, the number of attributes in the service, 
  * and the total size of the attributes' values (data).
  */
 typedef struct rsi_ble_req_add_serv_s {
@@ -1508,10 +1509,10 @@ typedef struct rsi_ble_req_add_serv_s {
 // write or change local attribute value request structure
 
 /**
- * @brief Structure representing the BLE command to set a local attribute value.
+ * @brief Structure represents the BLE command to set a local attribute value.
  *
  * This structure is used to define the parameters for a BLE command to set a local attribute value,
- * including the attribute handle, the length of the attribute value, and the attribute value itself.
+ * which includes the attribute handle, the length of the attribute value, and the attribute value itself.
  */
 typedef struct rsi_ble_set_local_att_value_s {
   /** Attribute handle */
@@ -1525,10 +1526,10 @@ typedef struct rsi_ble_set_local_att_value_s {
 // write or change local attribute value request structure
 
 /**
- * @brief Structure representing the BLE notification for an attribute value.
+ * @brief Structure represents the BLE notification for an attribute value.
  *
  * This structure is used to define the parameters for a BLE notification of an attribute value,
- * including the remote device address, the attribute handle, the length of the attribute value,
+ * which includes the remote device address, the attribute handle, the length of the attribute value,
  * and the attribute value itself.
  */
 typedef struct rsi_ble_notify_att_value_s {
@@ -1545,10 +1546,10 @@ typedef struct rsi_ble_notify_att_value_s {
 // set wo_resp and notify buffer info
 
 /**
- * @brief Structure representing the BLE configuration for write without response notification buffer.
+ * @brief Structure represents the BLE configuration for write without response notification buffer.
  *
  * This structure is used to define the parameters for configuring the buffer for write without response notifications,
- * including the remote device address, the buffer configuration mode, and the buffer count.
+ * which includes the remote device address, the buffer configuration mode, and the buffer count.
  */
 typedef struct rsi_ble_set_wo_resp_notify_buf_info_s {
   /** Remote device address */
@@ -1562,10 +1563,10 @@ typedef struct rsi_ble_set_wo_resp_notify_buf_info_s {
 // indicate confirmation structure
 
 /**
- * @brief Structure representing the BLE indication confirmation.
+ * @brief Structure represents the BLE indication confirmation.
  *
  * This structure is used to define the parameters for a BLE indication confirmation,
- * including the remote device address.
+ * which includes the remote device address.
  */
 typedef struct rsi_ble_indicate_confirm_s {
   /** Remote device address */
@@ -1575,10 +1576,10 @@ typedef struct rsi_ble_indicate_confirm_s {
 // read local attribute value request structure
 
 /**
- * @brief Structure representing the BLE request to get a local attribute value.
+ * @brief Structure represents the BLE request to get a local attribute value.
  *
  * This structure is used to define the parameters for a BLE request to get a local attribute value,
- * including the attribute handle.
+ * which includes the attribute handle.
  */
 typedef struct rsi_ble_get_local_att_value_s {
   /** Attribute handle */
@@ -1586,10 +1587,10 @@ typedef struct rsi_ble_get_local_att_value_s {
 } rsi_ble_get_local_att_value_t;
 
 /**
- * @brief Structure representing the BLE GATT read response.
+ * @brief Structure represents the BLE GATT read response.
  *
  * This structure is used to define the parameters for a BLE GATT read response,
- * including the remote device address, the type of the read response, reserved field for future use,
+ * which includes the remote device address, the type of the read response, reserved field for future use,
  * the length of the attribute value, and the attribute value itself.
  */
 typedef struct rsi_ble_gatt_read_response_s {
@@ -1608,10 +1609,10 @@ typedef struct rsi_ble_gatt_read_response_s {
 // Att write/ execute write response cmd = 0x010A
 
 /**
- * @brief Structure representing the BLE GATT write response.
+ * @brief Structure represents the BLE GATT write response.
  *
  * This structure is used to define the parameters for a BLE GATT write response,
- * including the remote device address and the response type.
+ * which includes the remote device address and the response type.
  */
 typedef struct rsi_ble_gatt_write_response_s {
   /** Remote device address */
@@ -1623,10 +1624,10 @@ typedef struct rsi_ble_gatt_write_response_s {
 // Att prepare write response cmd = 0x010B
 
 /**
- * @brief Structure representing the BLE GATT prepare write response.
+ * @brief Structure represents the BLE GATT prepare write response.
  *
  * This structure is used to define the parameters for a BLE GATT prepare write response,
- * including the remote device address, the attribute handle, the attribute value offset,
+ * which includes the remote device address, the attribute handle, the attribute value offset,
  * the length of the attribute value, and the attribute value itself.
  */
 typedef struct rsi_ble_gatt_prepare_write_response_s {
@@ -1660,7 +1661,7 @@ typedef struct rsi_ble_set_local_irk_s {
 
 /**
  * 
- * @brief Enumeration representing the BLE GAP extended callback types.
+ * @brief Enumeration represents the BLE GAP extended callback types.
  *
  * This enumeration defines the possible callback types for the BLE GAP extended feature.
  *
@@ -1699,7 +1700,7 @@ typedef enum rsi_ble_gap_extended_callbacks_s {
 // Att error response cmd = 0x00C1
 
 /**
- * @brief Structure representing the BLE attribute error response.
+ * @brief Structure represents the BLE attribute error response.
  *
  * This structure is used to define the parameters for a BLE event
  * that involves an error response for an attribute operation from a remote device.
@@ -1716,7 +1717,7 @@ typedef struct rsi_ble_att_error_response_s {
 } rsi_ble_att_error_response_t;
 
 /**
- * @brief Structure representing the BLE GATT remove service request.
+ * @brief Structure represents the BLE GATT remove service request.
  *
  * This structure is used to define the parameters for a BLE event
  * that involves removing a GATT service from a remote device.
@@ -1727,10 +1728,10 @@ typedef struct rsi_ble_gatt_remove_serv_s {
 } rsi_ble_gatt_remove_serv_t;
 
 /**
- * @brief Structure representing the BLE GATT command to remove an attribute.
+ * @brief Structure represents the BLE GATT command to remove an attribute.
  *
  * This structure is used to define the parameters for a BLE GATT command to remove an attribute,
- * including the service handler and the attribute handle.
+ * which includes the service handler and the attribute handle.
  */
 typedef struct rsi_ble_gatt_remove_att_s {
   /** Service handler */
@@ -1742,10 +1743,10 @@ typedef struct rsi_ble_gatt_remove_att_s {
 // rf type command structure
 
 /**
- * @brief Structure representing the BLE vendor-specific RF type command.
+ * @brief Structure represents the BLE vendor-specific RF type command.
  *
  * This structure is used to define the parameters for a BLE vendor-specific RF type command,
- * including the opcode and the BLE power index.
+ * which includes the opcode and the BLE power index.
  */
 typedef struct rsi_ble_vendor_rf_type_s {
   /** Opcode */
@@ -1757,10 +1758,10 @@ typedef struct rsi_ble_vendor_rf_type_s {
 // rf type command structure
 
 /**
- * @brief Structure representing the BLE MTU exchange request.
+ * @brief Structure represents the BLE MTU exchange request.
  *
  * This structure is used to define the parameters for a BLE MTU exchange request,
- * including the remote device address and the requested MTU size.
+ * which includes the remote device address and the requested MTU size.
  */
 typedef struct rsi_ble_mtu_exchange_s {
   /** Remote device address */
@@ -1772,10 +1773,10 @@ typedef struct rsi_ble_mtu_exchange_s {
 // mtu exchange resp command structure
 
 /**
- * @brief Structure representing the BLE MTU exchange response.
+ * @brief Structure represents the BLE MTU exchange response.
  *
  * This structure is used to define the parameters for a BLE MTU exchange response,
- * including the Bluetooth device address of the peer device and the requested MTU size from the peer device.
+ * which includes the Bluetooth device address of the peer device and the requested MTU size from the peer device.
  */
 typedef struct rsi_ble_mtu_exchange_resp_s {
   /** The Bluetooth device address of the peer device */
@@ -1785,10 +1786,10 @@ typedef struct rsi_ble_mtu_exchange_resp_s {
 } rsi_ble_mtu_exchange_resp_t;
 
 /**
- * @brief Structure representing the BLE Advertising Extensions (AE) command to get the supported number of advertising sets.
+ * @brief Structure represents the BLE Advertising Extensions (AE) command to get the supported number of advertising sets.
  *
  * This structure is used to define the parameters for a BLE AE command to get the supported number of advertising sets,
- * including a reserved field.
+ * which includes a reserved field.
  */
 typedef struct rsi_ble_ae_get_supported_no_of_adv_sets_s {
   /** Reserved field */
@@ -1796,10 +1797,10 @@ typedef struct rsi_ble_ae_get_supported_no_of_adv_sets_s {
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_get_supported_no_of_adv_sets_t;
 
 /**
- * @brief Structure representing the BLE Advertising Extensions (AE) command to read the supported maximum advertising data.
+ * @brief Structure represents the BLE Advertising Extensions (AE) command to read the supported maximum advertising data.
  *
  * This structure is used to define the parameters for a BLE AE command to read the supported maximum advertising data,
- * including a reserved field for future use or alignment.
+ * which includes a reserved field for future use or alignment.
  */
 typedef struct rsi_ble_ae_read_supported_max_adv_data_s {
   /** Reserved field for future use or alignment */
@@ -1809,10 +1810,10 @@ typedef struct rsi_ble_ae_read_supported_max_adv_data_s {
 // AE Set Random Address (cmd), cmd_ix =
 
 /**
- * @brief Structure representing the BLE Advertising Extensions (AE) command to set a random address.
+ * @brief Structure represents the BLE Advertising Extensions (AE) command to set a random address.
  *
  * This structure is used to define the parameters for a BLE AE command to set a random address,
- * including the advertising handle and the random address.
+ * which includes the advertising handle and the random address.
  */
 typedef struct rsi_ble_ae_set_random_address_s {
   /** Advertising_Handle, used to identify an advertising set, Range: 0x00 to 0xEF */
@@ -1857,10 +1858,10 @@ typedef struct ae_adv_params_s {
                   0x01 - Random Device Address
                   0x02 - Controller generates the Resolvable Private Address based on the local
                          IRK from the resolving list. If the resolving list contains no matching
-                         entry, use the public address
+                         entry, use the public address.
                   0x03 - Controller generates the Resolvable Private Address based on the local
                          IRK from the resolving list. If the resolving list contains no matching
-                         entry, use the random address from LE_Set_Advertising_Set_Random_Address
+                         entry, use the random address from LE_Set_Advertising_Set_Random_Address.
   */
   uint8_t own_addr_type;
   /** uint8_t, Peer_Address_Type, Specifies Peer Address Type
@@ -1871,7 +1872,7 @@ typedef struct ae_adv_params_s {
   /** uint8[6], Peer_Device_Address, Address of the Peer_Address_Type */
   uint8_t peer_dev_addr[RSI_DEV_ADDR_LEN];
   /** uint8_t, Advertising_Filter_Policy
-              0x00 - Process scan and connection requests from all devices (i.e., the Filter Accept List is not in use)
+              0x00 - Process scan and connection requests from all devices (that is , the Filter Accept List is not in use).
               0x01 - Process connection requests from all devices and scan requests only from devices that are in the Filter Accept List.
               0x02 - Process scan requests from all devices and connection requests only from devices that are in the Filter Accept List.
               0x03 - Process scan and connection requests only from devices in the Filter Accept List.
@@ -1880,26 +1881,26 @@ typedef struct ae_adv_params_s {
   /** uint8_t Advertising_TX_Power, Advertising TX Power ranges from -127 to +20 and units are in dBm */
   uint8_t adv_tx_power;
   /** uint8_t Primary_Advertising_PHY, This  parameter specifies the PHY used for the periodic advertising.
-                 0x01 - Advertiser PHY is LE 1M
+                 0x01 - Advertiser PHY is LE 1M.
                  0x03 - Advertiser PHY is LE Coded
   */
   uint8_t primary_adv_phy;
   /** uint8_t Secondary_Advertising_Max_Skip
-                  0x00       AUX_ADV_IND shall be sent prior to the next advertising event
-               0x01 to 0xFF  Maximum advertising events the Controller can skip before sending the AUX_ADV_IND packets on the secondary advertising physical channel
+                  0x00  -     AUX_ADV_IND shall be sent prior to the next advertising event.
+               0x01 to 0xFF - Maximum advertising events the Controller can skip before sending the AUX_ADV_IND packets on the secondary advertising physical channel.
   */
   uint8_t sec_adv_max_skip;
   /** uint8_t Secondary_Advertising_PHY,  This  parameter specifies the PHY used for the periodic advertising.
-                 0x01 - Advertiser PHY is LE 1M
-                 0x02 - Advertiser PHY is LE 2M
-                 0x03 - Advertiser PHY is LE Coded
+                 0x01 - Advertiser PHY is LE 1M.
+                 0x02 - Advertiser PHY is LE 2M.
+                 0x03 - Advertiser PHY is LE Coded.
   */
   uint8_t sec_adv_phy;
   /** uint8_t Advertising_Sid, Value of the Advertising SID subfield in the ADI field of the PDU, Range : 0x00 to 0x0F */
   uint8_t adv_sid;
   /** uint8_t Scan Request Notification Enable
-               0x00 Scan request notifications disabled
-               0x01 Scan request notifications enabled
+               0x00 - Scan request notifications disabled.
+               0x01 - Scan request notifications enabled.
   */
   uint8_t scan_req_notify_enable;
 
@@ -1926,17 +1927,17 @@ typedef struct rsi_ble_ae_data_s {
   /** uint8_t Advertising Handle, used to identify an Advertising set, Ranges from 0x00 to 0xEF */
   uint8_t adv_handle;
   /** uint8_t Operation
-     0x00 - Intermediate fragment of fragmented extended advertising data
-     0x01 - First fragment of fragmented extended advertising data
-     0x02 - Last fragment of fragmented extended advertising data
-     0x03 - Complete extended advertising data
-     0x04 - Unchanged data (just update the Advertising DID)
+     0x00 - Intermediate fragment of fragmented extended advertising data.
+     0x01 - First fragment of fragmented extended advertising data.
+     0x02 - Last fragment of fragmented extended advertising data.
+     0x03 - Complete extended advertising data.
+     0x04 - Unchanged data (just update the Advertising DID).
   */
   uint8_t operation;
   /**
     uint8_t Fragment_Preference, Specifies the controller on where to fragment the Host advertising Data
-              0x00 - The Controller may fragment all Host advertising data
-              0x01 - The Controller should not fragment or should minimize fragmentation of Host advertising data
+              0x00 - The Controller may fragment all Host advertising data.
+              0x01 - The Controller should not fragment or should minimize fragmentation of Host advertising data.
   */
   uint8_t frag_pref;
   /** uint8_t Data Length, Specifies Advertising_Data_Length , This parameter ranges from 0 to 251 */
@@ -1949,25 +1950,25 @@ typedef struct rsi_ble_ae_data_s {
 typedef struct rsi_ble_ae_adv_enabel_s {
   /**
       uint8_t Enable, This parameter specifies whether to disable or Enable Advertising
-               0x00 - Advertising is disabled
-               0x01 - Advertising is Enabled
+               0x00 - Advertising is disabled.
+               0x01 - Advertising is enabled.
   */
   uint8_t enable;
   /**
      uint8_t Num_of_Sets , Indicates the number of Advertising sets to be disabled or enabled for Advertising
-              0x00         - Disable all advertising sets
-              0x01 to 0x3F - Number of advertising sets to enable or disable
+              0x00         - Disable all advertising sets.
+              0x01 to 0x3F - Number of advertising sets to enable or disable.
   */
   uint8_t no_of_sets;
   /** uint8_t Advertising_Handle, used to identify Advertising set, Ranges from 0x00 to 0xEF */
   uint8_t adv_handle;
   /**
      uint16_t Duration, specifies the duration to continue advertising
-      0x00 - No Advertising
-      0x0001 to 0xFFFF , Advertising Duration
+      0x00 - No Advertising.
+      0x0001 to 0xFFFF , Advertising Duration.
   */
   uint16_t duration;
-  /** uint8_t Maximum Extended Advertising Events, It specifies the Maximum number of extended advertising events the Controller shall
+  /** uint8_t Maximum Extended Advertising Events, It specifies the Maximum number of extended advertising events the Controller should
      attempt to send prior to terminating the extended advertising */
   uint8_t max_ae_events;
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_adv_enable_t;
@@ -2012,7 +2013,7 @@ typedef struct ae_periodic_adv_params {
 //AE periodic adv enable
 
 /**
- * @brief Structure representing the enable/disable state of periodic advertising.
+ * @brief Structure represents the enable/disable state of periodic advertising.
  */
 typedef struct ae_periodic_adv_enable {
 
@@ -2028,12 +2029,12 @@ typedef struct ae_periodic_adv_enable {
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_periodic_adv_enable_t;
 
 /**
- * @brief Structure representing the scan parameters for Active Energy (AE) scanning.
+ * @brief Structure represents the scan parameters for Active Energy (AE) scanning.
  */
 typedef struct ae_scan_params_s {
   /** uint8_t, Scan Type, this parameter specifies the type of scan to perform
-   *              0x00 - Passive Scanning. No scan request PDUs shall be sent.
-   *              0x01 - Active Scanning. Scan request PDUs may be sent.
+   *              0x00 - Passive Scanning. No scan request PDUs should be sent.
+   *              0x01 - Active Scanning. Scan request PDUs might be sent.
 */
   uint8_t ScanType;
   /** uint16_t, Scan Interval, this parameter is a recommendation from the Host on how frequently the Controller should scan
@@ -2279,8 +2280,8 @@ typedef struct rsi_ble_ae_extended_create_connect_s {
 
   /** uint8_t, Initiator Filter Policy,It is used to determine whether the Filter Accept List is used
    *        Value                                      Parameter Description
-   *        0x00             Filter Accept List is not used to determine which advertiser to connect to Peer_Address_Type and Peer_Address shall be used.
-   *        0x01             Filter Accept List is used to determine which advertiser to connect to Peer_Address_Type and Peer_Address shall be ignored.
+   *        0x00             Filter Accept List is not used to determine which advertiser to connect to Peer_Address_Type and Peer_Address should be used.
+   *        0x01             Filter Accept List is used to determine which advertiser to connect to Peer_Address_Type and Peer_Address should be ignored.
    *   All other values      Reserved for future use
   */
   uint8_t initiator_filter_policy;

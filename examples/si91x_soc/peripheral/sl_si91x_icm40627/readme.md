@@ -14,11 +14,11 @@
 
 ## Purpose/Scope
 
-- This application demonstrate the 6-axis inertial sensor (ICM-40627), which measures the motion parameters and temperature every 2 seconds.
+This application demonstrates the 6-axis inertial sensor (ICM-40627), which measures the motion parameters and temperature every 2 seconds.
 
 ## About Example Code
 
-- This example demonstrates the measurement of acceleration in 3 axes, gyroscope in 3 axes, and temperature every 2 seconds. It also shows how to use various APIs available via the SPI interface.
+This example demonstrates the measurement of acceleration in 3 axes, gyroscope in 3 axes, and temperature every 2 seconds. It also shows how to use various APIs available via the SPI interface.
 
 ## Prerequisites/Setup Requirements
 
@@ -30,13 +30,13 @@
 ### Software Requirements
 
 - Simplicity Studio
-- Serial console Setup
-  - The Serial Console setup instructions are provided 
- [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+- Serial console setup
+  - The serial console setup instructions are provided in the
+ [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) section of the *WiSeConnect Developer's Guide*.
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -45,18 +45,18 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 - [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 ## Application Build Environment
 
-- Configure the following macros in icm40627_example.c file and update/modify following macros if required.
+- Configure the following macros in the `icm40627_example.c` file and update/modify following macros, if required.
 
 - `DELAY_PERIODIC_MS1`: Select the delay for data display. By default, the delay is kept as 2 seconds.
 
-  ```C
-  #define DELAY_PERIODIC_MS1  2000      //sleeptimer1 periodic timeout in ms
-  ```
+    ```C
+    #define DELAY_PERIODIC_MS1  2000      //sleeptimer1 periodic timeout in ms
+    ```
 
 ## Test the Application
 

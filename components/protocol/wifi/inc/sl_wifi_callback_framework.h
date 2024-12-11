@@ -131,8 +131,8 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *  SL_WIFI_STATS_MODULE_STATE_EVENT messages are used to indicate module state to the host. These messages are enabled by setting the 10th bit of the custom feature bitmap in opermode.
  *  For the event SL_WIFI_STATS_MODULE_STATE_EVENT response structure refer [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t).
  * - state_code of this response  (1 byte), indicates the state of the module. `state_code` contains two parts, the upper nibble and lower nibble.
- *  The state code is formed by combining the upper nibble and the lower nibble using a bitwise OR operation, i.e., State code = upper nibble | lower nibble
- *  For example, if the state code is 82 but isn’t found in the table, it can be divided as follows: state_code = 80 | 02, where 80 is the upper nibble and 02 is the lower nibble.
+ *  The state code is formed by combining the upper and the lower nibbles using a bitwise OR operation, that is, State code = upper nibble | lower nibble
+ *  For example, if the state code is 82 but is not found in the table, it can be divided as follows: state_code = 80 | 02, where 80 is the upper nibble and 02 is the lower nibble.
  *
  *  The upper nibble indicates the state of the rejoin process.
  *  The following table documents the possible values of the upper nibble of the state_code.
@@ -224,10 +224,10 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *  | 0x54               | Pathlen certificate is Invalid.                            |
  *
  * @note
- *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the most significant bit (MSB) of the reason code.
- *   If the MSB (Most Significant Bit) is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame.
+ *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the Most Significant Bit (MSB) of the reason code.
+ *   If the MSB is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame.
  *   Pem Header Error (0x4D) and Pem Footer Error (0x4E) apply only when certificates are loaded individually.
- *   If certificates are loaded together in a single file, only the Pem Error (0x53) will be triggered for any header or footer errors.
+ *   If certificates are loaded together in a single file, only the Pem Error (0x53) triggers for any header or footer errors.
  * @note
  *   In case of event failure, the `SL_WIFI_FAIL_EVENT_STATUS_INDICATION` bit is set in the `event` parameter.
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.

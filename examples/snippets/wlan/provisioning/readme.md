@@ -22,7 +22,7 @@ All device activities can be observed on the serial terminal prints. You may use
 
 ## Prerequisites/Setup Requirements
 
- Before running the application, the user will need the following things to setup.
+ Before running the application, you will need the following things for setup.
 
 ### Hardware Requirements
 
@@ -32,9 +32,9 @@ All device activities can be observed on the serial terminal prints. You may use
   - Silicon Labs [BRD4388A](https://www.silabs.com/)
 - NCP Mode:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
 
@@ -59,9 +59,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-1. *In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file.*
+1. In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file.
 - **SiWx91x Provisioning AP instance related parameters**
 
 	- DEFAULT_WIFI_AP_PROFILE_SSID refers to the SSID of the SiWx91x Provisioning AP that would be created.
@@ -89,11 +89,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application.
 - Flash, run, and debug the application.
 
-**Step 1** : The SiWx91x module starts in AP mode. All device activities can be observed on the serial terminal prints.
+**Step 1**: The SiWx91x module starts in AP mode. All device activities can be observed on the serial terminal prints.
 
-**Step 2** : Connect your laptop/mobile to the SiWx91x module's AP. The default network name and password are `MY_AP_SSID` and `MY_AP_PASSPHRASE`, respectively.
+**Step 2**: Connect your laptop/mobile to the SiWx91x module's AP. The default network name and password are `MY_AP_SSID` and `MY_AP_PASSPHRASE`, respectively.
 
-**Step 3** : Launch the browser 
+**Step 3**: Launch the browser 
 
 ### Connecting to a Wi-Fi Network
 

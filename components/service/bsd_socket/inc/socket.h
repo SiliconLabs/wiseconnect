@@ -167,14 +167,14 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define	AF_LOCAL	AF_UNIX		///< POSIX compatibility alias for AF_UNIX. This domain is not supported in the current release.
 #define	AF_INET		2		///< Internet IP Protocol address family.
 #define	AF_IMPLINK	3		///< ARPANET IMP address family. This domain is not supported in the current release.
-#define	AF_PUP		4		///< PUP protocols (e.g., BSP) address family. This domain is not supported in the current release.
+#define	AF_PUP		4		///< PUP protocols (for example, BSP) address family. This domain is not supported in the current release.
 #define	AF_CHAOS	5		///< MIT CHAOS protocols address family. This domain is not supported in the current release.
 #define	AF_NS		6		///< XEROX NS protocols address family. This domain is not supported in the current release.
 #define	AF_ISO		7		///< ISO protocols address family. This domain is not supported in the current release.
 #define	AF_OSI		AF_ISO  ///< OSI protocol family. This domain is not supported in the current release.
 #define	AF_ECMA		8		///< European Computer Manufacturers Association (ECMA) protocols address family. This domain is not supported in the current release.
 #define	AF_DATAKIT	9		///< Datakit protocols address family. This domain is not supported in the current release.
-#define	AF_CCITT	10		///< CCITT protocols (e.g., X.25) address family. This domain is not supported in the current release.
+#define	AF_CCITT	10		///< CCITT protocols (for example, X.25) address family. This domain is not supported in the current release.
 #define	AF_SNA		11		///< IBM SNA address family. This domain is not supported in the current release.
 #define AF_DECnet	12		///< DECnet address family. This domain is not supported in the current release.
 #define AF_DLI		13		///< DEC Direct data link interface address family. This domain is not supported in the current release.
@@ -223,7 +223,7 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
  */
 struct sockaddr {
 	uint8_t    sa_len;		///< Total length of the structure.
-	sa_family_t sa_family;		///< Address family (e.g., AF_INET).
+	sa_family_t sa_family;		///< Address family (for example, AF_INET).
 	char	    sa_data[14];	///< Socket address data. The actual format is determined by the address family.
 };
 /** @} */

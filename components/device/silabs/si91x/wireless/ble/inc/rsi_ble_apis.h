@@ -230,11 +230,11 @@ typedef struct rsi_bt_event_encryption_enabled_s {
 -
 	  BIT(1) --> To indicate or set Authenticated Pairing and Encryption UN_AUTH_LTK_OR_STK_ENC 
 -
-	  BIT(2) --> To indicate or set UnAuthenticated pairing and Encryption AUTH_LTK_WITH_LE_SC_ENC 
+	  BIT(2) --> To indicate or set UnAuthenticated Pairing and Encryption AUTH_LTK_WITH_LE_SC_ENC 
 -
-	  BIT(3) --> To indicate or set Authenticated Pairing and Enc with LE SC */
+	  BIT(3) --> To indicate or set Authenticated Pairing and Encryption with LE SC */
   uint8_t enabled;
-  /**BLE Secure Connections Enable/disable indication 
+  /**BLE Secure Connections Enable/Disable indication 
 -
       0 --> Disable 
 -
@@ -296,11 +296,11 @@ typedef struct rsi_bt_event_smp_resp_s {
   uint8_t min_req_key_size;
   /** Initiator generates/requires the no .of keys after successful paring 
 -
-      BIT(0) - EncKey: Initiator distributes the LTK followed by EDIV and Rand 
+      BIT(0) - EncKey: Initiator distributes the Long-Term Key (LTK) followed by Encrypted Diversifier (EDIV) and Random Number (Rand) 
 -
-      BIT(1) - IdKey : Initiator distributes the IRK followed by its address 
+      BIT(1) - IdKey : Initiator distributes the Identity Resolving Key (IRK) followed by its address 
 -
-      BIT(2) - Sign  : Initiator distributes the CSRK 
+      BIT(2) - Sign  : Initiator distributes the Connection Signature Resolving Key (CSRK) 
 -
       BIT(3) - BIT(7): Reserved for future use */
   uint8_t ini_key_distrb;
@@ -491,7 +491,7 @@ typedef struct rsi_ble_event_data_length_update_s {
 } rsi_ble_event_data_length_update_t;
 
 /**
- * @brief Structure representing a 128-bit UUID.
+ * @brief Structure representing a 128-bit Universal Unique IDentifier (UUID).
  */
 typedef struct uuid128_s {
   /** Holds the value of data1 */
@@ -519,7 +519,7 @@ typedef uint32_t uuid32_t;
 /**
  * @brief Structure representing a Universally Unique Identifier (UUID).
  *
- * This structure encapsulates a UUID, which can be of varying sizes—16-bit, 32-bit, or 128-bit.
+ * This structure encapsulates a UUID, which can be of varying sizes— 16, 32, or 128-bits.
  * It includes the size of the UUID, a reserved field, and a union to hold the value 
  * of one of the three types of UUIDs.
  */
@@ -831,7 +831,7 @@ typedef struct rsi_ble_event_read_by_type3_s {
   uint8_t handle[2];
   /**length of attribute value*/
   uint16_t length;
-  /**This contains the attribute value. The maximum value is 240, please refer RSI_DEV_ATT_LEN Macro*/
+  /**This contains the attribute value. The maximum value is 240, refer to RSI_DEV_ATT_LEN Macro*/
   uint8_t att_value[RSI_DEV_ATT_LEN];
 } rsi_ble_event_read_by_type3_t;
 
@@ -845,7 +845,7 @@ typedef struct rsi_ble_event_att_value_s {
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
   /**length of attribute value*/
   uint16_t length;
-  /**This contains the attribute value. The maximum value is 240, please refer RSI_DEV_ATT_LEN Macro*/
+  /**This contains the attribute value. The maximum value is 240, refer to RSI_DEV_ATT_LEN Macro*/
   uint8_t att_value[RSI_DEV_ATT_LEN];
 } rsi_ble_event_att_value_t;
 
@@ -872,7 +872,7 @@ typedef struct rsi_ble_prepare_write_resp_s {
   uint8_t offset[2];
   /**length of attribute value*/
   uint8_t length;
-  /**This contains the attribute value. The maximum value is 240, please refer RSI_DEV_ATT_LEN Macro*/
+  /**This contains the attribute value. The maximum value is 240, refer to RSI_DEV_ATT_LEN Macro*/
   uint8_t att_value[RSI_DEV_ATT_LEN];
 } rsi_ble_prepare_write_resp_t;
 
@@ -1128,7 +1128,8 @@ typedef struct rsi_ble_event_mtu_s {
 /** @addtogroup BT_BLE_CONSTANTS
  *  @{
  */
-#define PEER_DEVICE_INITATED_MTU_EXCHANGE  0x1 ///< Indicates that the MTU exchange was initiated by the peer device.
+#define PEER_DEVICE_INITATED_MTU_EXCHANGE \
+  0x1 ///< Indicates that the Maximum Transmission Unit (MTU) exchange was initiated by the peer device.
 #define LOCAL_DEVICE_INITATED_MTU_EXCHANGE 0x2 ///< Indicates that the MTU exchange was initiated by the local device.
 /** @} */
 //MTU Exchange Information event structure
@@ -1383,10 +1384,10 @@ typedef struct rsi_ble_per_transmit_s {
        8  500 Kbps Coded */
   uint8_t phy_rate;
   /** Rx channel number (0 - 39) 
-     @note Removed the BLE packet transmission on channel-39 (2480MHz) at a 2Mbps data rate */
+     @note Removed the BLE packet transmission on channel-39 (2480 MHz) at a 2 Mbps data rate */
   uint8_t rx_chnl_num;
   /** Tx channel number (0 - 39) 
-     @note Removed the BLE packet transmission on channel-39 (2480MHz) at a 2Mbps data rate */
+     @note Removed the BLE packet transmission on channel-39 (2480 MHz) at a 2 Mbps data rate */
   uint8_t tx_chnl_num;
   /** Initial seed to be used for whitening. It should be set to 0 in order to disable whitening. 
 -
@@ -1456,7 +1457,7 @@ typedef struct rsi_ble_per_transmit_s {
 - 
        Default Value for BLE TX Power Index is 31, The range for the BLE TX Power Index is 1 to 127 (0, 32 indexes are invalid). 
 -
-       TX power index for the BLE LP Chain : 1 to 31 (0dBm Mode), 33 to 63 ( 10dBm Mode) 
+       TX power index for the BLE LP Chain : 1 to 31 (0 dBm Mode), 33 to 63 ( 10 dBm Mode) 
 -
        TX power index for the BLE HP Chain : 1 to 127 
 -
@@ -1804,9 +1805,9 @@ typedef struct rsi_ble_per_adv_sync_estbl_s {
   uint16_t per_adv_interval;
   /**
     uint16_t Advertiser_Clock_Accuracy. This parameter specifies the accuracy of the periodic advertiser's clock.
-                  0x00 - 500ppm
-                  0x01 - 250ppm
-                  0x02 - 150ppm
+                  0x00 - 500 ppm
+                  0x01 - 250 ppm
+                  0x02 - 150 ppm
                   0x03 - 100 ppm
                   0x04 - 75 ppm
                   0x05 - 50 ppm
@@ -2246,7 +2247,7 @@ int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, const int8_t *remote_dev_a
  *               - le_scan_window - Amount of time for the duration of the LE scan. This must be less than or equal to le_scan_interval. 
  *                 - Range: 0x0004 to 0x4000 
  *                 - Time = le_scan_window * 0.625 msec 
- *                 - Time Range: 2.5 msec to 10 . 24 seconds  
+ *                 - Time Range: 2.5 msec to 10.24 seconds  
  *               - conn_interval_min - Minimum value for the connection event interval. This must be greater than or equal to conn_interval_max. 
  *                 - Range: 0x0006 to 0x0C80 
  *                 - Time = conn_interval_min * 1.25 msec 
@@ -2302,9 +2303,9 @@ int32_t rsi_ble_connect_cancel(const int8_t *remote_dev_address);
  * 0 - Success 
  * Non-Zero Value - Failure 
  * 0x4E0C - Command disallowed 
- * 0x4D05  BLE socket not available 
- * 0x4E62 	Invalid Parameters 
- * 0x4D04	BLE not connected 
+ * 0x4D05 - BLE socket not available 
+ * 0x4E62 - Invalid Parameters 
+ * 0x4D04-  BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_disconnect(const int8_t *remote_dev_address);
@@ -2841,8 +2842,8 @@ int32_t rsi_ble_read_max_data_len(rsi_ble_read_max_data_length_t *blereaddatalen
  *                   0x02  Receiver set to use the LE 2M PHY 
  *                   0x03  Receiver set to use the LE Coded PHY 
  *                   (0x04 - 0xFF)   Reserved for future use.
- * @param[in]  modulation - 0x00  Assume transmitter will have a standard standard modulation index 
- *                          0x01  Assume transmitter will have a stable modulation index 
+ * @param[in]  modulation - 0x00  Assume transmitter would have a standard standard modulation index 
+ *                          0x01  Assume transmitter would have a stable modulation index 
  *                          (0x02 - 0xFF)  Reserved for future use
  * @return The following values are returned:
  *             - 0 - Success 
@@ -2860,8 +2861,8 @@ int32_t rsi_ble_rx_test_mode(uint8_t rx_channel, uint8_t phy, uint8_t modulation
  * @param[in]  phy - 0x00  Reserved for future use 
  *                  - 0x01  Transmitter set to use the LE 1M PHY 
  *                  - 0x02  Transmitter set to use the LE 2M PHY 
- *                  - 0x03  Transmitter set to use the LE Coded PHY with S=8 data coding 
- *                  - 0x04  Transmitter set to use the LE Coded PHY with S=2 data coding 
+ *                  - 0x03  Transmitter set to use the LE Coded PHY with S = 8 data coding 
+ *                  - 0x04  Transmitter set to use the LE Coded PHY with S = 2 data coding 
  *                  - (0x05 - 0xFF)  Reserved for future use.
  * @param[in] tx_len - Length in bytes of payload data in each packet ( 1 - 251 bytes).
  * @param[in] mode - 0x00  PRBS9 sequence '11111111100000111101...' 
@@ -3013,13 +3014,13 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  * @note        Use the following setting to indicate tx_power as an index: `#define RSI_BLE_PWR_INX 30`
  * Default value for power index is 31. 
  * Valid values for power index range from 1 to 31 and 33 to 127:
- *   - 1 to 31: BLE - 0dBm mode.  
- *   - 33 to 63: BLE - 10dBm mode. 
- *   - 64 to 82: BLE - 1dBm - 18dBm HP mode in the resolution of 1dBm.
- *   - 104 to 126: BLE - 0.5dBm - 11dBm HP mode in the resolution of 0.5dbm.
+ *   - 1 to 31: BLE - 0 dBm mode.  
+ *   - 33 to 63: BLE - 10 dBm mode. 
+ *   - 64 to 82: BLE - 1 dBm - 18 dBm HP mode in the resolution of 1 dBm.
+ *   - 104 to 126: BLE - 0.5d Bm - 11 dBm HP mode in the resolution of 0.5 dbm.
  *   - 127: BLE HP Mode, max power supported.
- * @note        Use the following setting to indicate tx_power in dBm (-8dBm to 18dBm): `#define RSI_BLE_PWR_INX_DBM  1`
- * @note        When switching between HP mode and LP mode, please ensure that no protocol activity is running.  
+ * @note        Use the following setting to indicate tx_power in dBm (-8 to 18 dBm): `#define RSI_BLE_PWR_INX_DBM  1`
+ * @note        When switching between HP mode and LP mode, ensure that no protocol activity is running.  
  * @note        For the LP Chain - Power index vs output power in dBm in E2E mode:
  *   |       Power Index   |                  Output Power in dBm                              |
  *   ----------------------|-------------------------------------------------------------------|
@@ -3146,7 +3147,7 @@ int32_t rsi_ble_set_ble_tx_power(int8_t tx_power);
  * @param[in]  start_handle	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_prof_list 	- profiles/services information will be filled in this structure after retrieving from the remote device,
-				  please refer rsi_ble_resp_profiles_list_s structure for more info.
+				  refer to rsi_ble_resp_profiles_list_s structure for more info.
  *
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -3198,7 +3199,7 @@ int32_t rsi_ble_get_profile(uint8_t *dev_addr, uuid_t profile_uuid, profile_desc
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
- * @param[out] p_char_serv_list - service characteristics details are filled in this structure, please refer rsi_ble_resp_char_serv_s structure for more info. 
+ * @param[out] p_char_serv_list - service characteristics details are filled in this structure, refer to rsi_ble_resp_char_serv_s structure for more info. 
  *
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -3226,7 +3227,7 @@ int32_t rsi_ble_get_char_services(uint8_t *dev_addr,
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
- * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, please refer rsi_ble_resp_inc_serv structure for more info.
+ * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, refer to rsi_ble_resp_inc_serv structure for more info.
  *
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -3285,7 +3286,7 @@ int32_t rsi_ble_get_char_value_by_uuid(uint8_t *dev_addr,
  * @param[in]  dev_addr - remote device address
  * @param[in]  start_handle - start handle (index) of the remote device's service records
  * @param[in]  end_handle - end handle (index) of the remote device's service records
- * @param[out] p_att_desc - pointer to characteristic descriptor structure, Please refer rsi_ble_resp_att_descs_s structure for more info.
+ * @param[out] p_att_desc - pointer to characteristic descriptor structure, refer to rsi_ble_resp_att_descs_s structure for more info.
  * @return The following values are returned:
  *     - 0		-	Success 
  *     - Non-Zero Value	-	Failure 
@@ -3307,7 +3308,7 @@ int32_t rsi_ble_get_att_descriptors(uint8_t *dev_addr,
  *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr	 - remote device address
  * @param[in]  handle	 - handle value of the attribute
- * @param[out] p_att_val - attribute value is filled in this structure, Please refer rsi_ble_resp_att_value_s structure for more info.
+ * @param[out] p_att_val - attribute value is filled in this structure, refer to rsi_ble_resp_att_value_s structure for more info.
  * @return The following values are returned:
  *     - 0  		-  Success 
  *     - Non-Zero Value - Failure 
@@ -3331,7 +3332,7 @@ int32_t rsi_ble_get_att_value(uint8_t *dev_addr, uint16_t handle, rsi_ble_resp_a
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  num_of_handlers 	- number of handles in the list
  * @param[in]  handles 		- list of attribute handles
- * @param[out] p_att_vals 	- attribute values filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
+ * @param[out] p_att_vals 	- attribute values filled in this structure, refer to rsi_ble_resp_att_value_s structure for more info.
  * @return The following values are returned:
  *     - 0		-	Success 
  *     - Non-Zero Value	-	Failure 
@@ -3357,7 +3358,7 @@ int32_t rsi_ble_get_multiple_att_values(uint8_t *dev_addr,
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- offset within the attribute value
- * @param[out] p_att_vals - attribute value filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
+ * @param[out] p_att_vals - attribute value filled in this structure, refer to rsi_ble_resp_att_value_s structure for more info.
  * @return The following values are returned:
  *     - 0		-	Success 
  *     - Non-Zero Value	-	Failure 
@@ -3503,8 +3504,8 @@ int32_t rsi_ble_execute_write(uint8_t *dev_addr, uint8_t exe_flag);
  * @brief      Add a new service to the local GATT Server. This is a blocking API.
  * @pre Pre-conditions:
  *        - Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
- * @param[in]  service_uuid 	- new service UUID value, please refer uuid_s structure for more info.
- * @param[out] p_resp_serv 	- new service handler filled in this structure, please refer rsi_ble_resp_add_serv_s structure for more info.
+ * @param[in]  service_uuid 	- new service UUID value, refer to uuid_s structure for more info.
+ * @param[out] p_resp_serv 	- new service handler filled in this structure, refer to rsi_ble_resp_add_serv_s structure for more info.
  * @return The following values are returned:
  *             - 0		-	Success 
  *             - Non-Zero Value	-	Failure 
@@ -3520,7 +3521,7 @@ int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp
  * @brief      Add a new attribute to a specific service. This is a blocking API.
  * @pre Pre-conditions:
  *        Call [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) before calling this API.
- * @param[in]  p_attribute - add a new attribute to the service, please refer rsi_ble_req_add_att_s structure for more info. 
+ * @param[in]  p_attribute - add a new attribute to the service, refer to rsi_ble_req_add_att_s structure for more info. 
  * @return The following values are returned:
  *             - 0		-	Success 
  *             - Non-Zero Value	-	Failure 
@@ -4160,7 +4161,7 @@ int32_t rsi_ble_get_profiles_async(uint8_t *dev_addr,
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  profile_uuid 	- services/profiles which are searched using profile_uuid 
  * @param[out] p_profile 	- profile / service information filled in this structure after retrieving from the remote device,
- *			  please refer profile_descriptor_s structure for more info. 
+ *			  refer to profile_descriptor_s structure for more info. 
  * 		@note	p_profile structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -4220,7 +4221,7 @@ int32_t rsi_ble_get_char_services_async(uint8_t *dev_addr,
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
- * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, please refer rsi_ble_resp_inc_serv structure for more info.
+ * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, refer to rsi_ble_resp_inc_serv structure for more info.
  *
  * @note	p_inc_serv_list structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
@@ -4254,7 +4255,7 @@ int32_t rsi_ble_get_inc_services_async(uint8_t *dev_addr,
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[in]  char_uuid 	- UUID of the characteristic
- * @param[out] p_char_val 	- characteristic value is filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
+ * @param[out] p_char_val 	- characteristic value is filled in this structure, refer to rsi_ble_resp_att_value_s structure for more info.
  * @note	p_char_val structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -4285,7 +4286,7 @@ int32_t rsi_ble_get_char_value_by_uuid_async(uint8_t *dev_addr,
  * @param[in]  dev_addr - remote device address
  * @param[in]  start_handle - start handle (index) of the remote device's service records
  * @param[in]  end_handle - end handle (index) of the remote device's service records
- * @param[out] p_att_desc - pointer to characteristic descriptor structure, Please refer rsi_ble_resp_att_descs_s strcuture for more info.
+ * @param[out] p_att_desc - pointer to characteristic descriptor structure, refer to rsi_ble_resp_att_descs_s strcuture for more info.
  *
  * 		@note	p_att_desc structure should be passed as NULL because nothing will be filled in this structure 
  *
@@ -4314,7 +4315,7 @@ int32_t rsi_ble_get_att_descriptors_async(uint8_t *dev_addr,
  *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- handle value of the attribute
- * @param[out] p_att_val - attribute value is filled in this structure, Please refer rsi_ble_resp_att_value_s structure for more info.
+ * @param[out] p_att_val - attribute value is filled in this structure, refer to rsi_ble_resp_att_value_s structure for more info.
  * @note	p_att_val structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -4341,7 +4342,7 @@ int32_t rsi_ble_get_att_value_async(uint8_t *dev_addr, uint16_t handle, rsi_ble_
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  num_of_handlers 	- number of handles in the list
  * @param[in]  handles 		- list of attribute handles
- * @param[out] p_att_vals 	- attribute values filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
+ * @param[out] p_att_vals 	- attribute values filled in this structure, refer to rsi_ble_resp_att_value_s structure for more info.
  * @note	p_att_vals structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
  *             - 0		-	Success 
@@ -4370,8 +4371,8 @@ int32_t rsi_ble_get_multiple_att_values_async(uint8_t *dev_addr,
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- offset within the attribute value
- * @param[out] p_att_vals - attribute value filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
- * @note	p_att_vals structure should be passed as NULL because nothing will be filled in this structure 
+ * @param[out] p_att_vals - attribute value filled in this structure, refer to rsi_ble_resp_att_value_s structure for more information.
+ * @note	p_att_vals structure should be passed as NULL because nothing would be filled in this structure 
  * @return The following values are returned:
  *             - 0		-	Success 
  *             - Non-Zero Value	-	Failure 
@@ -4535,7 +4536,7 @@ uint32_t rsi_ble_cbfc_disconnect(uint8_t *dev_addr, uint16_t lcid);
  * @brief      Callback function advertise event report from the module.
  *             This  callback function is called whenever an advertise event report is received from the module.
  *             It has to registered using the `rsi_ble_gap_register_callbacks` API.               
- * @param[out]  rsi_ble_event_adv contains the advertise report information. Please refer rsi_ble_event_adv_report_s for more info.
+ * @param[out]  rsi_ble_event_adv contains the advertise report information. Refer to rsi_ble_event_adv_report_s for more information.
  * @return The following values are returned:
  *      void
  */
@@ -4548,7 +4549,7 @@ typedef void (*rsi_ble_on_adv_report_event_t)(rsi_ble_event_adv_report_t *rsi_bl
  * This callback function is called whenever the BLE connection status is received from the module.
  * For BLE 4.1 and lower versions, this callback will be called.
  * It has to be registered using the `rsi_ble_gap_register_callbacks` API.
- * @param[out]  rsi_ble_event_conn contains the BLE connection status. Please refer rsi_ble_event_conn_status_s for more info.
+ * @param[out]  rsi_ble_event_conn contains the BLE connection status. Refer rsi_ble_event_conn_status_s for more information.
  * @return The following values are returned:
  *      void
  */
@@ -4561,7 +4562,7 @@ typedef void (*rsi_ble_on_connect_t)(rsi_ble_event_conn_status_t *rsi_ble_event_
  * This callback function is called whenever the BLE connection status is received from the module.
  * For BLE 4.2 and above versions, this callback will be called.
  * It has to be registered using the `rsi_ble_gap_register_callbacks` API.
- * @param[out]  rsi_ble_event_enhance_conn contains the BLE connection status. Please refer rsi_ble_event_enhance_conn_status_s for more info.
+ * @param[out]  rsi_ble_event_enhance_conn contains the BLE connection status. Refer to rsi_ble_event_enhance_conn_status_s for more info.
  * @return The following values are returned:
  *      void
  */
@@ -4573,7 +4574,7 @@ typedef void (*rsi_ble_on_enhance_connect_t)(rsi_ble_event_enhance_conn_status_t
  *
  * This callback function is called whenever the disconnect status event is received from the module.
  * It has to be registered using the `rsi_ble_gap_register_callbacks` API.
- * @param[out]  rsi_ble_event_disconnect contains the disconnect status. Please refer rsi_ble_event_disconnect_s for more information.
+ * @param[out]  rsi_ble_event_disconnect contains the disconnect status. Refer to rsi_ble_event_disconnect_s for more information.
  * @param[out]  reason contains reason for failure. 
  * @note        Few reason for failure are given below 
  *              0x4E13	Remote user terminated connection 
@@ -4999,7 +5000,7 @@ typedef void (*rsi_ble_on_gatt_error_resp_t)(uint16_t event_status, rsi_ble_even
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
  *
- * @param[out]  rsi_ble_gatt_desc_val contains the profiles list event information. Please refer rsi_ble_event_gatt_desc_s for more info
+ * @param[out]  rsi_ble_gatt_desc_val contains the profiles list event information. Refer to rsi_ble_event_gatt_desc_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5019,7 +5020,7 @@ typedef void (*rsi_ble_on_gatt_desc_val_event_t)(uint16_t event_status,
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
  *
- * @param[out]  rsi_ble_event_profiles contains the profiles list event information. Please refer rsi_ble_event_profiles_list_s for more info
+ * @param[out]  rsi_ble_event_profiles contains the profiles list event information. Refer to rsi_ble_event_profiles_list_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5041,7 +5042,7 @@ typedef void (*rsi_ble_on_event_profiles_list_t)(uint16_t event_status,
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
  *
- * @param[out]  rsi_ble_event_profile contains the profile response information. Please refer rsi_ble_event_profile_by_uuid_s for more info.
+ * @param[out]  rsi_ble_event_profile contains the profile response information. Refer to rsi_ble_event_profile_by_uuid_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5058,7 +5059,7 @@ typedef void (*rsi_ble_on_event_profile_by_uuid_t)(uint16_t event_status,
  * 
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
- * @param[out]  rsi_ble_event_read_type1 contains the char services event information. Please refer rsi_ble_event_read_by_type1_s for more info.
+ * @param[out]  rsi_ble_event_read_type1 contains the char services event information. Refer to rsi_ble_event_read_by_type1_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5078,7 +5079,7 @@ typedef void (*rsi_ble_on_event_read_by_char_services_t)(uint16_t event_status,
  * 
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
- * @param[out]  rsi_ble_event_read_type2 contains the inc services information. Please refer rsi_ble_event_read_by_type2_s for more info.
+ * @param[out]  rsi_ble_event_read_type2 contains the inc services information. Refer to rsi_ble_event_read_by_type2_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5099,7 +5100,7 @@ typedef void (*rsi_ble_on_event_read_by_inc_services_t)(uint16_t event_status,
  * 
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
- * @param[out]  rsi_ble_event_read_type3 contains the char services event information. Please refer rsi_ble_event_read_by_type3_s for more info.
+ * @param[out]  rsi_ble_event_read_type3 contains the char services event information. Refer to rsi_ble_event_read_by_type3_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5117,7 +5118,7 @@ typedef void (*rsi_ble_on_event_read_att_value_t)(uint16_t event_status,
  * 
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
- * @param[out]  rsi_ble_event_att_val contains the profile response information. Please refer rsi_ble_event_att_value_s for more info.
+ * @param[out]  rsi_ble_event_att_val contains the profile response information. Refer to rsi_ble_event_att_value_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5135,7 +5136,7 @@ typedef void (*rsi_ble_on_event_read_resp_t)(uint16_t event_status, rsi_ble_even
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
  *
- * @param[out]  rsi_ble_event_set_att_rsp contains the profile response information. Please refer rsi_ble_set_att_resp_t for more info.
+ * @param[out]  rsi_ble_event_set_att_rsp contains the profile response information. Refer to rsi_ble_set_att_resp_t for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5152,7 +5153,7 @@ typedef void (*rsi_ble_on_event_write_resp_t)(uint16_t event_status, rsi_ble_set
  * 
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
- * @param[out]  rsi_ble_event_set_att_rsp contains the profile response information. Please refer rsi_ble_set_att_resp_s for more info.
+ * @param[out]  rsi_ble_event_set_att_rsp contains the profile response information. Refer to rsi_ble_set_att_resp_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5169,7 +5170,7 @@ typedef void (*rsi_ble_on_event_indicate_confirmation_t)(uint16_t event_status,
  * @param[out]  event_status contains the response status 
  *              - 0 - Success 
  *              - Non-Zero Value	-	Failure 
- * @param[out]  rsi_ble_event_prepare_write contains the char services event information. Please refer rsi_ble_prepare_write_resp_s for more info.
+ * @param[out]  rsi_ble_event_prepare_write contains the char services event information. Refer to rsi_ble_prepare_write_resp_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5190,7 +5191,7 @@ typedef void (*rsi_ble_on_event_prepare_write_resp_t)(uint16_t event_status,
  * @note        Attribute protocol error codes 
  *              0x4A01  -  Invalid Handle 
  *              0x4A0A  -  Attribute not found 
- * @param[out]  rsi_ble_resp_profiles contains the profiles list response information. Please refer rsi_ble_resp_profiles_list_s for more info.
+ * @param[out]  rsi_ble_resp_profiles contains the profiles list response information. Refer to rsi_ble_resp_profiles_list_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5211,7 +5212,7 @@ typedef void (*rsi_ble_on_profiles_list_resp_t)(uint16_t resp_status,
  *              0x4A01  -  Invalid Handle 
  *              0x4A06  -  Request not supported 
  *              0x4A0A  -  Attribute not found 
- * @param[out]  rsi_ble_resp_profile contains the profile response information. Please refer profile_descriptors_s for more info
+ * @param[out]  rsi_ble_resp_profile contains the profile response information. Refer to profile_descriptors_s for more information.
  * @return The following values are returned:
  *      void
  * 
@@ -5292,7 +5293,7 @@ typedef void (*rsi_ble_on_inc_services_resp_t)(uint16_t resp_status,
  *              0x4A0C  -  Insufficient encryption key size 
  *              0x4A0F  -  Insufficient encryption 
  * 				      0x4A02  -  Read not permitted 
- * @param[out]  rsi_ble_resp_att_desc contains the attribute descriptors response information. Please refer rsi_ble_resp_att_descs_s for more info 
+ * @param[out]  rsi_ble_resp_att_desc contains the attribute descriptors response information. Refer to rsi_ble_resp_att_descs_s for more information. 
  * @return The following values are returned:
  *      void
  * 
@@ -5373,7 +5374,7 @@ typedef void (*rsi_ble_on_write_resp_t)(uint16_t resp_status, uint16_t resp_id);
  * This callback function is called when GATT write, notify, or indicate events are received from the module.
  * It has to be registered using the `rsi_ble_gatt_register_callbacks` API.
  * @param[out]  event_id contains the gatt_write event id (RSI_BLE_EVENT_GATT_WRITE) 
- * @param[out]  rsi_ble_write  contains the GATT event information. Please refer rsi_ble_event_write_s for more info
+ * @param[out]  rsi_ble_write  contains the GATT event information. Refer to rsi_ble_event_write_s for more information.
  * 
  */
 typedef void (*rsi_ble_on_gatt_write_event_t)(uint16_t event_id, rsi_ble_event_write_t *rsi_ble_write);

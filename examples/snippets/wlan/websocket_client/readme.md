@@ -142,7 +142,7 @@ To run the WebSocket server, follow these steps:
    };
    ```
 
-2. Load the SSL CA certificate in the app.c as shown below.
+2. Load the SSL CA certificate in the `app.c` file as shown below.
 
    ```c
    #include "cacert.pem.h"

@@ -164,7 +164,7 @@
  *   This macro defines the maximum length, in bytes, of the buffer used to store HTTP headers. It is used to ensure that the buffer allocated for headers is sufficiently large to handle typical HTTP requests and responses.
  * 
  * @note
- *   This macro will be depreciated in future releases. The renamed macro is @ref SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH.
+ *   This macro depreciates in future releases. The renamed macro is @ref SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH.
  */
 #define MAX_HEADER_BUFFER_LENGTH SL_HTTP_SERVER_MAX_HEADER_BUFFER_LENGTH
 
@@ -284,9 +284,9 @@ typedef struct {
  *   This structure holds the parameters for an HTTP server response, including the response code, content type, headers, and data buffer.
  */
 typedef struct {
-  sl_http_response_code_t response_code; ///< HTTP response code (e.g., 200 for OK, 404 for Not Found)
+  sl_http_response_code_t response_code; ///< HTTP response code (for example, 200 for OK, 404 for Not Found)
   char *
-    content_type; ///< Content type of the response (e.g., "text/html", "application/json"). Must be a null-terminated string.
+    content_type; ///< Content type of the response (for example, "text/html", "application/json"). Must be a null-terminated string.
   sl_http_header_t *headers;     ///< Pointer to an array of headers. Each header is a key-value pair.
   uint16_t header_count;         ///< Number of headers in the headers array.
   uint8_t *data;                 ///< Pointer to the data buffer containing the response body.
@@ -329,9 +329,9 @@ typedef struct {
  */
 typedef struct sl_http_server_request_s {
   sl_http_server_request_uri_t uri;   ///< URI of the request, including path and query parameters.
-  sl_http_request_version_t version;  ///< HTTP protocol version (e.g., HTTP/1.1, HTTP/2).
+  sl_http_request_version_t version;  ///< HTTP protocol version (for example, HTTP/1.1, HTTP/2).
   uint16_t request_header_count;      ///< Number of request headers received.
-  sl_http_server_request_type_t type; ///< Type of the request (e.g., GET, POST, PUT, DELETE).
+  sl_http_server_request_type_t type; ///< Type of the request (for example, GET, POST, PUT, DELETE).
   uint32_t request_data_length;       ///< Length of the request data in bytes.
 } sl_http_server_request_t;
 

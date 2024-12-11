@@ -91,7 +91,7 @@ sl_status_t sl_wifi_set_credential(sl_wifi_credential_id_t id,
  *   Pointer to location where credential data is stored.
  * 
  * @param[in,out] credential_length
- *   in: Number of bytes available at credential,
+ *   in: Number of bytes available at credential.
  *   out: Number of bytes written.
  * 
  * @return
@@ -107,8 +107,8 @@ sl_status_t sl_wifi_get_credential(sl_wifi_credential_id_t id,
  *   Delete a stored credential.
  * 
  * @details
- *   This function deletes the credential data for the specified credential ID and type.
- *   Once deleted, the credential cannot be used for any operations.
+ *   This function deletes the credential data for the specific credential ID and type.
+ *   Once deleted, the credential cannot be used further for any operations.
  * 
  * @pre Pre-conditions:
  * -

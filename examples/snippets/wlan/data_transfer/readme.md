@@ -24,7 +24,7 @@ This application demonstrates how to configure the SiWx91x device in both Wi-Fi 
 - Wireless Access Point
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
   	  - BRD4343A [SiWx917-RB4343A]
@@ -35,9 +35,9 @@ This application demonstrates how to configure the SiWx91x device in both Wi-Fi 
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -48,7 +48,7 @@ This application demonstrates how to configure the SiWx91x device in both Wi-Fi 
 ### Software Requirements
 
 - Simplicity Studio
-- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
+- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers, and protocols (TCP and UDP with IPv4 and IPv6).
 
 ### Setup Diagram
 
@@ -76,8 +76,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
-- In the Project explorer pane, open the **app.c** file. Configure the following parameters based on your requirements.
+The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
+- In the Project explorer pane, open the **app.c** file. Configure the following parameters based on your requirements:
 
 - **STA instance related parameters**
 
@@ -93,7 +93,7 @@ The application can be configured to suit user requirements and development envi
    #define WIFI_CLIENT_CREDENTIAL                "YOUR_AP_PASSPHRASE"
   	```
   	
-  - WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+  - WIFI_CLIENT_SECURITY_TYPE refers to the security type if the access point is configured in WPA/WPA2 or mixed security modes.
 
   	```c
    #define WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA_WPA2_MIXED
@@ -114,10 +114,10 @@ The application can be configured to suit user requirements and development envi
 > Note:
 >
 > 1. In concurrent mode, STA and AP should be configured on the same channel. The STA instance shall first scan for the specified external AP, wherein the channel number of AP is fetched and passed as an argument during SoftAP creation.
-> 2. Valid values for CHANNEL_NO are 1 to 11 as the supported band is 2.4GHz.
+> 2. Valid values for CHANNEL_NO are 1 to 11 as the supported band is 2.4 GHz.
 
 > Note: 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 #### Configure the following TCP/IP parameters in **app.c** to test this app as per requirements
 
@@ -151,14 +151,14 @@ This application is providing the facility to configure the Access Point’s IP 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
 When data transfer is performed, data is sent between the client and server. It is advisable to start the server before the client, since the client will immediately begin connecting to the server to send data.
 
 ### TCP RX
 
 To use TCP RX, configure the SiWx91x device client interface as TCP server and start a TCP client on the remote PC.
-The iPerf command to start the TCP client on remote PC:
+The iPerf command to start the TCP client on the remote PC:
 
 > `C:\> iperf.exe -c <Module_IP> -p <module_PORT> -i 1 -t <time interval in sec>`
   >
@@ -168,7 +168,7 @@ The iPerf command to start the TCP client on remote PC:
 
 ### TCP TX
 
-To use TCP TX, configure the SiWx91x device AP interface as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+To use TCP TX, configure the SiWx91x device AP interface as a TCP client and start a TCP server on the remote PC. To establish TCP server on the remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
 The iPerf command to start the TCP server on remote PC:
 
   > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`
@@ -177,7 +177,7 @@ The iPerf command to start the TCP server on remote PC:
   >
   > `C:\> iperf.exe -s -p 5000 -i 1`
 
-The SiWx91x device, which is configured as a TCP server/client, connects to the TCP server/client on remote PC and sends/receives data continuously. While device is transmitting/receiving the data, application prints the total number of bytes sent/received in serial console.
+The SiWx91x device, which is configured as a TCP server/client, connects to the TCP server/client on the remote PC and sends/receives data continuously. While device is transmitting/receiving the data, the application prints the total number of bytes sent/received in the serial console.
 
 ## Application Output
 

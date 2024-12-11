@@ -60,7 +60,7 @@ typedef uint32_t __socklen_t;
  * @brief Public type for socket length.
  * 
  * @details
- *   It is a public alias for the internal __socklen_t type.You can use it to specify the length of socket addresses in the network system calls.
+ *   It is a public alias for the internal __socklen_t type. You can use it to specify the length of socket addresses in the network system calls.
  */
 typedef __socklen_t socklen_t;
 /** @} */
@@ -88,7 +88,7 @@ typedef __socklen_t socklen_t;
  * @brief Internal type for sockaddr address family.
  * 
  * @details
- *   The address family of a socket address is used internally within the system to specify the address type. (for example, IPv4 and IPv6).
+ *   The address family of a socket address is used internally within the system to specify the address type (for example, IPv4 and IPv6).
  */
 typedef uint8_t __sa_family_t;
 
@@ -178,9 +178,9 @@ typedef __in_port_t	in_port_t;	/* IP port type */
  *
  * The value IP_PORTRANGE_HIGH changes the range of candidate port numbers
  * into the "high" range.  These are reserved for client outbound connections
- * which is not filtered by any firewalls.
+ * which are not filtered by any firewalls.
  *
- * The value IP_PORTRANGE_LOW changes the range to the "low" are
+ * The value IP_PORTRANGE_LOW changes the range to the "low" 
  * that is (by convention) restricted to privileged processes.  This
  * convention is based on "vouchsafe" principles only.  It is only secure
  * if you trust the remote host to restrict these ports.
@@ -189,10 +189,10 @@ typedef __in_port_t	in_port_t;	/* IP port type */
  * sysctl(3).  (net.inet.ip.port{hi}{first,last})
  *
  * Changing those values has bad security implications if you are
- * using a a stateless firewall that is, allowing packets outside of the
+ * using a a stateless firewall, i.e., allowing packets outside of the
  * range in order to allow transparent outgoing connections.
  *
- * Such a firewall configuration would depends on the use of the
+ * Such a firewall configuration would depend on the use of the
  * default values.  If you change them, you may find your Security
  * Administrator looking for you with a heavy object.
  */

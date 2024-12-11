@@ -29,7 +29,7 @@
 ## Purpose/Scope
 
 This application demonstrates the procedure to measure WLAN UDP/TCP/TLS throughput by configuring the SiWx91x in client/server role.
-In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP address, connects to iPerf server/client or python based TLS scripts, running on a remote PC and measures Tx/Rx throughput transmitted/received from remote PC.
+In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP address, connects to iPerf server/client or Python-based TLS scripts, running on a remote PC, and measures Tx/Rx throughput transmitted/received from remote PC.
 
 ## Prerequisites/Setup Requirements
 
@@ -39,7 +39,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 - Wireless Access Point
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4342A [SiWx917-RB4342A]
@@ -51,9 +51,9 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - BRD4002A Wireless Wireless Pro Kit Mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP Expansion Kit with NCP Radio boards
+    - NCP Expansion Kit with NCP Radio Boards
       - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
       - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
@@ -71,7 +71,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 
 - Simplicity Studio IDE (to be used with Silicon Labs MCU)
 - Keil IDE (to be used with STM32F411RE MCU)
-- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
+- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers, and protocols (TCP and UDP with IPv4 and IPv6).
 - [Python Environment](https://www.python.org/downloads/)
 - Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
 
@@ -79,7 +79,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 
   ![Figure: Setup Diagram SoC and NCP Mode for WLAN Throughput Example](resources/readme/setup_soc_ncp.png)
 
-  Here 
+ In this diagram: 
 
 1. The development environment refers to either Simplicity Studio or Keil IDE (NCP with STM32 host).
 2. After the application is flashed onto the SiWx91x module, it connects to a Wireless Access Point (WAP).
@@ -95,16 +95,16 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Install the [Keil IDE](https://www.keil.com/).
 - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
 - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
-- Connect the SiWx91x NCP to STM32F411RE Nucleo Board following steps:
-  - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-  - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
-  - After connecting all the boards, the setup should look like the image shown:
+- Connect the SiWx91x NCP to STM32F411RE Nucleo Board using the following steps:
+  - Connect the male Arduino compatible header on the carrier board to the female Arduino compatible header on the STM32F411RE Nucleo board.
+  - Mount the NCP radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
+  - After connecting all the boards, the setup should look like the image shown below:
   
-  ![Figure: Setup](resources/readme/stm32_setup.png)
+    ![Figure: Setup](resources/readme/stm32_setup.png)
   - Connect the setup to the computer.
 - Open the Wi-Fi Throughput µVision project - **wlan_throughput.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → wlan_throughput → Keil project**.
 
-### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -127,23 +127,23 @@ The application can be configured to suit user requirements and development envi
 **File path for Keil IDE:**
 - In the Project pane, expand the **resources/defaults** folder and open the **sl_net_default_values.h** file. 
 
-Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network:
 
-- STA instance related parameters
+- STA instance-related parameters:
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the Wi-Fi network shall be advertised. The Si91X module is connected to it.
 
     ```c
     #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
     ```
 
-  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the access point is configured in WPA-PSK/WPA2-PSK security modes.
 
       ```c
       #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
       ```
 
-  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type of the Access point. The supported security modes are mentioned in `sl_wifi_security_t`.
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type of the access point. The supported security modes are mentioned in `sl_wifi_security_t`.
 
       ```c
       #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2
@@ -152,30 +152,30 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 > Note: 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> The user can configure the default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 **Path for app.c in Keil IDE:**
 
-- Expand the **Application/User/Core** folder and open **app.c** file.
+- Expand the **Application/User/Core** folder and open the **app.c** file.
 
 **Path for app.c in Simplicity Studio IDE:**
 
-- app.c file will be located at **wifi_wlan_throughput_soc**
+- The app.c file will be located at **wifi_wlan_throughput_soc**.
 
-Configure the following parameters in `app.c` to test throughput app as per requirements
+Configure the following parameters in `app.c` to test the throughput app as per requirements.
 
   - Client/Server IP Settings
 
       ```c
       #define LISTENING_PORT     <local_port>       // Local port to use
       #define SERVER_PORT        <remote_port>      // Remote server port
-      #define SERVER_IP  "192.168.0.100"    // Remote server IP address
+      #define SERVER_IP  "192.168.0.100"    		// Remote server IP address
       #define SOCKET_ASYNC_FEATURE 1                // Type of Socket used. Synchronous = 0, Asynchronous = 1
       ```
 
   - Throughput Measurement Types
 
-    - The application may be configured to measure throughput using UDP, TCP or TLS packets. Choose the measurement type using the `THROUGHPUT_TYPE` macro.
+    - The application may be configured to measure throughput using UDP, TCP, or TLS packets. Choose the measurement type using the `THROUGHPUT_TYPE` macro.
 
       ```c
       #define THROUGHPUT_TYPE  TCP_TX     // Selects the throughput option
@@ -188,44 +188,44 @@ Configure the following parameters in `app.c` to test throughput app as per requ
       #define TLS_RX           5   // SiWx91x receives packets from remote TLS server
       ```
 
-  - Throughput Test options
+  - Throughput Test Options
 
       ```c
-      #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512MB data transfer
-      #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1MB data transfer
+      #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512 MB data transfer
+      #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1 MB data transfer
       #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
       ```
-  -  Change the PLL_MODE to 1, in sl_si91x_protocol_types.h.
+  -  Change the PLL_MODE to 1 in sl_si91x_protocol_types.h.
 
      **File path for Simplicity Studio IDE:**
 
-     - In the Project explorer pane, expand as follows **wiseconnect3_sdk_xxx** > **components** > **device** > **silabs** > **si91x** > **wireless** > **inc** folder and open **sl_si91x_protocol_types.h** file.
+     - In the Project explorer pane, expand the **wiseconnect3_sdk_xxx** > **components** > **device** > **silabs** > **si91x** > **wireless** > **inc** folder and open **sl_si91x_protocol_types.h** file.
 
      **File path for Keil IDE:**
 
-     - In the Project pane, expand the **components/device/silabs/si91x/wireless/inc** folder, open the **sl_si91x_protocol_types.h** file.
+     - In the Project pane, expand the **components/device/silabs/si91x/wireless/inc** folder and open the **sl_si91x_protocol_types.h** file.
 
       ```c
       #define PLL_MODE      1
       ```
 
-## Test the application
+## Test the Application
 
-### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
+- Flash, run, and debug the application.
 
-  > **Note:** The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
+  > **Note:** The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While the module is transmitting/receiving the data, the application prints the throughput numbers in the serial console.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 
 - Build the application.
-- Set the Tera Term up by connecting STM32's Serial COM port. This enables you to view the application prints.
-- Flash, run and debug the application.
--  The application prints appear as follows in the serial terminal.
+- Set up the Tera Term by connecting STM32's Serial COM port. This enables you to view the application prints.
+- Flash, run, and debug the application.
+- The application prints appear as follows in the serial terminal.
   
 ### Application Prints:
 
@@ -235,7 +235,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 #### UDP Tx Throughput
 
-To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on the remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the following command from the installed folder's path in the command prompt.
 The iPerf command to start the UDP server on the PC is:
 
   > `C:\> iperf.exe -s -u -p <SERVER_PORT> -i 1`
@@ -269,7 +269,7 @@ The iPerf command to start the UDP client is:
 
 #### TCP Tx Throughput
 
-To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on the remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the followng command from the installed folder's path in the command prompt.
 The iPerf command to start the TCP server is:
   
   > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1 -S 0xC8`
@@ -305,13 +305,13 @@ The iPerf command to start the TCP client is:
 
 To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a TLS server on the remote PC as described in the following bullets:
 
-- Copy the `SSL_Server_throughput_d.py` script from the release `/resources/scripts/` directory to the `/resources/certificates/` directory
+- Copy the `SSL_Server_throughput_d.py` script from the release `/resources/scripts/` directory to the `/resources/certificates/` directory.
 - Open a command prompt and cd to the folder `/resources/certificates/`, then run the following command:
   - `C:\> python SSL_Server_throughput_d.py`
 
     > **Note:** The SSL_Server_throughput_d.py script works only with Python version 2 and above.
 
-    >   The TLSv1_3 works for python version greater than 3.6.
+    >   The TLSv1_3 works for Python version greater than 3.6.
 
 #####  For SOC:
   ![Figure: TLS_TX](resources/readme/TLS_TX.png)
@@ -323,7 +323,7 @@ To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a 
 
 To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a TLS server on the remote PC as described in the following bullets:
 
-- Copy the `SSL_tx_throughput.py` script from the release `/resources/scripts/` directory to the `/resources/certificates/`
+- Copy the `SSL_tx_throughput.py` script from the release `/resources/scripts/` directory to the `/resources/certificates/`.
 - Open a command prompt and cd to the folder `/resources/certificates/`, then run the following command:
   - `C:\> python SSL_tx_throughput.py`
 
@@ -338,4 +338,4 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
   ![Figure: TLS_RX](resources/readme/TLS_RX_NCP.png)
 
 **Note:**
->  The captured reference images are measured in an isolated chamber. However, variations can be observed if Throughputs measured in dense environments, ie. in a dense environment we can observe less throughput.
+>  The captured reference images are measured in an isolated chamber. However, variations can be observed if throughputs are measured in dense environments, i.e., in a dense environment, we can observe less throughput.

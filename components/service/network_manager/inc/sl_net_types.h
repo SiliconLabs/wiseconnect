@@ -93,7 +93,7 @@ typedef void sl_net_profile_t;
  */
 typedef struct {
   uint16_t
-    ip_version; ///< IP version (e.g., IPv4 or IPv6). One of the values from [sl_ip_version_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-version-t).
+    ip_version; ///< IP version (for example, IPv4 or IPv6). One of the values from [sl_ip_version_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-version-t).
   uint16_t ping_size; ///< Size of the ping packet
   union {
     uint8_t ipv4_address[4];  ///< IPv4 address

@@ -110,7 +110,7 @@ sl_status_t sl_si91x_puf_start_req(void);
  * @brief Sets key for the PUF.
  * 
  * @details
- *  The digital fingerprint generated during the PUF start operations and a user key (UK) 
+ *  The digital fingerprint generated during the PUF start operations and a User Key (UK) 
  *  provided by the client design are used to generate a Key Code (KC).
  * 
  * @param[in]  key_index    Key index ( valid range is 0 - 15 )
@@ -141,7 +141,7 @@ sl_status_t sl_si91x_puf_set_key_disable_req(void);
  * @brief Performs a get key operation with the provided key code.
  * 
  * @details
- *  The digital fingerprint generated during the start operation and the key code (KC) generated 
+ *  The digital fingerprint generated during the start operation and the KC generated 
  *  during a set key operation @ref sl_si91x_puf_set_key_req, is used to retrieve a stored key.
  * 
  * @param[in]  key_code_ptr Pointer to the Key Code with size of 52 bytes.
@@ -170,7 +170,7 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void);
  * @brief Loads key code using PUF to AES engine.
  * 
  * @details
- *  This is same as get key operation, but after retrieving key using @ref sl_si91x_puf_set_key_req, it will be loaded into AES engine. 
+ *  This is same as get key operation, but after retrieving key using @ref sl_si91x_puf_set_key_req, it loads into AES engine. 
  *  
  * @param[in] key_code_ptr Pointer to the key code with size of 52 bytes.
  * 
@@ -201,7 +201,7 @@ sl_status_t sl_si91x_puf_load_key_req(uint8_t *key_code_ptr);
  *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
  * 
  * @note 
- *  Intrinsic keys are randomly generated. They cannot be used for cryptographic algorithms that require specific keys, which is typical for public key schemes like RSA. In such cases, user keys should be used
+ *  Intrinsic keys are randomly generated. They cannot be used for cryptographic algorithms that require specific keys, which is typical for public key schemes like RSA. In such cases, user keys should be used.
  */
 sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, uint8_t *intr_key_resp);
 
@@ -209,7 +209,7 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
  * @brief Encrypts data using the provided initialization vector and key, depending on the mode.
  * 
  * @details
- *  This operation generates encrypted data for the provided plain input data based on AES mode, key input & initialization vector.
+ *  This operation generates encrypted data for the provided plain input data based on AES mode, key input and initialization vector.
  * 
  * @param[in]  mode           AES mode of type @ref sl_si91x_puf_aes_mode_t
  * @param[in]  key_source     Key source of type @ref sl_si91x_puf_key_source_t
@@ -238,7 +238,7 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
  * @brief Decrypts data using the provided initialization vector and key, depending on the mode.
  * 
  * @details
- *  This operation generates decrypted data for the provided encrypted data based on AES mode, key input & initialization vector.
+ *  This operation generates decrypted data for the provided encrypted data based on AES mode, key input and initialization vector.
  * 
  * @param[in]  mode           AES mode of type @ref sl_si91x_puf_aes_mode_t
  * @param[in]  key_source     Key source of type @ref sl_si91x_puf_key_source_t
@@ -267,7 +267,7 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
  * @brief Calculates Message Authentication Check (MAC) for given data using AES-CBC mode.
  * 
  * @details
- *  This operation generates Message Authentication Check (MAC) for the provided plain input data based on key input & initialization vector (IV). 
+ *  This operation generates Message Authentication Check (MAC) for the provided plain input data based on key input and initialization vector (IV). 
  *  This operation is only used in AES-CBC mode.
  * 
  * @param[in]  key_source   Key source of type @ref sl_si91x_puf_key_source_t
@@ -276,7 +276,7 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
  * @param[in]  data_size    Size of data in bytes (value that should be multiples of AES block size in range 16 - 1408)
  * @param[in]  data_ptr     Pointer to Data
  * @param[in]  iv_size      IV size of type @ref sl_si91x_puf_iv_size_t
- * @param[in]  iv_ptr       Pointer to Initialization Vector(IV) of size 16 or 32 bytes based on IV size.
+ * @param[in]  iv_ptr       Pointer to IV of size 16 or 32 bytes based on IV size.
  * @param[out] aes_mac_resp Pointer to response
  * 
  * @return 

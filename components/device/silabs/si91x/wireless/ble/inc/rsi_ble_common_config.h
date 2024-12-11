@@ -71,7 +71,7 @@
 // BLE Attribute Security Define
 /*=======================================================================*/
 #define ATT_REC_MAINTAIN_IN_HOST BIT(0) ///< Att record maintained by the stack
-#define SEC_MODE_1_LEVEL_1       BIT(1) ///< NO Auth & No Enc
+#define SEC_MODE_1_LEVEL_1       BIT(1) ///< NO Auth and No Enc
 #define SEC_MODE_1_LEVEL_2       BIT(2) ///< UnAUTH with Enc
 #define SEC_MODE_1_LEVEL_3       BIT(3) ///< AUTH with Enc
 #define SEC_MODE_1_LEVEL_4       BIT(4) ///< AUTH LE_SC Pairing with Enc
@@ -218,7 +218,7 @@
 #define RSI_BLE_NUM_CONN_EVENTS 20 ///< Defines the number of BLE connection events.
 #endif
 
-/* Number of BLE GATT RECORD SIZE IN (n*16 BYTES), eg:(0x40*16)=1024 bytes */
+/* Number of BLE GATT RECORD SIZE IN (n*16 BYTES), eg:(0x40*16) = 1024 bytes */
 #ifndef RSI_BLE_NUM_REC_BYTES
 #define RSI_BLE_NUM_REC_BYTES 0x40 ///< Defines the number of bytes to be received in a BLE operation.
 #endif
@@ -265,7 +265,7 @@
 #endif
 /**
  * @def DIR_CONN
- * @brief Advertising will be visible(discoverable) to the particular device 
+ * @brief Advertising will be visible (discoverable) to the particular device 
  * mentioned in RSI_BLE_ADV_DIR_ADDR only. 
  * Scanning and Connection will be accepted from that device only.
  */
@@ -274,7 +274,7 @@
 #endif
 /**
  * @def UNDIR_SCAN
- * @brief Advertising will be visible(discoverable) to all the devices.
+ * @brief Advertising would be visible (discoverable) to all the devices.
  * Scanning will be accepted from all the devices.
  * Connection will be not be accepted from any device.
  */
@@ -283,17 +283,17 @@
 #endif
 /**
  * @def UNDIR_NON_CONN
- * @brief Advertising will be visible(discoverable) to all the devices.
- * Scanning and Connection will not be accepted from any device
+ * @brief Advertising would be visible (discoverable) to all the devices.
+ * Scanning and Connection would not be accepted from any device.
  */
 #ifndef UNDIR_NON_CONN
 #define UNDIR_NON_CONN 0x83
 #endif
 /**
  * @def DIR_CONN_LOW_DUTY_CYCLE
- * @brief Advertising will be visible(discoverable) to the particular device 
+ * @brief Advertising would be visible (discoverable) to the particular device 
  * mentioned in RSI_BLE_ADV_DIR_ADDR only. 
- * Scanning and Connection will be accepted from that device only.
+ * Scanning and Connection would be accepted from that device only.
  */
 #ifndef DIR_CONN_LOW_DUTY_CYCLE
 #define DIR_CONN_LOW_DUTY_CYCLE 0x84
@@ -308,7 +308,7 @@
  *
  * Possible values:
  * - `UNDIR_CONN`: Undirected connectable advertisement.
- * - Other values may be defined based on the BLE stack being used.
+ * - Other values might be defined based on the BLE stack being used.
  *
  * Example usage:
  * @code
@@ -326,7 +326,7 @@
  * @brief Limited Discoverable mode 
  *    
  * The Limited Discoverable mode is used to indicate that the device is discoverable for a limited period of time.
- * This mode is typically used for devices that are not always discoverable and only become discoverable for a short duration.
+ * This mode is applicable for the devices that are not discoverable always, and becomes discoverable only for a short duration.
  * 
  */
 #ifndef LE_LIMITED_DISCOVERABLE
@@ -348,7 +348,7 @@
  * @def LE_BR_EDR_NOT_SUPPORTED
  * @brief BR/EDR (Basic Rate/Enhanced Data Rate) is not supported.
  * 
- * The value `0x04` is used to signify that the device does not support BR/EDR
+ * The value `0x04` is used to signify that the device does not support BR/EDR.
  * 
  * @note
  * Ensure that this macro is used in contexts where the absence of BR/EDR support is relevant.
@@ -585,7 +585,7 @@
  * @brief Disables duty cycling for BLE operations.
  *
  * Configures the device to disable duty cycling, which means that BLE
- * operations will run continuously without the power-saving sleep cycles.
+ * operations would run continuously without the power-saving sleep cycles.
  */
 #ifndef BLE_DISABLE_DUTY_CYCLING
 #define BLE_DISABLE_DUTY_CYCLING 0
@@ -595,7 +595,7 @@
  * @brief Enables duty cycling for BLE operations.
  *
  * Configures the device to enable duty cycling, which means that BLE
- * operations will include power-saving sleep cycles to conserve energy.
+ * operations would include power-saving sleep cycles to conserve energy.
  */
 #ifndef BLE_DUTY_CYCLING
 #define BLE_DUTY_CYCLING 1
@@ -669,9 +669,9 @@
  * @def RSI_BLE_GATT_INIT
  * @brief Initializes the GATT in Firmware for BLE operations.
  *
- * 0 - GATT Init in Firmware: Both the GAP service and GATT service will be maintained by Firmware. 
+ * 0 - GATT Init in Firmware: Both the GAP service and GATT service would be maintained by Firmware. 
  * 1 - GATT Init in Host: GAP service and GATT service should be created by the APP/Host/User, 
- * and the ATT transactions like read, write, notify, and indicate shall be handled by the 
+ * and the ATT transactions like read, write, notify, and indicate should be handled by the 
  * APP/Host/User. Default: GATT Init in Firmware.
  */
 #ifndef RSI_BLE_GATT_INIT
@@ -682,7 +682,7 @@
  * @brief Configures indication confirmation from the host.
  *
  * When this macro is enabled, the host needs to provide confirmation for the indicatation.
- * If it is disabled, the firmware will send the confirmation automatically.
+ * If it is disabled, the firmware would send the confirmation automatically.
  */
 #ifndef RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST
 #define RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST 0
@@ -691,10 +691,10 @@
  * @def RSI_BLE_MTU_EXCHANGE_FROM_HOST
  * @brief Configures whether the MTU exchange process is initiated by the host.
  *
- * If this macro is disabled, the firmware will initiate the MTU request to the remote device on the successful connection.
+ * If this macro is disabled, the firmware would initiate the MTU request to the remote device on the successful connection.
  * And if Peer initiates MTU exchange Request, then firmware will send Exchange MTU Response in reply to a received Exchange MTU Request. 
  * If this macro is enabled then APP/Host/User needs to initiate the MTU request by using the rsi_ble_mtu_exchange_event API. 
- * And if Peer initiates MTU exchange Request, then APP/Host/User shall send Exchange MTU Response in reply to a received Exchange MTU Request using rsi_ble_mtu_exchange_resp API.
+ * And if Peer initiates MTU exchange Request, then APP/Host/User should send Exchange MTU Response in reply to a received Exchange MTU Request using rsi_ble_mtu_exchange_resp API.
  */
 #ifndef RSI_BLE_MTU_EXCHANGE_FROM_HOST
 #define RSI_BLE_MTU_EXCHANGE_FROM_HOST 0
@@ -703,8 +703,8 @@
  * @def RSI_BLE_SET_SCAN_RESP_DATA_FROM_HOST
  * @brief Configures scan response data from the host.
  *
- * Device will maintain some default scan response data and will be used in the scan_response controller frame. 
- * By enabling this bit we can make the default data as Null(empty) in the controller and set scan resp data from APP/Host/User.
+ * Device would maintains some default scan response data and would be used in the scan_response controller frame. 
+ * By enabling this bit we can make the default data as Null (empty) in the controller and set scan resp data from APP/Host/User.
  * 
  */
 #ifndef RSI_BLE_SET_SCAN_RESP_DATA_FROM_HOST
