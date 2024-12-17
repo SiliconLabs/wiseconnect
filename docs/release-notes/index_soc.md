@@ -4,7 +4,7 @@
 
 |**Item**|**Details**|
 | :- | :- |
-|Release date|16th December 2024|
+|Release date|18th December 2024|
 |SDK Version|3\.4.0|
 |Firmware Version|<p>Standard: 1711.2.13.3.0.0.11</p><p>Lite Wireless: 1711.2.13.3.0.2.11</p>|
 |GSDK/SiSDK Version|SiSDK 2024.12.0|
@@ -86,7 +86,7 @@
 |**HP Peripherals**|**Notes**|
 | :- | :- |
 |<p>- ADC</p><p>- Analog Comparator</p><p>- CRC</p><p>- DAC</p><p>- eFuse</p><p>- EGPIO</p><p>- GPDMA<sup>1</sup></p><p>- GSPI</p><p>- HRNG</p><p>- I2C</p><p>- I2S</p><p>- MCPWM</p><p>- PSRAM</p><p>- QEI</p><p>- SDIO Secondary</p><p>- SSI (Primary & Secondary)</p><p>- Temperature Sensor</p><p>- UART</p><p>- uDMA</p><p>- USART</p>||
-|<p>- BoD<sup>1</sup></p><p>- Config Timer (CT)</p><p>- CTS (Touch Sensor)<sup>1</sup></p><p>- OPAMP<sup>1</sup></p>|Limited Support|
+|<p>- BoD<sup>1</sup></p><p>- Config Timer (CT)</p><p>- OPAMP<sup>1</sup></p>|Limited Support|
 |**ULP Peripherals**||
 |<p>- ULP\_ADC</p><p>- ULP\_DAC</p><p>- ULP\_GPIO</p><p>- ULP\_I2C</p><p>- ULP\_I2S</p><p>- ULP\_TIMER</p><p>- ULP\_UDMA</p><p>- ULP\_UART</p><p>- ULP\_SSI\_PRIMARY</p>||
 |**UULP Peripherals**||
@@ -787,6 +787,7 @@ On encountering a problem, it can be mitigated by considering the following opti
 - Removed IR, SIO, RO temp sensor and FIM
 - Removed support for WDT reset upon processor lock up
 - Removed I2C SMBUS feature
+- Removed support for CTS
 - Removed hardware\_setup() from all power save application that uses sllib\_m4\_power\_save.slcc component
 - sl\_si91x\_m4\_sleep\_wakeup() will be deprecated from upcoming releases
 - switch\_m4\_frequency() will be deprecated from upcoming releases

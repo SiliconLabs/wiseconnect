@@ -4,7 +4,7 @@
 
 |**Item**|**Details**|
 | :- | :- |
-|Release date|16th December 2024|
+|Release date|18th December 2024|
 |SDK Version|3\.4.0|
 |Firmware Version|Standard: 1711.2.13.3.0.0.11|
 |GSDK/SiSDK Version|SiSDK 2024.12.0|
@@ -347,7 +347,7 @@ Note:
 - WMM-PS/UAPSD is not supported
 - The PTA feature isn't working in NCP mode because the PTA pin configuration is conflicting with the NCP SPI/UART pin configuration. 
 - Extended header is not visible in sniffer captures while running http otaf example 
-- It is recommended to set region\_code as `IGNORE_REGION` in boot configurations for ACx module boards except for PER mode. 
+- For SiWN917Y modules, in boot configurations, it is required to set the region_code to IGNORE_REGION except when in PER mode.
 - Observed concurrent\_http\_server\_provisioning example readme is not updated as per application provided 
 
 ### **Wi-Fi/Network Stack**
