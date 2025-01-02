@@ -1,0 +1,68 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_msg_queue
+label: Si91x - SL_RTOS_MSG_QUEUE
+description: |
+  This application demonstrates how to use RTOS concept Message Queue 
+  in an application.
+category: example|cmsis-rtos
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.1
+readme:
+  - path: readme.md
+source:
+  - path: app.c
+  - path: main.c
+  - path: src/i2c_follower_app.c
+  - path: src/usart_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+  - path: src/inc
+    file_list:
+      - path: i2c_follower_app.h
+      - path: usart_app.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: freertos
+  - id: freertos_heap_4
+  - id: sl_i2c_peripheral
+    from: wiseconnect3_sdk
+  - id: sl_usart
+    from: wiseconnect3_sdk
+  - id: sl_dma
+    from: wiseconnect3_sdk
+  - id: sl_gpio
+    from: wiseconnect3_sdk
+configuration:
+  - name: SL_USART_MODE
+    value: SL_USART_MODE_ASYNCHRONOUS
+other_file:
+- {path: resources/readme/image506d.png}
+- {path: resources/readme/image506e.png}
+- {path: resources/readme/setupdiagram.png}
+- {path: resources/readme/output.png}
+define:
+  - name: USART_CONFIG
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+  - name: SL_SI91X_USART_DMA
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -1,0 +1,55 @@
+project_name: MEMLCD_Baremetal
+label: SI91x - MEMLCD Baremetal
+description: |
+  This application demonstrates how the MEM LCD can be used in a bare-metal application.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.1
+source:
+  - path: app.c
+  - path: main.c
+  - path: memlcd_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: memlcd_app.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: sl_assert
+  - id: sleeptimer
+  - id: dmd_memlcd
+  - id: glib
+  - id: memlcd_917
+    from: wiseconnect3_sdk
+  - id: sl_ssi
+    from: wiseconnect3_sdk
+  - id: sl_ulp_timer
+    from: wiseconnect3_sdk
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - instance: [timer0]
+    from: wiseconnect3_sdk
+    id: ulp_timers_instance
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/MEMLCD_OP_SCRN.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

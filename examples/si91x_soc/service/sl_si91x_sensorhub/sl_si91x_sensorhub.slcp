@@ -1,0 +1,119 @@
+project_name: sl_si91x_sensorhub
+label: SI91x - SoC SL_SI91X_SENSORHUB
+description: |
+  This application demonstrates how to use of the sensorhub in SI91x SoC device.
+category: example|si91x_soc|service
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.1
+source:
+  - path: sensorhub_config.c
+  - path: sensors/src/hub_hal_intf.c
+  - path: sensors/src/light_sensor/bh1750fvi.c
+  - path: sensors/src/light_sensor/lightsensor_hal.c
+  - path: sensors/src/temperature_sensor/lm75.c
+  - path: sensors/src/temperature_sensor/tempSensor_hal.c
+  - path: sensors/src/apds_sensor/apds9960.c
+  - path: sensors/src/apds_sensor/apds9960Sensor_hal.c
+  - path: sensors/src/accelerometer_sensor/accelerometerSensor_hal.c
+  - path: sensors/src/accelerometer_sensor/adxl345.c
+  - path: sensors/src/adc_sensor/adc_sensor_hal.c
+  - path: sensors/src/adc_sensor/adc_sensor_driver.c
+  - path: sensors/src/adc_sensor/sl_si91x_sdc.c
+  - path: sensors/inc/light_sensor/bh1750fvi.h
+  - path: sensors/inc/light_sensor/lightsensor_hal.h
+  - path: sensors/inc/temperature_sensor/lm75.h
+  - path: sensors/inc/temperature_sensor/tempSensor_hal.h
+  - path: sensors/inc/apds_sensor/apds9960.h
+  - path: sensors/inc/apds_sensor/apds9960Sensor_hal.h
+  - path: sensors/inc/accelerometer_sensor/accelerometerSensor_hal.h
+  - path: sensors/inc/accelerometer_sensor/adxl345.h
+  - path: sensors/inc/adc_sensor/adc_sensor_hal.h
+  - path: sensors/inc/adc_sensor/adc_sensor_driver.h
+  - path: sensors/inc/adc_sensor/sl_si91x_sdc.h
+  - path: sensors/inc/sensors_config.h
+  - path: sensors/inc/sensor_type.h
+  - path: sensors/inc/hub_hal_intf.h
+  - path: app.c
+  - path: main.c
+  - path: app.h
+  - path: sensorhub_app.c
+  - path: sensorhub_aws_app.c
+include:
+  - path: sensors/inc
+  - path: sensors/inc/adc_sensor
+  - path: sensors/inc/accelerometer_sensor
+  - path: sensors/inc/temperature_sensor
+  - path: sensors/inc/light_sensor
+  - path: sensors/inc/apds_sensor
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror  
+component:
+  - id: freertos
+  - id: freertos_heap_4
+  - id: slist
+  - id: sl_system
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_adc
+    from: wiseconnect3_sdk
+  - id: sl_ssi
+    from: wiseconnect3_sdk
+  - id: sensor_hub
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: sl_si91x_asynchronous_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
+  - id: sl_power_manager
+    from: wiseconnect3_sdk  
+  - id: sl_si91x_button_917
+    instance:
+      - btn0
+    from: wiseconnect3_sdk
+  - id: gpio_ulp_component
+    from: wiseconnect3_sdk
+requires:
+  - name: aws_sdk
+define:
+  - name: SPI_MULTI_SLAVE
+  - name: SSI_CONFIG
+  - name: RTE_SSI_ULP_MASTER_RX_DMA
+  - name: RTE_SSI_ULP_MASTER_TX_DMA
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SL_SI91X_ULP_STATE_ENABLE
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/image508b.png
+  - path: resources/readme/image508c.png
+  - path: resources/readme/image508d.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/wakeup.PNG
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
