@@ -26,8 +26,8 @@ This application demonstrates how to configure the SiWx91x device in both Wi-Fi 
   - Standalone
     - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
     - Radio Boards 
-  	  - BRD4338A [SiWx917-RB4338A]
-  	  - BRD4343A [SiWx917-RB4343A]
+  	  - BRD4338A [SiWx917-RB4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board)
+  	  - BRD4343A [SiWx917-RB4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module)
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -84,19 +84,19 @@ The application can be configured to suit your requirements and development envi
   - WIFI_CLIENT_PROFILE_SSID refers to the name to which the Si91x device gets connected to.
 
   	```c
-   #define WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"
+    #define WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"
   	```
 
   - WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
   	```c
-   #define WIFI_CLIENT_CREDENTIAL                "YOUR_AP_PASSPHRASE"
+    #define WIFI_CLIENT_CREDENTIAL                "YOUR_AP_PASSPHRASE"
   	```
   	
   - WIFI_CLIENT_SECURITY_TYPE refers to the security type if the access point is configured in WPA/WPA2 or mixed security modes.
 
   	```c
-   #define WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA_WPA2_MIXED
+    #define WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA_WPA2_MIXED
   	```
 - **AP instance related parameters**
 

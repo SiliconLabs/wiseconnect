@@ -362,8 +362,9 @@ typedef enum {
 #define CONFIG_RTSTHRESHOLD 1
 #define RSI_RTS_THRESHOLD   2346
 
-#define RSI_SEND_RAW_DATA    0x1
-#define RSI_RECEIVE_RAW_DATA 0x0
+#define RSI_SEND_RAW_DATA                    0x1
+#define RSI_RECEIVE_RAW_DATA                 0x0
+#define RSI_NET_DUAL_STACK_RX_RAW_DATA_FRAME 0x1 // Rx data frame type in network dual stack mode
 
 // enumeration for command request used in common control block
 typedef enum {

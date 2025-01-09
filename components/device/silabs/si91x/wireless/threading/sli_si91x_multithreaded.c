@@ -1333,6 +1333,11 @@ void si91x_bus_thread(const void *args)
             sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
             sl_si91x_host_free_buffer(buffer);
 #endif
+          } else if (frame_type == RSI_NET_DUAL_STACK_RX_RAW_DATA_FRAME) {
+
+            // If network dual stack mode is enabled, process the received data frame of type 0x1 and free the buffer.
+            sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
+            sl_si91x_host_free_buffer(buffer);
           } else if (frame_type == SL_SI91X_WIFI_RX_DOT11_DATA) {
             ++cmd_queues[SI91X_WLAN_CMD].rx_counter;
 

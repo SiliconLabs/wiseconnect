@@ -35,5 +35,7 @@ template_contribution:
       include: sl_si91x_wdt_manager.h
       handler: sl_watchdog_manager_start
     priority: 0
+  - name: wdt_manager
+    value: 1
 define:
   - name: SL_WDT_MANAGER_PRESENT

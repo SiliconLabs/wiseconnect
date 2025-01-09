@@ -867,7 +867,8 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_polarity(uint8_t pin, sl_si91x
  * @brief       Set the NPSS GPIO interrupt as a wake-up source across sleep wakeups.
  * @pre Pre-condition:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts.
+ * @param[in]   npssgpio_interrupt - Interrupt number of the NPSS GPIO interrupt to be set.
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_t
  * @return Status code indicating the result:
  *         - SL_STATUS_OK   - Success. 
  *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
@@ -880,7 +881,8 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio
  * @brief       Clear the UULP NPSS GPIO Interrupt as a wake up source.
  * @pre Pre-condition:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts.
+ * @param[in]   npssgpio_interrupt - Interrupt number of the NPSS GPIO interrupt to be cleared.
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_t
  * @return Status code indicating the result:
  *         - SL_STATUS_OK  - Success. 
  *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
@@ -897,7 +899,8 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
- * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts.
+ * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be masked.
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
  * @return Status code indicating the result:
  *         - SL_STATUS_OK   - Success. 
  *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
@@ -914,7 +917,8 @@ sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_inter
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
- * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts.
+ * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be unmasked.
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
  * @return Status code indicating the result:
  *        - SL_STATUS_OK   - Success. 
  *        - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
@@ -932,7 +936,8 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction()
  * -   sl_si91x_gpio_configure_uulp_interrupt() 
- * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
+ * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be cleared.
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
  * @return Status code indicating the result:
  *         - SL_STATUS_OK   - Success. 
  *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
@@ -1020,7 +1025,8 @@ sl_status_t sl_si91x_gpio_driver_clear_ulp_group_interrupt(sl_si91x_group_interr
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
  * @param[in] flags  -  Interrupt configuration flags of type
  *                     sl_si91x_gpio_interrupt_config_flag_t (GPIO Interrupt Configurations structure).
- * @param[in] npssgpio_interrupt - NPSS GPIO input number (0 to 4). 
+ * @param[in]   npssgpio_interrupt - Interrupt number of the NPSS GPIO interrupt to be configured.
+ *                    \ref  sl_si91x_uulp_gpio_interrupt_t
  * @param[in] gpio_callback - IRQ function pointer.
  * @return Status code indicating the result:
  *         - SL_STATUS_OK   - Success. 
@@ -1028,6 +1034,8 @@ sl_status_t sl_si91x_gpio_driver_clear_ulp_group_interrupt(sl_si91x_group_interr
  *         - SL_STATUS_NULL_POINTER  - The parameter is null pointer. 
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ * @note: The NPSS GPIO interrupt pin number is transformed into a bit mask by
+ * shifting a single bit to the left by the specified pin number.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags,
                                                           uint8_t npssgpio_interrupt,

@@ -78,6 +78,24 @@ typedef struct {
   sl_si91x_gpio_direction_t direction; ///< The direction of the GPIO pin (input or output)
 } sl_si91x_gpio_pin_config_t;
 
+/// @brief UULP GPIO pin/interrupt number
+typedef enum {
+  UULP_GPIO_INTERRUPT_0 = 0, /// UULP GPIO 0 pin/interrupt number
+  UULP_GPIO_INTERRUPT_1 = 1, /// UULP GPIO 1 pin/interrupt number
+  UULP_GPIO_INTERRUPT_2 = 2, /// UULP GPIO 2 pin/interrupt number
+  UULP_GPIO_INTERRUPT_3 = 3, /// UULP GPIO 3 pin/interrupt number
+  UULP_GPIO_INTERRUPT_4 = 4, /// UULP GPIO 4 pin/interrupt number
+} sl_si91x_uulp_gpio_interrupt_t;
+
+/// @brief UULP GPIO interrupt bit position
+typedef enum {
+  UULP_GPIO_INTERRUPT_0_BIT = BIT(0), /// UULP GPIO 0 interrupt bit position
+  UULP_GPIO_INTERRUPT_1_BIT = BIT(1), /// UULP GPIO 1 interrupt bit position
+  UULP_GPIO_INTERRUPT_2_BIT = BIT(2), /// UULP GPIO 2 interrupt bit position
+  UULP_GPIO_INTERRUPT_3_BIT = BIT(3), /// UULP GPIO 3 interrupt bit position
+  UULP_GPIO_INTERRUPT_4_BIT = BIT(4), /// UULP GPIO 4 interrupt bit position
+} sl_si91x_uulp_gpio_interrupt_bit_t;
+
 /*******************************************************************************
  ********************************   Local Variables   ************************* ******************************************************************************/
 /// @brief GPIO interrupt callback function pointer.

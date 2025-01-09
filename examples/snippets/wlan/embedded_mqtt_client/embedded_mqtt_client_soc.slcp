@@ -68,6 +68,7 @@ other_file:
 -  path: resources/readme/application_prints_ncp.png
 -  path: resources/readme/application_prints_soc.png
 -  path: resources/readme/connect.png
+-  path: resources/readme/connect_subscribe.png
 -  path: resources/readme/delete_connections.png
 -  path: resources/readme/mqtt_explorer_msg.png
 -  path: resources/readme/setup_soc_ncp.png

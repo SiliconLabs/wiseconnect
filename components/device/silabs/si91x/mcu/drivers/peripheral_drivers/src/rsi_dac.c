@@ -62,6 +62,7 @@ extern RSI_UDMA_HANDLE_T udmaHandle1;
 dac_config_t dac_callback_fun;
 uint8_t dac_pong_enable_sel = 0;
 uint32_t devMem[30];
+analog_power_control_t analog_power_ctrl;
 
 /** @addtogroup SOC22
 * @{
@@ -619,9 +620,14 @@ void RSI_DAC_PowerControl(POWER_STATE_DAC state)
     case DAC_POWER_ON:
       RSI_IPMU_PowerGateSet(AUXDAC_PG_ENB);
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_AUX);
+      analog_set_power_state(DAC_BIT_POS, ANALOG_POWERED_ON);
       break;
     case DAC_POWER_OFF:
       RSI_IPMU_PowerGateClr(AUXDAC_PG_ENB);
+      analog_set_power_state(DAC_BIT_POS, ANALOG_POWERED_OFF);
+      if (!analog_get_power_state()) {
+        RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
+      }
       break;
   }
 }

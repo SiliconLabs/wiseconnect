@@ -76,16 +76,6 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
                          &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
       return sl_net_wifi_ap_init(interface, configuration, network_context, event_handler);
 #endif
-#if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
-    case SL_NET_ETHERNET_INTERFACE:
-      return sl_net_ethernet_init(interface, configuration, network_context, event_handler);
-      break;
-#endif
-#if NETWORK_INTERFACE_VALID(SL_NET_THREAD_INTERFACE)
-    case SL_NET_THREAD_INTERFACE:
-      return sl_net_thread_init(interface, configuration, network_context, event_handler);
-      break;
-#endif
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
@@ -101,16 +91,6 @@ sl_status_t sl_net_deinit(sl_net_interface_t interface)
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_INTERFACE)
     case SL_NET_WIFI_AP_INTERFACE:
       return sl_net_wifi_ap_deinit(interface);
-#endif
-#if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
-    case SL_NET_ETHERNET_INTERFACE:
-      return sl_net_ethernet_deinit(interface);
-      break;
-#endif
-#if NETWORK_INTERFACE_VALID(SL_NET_THREAD_INTERFACE)
-    case SL_NET_THREAD_INTERFACE:
-      return sl_net_thread_deinit(interface);
-      break;
 #endif
     default:
       return SL_STATUS_NOT_SUPPORTED;
@@ -128,16 +108,6 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
     case SL_NET_WIFI_AP_INTERFACE:
       return sl_net_wifi_ap_up(interface, profile_id);
 #endif
-#if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
-    case SL_NET_ETHERNET_INTERFACE:
-      return sl_net_ethernet_up(interface, profile_id);
-      break;
-#endif
-#if NETWORK_INTERFACE_VALID(SL_NET_THREAD_INTERFACE)
-    case SL_NET_THREAD_INTERFACE:
-      return sl_net_thread_up(interface, profile_id);
-      break;
-#endif
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
@@ -153,16 +123,6 @@ sl_status_t sl_net_down(sl_net_interface_t interface)
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_INTERFACE)
     case SL_NET_WIFI_AP_INTERFACE:
       return sl_net_wifi_ap_down(interface);
-#endif
-#if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
-    case SL_NET_ETHERNET_INTERFACE:
-      return sl_net_ethernet_down(interface);
-      break;
-#endif
-#if NETWORK_INTERFACE_VALID(SL_NET_THREAD_INTERFACE)
-    case SL_NET_THREAD_INTERFACE:
-      return sl_net_thread_down(interface);
-      break;
 #endif
     default:
       return SL_STATUS_NOT_SUPPORTED;

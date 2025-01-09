@@ -60,13 +60,11 @@ extern "C" {
 
 //  SL_ULP_TIMER_CLK_INPUT_SOURCE> clock source
 //   ULP_TIMER_REF_CLK_SRC=> Ref clock
-//   ULP_TIMER_32KHZ_RO_CLK_SRC=> 32KHZ_RO
 //   ULP_TIMER_32KHZ_RC_CLK_SRC=> 32KHZ_RC
 //   ULP_TIMER_32KHZ_XTAL_CLK_SRC=> 32KHZ_XTAL
-//   ULP_TIMER_MHZ_RC_CLK_SRC=> MHZ_RC (auto select)
-//   ULP_TIMER_20MHZ_RO_CLK_SRC=> 20MHZ_RO
+//   ULP_TIMER_MHZ_RC_CLK_SRC=> MHZ_RC
 // Selection of the Clock source
-#define SL_ULP_TIMER_CLK_INPUT_SOURCE ULP_TIMER_MHZ_RC_CLK_SRC //default timer clock input source is ref clock
+#define SL_ULP_TIMER_CLK_INPUT_SOURCE ULP_TIMER_REF_CLK_SRC //default timer clock input source is ref clock
 
 // <<< end of configuration section >>>
 

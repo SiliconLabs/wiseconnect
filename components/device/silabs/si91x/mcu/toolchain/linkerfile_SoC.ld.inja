@@ -125,13 +125,13 @@ SECTIONS
 		{%-    if device.ram_execution %}
      	    KEEP(*(.reset_handler))
 			*(EXCLUDE_FILE(*sl_si91x_bus.c.o *sl_si91x_driver.c.o *sli_si91x_multithreaded.c.o *rsi_deepsleep_soc.c.o *rsi_hal_mcu_m4_ram.c.o *rsi_hal_mcu_m4_rom.c.o *UDMA.c.o *sl_sleeptimer.c.o *sl_sleeptimer_hal_si91x_sysrtc.c.o *rsi_sysrtc.c.o *sl_si91x_low_power_tickless_mode.c.o *croutine.c.o *event_groups.c.o *list.c.o *queue.c.o *stream_buffer.c.o *tasks.c.o *timers.c.o *cmsis_os2.c.o *freertos_umm_malloc_host.c.o *malloc_buffers.c.o *sl_rsi_utility.c.o *port.c.o *heap_*.c.o) .text*)
-	        {%    else %}
+		    {%    else %}			
 		  *(EXCLUDE_FILE(*UDMA.o).text*)        
 			 KEEP(*(.init))
 			 KEEP(*(.fini))
-                {%    endif %}
 	        {% endif %}		
-     	  	
+	        {% endif %}	     	  	
+
 		{% if device.power_manager_ps2 %}
 		  *(EXCLUDE_FILE(  *cmsis_gcc.c.o *cmsis_os2.c.o *port.c.o *queue.c.o *sl_rsi_utility.c.o *tasks.c.o *clock_update.c.o *rsi_deepsleep_soc.c.o *rsi_egpio.c.o *rsi_ipmu.c.o *ipmu_apis.c.o *rsi_pll.c.o *rsi_power_save.c.o *rsi_ps_ram_func.c.o *rsi_system_config.c.o *rsi_time_period.c.o *rsi_ulpss_clk.c.o *system_si91x.c.o *sl_slist.c.o *strcmp.c.o *sl_si91x_power_manager.c.o *sli_si91x_power_manager.c.o *sl_si91x_power_manager_handler.c.o *sl_si91x_power_manager_debug.c.o *sli_si91x_power_manager_wakeup_init.c.o *sl_si91x_power_manager_wakeup_handler.c.o *sl_sleeptimer.c.o *sl_sleeptimer_hal_si91x_sysrtc.c.o *rsi_sysrtc.c.o *sl_si91x_low_power_tickless_mode.c.o *sl_core_cortexm.c.o *UDMA.c.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
 	

@@ -95,16 +95,16 @@
  * @note
  *   The following table lists the flags that can be used with this function:
  * 
- *   | Flags  |     Macro                           | Description                                                            |
- *   |:-------|:------------------------------------|:-----------------------------------------------------------------------|
- *   | BIT(0) | HTTPS_SUPPORT                       | Set this bit to enable HTTPS_SUPPORT to use HTTPS feature.             |
- *   | BIT(1) | IP_VERSION_6                        | Set this bit to enable IPv6. By default, it is configured to IPv4.      |
- *   | BIT(2) | SI91X_TLS_V_1_0                     | Set this bit to support SSL TLS Version 1.0 if HTTPS is enabled.       |
- *   | BIT(3) | SI91X_TLS_V_1_2                     | Set this bit to support SSL TLS Version 1.2 if HTTPS is enabled.       |
- *   | BIT(4) | SI91X_TLS_V_1_1                     | Set this bit to support SSL_TLS Version 1.1 if HTTPS is enabled.       |
- *   | BIT(6) | HTTP_V_1_1                          | Set this bit to use HTTP version 1.1                                   |
- *   | BIT(9) | SL_SI91X_HTTPS_CERTIFICATE_INDEX_1  | Set this bit to specify index of SSL cert to be used for HTTPS.        |
- *   | BIT(10)| SL_SI91X_HTTPS_CERTIFICATE_INDEX_2  | Set this bit to specify index of SSL cert to be used for HTTPS.        |
+ *   | Flags  | Description                                                            |
+ *   |:-------|:-----------------------------------------------------------------------|
+ *   | BIT(0) | Set this bit to enable HTTPS feature.                                  |
+ *   | BIT(1) | Set this bit to enable IPv6. By default, it is configured to IPv4.     |
+ *   | BIT(2) | Set this bit to support TLS Version 1.0 if HTTPS is enabled.           |
+ *   | BIT(3) | Set this bit to support TLS Version 1.2 if HTTPS is enabled.           |
+ *   | BIT(4) | Set this bit to support TLS Version 1.1 if HTTPS is enabled.           |
+ *   | BIT(6) | Set this bit to use HTTP version 1.1                                   |
+ *   | BIT(9) | Set this bit to specify index of SSL cert to be used for HTTPS.        |
+ *   | BIT(10)| Set this bit to specify index of SSL cert to be used for HTTPS.        |
  * 
  * @note
  * - Maximum supported length for user_name, password together is 278 bytes.
@@ -113,6 +113,7 @@
  * - If content of any field contains a comma then NULL delimiter should be used.
  * - This API will wait until the response is received from NWP.
  * - When the SL_SI91X_FEAT_LONG_HTTP_URL feature is enabled, the maximum supported URL length for HTTP OTAF is 2048 bytes.
+ * - To select certificate index 0, no additional flags need to be configured explicitly.
  ******************************************************************************/
 sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint16_t flags,

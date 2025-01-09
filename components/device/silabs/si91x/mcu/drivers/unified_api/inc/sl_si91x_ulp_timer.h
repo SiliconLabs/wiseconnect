@@ -234,6 +234,35 @@ sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_confi
 
 /***************************************************************************/
 /**
+ * @brief To retrieve the match value for ULP timer.
+ * 
+ * @details This API calculates the match value for a given ULP timer type based on the 
+ *          provided time in microseconds. The match value corresponds to the number of 
+ *          clock cycles required for the timer to reach the specified time.
+ *          
+ *          The function supports different timer types, including:
+ *           - ULP_TIMER_TYP_DEFAULT: Uses the clock cycles per microsecond to calculate the match value.
+ *           - ULP_TIMER_TYP_1US: Returns the match value as the number of microseconds.
+ *           - ULP_TIMER_TYP_256US: Returns the match value as the number of 256-microsecond units.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_ulp_timer_init();
+ * 
+ * @param[in] timer_type Enum for ULP-timer type (default, 1us, 256us), see \ref ulp_timer_type_t for possible values.
+ * @param[in] time_us Time in microseconds for which the match value needs to be calculated.
+ * @param[out] match_value Pointer to store the calculated match value.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK               - Successfully calculated the match value.
+ *         - SL_STATUS_INVALID_TYPE    - Timer configuration structure member 'timer_type' has an invalid value.
+ *         - SL_STATUS_INVALID_PARAMETER - The 'time_us' parameter is invalid for the specified timer type.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
+sl_status_t sl_si91x_ulp_timer_get_match_value(ulp_timer_type_t timer_type, uint32_t time_us, uint32_t *match_value);
+
+/***************************************************************************/
+/**
  * @brief To start the ULP-Timer.
  * 
  * @details This API is used to start the Ultra Low-Power (ULP) timer.
