@@ -19,6 +19,7 @@
   - name: external_psram_none
   - name: rsilib_board
   - name: si91x_32kHz_external_oscillator
+  - name: si91x_common_flash
 - provides:
   - name: brd4343q
   - name: hardware_board

@@ -49,7 +49,7 @@
   - name: device_has_stacked_flash
   - name: device_has_mpu
   - name: device_has_chip
-  - name: si91x_common_flash  
+    
 - requires:
   - name: rsilib_chip
   - name: cmsis_common

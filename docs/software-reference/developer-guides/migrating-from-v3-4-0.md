@@ -29,5 +29,19 @@ Refer to the tables in each of the sections that follow which map the v3.4.0 API
 
 - Starting from the 3.4.1 release, the application **CLI_DEMO** has been renamed to **WIRELESS_TEST** to enhance clarity and better reflect the application's primary functionality, which focuses on wireless testing.
 
+### Update API calls
+
+- For **sl_si91x_button_state_get()** API:
+  - This API returns the shadow state of the button. This function is deprecated and should be replaced with `sl_si91x_button_get_state` with the same functionality but updated parameter of button_number instead of pin. 
+
+- For **sl_si91x_button_state_set()** API:
+  - This API sets the state of the button. This function is deprecated and should be replaced with `sl_si91x_button_set_state` with the same functionality but updated parameter of button_number instead of pin along with the required state. 
+
+- For **sl_si91x_button_pin_state()** API:
+  - This API returns the actual state of the pin associated with the button. This function is deprecated and should be replaced with `sl_si91x_button_state` with the same functionality but additional parameter of port along with the pin. 
+
+- For **sl_si91x_button_state_toggle()** API:
+  - This API toggles the state of the button. This function is deprecated and should be replaced with `sl_si91x_button_toggle_state` with the same functionality but updated parameter of button_number instead. 
+
 
 

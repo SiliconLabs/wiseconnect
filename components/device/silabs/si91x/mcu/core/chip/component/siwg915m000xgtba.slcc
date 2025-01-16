@@ -48,7 +48,7 @@
   - name: device_has_mpu
   - name: device_supports_external_flash
   - name: device_has_915chip
-  - name: si91x_common_flash
+  
 - requires:
   - name: rsilib_chip
   - name: cmsis_common

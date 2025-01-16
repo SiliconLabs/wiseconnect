@@ -56,7 +56,7 @@
   - name: device_supports_psram
   - name: device_has_mpu
   - name: device_is_module
-  - name: si91x_common_flash 
+   
 - requires:
   - name: rsilib_chip
   - name: cmsis_common

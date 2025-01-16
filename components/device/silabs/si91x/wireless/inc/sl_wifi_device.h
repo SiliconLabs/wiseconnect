@@ -54,7 +54,7 @@
 #define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
 #endif
 #else
-#define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
+#define MEMORY_CONFIG (BIT(20) | BIT(21))
 #endif
 
 //! @endcond
@@ -876,8 +876,10 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_416K_M4SS_256K
- * @brief To enable 416K memory for NWP and 256K memory for M4.
+ * @brief To enable 416K memory for NWP and 256K memory for M4. This macro is applicable only for SOC mode.
  * @details This configuration allocates 416K memory to the Network Processor (NWP) and 256K memory to the M4 core.
+ * 
+ * @note Ensure that RAM bank 9 remains powered on in the M4 for low power application use cases.
  */
 #define SL_SI91X_EXT_FEAT_416K_M4SS_256K BIT(21)
 
@@ -892,8 +894,10 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_480K_M4SS_192K
- * @brief To enable 480K memory for NWP and 192K memory for M4.
+ * @brief To enable 480K memory for NWP and 192K memory for M4. This macro is applicable only for SOC mode.
  * @details This configuration allocates 480K memory to the Network Processor (NWP) and 192K memory to the M4 core.
+ * 
+ * @note Ensure that RAM banks 8 and 9 remain powered on in the M4 for low power application use cases.
  */
 #define SL_SI91X_EXT_FEAT_480K_M4SS_192K BIT(20)
 
@@ -924,7 +928,7 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_672K
- * @brief To enable 672K memory for NWP.
+ * @brief To enable 672K memory for NWP. This macro is applicable only for NCP mode.
  */
 #define SL_SI91X_EXT_FEAT_672K (BIT(20) | BIT(21))
 
@@ -937,127 +941,47 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_352K_M4SS_320K
- * @brief To enable 352K memory for NWP (for NCP mode ONLY, to be deprecated soon).
- * @details This setting is soon to be deprecated and should only be used for NCP mode.
- * 
- * @note For NCP mode ONLY, to be deprecated soon.
+ * @brief To enable 352K memory for NWP. The remaining memory will be unused. This macro is applicable only for NCP mode.
  */
 #define SL_SI91X_EXT_FEAT_352K_M4SS_320K SL_SI91X_EXT_FEAT_352K
 
 /**
  * @def SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
- * @brief To enable basic NWP RAM level configuration (for NCP mode ONLY, to be deprecated soon).
+ * @brief To enable basic NWP RAM level configuration. This macro is applicable only for NCP mode.
  * @details This setting configures the Network Processor (NWP) with 352K of memory in NCP mode.
- *  
- * @note For NCP mode ONLY, to be deprecated soon.
+ * 
+ * @note This setting is suitable for low-power examples that do not require significant memory for the NWP.
  */
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV SL_SI91X_EXT_FEAT_352K
 
 /**
  * @def SL_SI91X_EXT_FEAT_672K_M4SS_0K
- * @brief To enable 672K memory for NWP and 0K memory for M4 (for NCP mode ONLY, to be deprecated soon).
+ * @brief To enable 672K memory for NWP and 0K memory for M4. This macro is applicable only for NCP mode.
  * @details This setting configures the Network Processor (NWP) with 672K of memory and allocates no memory to the M4 core in NCP mode.
- * 
- * @note For NCP mode ONLY, to be deprecated soon.
  */
 #define SL_SI91X_EXT_FEAT_672K_M4SS_0K SL_SI91X_EXT_FEAT_672K
 
 /**
  * @def SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
- * @brief To enable full NWP RAM level configuration (for NCP mode ONLY, to be deprecated soon).
+ * @brief To enable full NWP RAM level configuration. This macro is applicable only for NCP mode.
  * @details This setting configures the Network Processor (NWP) with 672K of memory and allocates no memory to the M4 core in NCP mode.
- * 
- * @note For NCP mode ONLY, to be deprecated soon.
  */
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_672K
 
 #endif
 
-#elif defined(SLI_SI917) || defined(SLI_SI915)
-
-#define SL_SI91X_EXT_FEAT_384K_M4SS_320K         0
-#define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV     SL_SI91X_EXT_FEAT_384K_M4SS_320K
-
-/// To enable 448K memory for NWP
-/// To enable 448K memory for NWP
-#define SL_SI91X_EXT_FEAT_448K_M4SS_256K         BIT(21)
-#define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_448K_M4SS_256K
-
-/// To enable 512K memory for NWP
-#define SL_SI91X_EXT_FEAT_512K_M4SS_192K         BIT(20)
-#define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC     SL_SI91X_EXT_FEAT_512K_M4SS_192K
-
-#ifndef SLI_SI91X_MCU_INTERFACE
-// To enable 704K memory for NWP; only supported in NCP
-#define SL_SI91X_EXT_FEAT_704K_M4SS_0K       (BIT(20) | BIT(21))
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO  SL_SI91X_EXT_FEAT_704K_M4SS_0K
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+/**
+ * 
+ * | Configuration                         | BIT(20) | BIT(21) | NCP Mode | SOC Mode |
+ * |---------------------------------------|---------|---------|----------|----------|
+ * | SL_SI91X_EXT_FEAT_352K_M4SS_320K      | 0       | 0       | YES      | YES      |
+ * | SL_SI91X_EXT_FEAT_416K_M4SS_256K      | 0       | 1       | NO       | YES      |
+ * | SL_SI91X_EXT_FEAT_480K_M4SS_192K      | 1       | 0       | NO       | YES      |
+ * | SL_SI91X_EXT_FEAT_672K_M4SS_0K        | 1       | 1       | YES      | NO       |
+ * 
+ */
 
 #endif // SLI_SI917
-
-/// For 9116 chipsets
-#if !(defined(SLI_SI917) || defined(SLI_SI915)) // defaults
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
- * @brief RAM level configuration: Medium NWP and Medium MCU memory.
- * @details This macro sets the RAM level to Medium for both NWP (Network Processor) and MCU (Microcontroller) memory.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_256K_MODE
-
-/**
- * @def SL_SI91X_EXT_FEAT_320K_MODE
- * @brief To enable 320K memory for NWP.
- * @details Enabling this bit sets the memory configuration to 320 KB for the NWP.
- */
-#define SL_SI91X_EXT_FEAT_320K_MODE BIT(20)
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
- * @brief RAM level configuration: Advanced NWP and Basic MCU memory.
- * @details This macro sets the RAM level to Advanced for NWP (Network Processor) and basic for MCU (Microcontroller) memory, equivalent to enabling 320 KB memory.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_320K_MODE
-
-/**
- * @def SL_SI91X_EXT_FEAT_256K_MODE
- * @brief To enable 256K memory for NWP.
- * @details Enabling this bit sets the memory configuration to 256 KB for the NWP. The default memory configuration is 192 KB. The memory configuration can be changed as follows:
- * 
- * | Mode(KB) | BIT[20] | BIT[21] |
- * |:---------|:--------|:--------|
- * | 192      | 0       | 0       |
- * | 256      | 0       | 1       |
- * | 320      | 1       | 0       |
- * | 384      | 1       | 1       |
- * 
- * @note Default memory configuration (RAM) is 192 KB. User can set these bits to change the memory configuration as described.
- */
-#define SL_SI91X_EXT_FEAT_256K_MODE BIT(21)
-
-/**
- * @def SL_SI91X_EXT_FEAT_384K_MODE
- * @brief To enable 384K memory.
- * @details Enabling this bit sets the memory configuration to 384 KB. This configuration is achieved by setting both BIT(20) and BIT(21).
- */
-#define SL_SI91X_EXT_FEAT_384K_MODE (BIT(20) | BIT(21))
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
- * @brief RAM level configuration: All NWP and Zero MCU memory.
- * @details This macro sets the RAM level to 384 KB for NWP (Network Processor) memory with zero configuration for MCU (Microcontroller) memory, equivalent to enabling 384 KB memory.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_384K_MODE
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
- * @brief RAM level configuration: All available NWP memory.
- * @details This macro sets the RAM level to the maximum available memory configuration for NWP (Network Processor), which is equivalent to the configuration set by `SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO`.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
-
-#endif // defaults
 
 /**
  * @def SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE

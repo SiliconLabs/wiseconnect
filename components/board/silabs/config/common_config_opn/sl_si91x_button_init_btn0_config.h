@@ -59,7 +59,7 @@
 // <<< sl:end pin_tool >>>
 
 #define SL_BUTTON_BTN0_PIN    SL_SI91X_BUTTON_0_PIN
-#define SL_BUTTON_BTN0_PORT   RTE_BUTTON0_PORT
+#define SL_BUTTON_BTN0_PORT   SL_SI91X_BUTTON_0_PORT
 #define SL_BUTTON_BTN0_NUMBER RTE_BUTTON0_NUMBER
 // This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else

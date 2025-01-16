@@ -49,7 +49,7 @@
   - name: device_has_mpu
   - name: device_is_module
   - name: device_no_antenna
-  - name: si91x_common_flash 
+   
   - name: device_supports_external_psram
 - requires:
   - name: rsilib_chip

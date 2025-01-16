@@ -25,6 +25,7 @@
 #include "sl_si91x_constants.h"
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket_utility.h"
+#include "sl_bsd_utility.h"
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_protocol_types.h"
@@ -261,22 +262,25 @@ IoT_Error_t iot_tls_write(Network *pNetwork, unsigned char *pMsg, size_t len, Ti
 {
   size_t total_bytes_written = 0; // Use size_t for total_bytes_written to match len's type
   ssize_t bytes_written = 0;
-  size_t temp_len = len;
+  size_t chunk_size = 0;
+  size_t tls_buffer_size = sl_si91x_get_socket_mss(pNetwork->socket_id);
 
   if (len == 0) {
     return MQTT_TX_BUFFER_TOO_SHORT_ERROR; // Adjusted to only check for 0, as len cannot be negative
   }
   
-  do {
-    bytes_written = send(pNetwork->socket_id, pMsg, temp_len, 0);
+   do {
+    chunk_size = (len - total_bytes_written < tls_buffer_size) ? (len - total_bytes_written) : tls_buffer_size;
+    bytes_written = send(pNetwork->socket_id, pMsg + total_bytes_written, chunk_size, 0);
     if (bytes_written <= 0) {
+      // If buffer is full, try again
+      if (errno == ENOBUFS)
+        continue;
       // If send returns 0 or a negative value, treat it as an error
       return NETWORK_SSL_WRITE_ERROR;
     }
-    pMsg += bytes_written;
-    temp_len -= bytes_written;
-    total_bytes_written += bytes_written; // Accumulate bytes written
-  } while ((temp_len > 0) && !has_timer_expired(timer));
+    total_bytes_written += bytes_written; // Accumulate bytes written 
+  } while (total_bytes_written < len && !has_timer_expired(timer));
   
   *written_len = total_bytes_written; // Update *written_len with the total bytes written
   return (total_bytes_written == len) ? SUCCESS : NETWORK_SSL_WRITE_TIMEOUT_ERROR; // Check total_bytes_written against len
