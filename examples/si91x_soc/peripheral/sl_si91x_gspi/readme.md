@@ -42,7 +42,7 @@ This application demonstrates the GSPI for data transfer in full-duplex as well 
 ## About Example Code
 
 - This example demonstrates GSPI transfer (that is, full-duplex communication) and GSPI send - GSPI receive (that is, half-duplex communication).
-- Various parameters like swap read and write data, data width, mode, manual CS pin, and bitrate can be configured using \ref sl_gspi_control_config_t
+- Various parameters like swap read and write data, data width, mode, and bitrate can be configured using \ref sl_gspi_control_config_t
 - DMA and FIFO Threshold can also be configured using the UC.
 - The file `sl_si91x_gspi_config.h` contains the control configurations and `sl_si91x_gspi_common_config.h` contains DMA and FIFO Threshold configuration.
 - In the example code, firstly, the output buffer is filled with some data which is transferred to the slave.

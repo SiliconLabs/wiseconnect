@@ -523,6 +523,15 @@ Wireless initialization needs to be done before using NVM3 APIs in common flash 
 3. For more information about NVM3 usage, refer to [NVM3 - NVM Data Manager](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3).
 
 
+### SLEEP-Timer
+#### Understanding the Use of OS-Timer instead of Sleep-Timer in Tick-less Mode 
+- When FreeRTOS operates in TICKLESS-MODE (low-power mode), the core enters a sleep state, and the OS runs using the sleep timer service instead of the usual SYSTICK timer. This is because the SYSTICK timer stops functioning when the core is a sleep, while the SYSRTC driver continues to run. The SYSRTC is configured as the wake-up source for the core, meaning it will trigger the core to wake up after the specified time has elapsed.
+
+- Issue with Using Sleep Timer for Software Timers
+  - In tickless mode, if software timers are created using the sleep timer (SYSRTC), the OS is unaware of the precise expiration times of these timers. This can cause unexpected wake-ups from sleep, as the SYSRTC, acting as the wake-up source, is not synchronized with the software timer expiration time.
+- Solution: Use OS-Timer
+  - To avoid conflicts and ensure proper operation, it is recommended to use the OS-TIMER for creating software timers. The OS is aware of the OS-TIMER timeouts, and the OS-TIMER operates based on the sleep timer (SYSRTC). By using the OS-TIMER, the system will be able to manage timer expirations correctly without causing unnecessary wake-ups.
+
 ### Watchdog Timer (WDT)
 
 The Watchdog Timer (WDT) is a crucial component for ensuring the reliability and stability of the system. It helps to recover from unexpected software failures by resetting the system if the software becomes unresponsive. The WDT manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability

@@ -2637,7 +2637,9 @@ sl_status_t sl_si91x_set_nwp_config_request(sl_si91x_nwp_configuration_t nwp_con
   sl_status_t status = SL_STATUS_OK;
 
   if ((nwp_config.code & SL_SI91X_XO_CTUNE_FROM_HOST) || (nwp_config.code & SL_SI91X_ENABLE_NWP_WDT_FROM_HOST)
-      || (nwp_config.code & SL_SI91X_DISABLE_NWP_WDT_FROM_HOST)) {
+      || (nwp_config.code & SL_SI91X_DISABLE_NWP_WDT_FROM_HOST)
+      || (nwp_config.code & SL_SI91X_SET_XTAL_GOOD_TIME_FROM_HOST)
+      || (nwp_config.code & SL_SI91X_SET_PMU_GOOD_TIME_FROM_HOST)) {
     status = sl_si91x_driver_send_command(RSI_COMMON_REQ_SET_CONFIG,
                                           SI91X_COMMON_CMD,
                                           &nwp_config,
@@ -2646,8 +2648,9 @@ sl_status_t sl_si91x_set_nwp_config_request(sl_si91x_nwp_configuration_t nwp_con
                                           NULL,
                                           NULL);
     VERIFY_STATUS_AND_RETURN(status);
-  } else
+  } else {
     return SL_STATUS_NOT_SUPPORTED;
+  }
 
   return status;
 }

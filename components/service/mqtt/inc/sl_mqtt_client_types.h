@@ -175,7 +175,7 @@ typedef struct {
   sl_mqtt_qos_t will_qos_level; ///< Quality of Service level for the Last Will message.
   uint8_t *will_topic;          ///< Pointer to the topic name for the Last Will message.
   uint16_t
-    will_topic_length; ///< Length of the topic name. Should not exceed 200 bytes including NULL termination character.
+    will_topic_length; ///< Length of the topic name. Should not exceed 202 bytes including NULL termination character.
   uint8_t *will_message; ///< Pointer to the Last Will message content.
   uint32_t
     will_message_length; ///< Length of the Last Will message content. Should not exceed 60 bytes including NULL termination character.
@@ -195,7 +195,7 @@ typedef struct {
   bool is_duplicate_message;  ///< Flag indicating whether this is a duplicate message.
   uint8_t *topic;             ///< Pointer to the topic name. Must not be NULL.
   uint16_t
-    topic_length;   ///< Length of the topic name. Should not exceed 200 bytes including NULL termination character.
+    topic_length;   ///< Length of the topic name. Should not exceed 202 bytes including NULL termination character.
   uint8_t *content; ///< Pointer to the message content. Must not be NULL.
   uint32_t content_length; ///< Length of the message content.
 } sl_mqtt_client_message_t;
@@ -317,7 +317,7 @@ typedef struct {
     topic_message_handler;           ///< Function pointer to the message handler for the subscribed topic.
   sl_mqtt_qos_t qos_of_subscription; ///< Quality of Service level for the subscription.
   uint16_t
-    topic_length; ///< Length of the subscribed topic. Should not exceed 200 bytes including NULL termination character.
+    topic_length; ///< Length of the subscribed topic. Should not exceed 202 bytes including NULL termination character.
   uint8_t topic[]; ///< Flexible array to store the topic name.
 } sl_mqtt_client_topic_subscription_info_t;
 

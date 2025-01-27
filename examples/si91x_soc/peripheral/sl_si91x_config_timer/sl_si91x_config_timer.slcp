@@ -17,7 +17,7 @@ source:
   - path: config_timer_example.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

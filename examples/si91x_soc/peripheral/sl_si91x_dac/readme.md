@@ -32,6 +32,7 @@ This application demonstrate the DAC peripheral, including:
   - Reference voltage for ADC operation: This mode is currently not supported
 - DAC will work only in single ended.
 - Monotonic by design - based on input sample it will give equivalent output.
+- If DAC is started, it is recommended to **stop it before de-initializing**. This is general flow of API calls for DAC:  sl_si91x_dac_init -> sl_si91x_dac_start -> sl_si91x_dac_stop -> sl_si91x_dac_deinit.
 
 ## Prerequisites/Setup Requirements
 

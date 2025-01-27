@@ -2302,6 +2302,7 @@ void RSI_ADC_PowerControl(POWER_STATE state)
       RSI_IPMU_PowerGateClr(AUXADC_PG_ENB);
       analog_set_power_state(ADC_BIT_POS, ANALOG_POWERED_OFF);
       if (!analog_get_power_state()) {
+        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
         RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
       }
       break;

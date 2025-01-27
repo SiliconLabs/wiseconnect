@@ -224,6 +224,8 @@ void rsi_ble_task_on_conn(void *parameters)
   bool profile_mem_init           = false;
   bool service_char_mem_init      = false;
   uint16_t notification_tx_handle = 0;
+  bool notifications_enabled      = false;
+  bool indications_enabled        = false;
 
   rsi_ble_profile_list_by_conn_t rsi_ble_profile_list_by_conn;
   //! initialize the structure member variables to NULL
@@ -1110,7 +1112,6 @@ void rsi_ble_task_on_conn(void *parameters)
           }
         }
         //! set RSI_DATA_TRANSMIT_EVENT to transmit data to remote device
-        LOG_PRINT("\n Start transmitting data to - conn%d\r\n", l_conn_id);
         rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_BLE_BUFF_CONF_EVENT);
         rsi_ble_set_event_based_on_conn(l_conn_id, RSI_CONN_UPDATE_REQ_EVENT);
       } break;
@@ -1338,10 +1339,12 @@ void rsi_ble_task_on_conn(void *parameters)
             //check for valid notifications
             if (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == NOTIFY_ENABLE) {
               LOG_PRINT("\r\n Remote device enabled the notification - conn%d\n", l_conn_id);
-              rsi_tx_to_rem_dev = true;
+              rsi_tx_to_rem_dev     = true;
+              notifications_enabled = true;
               //! configure the buffer configuration mode
               rsi_ble_set_event_based_on_conn(l_conn_id, RSI_BLE_BUFF_CONF_EVENT);
             } else if (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == NOTIFY_DISABLE) {
+              notifications_enabled = false;
               LOG_PRINT("\r\n Remote device disabled the notification - conn%d\n", l_conn_id);
               //rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_DATA_TRANSMIT_EVENT);
             }
@@ -1354,10 +1357,12 @@ void rsi_ble_task_on_conn(void *parameters)
             //check for valid indications
             if (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == INDICATION_ENABLE) {
               LOG_PRINT("\r\n Remote device enabled the indications - conn%d\n", l_conn_id);
-              rsi_tx_to_rem_dev = true;
+              rsi_tx_to_rem_dev   = true;
+              indications_enabled = true;
               //! configure the buffer configuration mode
               rsi_ble_set_event_based_on_conn(l_conn_id, RSI_BLE_BUFF_CONF_EVENT);
             } else if (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == INDICATION_DISABLE) {
+              indications_enabled = false;
               LOG_PRINT("\r\n Remote device disabled the indications - conn%d\n", l_conn_id);
               //rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_DATA_TRANSMIT_EVENT);
             }
@@ -1563,8 +1568,7 @@ void rsi_ble_task_on_conn(void *parameters)
         }
 
         //! indicate to remote device continuously
-        else if (ble_conn_conf->tx_indications
-                 && (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == INDICATION_ENABLE)) {
+        else if (ble_conn_conf->tx_indications && (indications_enabled == true)) {
           rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_DATA_TRANSMIT_EVENT);
           //! prepare the data to set as local attribute value.
           read_data1[0] = indication_cnt;
@@ -1604,8 +1608,7 @@ void rsi_ble_task_on_conn(void *parameters)
         }
 
         //! Notify to remote device continuously
-        else if (ble_conn_conf->tx_notifications
-                 && (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == NOTIFY_ENABLE)) {
+        else if (ble_conn_conf->tx_notifications && (notifications_enabled == true)) {
           //! prepare the data to set as local attribute value.
           read_data1[0] = notfy_cnt;
           read_data1[1] = notfy_cnt >> 8;
@@ -1699,8 +1702,7 @@ void rsi_ble_task_on_conn(void *parameters)
       case RSI_BLE_GATT_INDICATION_CONFIRMATION: {
         //! clear the served event
         rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_BLE_GATT_INDICATION_CONFIRMATION);
-        if (ble_conn_conf->tx_indications
-            && (rsi_ble_conn_info[l_conn_id].app_ble_write_event.att_value[0] == INDICATION_ENABLE)) {
+        if (ble_conn_conf->tx_indications && (rsi_tx_to_rem_dev == true)) {
           rsi_ble_set_event_based_on_conn(l_conn_id, RSI_DATA_TRANSMIT_EVENT);
 #if RSI_DEBUG_EN
           LOG_PRINT("\r\n In rsi_ble_on_event_indication_confirmation event\n");

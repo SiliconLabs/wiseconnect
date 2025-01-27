@@ -48,10 +48,8 @@ typedef struct {
 #define INTERRUPT_PIN PIN(B, 1)
 #define VCOM_EN_PIN   PIN(D, 4)
 
-#define NCP_UART_TX_PIN  PIN(A, 5)
-#define NCP_UART_RX_PIN  PIN(A, 6)
-#define NCP_UART_CTS_PIN PIN(A, 4)
-#define NCP_UART_RTS_PIN PIN(C, 1)
+#define NCP_UART_TX_PIN PIN(A, 5)
+#define NCP_UART_RX_PIN PIN(A, 6)
 
 #define SPI_CLOCK_PIN PIN(C, 2)
 #define SPI_MOSI_PIN  PIN(C, 0)

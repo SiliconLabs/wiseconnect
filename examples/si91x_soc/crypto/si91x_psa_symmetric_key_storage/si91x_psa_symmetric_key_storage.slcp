@@ -26,7 +26,7 @@ include:
       - path: psa_symmetric_key_storage_app.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.4.1

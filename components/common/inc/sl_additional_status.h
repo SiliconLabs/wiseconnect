@@ -401,6 +401,7 @@
 #define SL_STATUS_SI91X_ERROR_IN_LEN_OF_THE_COMMAND \
   ((sl_status_t)0x1BB3E) ///< Error in the length of the command (exceeds the number of characters mentioned in the PRM).
 #define SL_STATUS_SI91X_WRONG_PACKET_INFO  ((sl_status_t)0x1BB40) ///< Wrong packet information.
+#define SL_STATUS_SI91X_CORRUPTED_RPS      ((sl_status_t)0x1BB41) ///< Corrupted RPS encountered during firmware update.
 #define SL_STATUS_SI91X_SOCKET_STILL_BOUND ((sl_status_t)0x1BB42) ///< Socket is still bound.
 #define SL_STATUS_SI91X_NO_FREE_PORT       ((sl_status_t)0x1BB45) ///< No free port available.
 #define SL_STATUS_SI91X_INVALID_PORT       ((sl_status_t)0x1BB46) ///< Invalid port specified.
@@ -441,7 +442,8 @@
   ((sl_status_t)0x1BBD3) ///< FTP client is either not connected or has been disconnected from the FTP server.
 #define SL_STATUS_SI91X_FTP_CLIENT_NOT_DISCONNECTED \
   ((sl_status_t)0x1BBD4) ///< FTP client is still connected and has not been disconnected.
-#define SL_STATUS_SI91X_FTP_FILE_NOT_OPENED ((sl_status_t)0x1BBD5) ///< FTP file could not be opened.
+#define SL_STATUS_SI91X_TLS_RX_LEN_ERR_OR_FTP_FILE_NOT_OPEN \
+  ((sl_status_t)0x1BBD5) ///< TLS received data length exceeded or FTP file could not be opened.
 #define SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_TIMEOUT_OR_FTP_FILE_NOT_CLOSED \
   ((sl_status_t)0x1BBD6) ///< SSL/TLS handshake timed out or the FTP file was not closed properly.
 #define SL_STATUS_SI91X_FTP_EXPECTED_1XX_RESPONSE_NOT_RECEIVED \

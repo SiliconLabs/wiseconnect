@@ -216,6 +216,7 @@ rsi_error_t DAC_PingPongReconfig(int16_t *wr_buf, uint16_t length)
  */
 rsi_error_t DAC_Stop(void)
 {
+  dac_udma_stop();
   RSI_DAC_Stop(AUX_ADC_DAC_COMP);
   return RSI_OK;
 }
@@ -626,6 +627,7 @@ void RSI_DAC_PowerControl(POWER_STATE_DAC state)
       RSI_IPMU_PowerGateClr(AUXDAC_PG_ENB);
       analog_set_power_state(DAC_BIT_POS, ANALOG_POWERED_OFF);
       if (!analog_get_power_state()) {
+        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
         RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
       }
       break;
@@ -894,6 +896,16 @@ void dac_udma_init(void)
   RSI_UDMA_RegisterCallback(udmaHandle1, (void *)dac_udmaTransferComplete);
 }
 
+/*==============================================*/
+/**
+ * @fn void dac_udma_stop(void)
+ * @brief  This API use for stop/disable the uDMA channel-10.
+ * @return None
+ */
+void dac_udma_stop(void)
+{
+  RSI_UDMA_ChannelDisable(udmaHandle1, 10);
+}
 /*==============================================*/
 /**
  * @fn void dac_udma_start(void)

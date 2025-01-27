@@ -279,7 +279,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
 #else
   ROMAPI_PWR_API->RSI_GotoSleepWithRetention(stack_address, jump_cb_address, vector_offset, mode);
 #endif
-
+#ifndef SI_SI91X_NWP_SHUTDOWN
   // This condition checks whether the encryption enable bit (bit 1) is set in the value stored
   // at the memory address computed as (M4_FLASH_BASE + M4_APP_START_ADDR).
   // If the bit is set, encryption is enabled; otherwise, it is disabled.
@@ -289,6 +289,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
     // and stores the result directly in the ULP RAM address.
     STORE_M4_APP_SIZE_IN_QSPI_END_SEGMENT;
   }
+#endif
 }
 
 /**

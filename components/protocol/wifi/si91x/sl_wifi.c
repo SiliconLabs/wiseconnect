@@ -70,7 +70,12 @@ extern rsi_m4ta_desc_t crypto_desc[2];
 // Enterprise configuration command parameters
 /*=======================================================================*/
 
-// Enterprise method ,should be one of among TLS, TTLS, FAST or PEAP
+// Enterprise method should be one of the following: TLS, TTLS, FAST or PEAP.
+// PEAP can accept any of the following three values:
+// 	PEAP - The EAP server may bypass Phase2 authentication (less secure).
+// 	PEAPSAFE1 - If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
+// 	PEAPSAFE2 - Requires Phase2 authentication in all cases (most secure).
+// Other possible values for the macro SL_EAP_PEAP_METHOD are "PEAPSAFE1" and "PEAPSAFE2"
 
 #define SL_EAP_TLS_METHOD  "TLS"
 #define SL_EAP_TTLS_METHOD "TTLS"
