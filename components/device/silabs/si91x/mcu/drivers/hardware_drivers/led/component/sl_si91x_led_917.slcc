@@ -4,9 +4,9 @@ label: LED
 description: >
   The Simple LED Driver provides an implementation of the Generic LED API. 
   This driver supports controlling GPIO-based on/off type LEDs. 
-  This component is instantiable, meaning that several named instances can be created. 
+  This component is instantiable, but only two named instances—'led0' and 'led1'can be created.
   For each instance a configuration is generated along with an initialization struct set according to this configuration.
-  Instances should be named as 'led0' or 'led1'.
+  Instances should be named only 'led0' or 'led1'.
 category: Device|Si91x|MCU|Hardware
 quality: production
 metadata:

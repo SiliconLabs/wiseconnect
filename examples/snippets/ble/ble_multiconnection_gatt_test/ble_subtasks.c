@@ -1702,7 +1702,7 @@ void rsi_ble_task_on_conn(void *parameters)
       case RSI_BLE_GATT_INDICATION_CONFIRMATION: {
         //! clear the served event
         rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_BLE_GATT_INDICATION_CONFIRMATION);
-        if (ble_conn_conf->tx_indications && (rsi_tx_to_rem_dev == true)) {
+        if (ble_conn_conf->tx_indications && (indications_enabled == true)) {
           rsi_ble_set_event_based_on_conn(l_conn_id, RSI_DATA_TRANSMIT_EVENT);
 #if RSI_DEBUG_EN
           LOG_PRINT("\r\n In rsi_ble_on_event_indication_confirmation event\n");

@@ -63,6 +63,11 @@ void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_
   SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_FLAG(flags));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_INTR(int_no));
+  // Check if the pin is greater than (or) equal to MAX_GPIO_PORT_PIN
+  if (pin >= MAX_GPIO_PORT_PIN) {
+    port = (sl_gpio_port_t)(pin / MAX_GPIO_PORT_PIN); // Determine the corresponding port (0-3)
+    pin  = pin % MAX_GPIO_PORT_PIN;                   // Get the pin number within that port (0-15)
+  }
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PORT_NUMBER = port;
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PIN_NUMBER  = (sl_si91x_gpio_pin_t)pin;
   // Enable or disable GPIO interrupt falling edge in GPIO HP instance

@@ -15,8 +15,6 @@
 
 This example application demonstrates the use of BUTTON in a bare metal environment. The application toggles the LED on each BUTTON press using the `sl_si91x_led_toggle()` function.
 
-Additional LED and BUTTON instances could be added.
-
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements

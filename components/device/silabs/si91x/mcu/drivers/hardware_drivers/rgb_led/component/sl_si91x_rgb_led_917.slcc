@@ -4,7 +4,7 @@ label: RGB LED
 description: >
   The Simple RGB LED Driver provides an implementation of RGB LED API. 
   This driver supports controlling GPIO-based on/off type RGB LEDs. 
-  This component is instantiable, meaning that several named instances can be created. 
+  This component is instantiable, but only one named instance can be created - led0.
   For each instance a configuration is generated along with an initialization struct set according to this configuration.
   This driver file is now deprecated.
   To ensure future-proofing and compatibility with upcoming features, 

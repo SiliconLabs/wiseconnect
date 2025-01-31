@@ -507,7 +507,11 @@ To measure TCP Rx throughput, configure the SiWx91x as a TCP client and start a 
 
   > **Note:** The `TCP_Server_throughput.py` script is compatible with Python version 2 and above.
   >
-  > Ensure the `SERVER_PORT` and `SERVER_HOST` macros in the script are updated to match the server machine's configuration.
+  > Ensure the `SERVER_PORT` macro in the script are updated to match the server machine's configuration.
+
+- **For SOC/NCP with EFR host**
+
+  ![Figure: TCP_RX](resources/readme/SERVER_TCP_RX.png)
 
 #### TLS Tx Throughput
 

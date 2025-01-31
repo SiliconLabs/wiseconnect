@@ -1181,23 +1181,17 @@
 
 /**
  * @def SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE
- * @brief Enable both TCP/IP bypass mode and embedded modes.
- * @details
- * This feature allows the device to use both bypass and non-bypass modes
- * simultaneously, providing flexibility in network communication.
+ * @brief Enable support for dual network stack mode.
  * 
- * @note Enables the feature allows to use both bypass and non-bypass modes simultaneously.
- */
-#define SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE BIT(9)
-
-/**
- * @def SL_SI91X_EXT_TCP_IP_ETH_WIFI_BRIDGE
- * @brief Enable Ethernet to WiFi bridge.
  * @details
- * This feature enables the device to act as a bridge between Ethernet and
- * WiFi networks, facilitates the communication between the two.
+ * This feature enables support for dual network stack mode, allowing two different network
+ * stacks to run on the NWP and the external host simultaneously, providing flexibility in
+ * network communication.
+ *
+ * @note @ref SL_SI91X_TCP_IP_FEAT_BYPASS bit should not be set to 1 when this bit is enabled.
+ * @note Bit 9 is reserved.
  */
-#define SL_SI91X_EXT_TCP_IP_ETH_WIFI_BRIDGE BIT(10)
+#define SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE BIT(10)
 
 /**
  * @def SL_SI91X_EXT_DYNAMIC_COEX_MEMORY

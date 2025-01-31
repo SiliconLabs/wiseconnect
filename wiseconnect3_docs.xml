@@ -116,6 +116,15 @@
     <description>Guide for updating an existing application using the WiSeConnect™ SDK v3.3.4 to a v3.4.0 application. This guide describes the naming and interface changes in v3.4.0, mostly in order to standardize the names and improve the overall usage experience of the application programming interface (API). Migration requires the names everywhere to be updated in the existing code of an application.</description>
   </contentItemData>
 
+  <contentItemData label="WiSeConnect SDK Migration Guide from v3.4.0 to v3.4.1" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/master/docs/software-reference/developer-guides/migrating-from-v3-4-0.md" category="Quick Start Guides" priority="8">
+    <property key="core.category" value="Quick Start Guides"/>
+    <property key="core.priority" value="8"/>
+    <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a brd4357a"/>
+    <property key="core.partCompatibility" value=".*"/>
+    <property key="core.sdkAndProtocolTags" value="WiSeConnect 3"/>
+    <description>Guide for updating an existing application using the WiSeConnect™ SDK v3.4.0 to a v3.4.1 application. This guide describes the naming and interface changes in v3.4.1, mostly in order to standardize the names and improve the overall usage experience of the application programming interface (API). Migration requires the names everywhere to be updated in the existing code of an application.</description>
+  </contentItemData>
+
   <contentItemData label="SiWx917 Software Reference Manual" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/v3.4.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md" category="Reference Manuals" priority="9">
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="9"/>
