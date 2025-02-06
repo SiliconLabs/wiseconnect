@@ -1224,6 +1224,8 @@
  * from the host, which is recommended for use with TCP sockets.
  * 
  * @note If it is set socket would not be closed until close() is called from host. It is recommended to enable this bit when using TCP sockets.
+ * @note If this bit is enabled, closing the socket will flush any pending data to be sent to remote peer.
+ * @note If this bit is disabled, closing the socket will first send any pending data to remote peer.
  * @note This is always set internally for Si91x chips.
  */
 #define SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE BIT(16)

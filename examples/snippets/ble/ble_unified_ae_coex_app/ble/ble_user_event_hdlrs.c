@@ -947,7 +947,7 @@ void rsi_ble_on_data_transmit(uint8_t ble_conn_id)
   //! indicate to remote device continuously
   if (ble_confgs.ble_conn_configuration[ble_conn_id].tx_indications) {
 
-    if (rsi_ble_conn_info[ble_conn_id].app_ble_write_event.att_value[0] == INDICATION_ENABLE) {
+    if (rsi_ble_conn_info[ble_conn_id].indications_enabled == true) {
       //! prepare the data to set as local attribute value.
       rsi_ble_conn_info[ble_conn_id].read_data1[0] = rsi_ble_conn_info[ble_conn_id].indication_cnt;
       rsi_ble_conn_info[ble_conn_id].read_data1[1] = rsi_ble_conn_info[ble_conn_id].indication_cnt >> 8;
@@ -990,7 +990,7 @@ void rsi_ble_on_data_transmit(uint8_t ble_conn_id)
   //! Notify to remote device continuously
   if (ble_confgs.ble_conn_configuration[ble_conn_id].tx_notifications) {
 
-    if (rsi_ble_conn_info[ble_conn_id].app_ble_write_event.att_value[0] == NOTIFY_ENABLE) {
+    if (rsi_ble_conn_info[ble_conn_id].notifications_enabled == true) {
       //! prepare the data to set as local attribute value.
       rsi_ble_conn_info[ble_conn_id].read_data1[0] = rsi_ble_conn_info[ble_conn_id].notfy_cnt;
       rsi_ble_conn_info[ble_conn_id].read_data1[1] = rsi_ble_conn_info[ble_conn_id].notfy_cnt >> 8;
@@ -1282,13 +1282,15 @@ void rsi_ble_on_gatt_write_event(uint16_t status, void *event_data)
       // check for valid notifications
       if (rsi_ble_conn_info[ble_conn_id].app_ble_write_event.att_value[0] == NOTIFY_ENABLE) {
         LOG_PRINT("\r\n Remote device enabled the notification -conn%d\n", ble_conn_id);
-        rsi_ble_conn_info[ble_conn_id].rsi_tx_to_rem_dev = true;
-        rsi_ble_conn_info[ble_conn_id].transmit          = true;
+        rsi_ble_conn_info[ble_conn_id].rsi_tx_to_rem_dev     = true;
+        rsi_ble_conn_info[ble_conn_id].transmit              = true;
+        rsi_ble_conn_info[ble_conn_id].notifications_enabled = true;
         //! configure the buffer configuration mode
         rsi_ble_event_set_buffer_config_driver_callback(&ble_conn_id);
       } else if (rsi_ble_conn_info[ble_conn_id].app_ble_write_event.att_value[0] == NOTIFY_DISABLE) {
         LOG_PRINT("\r\n Remote device disabled the notification -conn%d\n", ble_conn_id);
-        rsi_ble_conn_info[ble_conn_id].transmit = false;
+        rsi_ble_conn_info[ble_conn_id].notifications_enabled = false;
+        rsi_ble_conn_info[ble_conn_id].transmit              = false;
       }
     }
   }
@@ -1298,11 +1300,13 @@ void rsi_ble_on_gatt_write_event(uint16_t status, void *event_data)
       // check for valid indications
       if (rsi_ble_conn_info[ble_conn_id].app_ble_write_event.att_value[0] == INDICATION_ENABLE) {
         LOG_PRINT("\r\n Remote device enabled the indications -conn%d\n", ble_conn_id);
-        rsi_ble_conn_info[ble_conn_id].rsi_tx_to_rem_dev = true;
+        rsi_ble_conn_info[ble_conn_id].rsi_tx_to_rem_dev   = true;
+        rsi_ble_conn_info[ble_conn_id].indications_enabled = true;
         //! configure the buffer configuration mode
         rsi_ble_event_set_buffer_config_driver_callback(&ble_conn_id);
       } else if (rsi_ble_conn_info[ble_conn_id].app_ble_write_event.att_value[0] == INDICATION_DISABLE) {
         LOG_PRINT("\r\n Remote device disabled the indications -conn%d\n", ble_conn_id);
+        rsi_ble_conn_info[ble_conn_id].indications_enabled = false;
       }
     }
   }
