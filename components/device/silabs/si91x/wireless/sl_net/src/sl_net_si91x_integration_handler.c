@@ -45,8 +45,6 @@
 #include "sl_ip_types.h"
 #endif
 
-extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
-
 #ifdef SLI_SI91X_SOCKETS
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_callback_framework.h"
@@ -65,6 +63,8 @@ extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
 #ifdef SLI_SI91X_INTERNAL_HTTP_CLIENT
 #include "sl_si91x_http_client_callback_framework.h"
 #endif
+
+extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
 
 #ifdef SLI_SI91X_EMBEDDED_MQTT_CLIENT
 /**
@@ -142,11 +142,6 @@ static void handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_asyn
   sli_si91x_mqtt_event_handler(event_status, sdk_context, raw_rx_packet);
 }
 #endif
-
-/*static void si91x_node_free_function(sl_wifi_buffer_t *buffer)
-{
-  sl_si91x_host_free_buffer(buffer);
-}*/
 
 void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_si91x_packet_t *packet)
 {

@@ -118,6 +118,27 @@ sl_status_t convert_si91x_event_to_sl_net_event(const uint16_t *event, sl_net_ev
   return SL_STATUS_FAIL;
 }
 
+bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr)
+{
+  if (ip_addr->type == SL_IPV4) {
+    for (int i = 0; i < 4; i++) {
+      if (ip_addr->ip.v4.bytes[i] != 0) {
+        return false; // Non-zero byte found
+      }
+    }
+    return true; // All bytes are zero
+  } else if (ip_addr->type == SL_IPV6) {
+    for (int i = 0; i < 16; i++) {
+      if (ip_addr->ip.v6.bytes[i] != 0) {
+        return false; // Non-zero byte found
+      }
+    }
+    return true; // All bytes are zero
+  }
+
+  return false; // Invalid or unsupported type
+}
+
 #ifdef SLI_SI91X_INTERNAL_HTTP_CLIENT
 // Convert integer to string
 void convert_itoa(uint32_t val, uint8_t *str)

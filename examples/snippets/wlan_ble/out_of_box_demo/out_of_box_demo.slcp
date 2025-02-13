@@ -10,9 +10,9 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: simplicity_sdk, version:  "2024.12.1"}
+sdk: {id: simplicity_sdk, version:  "2025.6.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.1}
+- {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
   - path: main.c
@@ -74,6 +74,7 @@ requires:
 - name: sl_si91x_basic_buffers
 - name: wifi_resources
 - name: freertos
+- name: freertos_heap_4
 - name: slist
 - name: sl_si91x_asynchronous_socket
 - name: basic_network_config_manager

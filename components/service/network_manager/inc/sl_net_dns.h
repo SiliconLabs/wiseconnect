@@ -66,6 +66,8 @@ typedef struct {
 
  * 
  * @pre Pre-conditions:
+ * - The [sl_net_up](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-up) API must be called before this API.
+ * - If [sl_net_up](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-up) is not used, then [sl_si91x_configure_ip_address](../wiseconnect-api-reference-guide-si91x-driver/si91-x-network-functions#sl-si91x-configure-ip-address) should be called prior to this API.
  * - The [SL_SI91X_TCP_IP_FEAT_DNS_CLIENT](../wiseconnect-api-reference-guide-si91x-driver/si91-x-tcp-ip-feature-bitmap#sl-si91-x-tcp-ip-feat-dns-client) bit should be enabled in the TCP/IP feature bitmap.
  * 
  * @param[in] host_name 			 
@@ -93,11 +95,18 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
  *   Sets DNS server IP addresses.
  *
  * @details
- *   This function configures the DNS server IP addresses for the specified network interface.
- *   
- *   If both primary and secondary server addresses are NULL, the DNS mode will be set to DHCP.
- *   Otherwise, the DNS mode will be set to static.
- * 
+*   This function configures the DNS server IP addresses for the specified network interface.  
+*   | Condition                                                      | DNS Mode   |
+*   |---------------------------------------------------------------|------------|
+*   | Primary DNS and Secondary DNS are both NULL                    | DHCP       |
+*   | Primary DNS and Secondary DNS are both zero IP addresses       | DHCP       |
+*   | Primary DNS is NULL and Secondary DNS is a zero IP address     | DHCP       |
+*   | Secondary DNS is NULL and Primary DNS is a zero IP address     | DHCP       |
+*   | Primary DNS is a valid IP address and Secondary DNS is NULL    | Static     |
+*   | Secondary DNS is a valid IP address and Primary DNS is NULL    | Static     |
+*   | Both Primary DNS and Secondary DNS are valid IP addresses      | Static     |
+*   | Primary DNS is zero IP address and Secondary DNS is a valid IP address | Static |
+*   | Secondary DNS is zero IP address and Primary DNS is a valid IP address | Static |
  * @pre Pre-conditions:
  * - The [SL_SI91X_TCP_IP_FEAT_DNS_CLIENT](../wiseconnect-api-reference-guide-si91x-driver/si91-x-tcp-ip-feature-bitmap#sl-si91-x-tcp-ip-feat-dns-client) bit should be enabled in the TCP/IP feature bitmap.
  * 

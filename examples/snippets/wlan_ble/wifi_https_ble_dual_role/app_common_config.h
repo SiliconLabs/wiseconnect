@@ -39,9 +39,9 @@
 /*=======================================================================*/
 //!	Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for power save mode
-#define PSP_MODE          RSI_SLEEP_MODE_2
-#define PSP_TYPE          RSI_MAX_PSP
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for power save mode
+#define PSP_MODE              RSI_SLEEP_MODE_2
+#define PSP_TYPE              RSI_MAX_PSP
 
 /*=======================================================================*/
 //   ! Data type declarations

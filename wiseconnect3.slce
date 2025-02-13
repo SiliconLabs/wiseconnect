@@ -2,17 +2,18 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
-version: "3.4.1"
+version: "3.5.0"
 sdk:
   id: simplicity_sdk
-  version: "2024.12.1"
+  version: "2025.6.0"
 documentation:
   - docset: wiseconnect
-    version: "3.4.1"
+    version: "3.5.0"
 component_path:
   - path: resources
   - path: components/board
   - path: components/common
+  - path: components/logger
   - path: components/device/silabs/si91x/wireless
   - path: components/device/silabs/si91x/wireless/ble
   - path: components/device/silabs/si91x/wireless/asynchronous_socket
@@ -38,6 +39,7 @@ component_path:
   - path: components/device/silabs/si91x/wireless/crypto/multithread
   - path: components/device/silabs/si91x/wireless/crypto/puf
   - path: components/device/silabs/si91x/wireless/errno/component
+  - path: components/device/silabs/si91x/wireless/firmware_upgrade
   - path: components/service/bsd_socket
   - path: components/service/network_manager
   - path: components/service/http_client
@@ -46,6 +48,11 @@ component_path:
   - path: components/service/mqtt
   - path: components/service/sntp
   - path: components/service/mdns
+  - path: components/sli_buffer_manager
+  - path: components/sli_queue_manager
+  - path: components/sli_routing_utility
+  - path: components/sli_wifi_command_engine
+  - path: components/sli_si91x_wifi_event_handler
   - path: components/protocol/wifi
   - path: components/wiseconnect3_common
   - path: components/device/silabs/si91x/mcu
@@ -94,6 +101,7 @@ component_path:
   - path: third_party/azure_freertos_middleware/libraries/coreMQTT
   - path: third_party/iot_socket
   - path: third_party/unity/component
+  - path: third_party/wpa_supplicant
   - path: third_party/silicon_labs/freertos/component
   - path: utilities
   - path: components/console

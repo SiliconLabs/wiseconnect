@@ -37,20 +37,25 @@
 #include "sl_si91x_constants.h"
 #include "sl_si91x_types.h"
 #include "sl_si91x_puf.h"
+#include "sl_si91x_crypto_utility.h"
 
 /******************************************************
  *                    Constants
  ******************************************************/
+//! User Key to be used to create keycode(Key length can be 16 or 32 bytes)
+#define USER_KEY "123456abcdefghij"
 //! User input data to be encrypted
 #define AES_PLAIN_TXT "Silabs"
-//! User Key to be used to create keycode(Key length can be 16 or 32 bytes)
-#define AES_KEY "123456abcdefghijklmnopqrstuvwxyz"
-//! AES CBC mode IV
+//! AES CBC mode Initailization Vector
 #define AES_CBC_IV "abcdefghijklmnop"
 //! Buffer size for output data. Adjust based on input message length.
 #define AES_BUFFER_SIZE 256
 //! PUF Demo type
 #define PUF_GET_KEY_DEMO 0
+//! Block size for alignment
+#define AES_BLOCK_SIZE 16
+//! Input message padding for block alignment
+#define PKCS_7_PADDING 1
 
 /******************************************************
  *               Variable Definitions
@@ -96,6 +101,11 @@ static const sl_wifi_device_configuration_t client_configuration = {
 //! AES Encrypted and Decrypted data
 uint8_t aes_encry_data[AES_BUFFER_SIZE];
 uint8_t aes_decry_data[AES_BUFFER_SIZE];
+
+#if PKCS_7_PADDING
+size_t padded_data_length = 0;
+uint8_t decrypted_unpadded_data_buffer[AES_BUFFER_SIZE];
+#endif
 
 /******************************************************
  *               Function Declarations
@@ -149,7 +159,7 @@ sl_status_t puf_aes_encrypt_decrypt_app(void)
   uint8_t get_key[32];
 
   // Set Key(32Bytes) operation with PUF
-  status = sl_si91x_puf_set_key_req(1, SL_SI91X_PUF_KEY_SIZE_256, (uint8_t *)AES_KEY, keycode);
+  status = sl_si91x_puf_set_key_req(1, SL_SI91X_PUF_KEY_SIZE_256, (uint8_t *)USER_KEY, keycode);
   if (status != SL_STATUS_OK) {
     printf("\r\n Set Key Fail Status 0x%lx\r\n", status);
     return status;
@@ -170,13 +180,31 @@ sl_status_t puf_aes_encrypt_decrypt_app(void)
   /* PUF operation with 16 Bytes(SL_SI91X_PUF_KEY_SIZE_128) Key */
 
   // Set Key(16Bytes) operation with PUF
-  status = sl_si91x_puf_set_key_req(0, SL_SI91X_PUF_KEY_SIZE_128, (uint8_t *)AES_KEY, keycode);
+  status = sl_si91x_puf_set_key_req(0, SL_SI91X_PUF_KEY_SIZE_128, (uint8_t *)USER_KEY, keycode);
   if (status != SL_STATUS_OK) {
     printf("\r\n Set Key Fail Status 0x%lx\r\n", status);
     return status;
   }
   printf("\r\n PUF set key Success 16Bytes Size \n");
 
+  // Set Intrinsic Key operation with PUF
+  uint8_t intr_key_resp[52];
+
+  for (uint32_t i = 0; i < 5; i++) {
+    status = sl_si91x_puf_set_intr_key_req(0, SL_SI91X_PUF_KEY_SIZE_128, intr_key_resp);
+    if (status != SL_STATUS_OK) {
+      printf("\r\n Set Intrinsic Key Fail Status 0x%lx\r\n", status);
+      return status;
+    }
+    printf("\r\n PUF set Intrinsic key Success 16Bytes Size \n");
+
+    // Print the response
+    printf("\r\nRandom Intrinsic Key Response %ld: ", i + 1);
+    for (uint32_t j = 0; j < sizeof(intr_key_resp); j++) {
+      printf("%02x", intr_key_resp[j]);
+    }
+    printf("\n");
+  }
   // Load Key(16Bytes) operation with PUF
   status = sl_si91x_puf_load_key_req(keycode);
   if (status != SL_STATUS_OK) {
@@ -186,18 +214,36 @@ sl_status_t puf_aes_encrypt_decrypt_app(void)
   printf("\r\n PUF Load key Success 16Bytes Size \n");
 
   //!Encrypt using AES ECB mode
+
+#if PKCS_7_PADDING
+  size_t padded_data_length = 0;
+  uint8_t *padded_data =
+    pkcs7_padding((uint8_t *)AES_PLAIN_TXT, strlen(AES_PLAIN_TXT), AES_BLOCK_SIZE, &padded_data_length);
+  if (!padded_data) {
+    return SL_STATUS_FAIL;
+  }
+#endif
+
   memset(aes_encry_data, 0, AES_BUFFER_SIZE);
   status = sl_si91x_puf_aes_encrypt_req(SL_SI91X_AES_ECB_MODE,
                                         SL_SI91X_PUF_AS_KEY_SOURCE,
                                         SL_SI91X_PUF_KEY_SIZE_128,
                                         NULL,
+#if PKCS_7_PADDING
+                                        padded_data_length,
+                                        padded_data,
+#else
                                         AES_BUFFER_SIZE,
                                         (uint8_t *)AES_PLAIN_TXT,
+#endif
                                         0,
                                         NULL,
                                         aes_encry_data);
   if (status != SL_STATUS_OK) {
     printf("\r\n AES Encryption Fail Status 0x%lx\r\n", status);
+#if PKCS_7_PADDING
+    free(padded_data);
+#endif
     return status;
   }
 
@@ -209,31 +255,68 @@ sl_status_t puf_aes_encrypt_decrypt_app(void)
                                         SL_SI91X_PUF_AS_KEY_SOURCE,
                                         SL_SI91X_PUF_KEY_SIZE_128,
                                         NULL,
+#if PKCS_7_PADDING
+                                        padded_data_length,
+#else
                                         AES_BUFFER_SIZE,
+#endif
                                         aes_encry_data,
                                         0,
                                         NULL,
                                         aes_decry_data);
   if (status != SL_STATUS_OK) {
     printf("\r\n AES Decryption Fail Status 0x%lx\r\n", status);
+#if PKCS_7_PADDING
+    free(padded_data);
+#endif
     return status;
   }
 
+#if PKCS_7_PADDING
+  int32_t unpadded_data_length = pkcs7_unpad(aes_decry_data, padded_data_length);
+  if (unpadded_data_length < 0) {
+    free(padded_data);
+    return SL_STATUS_FAIL;
+  }
+  memset(decrypted_unpadded_data_buffer, 0, AES_BUFFER_SIZE);
+  memcpy(decrypted_unpadded_data_buffer, aes_decry_data, unpadded_data_length);
+#endif
+
   printf("\r\n Decryption Done with AES ECB 16bytes key Size\n");
 
+#if PKCS_7_PADDING
+  free(padded_data);
+#endif
+
   //!Encrypt using AES CBC mode 128bit Key
+
+#if PKCS_7_PADDING
+  padded_data = pkcs7_padding((uint8_t *)AES_PLAIN_TXT, strlen(AES_PLAIN_TXT), AES_BLOCK_SIZE, &padded_data_length);
+  if (!padded_data) {
+    return SL_STATUS_FAIL;
+  }
+#endif
+
   memset(aes_encry_data, 0, AES_BUFFER_SIZE);
   status = sl_si91x_puf_aes_encrypt_req(SL_SI91X_AES_CBC_MODE,
                                         SL_SI91X_PUF_AS_KEY_SOURCE,
                                         SL_SI91X_PUF_KEY_SIZE_128,
                                         NULL,
+#if PKCS_7_PADDING
+                                        padded_data_length,
+                                        padded_data,
+#else
                                         AES_BUFFER_SIZE,
                                         (uint8_t *)AES_PLAIN_TXT,
+#endif
                                         SL_SI91X_PUF_IV_SIZE_128,
                                         (uint8_t *)AES_CBC_IV,
                                         aes_encry_data);
   if (status != SL_STATUS_OK) {
     printf("\r\n AES Encryption Fail Status 0x%lx\r\n", status);
+#if PKCS_7_PADDING
+    free(padded_data);
+#endif
     return status;
   }
   printf("\r\n Encryption Done with AES CBC 16bytes key Data Size 256 \n");
@@ -244,16 +327,85 @@ sl_status_t puf_aes_encrypt_decrypt_app(void)
                                         SL_SI91X_PUF_AS_KEY_SOURCE,
                                         SL_SI91X_PUF_KEY_SIZE_128,
                                         NULL,
+#if PKCS_7_PADDING
+                                        padded_data_length,
+#else
                                         AES_BUFFER_SIZE,
+#endif
                                         aes_encry_data,
                                         0,
                                         (uint8_t *)AES_CBC_IV,
                                         aes_decry_data);
   if (status != SL_STATUS_OK) {
     printf("\r\n AES Decryption Fail Status 0x%lx\r\n", status);
+#if PKCS_7_PADDING
+    free(padded_data);
+#endif
     return status;
   }
-  printf("\r\n Decryption Done with AES CBC 16bytes key Size 256 ");
+
+#if PKCS_7_PADDING
+  unpadded_data_length = pkcs7_unpad(aes_decry_data, padded_data_length);
+  if (unpadded_data_length < 0) {
+    free(padded_data);
+    return SL_STATUS_FAIL;
+  }
+  memset(decrypted_unpadded_data_buffer, 0, AES_BUFFER_SIZE);
+  memcpy(decrypted_unpadded_data_buffer, aes_decry_data, unpadded_data_length);
+#endif
+
+  printf("\r\n Decryption Done with AES CBC 16bytes key Size \n");
+
+#if PKCS_7_PADDING
+  if (memcmp((uint8_t *)AES_PLAIN_TXT, decrypted_unpadded_data_buffer, unpadded_data_length) == 0) {
+    printf("\r\n AES CBC Encryption and Decryption Success \n");
+  } else {
+    printf("\r\n AES CBC Encryption and Decryption Mismatch \n");
+  }
+#else
+  if (memcmp((uint8_t *)AES_PLAIN_TXT, aes_decry_data, strlen(AES_PLAIN_TXT)) == 0) {
+    printf("\r\n AES CBC Encryption and Decryption Success \n");
+  } else {
+    printf("\r\n AES CBC Encryption and Decryption Mismatch \n");
+  }
+#endif
+
+  //! Calculate MAC using AES CBC mode 128bit Key
+  uint8_t aes_mac_resp[16]; // Buffer to store the MAC response
+
+  status = sl_si91x_puf_aes_mac_req(SL_SI91X_PUF_AS_KEY_SOURCE,
+                                    SL_SI91X_PUF_KEY_SIZE_128,
+                                    NULL,
+#if PKCS_7_PADDING
+                                    padded_data_length,
+                                    padded_data,
+#else
+                                    AES_BUFFER_SIZE,
+                                    (uint8_t *)AES_PLAIN_TXT,
+#endif
+                                    SL_SI91X_PUF_IV_SIZE_128,
+                                    (uint8_t *)AES_CBC_IV,
+                                    aes_mac_resp);
+  if (status != SL_STATUS_OK) {
+    printf("\r\n AES MAC Calculation Fail Status 0x%lx\r\n", status);
+#if PKCS_7_PADDING
+    free(padded_data);
+#endif
+    return status;
+  }
+
+  printf("\r\n AES MAC Calculation Done with AES CBC 16bytes key Size \n");
+
+  // Print the MAC response
+  printf("\r\n AES MAC Response: ");
+  for (uint32_t i = 0; i < sizeof(aes_mac_resp); i++) {
+    printf("%02x", aes_mac_resp[i]);
+  }
+  printf("\n");
+
+#if PKCS_7_PADDING
+  free(padded_data);
+#endif
 
   return status;
 }

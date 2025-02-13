@@ -73,7 +73,7 @@ typedef struct {
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
-sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output);
+sl_status_t sl_si91x_trng_init(const sl_si91x_trng_config_t *config, uint32_t *output);
 
 /***************************************************************************/
 /**
@@ -130,7 +130,7 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
-sl_status_t sl_si91x_duplicate_element(uint32_t *dword, uint32_t length_in_dwords);
+sl_status_t sl_si91x_duplicate_element(const uint32_t *dword, uint32_t length_in_dwords);
 #endif // SLI_SI91X_TRNG_DUPLICATE_CHECK
 
 /** @} */

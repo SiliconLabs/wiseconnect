@@ -106,6 +106,156 @@ sl_status_t sl_si91x_fwup_abort()
   return status;
 }
 
+#ifndef SLI_SI91X_MCU_INTERFACE /* Only for NCP mode */
+sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags)
+{
+  static uint16_t boot_cmd = 0;
+  uint16_t read_value      = 0;
+  uint32_t offset          = 0;
+  uint32_t retval          = 0;
+  uint32_t boot_insn       = 0;
+  uint32_t poll_resp       = 0;
+
+  //! If it is a start of file set the boot cmd to pong valid
+  if (flags & SL_SI91X_FW_START_OF_FILE) {
+    boot_cmd = RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID;
+  }
+
+  //! check for invalid packet
+  if ((fw_image_size % SL_SI91X_MIN_CHUNK_SIZE != 0) && (!(flags & SL_SI91X_FW_END_OF_FILE))) {
+    return SL_STATUS_FAIL;
+  }
+
+  //! loop to execute multiple of 4K chunks
+  while (offset < fw_image_size) {
+    switch (boot_cmd) {
+      case (RSI_HOST_INTERACT_REG_VALID | RSI_PING_VALID):
+        boot_insn = RSI_PONG_WRITE;
+        poll_resp = RSI_PING_AVAIL;
+        boot_cmd  = RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID;
+        break;
+
+      case (RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID):
+        boot_insn = RSI_PING_WRITE;
+        poll_resp = RSI_PONG_AVAIL;
+        boot_cmd  = RSI_HOST_INTERACT_REG_VALID | RSI_PING_VALID;
+        break;
+
+      default:
+        return SL_STATUS_FAIL;
+    }
+
+    retval = sl_si91x_boot_instruction((uint8_t)boot_insn, (uint16_t *)(firmware_image + offset));
+    VERIFY_STATUS_AND_RETURN(retval);
+
+    while (1) {
+      retval = sl_si91x_boot_instruction(RSI_REG_READ, &read_value);
+      VERIFY_STATUS_AND_RETURN(retval);
+
+      if (read_value == (RSI_HOST_INTERACT_REG_VALID | poll_resp)) {
+        break;
+      }
+    }
+    offset += SL_SI91X_MIN_CHUNK_SIZE;
+  }
+
+  //! For last chunk set boot cmd as End of file reached
+  if (flags & SL_SI91X_FW_END_OF_FILE) {
+    boot_cmd = RSI_HOST_INTERACT_REG_VALID | RSI_EOF_REACHED;
+
+    retval = sl_si91x_boot_instruction(RSI_REG_WRITE, &boot_cmd);
+    VERIFY_STATUS_AND_RETURN(retval);
+
+    //! check for successful firmware upgrade
+    do {
+      retval = sl_si91x_boot_instruction(RSI_REG_READ, &read_value);
+      VERIFY_STATUS_AND_RETURN(retval);
+
+    } while (read_value != (RSI_HOST_INTERACT_REG_VALID | RSI_FWUP_SUCCESSFUL));
+  }
+  return retval;
+}
+
+sl_status_t sl_si91x_set_fast_fw_up(void)
+{
+  uint32_t read_data = 0;
+  sl_status_t retval = 0;
+  retval             = sl_si91x_bus_read_memory(SL_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
+  VERIFY_STATUS_AND_RETURN(retval);
+
+  //disabling safe upgradation bit
+  if (read_data & SL_SI91X_SAFE_UPGRADE) {
+    read_data &= ~(SL_SI91X_SAFE_UPGRADE);
+    retval = sl_si91x_bus_write_memory(SL_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
+    VERIFY_STATUS_AND_RETURN(retval);
+  }
+  return retval;
+}
+#endif // !SLI_SI91X_MCU_INTERFACE
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
+                                              uint16_t server_port,
+                                              uint16_t chunk_number,
+                                              uint16_t timeout,
+                                              uint16_t tcp_retry_count,
+                                              bool asynchronous)
+{
+  sl_wifi_buffer_t *buffer           = NULL;
+  sl_status_t status                 = SL_STATUS_FAIL;
+  sl_si91x_wait_period_t wait_period = SL_SI91X_RETURN_IMMEDIATELY;
+
+  // Initialize the OTA firmware update request structure
+  sl_si91x_ota_firmware_update_request_t otaf_fwup = { 0 };
+
+  // Determine the wait period based on the 'asynchronous' flag
+  if (asynchronous == false) {
+    wait_period = SL_SI91X_WAIT_FOR_OTAF_RESPONSE;
+  }
+
+  // Check IP version
+  if (server_ip.type == SL_IPV4) {
+    // Fill the IP version
+    otaf_fwup.ip_version = SL_IPV4;
+    memcpy(otaf_fwup.server_ip_address.ipv4_address, server_ip.ip.v4.bytes, SL_IPV4_ADDRESS_LENGTH);
+  } else if (server_ip.type == SL_IPV6) {
+    otaf_fwup.ip_version = SL_IPV6;
+    memcpy(otaf_fwup.server_ip_address.ipv6_address, server_ip.ip.v6.bytes, SL_IPV6_ADDRESS_LENGTH);
+  } else {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Fill server port number
+  memcpy(otaf_fwup.server_port, &server_port, sizeof(server_port));
+
+  // Fill chunk number
+  memcpy(otaf_fwup.chunk_number, &chunk_number, sizeof(otaf_fwup.chunk_number));
+
+  // Fill timeout
+  memcpy(otaf_fwup.timeout, &timeout, sizeof(otaf_fwup.timeout));
+
+  // Fill TCP retry count
+  memcpy(otaf_fwup.retry_count, &tcp_retry_count, sizeof(otaf_fwup.retry_count));
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_OTA_FWUP,
+                                        SI91X_NETWORK_CMD,
+                                        &otaf_fwup,
+                                        sizeof(sl_si91x_ota_firmware_update_request_t),
+                                        wait_period,
+                                        NULL,
+                                        &buffer);
+
+  // Check if the command was synchronous and free the buffer if it was allocated
+  if (asynchronous == false) {
+    if (status != SL_STATUS_OK && buffer != NULL) {
+      sl_si91x_host_free_buffer(buffer);
+    }
+    VERIFY_STATUS_AND_RETURN(status);
+  }
+  sl_si91x_host_free_buffer(buffer);
+  return status;
+}
+
 sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint16_t flags,
                                uint8_t *ip_address,
@@ -118,6 +268,9 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                const uint8_t *post_data,
                                uint32_t post_data_length)
 {
+  UNUSED_PARAMETER(type);
+  UNUSED_PARAMETER(post_data);
+  UNUSED_PARAMETER(post_data_length);
   sl_status_t status                            = SL_STATUS_FAIL;
   sl_si91x_http_client_request_t http_client    = { 0 };
   uint32_t send_size                            = 0;
@@ -166,8 +319,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   memset(http_client.buffer, 0, sizeof(http_client.buffer));
 
   // Fill username
-  if (strlen((char *)user_name) < sizeof(http_client.buffer)) {
-    length = (uint16_t)strlen((char *)user_name);
+  if (sl_strlen((char *)user_name) < sizeof(http_client.buffer)) {
+    length = (uint16_t)sl_strlen((char *)user_name);
     memcpy(http_client.buffer, user_name, length);
     http_length += length + 1;
   } else {
@@ -175,8 +328,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   }
 
   // Fill password
-  if (strlen((char *)password) < (sizeof(http_client.buffer) - 1 - http_length)) {
-    length = (uint16_t)strlen((char *)password);
+  if (sl_strlen((char *)password) < (sizeof(http_client.buffer) - 1 - http_length)) {
+    length = (uint16_t)sl_strlen((char *)password);
     memcpy(((http_client.buffer) + http_length), password, length);
     http_length += length + 1;
   } else {
@@ -184,11 +337,11 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   }
 
   // Check for HTTP_V_1.1 and Empty host name
-  host_name = ((flags & SL_SI91X_HTTP_V_1_1) && (strlen((char *)host_name) == 0)) ? ip_address : host_name;
+  host_name = ((flags & SL_SI91X_HTTP_V_1_1) && (sl_strlen((char *)host_name) == 0)) ? ip_address : host_name;
 
   // Copy  Host name
-  if (strlen((char *)host_name) < (sizeof(http_client.buffer) - 1 - http_length)) {
-    length = (uint16_t)strlen((char *)host_name);
+  if (sl_strlen((char *)host_name) < (sizeof(http_client.buffer) - 1 - http_length)) {
+    length = (uint16_t)sl_strlen((char *)host_name);
     memcpy(((http_client.buffer) + http_length), host_name, length);
     http_length += length + 1;
   } else {
@@ -196,8 +349,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   }
 
   // Copy IP address
-  if (strlen((char *)ip_address) < (sizeof(http_client.buffer) - 1 - http_length)) {
-    length = (uint16_t)strlen((char *)ip_address);
+  if (sl_strlen((char *)ip_address) < (sizeof(http_client.buffer) - 1 - http_length)) {
+    length = (uint16_t)sl_strlen((char *)ip_address);
     memcpy(((http_client.buffer) + http_length), ip_address, length);
     http_length += length + 1;
   } else {
@@ -205,8 +358,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   }
 
   // Copy URL resource
-  if (strlen((char *)resource) < (sizeof(http_client.buffer) - 1 - http_length)) {
-    length = (uint16_t)strlen((char *)resource);
+  if (sl_strlen((char *)resource) < (sizeof(http_client.buffer) - 1 - http_length)) {
+    length = (uint16_t)sl_strlen((char *)resource);
     memcpy(((http_client.buffer) + http_length), resource, length);
     http_length += length + 1;
   } else {
@@ -215,23 +368,13 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
 
   // Copy Extended header
   if (extended_header != NULL) {
-    if (strlen((char *)extended_header) < (sizeof(http_client.buffer) - 1 - http_length)) {
-      length = (uint16_t)strlen((char *)extended_header);
+    if (sl_strlen((char *)extended_header) < (sizeof(http_client.buffer) - 1 - http_length)) {
+      length = (uint16_t)sl_strlen((char *)extended_header);
       memcpy(((http_client.buffer) + http_length), extended_header, length);
       http_length += length;
     } else {
       return status;
     }
-  }
-
-  // Copy Httppost data
-  if (post_data_length < (sizeof(http_client.buffer) - 1 - http_length)) {
-    if (type) {
-      memcpy((http_client.buffer) + http_length + 1, post_data, post_data_length);
-      http_length += (post_data_length + 1);
-    }
-  } else {
-    return status;
   }
 
   // Check if request buffer is overflowed or resource length is overflowed
@@ -293,3 +436,23 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }
+
+sl_status_t sl_si91x_http_otaf_v2(const sl_si91x_http_otaf_params_t *http_otaf_params)
+{
+  if (http_otaf_params == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  return sl_si91x_http_otaf(0,
+                            http_otaf_params->flags,
+                            http_otaf_params->ip_address,
+                            http_otaf_params->port,
+                            http_otaf_params->resource,
+                            http_otaf_params->host_name,
+                            http_otaf_params->extended_header,
+                            http_otaf_params->user_name,
+                            http_otaf_params->password,
+                            NULL,
+                            0);
+}
+#endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */

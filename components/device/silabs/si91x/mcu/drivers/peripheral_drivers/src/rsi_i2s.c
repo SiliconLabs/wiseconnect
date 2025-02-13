@@ -386,25 +386,15 @@ int32_t I2S_Control(uint32_t control,
     }
     if (i2s->reg == I2S1) {
       if (i2s->clk->clk_src == ULP_I2S_REF_CLK) {
-        val = 32000000 / bit_freq;
+        val = system_clocks.ulpss_ref_clk / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val / 2);
       }
       if (i2s->clk->clk_src == ULP_I2S_ULP_MHZ_RC_CLK) {
-        val = 32000000 / bit_freq;
+        val = system_clocks.rc_mhz_clock / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_MHZ_RC_CLK, (uint16_t)val / 2);
       }
-      if (i2s->clk->clk_src == ULP_I2S_ULP_20MHZ_RO_CLK) {
-        val = 20000000 / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_20MHZ_RO_CLK, (uint16_t)val);
-      }
-      if (i2s->clk->clk_src == ULP_I2S_SOC_CLK) {
-        // TODO: This source is not working
-        //freq = GetSOCClockFreq();
-        val = 32000000 / bit_freq;
-        //RSI_ULPSS_UlpI2sClkConfig(ULPCLK ,RTE_I2S1_CLK_SRC,val/2);
-      }
       if (i2s->clk->clk_src == ULP_I2S_PLL_CLK) {
-        val = 6250000 / bit_freq;
+        val = system_clocks.i2s_pll_clock / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_PLL_CLK, (uint16_t)val / 2);
       }
     }

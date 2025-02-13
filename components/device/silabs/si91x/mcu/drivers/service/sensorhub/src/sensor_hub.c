@@ -175,6 +175,7 @@ EventGroupHandle_t sl_event_group = NULL;   //< Event group handler
 
 osSemaphoreId_t sl_semaphore_power_task_id; //< Power task semaphore id
 osSemaphoreAttr_t sl_semaphore_attr_st;     //< Power task semaphore attributes
+
 /*******************************************************************************
  **************  Sensor Task Attributes structure for thread   *****************
  ******************************************************************************/
@@ -864,8 +865,6 @@ sl_status_t sli_si91x_adc_init(void)
 
   /* De-initialize the adc peripheral if already initialized */
   if (bus_intf_info.adc_config.adc_init == 1) {
-    // Select 32KHZ RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
     status = sl_si91x_adc_deinit(bus_intf_info.adc_config.adc_cfg);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("\r\n ADC DeInit Failed, Error Code : %ld\r\n", status);

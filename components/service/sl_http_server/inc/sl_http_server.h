@@ -38,7 +38,7 @@
  *
  * @details
  *   This function initializes an HTTP server using the provided configuration structure and returns a handle to the server. 
- *   It sets up the server's configuration, request buffer, and event flags. All subsequent HTTP server APIs must be used with the server handle returned in the `handle` parameter.
+ *   It sets up the server's configuration, request buffer, and event flags. All HTTP server APIs must use the server handle returned in the `handle` parameter.
  *
  * @param[out] handle
  *   Pointer to an @ref sl_http_server_t object that will be initialized with the server handle. Must not be NULL.

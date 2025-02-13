@@ -52,7 +52,7 @@ typedef enum {
 } ulp_dac_enum_t;
 
 static ulp_dac_enum_t ulp_dac_current_mode  = ULP_DAC_PROCESS_ACTION;
-static sl_power_state_t current_power_state = SL_SI91X_POWER_MANAGER_PS4;
+static sl_power_state_t current_power_state = SL_SI91X_POWER_MANAGER_PS3;
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -246,8 +246,8 @@ void sl_ulp_dac_example_process_action(void)
         }
         DEBUGOUT("Data deinit \n");
         ulp_dac_current_mode = ULP_DAC_TRANSMISSION_COMPLETED;
-      } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
-        DEBUGOUT("Switching the adc from PS4 -> PS2 state\n");
+      } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS3) {
+        DEBUGOUT("Switching the dac from PS3 -> PS2 state\n");
         // Control power management by adjusting clock references and shutting
         // down the power supply
         sl_si91x_wireless_shutdown();
@@ -270,7 +270,7 @@ void sl_ulp_dac_example_process_action(void)
         ulp_dac_current_mode           = ULP_DAC_PROCESS_ACTION;
         dac_ps4_to_ps2_transition_done = true;
       } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS2) {
-        DEBUGOUT("Switching the adc from PS2 -> PS4 state\n");
+        DEBUGOUT("Switching the dac from PS2 -> PS4 state\n");
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         if (status != SL_STATUS_OK) {
           DEBUGOUT("sl_si91x_power_manager_add_ps_requirement: Error Code : %lu \n", status);

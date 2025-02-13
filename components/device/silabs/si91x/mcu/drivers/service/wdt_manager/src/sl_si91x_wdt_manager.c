@@ -41,7 +41,7 @@
  *************************  DEFINES / MACROS  ***************************************
  ************************************************************************************/
 #if defined(SLI_SI91X_ENABLE_OS)
-osSemaphoreId_t sl_semaphore_app_task_id;
+osSemaphoreId_t sl_wdt_task_semaphore_id;
 #define SL_WDT_TASK_STACK_SIZE 512
 const osThreadAttr_t wdt_thread_attributes = {
   .name       = "WDT_Task", // Name of thread
@@ -81,7 +81,7 @@ static void on_timeout_callback(void)
 #if defined(SLI_SI91X_ENABLE_OS)
 
   osStatus_t sl_semrel_status;
-  sl_semrel_status = osSemaphoreRelease(sl_semaphore_app_task_id);
+  sl_semrel_status = osSemaphoreRelease(sl_wdt_task_semaphore_id);
   if (sl_semrel_status != osOK) {
     // osSemaphoreRelease failed
   }
@@ -108,10 +108,10 @@ static void WDT_Task(void *argument)
   sl_wdt_semaphore_attr_st.cb_size   = 0U;
   sl_wdt_semaphore_attr_st.name      = NULL;
 
-  sl_semaphore_app_task_id = osSemaphoreNew(1U, 0U, &sl_wdt_semaphore_attr_st);
+  sl_wdt_task_semaphore_id = osSemaphoreNew(1U, 0U, &sl_wdt_semaphore_attr_st);
   while (1) {
     // waiting for the semaphore release
-    sl_sem_wdt_taskacq_status = osSemaphoreAcquire(sl_semaphore_app_task_id, osWaitForever);
+    sl_sem_wdt_taskacq_status = osSemaphoreAcquire(sl_wdt_task_semaphore_id, osWaitForever);
     if (sl_sem_wdt_taskacq_status != osOK) {
       // osSemaphoreAcquire failed
     } else {

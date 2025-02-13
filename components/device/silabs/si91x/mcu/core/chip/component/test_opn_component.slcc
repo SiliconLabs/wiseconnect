@@ -19,9 +19,9 @@
 - requires:
     - name: si91x_common_flash
     - name: external_flash_8mb
-      condition: device_supports_external_flash
+      condition: [device_supports_external_flash]
     - name: external_psram_8mb
-      condition: device_supports_external_psram
+      condition: [device_supports_external_psram]
 - template_contribution:
     - name: psram_present
       value: 1 

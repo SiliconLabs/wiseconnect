@@ -85,9 +85,9 @@ The application can be configured to suit you requirements and development envir
   ```
   > **Note:** you are required to configure either the `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` of the remote device.
 
-  - Configure `ENABLE_POWER_SAVE` parameter to enable power save mode.
+  - Configure `ENABLE_NWP_POWER_SAVE` parameter to enable power save mode.
   ```c
-      #define ENABLE_POWER_SAVE              1
+      #define ENABLE_NWP_POWER_SAVE              1
   ```
   > **Note:** If you are using the NCP-EXP-Board, refer the "**Powersave functionality with NCP expansion board**" section  the ***Getting started with SiWx91x NCP*** guide.
 

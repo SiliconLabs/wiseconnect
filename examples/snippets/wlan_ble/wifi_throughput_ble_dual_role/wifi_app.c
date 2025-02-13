@@ -85,7 +85,7 @@ extern osSemaphoreId_t sync_coex_ble_sem;
 osSemaphoreId_t wlan_pkt_trnsfer_compl_sem;      //! semaphore to indicate wifi data transfer complete
 osSemaphoreId_t wlan_thrghput_measurement_compl; //! semaphore to indicate wifi throughput measurement complete
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 extern bool powersave_cmd_given;
 extern osMutexId_t power_cmd_mutex;
 #endif
@@ -227,7 +227,7 @@ void rsi_wlan_app_thread(void *unused)
         rsi_wlan_app_callbacks_init();                      //! register callback to initialize WLAN
         rsi_wlan_app_cb.state = RSI_WLAN_UNCONNECTED_STATE; //! update Wi-Fi application state to unconnected state
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
         if (!powersave_cmd_given) {
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -271,7 +271,7 @@ void rsi_wlan_app_thread(void *unused)
           break;
         } else {
           rsi_wlan_app_cb.state = RSI_WLAN_SCAN_DONE_STATE; //! update WLAN application state to connected state
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
           LOG_PRINT("Module is in standby \r\n");
 #endif
           LOG_PRINT("Scan done state \r\n");

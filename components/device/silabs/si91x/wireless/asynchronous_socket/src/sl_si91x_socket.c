@@ -118,7 +118,6 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
 
   // Retrieve the socket using the socket index
   sli_si91x_socket_t *si91x_socket = get_si91x_socket(sockID);
-  sl_si91x_time_value *timeout     = NULL;
   uint16_t timeout_val;
 
   // Check if the socket is valid
@@ -130,14 +129,15 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
   switch (option_name) {
     case SL_SI91X_SO_RCVTIME: {
       // Configure receive timeout
-      timeout = (sl_si91x_time_value *)option_value;
+      const sl_si91x_time_value *timeout_const = (const sl_si91x_time_value *)option_value;
+      sl_si91x_time_value timeout              = *timeout_const;
 
       // Ensure that the timeout value is at least 1 millisecond
-      if ((timeout->tv_sec == 0) && (timeout->tv_usec != 0) && (timeout->tv_usec < 1000)) {
-        timeout->tv_usec = 1000;
+      if ((timeout.tv_sec == 0) && (timeout.tv_usec != 0) && (timeout.tv_usec < 1000)) {
+        timeout.tv_usec = 1000;
       }
       // Calculate the timeout value in milliseconds
-      timeout_val = (uint16_t)((timeout->tv_usec / 1000) + (timeout->tv_sec * 1000));
+      timeout_val = (uint16_t)((timeout.tv_usec / 1000) + (timeout.tv_sec * 1000));
 
       // Need to add check here if Synchronous bit map is set (after async socket_id implementation)
       memcpy(&si91x_socket->read_timeout,

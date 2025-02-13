@@ -156,7 +156,7 @@ sl_status_t sl_si91x_puf_set_key_disable_req(void);
  * @note
  *  This operation needs to be done every time a key is needed.
  */
-sl_status_t sl_si91x_puf_get_key_req(uint8_t *key_code_ptr, uint8_t *key_ptr);
+sl_status_t sl_si91x_puf_get_key_req(const uint8_t *key_code_ptr, uint8_t *key_ptr);
 
 /**
  * @brief Disables further key retrieval operations on PUF.
@@ -184,7 +184,7 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void);
  * @note
  *  This operation needs to be done for different keys to be loaded into AES engine.
  */
-sl_status_t sl_si91x_puf_load_key_req(uint8_t *key_code_ptr);
+sl_status_t sl_si91x_puf_load_key_req(const uint8_t *key_code_ptr);
 
 /**
  * @brief Sets intrinsic key operation
@@ -229,9 +229,9 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
                                          uint16_t key_size,
                                          const uint8_t *key_ptr,
                                          uint16_t data_size,
-                                         uint8_t *data_ptr,
+                                         const uint8_t *data_ptr,
                                          uint16_t iv_size,
-                                         uint8_t *iv_ptr,
+                                         const uint8_t *iv_ptr,
                                          uint8_t *aes_encry_resp);
 
 /**
@@ -258,9 +258,9 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
                                          uint16_t key_size,
                                          const uint8_t *key_ptr,
                                          uint16_t data_size,
-                                         uint8_t *data_ptr,
+                                         const uint8_t *data_ptr,
                                          uint16_t iv_size,
-                                         uint8_t *iv_ptr,
+                                         const uint8_t *iv_ptr,
                                          uint8_t *aes_decry_resp);
 
 /**
@@ -286,9 +286,9 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
                                      uint16_t key_size,
                                      const uint8_t *key_ptr,
                                      uint16_t data_size,
-                                     uint8_t *data_ptr,
+                                     const uint8_t *data_ptr,
                                      uint16_t iv_size,
-                                     uint8_t *iv_ptr,
+                                     const uint8_t *iv_ptr,
                                      uint8_t *aes_mac_resp);
 
 /** @} */

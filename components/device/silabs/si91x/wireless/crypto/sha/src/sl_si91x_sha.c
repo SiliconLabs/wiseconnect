@@ -35,21 +35,17 @@ static const uint8_t sha_digest_len_table[] = { [SL_SI91X_SHA_1]   = SL_SI91X_SH
                                                 [SL_SI91X_SHA_224] = SL_SI91X_SHA_224_DIGEST_LEN };
 
 static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
-                                         uint8_t *msg,
+                                         const uint8_t *msg,
                                          uint16_t msg_length,
                                          uint16_t chunk_len,
                                          uint8_t pending_flag,
                                          uint8_t *digest)
 {
-  // Input pointer check
-  if ((msg == NULL) && (msg_length != 0)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
   sl_status_t status = SL_STATUS_OK;
   SL_PRINTF(SL_SHA_PEN_ENTRY, CRYPTO, LOG_INFO);
   uint16_t send_size = 0;
   sl_wifi_buffer_t *buffer;
-  sl_si91x_packet_t *packet;
+  const sl_si91x_packet_t *packet;
   sl_si91x_sha_request_t *request = (sl_si91x_sha_request_t *)malloc(sizeof(sl_si91x_sha_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
@@ -74,7 +70,9 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   memset(&request->msg[0], 0, SL_SI91X_MAX_DATA_SIZE_IN_BYTES);
 
   // Copy Data
-  memcpy(&request->msg[0], msg, chunk_len);
+  if ((msg != NULL) && (chunk_len != 0)) {
+    memcpy(&request->msg[0], msg, chunk_len);
+  }
 
   send_size = sizeof(sl_si91x_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_len;
 
@@ -148,6 +146,11 @@ static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint1
 
 sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
 {
+  // Input pointer check
+  if ((msg == NULL) != (msg_length == 0)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sl_status_t status = SL_STATUS_OK;
   SL_PRINTF(SL_SHA_ENTRY, CRYPTO, LOG_INFO);
 

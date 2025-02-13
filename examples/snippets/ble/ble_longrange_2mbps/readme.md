@@ -110,13 +110,13 @@ Read through the following sections and make any changes needed.
     - By default, the application is configured without power save.
 
       ```c  
-      #define ENABLE_POWER_SAVE 0
+      #define ENABLE_NWP_POWER_SAVE 0
       ```
 
     - If user wants to run the application in power save, modify the following configuration.
 
       ```c  
-      #define ENABLE_POWER_SAVE 1
+      #define ENABLE_NWP_POWER_SAVE 1
       ```
 
   - The desired parameters are provided in following steps. User can also modify the parameters as per their needs and requirements.

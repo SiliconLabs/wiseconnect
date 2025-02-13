@@ -4,15 +4,15 @@ quality: production
 label: Crypto AES
 category: Example|Crypto 
 description: >
-  Encrypt/decrypt the data using AES
+  Encrypt/decrypt the data using AES with multipart support.
 filter:
   - name: "Wireless Technology"
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version:  "2024.12.1"}
+sdk: {id: simplicity_sdk, version:  "2025.6.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.1}
+- {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
   - path: main.c
@@ -32,6 +32,7 @@ requires:
 - name: basic_network_config_manager
 - name: sl_si91x_basic_buffers
 - name: freertos
+- name: freertos_heap_4
 - name: wifi
 - name: sl_si91x_wireless
 - name: wiseconnect3_common
@@ -63,6 +64,7 @@ readme:
 other_file:
   - path: resources/readme/setup_diagram_soc.png
   - path: resources/readme/output.png
+  - path: resources/readme/multipart_output.png
 ui_hints:
   highlight:
     - path: readme.md

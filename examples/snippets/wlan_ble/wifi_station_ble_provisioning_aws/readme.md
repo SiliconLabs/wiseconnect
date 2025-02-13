@@ -160,7 +160,7 @@ For SoC Mode only:
    **Note:** You can change the topic names, which are `aws_status` and `si91x_status`.
 
 ```c
-#define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save.
+#define ENABLE_NWP_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save.
 
 #define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
 ```

@@ -32,7 +32,7 @@ define:
   - name: SL_SI91X_I2C_DMA
 requires:
   - name: sl_i2c_peripheral
-  - name: sl_gpio_peripheral
+  - name: sl_gpio
   - name: sl_dma
 documentation:
     docset: wiseconnect

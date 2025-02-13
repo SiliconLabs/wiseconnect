@@ -65,7 +65,7 @@
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
 osThreadId_t ble_app_task_handle[TOTAL_CONNECTIONS] = { NULL };
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE
 osThreadId_t ble_sleep_task_handle = NULL;
 #endif
 uint8_t ble_conn_id = 0xFF, peripheral_connection_in_prgs = 0, peripheral_con_req_pending = 0;
@@ -103,7 +103,7 @@ osSemaphoreId_t ble_conn_sem[TOTAL_CONNECTIONS];
 extern rsi_ble_conn_info_t rsi_ble_conn_info[];
 extern rsi_parsed_conf_t rsi_parsed_conf;
 extern osSemaphoreId_t ble_main_task_sem, ble_peripheral_conn_sem;
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 extern bool powersave_cmd_given;
 #endif
 /*========================================================================*/
@@ -1652,7 +1652,7 @@ void rsi_ble_on_sc_method(rsi_bt_event_sc_method_t *scmethod)
   }
 }
 #endif
-#if (SL_SI91X_TICKLESS_MODE == 0 && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if (SL_SI91X_TICKLESS_MODE == 0 && SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
 /*==============================================*/
 /**
  * @fn         check_pending_events
@@ -1866,7 +1866,7 @@ static int32_t rsi_ble_dual_role(void)
   change_scan_param.scan_win      = LE_SCAN_WINDOW;   //! scan window 13.375ms
   change_scan_param.own_addr_type = LE_PUBLIC_ADDRESS;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n Initiate module in to power save \r\n");
   if (!powersave_cmd_given) {
     status = rsi_initiate_power_save();
@@ -1891,7 +1891,7 @@ void rsi_ble_main_app_task()
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\n BLE dual role init failed\r\n");
   }
-#if (SL_SI91X_TICKLESS_MODE == 0 && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if (SL_SI91X_TICKLESS_MODE == 0 && SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
   const osThreadAttr_t sleep_thread_attributes = {
     .name       = "sleep_thread",
     .attr_bits  = 0,
@@ -2108,7 +2108,7 @@ void rsi_ble_main_app_task()
         LOG_PRINT("\r\n In dis-conn evt \r\n");
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_DISCONN_EVENT);
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n keep module in to active state \r\n");
         if (!powersave_cmd_given) {
           status = rsi_initiate_power_awake();

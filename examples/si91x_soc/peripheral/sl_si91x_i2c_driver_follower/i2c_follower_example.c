@@ -74,7 +74,6 @@ static void compare_data(void);
 void i2c_follower_example_init(void)
 {
   sl_i2c_status_t i2c_status;
-
 #if (I2C_INSTANCE_USED == INSTANCE_ZERO)
   sl_i2c_config = sl_i2c_i2c0_config;
 #elif (I2C_INSTANCE_USED == INSTANCE_ONE)

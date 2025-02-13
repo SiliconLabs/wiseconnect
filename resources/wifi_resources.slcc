@@ -48,6 +48,9 @@ config_file:
 - path: lwip_defaults/lwipopts.h
   file_id: lwipopts
   condition: ["sl_si91x_lwip_stack"]
+- path: lwip_defaults/lwipopts.h
+  file_id: lwipopts
+  condition: ["sl_lwip_series3_stack"]
 - path: defaults/aws_iot_config.h
   file_id: aws_iot_config
   condition: ["aws_sdk"]

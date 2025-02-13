@@ -63,9 +63,9 @@ static volatile uint32_t ble_app_event_map1;
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
@@ -398,7 +398,7 @@ void ble_ibeacon(void *argument)
   } else {
     LOG_PRINT("\r\nStart Advertising Success\r\n");
   }
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -421,7 +421,7 @@ void ble_ibeacon(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received loop will be continued.
-#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;
@@ -466,7 +466,7 @@ void ble_ibeacon(void *argument)
         if (status != RSI_SUCCESS) {
           return;
         }
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n keep module in to active state \r\n");
         //! initiating Active mode in BT mode
         status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
@@ -491,7 +491,7 @@ adv:
           goto adv;
         }
         LOG_PRINT("\n Start advertising ...\n");
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n keep module in to power save \r\n");
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
         if (status != RSI_SUCCESS) {

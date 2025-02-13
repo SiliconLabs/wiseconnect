@@ -41,10 +41,6 @@
 #include "sl_si91x_dma.h"
 #include "clock_update.h"
 //---------------------- Macros -----------------//
-#define ADC_CLK_SOURCE_32KHZ      32000
-#define ADC_CLK_SOURCE_20MHZ      20000000
-#define ADC_CLK_SOURCE_MHZ        32000000
-#define ADC_CLK_SOURCE_40MHZ      40000000
 #define MAXIMUM_ADC_SAMPLE_LEN    1023
 #define MINIMUM_ADC_SAMPLE_LEN    1
 #define SAMPLE_RATE_32KSPS        32000
@@ -117,8 +113,8 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   uint32_t integer_val = 0;
   float frac           = 0;
 #endif
-  uint32_t clk_sel = 0;
-  uint32_t ch_num  = 0;
+
+  uint32_t ch_num = 0;
 
   // Register callback event
   adc_commn_config.call_back_event = event;
@@ -158,58 +154,17 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   // Power up of ADC block
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  // Select MHz RC clock for ADC
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
   // Clock division factor for calibration,Calibrate ADC on 4MHz clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
 
   // Set analog reference voltage
   RSI_AUX_RefVoltageConfig((float)2.8, (float)3.2);
 
+  adc_commn_config.adc_clk_src = system_clocks.ulpss_ref_clk;
+
   // TODO
   // ADC Calibration
   RSI_ADC_Calibration();
-
-  // Configure clock source to ADC with respect to sampling rate
-  if (adcConfig.num_of_channel_enable == 1) {
-    clk_sel = (adcChConfig.sampling_rate[0] * (adcConfig.num_of_channel_enable * 4));
-  } else {
-    clk_sel = (adcChConfig.sampling_rate[0] * (adcConfig.num_of_channel_enable * 2));
-  }
-
-  // Configure 32kHz RC clock to ADC
-  if (clk_sel < SAMPLE_RATE_32KSPS) {
-    // Select 32KHz RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
-
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
-  }
-  // Configure MHz RC clock to ADC
-  else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_800KSPS) {
-    // Select MHz RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
-  } else {
-    // Configure the MHz RC clock to ADC
-    if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-#ifdef SIMULATION
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
-#else
-      // Select MHz RC ULP reference clock
-      RSI_ULPSS_RefClkConfig(ULPSS_ULP_MHZ_RC_CLK);
-
-      // Select 40MHz XTAL clock for ADC
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
-
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
-#endif
-    } else {
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
-    }
-  }
 
 #ifdef SIMULATION
   adc_commn_config.adc_sing_offset = 0x0;
@@ -224,13 +179,13 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
@@ -283,9 +238,6 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   // Power up of ADC block
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  // Select MHz RC clock for ADC
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
   // Clock division factor for calibration,Calibrate ADC on 4MHz clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
 
@@ -295,45 +247,7 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   // ADC Calibration
   RSI_ADC_Calibration();
 
-  // Configure clock source to ADC
-  if (adcChConfig.sampling_rate[adc_channel] <= SAMPLE_RATE_9KSPS) {
-    // Select 32kHz RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
-
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
-  } else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_9KSPS
-             && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_800KSPS) {
-    // Select MHz RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
-    if (system_clocks.rc_mhz_clock == ADC_CLK_SOURCE_MHZ) {
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
-    } else {
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
-    }
-  } else {
-    // Configure the MHz RC clock to ADC
-    if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-#ifdef SIMULATION
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
-#else
-      // Select MHz RC ULP reference clock
-      RSI_ULPSS_RefClkConfig(ULPSS_ULP_MHZ_RC_CLK);
-
-      // Select MHz RC clock for ADC
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
-      if (system_clocks.rc_mhz_clock == ADC_CLK_SOURCE_MHZ) {
-        adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_MHZ;
-      } else {
-        adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
-      }
-#endif
-    } else {
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
-    }
-  }
+  adc_commn_config.adc_clk_src = system_clocks.ulpss_ref_clk;
 
 #ifdef SIMULATION
   adc_commn_config.adc_sing_offset = 0x0;
@@ -347,13 +261,13 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac = (float)((integer_val) & (0x3FFF));
+  frac        = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
@@ -2296,14 +2210,18 @@ void RSI_ADC_PowerControl(POWER_STATE state)
     case ADC_POWER_ON:
       RSI_IPMU_PowerGateSet(AUXADC_PG_ENB);
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_AUX);
+      if (analog_get_power_state() == 0) {
+        // Select ULP Ref clock for ADC
+        RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
+      }
       analog_set_power_state(ADC_BIT_POS, ANALOG_POWERED_ON);
       break;
     case ADC_POWER_OFF:
       RSI_IPMU_PowerGateClr(AUXADC_PG_ENB);
       analog_set_power_state(ADC_BIT_POS, ANALOG_POWERED_OFF);
       if (!analog_get_power_state()) {
-        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
         RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
+        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
       }
       break;
   }

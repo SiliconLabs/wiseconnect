@@ -395,8 +395,6 @@ static sl_status_t sl_si91x_bjt_temperature_sensor_disable(void)
 sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperature_sensor_config)
 {
   sl_status_t status;
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
   do {
     status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
     if (status != SL_STATUS_OK) {

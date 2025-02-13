@@ -14,10 +14,10 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version:  "2024.12.1"
+   version:  "2025.6.0"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.4.1
+   version: 3.5.0
 source:
 -  path: app.c
 -  path: main.c
@@ -57,6 +57,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+  - id: sl_si91x_wrap
+    from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -69,6 +71,8 @@ configuration:
    value: '51200'
 -  name: configTIMER_TASK_PRIORITY 
    value: '55'
+-  name: SL_SI91X_WRAP_KEY_BUFFER_SIZE
+   value: 1696
 readme:
 -  path: readme.md
 other_file:

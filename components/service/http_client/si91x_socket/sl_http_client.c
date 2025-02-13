@@ -1037,7 +1037,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
   }
 
   // Check for invalid data length
-  if ((data_length == 0) && (strlen((const char *)data) == 0)) {
+  if ((data_length == 0) && (sl_strlen((char *)data) == 0)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 

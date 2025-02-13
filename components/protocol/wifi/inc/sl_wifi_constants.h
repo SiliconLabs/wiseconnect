@@ -80,6 +80,7 @@
  * @brief Enumeration for Wi-Fi security types.
  *
  * @note WPA3 Transition security type is not currently supported while running as an Access Point (AP).
+ * @note To enable any WPA3 mode, the bit represented by the macro [SL_SI91X_EXT_FEAT_IEEE_80211W](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-custom-feature-bitmap#sl-si91-x-ext-feat-ieee-80211-w) must be set in the [ext_custom_feature_bit_map](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-boot-configuration-t#ext-custom-feature-bit-map).
  */
 typedef enum {
   SL_WIFI_OPEN                       = 0,  ///< Wi-Fi Open security type
@@ -135,10 +136,10 @@ typedef enum {
  * @brief Enumeration for Wi-Fi Credential Types.
  */
 typedef enum {
-  SL_WIFI_PSK_CREDENTIAL = 0,         ///< Wi-Fi Personal Credential
-  SL_WIFI_PMK_CREDENTIAL,             ///< Wi-Fi Pairwise Master Key
-  SL_WIFI_WEP_CREDENTIAL,             ///< Wi-Fi WEP Credential
-  SL_WIFI_EAP_CREDENTIAL,             ///< Wi-Fi Enterprise Client Credential
+  SL_WIFI_PSK_CREDENTIAL  = 0,        ///< Wi-Fi Personal Credential
+  SL_WIFI_PMK_CREDENTIAL  = 1,        ///< Wi-Fi Pairwise Master Key
+  SL_WIFI_WEP_CREDENTIAL  = 2,        ///< Wi-Fi WEP Credential
+  SL_WIFI_EAP_CREDENTIAL  = 3,        ///< Wi-Fi Enterprise Client Credential
   SL_WIFI_USER_CREDENTIAL = (1 << 31) ///< Wi-Fi User Credential
 } sl_wifi_credential_type_t;
 
@@ -165,9 +166,11 @@ typedef enum {
 typedef enum {
   SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX = 0, ///< Wi-Fi client on 2.4 GHz interface
   SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX,         ///< Wi-Fi access point on 2.4 GHz interface
-  SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX,       ///< Wi-Fi client on 5 GHz interface (not currently supported)
-  SL_WIFI_AP_5GHZ_INTERFACE_INDEX,           ///< Wi-Fi access point on 5 GHz interface (not currently supported)
-  SL_WIFI_TRANSCEIVER_INTERFACE_INDEX,       ///< Wi-Fi transceiver mode
+  SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX,       ///< Wi-Fi client on 5 GHz interface (Supported in Series-3)
+  SL_WIFI_AP_5GHZ_INTERFACE_INDEX,           ///< Wi-Fi access point on 5 GHz interface (Supported in Series-3)
+  SL_WIFI_TRANSCEIVER_INTERFACE_INDEX,       ///< Wi-Fi Transceiver Mode
+  SL_WIFI_CLIENT_DUAL_INTERFACE_INDEX,       ///< Wi-Fi client on Dual interface (Supported in Series-3)
+  SL_WIFI_AP_DUAL_INTERFACE_INDEX,           ///< Wi-Fi access point on Dual interface (Supported in Series-3)
   SL_WIFI_MAX_INTERFACE_INDEX                ///< Used for internally by SDK
 } sl_wifi_interface_index_t;
 
@@ -183,8 +186,9 @@ typedef enum {
   SL_WIFI_CLIENT_INTERFACE = (1 << 0), ///< Wi-Fi client interface
   SL_WIFI_AP_INTERFACE     = (1 << 1), ///< Wi-Fi access point interface
 
-  SL_WIFI_2_4GHZ_INTERFACE = (1 << 2), ///<  2.4 GHz radio interface
-  SL_WIFI_5GHZ_INTERFACE   = (1 << 3), ///< 5 GHz radio interface (currently not supported for Si91x)
+  SL_WIFI_2_4GHZ_INTERFACE = (1 << 2),                                          ///<  2.4 GHz radio interface
+  SL_WIFI_5GHZ_INTERFACE   = (1 << 3),                                          ///< 5 GHz radio interface
+  SL_WIFI_DUAL_INTERFACE   = SL_WIFI_2_4GHZ_INTERFACE | SL_WIFI_5GHZ_INTERFACE, ///< Dual radio interface
 
   // BIT(4), BIT(5) - Reserved for 6 GHz and Sub-GHz
 
@@ -195,16 +199,16 @@ typedef enum {
   SL_WIFI_AP_2_4GHZ_INTERFACE = SL_WIFI_AP_INTERFACE
                                 | SL_WIFI_2_4GHZ_INTERFACE, ///< Wi-Fi access point interface on 2.4 GHz radio
 
-  SL_WIFI_CLIENT_5GHZ_INTERFACE =
-    SL_WIFI_CLIENT_INTERFACE
-    | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi client interface on 5 GHz radio (currently not supported for Si91x)
-  SL_WIFI_AP_5GHZ_INTERFACE =
-    SL_WIFI_AP_INTERFACE
-    | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi access point interface on 5 GHz radio (currently not supported for Si91x)
-
-  SL_WIFI_ALL_INTERFACES =
-    SL_WIFI_CLIENT_INTERFACE | SL_WIFI_AP_INTERFACE | SL_WIFI_2_4GHZ_INTERFACE
-    | SL_WIFI_5GHZ_INTERFACE, ///< All available Wi-Fi interfaces (5GHz is currently not supported for Si91x)
+  SL_WIFI_CLIENT_5GHZ_INTERFACE = SL_WIFI_CLIENT_INTERFACE
+                                  | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi client interface on 5 GHz radio
+  SL_WIFI_AP_5GHZ_INTERFACE = SL_WIFI_AP_INTERFACE
+                              | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi access point interface on 5 GHz radio
+  SL_WIFI_CLIENT_DUAL_INTERFACE = SL_WIFI_CLIENT_INTERFACE
+                                  | SL_WIFI_DUAL_INTERFACE, ///< Wi-Fi client interface on Dual radio
+  SL_WIFI_AP_DUAL_INTERFACE = SL_WIFI_AP_INTERFACE
+                              | SL_WIFI_DUAL_INTERFACE, ///<  Wi-Fi access point interface on Dual radio
+  SL_WIFI_ALL_INTERFACES = SL_WIFI_CLIENT_INTERFACE | SL_WIFI_AP_INTERFACE | SL_WIFI_2_4GHZ_INTERFACE
+                           | SL_WIFI_5GHZ_INTERFACE, ///< All available Wi-Fi interfaces
 
 } sl_wifi_interface_t;
 
@@ -260,45 +264,45 @@ typedef enum {
 typedef enum {
   SL_WIFI_AUTO_RATE = 0, ///< Wi-Fi Auto transfer rate
 
-  SL_WIFI_RATE_11B_1,                         ///< Wi-Fi 1 Mbps transfer rate for 802.11b
+  SL_WIFI_RATE_11B_1   = 1,                   ///< Wi-Fi 1 Mbps transfer rate for 802.11b
   SL_WIFI_RATE_11B_MIN = SL_WIFI_RATE_11B_1,  ///< Wi-Fi Minimum transfer rate for 802.11b
-  SL_WIFI_RATE_11B_2,                         ///< Wi-Fi 2 Mbps transfer rate for 802.11b
-  SL_WIFI_RATE_11B_5_5,                       ///< Wi-Fi 5.5 Mbps transfer rate for 802.11b
-  SL_WIFI_RATE_11B_11,                        ///< Wi-Fi 11 Mbps transfer rate for 802.11b
+  SL_WIFI_RATE_11B_2   = 2,                   ///< Wi-Fi 2 Mbps transfer rate for 802.11b
+  SL_WIFI_RATE_11B_5_5 = 3,                   ///< Wi-Fi 5.5 Mbps transfer rate for 802.11b
+  SL_WIFI_RATE_11B_11  = 4,                   ///< Wi-Fi 11 Mbps transfer rate for 802.11b
   SL_WIFI_RATE_11B_MAX = SL_WIFI_RATE_11B_11, ///< Wi-Fi Maximum transfer rate for 802.11b
 
-  SL_WIFI_RATE_11G_6,                         ///< Wi-Fi 6 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_6   = 5,                   ///< Wi-Fi 6 Mbps transfer rate for 802.11g
   SL_WIFI_RATE_11G_MIN = SL_WIFI_RATE_11G_6,  ///< Wi-Fi Minimum transfer rate for 802.11g
-  SL_WIFI_RATE_11G_9,                         ///< Wi-Fi 9 Mbps transfer rate for 802.11g
-  SL_WIFI_RATE_11G_12,                        ///< Wi-Fi 12 Mbps transfer rate for 802.11g
-  SL_WIFI_RATE_11G_18,                        ///< Wi-Fi 18 Mbps transfer rate for 802.11g
-  SL_WIFI_RATE_11G_24,                        ///< Wi-Fi 24 Mbps transfer rate for 802.11g
-  SL_WIFI_RATE_11G_36,                        ///< Wi-Fi 36 Mbps transfer rate for 802.11g
-  SL_WIFI_RATE_11G_48,                        ///< Wi-Fi 48 Mbps transfer rate for 802.11g
-  SL_WIFI_RATE_11G_54,                        ///< Wi-Fi 54 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_9   = 6,                   ///< Wi-Fi 9 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_12  = 7,                   ///< Wi-Fi 12 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_18  = 8,                   ///< Wi-Fi 18 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_24  = 9,                   ///< Wi-Fi 24 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_36  = 10,                  ///< Wi-Fi 36 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_48  = 11,                  ///< Wi-Fi 48 Mbps transfer rate for 802.11g
+  SL_WIFI_RATE_11G_54  = 12,                  ///< Wi-Fi 54 Mbps transfer rate for 802.11g
   SL_WIFI_RATE_11G_MAX = SL_WIFI_RATE_11G_54, ///< Wi-Fi Maximum transfer rate for 802.11g
 
-  SL_WIFI_RATE_11N_MCS0,                        ///< Wi-Fi MCS index 0 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MIN = SL_WIFI_RATE_11N_MCS0, ///< Wi-Fi Minimum transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS1,                        ///< Wi-Fi MCS index 1 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS2,                        ///< Wi-Fi MCS index 2 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS3,                        ///< Wi-Fi MCS index 3 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS4,                        ///< Wi-Fi MCS index 4 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS5,                        ///< Wi-Fi MCS index 5 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS6,                        ///< Wi-Fi MCS index 6 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MCS7,                        ///< Wi-Fi MCS index 7 transfer rate for 802.11n
-  SL_WIFI_RATE_11N_MAX = SL_WIFI_RATE_11N_MCS7, ///< Wi-Fi Maximum transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS0 = 13,                    ///< Wi-Fi MCS index 0 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MIN  = SL_WIFI_RATE_11N_MCS0, ///< Wi-Fi Minimum transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS1 = 14,                    ///< Wi-Fi MCS index 1 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS2 = 15,                    ///< Wi-Fi MCS index 2 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS3 = 16,                    ///< Wi-Fi MCS index 3 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS4 = 17,                    ///< Wi-Fi MCS index 4 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS5 = 18,                    ///< Wi-Fi MCS index 5 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS6 = 19,                    ///< Wi-Fi MCS index 6 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MCS7 = 20,                    ///< Wi-Fi MCS index 7 transfer rate for 802.11n
+  SL_WIFI_RATE_11N_MAX  = SL_WIFI_RATE_11N_MCS7, ///< Wi-Fi Maximum transfer rate for 802.11n
 
-  SL_WIFI_RATE_11AX_MCS0,                         ///< Wi-Fi MCS index 0 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MIN = SL_WIFI_RATE_11AX_MCS0, ///< Wi-Fi Minimum transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS1,                         ///< Wi-Fi MCS index 1 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS2,                         ///< Wi-Fi MCS index 2 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS3,                         ///< Wi-Fi MCS index 3 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS4,                         ///< Wi-Fi MCS index 4 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS5,                         ///< Wi-Fi MCS index 5 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS6,                         ///< Wi-Fi MCS index 6 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MCS7,                         ///< Wi-Fi MCS index 7 transfer rate for 802.11ax
-  SL_WIFI_RATE_11AX_MAX = SL_WIFI_RATE_11AX_MCS7, ///< Wi-Fi Maximum transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS0 = 21,                     ///< Wi-Fi MCS index 0 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MIN  = SL_WIFI_RATE_11AX_MCS0, ///< Wi-Fi Minimum transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS1 = 22,                     ///< Wi-Fi MCS index 1 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS2 = 23,                     ///< Wi-Fi MCS index 2 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS3 = 24,                     ///< Wi-Fi MCS index 3 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS4 = 25,                     ///< Wi-Fi MCS index 4 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS5 = 26,                     ///< Wi-Fi MCS index 5 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS6 = 27,                     ///< Wi-Fi MCS index 6 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MCS7 = 28,                     ///< Wi-Fi MCS index 7 transfer rate for 802.11ax
+  SL_WIFI_RATE_11AX_MAX  = SL_WIFI_RATE_11AX_MCS7, ///< Wi-Fi Maximum transfer rate for 802.11ax
 
   SL_WIFI_RATE_INVALID = 0xFF ///< Wi-Fi Invalid transfer rate
 } sl_wifi_rate_t;
@@ -325,9 +329,10 @@ typedef enum {
   SL_WIFI_AUTO_BAND   = 0, ///< Wi-Fi Band Auto
   SL_WIFI_BAND_900MHZ = 1, ///< Wi-Fi Band 900 MHz (not currently supported)
   SL_WIFI_BAND_2_4GHZ = 2, ///< Wi-Fi Band 2.4 GHz
-  SL_WIFI_BAND_5GHZ   = 3, ///< Wi-Fi Band 5 GHz (not currently supported)
-  SL_WIFI_BAND_6GHZ   = 4, ///< Wi-Fi Band 6 GHz (not currently supported)
-  SL_WIFI_BAND_60GHZ  = 5, ///< Wi-Fi Band 60 GHz (not currently supported)
+  SL_WIFI_BAND_5GHZ   = 3, ///< Wi-Fi Band 5 GHz (Supported in Series-3)
+  SL_WIFI_BAND_DUAL   = 4, ///< Wi-Fi Band Dual (Supported in Series-3)
+  SL_WIFI_BAND_6GHZ   = 5, ///< Wi-Fi Band 6 GHz (not currently supported)
+  SL_WIFI_BAND_60GHZ  = 6, ///< Wi-Fi Band 60 GHz (not currently supported)
 } sl_wifi_band_t;
 
 /**
@@ -386,19 +391,22 @@ typedef enum {
  * @brief Enumeration of Wi-Fi event groups.
  */
 typedef enum {
-  SL_WIFI_SCAN_RESULT_EVENTS, ///< Event group for Wi-Fi scan results
-  SL_WIFI_JOIN_EVENTS,        ///< Event group for Wi-Fi join status
-  SL_WIFI_RX_PACKET_EVENTS, ///< Event group for Wi-Fi received packet. This feature is not supported in current release
-  SL_WIFI_COMMAND_RESPONSE_EVENTS, ///< Event group for Wi-Fi command response. This feature is not supported in current release
-  SL_WIFI_STATS_RESPONSE_EVENTS,     ///< Event group for Wi-Fi statistics response
-  SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS, ///< Event group for Wi-Fi OTA firmware update status via HTTP
-  SL_WIFI_NETWORK_DOWN_EVENTS, ///< Event group for Wi-Fi network down. This feature is not supported in current release
-  SL_WIFI_NETWORK_UP_EVENTS,   ///< Event group for Wi-Fi network up. This feature is not supported in current release
-  SL_WIFI_CLIENT_CONNECTED_EVENTS,    ///< Event group for Wi-Fi client connected status
-  SL_WIFI_TWT_RESPONSE_EVENTS,        ///< Event group for Wi-Fi TWT response
-  SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ///< Event group for Wi-Fi client disconnection status
-  SL_WIFI_TRANSCEIVER_EVENTS,         ///< Event group for Wi-Fi transceiver events
-  SL_WIFI_EVENT_GROUP_COUNT,          ///< Event group for Wi-Fi maximum default group count. Used internally by SDK
+  SL_WIFI_SCAN_RESULT_EVENTS = 0, ///< Event group for Wi-Fi scan results
+  SL_WIFI_JOIN_EVENTS        = 1, ///< Event group for Wi-Fi join status
+  SL_WIFI_RX_PACKET_EVENTS =
+    2, ///< Event group for Wi-Fi received packet. This feature is not supported in current release
+  SL_WIFI_COMMAND_RESPONSE_EVENTS =
+    3, ///< Event group for Wi-Fi command response. This feature is not supported in current release
+  SL_WIFI_STATS_RESPONSE_EVENTS     = 4, ///< Event group for Wi-Fi statistics response
+  SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS = 5, ///< Event group for Wi-Fi OTA firmware update status via HTTP
+  SL_WIFI_NETWORK_DOWN_EVENTS =
+    6, ///< Event group for Wi-Fi network down. This feature is not supported in current release
+  SL_WIFI_NETWORK_UP_EVENTS = 7, ///< Event group for Wi-Fi network up. This feature is not supported in current release
+  SL_WIFI_CLIENT_CONNECTED_EVENTS    = 8,  ///< Event group for Wi-Fi client connected status
+  SL_WIFI_TWT_RESPONSE_EVENTS        = 9,  ///< Event group for Wi-Fi TWT response
+  SL_WIFI_CLIENT_DISCONNECTED_EVENTS = 10, ///< Event group for Wi-Fi client disconnection status
+  SL_WIFI_TRANSCEIVER_EVENTS         = 11, ///< Event group for Wi-Fi transceiver events
+  SL_WIFI_EVENT_GROUP_COUNT = 12, ///< Event group for Wi-Fi maximum default group count. Used internally by SDK
   SL_WIFI_EVENT_FAIL_INDICATION_EVENTS = (1 << 31), ///< Event group for Wi-Fi fail indication
 } sl_wifi_event_group_t;
 

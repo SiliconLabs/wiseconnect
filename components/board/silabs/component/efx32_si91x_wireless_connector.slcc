@@ -70,6 +70,19 @@ include:
       - path: sl_power_manager_config.h
       - path: sl_sleeptimer_config.h
     condition: [brd4186c]
+  - path: "config/brd4187c"
+    file_list:
+      - path: FreeRTOSConfig.h
+      - path: sl_board_configuration.h
+      - path: sl_board_control_config.h
+      - path: sl_device_init_emu_config.h
+      - path: sl_device_init_hfrco_config.h
+      - path: sl_device_init_hfxo_config.h
+      - path: sl_device_init_lfxo_config.h
+      - path: sl_hfxo_manager_config.h
+      - path: sl_power_manager_config.h
+      - path: sl_sleeptimer_config.h
+    condition: [brd4187c]
   - path: "config/brd4271a"
     condition: [brd4271a]
     file_list:

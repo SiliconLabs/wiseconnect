@@ -78,9 +78,9 @@ uint8_t ble_acceptlist_addr1[BLE_ACCEPT_LIST_ADDR_LEN] = { 0xDA, 0x81, 0xE0, 0xB
 /*=======================================================================*/
 //!    Application powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 1 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 1 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
@@ -663,7 +663,7 @@ void rsi_ble_peripheral(void)
     LOG_PRINT("set ae adv enable success \n");
   }
 #endif
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);

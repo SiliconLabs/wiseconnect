@@ -306,7 +306,6 @@ void initialize_m4_alarm(void)
   m4_alarm_initialization_done = 1;
 }
 #endif /* SL_SI91X_MCU_ALARM_BASED_WAKEUP */
-
 #endif // #if (configUSE_TICKLESS_IDLE == 0)
 
 #if (configUSE_TICKLESS_IDLE == 1)

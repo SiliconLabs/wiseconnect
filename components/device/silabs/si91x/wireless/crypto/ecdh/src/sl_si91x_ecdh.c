@@ -60,9 +60,9 @@ static sl_status_t sli_si91x_get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_m
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_t *rx, uint8_t *ry, uint8_t *rz)
 {
-  uint8_t *result           = NULL;
-  uint16_t offset           = 0;
-  sl_si91x_packet_t *packet = NULL;
+  const uint8_t *result           = NULL;
+  uint16_t offset                 = 0;
+  const sl_si91x_packet_t *packet = NULL;
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   result = packet->data;
@@ -76,12 +76,12 @@ static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_
 
 static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
                                           sl_si91x_ecdh_sub_mode_t ecdh_sub_mode,
-                                          uint8_t *sx,
-                                          uint8_t *sy,
-                                          uint8_t *sz,
-                                          uint8_t *tx,
-                                          uint8_t *ty,
-                                          uint8_t *tz,
+                                          const uint8_t *sx,
+                                          const uint8_t *sy,
+                                          const uint8_t *sz,
+                                          const uint8_t *tx,
+                                          const uint8_t *ty,
+                                          const uint8_t *tz,
                                           uint8_t *rx,
                                           uint8_t *ry,
                                           uint8_t *rz)
@@ -113,8 +113,8 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type = ECDH;
-  request->ecdh_mode      = ecdh_mode;
-  request->ecdh_sub_mode  = ecdh_sub_mode;
+  request->ecdh_mode      = (uint8_t)ecdh_mode;
+  request->ecdh_sub_mode  = (uint8_t)ecdh_sub_mode;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   request->sx = sx;
   request->sy = sy;
@@ -182,12 +182,12 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
-                                         uint8_t *sx,
-                                         uint8_t *sy,
-                                         uint8_t *sz,
-                                         uint8_t *tx,
-                                         uint8_t *ty,
-                                         uint8_t *tz,
+                                         const uint8_t *sx,
+                                         const uint8_t *sy,
+                                         const uint8_t *sz,
+                                         const uint8_t *tx,
+                                         const uint8_t *ty,
+                                         const uint8_t *tz,
                                          uint8_t *rx,
                                          uint8_t *ry,
                                          uint8_t *rz)
@@ -196,12 +196,12 @@ sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
-                                            uint8_t *sx,
-                                            uint8_t *sy,
-                                            uint8_t *sz,
-                                            uint8_t *tx,
-                                            uint8_t *ty,
-                                            uint8_t *tz,
+                                            const uint8_t *sx,
+                                            const uint8_t *sy,
+                                            const uint8_t *sz,
+                                            const uint8_t *tx,
+                                            const uint8_t *ty,
+                                            const uint8_t *tz,
                                             uint8_t *rx,
                                             uint8_t *ry,
                                             uint8_t *rz)
@@ -210,10 +210,10 @@ sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
-                                               uint8_t *d,
-                                               uint8_t *sx,
-                                               uint8_t *sy,
-                                               uint8_t *sz,
+                                               const uint8_t *d,
+                                               const uint8_t *sx,
+                                               const uint8_t *sy,
+                                               const uint8_t *sz,
                                                uint32_t affinity,
                                                uint8_t *rx,
                                                uint8_t *ry,
@@ -245,7 +245,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type  = ECDH;
-  request->ecdh_mode       = ecdh_mode;
+  request->ecdh_mode       = (uint8_t)ecdh_mode;
   request->ecdh_sub_mode   = SL_SI91X_ECDH_MUL;
   request->ecdh_curve_type = SL_SI91X_ECDH_CURVE_P;
   request->affinity        = affinity;
@@ -324,9 +324,9 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
-                                       uint8_t *sx,
-                                       uint8_t *sy,
-                                       uint8_t *sz,
+                                       const uint8_t *sx,
+                                       const uint8_t *sy,
+                                       const uint8_t *sz,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz)
@@ -355,7 +355,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type = ECDH;
-  request->ecdh_mode      = ecdh_mode;
+  request->ecdh_mode      = (uint8_t)ecdh_mode;
   request->ecdh_sub_mode  = SL_SI91X_ECDH_DOUBLE;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -420,9 +420,9 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
-                                       uint8_t *sx,
-                                       uint8_t *sy,
-                                       uint8_t *sz,
+                                       const uint8_t *sx,
+                                       const uint8_t *sy,
+                                       const uint8_t *sz,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz)
@@ -451,7 +451,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type  = ECDH;
-  request->ecdh_mode       = ecdh_mode;
+  request->ecdh_mode       = (uint8_t)ecdh_mode;
   request->ecdh_sub_mode   = SL_SI91X_ECDH_AFFINITY;
   request->ecdh_curve_type = SL_SI91X_ECDH_CURVE_P;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO

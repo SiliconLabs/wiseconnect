@@ -10,7 +10,7 @@ metadata:
     license: BSD-3-Clause
     upstream:
       name: QCBOR
-      version: 1.2
+      version: "1.2"
       supplier: laurencelundblade
       url: https://github.com/laurencelundblade/QCBOR
       package_url: pkg:github/laurencelundblade/QCBOR@v1.2

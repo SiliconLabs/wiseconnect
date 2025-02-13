@@ -16,6 +16,7 @@
 #include "sl_board_configuration.h"
 #include <stdint.h>
 #include <string.h>
+#include <sl_string.h>
 #include <stdbool.h>
 #include <stdio.h>
 #ifdef SL_UART
@@ -267,7 +268,11 @@ sl_status_t default_help_command_handler(const console_args_t *arguments)
   const console_database_entry_t *entry;
   uint32_t starting_index = 0;
   char *group             = GET_OPTIONAL_COMMAND_ARG(arguments, 0, NULL, char *);
-  char *group_end         = group + strlen(group);
+  const char *group_end   = NULL;
+
+  if (group != NULL) {
+    group_end = group + sl_strlen(group);
+  }
 
   if (group != NULL && group_end != NULL) {
     sl_status_t status = console_find_command(&group, group_end, &console_command_database, &entry, &starting_index);

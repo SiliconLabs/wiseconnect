@@ -149,6 +149,6 @@ typedef struct {
  * For more information on status codes, refer to 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
-sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output);
+sl_status_t sl_si91x_hmac(const sl_si91x_hmac_config_t *config, uint8_t *output);
 
 /** @} */

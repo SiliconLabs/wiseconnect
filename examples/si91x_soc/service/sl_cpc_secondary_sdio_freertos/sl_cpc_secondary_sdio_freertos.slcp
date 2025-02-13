@@ -17,10 +17,10 @@ include:
     - path: cpc_app.h
 sdk:
   id: simplicity_sdk
-  version: 2024.12.1
+  version: 2025.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.5.0
 toolchain_settings: []
 component:
   - id: sl_system
@@ -43,6 +43,7 @@ component:
   - id: si91x_debug
     from: wiseconnect3_sdk
   - id: freertos
+  - id: freertos_heap_4
   - id: emlib_core
   - id: sl_assert
   - id: sl_common

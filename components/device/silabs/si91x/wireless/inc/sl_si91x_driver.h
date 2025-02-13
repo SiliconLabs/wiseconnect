@@ -31,6 +31,7 @@
 
 #include "sl_status.h"
 #include "sl_wifi_device.h"
+#include "firmware_upgradation.h"
 #include "sl_wifi_host_interface.h"
 #include "sl_si91x_host_interface.h"
 #include "sl_rsi_utility.h"
@@ -80,12 +81,11 @@
 #define SL_SI91X_SOCKET_COMMAND_TX_PENDING_EVENT SL_SI91X_EXTRA_EVENT_FLAG(2)
 #define SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT   SL_SI91X_EXTRA_EVENT_FLAG(3)
 #define SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT      SL_SI91X_EXTRA_EVENT_FLAG(4)
-#define SL_SI91X_TERMINATE_BUS_THREAD_EVENT      (1 << 21)
-#define SL_SI91X_TERMINATE_BUS_THREAD_EVENT_ACK  (1 << 22)
 
-#define SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS                                                           \
-  (SL_SI91X_COMMON_TX_PENDING_EVENT | SL_SI91X_WLAN_TX_PENDING_EVENT | SL_SI91X_NETWORK_TX_PENDING_EVENT \
-   | SL_SI91X_BT_TX_PENDING_EVENT | SL_SI91X_GENERIC_SOCKET_TX_PENDING_EVENT)
+#define SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS                                                                       \
+  (SL_SI91X_COMMON_TX_PENDING_EVENT | SL_SI91X_WLAN_TX_PENDING_EVENT | SL_SI91X_NETWORK_TX_PENDING_EVENT             \
+   | SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT | SL_SI91X_BT_TX_PENDING_EVENT | SL_SI91X_GENERIC_SOCKET_TX_PENDING_EVENT \
+   | SL_SI91X_SOCKET_COMMAND_TX_PENDING_EVENT | SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT)
 
 typedef enum { SL_NCP_NORMAL_POWER_MODE, SL_NCP_LOW_POWER_MODE, SL_NCP_ULTRA_LOW_POWER_MODE } sl_si91x_power_mode_t;
 
@@ -1069,159 +1069,6 @@ sl_status_t sl_si91x_driver_raw_send_command(uint8_t command,
  ******************************************************************************/
 sl_status_t sl_si91x_set_power_mode(sl_si91x_power_mode_t mode, const sl_si91x_power_configuration_t *config);
 //! @endcond
-
-/** \addtogroup SI91X_FIRMWARE_UPDATE_FROM_HOST_FUNCTIONS 
- * \ingroup SI91X_FIRMWARE_UPDATE_FUNCTIONS
- * @{ */
-
-/***************************************************************************/ /**
- * @brief
- *   Send the RPS header content of the firmware file. 
- * 
- * @details
- *  This function sends the RPS (Remote Programming Service) header content of the firmware file to the Si91x device. 
- * 
- *  This is a blocking API.
- * 
- * @param[in] rps_header
- *   Pointer to the RPS header content.
- * 
- * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- ******************************************************************************/
-sl_status_t sl_si91x_fwup_start(const uint8_t *rps_header);
-
-/***************************************************************************/ /**
- * @brief
- *   Send the firmware file content. 
- * 
- * @details
- *   This function sends the content of the firmware file to the Si91x device. 
- * 
- *   This is a blocking API.
- * 
- * @param[in] content
- *   Pointer to the firmware file content.
- * 
- * @param[in] length
- *   Length of the content in bytes.
- * 
- * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- ******************************************************************************/
-sl_status_t sl_si91x_fwup_load(const uint8_t *content, uint16_t length);
-
-/***************************************************************************/ /**
- * @brief
- *   Abort the firmware update process on the SiWx91x device and reset all firmware upgrade helper variables in the NWP. This is a blocking API.
- * 
- * @details
- *   This function aborts the ongoing firmware update process on the SiWx91x device. It is a blocking API and will not return until the process is aborted.
- * 
- *   This is a blocking API.
- * 
- * @pre Pre-conditions:
- * - @ref sl_si91x_fwup_load should be called before this API.
- * 
- * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- * 
- * @note
- *   After successful completion of firmware loading using the @ref sl_si91x_fwup_load API, the user can call this abort API.
- * @note
- *   Ensure to call this abort API before performing a soft or hard reset of the SiWx91x device.
- ******************************************************************************/
-sl_status_t sl_si91x_fwup_abort(void);
-
-/***************************************************************************/ /**
- * @brief
- *   Flash firmware to the Wi-Fi module via the bootloader. 
- * 
- * @details
- *   This function flashes the firmware to the Wi-Fi module using the bootloader. The firmware image, its size, and the position flags are provided as parameters.
- * 
- *  This is a blocking API.
- * 
- * @param[in] firmware_image
- *   Pointer to the firmware image.
- * 
- * @param[in] fw_image_size
- *   Size of the firmware image in bytes.
- * 
- * @param[in] flags 
- *   Flags indicating the chunk position in the file:
- *   - 0: Middle of the file
- *   - 1: Start of the file
- *   - 2: End of the file 
- * 
- * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- ******************************************************************************/
-sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags);
-
-/***************************************************************************/ /**
- * @brief
- *   Enable fast firmware upgrade mode.
- * 
- * @details
- *   This function enables the fast firmware upgrade mode on the Si91x device. It optimizes the firmware upgrade process for speed.
- * 
- * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- ******************************************************************************/
-sl_status_t sl_si91x_set_fast_fw_up(void);
-
-/** @} */
-
-/** \addtogroup SI91X_FIRMWARE_UPDATE_FROM_MODULE_FUNCTIONS 
- * \ingroup SI91X_FIRMWARE_UPDATE_FUNCTIONS
- * @{ */
-/***************************************************************************/ /**
- * @brief
- *   Create an OTAF client and initialize it with a given configuration.
- * 
- * @details
- *   This function creates an OTAF (Over-The-Air Firmware) client and initializes it with the provided configuration parameters. 
- * 
- *   It supports both synchronous and asynchronous firmware upgrades.
- * 
- *   In synchronous mode, the response is received via [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) with [SL_NET_OTA_FW_UPDATE_EVENT](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) as the event.
- *  
- * @pre Pre-conditions:
- * - [sl_net_up](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-up) API needs to be called before this API.
- * 
- * @param[in] server_ip
- *   OTAF server IP address of type [sl_ip_address_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-ip-address-t).
- * 
- * @param[in] server_port
- *   OTAF server port number.
- * 
- * @param[in] chunk_number 
- *   Firmware content request chunk number.
- * 
- * @param[in] timeout
- *   TCP receive packet timeout.
- * 
- * @param[in] tcp_retry_count
- *   TCP retransmissions count.
- * 
- * @param[in] asynchronous
- *   OTAF upgrade done asynchronously when this is set to true, else synchronous upgrade.
- * 
- * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- * 
- * @note
- *   For a safe firmware upgrade via TCP server, it will take approximately 65 seconds to upgrade the firmware of a 1.5 MB file.
- ******************************************************************************/
-sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
-                                              uint16_t server_port,
-                                              uint16_t chunk_number,
-                                              uint16_t timeout,
-                                              uint16_t tcp_retry_count,
-                                              bool asynchronous);
-
-/** @} */
 
 /***************************************************************************/ /**
  * @brief

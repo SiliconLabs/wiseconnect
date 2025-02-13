@@ -62,7 +62,7 @@ static void callback_event(uint8_t channel_no, uint8_t event);
 sl_status_t sl_si91x_joystick_init(void)
 {
   sl_status_t status                  = 0;
-  sl_adc_channel_config.channel       = JOYSTICK_ADC_CHANNEL;
+  sl_adc_channel_config.channel       = SL_JOYSTICK_ADC_CHANNEL;
   uint8_t adc_channel                 = sl_adc_channel_config.channel;
   sl_adc_config.num_of_channel_enable = 1;
   sl_adc_config.operation_mode        = SL_ADC_STATIC_MODE;

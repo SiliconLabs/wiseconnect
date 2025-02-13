@@ -38,6 +38,7 @@
 #include "sl_rsi_utility.h"
 #include "cmsis_os2.h" // CMSIS RTOS2
 #include "sl_si91x_types.h"
+#include "sli_wifi_command_engine.h"
 #include "sl_si91x_core_utilities.h"
 #include "sli_cmsis_os2_ext_task_register.h"
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
@@ -176,7 +177,7 @@ extern bool device_initialized;
 
 // Declaration of external functions
 extern void si91x_bus_thread(void *args);
-extern void si91x_event_handler_thread(void *args);
+extern void sli_si91x_async_rx_event_handler_thread(void *args);
 sl_status_t sl_si91x_host_power_cycle(void);
 void convert_performance_profile_to_power_save_command(sl_si91x_performance_profile_t profile,
                                                        sl_si91x_power_save_request_t *power_save_request);
@@ -267,7 +268,7 @@ static sli_scan_info_t *sli_update_or_create_scan_info_element(const sli_scan_in
 }
 
 // Function to store a given scan info element in scan results database
-static void sli_store_scan_info_element(sli_scan_info_t *info)
+static void sli_store_scan_info_element(const sli_scan_info_t *info)
 {
   sli_scan_info_t *element = NULL;
   sli_scan_info_t *head    = NULL;
@@ -311,7 +312,7 @@ static void sli_store_scan_info_element(sli_scan_info_t *info)
 }
 
 // Function to identify Authentication Key Management Type
-static uint32_t sli_get_key_management_info(const sli_wlan_cipher_suite_t *akms, const uint16_t akmsc)
+static uint32_t sli_get_key_management_info(const sli_wlan_cipher_suite_t *akms, uint16_t akmsc)
 {
   uint32_t key_mgmt = 0;
   uint32_t oui_type;
@@ -365,7 +366,7 @@ static void process_rsn_element(const sli_wifi_data_tagged_info_t *info, sli_sca
 
   if (!memcmp(rsn->gcs.cs_oui, wlan_gcs_oui, 3)) {
     scan_info->security_mode = SL_WIFI_WPA2;
-    uint32_t key = sli_get_key_management_info((const sli_wlan_cipher_suite_t *)akms, (const uint16_t)akmsc);
+    uint32_t key             = sli_get_key_management_info(akms, akmsc);
 
     if (akms[0].cs_type == 1) {
       scan_info->security_mode = SL_WIFI_WPA2_ENTERPRISE;
@@ -597,13 +598,13 @@ void get_wifi_current_performance_profile(sl_wifi_performance_profile_t *profile
 void get_coex_performance_profile(sl_si91x_performance_profile_t *profile)
 {
   SL_ASSERT(profile != NULL);
-  uint8_t mode_decision          = 0;
-  sl_si91x_coex_mode_t coex_mode = performance_profile.coex_mode;
-  if (coex_mode == SL_SI91X_WLAN_ONLY_MODE) { // Treat SL_SI91X_WLAN_ONLY_MODE as SL_SI91X_WLAN_MODE
-    coex_mode = SL_SI91X_WLAN_MODE;
+  uint8_t mode_decision                 = 0;
+  sl_si91x_coex_mode_t stored_coex_mode = performance_profile.coex_mode;
+  if (stored_coex_mode == SL_SI91X_WLAN_ONLY_MODE) { // Treat SL_SI91X_WLAN_ONLY_MODE as SL_SI91X_WLAN_MODE
+    stored_coex_mode = SL_SI91X_WLAN_MODE;
   }
   // Determine the mode decision based on the coexistence mode
-  switch (coex_mode) {
+  switch (stored_coex_mode) {
     case SL_SI91X_WLAN_MODE: {
       // Wi-Fi only mode
       mode_decision = (uint8_t)((performance_profile.wifi_performance_profile.profile << 4)
@@ -1048,27 +1049,14 @@ sl_status_t sl_si91x_platform_init(void)
     si91x_async_events = osEventFlagsNew(NULL);
   }
 
-  // Create and start SI91X bus thread
-  if (NULL == si91x_thread) {
-    const osThreadAttr_t attr = {
-
-      .name       = "si91x_bus",
-      .priority   = osPriorityRealtime,
-      .stack_mem  = 0,
-      .stack_size = 1636,
-      .cb_mem     = 0,
-      .cb_size    = 0,
-      .attr_bits  = 0u,
-      .tz_module  = 0u,
-    };
-    si91x_thread = osThreadNew(si91x_bus_thread, NULL, &attr);
-  }
+  // Create and start Command Engine thread
+  sli_wifi_command_engine_init();
 
   // Create and start SI91X event handler thread
   if (NULL == si91x_event_thread) {
     const osThreadAttr_t attr = {
-      .name       = "si91x_event",
-      .priority   = osPriorityRealtime1,
+      .name       = "si91x_async_rx_event",
+      .priority   = SL_WLAN_EVENT_THREAD_PRIORITY,
       .stack_mem  = 0,
       .stack_size = SL_SI91X_EVENT_HANDLER_STACK_SIZE,
       .cb_mem     = 0,
@@ -1076,19 +1064,20 @@ sl_status_t sl_si91x_platform_init(void)
       .attr_bits  = 0u,
       .tz_module  = 0u,
     };
-    si91x_event_thread = osThreadNew(si91x_event_handler_thread, NULL, &attr);
+    si91x_event_thread = osThreadNew(&sli_si91x_async_rx_event_handler_thread, NULL, &attr);
   }
 
   // Initialize command queues and associated mutexes
   for (int i = 0; i < SI91X_CMD_MAX; i++) {
-    cmd_queues[i].tx_queue.head    = NULL;
-    cmd_queues[i].tx_queue.tail    = NULL;
-    cmd_queues[i].rx_queue.head    = NULL;
-    cmd_queues[i].rx_queue.tail    = NULL;
-    cmd_queues[i].event_queue.head = NULL;
-    cmd_queues[i].event_queue.tail = NULL;
-    cmd_queues[i].mutex            = osMutexNew(NULL);
-    cmd_queues[i].flag             = (1 << i);
+    cmd_queues[i].tx_queue.head         = NULL;
+    cmd_queues[i].tx_queue.tail         = NULL;
+    cmd_queues[i].rx_queue.head         = NULL;
+    cmd_queues[i].rx_queue.tail         = NULL;
+    cmd_queues[i].event_queue.head      = NULL;
+    cmd_queues[i].event_queue.tail      = NULL;
+    cmd_queues[i].mutex                 = osMutexNew(NULL);
+    cmd_queues[i].flag                  = (1 << i);
+    cmd_queues[i].is_queue_initialiazed = true;
   }
 
   // Create malloc/free mutex
@@ -1109,20 +1098,8 @@ sl_status_t sl_si91x_platform_deinit(void)
 
   // Deallocate all threads, mutexes and event handlers
 
-  // Terminate SI91X bus thread
-  if (NULL != si91x_thread) {
-    // Signal the thread to terminate
-    osEventFlagsSet(si91x_events, SL_SI91X_TERMINATE_BUS_THREAD_EVENT);
-
-    // Wait for thread termination acknowledgment
-    osStatus_t stat = osEventFlagsWait(si91x_events, SL_SI91X_TERMINATE_BUS_THREAD_EVENT_ACK, osFlagsWaitAny, 5000);
-    if (stat == osErrorTimeout) {
-      // Return timeout if acknowledgment is not received
-      return SL_STATUS_TIMEOUT;
-    }
-
-    si91x_thread = NULL;
-  }
+  // Terminate Command Engine thread
+  sli_wifi_command_engine_deinit();
 
   // Terminate SI91X event handler thread
   if (NULL != si91x_event_thread) {
@@ -1144,7 +1121,8 @@ sl_status_t sl_si91x_platform_deinit(void)
   // Delete command queue mutexes
   for (int i = 0; i < SI91X_CMD_MAX; i++) {
     osMutexDelete(cmd_queues[i].mutex);
-    cmd_queues[i].mutex = NULL;
+    cmd_queues[i].mutex                 = NULL;
+    cmd_queues[i].is_queue_initialiazed = false;
   }
 
   // Delete malloc/free mutex
@@ -1161,14 +1139,7 @@ sl_si91x_host_timestamp_t sl_si91x_host_get_timestamp(void)
 // Calculate elapsed time from the given starting timestamp
 sl_si91x_host_timestamp_t sl_si91x_host_elapsed_time(uint32_t starting_timestamp)
 {
-  uint32_t current_tickcount = osKernelGetTickCount();
-
-  // Check if the tick count has overflow or not.
-  if (current_tickcount >= starting_timestamp) {
-    return (current_tickcount - starting_timestamp);
-  } else {
-    return ((0xFFFFFFFF - starting_timestamp) + current_tickcount);
-  }
+  return (osKernelGetTickCount() - starting_timestamp);
 }
 
 // Delay execution for a specified number of milliseconds using an OS-level delay
@@ -1265,11 +1236,9 @@ void sli_flush_tx_packet(sli_si91x_command_queue_t *queue,
     current_packet->node.node = NULL;
 
     // Check if the TX packet is not expecting a response, then free the host packet
-    if (!(queue_node->flags & SI91X_PACKET_RESPONSE_PACKET)) {
-      if (queue_node->host_packet != NULL) {
-        sl_si91x_host_free_buffer(queue_node->host_packet);
-        queue_node->host_packet = NULL;
-      }
+    if ((!(queue_node->flags & SI91X_PACKET_RESPONSE_PACKET)) && (queue_node->host_packet != NULL)) {
+      sl_si91x_host_free_buffer(queue_node->host_packet);
+      queue_node->host_packet = NULL;
     }
 
     // Check if the packet in the queue is synchronous or asynchronous response
@@ -1339,7 +1308,7 @@ sl_status_t sli_flush_tx_queue(sli_si91x_command_queue_t *queue,
   if (queue->tx_queue.head == NULL) {
     // Clear the tail pointer of the TX queue
     queue->tx_queue.tail = NULL;
-    tx_command_queues_status &= ~(event_mask);
+    tx_command_queues_status &= ~event_mask;
   }
 
   return SL_STATUS_OK;
@@ -1454,7 +1423,7 @@ sl_status_t sli_si91x_flush_all_socket_command_queues(uint16_t frame_status, uin
     // Check if the socket exists and matches the required VAP ID
     if ((sli_si91x_sockets[index] != NULL) && (sli_si91x_sockets[index]->vap_id == vap_id)) {
       // Flush the command queues for the current socket based on queue type
-      status = sli_si91x_flush_socket_command_queues_based_on_queue_type(index, frame_status);
+      status = sli_si91x_flush_socket_command_queues_based_on_queue_type((uint8_t)index, frame_status);
       // If flushing fails, return the error status immediately
       if (status != SL_STATUS_OK) {
         return status;
@@ -1579,11 +1548,9 @@ sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t in
       current_packet->node.node = NULL;
       int32_t frame_type        = sli_get_socket_command_from_host_packet(queue_node->host_packet);
       // Check if the TX packet is not expecting a response, then free the host packet
-      if (!(queue_node->flags & SI91X_PACKET_RESPONSE_PACKET)) {
-        if (queue_node->host_packet != NULL) {
-          sl_si91x_host_free_buffer(queue_node->host_packet);
-          queue_node->host_packet = NULL;
-        }
+      if ((!(queue_node->flags & SI91X_PACKET_RESPONSE_PACKET)) && (queue_node->host_packet != NULL)) {
+        sl_si91x_host_free_buffer(queue_node->host_packet);
+        queue_node->host_packet = NULL;
       }
 
       // Add to response queue and raise event based on frame type
@@ -1665,7 +1632,7 @@ sl_status_t sli_si91x_flush_all_socket_data_queues(uint8_t vap_id)
     // Check if the socket exists and matches the required VAP ID
     if ((socket != NULL) && (socket->vap_id == vap_id)) {
       // Flush the data queues for the current socket based on queue type
-      status = sli_si91x_flush_socket_data_queues_based_on_queue_type(index);
+      status = sli_si91x_flush_socket_data_queues_based_on_queue_type((uint8_t)index);
       // If flushing fails, return the error status immediately
       if (status != SL_STATUS_OK) {
         return status;

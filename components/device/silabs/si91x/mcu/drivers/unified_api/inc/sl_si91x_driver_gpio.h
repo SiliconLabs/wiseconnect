@@ -197,7 +197,8 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
                                                             sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
- * @brief    Select the driver disabled state control for an HP instance GPIO pin.
+ * @brief    Select the configuration of pull-up, pull-down, or repeater functionality 
+ *            for GPIO pins in the High Power (HP) instance. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
  * -   \ref sl_si91x_gpio_driver_enable_clock
@@ -664,7 +665,8 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
                                                                 sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
- * @brief        Select the driver-disabled state control for the ULP instance of the GPIO peripheral.
+ * @brief  Select the configuration of pull-up, pull-down, or repeater functionality 
+ *            for GPIO pins in the Ultra Low Power (ULP) instance. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
@@ -1095,6 +1097,44 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_pad_configuration(uulp_pad_config_t *p
 * @return       Returns structure of type sl_si91x_gpio_vversion_t (the structure to hold the versions of peripheral API).
 *******************************************************************************/
 sl_si91x_gpio_version_t sl_si91x_gpio_driver_get_version(void);
+
+/***************************************************************************/ /**
+ * @brief To configure ULP GPIOs in SOC (HP) Mode
+ *   - For ULP GPIOs in SOC (HP) Mode, provide the ULP GPIOs and the desired pin mode for the SOC (HP) pin. 
+ *     The corresponding HP GPIO will be configured.
+ * 
+ * @param[in]   gpio - Pointer to the GPIO structure representing the pin.
+ *                     This structure contains the necessary information to identify the pin.
+ *                     User has to pass SL_GPIO_ULP_PORT and pin range between (0-11). It converts
+ *                     the corresponding SOC GPIO on the ULP Pin
+ * @param[in]   mode - The mode to set for the GPIO pin. This parameter is of type sl_gpio_mode_t,
+ *                     which defines the possible modes a GPIO pin can be configured to.
+ * @return      Status code indicating the result of the operation:
+ *              - SL_STATUS_OK: The operation was successful.
+ *              - SL_STATUS_INVALID_PARAMETER: One or more parameters are invalid.
+ * 
+ * * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_set_soc_peri_on_ulp_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode);
+
+/***************************************************************************/ /**
+ * @brief To configure SOC (HP) GPIOs in ULP Mode
+ *   - For SOC (HP) GPIOs in ULP Mode, provide the HP GPIOs and the desired pin mode for the ULP pin. 
+ *     The corresponding ULP GPIO will be configured.
+ * 
+ * @param[in]   gpio - Pointer to the GPIO structure representing the pin.
+ *                     This structure contains the necessary information to identify the pin.
+ *                     User has to pass SL_GPIO_PORT_A and pin number less than 57. It converts
+ *                     the corresponding ULP_GPIO on the SOC Pin.
+ * @param[in]   mode - The mode to set for the GPIO pin. This parameter is of type sl_gpio_mode_t,
+ *                     which defines the possible modes a GPIO pin can be configured to.
+ * @return      Status code indicating the result of the operation:
+ *              - SL_STATUS_OK: The operation was successful.
+ *              - SL_STATUS_INVALID_PARAMETER: One or more parameters are invalid.
+ * 
+ * * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_set_ulp_peri_on_soc_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode);
 
 /** @} (end addtogroup GPIO) */
 

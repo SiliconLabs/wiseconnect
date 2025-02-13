@@ -49,7 +49,6 @@
   - name: device_has_stacked_flash
   - name: device_has_mpu
   - name: device_has_chip
-  
   - name: device_supports_external_psram  
 - requires:
   - name: rsilib_chip

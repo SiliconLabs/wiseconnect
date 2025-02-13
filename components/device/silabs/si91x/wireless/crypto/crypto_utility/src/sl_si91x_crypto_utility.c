@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include "sl_si91x_crypto_utility.h"
 
-uint8_t *pkcs7_padding(uint8_t *data, size_t data_length, size_t block_size, size_t *padded_data_length)
+uint8_t *pkcs7_padding(const uint8_t *data, size_t data_length, size_t block_size, size_t *padded_data_length)
 {
   // Calculate the padding length
   size_t padding_length = block_size - (data_length % block_size);
@@ -51,7 +51,7 @@ uint8_t *pkcs7_padding(uint8_t *data, size_t data_length, size_t block_size, siz
 
   // Add padding bytes with the value of the padding length
   for (size_t i = data_length; i < padded_length; i++) {
-    padded_data[i] = padding_length;
+    padded_data[i] = (uint8_t)padding_length;
   }
 
   // Update the padded data length
@@ -60,7 +60,7 @@ uint8_t *pkcs7_padding(uint8_t *data, size_t data_length, size_t block_size, siz
   return padded_data;
 }
 
-int pkcs7_unpad(unsigned char *data, size_t data_length)
+int pkcs7_unpad(const unsigned char *data, size_t data_length)
 {
   if (data_length == 0) {
     return -1; // Invalid input

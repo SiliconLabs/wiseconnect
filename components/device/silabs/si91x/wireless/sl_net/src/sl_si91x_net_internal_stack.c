@@ -102,7 +102,7 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
     ip_req.dhcp_request_rtr_interval_min  = ip_config->dhcp_config.min_request_retry_interval;
     ip_req.dhcp_discover_rtr_interval_max = ip_config->dhcp_config.max_discover_retry_interval;
     ip_req.dhcp_request_rtr_interval_max  = ip_config->dhcp_config.max_request_retry_interval;
-    ip_req.dhcp_discover_max_retries      = ip_config->dhcp_config.min_discover_retries;
+    ip_req.dhcp_discover_max_retries      = ip_config->dhcp_config.max_discover_retries;
     ip_req.dhcp_request_max_retries       = ip_config->dhcp_config.max_request_retries;
 
     status = sl_si91x_driver_send_command(RSI_WLAN_REQ_IPCONFV4,
@@ -189,69 +189,7 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
   return status;
 }
 
-sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
-                                              uint16_t server_port,
-                                              uint16_t chunk_number,
-                                              uint16_t timeout,
-                                              uint16_t tcp_retry_count,
-                                              bool asynchronous)
-{
-  sl_wifi_buffer_t *buffer           = NULL;
-  sl_status_t status                 = SL_STATUS_FAIL;
-  sl_si91x_wait_period_t wait_period = SL_SI91X_RETURN_IMMEDIATELY;
-
-  // Initialize the OTA firmware update request structure
-  sl_si91x_ota_firmware_update_request_t otaf_fwup = { 0 };
-
-  // Determine the wait period based on the 'asynchronous' flag
-  if (asynchronous == false) {
-    wait_period = SL_SI91X_WAIT_FOR_OTAF_RESPONSE;
-  }
-
-  // Check IP version
-  if (server_ip.type == SL_IPV4) {
-    // Fill the IP version
-    otaf_fwup.ip_version = SL_IPV4;
-    memcpy(otaf_fwup.server_ip_address.ipv4_address, server_ip.ip.v4.bytes, SL_IPV4_ADDRESS_LENGTH);
-  } else if (server_ip.type == SL_IPV6) {
-    otaf_fwup.ip_version = SL_IPV6;
-    memcpy(otaf_fwup.server_ip_address.ipv6_address, server_ip.ip.v6.bytes, SL_IPV6_ADDRESS_LENGTH);
-  } else {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  // Fill server port number
-  memcpy(otaf_fwup.server_port, &server_port, sizeof(server_port));
-
-  // Fill chunk number
-  memcpy(otaf_fwup.chunk_number, &chunk_number, sizeof(otaf_fwup.chunk_number));
-
-  // Fill timeout
-  memcpy(otaf_fwup.timeout, &timeout, sizeof(otaf_fwup.timeout));
-
-  // Fill TCP retry count
-  memcpy(otaf_fwup.retry_count, &tcp_retry_count, sizeof(otaf_fwup.retry_count));
-
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_OTA_FWUP,
-                                        SI91X_NETWORK_CMD,
-                                        &otaf_fwup,
-                                        sizeof(sl_si91x_ota_firmware_update_request_t),
-                                        wait_period,
-                                        NULL,
-                                        &buffer);
-
-  // Check if the command was synchronous and free the buffer if it was allocated
-  if (asynchronous == false) {
-    if (status != SL_STATUS_OK && buffer != NULL) {
-      sl_si91x_host_free_buffer(buffer);
-    }
-    VERIFY_STATUS_AND_RETURN(status);
-  }
-  sl_si91x_host_free_buffer(buffer);
-  return status;
-}
-
 sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, uint8_t virtual_ap_id)
 {
-  return sli_si91x_configure_ip_address(address, virtual_ap_id, 150000);
+  return sli_si91x_configure_ip_address(address, virtual_ap_id, SL_SI91X_WAIT_FOR_EVER);
 }

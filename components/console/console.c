@@ -109,7 +109,7 @@ sl_status_t console_parse_command(char *command_line,
   const console_database_entry_t *entry = NULL;
   char *token;
   uint32_t index;
-  char *command_line_end = command_line + strlen(command_line); // The end should be passed in by the user
+  const char *command_line_end = command_line + sl_strlen(command_line); // The end should be passed in by the user
 
 #ifdef CONSOLE_SUB_COMMAND_SUPPORT
 #endif
@@ -246,7 +246,7 @@ void console_add_to_history(const char *line, uint8_t line_length)
 
 // Simple linear database search. This function could be replaced with a more complicated version
 sl_status_t console_find_command(char **string,
-                                 char *string_end,
+                                 const char *string_end,
                                  const console_database_t *db,
                                  const console_database_entry_t **entry,
                                  uint32_t *starting_index)

@@ -163,8 +163,8 @@ static  USART_RESOURCES USART0_Resources = {
 				1,              // supports UART IrDA mode(SIR_MODE)
 				0,              // supports UART Smart Card mode
 				0,              // Smart Card Clock generator
-				1,              // RTS Flow Control available
-				1,              // CTS Flow Control available
+				1,             // RTS Flow Control available
+				1,             // CTS Flow Control available
 				1,              // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
 				1,              // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
 				1,              // RTS Line: 0=not available, 1=available.
@@ -228,7 +228,6 @@ static  USART_PIN uart1_tx     = { RTE_UART1_TX_PORT ,RTE_UART1_TX_PIN ,RTE_UART
 static  USART_PIN uart1_rx     = { RTE_UART1_RX_PORT ,RTE_UART1_RX_PIN ,RTE_UART1_RX_MUX ,RTE_UART1_RX_PAD };
 static  USART_PIN uart1_cts    = { RTE_UART1_CTS_PORT ,RTE_UART1_CTS_PIN ,RTE_UART1_CTS_MUX ,RTE_UART1_CTS_PAD };
 static  USART_PIN uart1_rts    = { RTE_UART1_RTS_PORT ,RTE_UART1_RTS_PIN ,RTE_UART1_RTS_MUX ,RTE_UART1_RTS_PAD };
-
 #if defined(RTE_UART1_CHNL_UDMA_TX_EN) && (RTE_UART1_CHNL_UDMA_TX_EN == 1)
 void UART1_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 
@@ -280,7 +279,7 @@ static  USART_RESOURCES UART1_Resources = {
 				0,             // IRDA(SIR_MODE) mode (not supported)
 				0,             // smart_card (not supported)
 				0,             // smart_card_clock (not supported)
-				1,             // RTS Flow Control available
+				1,             // CTS Flow Control available
 				1,             // RTS Flow Control available
 				1,             // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
 				1,             // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT

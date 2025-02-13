@@ -102,6 +102,17 @@
 #define GPIO_PAD_SELECT_32     32 // GPIO PAD selection number 32
 #define GPIO_PAD_SELECT_33     33 // GPIO PAD selection number 33
 #define OUTPUT_VALUE           0  // GPIO output value
+
+#define ULP_PERI_ON_SOC_GPIO_HOST_PAD_PIN_MODE 11 // Pin mode for HP pin to act as ULP pin within the host pad range
+#define SOC_PERI_ON_ULP_GPIO_OFFSET            64 // Offset for ULP GPIO to act as HP pin
+#define ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET   19 // Offset for HP GPIO to act as ULP pin within the host pad range
+#define ULP_PERI_ON_SOC_GPIO_OFFSET            6  // Offset for HP GPIO to act as ULP pin
+#define ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET      8  // Offset for HP pin to act as ULP pin for pin 15
+#define ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN \
+  46 // Minimum pin number for specific range of HP pins to act as ULP pins
+#define ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
+  49 // Maximum pin number for specific range of HP pins to act as ULP pins
+#define ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET 38 // Offset for specific range of HP pins to act as ULP pins
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -159,6 +170,8 @@ static const uint8_t m4_gpio_pad[76] = {
 static uint8_t ulp_gpio_pad[12] = { GPIO_PAD_SELECT_22, GPIO_PAD_SELECT_23, GPIO_PAD_SELECT_24, GPIO_PAD_SELECT_25,
                                     GPIO_PAD_SELECT_26, GPIO_PAD_SELECT_27, GPIO_PAD_SELECT_28, GPIO_PAD_SELECT_29,
                                     GPIO_PAD_SELECT_30, GPIO_PAD_SELECT_31, GPIO_PAD_SELECT_32, GPIO_PAD_SELECT_33 };
+
+static uint32_t soc_peri_on_ulp_gpio_status = 0; // Holds the status of SOC peripheral on ulp gpio
 /*******************************************************************************
  ***********************  Global function Prototypes ***************************
  ******************************************************************************/
@@ -549,6 +562,8 @@ sl_status_t sl_gpio_driver_init(void)
   if (status != SL_STATUS_OK) {
     return status;
   }
+  // Clearing the soc peripheral on ulp gpio status flag
+  soc_peri_on_ulp_gpio_status = 0;
   return SL_STATUS_OK;
 }
 
@@ -1999,6 +2014,8 @@ sl_status_t sl_gpio_driver_deinit(void)
     if (status != SL_STATUS_OK) {
       return status;
     }
+    // Clearing the soc peripheral on ulp gpio status flag
+    soc_peri_on_ulp_gpio_status = 0;
   } while (false);
   return SL_STATUS_OK;
 }
@@ -2064,4 +2081,123 @@ sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
       break;
   }
   return SL_STATUS_OK;
+}
+
+/******************************************************************************* 
+ * This function checks if the given ULP pin is configured as a SOC pin by
+ * examining the `soc_peri_on_ulp_gpio_status` bit corresponding to the pin number.
+ * The function performs the following steps:
+ *   1. Shifts the `soc_peri_on_ulp_gpio_status` by the pin number minus the offset for ULP pins.
+ *   2. Checks if the resulting bit is set.
+ *      - If the bit is set, the pin is valid and SOC peripheral is configured on that ULP pin.
+ *      - If the bit is not set, the pin is invalid and SOC peripheral is not configured on that ULP pin.
+******************************************************************************/
+sl_status_t sl_si91x_gpio_validate_soc_peri_on_ulp_gpio(uint8_t pin)
+{
+  if ((soc_peri_on_ulp_gpio_status >> (pin - SOC_PERI_ON_ULP_GPIO_OFFSET)) & 1) {
+    return SL_STATUS_OK;
+  } else {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+}
+
+/******************************************************************************* 
+ * This function configures the mode for a specified GPIO pin. It converts
+ * the ULP GPIO in to SOC (HP) Mode. The function performs the following steps:
+ * 1. Validates the input GPIO pointer.
+ * 2. Validates the mode value parameters.
+ * 3. The pin is in ULP mode and should be configured as HP, it sets the pin mode to 6 and configures
+ *    the pin mode for the corresponding HP pin.
+ * @note This function uses helper functions to set the pin mode and validate the GPIO structure.
+******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_set_soc_peri_on_ulp_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode)
+{
+  sl_status_t status = SL_STATUS_OK;
+  // Check if the GPIO pointer is NULL
+  if (gpio == NULL) {
+    // Return error if GPIO pointer is NULL
+    status = SL_STATUS_NULL_POINTER;
+    return status;
+  }
+  // Validate the GPIO structure
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    // Return validation status if not OK
+    return status;
+  }
+  // Check if the mode value exceeds the maximum allowed values
+  if (mode > MAX_MODE) {
+    // Return error if mode value is invalid
+    status = SL_STATUS_INVALID_PARAMETER;
+    return status;
+  }
+  // If the ULP pin should be configured as a high power pin
+  // Set pin mode (mode 6) for ULP pin to act as HP pin
+  sl_gpio_set_pin_mode(gpio->port, gpio->pin, SL_GPIO_MODE_6, OUTPUT_VALUE);
+  // Sets the bit position of the ULP pin converted to the SOC gpio for further validation
+  soc_peri_on_ulp_gpio_status |= BIT(gpio->pin);
+  // Set pin mode for corresponding HP pin.
+  sl_gpio_set_pin_mode(SL_GPIO_PORT_A, gpio->pin + SOC_PERI_ON_ULP_GPIO_OFFSET, mode, OUTPUT_VALUE);
+  return status;
+}
+
+/******************************************************************************* 
+ * This function configures the mode value for a specified GPIO pin. It converts
+ * the SOC (HP) GPIO in to ULP Mode. The function performs the following steps:
+ * 1. Validates the input GPIO pointer.
+ * 2. Validates the mode value parameters.
+ * 3. Configures the pin mode based on the input pin number:
+ *      - For pins 25 to 30, it sets the pin mode to 11 and configures the pin mode for the corresponding HP pin.
+ *      - For pin 15, it sets the pin mode to 9 and configures the pin mode for the corresponding HP pin.
+ *      - For other pins, it sets the pin mode to 9 and configures the pin mode for the corresponding HP pin.
+ * @note This function uses helper functions to set the pin mode and validate the GPIO structure.
+******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_set_ulp_peri_on_soc_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode)
+{
+  sl_status_t status = SL_STATUS_OK;
+  // Check if the GPIO pointer is NULL
+  if (gpio == NULL) {
+    // Return error if GPIO pointer is NULL
+    status = SL_STATUS_NULL_POINTER;
+    return status;
+  }
+  // Validate the GPIO structure
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    // Return validation status if not OK
+    return status;
+  }
+  // Check if the mode exceeds the maximum allowed values
+  if (mode > MAX_MODE) {
+    // Return error if mode value is invalid
+    status = SL_STATUS_INVALID_PARAMETER;
+    return status;
+  }
+  // If the high power pin should be configured as a ULP pin
+  // Check if the pin is within the host pad range
+  if (gpio->pin >= HOST_PAD_MIN && gpio->pin <= HOST_PAD_MAX) {
+    // Set pin mode(mode 11) for HP pin to act as ULP pin
+    sl_gpio_set_pin_mode(gpio->port, gpio->pin, ULP_PERI_ON_SOC_GPIO_HOST_PAD_PIN_MODE, OUTPUT_VALUE);
+    // Set pin mode for corresponding ULP pin
+    sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET, 0, OUTPUT_VALUE);
+    sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET, mode);
+  } else {
+    // If not host pad pin then set pin mode (mode 9) for HP pin to act as ULP pin
+    sl_gpio_set_pin_mode(gpio->port, gpio->pin, SL_GPIO_MODE_9, OUTPUT_VALUE);
+    if (gpio->pin == 15) {
+      // Set pin mode for pin 15, exception because the offset is different from others
+      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET, 0, OUTPUT_VALUE);
+      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET, mode);
+    } else if (gpio->pin >= ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+               && gpio->pin <= ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      // Set pin mode for specific range of pins
+      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET, 0, OUTPUT_VALUE);
+      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET, mode);
+    } else {
+      // Set pin mode for other pins
+      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_OFFSET, 0, OUTPUT_VALUE);
+      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_OFFSET, mode);
+    }
+  }
+  return status;
 }

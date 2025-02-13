@@ -30,4 +30,4 @@ requires:
 - name: sl_string
 - name: atomic
 - name: cmsis_core
-
+- name: malloc_thread_safety

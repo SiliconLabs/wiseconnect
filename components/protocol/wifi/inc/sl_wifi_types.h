@@ -30,10 +30,10 @@
 #pragma once
 
 #include "sl_wifi_constants.h"
-#include "sl_wifi_host_interface.h"
 #include "sl_ieee802_types.h"
 #include "sl_status.h"
 #include "sl_ip_types.h"
+#include "sl_slist.h"
 #include <stdint.h>
 
 // Default Timeout Configuration
@@ -105,6 +105,20 @@
 
 /** @addtogroup SL_WIFI_TYPES Types
   * @{ */
+
+/**
+ * @struct sl_wifi_buffer_t
+ * @brief Structure representing a Wi-Fi buffer.
+ */
+typedef struct {
+  sl_slist_node_t node; ///< Pointer to the node of the list of which the buffer is part of
+  uint32_t length;      ///< Size of the buffer in bytes
+  uint8_t
+    type; ///< Indicates the buffer type (SL_WIFI_TX_FRAME_BUFFER, SL_WIFI_RX_FRAME_BUFFER, and so on.) corresponding to the buffer.
+  uint8_t id;           ///< Buffer identifier. Can be used to uniquely identify a buffer. Loops every 256 packets.
+  uint8_t _reserved[2]; ///< Reserved.
+  uint8_t data[];       ///< Stores the data (header + payload) to be send to NWP
+} sl_wifi_buffer_t;
 
 /**
  * @typedef sl_wifi_event_handler_t
@@ -354,7 +368,7 @@ typedef struct {
 /**
  * @struct sl_wifi_advanced_client_configuration_t
  * @brief Wi-Fi Client interface advanced configuration structure.
- * @note  Default beacon missed count is 40, A unicast probe request will be sent from the module to the AP at 21st beacon count and subsequently at the 31st beacon count.
+ * @note  The default beacon missed count is set to 40. A unicast probe request will be sent from the module to the access point (AP) at the 21st beacon count and again at the 31st beacon count.
  */
 typedef struct {
   uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure

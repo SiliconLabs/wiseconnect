@@ -16,6 +16,8 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SLI_SI91X_MCU_EXTERNAL_LDO_FOR_PSRAM
+    value: '1'
   - name: SL_SI91X_ACX_MODULE
     value: '1'
   - name: SRAM_BASE

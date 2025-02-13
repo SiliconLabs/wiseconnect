@@ -39,22 +39,24 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 
+#define SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES 1408
+
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t sli_si91x_aes_pending(sl_si91x_aes_config_t *config,
+static sl_status_t sli_si91x_aes_pending(const sl_si91x_aes_config_t *config,
                                          uint16_t chunk_length,
                                          uint8_t aes_flags,
                                          uint8_t *output)
 {
   sl_status_t status              = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer        = NULL;
-  sl_si91x_packet_t *packet       = NULL;
+  const sl_si91x_packet_t *packet = NULL;
   sl_si91x_aes_request_t *request = (sl_si91x_aes_request_t *)malloc(sizeof(sl_si91x_aes_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
   memset(request, 0, sizeof(sl_si91x_aes_request_t));
 
   request->algorithm_type       = AES;
-  request->algorithm_sub_type   = config->aes_mode;
+  request->algorithm_sub_type   = (uint8_t)config->aes_mode;
   request->aes_flags            = aes_flags;
   request->total_msg_length     = config->msg_length;
   request->current_chunk_length = chunk_length;
@@ -76,14 +78,14 @@ static sl_status_t sli_si91x_aes_pending(sl_si91x_aes_config_t *config,
   memcpy(request->key, config->key_config.a0.key, request->key_length);
 #endif
 
-  status =
-    sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD,
-                                 request,
-                                 (sizeof(sl_si91x_aes_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
-                                 SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                 NULL,
-                                 &buffer);
+  status = sl_si91x_driver_send_command(
+    RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+    SI91X_COMMON_CMD,
+    request,
+    (sizeof(sl_si91x_aes_request_t) - SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES + chunk_length),
+    SL_SI91X_WAIT_FOR_RESPONSE(32000),
+    NULL,
+    &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
@@ -173,8 +175,8 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
 
   while (total_length) {
     // Check total length
-    if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
-      chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES;
+    if (total_length > SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES) {
+      chunk_len = SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES;
       if (offset == 0) {
         // Make aes_flags as first chunk
         aes_flags |= FIRST_CHUNK;
@@ -186,7 +188,7 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
       chunk_len = total_length;
       aes_flags = LAST_CHUNK;
       if (offset == 0) {
-        // If the total length is less than 1400 and offset is zero, make aes_flags as both first chunk as well as last chunk
+        // If the total length is less than 1408 and offset is zero, make aes_flags as both first chunk as well as last chunk
         aes_flags |= FIRST_CHUNK;
       }
     }
@@ -204,6 +206,8 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
     offset += chunk_len;
     config->msg += chunk_len;
 
+    output += chunk_len;
+
     // Decrement the total message length
     total_length -= chunk_len;
   }
@@ -214,4 +218,24 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
 
   return status;
 #endif
+}
+
+sl_status_t sl_si91x_aes_multipart(const sl_si91x_aes_config_t *config,
+                                   uint16_t chunk_length,
+                                   uint8_t aes_flags,
+                                   uint8_t *output)
+{
+
+  SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
+
+  if (((config->aes_mode == SL_SI91X_AES_CBC) || (config->aes_mode == SL_SI91X_AES_CTR)) && (config->iv == NULL)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (chunk_length % SL_SI91X_AES_BLOCK_SIZE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // calling sli_si91x_aes_pending with the provided arguments
+  return sli_si91x_aes_pending(config, chunk_length, aes_flags, output);
 }

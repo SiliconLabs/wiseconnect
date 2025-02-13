@@ -40,7 +40,6 @@ typedef struct {
   void *arg;                            /// User provided callback argument
 } sl_wifi_callback_entry_t;
 
-//#define EXECUTE_CALLBACK(id, packet) do { if (registered_callbacks[id].function) {return registered_callbacks[id].function(packet->command, packet->data, packet->length, registered_callbacks[id].arg); } } while(0)
 static sl_wifi_callback_entry_t *get_callback_entry(sl_wifi_event_group_t group);
 static sl_wifi_event_group_t get_event_group_from_event(sl_wifi_event_t event);
 
@@ -67,7 +66,7 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
   }
 
   // Start processing the event
-  sl_si91x_packet_t *packet = (sl_si91x_packet_t *)sl_si91x_host_get_buffer_data((sl_wifi_buffer_t *)buffer, 0, NULL);
+  sl_si91x_packet_t *packet = (sl_si91x_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     sl_status_t status = convert_and_save_firmware_status(get_si91x_frame_status(packet));
     if (packet->command == RSI_WLAN_RSP_JOIN) {

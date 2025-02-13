@@ -24,7 +24,6 @@
 
 - This example demonstrates the transition to the PS1 state, with RAM retention and NWP shutdown. By default, our application is configured to retain 320KB RAM.
 - Initially, the Power Manager service is initialized, transitioning the processor to the PS3 state with the clock set to 40 MHz (Power Save) using sl_si91x_power_manager_init.
-- In the application, RET LDO voltage is changed to 0.75V.
 - The power domains will be disabled and NWP will be shutdown.
 - The application will then switch to the PS2 state and clock is at 20 MHz. Then transition to PS1 state, stay at that state for 2 sec based on configuration of ULP timer and again change back to PS2 state.
 - Finally, the application will enter the PS2 sleep mode.

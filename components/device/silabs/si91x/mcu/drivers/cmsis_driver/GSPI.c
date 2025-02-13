@@ -112,9 +112,13 @@ static const ARM_SPI_CAPABILITIES DriverCapabilities = {
 #if (RTE_GSPI_MASTER)
 
 static  GSPI_PIN gspi_clock    = { RTE_GSPI_MASTER_CLK_PORT ,RTE_GSPI_MASTER_CLK_PIN ,RTE_GSPI_MASTER_CLK_MUX ,RTE_GSPI_MASTER_CLK_PAD };
+#ifdef SL_GSPI_MASTER_CS0__PORT
 static  GSPI_PIN gspi_cs0       = { RTE_GSPI_MASTER_CS0_PORT ,RTE_GSPI_MASTER_CS0_PIN ,RTE_GSPI_MASTER_CS0_MUX ,RTE_GSPI_MASTER_CS0_PAD };
-#ifdef GSPI_MULTI_SLAVE
+#endif
+#ifdef SL_GSPI_MASTER_CS1__PORT
 static  GSPI_PIN gspi_cs1       = { RTE_GSPI_MASTER_CS1_PORT ,RTE_GSPI_MASTER_CS1_PIN ,RTE_GSPI_MASTER_CS1_MUX ,RTE_GSPI_MASTER_CS1_PAD };
+#endif
+#ifdef SL_GSPI_MASTER_CS2__PORT
 static  GSPI_PIN gspi_cs2       = { RTE_GSPI_MASTER_CS2_PORT ,RTE_GSPI_MASTER_CS2_PIN ,RTE_GSPI_MASTER_CS2_MUX ,RTE_GSPI_MASTER_CS2_PAD };
 #endif
 static  GSPI_PIN gspi_mosi     = { RTE_GSPI_MASTER_MOSI_PORT ,RTE_GSPI_MASTER_MOSI_PIN ,RTE_GSPI_MASTER_MOSI_MUX ,RTE_GSPI_MASTER_MOSI_PAD };
@@ -181,11 +185,21 @@ static const GSPI_RESOURCES GSPI_MASTER_Resources = {
 		//pins 
     {
 		&gspi_clock,
+#ifdef SL_GSPI_MASTER_CS0__PORT
 		&gspi_cs0,
-#ifdef GSPI_MULTI_SLAVE
+#else
+		NULL,
+#endif
+#ifdef SL_GSPI_MASTER_CS1__PORT
 		&gspi_cs1,
+#else
+		NULL,
+#endif
+#ifdef SL_GSPI_MASTER_CS2__PORT
 		&gspi_cs2,
-	#endif
+#else
+		NULL,
+#endif
 		&gspi_mosi,
 		&gspi_miso, //pins end 
     }, //pins end
@@ -307,7 +321,6 @@ static int32_t GSPI_MASTER_Control(uint32_t control, uint32_t arg)
   int32_t status          = 0;
   uint32_t gspi_get_clock = 0;
   gspi_get_clock          = RSI_CLK_GetBaseClock(M4_GSPI);
-#ifdef GSPI_MULTI_SLAVE
   if ((control & ARM_SPI_CONTROL_Msk) == ARM_SPI_CONTROL_SS) {
     gspi_slavenumber = RSI_GSPI_GetSlaveSelectNumber();
     /* check slave number is valied or not */
@@ -316,7 +329,6 @@ static int32_t GSPI_MASTER_Control(uint32_t control, uint32_t arg)
       return RSI_MUTLI_SLAVE_SELECT_ERROR;
     }
   }
-#endif
 #if (defined(GSPI_ROMDRIVER_PRESENT))
 #if (defined(A11_ROM) && (defined(SLI_SI917) || defined(SLI_SI915)) && (defined(SLI_SI917B0) || defined(SLI_SI915)))
   return ROMAPI_GSPI_API->GSPI_Control(control, arg, &GSPI_MASTER_Resources, gspi_get_clock, gspi_slavenumber);

@@ -76,7 +76,7 @@
 #define SL_HIGH_PERFORMANCE_SOCKET   BIT(7)
 #define TWT_AUTO_CONFIG              1
 #define TWT_SCAN_TIMEOUT             10000
-#define ENABLE_POWER_SAVE            1
+#define ENABLE_NWP_POWER_SAVE        1
 
 // Use case based TWT selection params
 #define TWT_RX_LATENCY                       5000
@@ -339,7 +339,7 @@ void application_start()
   }
   printf("Enabled Broadcast Data Filter\r\n");
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
   status                      = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {

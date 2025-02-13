@@ -34,7 +34,7 @@
 #include "sl_wifi_constants.h"
 
 /// Network Interface Type mask
-#define NETWORK_INTERFACE_TYPE_MASK 0xFFF8
+#define NETWORK_INTERFACE_TYPE_MASK 0xFFFF
 
 /// Interface Type Selection
 #define SL_NET_INTERFACE_TYPE(x) (x & NETWORK_INTERFACE_TYPE_MASK)
@@ -52,15 +52,24 @@
  * This enumeration defines the various network interfaces supported by the system. Currently, only `SL_NET_WIFI_CLIENT_INTERFACE` and `SL_NET_WIFI_AP_INTERFACE` are supported.
  */
 typedef enum {
-  SL_NET_WIFI_CLIENT_INTERFACE = (1 << 3), ///< Wi-Fi Client Interface
-  SL_NET_WIFI_AP_INTERFACE     = (2 << 3), ///< Wi-Fi Access Point Interface
-  SL_NET_ETHERNET_INTERFACE    = (3 << 3), ///< Ethernet Interface (not currently supported)
-  SL_NET_THREAD_INTERFACE      = (4 << 3), ///< Thread Interface (not currently supported)
-  SL_NET_BLUETOOTH_INTERFACE   = (5 << 3), ///< Bluetooth Interface (not currently supported)
-  SL_NET_ZWAVE_INTERFACE       = (6 << 3), ///< Z-Wave Interface (not currently supported)
+  SL_NET_WIFI_CLIENT_1_INTERFACE = (1 << 3),                       ///< Wi-Fi Client 1 Interface
+  SL_NET_WIFI_CLIENT_2_INTERFACE = (1 << 3) + 1,                   ///< Wi-Fi Client 2 Interface
+  SL_NET_WIFI_CLIENT_INTERFACE   = SL_NET_WIFI_CLIENT_1_INTERFACE, ///< Wi-Fi Client Interface
+  SL_NET_WIFI_AP_1_INTERFACE     = (2 << 3),                       ///< Wi-Fi Access Point 1 Interface
+  SL_NET_WIFI_AP_2_INTERFACE     = (2 << 3) + 1,                   ///< Wi-Fi Access Point 2 Interface
+  SL_NET_WIFI_AP_INTERFACE       = SL_NET_WIFI_AP_1_INTERFACE,     ///< Wi-Fi Access Point Interface
+  SL_NET_ETHERNET_INTERFACE      = (3 << 3),                       ///< Ethernet Interface (not currently supported)
+  SL_NET_THREAD_INTERFACE        = (4 << 3),                       ///< Thread Interface (not currently supported)
+  SL_NET_BLUETOOTH_INTERFACE     = (5 << 3),                       ///< Bluetooth Interface (not currently supported)
+  SL_NET_ZWAVE_INTERFACE         = (6 << 3),                       ///< Z-Wave Interface (not currently supported)
 } sl_net_interface_t;
 /** @} */
 
+///Max Client Interfaces
+#define MAX_NET_CLIENT_INTERFACES 2
+
+///Max Access Point Interfaces
+#define MAX_NET_AP_INTERFACES 2
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
 /**
@@ -129,18 +138,20 @@ typedef enum {
  * This enumeration defines the various types of network credentials that can be used for authentication and security purposes.
  */
 typedef enum {
-  SL_NET_INVALID_CREDENTIAL_TYPE, ///< Invalid Credential Type.
-  SL_NET_WIFI_PSK,                ///< Wi-Fi PSk Credential.
-  SL_NET_WIFI_PMK,                ///< Wi-Fi PMK Credential.
-  SL_NET_WIFI_WEP,                ///< Wi-Fi WEP Credential.
-  SL_NET_CERTIFICATE,             ///< TLS Client Certificate.
-  SL_NET_PUBLIC_KEY,              ///< TLS Certificate Public key.
-  SL_NET_PRIVATE_KEY,             ///< TLS Certificate Private key.
-  SL_NET_PACK_FILE,               ///< EAP Fast Pack File.
-  SL_NET_SIGNING_CERTIFICATE,     ///< TLS CA Certificate.
-  SL_NET_HTTP_CLIENT_CREDENTIAL,  ///< HTTP Client Credential.
-  SL_NET_EAP_CLIENT_CREDENTIAL,   ///< Wi-Fi EAP Credential.
-  SL_NET_MQTT_CLIENT_CREDENTIAL   ///< MQTT Client Credential.
+  SL_NET_INVALID_CREDENTIAL_TYPE,  ///< Invalid Credential Type.
+  SL_NET_WIFI_PSK,                 ///< Wi-Fi PSk Credential.
+  SL_NET_WIFI_PMK,                 ///< Wi-Fi PMK Credential.
+  SL_NET_WIFI_WEP,                 ///< Wi-Fi WEP Credential.
+  SL_NET_CERTIFICATE,              ///< TLS Client Certificate.
+  SL_NET_PUBLIC_KEY,               ///< TLS Certificate Public key.
+  SL_NET_PRIVATE_KEY,              ///< TLS Certificate Private key.
+  SL_NET_PACK_FILE,                ///< EAP Fast Pack File.
+  SL_NET_SIGNING_CERTIFICATE,      ///< TLS CA Certificate.
+  SL_NET_HTTP_CLIENT_CREDENTIAL,   ///< HTTP Client Credential.
+  SL_NET_EAP_CLIENT_CREDENTIAL,    ///< Wi-Fi EAP Credential.
+  SL_NET_MQTT_CLIENT_CREDENTIAL,   ///< MQTT Client Credential.
+  SL_NET_TLS_PRIVATE_KEY_CBC_WRAP, ///< CBC TLS Private Certificate Key.
+  SL_NET_TLS_PRIVATE_KEY_ECB_WRAP  ///< ECB TLS Private Certificate Key.
 } sl_net_credential_type_t;
 
 /**

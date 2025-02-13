@@ -18,7 +18,7 @@
 #include "timer_platform.h"
 #include "cmsis_os2.h"
 
-bool has_timer_expired(Timer *timer)
+bool has_timer_expired(const Timer *timer)
 {
   long int elapsed_time = (timer->end_time - osKernelGetTickCount());
   return (elapsed_time < 0);
@@ -36,7 +36,7 @@ void countdown_sec(Timer *timer, uint32_t timeout_sec)
   timer->end_time = osKernelGetTickCount() + (timeout_sec * 1000);
 }
 
-uint32_t left_ms(Timer *timer)
+uint32_t left_ms(const Timer *timer)
 {
   long int remaining_time = timer->end_time - osKernelGetTickCount();
   return (remaining_time < 0) ? 0 : remaining_time;

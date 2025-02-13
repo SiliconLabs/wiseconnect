@@ -67,8 +67,8 @@
 /*=======================================================================*/
 //!	Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
-#if ENABLE_POWER_SAVE
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for powersave mode
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
@@ -521,7 +521,7 @@ void ble_ae_central(void)
     LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n Keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);

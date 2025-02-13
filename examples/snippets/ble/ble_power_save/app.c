@@ -39,7 +39,7 @@
 #include "sl_si91x_driver.h"
 #include "app.h"
 
-#if ((SL_SI91X_TICKLESS_MODE == 0) && defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && defined SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
 #include "sl_si91x_m4_ps.h"
 #include "sl_si91x_power_manager.h"
 #endif
@@ -55,7 +55,7 @@
 /*=======================================================================*/
 //!    Application powersave configurations
 /*=======================================================================*/
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -339,7 +339,7 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
   }
 }
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 /*==============================================*/
 /**
  * @fn         rsi_initiate_power_save
@@ -485,7 +485,7 @@ void ble_app_task(void *argument)
   }
   SET_BIT1(rsi_ble_states_bitmap, RSI_SCAN_STATE);
 #endif
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   if (!powersave_cmd_given) {
     LOG_PRINT("\r\n Initiating PowerSave\r\n");
     status = rsi_initiate_power_save();
@@ -507,7 +507,7 @@ void ble_app_task(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received loop will be continued.
-#if ((SL_SI91X_TICKLESS_MODE == 0) && (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE))
+#if ((SL_SI91X_TICKLESS_MODE == 0) && (defined SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE))
       //! if events are not received loop will be continued.
 
       if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {
@@ -575,7 +575,7 @@ void ble_app_task(void *argument)
         rsi_ble_app_clear_event(RSI_APP_EVENT_DISCONNECTED);
 
         LOG_PRINT("\n Keep module in to active state \n");
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n Keep module in to active state \r\n");
         //! initiating Active mode in BT mode
         status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
@@ -617,7 +617,7 @@ scan:
           }
           SET_BIT1(rsi_ble_states_bitmap, RSI_SCAN_STATE);
         }
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n Keep module in to power save \r\n");
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
         if (status != RSI_SUCCESS) {

@@ -42,7 +42,9 @@
 #define BIT(a) ((uint32_t)1U << a)
 #endif
 
-#define NETWORK_INTERFACE_VALID(x) (x == SL_NET_WIFI_CLIENT_INTERFACE) || (x == SL_NET_WIFI_AP_INTERFACE)
+#define NETWORK_INTERFACE_VALID(x)                                                                                    \
+  (x == SL_NET_WIFI_CLIENT_1_INTERFACE) || (x == SL_NET_WIFI_CLIENT_2_INTERFACE) || (x == SL_NET_WIFI_AP_1_INTERFACE) \
+    || (x == SL_NET_WIFI_AP_2_INTERFACE)
 
 // NOTE: The value for SL_SI91X_SI917_RAM_MEM_CONFIG will be fetched from respective si91x_mem_config_1/2/3.slcc
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -171,8 +173,9 @@
  * Enables support for long-sized Internet Control Message Protocol (ICMP) packets.
  * Enable this bit to receive and process the ICMP requests of size more than 308 bytes sent from peers.
  * A maximum packet size of 1472 bytes can be processed for ICMP and 1452 bytes for ICMPv6.
- * The limit for sending ICMP/ICMPv6 packets to peers continues to be limited to 308 bytes that is, with the API sl_si91x_send_ping.
- * @note Bit 11 are reserved.
+ * The size limit for sending ICMP/ICMPv6 packets to peers using the sl_si91x_send_ping API remains restricted to 300 bytes.
+ * 
+ * @note Bit 11 is reserved.
  */
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
 

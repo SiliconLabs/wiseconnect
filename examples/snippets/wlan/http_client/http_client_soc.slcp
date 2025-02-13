@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version:  "2024.12.1"}
+sdk: {id: simplicity_sdk, version:  "2025.6.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.1}
+- {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
   - path: main.c
@@ -38,6 +38,7 @@ requires:
 - name: sl_si91x_internal_stack
 - name: wifi_resources
 - name: freertos
+- name: freertos_heap_4
 - name: slist
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]

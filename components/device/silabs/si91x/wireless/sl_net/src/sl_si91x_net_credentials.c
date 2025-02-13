@@ -32,6 +32,9 @@
 #include "sl_si91x_driver.h"
 #include "sl_wifi_credentials.h"
 
+#define SLI_MAX_PRIVATE_KEY_LENGTH          4096
+#define SLI_MAX_PRIVATE_KEY_METADATA_LENGTH 8
+
 /// Enumerations of TLS certificate types
 typedef enum {
   SL_SI91X_EAP_CLIENT             = 1,  ///< SL_SI91X_EAP_CLIENT
@@ -41,6 +44,8 @@ typedef enum {
   SL_SI91X_TLS_CA_CERTIFICATE     = 5,  ///< SL_SI91X_TLS_CA_CERTIFICATE
   SL_SI91X_TLS_SERVER_CERTIFICATE = 6,  ///< SL_SI91X_TLS_SERVER_CERTIFICATE
   SL_SI91X_TLS_SERVER_PRIVATE_KEY = 7,  ///< SL_SI91X_TLS_SERVER_PRIVATE_KEY
+  SL_SI91X_TLS_CBC_PRIVATE_KEY    = 8,  ///< SL_SI91X_TLS_CBC_PRIVATE_KEY
+  SL_SI91X_TLS_ECB_PRIVATE_KEY    = 9,  ///< SL_SI91X_TLS_ECB_PRIVATE_KEY
   SL_SI91X_EAP_PRIVATE_KEY        = 17, ///< SL_SI91X_EAP_PRIVATE_KEY
   SL_SI91X_EAP_PUBLIC_KEY         = 33, ///< SL_SI91X_EAP_PUBLIC_KEY
   SL_SI91X_EAP_CA_CERTIFICATE     = 49, ///< SL_SI91X_EAP_CA_CERTIFICATE
@@ -110,6 +115,16 @@ static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id
         return SL_SI91X_FAST_PAC_FILE;
       }
       break;
+    case SL_NET_TLS_PRIVATE_KEY_CBC_WRAP:
+      if (id == SL_NET_TLS_CLIENT_CREDENTIAL_START) {
+        return SL_SI91X_TLS_CBC_PRIVATE_KEY;
+      }
+      break;
+    case SL_NET_TLS_PRIVATE_KEY_ECB_WRAP:
+      if (id == SL_NET_TLS_CLIENT_CREDENTIAL_START) {
+        return SL_SI91X_TLS_ECB_PRIVATE_KEY;
+      }
+      break;
     default:
       return 0;
   }
@@ -138,6 +153,12 @@ sl_status_t sl_si91x_set_credential(sl_net_credential_id_t id,
                                     const void *credential,
                                     uint32_t credential_length)
 {
+  // As the maximum length of the private key is 4096 bytes in NWP, the length of the credential/key should be less than this maximum supported length.
+  if (((type == SL_NET_TLS_PRIVATE_KEY_ECB_WRAP) || (type == SL_NET_TLS_PRIVATE_KEY_CBC_WRAP))
+      && (credential_length > (SLI_MAX_PRIVATE_KEY_LENGTH - SLI_MAX_PRIVATE_KEY_METADATA_LENGTH - SL_SI91X_IV_SIZE))) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sl_status_t status;
   sl_si91x_cert_type_t cert_type = convert_to_si91x_cert_type(id, type);
   uint8_t index                  = get_certificate_index(id);

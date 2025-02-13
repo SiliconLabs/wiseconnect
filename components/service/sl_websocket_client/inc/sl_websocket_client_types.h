@@ -38,9 +38,10 @@ typedef enum {
   SL_WEBSOCKET_OPCODE_CONTINUE = 0x0, /**< Continuation frame */
   SL_WEBSOCKET_OPCODE_TEXT     = 0x1, /**< Text frame */
   SL_WEBSOCKET_OPCODE_BINARY   = 0x2, /**< Binary frame */
-  SL_WEBSOCKET_OPCODE_CLOSE    = 0x8, /**< Connection close frame */
-  SL_WEBSOCKET_OPCODE_PING     = 0x9, /**< Ping frame */
-  SL_WEBSOCKET_OPCODE_PONG     = 0xA, /**< Pong frame */
+  SL_WEBSOCKET_OPCODE_CLOSE =
+    0x8, /**< Connection close frame. The close frame payload contains a close code (first 2 bytes) and optional reason text, with a maximum length of 125 bytes.*/
+  SL_WEBSOCKET_OPCODE_PING = 0x9, /**< Ping frame */
+  SL_WEBSOCKET_OPCODE_PONG = 0xA, /**< Pong frame */
 } sl_websocket_opcode_t;
 
 /**
@@ -72,6 +73,27 @@ typedef enum {
   SL_WEBSOCKET_STATE_CLOSING, /**< The WebSocket client is in the process of closing the connection. This state is set when the client initiates a close operation. */
   SL_WEBSOCKET_STATE_CLOSED /**< The WebSocket connection has been closed. This state indicates that the client is no longer connected to the server. */
 } sl_websocket_state_t;
+
+/**
+ * @brief WebSocket predefined status codes for Close frames.
+ * 
+ * @details This enumeration defines the pre-defined status codes that endpoints may use when sending a Close frame.
+ */
+typedef enum {
+  SL_WEBSOCKET_CLOSE_NORMAL                = 1000, /**< Normal closure */
+  SL_WEBSOCKET_CLOSE_GOING_AWAY            = 1001, /**< Endpoint is going away */
+  SL_WEBSOCKET_CLOSE_PROTOCOL_ERROR        = 1002, /**< Protocol error */
+  SL_WEBSOCKET_CLOSE_UNSUPPORTED_DATA      = 1003, /**< Received data type not supported */
+  SL_WEBSOCKET_CLOSE_RESERVED              = 1004, /**< Reserved */
+  SL_WEBSOCKET_CLOSE_NO_STATUS             = 1005, /**< No status code present */
+  SL_WEBSOCKET_CLOSE_ABNORMAL              = 1006, /**< Abnormal closure */
+  SL_WEBSOCKET_CLOSE_INVALID_PAYLOAD       = 1007, /**< Invalid payload data */
+  SL_WEBSOCKET_CLOSE_POLICY_VIOLATION      = 1008, /**< Policy violation */
+  SL_WEBSOCKET_CLOSE_MESSAGE_TOO_BIG       = 1009, /**< Message too big */
+  SL_WEBSOCKET_CLOSE_MISSING_EXTENSION     = 1010, /**< Missing required extension */
+  SL_WEBSOCKET_CLOSE_INTERNAL_ERROR        = 1011, /**< Internal server error */
+  SL_WEBSOCKET_CLOSE_TLS_HANDSHAKE_FAILURE = 1015  /**< TLS handshake failure */
+} sl_websocket_close_status_code_t;
 
 /** @} */
 /******************************************************

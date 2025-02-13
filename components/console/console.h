@@ -47,7 +47,7 @@ sl_status_t console_parse_command(char *command_line,
                                   console_args_t *args,
                                   const console_descriptive_command_t **output_command);
 sl_status_t console_find_command(char **string,
-                                 char *string_end,
+                                 const char *string_end,
                                  const console_database_t *db,
                                  const console_database_entry_t **entry,
                                  uint32_t *starting_index);

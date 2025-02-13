@@ -118,7 +118,7 @@ The application can be configured to suit your requirements and development envi
 
 ### Configure the Application
 
-#### Configure the follwoing parameters in `app.c`:
+#### Configure the following parameters in `app.c`:
 
 - The following parameters are common to SoC and NCP.
 
@@ -129,11 +129,15 @@ The application can be configured to suit your requirements and development envi
  #define SUBSCRIBE_QOS             QOS0              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
  #define PUBLISH_QOS               QOS0              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
  #define PUBLISH_PERIODICITY       30000             //! Publish periodicity in milliseconds
- #define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save
+ #define ENABLE_NWP_POWER_SAVE         1             //! Set this macro to 1 for enabling NWP power save
+ #define WRAP_PRIVATE_KEY              0             //! Enable this to wrap the private key
  ```
 
 - `SUBSCRIBE_TO_TOPIC` refers to the topic to which the device subscribes.
 - `PUBLISH_ON_TOPIC` refers to the topic to which the device publishes.
+- When `WRAP_PRIVATE_KEY` is enabled, the `aws_client_private_key` provided by the user will be wrapped using `sl_si91x_wrap()`. This `wrapped_private_key` will be loaded into the flash and used for the AWS connection.
+
+> Note: To use the `sl_si91x_wrap()` function, security must be enabled on the device. Follow the detailed instructions in **Section 5.5 - Enable Security Configurations in NWP and M4 Firmware Images** of the [UG574 SiWx917 SoC Manufacturing Utility User Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf).
 
 ### Configure the below parameters in `sl_net_default_values.h` present at `\<project>/config`
 

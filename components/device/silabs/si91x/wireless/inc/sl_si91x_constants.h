@@ -361,8 +361,13 @@ typedef enum {
 #define RSI_HOST_INTERACT_REG_VALID    (0xAB << 8)
 #define RSI_HOST_INTERACT_REG_VALID_FW (0xA0 << 8)
 
+#ifndef CONFIG_RTSTHRESHOLD
 #define CONFIG_RTSTHRESHOLD 1
-#define RSI_RTS_THRESHOLD   2346
+#endif
+
+#ifndef RSI_RTS_THRESHOLD
+#define RSI_RTS_THRESHOLD 2346
+#endif
 
 #define RSI_SEND_RAW_DATA                    0x1
 #define RSI_RECEIVE_RAW_DATA                 0x0

@@ -231,6 +231,7 @@ rsi_error_t DAC_Deinit(void)
 {
   // DAC power gate enable
   RSI_DAC_PowerControl(DAC_POWER_OFF);
+
   return RSI_OK;
 }
 
@@ -257,44 +258,10 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
     }
     return clk_src_val;
   } else {
-    if (sampl_rate <= DAC_SAMPLE_RATE_32KSPS) {
-      // Configured DAC clock as 32Khz RC
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
-      clk_div_fac = (uint16_t)(ceil((2 * DAC_CLK_SRC_32KHZ) / sampl_rate));
-      // Configure the DAC division factor for required sampling rate
-      RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-      return (uint32_t)((clk_div_fac * sampl_rate) / 2);
-    } else {
-      if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
-        // Program in PS2 state  Need to integrate
-        // Configured DAC clock as 32Mhz RC
-        RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-        clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_MHZ) / sampl_rate);
-        // Configure the DAC division factor for required sampling rate
-        RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-        return (uint32_t)((clk_div_fac * sampl_rate) / 2);
-      } else {
-        if (sampl_rate > DAC_SAMPLE_RATE_32KSPS && sampl_rate < DAC_SAMPLE_RATE_80KSPS) {
-          // Configured DAC clock as 32Mhz RC
-          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_MHZ) / sampl_rate);
-          if (clk_div_fac > 0x03FF) {
-            clk_div_fac = 0x03FF;
-          }
-          // Configure the DAC division factor for required sampling rate
-          RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-          return (uint32_t)((clk_div_fac * sampl_rate) / 2);
-        } else {
-          RSI_ULPSS_RefClkConfig(ULPSS_ULP_MHZ_RC_CLK);
-          // Configured DAC clock as 32Mhz RC
-          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_MHZ) / sampl_rate);
-          // Configure the DAC division factor for required sampling rate
-          RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-          return (uint32_t)((clk_div_fac * sampl_rate) / 2);
-        }
-      }
-    }
+    clk_div_fac = (uint16_t)ceil((2 * system_clocks.ulpss_ref_clk) / sampl_rate);
+    // Configure the DAC division factor for required sampling rate
+    RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
+    return (uint32_t)((clk_div_fac * sampl_rate) / 2);
   }
 }
 
@@ -621,15 +588,20 @@ void RSI_DAC_PowerControl(POWER_STATE_DAC state)
     case DAC_POWER_ON:
       RSI_IPMU_PowerGateSet(AUXDAC_PG_ENB);
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_AUX);
+      if (analog_get_power_state() == 0) {
+        // Select ULP Ref clock for ADC
+        RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
+      }
       analog_set_power_state(DAC_BIT_POS, ANALOG_POWERED_ON);
       break;
     case DAC_POWER_OFF:
       RSI_IPMU_PowerGateClr(AUXDAC_PG_ENB);
       analog_set_power_state(DAC_BIT_POS, ANALOG_POWERED_OFF);
       if (!analog_get_power_state()) {
-        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
         RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
+        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
       }
+
       break;
   }
 }

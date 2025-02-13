@@ -52,7 +52,7 @@ typedef enum {
   SI91X_NETWORK_CMD = 2, ///< SI91X Network Command
   SI91X_BT_CMD      = 3, ///< SI91X Bluetooth Command
   SI91X_SOCKET_CMD  = 4, ///< SI91X Socket Command
-  SI91X_CMD_MAX,         ///< SI91X Maximum Command value
+  SI91X_CMD_MAX     = 5  ///< SI91X Maximum Command value
 } sl_si91x_command_type_t;
 
 /** \addtogroup SL_SI91X_CONSTANTS 
@@ -91,8 +91,10 @@ typedef enum {
 
 /// Si91x Wi-Fi VAP ID
 typedef enum {
-  SL_SI91X_WIFI_CLIENT_VAP_ID, ///< Wi-Fi Client VAP ID
-  SL_SI91X_WIFI_AP_VAP_ID,     ///< Wi-Fi Access Point VAP ID
+  SL_SI91X_WIFI_CLIENT_VAP_ID,   ///< Wi-Fi Client VAP ID
+  SL_SI91X_WIFI_AP_VAP_ID,       ///< Wi-Fi Access point VAP ID
+  SL_SI91X_WIFI_CLIENT_VAP_ID_1, ///< Wi-Fi Client 1 VAP ID
+  SL_SI91X_WIFI_AP_VAP_ID_1,     ///< Wi-Fi Access point 1 VAP ID
 } sl_si91x_wifi_vap_id_t;
 /** @} */
 
@@ -244,4 +246,5 @@ typedef struct {
   uint32_t command_tickcount;          ///< Command tick count
   uint32_t command_timeout;            ///< Command timeout
   void *sdk_context;                   ///< Context data associated with the command
+  bool is_queue_initialiazed;          ///< indicates queue is initialiazed or not.
 } sli_si91x_command_queue_t;

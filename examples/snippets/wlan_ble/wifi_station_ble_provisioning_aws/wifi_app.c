@@ -105,7 +105,7 @@ extern rsi_ble_event_conn_status_t conn_event_to_app;
 #define MQTT_USERNAME             "username"
 #define MQTT_PASSWORD             "password"
 
-#define ENABLE_POWER_SAVE      1
+#define ENABLE_NWP_POWER_SAVE  1
 #define I2C_SENSOR_PERI_ENABLE 0
 #define LOW                    0
 /*
@@ -131,7 +131,7 @@ sl_wifi_client_configuration_t access_point = { 0 };
 sl_net_ip_configuration_t ip_address        = { 0 };
 
 static uint32_t wlan_app_event_map;
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
 volatile uint8_t publish_msg = 0;
 #endif
 
@@ -314,7 +314,7 @@ static void iot_subscribe_callback_handler(AWS_IoT_Client *pClient,
 
   strncpy(dt, params->payload, len);
   LOG_PRINT("\r\n Data received = %s\r\n", dt);
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
   publish_msg = 1;
 #endif
 
@@ -683,7 +683,7 @@ void wifi_app_mqtt_task(void)
 
   IoT_Client_Init_Params mqttInitParams   = iotClientInitParamsDefault;
   IoT_Client_Connect_Params connectParams = iotClientConnectParamsDefault;
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
   uint32_t start_time         = 0;
   uint8_t publish_timer_start = 0;
 #endif
@@ -815,7 +815,7 @@ void wifi_app_mqtt_task(void)
           wlan_app_cb.state = WIFI_APP_MQTT_SUBSCRIBE_STATE;
         }
         wlan_app_cb.state = WIFI_APP_AWS_SELECT_CONNECT_STATE;
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         //! initiating power save in BLE mode
         if (rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE) != RSI_SUCCESS) {
           LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
@@ -866,7 +866,7 @@ void wifi_app_mqtt_task(void)
           // If the client is attempting to reconnect we will skip the rest of the loop.
           continue;
         }
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
         if ((!publish_timer_start) || publish_msg) {
 #endif
 
@@ -901,7 +901,7 @@ void wifi_app_mqtt_task(void)
             LOG_PRINT("QOS0 publish ack not received.\r\n");
           }
           LOG_PRINT("\r\nMQTT Publish Successful\r\n");
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
           publish_msg = 0;
           if (!publish_timer_start) {
             publish_timer_start = 1;
@@ -920,14 +920,14 @@ void wifi_app_mqtt_task(void)
 
         wlan_app_cb.state = WIFI_APP_AWS_SELECT_CONNECT_STATE;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         wlan_app_cb.state = WIFI_APP_SLEEP_STATE;
 #endif
 
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
       case WIFI_APP_SLEEP_STATE: {
         osDelay(200);
 

@@ -608,7 +608,6 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLClkBypassEnable(boolean_t clkEnable)
 }
 
 /**
-
  * @fn	        STATIC INLINE rsi_error_t  RSI_CLK_IntfPllClkReset()
  * @brief		    This API is used to Reset the Intf_pll_clk
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.

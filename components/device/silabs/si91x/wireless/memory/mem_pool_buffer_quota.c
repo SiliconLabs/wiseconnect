@@ -78,7 +78,7 @@ sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration
     pool_buffer = allocated_wifi_buffer;
   }
 
-  sli_mem_pool_create(&mem_pool, configuration->block_size, block_count, pool_buffer, buffer_size);
+  sli_mem_pool_create(&mem_pool, (uint16_t)configuration->block_size, block_count, pool_buffer, buffer_size);
   return SL_STATUS_OK;
 }
 
@@ -118,32 +118,46 @@ sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
                                           uint32_t buffer_size,
                                           uint32_t wait_duration_ms)
 {
+  UNUSED_PARAMETER(buffer_size); // Unused parameter kept for consistency or future use
 
-  UNUSED_PARAMETER(buffer_size);
+  // Validate input parameter
+  if (buffer == NULL) {
+    return SL_STATUS_INVALID_PARAMETER; // Return error if buffer is a NULL pointer
+  }
+
+  uint32_t start_time = osKernelGetTickCount(); // Capture the current system tick count to measure elapsed time
+  uint32_t delay      = 2;                      // Initial delay duration in milliseconds
   sl_status_t result;
-  do {
-    // Ensuring that buffers are allocated as per the quota set.
-    result = sl_si91x_check_for_buffer_availability(type);
-  } while (result == SL_STATUS_FULL && osDelay(1) == 0);
-  uint32_t start = osKernelGetTickCount();
-  do {
-    *buffer = sli_mem_pool_alloc(&mem_pool);
-    if (*buffer != NULL) {
-      break;
-    } else {
-      osDelay(1);
-    }
-  } while ((osKernelGetTickCount() - start) < wait_duration_ms);
 
+  do {
+    // Check if buffer quota is available for the given type
+    result = sl_si91x_check_for_buffer_availability(type);
+    if (result == SL_STATUS_OK) {
+      // Try to allocate memory for the buffer from the memory pool
+      *buffer = sli_mem_pool_alloc(&mem_pool);
+      if (*buffer != NULL) {
+        break; // Exit the loop if allocation is successful
+      }
+    }
+
+    osDelay(delay);                        // Wait to give other tasks CPU time before retrying allocation
+    delay = (delay < 50) ? delay * 2 : 50; // Exponential backoff for delay with a maximum cap at 50 ms
+
+  } while (sl_si91x_host_elapsed_time(start_time) <= wait_duration_ms); // Continue until time expires
+
+  // If no buffer was allocated after the wait duration, return an error
   if (*buffer == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
-  (*buffer)->type = type;
-  // Increasing the count of current allocation of a buffer type
-  sl_si91x_buffer_type_allocation(type);
-  (*buffer)->node.node = NULL;
-  (*buffer)->length    = configuration->block_size - sizeof(sl_wifi_buffer_t);
-  return SL_STATUS_OK;
+
+  // Initialize allocated buffer fields for the caller's usage
+  (*buffer)->type      = (uint8_t)type;                                        // Assign buffer type
+  (*buffer)->node.node = NULL;                                                 // Set node pointer to NULL
+  (*buffer)->length    = configuration->block_size - sizeof(sl_wifi_buffer_t); // Set usable length
+
+  sl_si91x_buffer_type_allocation(type); // Update internal buffer allocation counter for the type
+
+  return SL_STATUS_OK; // Successfully allocated and initialized buffer
 }
 
 void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length)

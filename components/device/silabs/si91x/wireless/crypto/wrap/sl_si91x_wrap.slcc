@@ -10,15 +10,14 @@ metadata:
    license: Zlib
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/wrap
 provides:
-- name: sl_si91x_wrap
+  - name: sl_si91x_wrap
 source:
-- path: src/sl_si91x_wrap.c
+  - path: src/sl_si91x_wrap.c
 include:
-- path: inc
-- path: inc
-  file_list:
-    - path: sl_si91x_wrap.h
-
+  - path: inc
+    file_list:
+      - path: sl_si91x_wrap.h
 requires:
-- name: sl_si91x_crypto
-
+  - name: sl_si91x_crypto
+config_file:
+  - path: config/sl_si91x_wrap_config.h

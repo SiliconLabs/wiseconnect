@@ -32,9 +32,12 @@
 #include "errno.h"
 #include "aws_iot_error.h"
 #include "cmsis_os2.h"
+#include "sl_string.h"
 
 //Application level variables for QOS1. Extern these variables in the application for QOS1.
-volatile uint8_t pub_state, qos1_publish_handle, select_given;
+volatile uint8_t pub_state;
+volatile uint8_t qos1_publish_handle;
+volatile uint8_t select_given;
 osSemaphoreId_t select_sem;
 
 
@@ -54,8 +57,8 @@ osSemaphoreId_t select_sem;
 *               Variable Declarations
 ******************************************************/
 static int32_t sli_si91x_get_aws_error(int32_t status);
-static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port);
-int32_t _iot_tls_verify_cert(void *data, int *crt, int depth, uint32_t *flags);
+static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, const sl_ip_address_t *addr, int dst_port, int src_port);
+int32_t _iot_tls_verify_cert(const void *data, const int *crt, int depth, const uint32_t *flags);
 
 
 /******************************************************
@@ -82,7 +85,7 @@ static int32_t sli_si91x_get_aws_error(int32_t status)
   }
 }
 
-int32_t _iot_tls_verify_cert(void *data, int *crt, int depth, uint32_t *flags)
+int32_t _iot_tls_verify_cert(const void *data, const int *crt, int depth, const uint32_t *flags)
 {
   UNUSED_PARAMETER(data);
   UNUSED_PARAMETER(crt);
@@ -127,7 +130,7 @@ IoT_Error_t iot_tls_is_connected(Network *pNetwork)
   return NETWORK_PHYSICAL_LAYER_CONNECTED;
 }
 
-static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port)
+static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, const sl_ip_address_t *addr, int dst_port, int src_port)
 {
   int32_t status  =0;
 #ifdef SLI_SI91X_ENABLE_IPV6
@@ -145,9 +148,9 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
   struct sockaddr_in server_addr   = { 0 };
   uint32_t socket_length = sizeof(struct sockaddr_in);
   client_addr.sin_family = AF_INET;
-  client_addr.sin_port   = src_port;
+  client_addr.sin_port   = (uint16_t)src_port;
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port   = dst_port;
+  server_addr.sin_port   = (uint16_t)dst_port;
   memcpy(&server_addr.sin_addr.s_addr, &addr->ip.v4.value, SL_IPV4_ADDRESS_LENGTH);
   n->socket_id = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
@@ -169,7 +172,7 @@ static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_addre
       int socket_return_value = 0;
 
       // Calculate the length of the ALPN data
-      uint16_t alpn_length = (uint16_t)strlen(ALPN_AMZN_MQTT_CA);
+      uint16_t alpn_length = (uint16_t)sl_strlen(ALPN_AMZN_MQTT_CA);
 
       // Allocate memory for the sl_si91x_socket_type_length_value_t structure
       sl_si91x_socket_type_length_value_t *alpn_value =
@@ -251,7 +254,7 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
   }
 
   status = sli_si91x_ConnecttoNetwork(pNetwork,
-						               	(TLS_SOCKET),
+						               	TLS_SOCKET,
                             &dns_query_response,
                             pNetwork->tlsConnectParams.DestinationPort,
                             CLIENT_PORT);

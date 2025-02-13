@@ -89,9 +89,9 @@ int32_t rsi_ble_dual_role(void);
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 1 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 1 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
@@ -1383,7 +1383,7 @@ void rsi_ble_main_app_task(void)
     LOG_PRINT("\n FILL USER config successful \n");
   }
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);

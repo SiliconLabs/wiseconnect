@@ -76,6 +76,26 @@ Open `app.c` file and configure the following parameters accordingly
 
 - After filling the appropriate **sl_si91x_aes_config_t** configuration, `sl_si91x_aes()` stores the output in the provided encrypted_buffer/decrypted_buffer. 
 
+- To enable AES multipart support, set the macro USE_MULTIPART to 1.
+
+```c
+#define USE_MULTIPART    1
+```
+- This AES multipart demonstrates how to split the encryption and decryption process into multiple chunks and handle each chunk separately. 
+
+- The function `sl_si91x_aes_multipart()` is used to perform AES encryption or decryption on large messages by splitting them into smaller chunks. The function allows you to define the size of each chunk by chunk_len bytes.
+
+  chunk_len: Specifies the number of bytes per chunk.
+  aes_flags: The flags (BIT(0), BIT(1), BIT(2)) indicate whether the chunk is the first, middle, or last chunk in the sequence respectively.
+
+- In AES multipart operation, data must be transmitted in 16-byte aligned chunks. Padding should not be applied to the first and middle chunks to preserve the original message. If the final chunk is not 16 bytes aligned, padding should only be added to the final chunk only.
+
+- In Multipart API, while sending less than or equal to 1408 bytes of data to the NWP in a single transmission, the user should include both the first and last chunks in the AES flags.
+
+- Multipart support will not be avilable in the event of power loss. Operations will need to restart from the beginning.
+
+- When the user sends data by setting the first chunk, NWP treats it as the start of the data.
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -92,3 +112,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Application Output
 
 ![AES Output](resources/readme/output.png)
+
+Multipart AES:
+
+![Multipart AES Output](resources/readme/multipart_output.png)

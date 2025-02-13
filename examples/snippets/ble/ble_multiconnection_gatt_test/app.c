@@ -49,7 +49,7 @@
 #include "ble_device_info.h"
 #include "FreeRTOSConfig.h"
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 #define PSP_MODE RSI_SLEEP_MODE_2
 #define PSP_TYPE RSI_MAX_PSP
 extern volatile uint32_t ble_app_event_task_map[TOTAL_CONNECTIONS];
@@ -141,7 +141,7 @@ const osThreadAttr_t thread_attributes = {
 //   ! PROCEDURES
 /*=======================================================================*/
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 /*==============================================*/
 /**
  * @fn         rsi_initiate_power_save
@@ -204,7 +204,7 @@ int32_t rsi_initiate_power_awake(void)
   LOG_PRINT("\r\n Module is in power awake \r\n");
   return status;
 }
-#endif // #if ENABLE_POWER_SAVE
+#endif // #if ENABLE_NWP_POWER_SAVE
 
 /*==============================================*/
 /**

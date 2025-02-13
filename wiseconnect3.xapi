@@ -178,12 +178,12 @@
             </description>
             <enum name="interface_client" value="0x08" title="Client Interface">
                 <description>
-                    Wi-Fi Client Interface (not currently supported).
+                    Wi-Fi Client Interface.
                 </description>
             </enum>
             <enum name="interface_ap" value="0x10" title="Access Point Interface">
                 <description>
-                    Wi-Fi Access Point Interface. This is the only currently supported interface for network operations.
+                    Wi-Fi Access Point Interface.
                 </description>
             </enum>
             <enum name="interface_ethernet" value="0x18" title="Ethernet Interface">
@@ -2451,6 +2451,58 @@
                 <param name="result" type="errorcode">
                     <description>
                         Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+    </class>
+    <class name="common" index="0x01" title="common">
+        <command name="get_firmware_version" index="0x00">
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command
+                    </description>
+                </param>
+                <param name="chip_id" type="uint8">
+                    <description>
+                        Chip ID
+                    </description>
+                </param>
+                <param name="rom_id" type="uint8">
+                    <description>
+                        ROM ID
+                    </description>
+                </param>
+                <param name="major" type="uint8">
+                    <description>
+                        Major Version Number
+                    </description>
+                </param>
+                <param name="minor" type="uint8">
+                    <description>
+                        Minor version Number
+                    </description>
+                </param>
+                <param name="security_version" type="uint8">
+                    <description>
+                        Security Version
+                    </description>
+                </param>
+                <param name="patch_num" type="uint8">
+                    <description>
+                        Patch Number
+                    </description>
+                </param>
+                <param name="customer_id" type="uint8">
+                    <description>
+                        Customer ID
+                    </description>
+                </param>
+                <param name="build_num" type="uint16">
+                    <description>
+                        Build Number
                     </description>
                 </param>
             </returns>

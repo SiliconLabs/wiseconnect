@@ -38,8 +38,8 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
-                                          uint8_t *data,
+static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
+                                          const uint8_t *data,
                                           uint16_t chunk_length,
                                           uint32_t total_length,
                                           uint8_t hmac_sha_flags,
@@ -47,16 +47,16 @@ static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
 {
   sl_status_t status                   = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer             = NULL;
-  sl_si91x_packet_t *packet            = NULL;
+  const sl_si91x_packet_t *packet      = NULL;
   sl_si91x_hmac_sha_request_t *request = (sl_si91x_hmac_sha_request_t *)malloc(sizeof(sl_si91x_hmac_sha_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
   memset(request, 0, sizeof(sl_si91x_hmac_sha_request_t));
 
   request->algorithm_type       = HMAC_SHA;
-  request->algorithm_sub_type   = config->hmac_mode;
+  request->algorithm_sub_type   = (uint8_t)config->hmac_mode;
   request->hmac_sha_flags       = hmac_sha_flags;
-  request->total_length         = total_length;
+  request->total_length         = (uint16_t)total_length;
   request->current_chunk_length = chunk_length;
   memcpy(request->hmac_data, data, chunk_length);
 
@@ -139,7 +139,7 @@ static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
 
 #endif
 
-sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
+sl_status_t sl_si91x_hmac(const sl_si91x_hmac_config_t *config, uint8_t *output)
 {
   uint32_t total_length  = 0;
   uint16_t chunk_len     = 0;
@@ -200,7 +200,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
         hmac_sha_flags = MIDDLE_CHUNK;
       }
     } else {
-      chunk_len = total_length;
+      chunk_len = (uint16_t)total_length;
 
       // Make hmac_sha_flag as Last chunk
       hmac_sha_flags = LAST_CHUNK;

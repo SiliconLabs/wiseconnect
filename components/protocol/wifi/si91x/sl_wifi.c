@@ -41,6 +41,7 @@
 #endif
 #include <stdint.h>
 #include <string.h>
+#include <sl_string.h>
 
 #ifndef SL_NCP_DEFAULT_COMMAND_WAIT_TIME
 #define SL_NCP_DEFAULT_COMMAND_WAIT_TIME 3000
@@ -118,18 +119,20 @@ extern rsi_m4ta_desc_t crypto_desc[2];
 /*========================================================================*/
 // 11ax params
 /*========================================================================*/
-#define NOMINAL_PE                              2
-#define DCM_ENABLE                              0
-#define LDPC_ENABLE                             0
-#define NG_CB_ENABLE                            0
-#define NG_CB_VALUES                            0
-#define UORA_ENABLE                             0
-#define TRIGGER_RESP_IND                        0xF
-#define IPPS_VALID_VALUE                        0
-#define TX_ONLY_ON_AP_TRIG                      0
-#define CONFIG_ER_SU                            0 // 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
-#define SLI_SI91X_ENABLE_TWT_FEATURE            1
-#define SLI_SI91X_DISABLE_SU_BEAMFORMEE_SUPPORT 0
+#define NOMINAL_PE                        2
+#define DCM_ENABLE                        0
+#define LDPC_ENABLE                       0
+#define NG_CB_ENABLE                      0
+#define NG_CB_VALUES                      0
+#define UORA_ENABLE                       0
+#define TRIGGER_RESP_IND                  0xF
+#define IPPS_VALID_VALUE                  0
+#define TX_ONLY_ON_AP_TRIG                0
+#define CONFIG_ER_SU                      0 // 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
+#define SLI_SI91X_ENABLE_TWT_FEATURE      1
+#define SLI_ENABLE_BEAMFORMEE_SUPPORT     0
+#define SLI_DISABLE_SU_BEAMFORMEE_SUPPORT 1
+#define SLI_DISABLE_MU_BEAMFORMEE_SUPPORT 2
 /*=======================================================================*/
 extern bool device_initialized;
 extern bool bg_enabled;
@@ -162,14 +165,14 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     status = sl_si91x_get_join_configuration(SL_WIFI_CLIENT_INTERFACE, &(join_request->join_feature_bitmap));
     VERIFY_STATUS_AND_RETURN(status);
 
-    sl_wifi_client_configuration_t *client_configuration = (sl_wifi_client_configuration_t *)configuration;
+    const sl_wifi_client_configuration_t *client_configuration = (const sl_wifi_client_configuration_t *)configuration;
 
     // narrowing conversion from Enum of uint16 to uint8
     get_saved_sl_wifi_rate(&join_request->data_rate);
     memcpy(join_request->ssid, client_configuration->ssid.value, client_configuration->ssid.length);
 
     join_request->ssid_len      = client_configuration->ssid.length;
-    join_request->security_type = client_configuration->security;
+    join_request->security_type = (uint8_t)client_configuration->security;
     if ((join_request->security_type == SL_WIFI_WPA3)
         || (join_request->security_type == SL_WIFI_WPA3_ENTERPRISE)) { //check for WPA3 security
       join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
@@ -191,13 +194,13 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     status = sl_si91x_get_join_configuration(SL_WIFI_AP_INTERFACE, &(join_request->join_feature_bitmap));
     VERIFY_STATUS_AND_RETURN(status);
 
-    sl_wifi_ap_configuration_t *ap_configuration = (sl_wifi_ap_configuration_t *)configuration;
+    const sl_wifi_ap_configuration_t *ap_configuration = (const sl_wifi_ap_configuration_t *)configuration;
 
     get_saved_sl_wifi_rate(&join_request->data_rate);
     memcpy(join_request->ssid, ap_configuration->ssid.value, ap_configuration->ssid.length);
 
     join_request->ssid_len      = ap_configuration->ssid.length;
-    join_request->security_type = ap_configuration->security;
+    join_request->security_type = (uint8_t)ap_configuration->security;
     join_request->vap_id        = 0;
     if (join_request->security_type == SL_WIFI_WPA3) { //check for WPA3 security
       join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
@@ -218,7 +221,7 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
   /* Within the 1-byte 'power_level' variable, bit 0 and bit 1 are allocated for encoding power level thresholds(low, mid, high).
    * The Most Significant Bit serves as an indicator for toggling between absolute power value representation.
    * When the MSB is set, the 'power_level' variable encodes the absolute power value using bits 2 through 6. */
-  join_request->power_level = (wifi_max_tx_power.join_tx_power << 2) | ABSOLUTE_POWER_VALUE_TOGGLE;
+  join_request->power_level = (uint8_t)((wifi_max_tx_power.join_tx_power << 2) | ABSOLUTE_POWER_VALUE_TOGGLE);
 
   return SL_STATUS_OK;
 }
@@ -370,6 +373,10 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
 {
   sl_status_t status = SL_STATUS_FAIL;
 
+  // if ((interface & SL_WIFI_5GHZ_INTERFACE) || (interface & SL_WIFI_DUAL_INTERFACE)) {
+  //   return SL_STATUS_NOT_SUPPORTED;
+  // }
+
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
   }
@@ -413,7 +420,7 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
     sl_wifi_max_tx_power_t wifi_max_tx_power = get_max_tx_power();
     // Within the 1-byte scan_feature_bimap variable, last 5 bits(bit 3 through bit 7) are allocated for
     // encoding the transmit power during scan procedure.
-    scan_request.scan_feature_bitmap = (wifi_max_tx_power.scan_tx_power << 3);
+    scan_request.scan_feature_bitmap = (uint8_t)(wifi_max_tx_power.scan_tx_power << 3);
 
     // Enable Quick Scan, if SSID and channel are available
     // Quick Scan is disabled, if channel is 0
@@ -422,8 +429,8 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
     }
 
     if (advanced_scan_configuration.active_channel_time != SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME) {
-      sl_status_t status = sl_si91x_configure_timeout(SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT,
-                                                      advanced_scan_configuration.active_channel_time);
+      status = sl_si91x_configure_timeout(SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT,
+                                          advanced_scan_configuration.active_channel_time);
       VERIFY_STATUS_AND_RETURN(status);
     }
 
@@ -448,7 +455,7 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
     scan_request.active_scan_duration     = advanced_scan_configuration.active_channel_time;
     scan_request.bgscan_periodicity       = (uint16_t)configuration->periodic_scan_interval;
     scan_request.rssi_tolerance_threshold = (uint16_t)advanced_scan_configuration.trigger_level_change;
-    scan_request.bgscan_threshold         = -1 * advanced_scan_configuration.trigger_level;
+    scan_request.bgscan_threshold         = (uint16_t)(-1 * advanced_scan_configuration.trigger_level);
     scan_request.multi_probe              = advanced_scan_configuration.enable_multi_probe;
 
     status = sl_si91x_driver_send_command(RSI_WLAN_REQ_BG_SCAN,
@@ -479,7 +486,7 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
   sl_si91x_req_eap_config_t eap_req = { 0 };
   sl_si91x_join_request_t join_request;
   sl_wifi_buffer_t *buffer         = NULL;
-  sl_si91x_packet_t *packet        = NULL;
+  const sl_si91x_packet_t *packet  = NULL;
   sl_si91x_req_scan_t scan_request = { 0 };
   uint8_t uid_len                  = 0;
   uint8_t psk_len                  = 0;
@@ -524,10 +531,10 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
   sl_wifi_max_tx_power_t wifi_max_tx_power = get_max_tx_power();
   // Within the 1-byte scan_feature_bimap variable, last 5 bits(bit 3 through bit 7) are allocated for
   // encoding the transmit power during scan procedure.
-  scan_request.scan_feature_bitmap = (wifi_max_tx_power.scan_tx_power << 3);
+  scan_request.scan_feature_bitmap = (uint8_t)(wifi_max_tx_power.scan_tx_power << 3);
 
   if (advanced_scan_configuration.active_channel_time != SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME) {
-    sl_status_t status =
+    status =
       sl_si91x_configure_timeout(SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT, advanced_scan_configuration.active_channel_time);
     VERIFY_STATUS_AND_RETURN(status);
   }
@@ -552,38 +559,46 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
 
     memcpy(&(eap_req.user_identity[1]), cred.eap.username, 63);
     memcpy(&(eap_req.password[1]), cred.eap.password, 127);
-    uid_len                            = strlen((char *)eap_req.user_identity);
-    psk_len                            = strlen((char *)eap_req.password);
+    uid_len                            = (uint8_t)sl_strnlen((char *)eap_req.user_identity, 64);
+    psk_len                            = (uint8_t)sl_strnlen((char *)eap_req.password, 128);
     eap_req.user_identity[uid_len]     = '"';
     eap_req.password[psk_len]          = '"';
     eap_req.user_identity[uid_len + 1] = 0;
     eap_req.password[psk_len + 1]      = 0;
 
     // copy enterprise configuration data
-    if (SL_WIFI_EAP_TLS_ENCRYPTION == ap->encryption) {
-      strcpy((char *)eap_req.eap_method, SL_EAP_TLS_METHOD);
-    } else if (SL_WIFI_EAP_TTLS_ENCRYPTION == ap->encryption) {
-      strcpy((char *)eap_req.eap_method, SL_EAP_TTLS_METHOD);
-    } else if (SL_WIFI_EAP_FAST_ENCRYPTION == ap->encryption) {
-      strcpy((char *)eap_req.eap_method, SL_EAP_FAST_METHOD);
-    } else if (SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION == ap->encryption) {
-      strcpy((char *)eap_req.eap_method, SL_EAP_PEAP_METHOD);
-    } else if (SL_WIFI_EAP_LEAP_ENCRYPTION == ap->encryption) {
-      strcpy((char *)eap_req.eap_method, SL_EAP_LEAP_METHOD);
+    if ((SL_WIFI_EAP_TLS_ENCRYPTION == ap->encryption) && (sizeof(eap_req.eap_method) > sl_strlen(SL_EAP_TLS_METHOD))) {
+      memcpy(eap_req.eap_method, SL_EAP_TLS_METHOD, sl_strlen(SL_EAP_TLS_METHOD));
+    } else if ((SL_WIFI_EAP_TTLS_ENCRYPTION == ap->encryption)
+               && (sizeof(eap_req.eap_method) > sl_strlen(SL_EAP_TTLS_METHOD))) {
+      memcpy(eap_req.eap_method, SL_EAP_TTLS_METHOD, sl_strlen(SL_EAP_TTLS_METHOD));
+    } else if ((SL_WIFI_EAP_FAST_ENCRYPTION == ap->encryption)
+               && (sizeof(eap_req.eap_method) > sl_strlen(SL_EAP_FAST_METHOD))) {
+      memcpy(eap_req.eap_method, SL_EAP_FAST_METHOD, sl_strlen(SL_EAP_FAST_METHOD));
+    } else if ((SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION == ap->encryption)
+               && (sizeof(eap_req.eap_method) > sl_strlen(SL_EAP_PEAP_METHOD))) {
+      memcpy(eap_req.eap_method, SL_EAP_PEAP_METHOD, sl_strlen(SL_EAP_PEAP_METHOD));
+    } else if ((SL_WIFI_EAP_LEAP_ENCRYPTION == ap->encryption)
+               && (sizeof(eap_req.eap_method) > sl_strlen(SL_EAP_LEAP_METHOD))) {
+      memcpy(eap_req.eap_method, SL_EAP_LEAP_METHOD, sl_strlen(SL_EAP_LEAP_METHOD));
     } else {
       return SL_STATUS_WIFI_INVALID_ENCRYPTION_METHOD;
     }
 
-    strcpy((char *)eap_req.inner_method, SL_EAP_INNER_METHOD);
+    if (sizeof(eap_req.inner_method) > sl_strlen(SL_EAP_INNER_METHOD)) {
+      memcpy(eap_req.inner_method, SL_EAP_INNER_METHOD, sl_strlen(SL_EAP_INNER_METHOD));
+    }
     memcpy(eap_req.okc_enable, &cred.eap.eap_flags, sizeof(cred.eap.eap_flags));
 
-    key_len = strlen((const char *)cred.eap.certificate_key);
-    if ((key_len > 0)) {
+    key_len = (uint8_t)sl_strnlen((char *)cred.eap.certificate_key, SL_WIFI_EAP_CERTIFICATE_KEY_LENGTH);
+    if (key_len > 0) {
       eap_req.private_key_password[0] = '"';
-      strcpy((char *)eap_req.private_key_password, (const char *)cred.eap.certificate_key);
+      if (sizeof(eap_req.private_key_password) > sizeof(cred.eap.certificate_key)) {
+        memcpy(eap_req.private_key_password, cred.eap.certificate_key, sizeof(cred.eap.certificate_key));
+      }
       eap_req.private_key_password[key_len + 1] = '"';
-    } else {
-      strcpy((char *)eap_req.private_key_password, SL_DEFAULT_PRIVATE_KEY_PASSWORD);
+    } else if (sizeof(eap_req.private_key_password) > sl_strlen(SL_DEFAULT_PRIVATE_KEY_PASSWORD)) {
+      memcpy(eap_req.private_key_password, SL_DEFAULT_PRIVATE_KEY_PASSWORD, sl_strlen(SL_DEFAULT_PRIVATE_KEY_PASSWORD));
     }
 
     status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EAP_CONFIG,
@@ -730,8 +745,8 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  *rssi                     = -(packet->data[0]);
+  const sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  *rssi                           = -(packet->data[0]);
   sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;
 }
@@ -767,7 +782,7 @@ sl_status_t sl_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  const sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(tsf, packet->data, packet->length);
   sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;
@@ -813,7 +828,7 @@ sl_status_t sl_wifi_get_mac_address(sl_wifi_interface_t interface, sl_mac_addres
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  const sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   if (packet->length > 0) {
     // In Concurrent mode, for Client Interface, mac address will be at offset 0
     uint8_t mac_address_offset = 0;
@@ -855,9 +870,11 @@ sl_status_t sl_wifi_get_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
     return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
-  if ((interface == SL_WIFI_CLIENT_2_4GHZ_INTERFACE) || (interface == SL_WIFI_CLIENT_5GHZ_INTERFACE))
+  if ((interface == SL_WIFI_CLIENT_2_4GHZ_INTERFACE) || (interface == SL_WIFI_CLIENT_5GHZ_INTERFACE)
+      || (interface == SL_WIFI_CLIENT_DUAL_INTERFACE))
     command = RSI_WLAN_REQ_QUERY_NETWORK_PARAMS;
-  else if ((interface == SL_WIFI_AP_2_4GHZ_INTERFACE) || (interface == SL_WIFI_AP_5GHZ_INTERFACE))
+  else if ((interface == SL_WIFI_AP_2_4GHZ_INTERFACE) || (interface == SL_WIFI_AP_5GHZ_INTERFACE)
+           || (interface == SL_WIFI_AP_DUAL_INTERFACE))
     command = RSI_WLAN_REQ_QUERY_GO_PARAMS;
 
   status = sl_si91x_driver_send_command(command,
@@ -876,13 +893,33 @@ sl_status_t sl_wifi_get_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
 
   switch (interface) {
     case SL_WIFI_CLIENT_2_4GHZ_INTERFACE: {
-      channel_info->channel = ((sl_si91x_network_params_response_t *)packet->data)->channel_number;
+      channel_info->channel = ((sli_si91x_network_params_response_t *)packet->data)->channel_number;
       channel_info->band    = SL_WIFI_BAND_2_4GHZ;
+      break;
+    }
+    case SL_WIFI_CLIENT_5GHZ_INTERFACE: {
+      channel_info->channel = ((sli_si91x_network_params_response_t *)packet->data)->channel_number;
+      channel_info->band    = SL_WIFI_BAND_5GHZ;
+      break;
+    }
+    case SL_WIFI_CLIENT_DUAL_INTERFACE: {
+      channel_info->channel = ((sli_si91x_network_params_response_t *)packet->data)->channel_number;
+      channel_info->band    = SL_WIFI_BAND_DUAL;
       break;
     }
     case SL_WIFI_AP_2_4GHZ_INTERFACE: {
       memcpy(&channel_info->channel, ((sl_si91x_client_info_response *)packet->data)->channel_number, 2);
       channel_info->band = SL_WIFI_BAND_2_4GHZ;
+      break;
+    }
+    case SL_WIFI_AP_5GHZ_INTERFACE: {
+      memcpy(&channel_info->channel, ((sl_si91x_client_info_response *)packet->data)->channel_number, 2);
+      channel_info->band = SL_WIFI_BAND_5GHZ;
+      break;
+    }
+    case SL_WIFI_AP_DUAL_INTERFACE: {
+      memcpy(&channel_info->channel, ((sl_si91x_client_info_response *)packet->data)->channel_number, 2);
+      channel_info->band = SL_WIFI_BAND_DUAL;
       break;
     }
     default:
@@ -938,19 +975,19 @@ sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_
 
 sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_configuration_t *configuration)
 {
-  sl_status_t status                   = SL_STATUS_OK;
-  sl_wifi_buffer_t *rx_buffer          = NULL;
-  sl_si91x_packet_t *join_response     = NULL;
-  sl_si91x_ap_config_request request   = { 0 };
-  sl_si91x_join_request_t join_request = { 0 };
-  sl_wifi_credential_t cred            = { 0 };
+  sl_status_t status                     = SL_STATUS_OK;
+  sl_wifi_buffer_t *rx_buffer            = NULL;
+  const sl_si91x_packet_t *join_response = NULL;
+  sl_si91x_ap_config_request request     = { 0 };
+  sl_si91x_join_request_t join_request   = { 0 };
+  sl_wifi_credential_t cred              = { 0 };
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
   }
 
   memcpy(request.ssid, configuration->ssid.value, configuration->ssid.length);
-  request.security_type = configuration->security;
+  request.security_type = (uint8_t)configuration->security;
 
   //This encryption convertions is only required in access point mode
   status = convert_sl_wifi_to_sl_si91x_encryption(configuration->encryption, &request.encryption_mode);
@@ -963,7 +1000,7 @@ sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_con
   status = sl_si91x_host_get_credentials(configuration->credential_id, SL_WIFI_PSK_CREDENTIAL, &cred);
   VERIFY_STATUS_AND_RETURN(status);
 
-  memcpy(request.psk, cred.psk.value, sizeof(request.psk));
+  memcpy(request.psk, cred.psk.value, sizeof(cred.psk.value));
 
   request.channel         = configuration->channel.channel;
   request.beacon_interval = configuration->beacon_interval;
@@ -971,7 +1008,7 @@ sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_con
   request.max_sta_support = configuration->maximum_clients;
   if (configuration->keepalive_type) {
     request.ap_keepalive_type   = configuration->keepalive_type;
-    request.ap_keepalive_period = configuration->client_idle_timeout;
+    request.ap_keepalive_period = (uint8_t)configuration->client_idle_timeout;
   }
   if (configuration->beacon_stop) {
     // Using a free bit in ap_keepalive_type since there are no available bits in join feature bitmap.
@@ -1019,10 +1056,12 @@ sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_con
   }
 
   save_ap_configuration(configuration);
-  if (interface == SL_WIFI_AP_2_4GHZ_INTERFACE || interface == SL_WIFI_AP_INTERFACE)
-    interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] = true;
+  if (interface == SL_WIFI_AP_DUAL_INTERFACE)
+    interface_is_up[SL_WIFI_AP_DUAL_INTERFACE_INDEX] = true;
   else if (interface == SL_WIFI_AP_5GHZ_INTERFACE)
     interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX] = true;
+  else if (interface == SL_WIFI_AP_2_4GHZ_INTERFACE)
+    interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] = true;
 
   sl_si91x_host_free_buffer(rx_buffer);
   return SL_STATUS_OK;
@@ -1044,7 +1083,7 @@ sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
   }
 
   pairwise_master_key_request.type = type;
-  memcpy(pairwise_master_key_request.psk_or_pmk, pre_shared_key, strlen(pre_shared_key));
+  memcpy(pairwise_master_key_request.psk_or_pmk, pre_shared_key, sl_strlen((char *)pre_shared_key));
   memcpy(pairwise_master_key_request.ap_ssid, ssid->value, ssid->length);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HOST_PSK,
@@ -1059,7 +1098,7 @@ sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  const sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(pairwise_master_key, packet->data, packet->length);
   sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;
@@ -1071,24 +1110,6 @@ sl_status_t sl_wifi_get_associated_client_list(void *client_list_buffer, uint16_
   UNUSED_PARAMETER(buffer_length);
   UNUSED_PARAMETER(timeout);
   return SL_STATUS_NOT_SUPPORTED;
-  // sl_status_t status;
-  // sl_wifi_buffer_t *buffer;
-
-  // status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_GO_PARAMS,
-  //                                       SI91X_WLAN_CMD,
-  //                                       NULL,
-  //                                       0,
-  //                                       SL_SI91X_WAIT_FOR_RESPONSE(10000),
-  //                                       NULL,
-  //                                       &buffer);
-  // if (status == SL_STATUS_OK) {
-  //   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  //       //  si91x_go_parameters_t* data = &packet->data;
-  //   // Process data here
-
-  //   sl_si91x_host_free_buffer(buffer);
-  // }
-  // return status;
 }
 
 sl_status_t sl_wifi_disconnect_ap_client(sl_wifi_interface_t interface,
@@ -1209,7 +1230,7 @@ sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info)
 
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
-  memset((sl_si91x_rsp_wireless_info_t *)info, 0, sizeof(sl_si91x_rsp_wireless_info_t));
+  memset(info, 0, sizeof(sl_si91x_rsp_wireless_info_t));
 
   //In AP mode, receives a buffer equivalent to sl_si91x_client_info_response.
   if (packet->length > 0 && get_opermode() == SL_SI91X_ACCESS_POINT_MODE) {
@@ -1224,10 +1245,10 @@ sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info)
     memcpy(info->ipv4_address, response->ipv4_address, 4);
     memcpy(info->ipv6_address, response->ipv6_address, 16);
   }
-  //In Client mode, receives a buffer equivalent to sl_si91x_network_params_response_t.
+  //In Client mode, receives a buffer equivalent to sli_si91x_network_params_response_t.
   else if (packet->length > 0
            && ((get_opermode() == SL_SI91X_CLIENT_MODE) || (get_opermode() == SL_SI91X_ENTERPRISE_CLIENT_MODE))) {
-    sl_si91x_network_params_response_t *response = (sl_si91x_network_params_response_t *)packet->data;
+    sli_si91x_network_params_response_t *response = (sli_si91x_network_params_response_t *)packet->data;
     memcpy(&info->wlan_state, (uint16_t *)&response->wlan_state, sizeof(uint8_t));
     memcpy((uint8_t *)&info->channel_number, &response->channel_number, sizeof(uint8_t));
     memcpy(info->ssid, response->ssid, MIN(sizeof(info->ssid), sizeof(response->ssid)));
@@ -1237,6 +1258,7 @@ sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info)
     memcpy(info->psk_pmk, response->psk, 64);
     memcpy(info->ipv4_address, response->ipv4_address, 4);
     memcpy(info->ipv6_address, response->ipv6_address, 16);
+    memcpy(info->bssid, response->bssid, 6);
   }
 
   sl_si91x_host_free_buffer(buffer);
@@ -1315,10 +1337,12 @@ sl_status_t sl_wifi_stop_ap(sl_wifi_interface_t interface)
   VERIFY_STATUS_AND_RETURN(status);
 
   reset_ap_configuration();
-  if (interface == SL_WIFI_AP_2_4GHZ_INTERFACE || interface == SL_WIFI_AP_INTERFACE)
-    interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] = false;
+  if (interface == SL_WIFI_AP_DUAL_INTERFACE)
+    interface_is_up[SL_WIFI_AP_DUAL_INTERFACE_INDEX] = false;
   else if (interface == SL_WIFI_AP_5GHZ_INTERFACE)
     interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX] = false;
+  else if (interface == SL_WIFI_AP_2_4GHZ_INTERFACE)
+    interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] = false;
 
   return status;
 }
@@ -1327,7 +1351,7 @@ sl_status_t sl_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statis
 {
   sl_status_t status       = SL_STATUS_OK;
   sl_wifi_buffer_t *buffer = NULL;
-  sl_si91x_packet_t *packet;
+  const sl_si91x_packet_t *packet;
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -1371,7 +1395,7 @@ sl_status_t sl_wifi_get_operational_statistics(sl_wifi_interface_t interface,
 {
   sl_status_t status       = SL_STATUS_OK;
   sl_wifi_buffer_t *buffer = NULL;
-  sl_si91x_packet_t *packet;
+  const sl_si91x_packet_t *packet;
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -1549,9 +1573,11 @@ bool sl_wifi_is_interface_up(sl_wifi_interface_t interface)
   switch (interface) {
     case SL_WIFI_CLIENT_INTERFACE:
       return interface_is_up[SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX]
-             | interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX];
+             || interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX]
+             || interface_is_up[SL_WIFI_CLIENT_DUAL_INTERFACE_INDEX];
     case SL_WIFI_AP_INTERFACE:
-      return interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] | interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX];
+      return interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] || interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX]
+             || interface_is_up[SL_WIFI_AP_DUAL_INTERFACE_INDEX];
     case SL_WIFI_CLIENT_2_4GHZ_INTERFACE:
       return interface_is_up[SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX];
     case SL_WIFI_AP_2_4GHZ_INTERFACE:
@@ -1560,15 +1586,23 @@ bool sl_wifi_is_interface_up(sl_wifi_interface_t interface)
       return interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX];
     case SL_WIFI_AP_5GHZ_INTERFACE:
       return interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX];
+    case SL_WIFI_CLIENT_DUAL_INTERFACE:
+      return interface_is_up[SL_WIFI_CLIENT_DUAL_INTERFACE_INDEX];
+    case SL_WIFI_AP_DUAL_INTERFACE:
+      return interface_is_up[SL_WIFI_AP_DUAL_INTERFACE_INDEX];
     case SL_WIFI_2_4GHZ_INTERFACE:
       return interface_is_up[SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX]
-             | interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX];
+             || interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX];
     case SL_WIFI_5GHZ_INTERFACE:
-      return interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX] | interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX];
+      return interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX] || interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX];
+    case SL_WIFI_DUAL_INTERFACE:
+      return interface_is_up[SL_WIFI_CLIENT_DUAL_INTERFACE_INDEX] || interface_is_up[SL_WIFI_AP_DUAL_INTERFACE_INDEX];
     case SL_WIFI_ALL_INTERFACES:
-      return interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX] | interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX]
-             | interface_is_up[SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX]
-             | interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX];
+      return interface_is_up[SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX] || interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX]
+             || interface_is_up[SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX]
+             || interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX]
+             || interface_is_up[SL_WIFI_CLIENT_DUAL_INTERFACE_INDEX]
+             || interface_is_up[SL_WIFI_AP_DUAL_INTERFACE_INDEX];
     case SL_WIFI_TRANSCEIVER_INTERFACE:
       return interface_is_up[SL_WIFI_TRANSCEIVER_INTERFACE_INDEX];
     default:
@@ -1667,7 +1701,7 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
   sl_wifi_rate_t transfer_rate;
   get_saved_sl_wifi_rate(&transfer_rate);
 
-  return get_rate_protocol_and_data_rate(transfer_rate, rate_protocol, mask);
+  return get_rate_protocol_and_data_rate((uint8_t)transfer_rate, rate_protocol, mask);
 }
 
 sl_status_t sl_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t *client_list_count)
@@ -1679,7 +1713,8 @@ sl_status_t sl_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t 
   sl_status_t status = sl_wifi_get_ap_client_info(interface, &client_info);
 
   if (status == SL_STATUS_OK) {
-    memcpy(client_list_count, (uint32_t *)&client_info.client_count, sizeof(uint32_t));
+    *client_list_count = 0;
+    memcpy(client_list_count, (uint32_t *)&client_info.client_count, sizeof(uint8_t));
   }
 
   return status;
@@ -1709,7 +1744,7 @@ sl_status_t sl_wifi_generate_wps_pin(sl_wifi_wps_pin_t *wps_pin)
 {
   sl_status_t status                               = SL_STATUS_OK;
   sl_wifi_buffer_t *buffer                         = NULL;
-  sl_si91x_packet_t *packet                        = NULL;
+  const sl_si91x_packet_t *packet                  = NULL;
   sl_si91x_wps_method_request_t wps_method_request = { 0 };
 
   SL_WIFI_ARGS_CHECK_NULL_POINTER(wps_pin);
@@ -2151,10 +2186,11 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *
 
 sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval)
 {
-  sl_status_t status = SL_STATUS_OK;
 #if !(SLI_SI91X_CONFIG_WIFI6_PARAMS)
+  UNUSED_PARAMETER(guard_interval);
   return SL_STATUS_NOT_SUPPORTED;
-#endif
+#else
+  sl_status_t status                               = SL_STATUS_OK;
   sl_si91x_11ax_config_params_t config_11ax_params = { 0 };
   config_11ax_params.guard_interval                = guard_interval;
   config_11ax_params.nominal_pe                    = NOMINAL_PE;
@@ -2168,7 +2204,7 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval)
   config_11ax_params.tx_only_on_ap_trig            = TX_ONLY_ON_AP_TRIG;
   config_11ax_params.twt_support                   = SLI_SI91X_ENABLE_TWT_FEATURE;
   config_11ax_params.config_er_su                  = CONFIG_ER_SU;
-  config_11ax_params.disable_su_beamformee_support = SLI_SI91X_DISABLE_SU_BEAMFORMEE_SUPPORT;
+  config_11ax_params.beamformee_support            = SLI_ENABLE_BEAMFORMEE_SUPPORT;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_11AX_PARAMS,
                                         SI91X_WLAN_CMD,
@@ -2179,6 +2215,7 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval)
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
+#endif
 }
 
 sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval)
@@ -2259,9 +2296,20 @@ sl_status_t sl_wifi_transceiver_set_channel(sl_wifi_interface_t interface, sl_wi
     return SL_STATUS_TRANSCEIVER_INVALID_CHANNEL;
   }
 
-  // User configuration for band and bandwidth are unsupported
-  channel.chan_info.band      = SL_WIFI_BAND_2_4GHZ;
-  channel.chan_info.bandwidth = SL_WIFI_BANDWIDTH_20MHz;
+  if (interface & SL_WIFI_2_4GHZ_INTERFACE) {
+    channel.chan_info.band      = SL_WIFI_BAND_2_4GHZ;
+    channel.chan_info.bandwidth = SL_WIFI_BANDWIDTH_20MHz;
+  }
+
+  else if (interface & SL_WIFI_5GHZ_INTERFACE) {
+    channel.chan_info.band      = SL_WIFI_BAND_5GHZ;
+    channel.chan_info.bandwidth = SL_WIFI_BANDWIDTH_20MHz;
+  }
+
+  else if (interface & SL_WIFI_DUAL_INTERFACE) {
+    channel.chan_info.band      = SL_WIFI_BAND_DUAL;
+    channel.chan_info.bandwidth = SL_WIFI_BANDWIDTH_20MHz;
+  }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_TRANSCEIVER_CHANNEL,
                                         SI91X_WLAN_CMD,
@@ -2285,7 +2333,7 @@ sl_status_t sl_wifi_set_transceiver_parameters(sl_wifi_interface_t interface, sl
   sl_status_t status                 = SL_STATUS_OK;
   sl_si91x_operation_mode_t opermode = 0;
   sl_wifi_buffer_t *buffer           = NULL;
-  sl_si91x_packet_t *packet          = NULL;
+  const sl_si91x_packet_t *packet    = NULL;
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -2450,10 +2498,8 @@ sl_status_t sl_wifi_send_transceiver_data(sl_wifi_interface_t interface,
   SL_VERIFY_POINTER_OR_RETURN(control, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(payload, SL_STATUS_NULL_POINTER);
 
-  if (IS_FIXED_DATA_RATE(control->ctrl_flags)) {
-    if (validate_datarate(control->rate)) {
-      return SL_STATUS_TRANSCEIVER_INVALID_DATA_RATE;
-    }
+  if ((IS_FIXED_DATA_RATE(control->ctrl_flags)) && (validate_datarate(control->rate))) {
+    return SL_STATUS_TRANSCEIVER_INVALID_DATA_RATE;
   }
 
   status = sl_si91x_driver_send_transceiver_data(control, payload, payload_len, SL_SI91X_WAIT_FOR(1000));

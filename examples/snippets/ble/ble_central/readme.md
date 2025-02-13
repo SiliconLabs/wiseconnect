@@ -99,13 +99,13 @@ User must update the below parameters
       - By default, The Application is configured without power save.
 
    ```c
-       #define ENABLE_POWER_SAVE 0
+       #define ENABLE_NWP_POWER_SAVE 0
    ```
 
    - If user wants to run the application in power save, modify the below configuration.
 
    ```c
-       #define ENABLE_POWER_SAVE 1 
+       #define ENABLE_NWP_POWER_SAVE 1 
    ```
 
    - Following are the event numbers for advertising, connection and disconnection events

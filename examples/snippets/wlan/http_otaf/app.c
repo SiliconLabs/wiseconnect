@@ -335,6 +335,7 @@ void application_start(const void *unused)
         if (status != SL_STATUS_OK) {
           printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
           app_state = WLAN_UNCONNECTED_STATE;
+          break;
         }
         printf("\r\nWi-Fi Client interface up\r\n");
         app_state = WLAN_FIRMWARE_UPDATE;
@@ -383,18 +384,19 @@ void application_start(const void *unused)
 #endif
         printf("\r\nFirmware download from %s is in progress...\r\n", SERVER_NAME);
 
+        sl_si91x_http_otaf_params_t http_params = { 0 };
+
+        http_params.flags           = (uint16_t)flags;
+        http_params.ip_address      = (uint8_t *)server_ip;
+        http_params.port            = (uint16_t)HTTP_PORT;
+        http_params.resource        = (uint8_t *)HTTP_URL;
+        http_params.host_name       = (uint8_t *)hostname;
+        http_params.extended_header = (uint8_t *)HTTP_EXTENDED_HEADER;
+        http_params.user_name       = (uint8_t *)USERNAME;
+        http_params.password        = (uint8_t *)PASSWORD;
+
         //! OTAF firmware upgrade
-        status = sl_si91x_http_otaf(HTTP_OTAF,
-                                    (uint16_t)flags,
-                                    (uint8_t *)server_ip,
-                                    (uint16_t)HTTP_PORT,
-                                    (uint8_t *)HTTP_URL,
-                                    (uint8_t *)hostname,
-                                    (uint8_t *)HTTP_EXTENDED_HEADER,
-                                    (uint8_t *)USERNAME,
-                                    (uint8_t *)PASSWORD,
-                                    NULL,
-                                    0);
+        status = sl_si91x_http_otaf_v2(&http_params);
 
         if (status != SL_STATUS_OK) {
           printf("\r\n Firmware update status = 0x%lX\r\n", status);

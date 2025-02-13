@@ -152,7 +152,7 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
-sl_status_t sl_mdns_remove_interface(sl_mdns_t *mdns, sl_net_interface_t interface);
+sl_status_t sl_mdns_remove_interface(const sl_mdns_t *mdns, sl_net_interface_t interface);
 
 /**
  * @brief
@@ -163,7 +163,7 @@ sl_status_t sl_mdns_remove_interface(sl_mdns_t *mdns, sl_net_interface_t interfa
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
-sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interface, sl_mdns_service_t *service);
+sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interface, const sl_mdns_service_t *service);
 
 /**
  * @brief
@@ -173,7 +173,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
-sl_status_t sl_mdns_unregister_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query);
+sl_status_t sl_mdns_unregister_service(const sl_mdns_t *mdns, const sl_mdns_service_query_t *service_query);
 
 /**
  * @brief
@@ -185,8 +185,8 @@ sl_status_t sl_mdns_unregister_service(sl_mdns_t *mdns, sl_mdns_service_query_t 
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
-sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
-                                           sl_mdns_service_query_t *service_query,
+sl_status_t sl_mdns_update_service_message(const sl_mdns_t *mdns,
+                                           const sl_mdns_service_query_t *service_query,
                                            const char *message,
                                            uint32_t message_length);
 
@@ -198,7 +198,7 @@ sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
-sl_status_t sl_mdns_discover_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query);
+sl_status_t sl_mdns_discover_service(const sl_mdns_t *mdns, const sl_mdns_service_query_t *service_query);
 
 /** @} */
 

@@ -10,10 +10,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.5.0
 requires:
   - name: wiseconnect_toolchain_psram_linker
 source:

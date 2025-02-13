@@ -460,6 +460,7 @@ void sli_si91x_power_manager_init_hardware(void)
   RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP); //Enable Wake-On-Wireless Wakeup source
 #endif
 }
+
 /*******************************************************************************
  * Configures the hardware for low power mode.
  * Disables the components and clocks which are not required.
@@ -484,7 +485,6 @@ void sli_si91x_power_manager_low_power_hw_config(boolean_t is_sleep)
   RSI_PS_SocPllSpiDisable();
   // Power-Down QSPI-DLL Domain
   RSI_PS_QspiDllDomainDisable();
-
   // Enable first boot up
   RSI_PS_EnableFirstBootUp(1);
   // Configure PMU Start-up Time to be used on Wake-up
@@ -651,7 +651,6 @@ static void ps3_to_ps0_state_change(void)
 static void ps2_to_ps4_state_change(void)
 {
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
-
   // Enable 40MHz XTAL clock
   RSI_ULPSS_EnableRefClks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS4,
@@ -701,6 +700,10 @@ static void ps2_to_ps1_state_change(void)
 
     // If any error code, it returns it otherwise goes to sleep with retention.
     trigger_sleep(&config, SLEEP_WITH_RETENTION);
+#if (configUSE_TICKLESS_IDLE == 0)
+    // Enable the NVIC interrupts.
+    __asm volatile("cpsie i" ::: "memory");
+#endif
   }
 }
 

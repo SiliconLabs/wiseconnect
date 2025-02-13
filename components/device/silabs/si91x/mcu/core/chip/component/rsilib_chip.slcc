@@ -37,7 +37,7 @@ include:
     - path: "si91x_mvp.h"
 provides:
   - name: rsilib_chip
-  - name: sl_memory
+  - name: memory_manager_region
     condition: [device_si91x]
 requires:
   - name: systemlevel_ipmu

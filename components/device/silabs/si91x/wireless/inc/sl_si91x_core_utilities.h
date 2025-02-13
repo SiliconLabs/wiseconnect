@@ -196,7 +196,7 @@ sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
  * @return
  *   true if empty; false if not empty.
  *****************************************************************************/
-static inline bool sli_si91x_buffer_queue_empty(sl_si91x_buffer_queue_t *queue)
+static inline bool sli_si91x_buffer_queue_empty(const sl_si91x_buffer_queue_t *queue)
 {
   return (queue->head == NULL);
 }

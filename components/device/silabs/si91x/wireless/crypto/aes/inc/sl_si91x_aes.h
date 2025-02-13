@@ -46,6 +46,21 @@
 #define SL_SI91X_AES_BLOCK_SIZE 16
 
 /**
+ * @brief First chunk of data.
+ */
+#define SL_SI91X_AES_FIRST_CHUNK BIT(0)
+
+/**
+ * @brief Middle chunk of data.
+ */
+#define SL_SI91X_AES_MIDDLE_CHUNK BIT(1)
+
+/**
+ * @brief Last chunk of data.
+ */
+#define SL_SI91X_AES_LAST_CHUNK BIT(2)
+
+/**
  * @brief Enumeration defines the AES modes supported by the SI91X device.
  *
  * This enumeration defines different AES modes supported by the SI91X device,
@@ -151,7 +166,10 @@ typedef struct {
  *   Configuration object of type @ref sl_si91x_aes_config_t
  * @param[out] output 
  *   Buffer to store the output.
- *
+ * @note
+ *   The maximum length of the message in bytes that can be handled in one go is determined by SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES.
+ *   If the message length is not a multiple of SL_SI91X_AES_BLOCK_SIZE, the function returns an error.
+ * 
  * @return
  *   sl_status_t.
  * For more information on status codes, refer to 
@@ -159,4 +177,27 @@ typedef struct {
  ******************************************************************************/
 sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output);
 
+/***************************************************************************/
+/**
+ * @brief 
+ *   Encrypts or decrypts a chunk of a message according to the given configuration. This is a blocking API.
+ * @param[in] config 
+ *   Configuration object of type @ref sl_si91x_aes_config_t containing the AES operation parameters.
+ * @param[in] chunk_length 
+ *   Length of the current chunk to be processed in bytes.
+ * @param[in] aes_flags 
+ *   Flags indicating the position of the current chunk. Valid values are:- @ref SL_SI91X_AES_FIRST_CHUNK, @ref SL_SI91X_AES_MIDDLE_CHUNK, @ref SL_SI91X_AES_LAST_CHUNK.
+ *   Buffer to store the processed output data.
+ * @return
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ * @note
+ *   - The maximum length of the message in bytes that can be handled in one go is determined by SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES.
+ *   - If the message length is not a multiple of SL_SI91X_AES_BLOCK_SIZE, the function returns an error.
+ ******************************************************************************/
+sl_status_t sl_si91x_aes_multipart(const sl_si91x_aes_config_t *config,
+                                   uint16_t chunk_length,
+                                   uint8_t aes_flags,
+                                   uint8_t *output);
 /** @} */

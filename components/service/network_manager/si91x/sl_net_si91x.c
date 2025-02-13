@@ -47,7 +47,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_dns.h"
 
-typedef enum { SLI_SI91X_CLIENT = 0, SLI_SI91X_AP = 1, SLI_SI91X_MAX_INTERFACES } sli_si91x_interfaces_t;
+typedef enum { SLI_SI91X_CLIENT = 0, SLI_SI91X_AP = 1, SLI_SI91X_MAX_INTERFACES = 2 } sli_si91x_interfaces_t;
 
 static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interface,
                                                     const sl_ip_address_t *ip_address,
@@ -56,10 +56,13 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
                                         const uint32_t timeout,
                                         const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
                                         sl_ip_address_t *sl_ip_address);
+static bool sli_si91x_get_dns_mode(const sl_net_dns_address_t *address);
 
 extern bool device_initialized;
 
-static sl_ip_management_t dhcp_type[SLI_SI91X_MAX_INTERFACES] = { 0 };
+static sl_wifi_interface_t nmap_ap_interface_with_band[MAX_NET_AP_INTERFACES]         = { 0 };
+static sl_wifi_interface_t nmap_client_interface_with_band[MAX_NET_CLIENT_INTERFACES] = { 0 };
+static sl_ip_management_t dhcp_type[SLI_SI91X_MAX_INTERFACES]                         = { 0 };
 
 sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
                                     const void *configuration,
@@ -87,34 +90,62 @@ sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 
 sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
 {
-  UNUSED_PARAMETER(interface);
+  //Check whether the Interfaces are valid
+  if (interface != SL_NET_WIFI_CLIENT_1_INTERFACE && interface != SL_NET_WIFI_CLIENT_2_INTERFACE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sl_status_t status;
   sl_net_wifi_client_profile_t profile;
+  sl_wifi_interface_t client_interface = 0;
 
   // Get the client profile using the provided profile_id
-  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
+  status = sl_net_get_profile(interface, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
+  // Configure the client interface based on the band
+  if (profile.config.channel.band == SL_WIFI_BAND_2_4GHZ || profile.config.channel.band == SL_WIFI_AUTO_BAND) {
+    client_interface = SL_WIFI_CLIENT_2_4GHZ_INTERFACE;
+  } else if (profile.config.channel.band == SL_WIFI_BAND_5GHZ) {
+    client_interface = SL_WIFI_CLIENT_5GHZ_INTERFACE;
+  } else if (profile.config.channel.band == SL_WIFI_BAND_DUAL) {
+    client_interface = SL_WIFI_CLIENT_DUAL_INTERFACE;
+  }
+
   // Connect to the Wi-Fi network
-  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 18000);
+  status = sl_wifi_connect(client_interface, &profile.config, 18000);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Configure the IP address settings
-  status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (interface == SL_NET_WIFI_CLIENT_1_INTERFACE) {
+    nmap_client_interface_with_band[0] = client_interface; //Map the Interface with the band
+    status                             = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
+    VERIFY_STATUS_AND_RETURN(status);
+  } else if (interface == SL_NET_WIFI_CLIENT_2_INTERFACE) {
+    nmap_client_interface_with_band[1] = client_interface; //Map the Interface with the band
+    status                             = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID_1);
+    VERIFY_STATUS_AND_RETURN(status);
+  }
   dhcp_type[SLI_SI91X_CLIENT] = profile.ip.mode;
 
   // Set the client profile
-  status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
+  status = sl_net_set_profile(interface, profile_id, &profile);
   return status;
 }
 
 sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
 {
-  UNUSED_PARAMETER(interface);
+  //Check whether the Interfaces are valid
+  if (interface != SL_NET_WIFI_CLIENT_1_INTERFACE && interface != SL_NET_WIFI_CLIENT_2_INTERFACE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sl_wifi_interface_t client_interface = (interface == SL_NET_WIFI_CLIENT_1_INTERFACE)
+                                           ? nmap_client_interface_with_band[0]
+                                           : nmap_client_interface_with_band[1];
 
   // Disconnect from the Wi-Fi network
-  return sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
+  return sl_wifi_disconnect(client_interface);
 }
 
 sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
@@ -142,11 +173,15 @@ sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface)
 
 sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
 {
-  UNUSED_PARAMETER(interface);
+  //Check whether the Interfaces are valid
+  if (interface != SL_NET_WIFI_AP_1_INTERFACE && interface != SL_NET_WIFI_AP_2_INTERFACE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
   sl_status_t status;
   sl_net_wifi_ap_profile_t profile;
+  sl_wifi_interface_t ap_interface = 0;
 
-  status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
+  status = sl_net_get_profile(interface, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Validate if profile configuration is valid
@@ -155,15 +190,35 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
   if (profile.ip.mode != SL_IP_MANAGEMENT_STATIC_IP) {
     return SL_STATUS_INVALID_CONFIGURATION;
   }
-  status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_AP_VAP_ID);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (interface == SL_NET_WIFI_AP_1_INTERFACE) {
+    status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_AP_VAP_ID);
+    VERIFY_STATUS_AND_RETURN(status);
+  } else if (interface == SL_NET_WIFI_AP_2_INTERFACE) {
+    status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_AP_VAP_ID_1);
+    VERIFY_STATUS_AND_RETURN(status);
+  }
   dhcp_type[SLI_SI91X_AP] = profile.ip.mode;
 
   // Set the AP profile
-  status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
+  status = sl_net_set_profile(interface, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sl_wifi_start_ap(SL_WIFI_AP_2_4GHZ_INTERFACE, &profile.config);
+  // Configure the ap_interface based on the band
+  if (profile.config.channel.band == SL_WIFI_BAND_2_4GHZ || profile.config.channel.band == SL_WIFI_AUTO_BAND) {
+    ap_interface = SL_WIFI_AP_2_4GHZ_INTERFACE;
+  } else if (profile.config.channel.band == SL_WIFI_BAND_5GHZ) {
+    ap_interface = SL_WIFI_AP_5GHZ_INTERFACE;
+  } else if (profile.config.channel.band == SL_WIFI_BAND_DUAL) {
+    ap_interface = SL_WIFI_AP_DUAL_INTERFACE;
+  }
+  // Map the AP Interface with band
+  if (interface == SL_NET_WIFI_AP_1_INTERFACE) {
+    nmap_ap_interface_with_band[0] = ap_interface;
+  } else if (interface == SL_NET_WIFI_AP_2_INTERFACE) {
+    nmap_ap_interface_with_band[1] = ap_interface;
+  }
+
+  status = sl_wifi_start_ap(ap_interface, &profile.config);
   VERIFY_STATUS_AND_RETURN(status);
 
   return status;
@@ -171,8 +226,15 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
 
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
-  UNUSED_PARAMETER(interface);
-  return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
+  //Check whether the Interfaces are valid
+  if (interface != SL_NET_WIFI_AP_1_INTERFACE && interface != SL_NET_WIFI_AP_2_INTERFACE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sl_wifi_interface_t ap_interface = (interface == SL_NET_WIFI_AP_1_INTERFACE) ? nmap_ap_interface_with_band[0]
+                                                                               : nmap_ap_interface_with_band[1];
+
+  return sl_wifi_stop_ap(ap_interface);
 }
 
 sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
@@ -283,9 +345,7 @@ sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, const sl_net_dns
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  //! Set DNS mode
-  dns_server_add_request.dns_mode[0] =
-    (address->primary_server_address == NULL && address->secondary_server_address == NULL) ? 1 /*dhcp*/ : 0 /*static*/;
+  dns_server_add_request.dns_mode[0] = sli_si91x_get_dns_mode(address);
 
   if (address->primary_server_address && address->primary_server_address->type == SL_IPV4) {
     dns_server_add_request.ip_version[0] = SL_IPV4_VERSION;
@@ -391,4 +451,18 @@ sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_addres
   memcpy(&ip_address->v6.gateway.bytes, (const uint8_t *)ip_config.ip.v6.gateway.bytes, sizeof(sl_ipv6_address_t));
 
   return SL_STATUS_OK;
+}
+
+//! Set DNS mode based on the configuration of primary and secondary server addresses
+static bool sli_si91x_get_dns_mode(const sl_net_dns_address_t *address)
+{
+  bool primary_is_zero = address->primary_server_address == NULL
+                         || sli_si91x_is_ip_address_zero(address->primary_server_address);
+  bool secondary_is_zero = address->secondary_server_address == NULL
+                           || sli_si91x_is_ip_address_zero(address->secondary_server_address);
+  if (primary_is_zero && secondary_is_zero) {
+    return SL_SI91X_DHCP; /* Set to DHCP mode if both addresses are zero or NULL */
+  } else {
+    return SL_SI91X_STATIC; /* Set to static mode if at least one address is non-zero */
+  }
 }

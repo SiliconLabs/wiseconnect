@@ -556,9 +556,7 @@ typedef struct {
 
   uint8_t ipv6_address[16]; ///< Module IPv6 Address
 
-  uint8_t reserved1[2]; ///< Reserved1
-
-  uint8_t reserved2[2]; ///< Reserved2
+  uint8_t bssid[6]; ///< BSSID address of connected AP
 
 } sl_si91x_rsp_wireless_info_t;
 /** @} */
@@ -828,7 +826,10 @@ typedef struct {
 
   /// sockets information array
   sli_sock_info_query_t socket_info[10];
-} sl_si91x_network_params_response_t;
+
+  /// BSSID address of connected AP
+  uint8_t bssid[6];
+} sli_si91x_network_params_response_t;
 #pragma pack()
 
 /// Si91x specific station information
@@ -1297,8 +1298,8 @@ typedef struct {
   uint8_t twt_support;        ///< Enable or Disable TWT. 0 - Disable TWT, 1 - Enable TWT.
   uint8_t
     config_er_su; ///< Extended Range Single User. 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
-  uint8_t disable_su_beamformee_support; ///< Flag indicating whether Single User Beamformee support is disabled.
-                                         /// *        0: Enabled, 1: Disabled.
+  uint8_t beamformee_support; ///< Flag indicating Beamformee support.
+                              /// *        0: Enabled, 1: Disable SU (Single User), 2 : Disable MU (Multi User).
 } sl_si91x_11ax_config_params_t;
 
 /// Si91x specific ram dump
@@ -1963,7 +1964,7 @@ typedef struct {
   uint8_t key[32];
 #endif
   uint8_t IV[16];
-  uint8_t msg[1400];
+  uint8_t msg[1408];
 } sl_si91x_aes_request_t;
 
 typedef struct {
@@ -1973,7 +1974,7 @@ typedef struct {
   uint32_t key_size;
   uint32_t wrap_iv_mode;
   uint8_t wrap_iv[16];
-  uint8_t key_buffer[1400];
+  uint8_t key_buffer[1408];
 } sl_si91x_wrap_key_descriptor_t;
 
 typedef struct {

@@ -47,7 +47,8 @@ sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credent
 static int sli_si91x_check_cred_type(sl_net_credential_type_t type)
 {
   if ((SL_NET_CERTIFICATE == type) || (SL_NET_PUBLIC_KEY == type) || (SL_NET_PRIVATE_KEY == type)
-      || (SL_NET_SIGNING_CERTIFICATE == type) || (SL_NET_PACK_FILE == type)) {
+      || (SL_NET_SIGNING_CERTIFICATE == type) || (SL_NET_PACK_FILE == type) || (SL_NET_TLS_PRIVATE_KEY_CBC_WRAP == type)
+      || (SL_NET_TLS_PRIVATE_KEY_ECB_WRAP == type)) {
     return CRED_TYPE_CERT;
   }
 

@@ -164,9 +164,9 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(socket_info_response);
 
-  sl_status_t status                                 = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer                           = NULL;
-  const sl_si91x_network_params_response_t *response = NULL;
+  sl_status_t status                                  = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer                            = NULL;
+  const sli_si91x_network_params_response_t *response = NULL;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_NETWORK_PARAMS,
                                         SI91X_WLAN_CMD,
@@ -183,7 +183,7 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
   VERIFY_STATUS_AND_RETURN(status);
 
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  response                  = (sl_si91x_network_params_response_t *)packet->data;
+  response                  = (sli_si91x_network_params_response_t *)packet->data;
 
   memcpy(&socket_info_response->number_of_opened_sockets,
          response->num_open_socks,

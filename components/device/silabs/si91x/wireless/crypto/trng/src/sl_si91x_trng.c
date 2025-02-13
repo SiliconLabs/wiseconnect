@@ -64,11 +64,11 @@ static sl_status_t sli_si91x_trng_send_command(sl_si91x_trng_request_t *request,
 }
 #endif
 
-sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
+sl_status_t sl_si91x_trng_init(const sl_si91x_trng_config_t *config, uint32_t *output)
 {
   sl_wifi_buffer_t *buffer = NULL;
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  sl_si91x_packet_t *packet = NULL;
+  const sl_si91x_packet_t *packet = NULL;
 #endif
   sl_status_t status = SL_STATUS_OK;
 
@@ -161,7 +161,7 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
   sl_status_t status;
   sl_wifi_buffer_t *buffer = NULL;
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  sl_si91x_packet_t *packet = NULL;
+  const sl_si91x_packet_t *packet = NULL;
 #endif
 
   if ((trng_key == NULL) || (key_length != TRNG_KEY_SIZE)) {
@@ -278,13 +278,12 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
   return status;
 }
 #if SLI_SI91X_TRNG_DUPLICATE_CHECK
-sl_status_t sl_si91x_duplicate_element(uint32_t *dword, uint32_t length_in_dwords)
+sl_status_t sl_si91x_duplicate_element(const uint32_t *dword, uint32_t length_in_dwords)
 {
   if (length_in_dwords == 0)
     return SL_STATUS_OK;
-  uint32_t i, j;
-  for (i = 0; i < (length_in_dwords - 1); i++) {
-    for (j = i + 1; j < length_in_dwords; j++) {
+  for (uint32_t i = 0; i < (length_in_dwords - 1); i++) {
+    for (uint32_t j = i + 1; j < length_in_dwords; j++) {
       if (dword[i] == dword[j]) {
         return SL_STATUS_TRNG_DUPLICATE_ENTROPY;
       }

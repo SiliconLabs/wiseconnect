@@ -2368,7 +2368,7 @@
 #define RTE_I2C1_SCL_PORT HP
 #define RTE_I2C1_SCL_PIN  70
 #define RTE_I2C1_SCL_MUX  5
-#define RTE_I2C1_SCL_PAD  29
+#define RTE_I2C1_SCL_PAD  28
 #define RTE_I2C1_SCL_REN  6
 #else
 #error "Invalid I2C1_SCL Pin Configuration!"
@@ -2409,7 +2409,7 @@
 #if (I2C1_SCL_LOC == 5)
 #define RTE_I2C1_SCL_PIN (I2C1_SCL_PIN + GPIO_MAX_PIN)
 #define RTE_I2C1_SCL_MUX 5
-#define RTE_I2C1_SCL_PAD 29
+#define RTE_I2C1_SCL_PAD 28
 #define RTE_I2C1_SCL_REN 6
 #endif
 //Pintool data

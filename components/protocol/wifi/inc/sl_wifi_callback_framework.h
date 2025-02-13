@@ -29,7 +29,6 @@
 
 #pragma once
 
-#include "sl_wifi_host_interface.h"
 #include "sl_wifi_device.h" // To access the device specific structs
 #include <stdint.h>
 

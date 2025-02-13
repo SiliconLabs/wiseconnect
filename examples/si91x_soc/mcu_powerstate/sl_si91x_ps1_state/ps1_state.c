@@ -42,8 +42,6 @@ void low_power_configuration(void);
 void ps1_state_init(void)
 {
   sl_status_t status;
-  // Reduces the RETN_LDO voltage by 0.05V.
-  RSI_IPMU_Retn_Voltage_Reduction();
   // change the TASS reference clock to MHz RC.
   RSI_ChangeTassRefClock();
   // Power downs the domains.
@@ -88,6 +86,8 @@ void ps1_state_init(void)
 static void set_ulp_timer_wakeup_source(void)
 {
   sl_status_t status;
+  // Set ulp timer timer input clock source as RC MHz
+  sl_timer_clk_handle.ulp_timer_clk_input_src = ULP_TIMER_MHZ_RC_CLK_SRC;
   // ULP Timer initialization, the values are fetched from the UC.
   status = sl_si91x_ulp_timer_init(&sl_timer_clk_handle);
   if (status != SL_STATUS_OK) {

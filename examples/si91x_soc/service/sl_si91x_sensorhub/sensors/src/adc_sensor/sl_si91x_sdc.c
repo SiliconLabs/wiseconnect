@@ -485,9 +485,6 @@ void sl_si91x_configure_sdcss(sl_drv_sdc_config_t sh_sdc_config)
 
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  //Select MHZ RC clock for ADC
-  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
-
   //Clock division factor for calibration,Calibrate ADC on 4MHZ clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
 

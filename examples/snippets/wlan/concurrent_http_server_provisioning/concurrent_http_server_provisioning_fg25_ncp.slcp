@@ -14,10 +14,10 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.5.0
 source:
   - path: app.c
   - path: wifi_app.c
@@ -33,6 +33,7 @@ component:
   - id: sl_system
   - id: slist
   - id: freertos
+  - id: freertos_heap_4
   - id: device_init
   - id: iostream_retarget_stdio
   - id: iostream_recommended_stream
@@ -82,6 +83,7 @@ other_file:
   - path: resources/readme/HTTP_webpage.png
   - path: resources/readme/application_console_output_soc_ncp_1.png
   - path: resources/readme/application_console_output_soc_ncp_2.png
+  - path: resources/readme/application_console_output_soc_ncp_3.png
   - path: resources/readme/state_machine_diagram.png
 ui_hints:
   highlight:

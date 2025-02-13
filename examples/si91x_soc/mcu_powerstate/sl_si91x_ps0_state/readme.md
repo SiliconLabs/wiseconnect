@@ -23,7 +23,6 @@
 ## About Example Code
 - This example demonstrates the transition to the PS0 sleep states, without RAM retention and NWP shutdown.
 - Initially, the Power Manager service is initialized, transitioning the processor to the PS3 state with the clock set to 40 MHz (Power Save) using sl_si91x_power_manager_init.
-- In the application, RET LDO voltage is changed to 0.75V.
 - The power domains will be disabled and NWP will be shutdown.
 - Finally, the application will then switch to the PS0 sleep state.
 

@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 /******************************************************
- *               Variable Definitions
+ *               API Definitions
  ******************************************************/
 sl_websocket_error_t sl_websocket_init(sl_websocket_client_t *handle, const sl_websocket_config_t *config)
 {
@@ -253,21 +253,6 @@ sl_websocket_error_t sl_websocket_close(sl_websocket_client_t *handle)
     SL_DEBUG_LOG("\r\nInvalid state for closing the WebSocket connection\r\n");
     return SL_WEBSOCKET_ERR_INVALID_PARAMETER;
   }
-
-  // Create a close frame request
-  sl_websocket_send_request_t close_request;
-  close_request.opcode = SL_WEBSOCKET_OPCODE_CLOSE | SL_WEBSOCKET_FIN_BIT;
-  close_request.buffer = NULL;
-  close_request.length = 0;
-
-  // Send the close frame
-  sl_websocket_error_t ws_error = sl_websocket_send_frame(handle, &close_request);
-  if (ws_error != SL_WEBSOCKET_SUCCESS) {
-    SL_DEBUG_LOG("\r\nError while sending close frame: %d\r\n", ws_error);
-    return ws_error;
-  }
-
-  SL_DEBUG_LOG("\r\nClose frame sent successfully\r\n");
 
   // Update state to closing
   handle->state = SL_WEBSOCKET_STATE_CLOSING;

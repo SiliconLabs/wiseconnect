@@ -64,28 +64,6 @@
 #define WIFI_AP_PROFILE_SSID "MY_DUAL_AP_SSID"
 #define WIFI_AP_CREDENTIAL   "MY_AP_PASSPHRASE"
 
-// Memory length for send buffer
-#define TCP_BUFFER_SIZE 1380
-#define UDP_BUFFER_SIZE 1390
-
-//IPv6 address of STA connected to ThirdParty AP
-#define SERVER_IP "2401:4290:1245:11ed::4"
-
-// Server port number
-#define SERVER_PORT 5000
-
-// Module port number
-#define LISTENING_PORT 5005
-
-#define BACK_LOG 1
-
-#define AP_VAP 1
-
-#define BYTES_TO_SEND (1 << 29)              // 512MB.
-#define TEST_TIMEOUT  (10000 * tick_count_s) // 10sec
-
-#define HIGH_PERFORMANCE_SOCKET BIT(7)
-
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -97,12 +75,10 @@ uint32_t now              = 0;
 uint8_t retry             = 5;
 uint8_t is_provisioning   = 0;
 uint32_t tick_count_s     = 1;
-uint8_t ap_vap            = AP_VAP;
 static char response[300] = { 0 };
 
 volatile bool is_server_running = false;
 
-uint8_t data_buffer[TCP_BUFFER_SIZE];
 uint8_t address_buffer[SL_IPV6_ADDRESS_LENGTH];
 
 char WIFI_CLIENT_PROFILE_SSID[32]; // Assuming SSID can be up to 32 characters long
@@ -256,8 +232,6 @@ extern osMutexId_t printf_mutex;
  *               Function Declarations
  ******************************************************/
 
-void receive_data_from_tcp_client(void);
-void send_data_to_udp_server(void);
 void parse_json_response(void);
 static void application_start(void *argument);
 sl_wifi_security_t string_to_security_type(const char *securityType);
