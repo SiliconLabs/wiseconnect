@@ -15,10 +15,10 @@ source:
   - path: sysrtc_example.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

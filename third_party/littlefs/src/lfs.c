@@ -284,6 +284,24 @@ static int lfs_bd_erase(lfs_t *lfs, lfs_block_t block)
 #endif
 
 /// Small type-level utilities ///
+
+// some operations on paths
+static inline lfs_size_t lfs_path_namelen(const char *path)
+{
+  return strcspn(path, "/");
+}
+
+static inline bool lfs_path_islast(const char *path)
+{
+  lfs_size_t namelen = lfs_path_namelen(path);
+  return path[namelen + strspn(path + namelen, "/")] == '\0';
+}
+
+static inline bool lfs_path_isdir(const char *path)
+{
+  return path[lfs_path_namelen(path)] != '\0';
+}
+
 // operations on block pairs
 static inline void lfs_pair_swap(lfs_block_t pair[2])
 {
@@ -1469,29 +1487,44 @@ static int lfs_dir_find_match(void *data, lfs_tag_t tag, const void *buffer)
   return LFS_CMP_EQ;
 }
 
+// lfs_dir_find tries to set path and id even if file is not found
+//
+// returns:
+// - 0                  if file is found
+// - LFS_ERR_NOENT      if file or parent is not found
+// - LFS_ERR_NOTDIR     if parent is not a dir
 static lfs_stag_t lfs_dir_find(lfs_t *lfs, lfs_mdir_t *dir, const char **path, uint16_t *id)
 {
   // we reduce path to a single name if we can find it
   const char *name = *path;
-  if (id) {
-    *id = 0x3ff;
-  }
 
   // default to root dir
   lfs_stag_t tag = LFS_MKTAG(LFS_TYPE_DIR, 0x3ff, 0);
   dir->tail[0]   = lfs->root[0];
   dir->tail[1]   = lfs->root[1];
 
+  // empty paths are not allowed
+  if (*name == '\0') {
+    return LFS_ERR_INVAL;
+  }
+
   while (true) {
 nextname:
-    // skip slashes
-    name += strspn(name, "/");
+    // skip slashes if we're a directory
+    if (lfs_tag_type3(tag) == LFS_TYPE_DIR) {
+      name += strspn(name, "/");
+    }
     lfs_size_t namelen = strcspn(name, "/");
 
-    // skip '.' and root '..'
-    if ((namelen == 1 && memcmp(name, ".", 1) == 0) || (namelen == 2 && memcmp(name, "..", 2) == 0)) {
+    // skip '.'
+    if (namelen == 1 && memcmp(name, ".", 1) == 0) {
       name += namelen;
       goto nextname;
+    }
+
+    // error on unmatched '..', trying to go above root?
+    if (namelen == 2 && memcmp(name, "..", 2) == 0) {
+      return LFS_ERR_INVAL;
     }
 
     // skip if matched by '..' in name
@@ -1505,7 +1538,9 @@ nextname:
         break;
       }
 
-      if (sufflen == 2 && memcmp(suffix, "..", 2) == 0) {
+      if (sufflen == 1 && memcmp(suffix, ".", 1) == 0) {
+        // noop
+      } else if (sufflen == 2 && memcmp(suffix, "..", 2) == 0) {
         depth -= 1;
         if (depth == 0) {
           name = suffix + sufflen;
@@ -1519,14 +1554,14 @@ nextname:
     }
 
     // found path
-    if (name[0] == '\0') {
+    if (*name == '\0') {
       return tag;
     }
 
     // update what we've found so far
     *path = name;
 
-    // only continue if we hit a directory
+    // only continue if we're a directory
     if (lfs_tag_type3(tag) != LFS_TYPE_DIR) {
       return LFS_ERR_NOTDIR;
     }
@@ -1548,8 +1583,7 @@ nextname:
                                dir->tail,
                                LFS_MKTAG(0x780, 0, 0),
                                LFS_MKTAG(LFS_TYPE_NAME, 0, namelen),
-                               // are we last name?
-                               (strchr(name, '/') == NULL) ? id : NULL,
+                               id,
                                lfs_dir_find_match,
                                &(struct lfs_dir_find_match){ lfs, name, namelen });
       if (tag < 0) {
@@ -2137,10 +2171,9 @@ static int lfs_dir_splittingcompact(lfs_t *lfs,
       // And we cap at half a block to avoid degenerate cases with
       // nearly-full metadata blocks.
       //
+      lfs_size_t metadata_max = (lfs->cfg->metadata_max) ? lfs->cfg->metadata_max : lfs->cfg->block_size;
       if (end - split < 0xff
-          && size <= lfs_min(lfs->cfg->block_size - 40,
-                             lfs_alignup((lfs->cfg->metadata_max ? lfs->cfg->metadata_max : lfs->cfg->block_size) / 2,
-                                         lfs->cfg->prog_size))) {
+          && size <= lfs_min(metadata_max - 40, lfs_alignup(metadata_max / 2, lfs->cfg->prog_size))) {
         break;
       }
 
@@ -2192,7 +2225,8 @@ static int lfs_dir_splittingcompact(lfs_t *lfs,
         // we can do, we'll error later if we've become frozen
         LFS_WARN("Unable to expand superblock");
       } else {
-        end = begin;
+        // duplicate the superblock entry into the new superblock
+        end = 1;
       }
     }
   }
@@ -2363,7 +2397,9 @@ fixmlist:;
 
       while (d->id >= d->m.count && d->m.split) {
         // we split and id is on tail now
-        d->id -= d->m.count;
+        if (lfs_pair_cmp(d->m.tail, lfs->root) != 0) {
+          d->id -= d->m.count;
+        }
         int err = lfs_dir_fetch(lfs, &d->m, d->m.tail);
         if (err) {
           return err;
@@ -2611,12 +2647,12 @@ static int lfs_mkdir_(lfs_t *lfs, const char *path)
   cwd.next = lfs->mlist;
   uint16_t id;
   err = lfs_dir_find(lfs, &cwd.m, &path, &id);
-  if (!(err == LFS_ERR_NOENT && id != 0x3ff)) {
+  if (!(err == LFS_ERR_NOENT && lfs_path_islast(path))) {
     return (err < 0) ? err : LFS_ERR_EXIST;
   }
 
   // check that name fits
-  lfs_size_t nlen = strlen(path);
+  lfs_size_t nlen = lfs_path_namelen(path);
   if (nlen > lfs->name_max) {
     return LFS_ERR_NAMETOOLONG;
   }
@@ -3071,7 +3107,7 @@ static int lfs_file_opencfg_(lfs_t *lfs,
 
   // allocate entry for file if it doesn't exist
   lfs_stag_t tag = lfs_dir_find(lfs, &file->m, &path, &file->id);
-  if (tag < 0 && !(tag == LFS_ERR_NOENT && file->id != 0x3ff)) {
+  if (tag < 0 && !(tag == LFS_ERR_NOENT && lfs_path_islast(path))) {
     err = tag;
     goto cleanup;
   }
@@ -3091,8 +3127,14 @@ static int lfs_file_opencfg_(lfs_t *lfs,
       goto cleanup;
     }
 
+    // don't allow trailing slashes
+    if (lfs_path_isdir(path)) {
+      err = LFS_ERR_NOTDIR;
+      goto cleanup;
+    }
+
     // check that name fits
-    lfs_size_t nlen = strlen(path);
+    lfs_size_t nlen = lfs_path_namelen(path);
     if (nlen > lfs->name_max) {
       err = LFS_ERR_NAMETOOLONG;
       goto cleanup;
@@ -3683,22 +3725,16 @@ static lfs_ssize_t lfs_file_write_(lfs_t *lfs, lfs_file_t *file, const void *buf
 static lfs_soff_t lfs_file_seek_(lfs_t *lfs, lfs_file_t *file, lfs_soff_t off, int whence)
 {
   // find new pos
+  //
+  // fortunately for us, littlefs is limited to 31-bit file sizes, so we
+  // don't have to worry too much about integer overflow
   lfs_off_t npos = file->pos;
   if (whence == LFS_SEEK_SET) {
     npos = off;
   } else if (whence == LFS_SEEK_CUR) {
-    if ((lfs_soff_t)file->pos + off < 0) {
-      return LFS_ERR_INVAL;
-    } else {
-      npos = file->pos + off;
-    }
+    npos = file->pos + (lfs_off_t)off;
   } else if (whence == LFS_SEEK_END) {
-    lfs_soff_t res = lfs_file_size_(lfs, file) + off;
-    if (res < 0) {
-      return LFS_ERR_INVAL;
-    } else {
-      npos = res;
-    }
+    npos = (lfs_off_t)lfs_file_size_(lfs, file) + (lfs_off_t)off;
   }
 
   if (npos > lfs->file_max) {
@@ -3867,6 +3903,11 @@ static int lfs_stat_(lfs_t *lfs, const char *path, struct lfs_info *info)
     return (int)tag;
   }
 
+  // only allow trailing slashes on dirs
+  if (strchr(path, '/') != NULL && lfs_tag_type3(tag) != LFS_TYPE_DIR) {
+    return LFS_ERR_NOTDIR;
+  }
+
   return lfs_dir_getinfo(lfs, &cwd, lfs_tag_id(tag), info);
 }
 
@@ -3969,7 +4010,7 @@ static int lfs_rename_(lfs_t *lfs, const char *oldpath, const char *newpath)
   lfs_mdir_t newcwd;
   uint16_t newid;
   lfs_stag_t prevtag = lfs_dir_find(lfs, &newcwd, &newpath, &newid);
-  if ((prevtag < 0 || lfs_tag_id(prevtag) == 0x3ff) && !(prevtag == LFS_ERR_NOENT && newid != 0x3ff)) {
+  if ((prevtag < 0 || lfs_tag_id(prevtag) == 0x3ff) && !(prevtag == LFS_ERR_NOENT && lfs_path_islast(newpath))) {
     return (prevtag < 0) ? (int)prevtag : LFS_ERR_INVAL;
   }
 
@@ -3980,8 +4021,13 @@ static int lfs_rename_(lfs_t *lfs, const char *oldpath, const char *newpath)
   struct lfs_mlist prevdir;
   prevdir.next = lfs->mlist;
   if (prevtag == LFS_ERR_NOENT) {
+    // if we're a file, don't allow trailing slashes
+    if (lfs_path_isdir(newpath) && lfs_tag_type3(oldtag) != LFS_TYPE_DIR) {
+      return LFS_ERR_NOTDIR;
+    }
+
     // check that name fits
-    lfs_size_t nlen = strlen(newpath);
+    lfs_size_t nlen = lfs_path_namelen(newpath);
     if (nlen > lfs->name_max) {
       return LFS_ERR_NAMETOOLONG;
     }
@@ -4039,7 +4085,7 @@ static int lfs_rename_(lfs_t *lfs, const char *oldpath, const char *newpath)
                        &newcwd,
                        LFS_MKATTRS({ LFS_MKTAG_IF(prevtag != LFS_ERR_NOENT, LFS_TYPE_DELETE, newid, 0), NULL },
                                    { LFS_MKTAG(LFS_TYPE_CREATE, newid, 0), NULL },
-                                   { LFS_MKTAG(lfs_tag_type3(oldtag), newid, strlen(newpath)), newpath },
+                                   { LFS_MKTAG(lfs_tag_type3(oldtag), newid, lfs_path_namelen(newpath)), newpath },
                                    { LFS_MKTAG(LFS_FROM_MOVE, newid, lfs_tag_id(oldtag)), &oldcwd },
                                    { LFS_MKTAG_IF(samepair, LFS_TYPE_DELETE, newoldid, 0), NULL }));
   if (err) {
@@ -4192,6 +4238,14 @@ static int lfs_init(lfs_t *lfs, const struct lfs_config *cfg)
   // which littlefs currently does not support
   LFS_ASSERT((bool)0x80000000);
 
+  // check that the required io functions are provided
+  LFS_ASSERT(lfs->cfg->read != NULL);
+#ifndef LFS_READONLY
+  LFS_ASSERT(lfs->cfg->prog != NULL);
+  LFS_ASSERT(lfs->cfg->erase != NULL);
+  LFS_ASSERT(lfs->cfg->sync != NULL);
+#endif
+
   // validate that the lfs-cfg sizes were initiated properly before
   // performing any arithmetic logics with them
   LFS_ASSERT(lfs->cfg->read_size != 0);
@@ -4224,6 +4278,12 @@ static int lfs_init(lfs_t *lfs, const struct lfs_config *cfg)
   // exceed a block_size
   LFS_ASSERT(lfs->cfg->compact_thresh == 0 || lfs->cfg->compact_thresh >= lfs->cfg->block_size / 2);
   LFS_ASSERT(lfs->cfg->compact_thresh == (lfs_size_t)-1 || lfs->cfg->compact_thresh <= lfs->cfg->block_size);
+
+  // check that metadata_max is a multiple of read_size and prog_size,
+  // and a factor of the block_size
+  LFS_ASSERT(!lfs->cfg->metadata_max || lfs->cfg->metadata_max % lfs->cfg->read_size == 0);
+  LFS_ASSERT(!lfs->cfg->metadata_max || lfs->cfg->metadata_max % lfs->cfg->prog_size == 0);
+  LFS_ASSERT(!lfs->cfg->metadata_max || lfs->cfg->block_size % lfs->cfg->metadata_max == 0);
 
   // setup read cache
   if (lfs->cfg->read_buffer) {
@@ -4402,6 +4462,30 @@ cleanup:
 }
 #endif
 
+struct lfs_tortoise_t {
+  lfs_block_t pair[2];
+  lfs_size_t i;
+  lfs_size_t period;
+};
+
+static int lfs_tortoise_detectcycles(const lfs_mdir_t *dir, struct lfs_tortoise_t *tortoise)
+{
+  // detect cycles with Brent's algorithm
+  if (lfs_pair_issync(dir->tail, tortoise->pair)) {
+    LFS_WARN("Cycle detected in tail list");
+    return LFS_ERR_CORRUPT;
+  }
+  if (tortoise->i == tortoise->period) {
+    tortoise->pair[0] = dir->tail[0];
+    tortoise->pair[1] = dir->tail[1];
+    tortoise->i       = 0;
+    tortoise->period *= 2;
+  }
+  tortoise->i += 1;
+
+  return LFS_ERR_OK;
+}
+
 static int lfs_mount_(lfs_t *lfs, const struct lfs_config *cfg)
 {
   int err = lfs_init(lfs, cfg);
@@ -4410,24 +4494,17 @@ static int lfs_mount_(lfs_t *lfs, const struct lfs_config *cfg)
   }
 
   // scan directory blocks for superblock and any global updates
-  lfs_mdir_t dir             = { .tail = { 0, 1 } };
-  lfs_block_t tortoise[2]    = { LFS_BLOCK_NULL, LFS_BLOCK_NULL };
-  lfs_size_t tortoise_i      = 1;
-  lfs_size_t tortoise_period = 1;
+  lfs_mdir_t dir                 = { .tail = { 0, 1 } };
+  struct lfs_tortoise_t tortoise = {
+    .pair   = { LFS_BLOCK_NULL, LFS_BLOCK_NULL },
+    .i      = 1,
+    .period = 1,
+  };
   while (!lfs_pair_isnull(dir.tail)) {
-    // detect cycles with Brent's algorithm
-    if (lfs_pair_issync(dir.tail, tortoise)) {
-      LFS_WARN("Cycle detected in tail list");
-      err = LFS_ERR_CORRUPT;
+    err = lfs_tortoise_detectcycles(&dir, &tortoise);
+    if (err < 0) {
       goto cleanup;
     }
-    if (tortoise_i == tortoise_period) {
-      tortoise[0] = dir.tail[0];
-      tortoise[1] = dir.tail[1];
-      tortoise_i  = 0;
-      tortoise_period *= 2;
-    }
-    tortoise_i += 1;
 
     // fetch next block in tail list
     lfs_stag_t tag = lfs_dir_fetchmatch(lfs,
@@ -4479,6 +4556,7 @@ static int lfs_mount_(lfs_t *lfs, const struct lfs_config *cfg)
       // found older minor version? set an in-device only bit in the
       // gstate so we know we need to rewrite the superblock before
       // the first write
+      bool needssuperblock = false;
       if (minor_version < lfs_fs_disk_version_minor(lfs)) {
         LFS_DEBUG("Found older minor version "
                   "v%" PRIu16 ".%" PRIu16 " < v%" PRIu16 ".%" PRIu16,
@@ -4486,10 +4564,11 @@ static int lfs_mount_(lfs_t *lfs, const struct lfs_config *cfg)
                   minor_version,
                   lfs_fs_disk_version_major(lfs),
                   lfs_fs_disk_version_minor(lfs));
-        // note this bit is reserved on disk, so fetching more gstate
-        // will not interfere here
-        lfs_fs_prepsuperblock(lfs, true);
+        needssuperblock = true;
       }
+      // note this bit is reserved on disk, so fetching more gstate
+      // will not interfere here
+      lfs_fs_prepsuperblock(lfs, needssuperblock);
 
       // check superblock configuration
       if (superblock.name_max) {
@@ -4637,22 +4716,17 @@ int lfs_fs_traverse_(lfs_t *lfs, int (*cb)(void *data, lfs_block_t block), void 
   }
 #endif
 
-  lfs_block_t tortoise[2]    = { LFS_BLOCK_NULL, LFS_BLOCK_NULL };
-  lfs_size_t tortoise_i      = 1;
-  lfs_size_t tortoise_period = 1;
+  struct lfs_tortoise_t tortoise = {
+    .pair   = { LFS_BLOCK_NULL, LFS_BLOCK_NULL },
+    .i      = 1,
+    .period = 1,
+  };
+  int err = LFS_ERR_OK;
   while (!lfs_pair_isnull(dir.tail)) {
-    // detect cycles with Brent's algorithm
-    if (lfs_pair_issync(dir.tail, tortoise)) {
-      LFS_WARN("Cycle detected in tail list");
+    err = lfs_tortoise_detectcycles(&dir, &tortoise);
+    if (err < 0) {
       return LFS_ERR_CORRUPT;
     }
-    if (tortoise_i == tortoise_period) {
-      tortoise[0] = dir.tail[0];
-      tortoise[1] = dir.tail[1];
-      tortoise_i  = 0;
-      tortoise_period *= 2;
-    }
-    tortoise_i += 1;
 
     for (int i = 0; i < 2; i++) {
       int err = cb(data, dir.tail[i]);
@@ -4725,24 +4799,19 @@ int lfs_fs_traverse_(lfs_t *lfs, int (*cb)(void *data, lfs_block_t block), void 
 static int lfs_fs_pred(lfs_t *lfs, const lfs_block_t pair[2], lfs_mdir_t *pdir)
 {
   // iterate over all directory directory entries
-  pdir->tail[0]              = 0;
-  pdir->tail[1]              = 1;
-  lfs_block_t tortoise[2]    = { LFS_BLOCK_NULL, LFS_BLOCK_NULL };
-  lfs_size_t tortoise_i      = 1;
-  lfs_size_t tortoise_period = 1;
+  pdir->tail[0]                  = 0;
+  pdir->tail[1]                  = 1;
+  struct lfs_tortoise_t tortoise = {
+    .pair   = { LFS_BLOCK_NULL, LFS_BLOCK_NULL },
+    .i      = 1,
+    .period = 1,
+  };
+  int err = LFS_ERR_OK;
   while (!lfs_pair_isnull(pdir->tail)) {
-    // detect cycles with Brent's algorithm
-    if (lfs_pair_issync(pdir->tail, tortoise)) {
-      LFS_WARN("Cycle detected in tail list");
+    err = lfs_tortoise_detectcycles(pdir, &tortoise);
+    if (err < 0) {
       return LFS_ERR_CORRUPT;
     }
-    if (tortoise_i == tortoise_period) {
-      tortoise[0] = pdir->tail[0];
-      tortoise[1] = pdir->tail[1];
-      tortoise_i  = 0;
-      tortoise_period *= 2;
-    }
-    tortoise_i += 1;
 
     if (lfs_pair_cmp(pdir->tail, pair) == 0) {
       return 0;
@@ -4789,24 +4858,19 @@ static int lfs_fs_parent_match(void *data, lfs_tag_t tag, const void *buffer)
 static lfs_stag_t lfs_fs_parent(lfs_t *lfs, const lfs_block_t pair[2], lfs_mdir_t *parent)
 {
   // use fetchmatch with callback to find pairs
-  parent->tail[0]            = 0;
-  parent->tail[1]            = 1;
-  lfs_block_t tortoise[2]    = { LFS_BLOCK_NULL, LFS_BLOCK_NULL };
-  lfs_size_t tortoise_i      = 1;
-  lfs_size_t tortoise_period = 1;
+  parent->tail[0]                = 0;
+  parent->tail[1]                = 1;
+  struct lfs_tortoise_t tortoise = {
+    .pair   = { LFS_BLOCK_NULL, LFS_BLOCK_NULL },
+    .i      = 1,
+    .period = 1,
+  };
+  int err = LFS_ERR_OK;
   while (!lfs_pair_isnull(parent->tail)) {
-    // detect cycles with Brent's algorithm
-    if (lfs_pair_issync(parent->tail, tortoise)) {
-      LFS_WARN("Cycle detected in tail list");
-      return LFS_ERR_CORRUPT;
+    err = lfs_tortoise_detectcycles(parent, &tortoise);
+    if (err < 0) {
+      return err;
     }
-    if (tortoise_i == tortoise_period) {
-      tortoise[0] = parent->tail[0];
-      tortoise[1] = parent->tail[1];
-      tortoise_i  = 0;
-      tortoise_period *= 2;
-    }
-    tortoise_i += 1;
 
     lfs_stag_t tag = lfs_dir_fetchmatch(lfs,
                                         parent,
@@ -5898,7 +5962,7 @@ int lfs_format(lfs_t *lfs, const struct lfs_config *cfg)
             ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
             ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
             ".block_size=%" PRIu32 ", .block_count=%" PRIu32 ", "
-            ".block_cycles=%" PRIu32 ", .cache_size=%" PRIu32 ", "
+            ".block_cycles=%" PRId32 ", .cache_size=%" PRIu32 ", "
             ".lookahead_size=%" PRIu32 ", .read_buffer=%p, "
             ".prog_buffer=%p, .lookahead_buffer=%p, "
             ".name_max=%" PRIu32 ", .file_max=%" PRIu32 ", "
@@ -5942,7 +6006,7 @@ int lfs_mount(lfs_t *lfs, const struct lfs_config *cfg)
             ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
             ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
             ".block_size=%" PRIu32 ", .block_count=%" PRIu32 ", "
-            ".block_cycles=%" PRIu32 ", .cache_size=%" PRIu32 ", "
+            ".block_cycles=%" PRId32 ", .cache_size=%" PRIu32 ", "
             ".lookahead_size=%" PRIu32 ", .read_buffer=%p, "
             ".prog_buffer=%p, .lookahead_buffer=%p, "
             ".name_max=%" PRIu32 ", .file_max=%" PRIu32 ", "
@@ -6095,7 +6159,7 @@ int lfs_file_open(lfs_t *lfs, lfs_file_t *file, const char *path, int flags)
   if (err) {
     return err;
   }
-  LFS_TRACE("lfs_file_open(%p, %p, \"%s\", %x)", (void *)lfs, (void *)file, path, flags);
+  LFS_TRACE("lfs_file_open(%p, %p, \"%s\", %x)", (void *)lfs, (void *)file, path, (unsigned)flags);
   LFS_ASSERT(!lfs_mlist_isopen(lfs->mlist, (struct lfs_mlist *)file));
 
   err = lfs_file_open_(lfs, file, path, flags);
@@ -6117,7 +6181,7 @@ int lfs_file_opencfg(lfs_t *lfs, lfs_file_t *file, const char *path, int flags, 
             (void *)lfs,
             (void *)file,
             path,
-            flags,
+            (unsigned)flags,
             (void *)cfg,
             cfg->buffer,
             (void *)cfg->attrs,
@@ -6495,7 +6559,7 @@ int lfs_migrate(lfs_t *lfs, const struct lfs_config *cfg)
             ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
             ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
             ".block_size=%" PRIu32 ", .block_count=%" PRIu32 ", "
-            ".block_cycles=%" PRIu32 ", .cache_size=%" PRIu32 ", "
+            ".block_cycles=%" PRId32 ", .cache_size=%" PRIu32 ", "
             ".lookahead_size=%" PRIu32 ", .read_buffer=%p, "
             ".prog_buffer=%p, .lookahead_buffer=%p, "
             ".name_max=%" PRIu32 ", .file_max=%" PRIu32 ", "

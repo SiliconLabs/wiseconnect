@@ -234,7 +234,7 @@ void ssi_master_example_process_action(void)
           // If it fails to execute the API, it will not execute rest of the
           // things
           DEBUGOUT("sl_si91x_ssi_send_data: Error Code : %lu \n", status);
-          ulp_ssi_master_current_mode = SL_ULP_SSI_POWER_STATE_TRANSITION;
+          ulp_ssi_master_current_mode = ULP_SSI_MASTER_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("SSI send begin successfully \n");
@@ -269,7 +269,7 @@ void ssi_master_example_process_action(void)
           // If it fails to execute the API, it will not execute rest of the
           // things
           DEBUGOUT("sl_si91x_ssi_receive_data: Error Code : %lu \n", status);
-          ulp_ssi_master_current_mode = SL_ULP_SSI_POWER_STATE_TRANSITION;
+          ulp_ssi_master_current_mode = ULP_SSI_MASTER_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("SSI receive begin successfully \n");

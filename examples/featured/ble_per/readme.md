@@ -24,7 +24,7 @@ Before running the application, the user will need the following things to setup
 ### Hardware Requirements
 
 - A Windows PC
-- SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes](https://www.silabs.com) for details.
+- SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-driver/sl-si91-x-constants#sl-si91x-operation-mode-t) for details.
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]

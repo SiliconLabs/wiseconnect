@@ -110,6 +110,11 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define	SO_SPLICE	0x1023		///< Splices data to another socket. This option is not supported in the current release.
 #define	SO_DOMAIN	0x1024		///< Gets socket domain.
 #define	SO_PROTOCOL	0x1025		///< Gets socket protocol.
+
+// From Linux include/uapi/linux/tcp.h
+// See https://www.kernel.org/doc/Documentation/networking/tls.txt for more details.
+#define TCP_ULP	0x001f		///< Attach a ULP (Upper Layer Protocol) to a TCP connection.
+
 /*
  * si91x socket options
  */
@@ -118,11 +123,6 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define SL_SO_TLS_SNI                  0x1028  ///< Passes SNI extension for SSL socket.
 #define SL_SO_TLS_ALPN                 0x1029  ///< Passes ALPN extension for SSL socket.
 /** @} */
-
-// From Linux include/uapi/linux/tcp.h
-// See https://www.kernel.org/doc/Documentation/networking/tls.txt for more details.
-#define TCP_ULP	0x001f		/* Attach a ULP to a TCP connection */
-
 
 /*
  * Option values per-socket.
@@ -402,7 +402,7 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len);
  *   The addr argument of type @ref sockaddr is the address is that to which datagrams are to be sent.
  * 
  * @param[in] addr_len 
- *   The addr_len argument of type @ref socklen_t indicates the amount of space pointed to by addr, in bytes.
+ *   The addr_len argument of type @ref socklen_t indicates the amount of space pointed to by address, in bytes.
  * 
  * @return
  *   Returns 0 if successful. Otherwise, returns -1 and sets the global variable `errno` to indicate the error.
@@ -574,12 +574,33 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   The level at which the option is being set. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
  * 
  * @param[in] option_name
- *   The name of the option to set. One of the values from @ref BSD_SOCKET_OPTION_NAME. The `option_name` argument and any specified options 
- *   are passed uninterpreted to the appropriate protocol module for interpretation.
- * 
+ *   The option to be configured. Accepts values from @ref BSD_SOCKET_OPTION_NAME. 
+ *   Currently, following options are supported:
+ *   - @ref SO_RCVTIMEO
+ *   - @ref SO_KEEPALIVE
+ *   - @ref SO_MAX_RETRANSMISSION_TIMEOUT_VALUE
+ *   - @ref TCP_ULP
+ *   - IP_TOS
+ *   - @ref SL_SO_CERT_INDEX
+ *   - @ref SL_SO_HIGH_PERFORMANCE_SOCKET
+ *   - @ref SL_SO_TLS_SNI
+ *   - @ref SL_SO_TLS_ALPN
+ *  
  * @param[in] option_value
  *   A pointer to the buffer containing the value for the option. Most socket-level options utilize an `int` argument for `option_value`. 
- *   For @ref setsockopt(), the argument should be non-zero to enable a boolean option, or zero if the option is to be disabled.
+ *   For boolean options, set option_value to a non-zero value to enable the option or to zero to disable it. For non-boolean options, option_value should contain the specific data required for the option.
+ *   The value of the parameter.
+ *   | option_name                                       | option_value                         |  description                                                                                                               |
+ *   |---------------------------------------------------|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+ *   | @ref SO_RCVTIMEO                                  | sl_si91x_time_value                  | Socket Receive timeout. sl_si91x_time_value structure is used to represent time in two parts: seconds and microseconds.    |
+ *   | @ref SO_KEEPALIVE                                 | uint16_t                             | Set TCP keepalive in seconds                                                                                               |
+ *   | @ref SO_MAX_RETRANSMISSION_TIMEOUT_VALUE          | uint8_t                              | Maximum retransmission timeout value that should be in the power of 2 for TCP in seconds                                   |
+ *   | @ref TCP_ULP                                      | uint8_t                              | Supported one of the values from @ref BSD_TLS_OPTION_VALUE                                                       |
+ *   | IP_TOS                                            | uint16_t                             | Supported one of the values from @ref BSD_SOCKET_TOS_DEFINES (Values 0-7 are deprecated)                                              |
+ *   | @ref SL_SO_CERT_INDEX                             | uint8_t                              | Supported values for certificate index range from 0 - 3                                                                    |
+ *   | @ref SL_SO_HIGH_PERFORMANCE_SOCKET                | BIT(7)                               | Set high performance socket                                                                                                |
+ *   | @ref SL_SO_TLS_SNI                                | sl_si91x_socket_type_length_value_t  | Server name indication for the socket                                                                                      |
+ *   | @ref SL_SO_TLS_ALPN                               | sl_si91x_socket_type_length_value_t  | Application layer protocol negotiation for the socket                                                                      |
  * 
  * @param[in] option_length
  *   The length of the option data, in bytes, pointed to by `option_value`.
@@ -588,16 +609,6 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   Returns 0 on successful completion. Returns -1 on error and sets the global variable `errno` to indicate the error.
  * 
  * @note 
- *   The following options are currently supported:
- *   - `SO_RCVTIMEO`: Receive timeout.
- *   - `SO_KEEPALIVE`: Keep connections alive.
- *   - `TCP_ULP`: TCP upper layer protocol.
- *   - `SO_MAX_RETRANSMISSION_TIMEOUT_VALUE`: Maximum retransmission timeout value.
- *   - `IP_TOS`: Type of service, one of the supported values from @ref BSD_SOCKET_TOS_DEFINES (Values 0-7 are deprecated). 
- *   - `SL_SO_CERT_INDEX`: Set the certificate index for the socket.
- *   - `SL_SO_HIGH_PERFORMANCE_SOCKET`: Set the high-performance socket option for the socket.
- *   - `SL_SO_TLS_SNI`: Set the server name indication for the socket.
- *   - `SL_SO_TLS_ALPN`: Set the application layer protocol negotiation for the socket.
  *   The options `SL_SO_CERT_INDEX`, `SL_SO_HIGH_PERFORMANCE_SOCKET`, `SL_SO_TLS_SNI`, and `SL_SO_TLS_ALPN` are Silicon Labs specific options.
  * 	 This function is used before the socket is connected.
  ******************************************************************************/

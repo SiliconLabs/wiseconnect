@@ -137,7 +137,7 @@ The application can be configured to suit your requirements and development envi
 
 For SoC Mode only:
 
-- Below is the default configuration for I2C2 instance define in wiseconnect3/components/boards/silabs/config/brd4338a/RTE_Device_917.h.
+- Below is the default configuration for I2C2 instance define in RTE_Device_917.h file (path: /$project/config/RTE_Device_917.h)
 - I2C2 is utilized for communication with the temperature sensor.
 
     ```c

@@ -1,7 +1,7 @@
 project_name: sl_si91x_si70xx
 label: sl_si91x_si70xx
 description: |
-  This example project configures si70xx
+  This application demonstrates how to configures and use si70xx sensor.
 category: example|peripheral
 package: platform
 quality: production
@@ -15,7 +15,7 @@ source:
   - path: si70xx_example.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -56,6 +56,6 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

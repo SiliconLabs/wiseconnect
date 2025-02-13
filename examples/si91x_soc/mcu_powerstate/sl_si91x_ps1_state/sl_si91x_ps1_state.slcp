@@ -1,16 +1,16 @@
 project_name: sl_si91x_ps1_state
 label: SI91x - SL_SI91X_PS1_STATE
 description: |
-  Demonstrates the PS1 state with NWP shutdown.
+  This application demonstrates the PS1 state with NWP shutdown.
 category: example|mcu powerstate
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 readme:
   - path: readme.md
 source:

@@ -1,16 +1,16 @@
 project_name: sl_si91x_hrng
 label: Si91x - HRNG
 description: |
-  Demonstrates how to Generate a Random Number.
+  This application demonstrates how to generate a random number using the built-in random number generation functionality on the Si91x SoC device. 
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c
@@ -22,7 +22,7 @@ include:
       - path: hrng_example.h
 toolchain_settings:
   - option: gcc_compiler_option
-    value: -Wall -Werror
+    value: -Wall
 component:
   - id: sl_system
   - id: status

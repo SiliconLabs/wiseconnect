@@ -29,7 +29,6 @@
 ******************************************************************************/
 #include "sl_si91x_ulp_timer.h"
 #include "rsi_timers.h"
-
 #include "rsi_rom_timer.h"
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
@@ -39,26 +38,35 @@
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
 #define MINIMUM_MATCH_COUNT     0u       // for validation of timer match count
-#define CLOCKS_PER_SECOND_MHZ   32000000 // clocks per second for mhz clock frequency
+#define CLOCKS_PER_SECOND_40MHZ 40000000 // clocks per second for 40MHz clock frequency
+#define CLOCKS_PER_SECOND_32MHZ 32000000 // clocks per second for 32MHz clock frequency
 #define CLOCKS_PER_SECOND_20MHZ 20000000 // clocks per second for 20mhz clock frequency
 #define CLOCKS_PER_SECOND_32KHZ 32000    // clocks per second for 32khz clock frequency
 #define FIRST_INDEX             0        // for start value of iteration variable
-#define LAST_INDEX              3        // for last value of iteration variable
+#define LAST_INDEX              4        // for last value of iteration variable
 
-#define INTEGRAL_PART_MHZ_1US   (32 & 0xFFFF) // Integral part of timer clock cycles per us for 32 mhz clock source
+#define INTEGRAL_PART_40MHZ_1US (40 & 0xFFFF) // Integral part of timer clock cycles per us for 40 mhz clock source
+#define INTEGRAL_PART_32MHZ_1US (32 & 0xFFFF) // Integral part of timer clock cycles per us for 32 mhz clock source
 #define INTEGRAL_PART_32KHZ_1US (0 & 0xFFFF)  // Integral part of timer clock cycles per us for 32 khz clock source
 #define INTEGRAL_PART_20MHZ_1US (20 & 0xFFFF) // Integral part of timer clock cycles per us for 20 mhz clock source
 
-#define FRACTIONAL_PART_MHZ_1US   (0 & 0xFF) // Fractional part of timer clock cycles per us for 32 mhz clock source
+#define FRACTIONAL_PART_40MHZ_1US (0 & 0xFF) // Fractional part of timer clock cycles per us for 40 mhz clock source
+#define FRACTIONAL_PART_32MHZ_1US (0 & 0xFF) // Fractional part of timer clock cycles per us for 32 mhz clock source
 #define FRACTIONAL_PART_32KHZ_1US (8 & 0xFF) // Fractional part of timer clock cycles per us for 32 khz clock source
 #define FRACTIONAL_PART_20MHZ_1US (0 & 0xFF) // Fractional part of timer clock cycles per us for 20 mhz clock source
 
-#define INTEGRAL_PART_MHZ_256US   (8192 & 0xFFFF) // Integral part of timer clock cycles per 256us for 32 mhz clock source
+#define INTEGRAL_PART_40MHZ_256US \
+  (10240 & 0xFFFF) // Integral part of timer clock cycles per 256us for 40 mhz clock source
+#define INTEGRAL_PART_32MHZ_256US \
+  (8192 & 0xFFFF)                              // Integral part of timer clock cycles per 256us for 32 mhz clock source
 #define INTEGRAL_PART_32KHZ_256US (8 & 0xFFFF) // Integral part of timer clock cycles per 256us for 32 khz clock source
 #define INTEGRAL_PART_20MHZ_256US \
   (5120 & 0xFFFF) // Integral part of timer clock cycles per 256us for 20 mhz clock source
 
-#define FRACTIONAL_PART_MHZ_256US (0 & 0xFF) // Fractional part of timer clock cycles per 256us for 32 mhz clock source
+#define FRACTIONAL_PART_40MHZ_256US \
+  (0 & 0xFF) // Fractional part of timer clock cycles per 256us for 40 mhz clock source
+#define FRACTIONAL_PART_32MHZ_256US \
+  (0 & 0xFF) // Fractional part of timer clock cycles per 256us for 32 mhz clock source
 #define FRACTIONAL_PART_32KHZ_256US \
   (49 & 0xFF) // Fractional part of timer clock cycles per 256us for 32 khz clock source
 #define FRACTIONAL_PART_20MHZ_256US \
@@ -89,12 +97,14 @@ typedef IRQn_Type IRQn_Type_t; ///< Renaming Interrupt numbers type enum
  ******************************************************************************/
 static ulp_timer_callback_t timeout_callback_function_pointers[] = { NULL, NULL, NULL, NULL };
 static clk_int_frac_values_t int_frac_values_1US[]               = {
-                { CLOCKS_PER_SECOND_MHZ, INTEGRAL_PART_MHZ_1US, FRACTIONAL_PART_MHZ_1US },
+                { CLOCKS_PER_SECOND_40MHZ, INTEGRAL_PART_40MHZ_1US, FRACTIONAL_PART_40MHZ_1US },
+                { CLOCKS_PER_SECOND_32MHZ, INTEGRAL_PART_32MHZ_1US, FRACTIONAL_PART_32MHZ_1US },
                 { CLOCKS_PER_SECOND_20MHZ, INTEGRAL_PART_20MHZ_1US, FRACTIONAL_PART_20MHZ_1US },
                 { CLOCKS_PER_SECOND_32KHZ, INTEGRAL_PART_32KHZ_1US, FRACTIONAL_PART_32KHZ_1US }
 };
 static clk_int_frac_values_t int_frac_values_256US[] = {
-  { CLOCKS_PER_SECOND_MHZ, INTEGRAL_PART_MHZ_256US, FRACTIONAL_PART_MHZ_256US },
+  { CLOCKS_PER_SECOND_40MHZ, INTEGRAL_PART_40MHZ_256US, FRACTIONAL_PART_40MHZ_256US },
+  { CLOCKS_PER_SECOND_32MHZ, INTEGRAL_PART_32MHZ_256US, FRACTIONAL_PART_32MHZ_256US },
   { CLOCKS_PER_SECOND_20MHZ, INTEGRAL_PART_20MHZ_256US, FRACTIONAL_PART_20MHZ_256US },
   { CLOCKS_PER_SECOND_32KHZ, INTEGRAL_PART_32KHZ_256US, FRACTIONAL_PART_32KHZ_256US }
 };
@@ -108,7 +118,6 @@ static sl_status_t ulp_timer_clear_interrupt(ulp_timer_instance_t timer_num);
 static sl_status_t ulp_timer_enable_interrupt(ulp_timer_instance_t timer_num);
 static sl_status_t ulp_timer_disable_interrupt(ulp_timer_instance_t timer_num);
 static sl_status_t get_int_frac_parts(ulp_timer_type_t timer_type, uint16_t *integral_part, uint8_t *fractional_part);
-
 /*******************************************************************************
  **********************  Local Function Definition****************************
  ******************************************************************************/
@@ -290,6 +299,68 @@ sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_confi
         NVIC_EnableIRQ(ulp_timer_irq_numbers[timer_index]);
         break;
       }
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+* @brief: Retrieves the match value for ULP timer
+
+* @details:
+*  This function calculates the match value for a given ULP timer type based on the 
+*  input time in microseconds. The match value represents the number of clock cycles 
+*  required for the timer to reach the specified time. The timer type can be one of 
+*  the following:
+*   - ULP_TIMER_TYP_DEFAULT: Uses the clock cycles per microsecond to compute the match value.
+*   - ULP_TIMER_TYP_1US: Returns the match value as the number of microseconds.
+*   - ULP_TIMER_TYP_256US: Returns the match value as the number of 256-microsecond units.
+* 
+*  The function performs validation of the timer type and the time in microseconds to 
+*  ensure they meet the expected criteria. If the input is valid, it calculates the 
+*  match value, otherwise returns an appropriate error status:
+*   - SL_STATUS_INVALID_INDEX: Invalid timer type.
+*   - SL_STATUS_INVALID_PARAMETER: Invalid time value for the specified timer type.
+* 
+*   - The ULP timer clock frequency is retrieved from the system and used for calculation.
+*   - The clock cycles per microsecond are derived from the ULP timer clock frequency.
+* 
+*  The function should be called to retrieve the match value before configuring 
+*  and starting the ULP timer for counting operations.
+*******************************************************************************/
+sl_status_t sl_si91x_ulp_timer_get_match_value(ulp_timer_type_t timer_type, uint32_t time_us, uint32_t *match_value)
+{
+  sl_status_t status;
+  uint32_t ulp_timer_clock;
+  uint32_t clock_cycles_per_us;
+  status = SL_STATUS_OK;
+  // Reading ulp-timer peripheral clock frequency
+  ulp_timer_clock = RSI_CLK_GetBaseClock(ULPSS_TIMER);
+  // Calculate clock cycles per microsecond
+  clock_cycles_per_us = ulp_timer_clock / 1000000;
+  do {
+    // Validating timer number parameter
+    if (timer_type >= ULP_TIMER_TYP_LAST) {
+      status = SL_STATUS_INVALID_TYPE;
+      break;
+    }
+    if (timer_type == ULP_TIMER_TYP_DEFAULT) {
+      // Match value = (clock cycles per microsecond) * (time in microseconds)
+      *match_value = (clock_cycles_per_us * time_us);
+    } else if (timer_type == ULP_TIMER_TYP_1US) {
+      if (time_us < 1) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
+      // Match value = number of microseconds
+      *match_value = time_us;
+    } else if (timer_type == ULP_TIMER_TYP_256US) {
+      if (time_us < 256) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
+      // Match value = (time in microseconds) / 256
+      *match_value = (time_us / 256);
     }
   } while (false);
   return status;

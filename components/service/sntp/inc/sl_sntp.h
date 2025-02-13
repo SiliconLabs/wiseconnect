@@ -183,7 +183,7 @@ typedef void (*sl_sntp_client_event_handler_t)(sl_sntp_client_response_t *respon
  *   Pointer to the data buffer containing additional information related to the SNTP operation.
  * 
  * @note
- *   This feature is currently not supported in Si917 chipsets.
+ *   This feature is currently not supported in SiWx91x chipsets.
  */
 typedef void (*sl_sntp_set_time_sync_notification_handler_t)(const uint8_t cmd_type,
                                                              sl_status_t status,
@@ -205,13 +205,13 @@ typedef struct {
   sl_sntp_client_event_handler_t event_handler; ///< SNTP response handler of type @ref sl_sntp_client_event_handler_t.
   sl_sntp_set_time_sync_notification_handler_t
     time_sync_notifiication_handler; ///< Time synchronization notification handler of type @ref sl_sntp_set_time_sync_notification_handler_t.
-                                     ///< @note This feature is currently not supported in Si917 chipsets.
+                                     ///< @note This feature is currently not supported in SiWx91x chipsets.
   bool smooth_sync;                ///< Set to true if smooth synchronization is required.
-                                   ///< @note This feature is currently not supported in Si917 chipsets.
+                                   ///< @note This feature is currently not supported in SiWx91x chipsets.
   bool server_from_dhcp;           ///< Set to true to request NTP server configuration from DHCP.
-                                   ///< @note This feature is currently not supported in Si917 chipsets.
+                                   ///< @note This feature is currently not supported in SiWx91x chipsets.
   bool renew_servers_after_new_ip; ///< Set to true to refresh the server list if NTP is provided by DHCP.
-                                   ///< @note This feature is currently not supported in Si917 chipsets.
+                                   ///< @note This feature is currently not supported in SiWx91x chipsets.
 } sl_sntp_client_config_t;
 /** @} */
 
@@ -277,9 +277,9 @@ sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_
  *   Get time and date information from NTP.
  * 
  * @details
- *   The function retrieves the current NTP epoch time and date. It operates in synchronous and asynchronous mode based on the timeout value.
+ *   The function retrieves the current NTP epoch time and date. It operates in synchronous, and asynchronous mode based on the timeout value.
  *   - **Synchronous Mode:** If the timeout value is non-zero then, function waits for the response until the timeout occurs. It returns the value in the provided data buffer.
- *   - **Asynchronous Mode:** If the timeout value is zero then, function returns immediately, It returns the value via the @ref sl_sntp_client_event_handler_t callback.
+ *   - **Asynchronous Mode:** If the timeout value is zero then, function returns immediately. It returns the value via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @param[in] data		      
  *    A valid pointer to a data buffer must have value greater than or equal to 50 bytes. In synchronous mode, the time and date parameters are return in string format in the buffer. In asynchronous mode, the parameter is specified by the user via a user_data parameter of the event handler.

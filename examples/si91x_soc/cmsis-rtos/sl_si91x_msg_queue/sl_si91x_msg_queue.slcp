@@ -2,16 +2,17 @@
 project_name: sl_si91x_msg_queue
 label: Si91x - SL_RTOS_MSG_QUEUE
 description: |
-  Demonstrates how to use RTOS concept Message Queue in an application.
+  This application demonstrates how to use RTOS concept Message Queue 
+  in an application.
 category: example|cmsis-rtos
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 readme:
   - path: readme.md
 source:

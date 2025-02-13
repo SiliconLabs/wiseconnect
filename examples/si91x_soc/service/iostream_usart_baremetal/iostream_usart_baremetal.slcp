@@ -1,20 +1,18 @@
 project_name: iostream_usart_baremetal
 label: iostream_usart_baremetal
 description: >
-  This example project uses the I/O Stream service running in a
-  bare-metal configuration  to demonstrate the use of UART communication over
-  the virtual COM port (VCOM). The  application will echo back any characters it
-  receives over the serial connection. The  VCOM serial port can be used 
-  over USB.
+  This application demonstrates how to use the I/O Stream service in a bare-metal configuration to enable UART communication over a virtual COM port (VCOM). 
+  It will echo back any characters received through the serial connection, and the VCOM serial port operates over USB, allowing for communication between the device and a host. 
+  This setup showcases basic serial communication using UART.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 readme:
   - path: readme.md
 source:

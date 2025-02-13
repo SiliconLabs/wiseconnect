@@ -1,17 +1,18 @@
 project_name: sl_si91x_usart_async
 label: SI91x - SL_USART_ASYNCHRONOUS
 description: >
-  This example project configures USART transmits and receives data
-  in asynchronous full duplex mode.
+  This application demonstrates the usage of the USART (Universal Synchronous Asynchronous Receiver-Transmitter) in asynchronous full-duplex mode, 
+  enabling simultaneous transmission and reception of data. The application highlights how to configure and use the USART to handle 
+  communication tasks efficiently on the Si91x SoC, where data is transmitted and received asynchronously without the need for synchronization signals, facilitating smooth, bidirectional data flow.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

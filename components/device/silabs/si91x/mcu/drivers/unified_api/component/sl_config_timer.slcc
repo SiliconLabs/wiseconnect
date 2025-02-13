@@ -18,6 +18,7 @@ metadata:
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: config/sl_si91x_config_timer_config.h
+    file_id: config_timer_config
 source:
   - path: "src/sl_si91x_config_timer.c"
 include:

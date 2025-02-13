@@ -1,18 +1,18 @@
 project_name: psram_blinky
 label: SI91x - SoC Peripheral PSRAM Blinky
 description: >
-  This example project demonstrates blinky application executing from
-  PSRAM. The Text segment, Data segment, BSS segment, Stack and Heap are placed
-  in PSRAM.
+  This application demonstrates a blinky application running from PSRAM. 
+  The program's Text, Data, BSS, Stack, and Heap segments are placed in PSRAM to utilize external memory effectively. 
+  It highlights memory configuration for applications requiring execution from PSRAM, enabling expanded memory space usage and optimizing on-chip resources.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

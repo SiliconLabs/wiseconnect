@@ -28,6 +28,8 @@ requires:
 define:
   - name: SLI_SI91X_ENABLE_OS
     condition: [freertos]
+  - name: SLI_SI91X_ENABLE_OS
+    condition: [micriumos_kernel]
   - name: SLI_SI91X_MCU_INTERFACE
   - name: TA_DEEP_SLEEP_COMMON_FLASH
   - name: SI917

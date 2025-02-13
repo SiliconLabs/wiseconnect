@@ -479,8 +479,8 @@ void receive_data_from_tcp_client(void)
   printf("\r\nTCP_RX Throughput test finished\r\n");
   printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
 
-  close(server_socket);
-  close(client_socket);
+  sl_si91x_shutdown(server_socket, 0);
+  sl_si91x_shutdown(client_socket, 0);
 
   measure_and_print_throughput(bytes_read, (now - start));
 #else
@@ -640,7 +640,7 @@ void receive_data_from_udp_client(void)
 
   measure_and_print_throughput(bytes_read, (now - start));
 
-  close(client_socket);
+  sl_si91x_shutdown(client_socket, 0);
 #else
   int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
@@ -703,6 +703,8 @@ void receive_data_from_tls_server(void)
   printf("Socket config Done\r\n");
 
 #if SOCKET_ASYNC_FEATURE
+  uint8_t enable_tls = SL_SI91X_ENABLE_TLS;
+
   client_socket = sl_si91x_socket_async(AF_INET, SOCK_STREAM, IPPROTO_TCP, &data_callback);
   if (client_socket < 0) {
     printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
@@ -710,10 +712,11 @@ void receive_data_from_tls_server(void)
   }
   printf("\r\nSocket ID : %d\r\n", client_socket);
 
-  socket_return_value = setsockopt(client_socket, SOL_TCP, TCP_ULP, TLS, sizeof(TLS));
+  socket_return_value =
+    sl_si91x_setsockopt(client_socket, SOL_SOCKET, SL_SI91X_SO_SSL_ENABLE, &enable_tls, sizeof(enable_tls));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
-    close(client_socket);
+    sl_si91x_shutdown(client_socket, 0);
     return;
   }
 
@@ -724,7 +727,7 @@ void receive_data_from_tls_server(void)
                                             sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
-    close(client_socket);
+    sl_si91x_shutdown(client_socket, 0);
     return;
   }
 
@@ -732,10 +735,10 @@ void receive_data_from_tls_server(void)
   server_address.sin_port   = SERVER_PORT;
   sl_net_inet_addr(SERVER_IP, &server_address.sin_addr.s_addr);
 
-  socket_return_value = connect(client_socket, (struct sockaddr *)&server_address, socket_length);
+  socket_return_value = sl_si91x_connect(client_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
     printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
-    close(client_socket);
+    sl_si91x_shutdown(client_socket, 0);
     return;
   }
   printf("\r\nSocket connected to TLS server\r\n");
@@ -749,7 +752,7 @@ void receive_data_from_tls_server(void)
   printf("\r\nTCP_RX Throughput test finished\r\n");
   printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
 
-  close(client_socket);
+  sl_si91x_shutdown(client_socket, 0);
   measure_and_print_throughput(bytes_read, (now - start));
 #else
   uint32_t total_bytes_received = 0;

@@ -1,17 +1,17 @@
 project_name: sl_si91x_ulp_dac
 label: Si91x - SL ULP DAC
 description: >
-  Demonstrates the how to configure and use the ULP DAC peripheral on the
+  This application demonstrates the how to configure and use the ULP DAC peripheral on the
   the SiWx917 SoC device.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: sl_ulp_dac_example.c
   - path: app.c

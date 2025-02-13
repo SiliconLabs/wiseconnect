@@ -31,7 +31,6 @@
 #include "sl_constants.h"
 #include <stdbool.h>
 #include <string.h>
-#include "FreeRTOS.h"
 
 #define LDMA_MAX_TRANSFER_LENGTH     4096
 #define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
@@ -156,9 +155,10 @@ static void efx32_ncp_uart_init(uint32_t baudrate, bool hfc)
 
   if (true == hfc) {
     // UART CTS
-    GPIO_PinModeSet(NCP_UART_CTS_PIN.port, NCP_UART_CTS_PIN.pin, gpioModeInput, 0);
+    GPIO_PinModeSet(SL_UARTDRV_USART_EXP_CTS_PORT, SL_UARTDRV_USART_EXP_CTS_PIN, gpioModeInput, 0);
+
     // UART RTS
-    GPIO_PinModeSet(NCP_UART_RTS_PIN.port, NCP_UART_RTS_PIN.pin, gpioModePushPull, 1);
+    GPIO_PinModeSet(SL_UARTDRV_USART_EXP_RTS_PORT, SL_UARTDRV_USART_EXP_RTS_PIN, gpioModePushPull, 1);
   }
 
   // Initialize UART asynchronous mode and route pins
@@ -170,10 +170,12 @@ static void efx32_ncp_uart_init(uint32_t baudrate, bool hfc)
                                                     | (SL_UARTDRV_USART_EXP_TX_PIN << _GPIO_USART_TXROUTE_PIN_SHIFT);
 
   if (true == hfc) {
-    GPIO->USARTROUTE[NCP_USART_ROUTE_INDEX].CTSROUTE = (NCP_UART_CTS_PIN.port << _GPIO_USART_CTSROUTE_PORT_SHIFT)
-                                                       | (NCP_UART_CTS_PIN.pin << _GPIO_USART_CTSROUTE_PIN_SHIFT);
-    GPIO->USARTROUTE[NCP_USART_ROUTE_INDEX].RTSROUTE = (NCP_UART_RTS_PIN.port << _GPIO_USART_RTSROUTE_PORT_SHIFT)
-                                                       | (NCP_UART_RTS_PIN.pin << _GPIO_USART_RTSROUTE_PIN_SHIFT);
+    GPIO->USARTROUTE[NCP_USART_ROUTE_INDEX].CTSROUTE =
+      (SL_UARTDRV_USART_EXP_CTS_PORT << _GPIO_USART_CTSROUTE_PORT_SHIFT)
+      | (SL_UARTDRV_USART_EXP_CTS_PIN << _GPIO_USART_CTSROUTE_PIN_SHIFT);
+    GPIO->USARTROUTE[NCP_USART_ROUTE_INDEX].RTSROUTE =
+      (SL_UARTDRV_USART_EXP_RTS_PORT << _GPIO_USART_RTSROUTE_PORT_SHIFT)
+      | (SL_UARTDRV_USART_EXP_RTS_PIN << _GPIO_USART_RTSROUTE_PIN_SHIFT);
   }
 
   // Enable USART interface pins

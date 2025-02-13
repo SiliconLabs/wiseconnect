@@ -211,6 +211,8 @@ typedef struct rsi_ble_conn_info_s {
 
   mtu_state_t mtu_state;
   smp_state_t smp_state;
+  bool notifications_enabled;
+  bool indications_enabled;
 } rsi_ble_conn_info_t;
 
 typedef struct rsi_parsed_conf_s {

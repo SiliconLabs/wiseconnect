@@ -1,16 +1,18 @@
 project_name: sl_si91x_i2c_driver_leader
 label: SI91x - SL_I2C_Driver_Leader
 description: |
-  Demonstrates how to use the I2C interface on the SI91x SoC device using Blocking APIs.
+  This application demonstrates how to use the I2C interface on the Si91x SoC device with blocking APIs. 
+  It highlights the configuration of the I2C peripheral and shows how to send and receive data in a blocking mode, 
+  which ensures that the system waits for a transaction to complete before proceeding to the next one.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

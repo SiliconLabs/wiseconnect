@@ -23,21 +23,21 @@
 {% for inst in temp_analog_comparator_instance %} 
 #include "sl_si91x_analog_comparator_{{ inst }}_config.h"
 
-#if defined(SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT) // To verify UC inputs existance
+#if defined(SL_ANALOG_{{ inst | upper }}_NON_INVERTING_INPUT) // To verify UC inputs existance
 sl_analog_comparator_config_t sl_analog_{{ inst }}_config_handle = {
         .comparator_number   = SL_ANALOG_COMPARATOR_{{ inst | upper }},
-#if defined(SL_ANALOG_COMPARATOR_NON_INVERTING_PIN_INPUT)
-		.non_inverting_input = SL_ANALOG_COMPARATOR_NON_INVERTING_PIN_INPUT, // Pin tool non-inverting input
+#if defined(SL_ANALOG_{{ inst | upper }}_NON_INVERTING_PIN_INPUT)
+		.non_inverting_input = SL_ANALOG_{{ inst | upper }}_NON_INVERTING_PIN_INPUT, // Pin tool non-inverting input
 #else
-		.non_inverting_input = SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT,
+		.non_inverting_input = SL_ANALOG_{{ inst | upper }}_NON_INVERTING_INPUT,
 #endif
-#if defined(SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT)
-        .inverting_input = SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT, // Pin tool inverting input
+#if defined(SL_ANALOG_{{ inst | upper }}_INVERTING_PIN_INPUT)
+        .inverting_input = SL_ANALOG_{{ inst | upper }}_INVERTING_PIN_INPUT, // Pin tool inverting input
 #else
-        .inverting_input = SL_ANALOG_COMPARATOR_INVERTING_INPUT,
+        .inverting_input = SL_ANALOG_{{ inst | upper }}_INVERTING_INPUT,
 #endif
-        .hystersis_value   = SL_ANALOG_COMPARATOR_HYSTERSIS_VALUE,
-        .is_filter_enabled = SL_ANALOG_COMPARATOR_FILTER_ENABLED,
+        .hystersis_value   = SL_ANALOG_{{ inst | upper }}_HYSTERSIS_VALUE,
+        .is_filter_enabled = SL_ANALOG_{{ inst | upper }}_FILTER_ENABLED,
 };
 #endif // SL_ANALOG_COMPARATOR_INSTANCE
 {% endfor %}

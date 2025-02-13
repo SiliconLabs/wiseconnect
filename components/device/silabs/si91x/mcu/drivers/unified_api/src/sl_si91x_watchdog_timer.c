@@ -68,7 +68,7 @@ void WATCHDOG_TIMER_IRQHandler(void);
 * @brief: Initializes watchdog-timer
 *
 * @details:
-* Initializes(power-ups) the timer, enabling WDT to operate when CPU is in SLEEP state
+* Initializes(power-ups) the timer
 * Sets RTC clock time-period, for value /ref TIME_PERIOD_VALUE
 * un-masks timer interrupt
 *******************************************************************************/
@@ -76,7 +76,7 @@ void sl_si91x_watchdog_init_timer(void)
 {
   // Un-masking WDT interrupt
   RSI_WWDT_IntrUnMask();
-  // Initializing watchdog-timer (powering up WDT and enabling it to run during CPU sleep mode)
+  // Initializing watchdog-timer (powering up WDT)
   RSI_WWDT_Init(MCU_WDT);
 }
 

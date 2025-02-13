@@ -35,6 +35,7 @@ extern const console_database_t console_command_database;
 extern const char *const console_argument_type_strings[];
 
 extern volatile uint8_t console_line_ready;
+extern volatile uint8_t console_data_rx_receive;
 
 /******************************************************
  *               Function Declarations

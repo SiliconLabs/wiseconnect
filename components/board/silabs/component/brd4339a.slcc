@@ -18,6 +18,7 @@
   - name: external_flash_8mb
   - name: external_psram_none
   - name: rsilib_board
+  - name: si91x_common_flash
 - provides:
   - name: brd4339a
   - name: hardware_board

@@ -10,9 +10,9 @@ filter:
     value: ["BLE"]
   - name: "Project Difficulty"
     value: ["Advanced"]
-sdk: {id: simplicity_sdk, version:  "2024.12.0"}
+sdk: {id: simplicity_sdk, version:  "2024.12.1"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.0}
+- {id: wiseconnect3_sdk, version: 3.4.1}
 source:
   - path: app.c
   - path: main.c

@@ -17,6 +17,7 @@ metadata:
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: config/sl_si91x_dac_config.h
+    file_id: dac_config
 source:
   - path: "src/sl_si91x_dac.c"
 include:

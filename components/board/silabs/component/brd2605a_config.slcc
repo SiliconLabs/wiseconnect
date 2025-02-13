@@ -167,6 +167,13 @@
       file_id: ssi_config
       instance: ulp_primary
     path: common_config/sl_si91x_ssi_ulp_primary_config.h
+    unless: [sl_icm40627]
+  - override:
+      component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
+      file_id: ssi_config
+      instance: ulp_primary
+    path: brd2605a/sl_icm40627_config/sl_si91x_ssi_ulp_primary_config.h
+    condition: [sl_icm40627]
   - override:
       component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
       file_id: ulp_timer_config
@@ -216,7 +223,7 @@
   - override:
       component: "%extension-wiseconnect3_sdk%sl_icm40627"
       file_id: icm40627_config
-    path: brd2605a/sl_si91x_icm40627_config.h
+    path: brd2605a/sl_icm40627_config/sl_si91x_icm40627_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%sl_si91x_mic"
       file_id: mic_config

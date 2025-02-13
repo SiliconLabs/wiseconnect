@@ -1,16 +1,17 @@
 project_name: sl_si91x_i2s_primary
 label: SI91x - SL_I2S_PRIMARY
 description: |
-  Demonstrates how to use the I2S primary interface on the SI91x SoC device.
+  This application demonstrates how to configure and use the primary I2S interface on the Si91x SoC device, enabling audio data communication through the I2S protocol. 
+  This example shows how to set up the I2S interface to transmit and receive audio signals, offering a foundation for audio applications.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

@@ -3,7 +3,7 @@ package: platform
 quality: production
 label: Platform - Empty C Example
 description: >
-  This example project shows an empty configuration that can be used as a starting point to add components and functionality for NCP boards.
+  This application demonstrates the usage of an empty configuration that can be used as a starting point to add components and functionality for NCP boards.
 category: Example|Platform
 filter:
   - name: "Device Type"
@@ -14,10 +14,10 @@ filter:
     value: ["Beginner"]
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

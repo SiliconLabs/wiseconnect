@@ -1,16 +1,17 @@
 project_name: si91x_hello_world
 label: Si91x - Hello World
 description: |
-  This example project shows a hello world example that can be used as a starting point to add components and functionality to the Si91x SoC.
+  This application demonstrates how to use hello world example that can be used as a starting point 
+  to add components and functionality to the Si91x SoC.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

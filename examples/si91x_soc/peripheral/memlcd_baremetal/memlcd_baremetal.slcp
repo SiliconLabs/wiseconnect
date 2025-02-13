@@ -1,16 +1,16 @@
 project_name: MEMLCD_Baremetal
 label: SI91x - MEMLCD Baremetal
 description: |
-  Demonstrates memlcd can be used.
+  This application demonstrates how the MEM LCD can be used in a bare-metal application.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

@@ -1,16 +1,16 @@
 project_name: sl_si91x_gpio_detailed_example
 label: SI91x - SL_GPIO_DETAILED_EXAMPLE
 description: |
-  Demonstrates toggling of GPIO and usage of additional APIs for GPIO
+  This application demonstrates how to toggle GPIO pins and utilize additional APIs for enhanced GPIO control on the SiWx917 SoC device. 
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 readme:
   - path: readme.md
 source:

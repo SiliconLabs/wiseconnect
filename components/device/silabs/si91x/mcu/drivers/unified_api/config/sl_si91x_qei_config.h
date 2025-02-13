@@ -93,7 +93,7 @@ extern "C" {
 #define SL_QEI_DIR_PIN 7
 #endif
 #ifndef SL_QEI_DIR_LOC
-#define SL_QEI_DIR_LOC 0
+#define SL_QEI_DIR_LOC 5
 #endif
 
 // QEI IDX on ULP_GPIO_8/GPIO_72
@@ -104,7 +104,7 @@ extern "C" {
 #define SL_QEI_IDX_PIN 8
 #endif
 #ifndef SL_QEI_IDX_LOC
-#define SL_QEI_IDX_LOC 0
+#define SL_QEI_IDX_LOC 14
 #endif
 
 // QEI PHA on ULP_GPIO_1/GPIO_65
@@ -115,7 +115,7 @@ extern "C" {
 #define SL_QEI_PHA_PIN 1
 #endif
 #ifndef SL_QEI_PHA_LOC
-#define SL_QEI_PHA_LOC 0 // need to change loc
+#define SL_QEI_PHA_LOC 21
 #endif
 
 // QEI PHB on ULP_GPIO_10/GPIO_74
@@ -126,7 +126,7 @@ extern "C" {
 #define SL_QEI_PHB_PIN 10
 #endif
 #ifndef SL_QEI_PHB_LOC
-#define SL_QEI_PHB_LOC 0
+#define SL_QEI_PHB_LOC 29
 #endif
 // [QEI_SL_QEI]$
 // <<< sl:end pin_tool >>>

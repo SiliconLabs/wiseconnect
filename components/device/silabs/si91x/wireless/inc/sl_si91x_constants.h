@@ -210,9 +210,11 @@
 #define SL_SI91X_ECDSA_MSG_MAX_SIZE   1000
 
 // NWP Configuration defines
-#define SL_SI91X_XO_CTUNE_FROM_HOST        BIT(0)
-#define SL_SI91X_ENABLE_NWP_WDT_FROM_HOST  BIT(1)
-#define SL_SI91X_DISABLE_NWP_WDT_FROM_HOST BIT(2)
+#define SL_SI91X_XO_CTUNE_FROM_HOST           BIT(0)
+#define SL_SI91X_ENABLE_NWP_WDT_FROM_HOST     BIT(1)
+#define SL_SI91X_DISABLE_NWP_WDT_FROM_HOST    BIT(2)
+#define SL_SI91X_SET_XTAL_GOOD_TIME_FROM_HOST BIT(3)
+#define SL_SI91X_SET_PMU_GOOD_TIME_FROM_HOST  BIT(4)
 
 //NWP Get configuration defines
 #define GET_OPN_BOARD_CONFIG 1
@@ -362,8 +364,9 @@ typedef enum {
 #define CONFIG_RTSTHRESHOLD 1
 #define RSI_RTS_THRESHOLD   2346
 
-#define RSI_SEND_RAW_DATA    0x1
-#define RSI_RECEIVE_RAW_DATA 0x0
+#define RSI_SEND_RAW_DATA                    0x1
+#define RSI_RECEIVE_RAW_DATA                 0x0
+#define RSI_NET_DUAL_STACK_RX_RAW_DATA_FRAME 0x1 // Rx data frame type in network dual stack mode
 
 // enumeration for command request used in common control block
 typedef enum {

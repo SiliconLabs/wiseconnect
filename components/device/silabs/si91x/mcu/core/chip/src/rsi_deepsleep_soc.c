@@ -38,6 +38,10 @@
 #include "rsi_debug.h"
 #endif
 
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+#include "rsi_m4.h"
+#endif
+
 void fpuInit(void);
 #define NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 (*(volatile uint32_t *)(0x41300000 + 0x4))
 #define NWPAON_MEM_HOST_ACCESS_CTRL_SET_1   (*(volatile uint32_t *)(0x41300000 + 0x0))
@@ -578,6 +582,11 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     //!Poll for flash magic word
     while (MBR_MAGIC_WORD != 0x5A5A)
       ;
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+    // Update TX and RX descriptors after M4 wakeup
+    rsi_update_tx_dma_desc(1);
+    rsi_update_rx_dma_desc();
+#endif
   }
 #endif
 

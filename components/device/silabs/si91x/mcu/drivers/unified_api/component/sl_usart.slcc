@@ -19,6 +19,7 @@ root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: config/sl_si91x_usart_config.h
   - path: config/sl_si91x_usart_common_config.h
+    file_id: usart_config
 source:
   - path: "src/sl_si91x_usart.c"
 include:

@@ -177,29 +177,26 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
 
     case SL_SI91X_SO_SSL_ENABLE: {
       // Enable SSL for the socket
-      SET_ERRNO_AND_RETURN_IF_TRUE((*(uint8_t *)option_value) != SI91X_SOCKET_FEAT_SSL, EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL;
+      SET_ERRNO_AND_RETURN_IF_TRUE((*(uint8_t *)option_value) != SL_SI91X_ENABLE_TLS, EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_TLS;
       break;
     }
     case SL_SI91X_SO_SSL_V_1_0_ENABLE: {
       // Enable SSL version 1.0 for the socket
-      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_0)),
-                                   EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_0;
+      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_0)), EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_0;
       break;
     }
     case SL_SI91X_SO_SSL_V_1_1_ENABLE: {
       // Enable SSL version 1.1 for the socket
-      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_1)),
-                                   EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_1;
+      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_1)), EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_1;
       break;
     }
     case SL_SI91X_SO_SSL_V_1_2_ENABLE: {
       // Enable SSL version 1.2 for the socket
-      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_2)),
-                                   EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_2;
+      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_2)), EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_2;
       break;
     }
 
@@ -218,9 +215,8 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
 #if defined(SLI_SI917) || defined(SLI_SI915)
     case SL_SI91X_SO_SSL_V_1_3_ENABLE: {
       // Enable SSL version 1.3 for the socket.
-      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_3)),
-                                   EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_3;
+      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_3)), EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_TLS | SL_SI91X_TLS_V_1_3;
       break;
     }
 #endif

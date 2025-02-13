@@ -25,14 +25,13 @@
 #include <string.h>
 #include "sl_rsi_utility.h"
 
-#define NETIF_IPV4_ADDRESS(X, Y) (uint8_t)(((X) >> (8 * Y)) & 0xFF)
-#define MAC_48_BIT_SET           (1)
-#define LWIP_FRAME_ALIGNMENT     60
-#define STRUCT_PBUF              ((struct pbuf *)0)
-#define INTERFACE_NAME_0         'w' ///< Network interface name 0
-#define INTERFACE_NAME_1         'l' ///< Network interface name 1
-#define MAX_TRANSFER_UNIT        1500
-#define get_netif(i)             ((i & SL_WIFI_CLIENT_INTERFACE) ? &wifi_client_context->netif : &wifi_ap_context->netif)
+#define MAC_48_BIT_SET       (1)
+#define LWIP_FRAME_ALIGNMENT 60
+#define STRUCT_PBUF          ((struct pbuf *)0)
+#define INTERFACE_NAME_0     'w' ///< Network interface name 0
+#define INTERFACE_NAME_1     'l' ///< Network interface name 1
+#define MAX_TRANSFER_UNIT    1500
+#define get_netif(i)         ((i & SL_WIFI_CLIENT_INTERFACE) ? &wifi_client_context->netif : &wifi_ap_context->netif)
 
 sl_net_wifi_lwip_context_t *wifi_client_context = NULL;
 sl_net_wifi_lwip_context_t *wifi_ap_context     = NULL;
@@ -228,7 +227,40 @@ static void sta_netif_config(void)
 
 static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
 {
+  netifapi_netif_set_up(&(wifi_client_context->netif));
+  netifapi_netif_set_link_up(&(wifi_client_context->netif));
+
   if (SL_IP_MANAGEMENT_STATIC_IP == profile->ip.mode) {
+#if LWIP_IPV4 && LWIP_IPV6
+    ip_addr_t ipaddr  = { 0 };
+    ip_addr_t gateway = { 0 };
+    ip_addr_t netmask = { 0 };
+
+    if (profile->ip.type == SL_IPV4) {
+      uint8_t *address = &(profile->ip.ip.v4.ip_address.bytes[0]);
+      IP4_ADDR(&ipaddr.u_addr.ip4, address[0], address[1], address[2], address[3]);
+      address = &(profile->ip.ip.v4.gateway.bytes[0]);
+      IP4_ADDR(&gateway.u_addr.ip4, address[0], address[1], address[2], address[3]);
+      address = &(profile->ip.ip.v4.netmask.bytes[0]);
+      IP4_ADDR(&netmask.u_addr.ip4, address[0], address[1], address[2], address[3]);
+
+      netifapi_netif_set_addr(&(wifi_client_context->netif),
+                              &ipaddr.u_addr.ip4,
+                              &netmask.u_addr.ip4,
+                              &gateway.u_addr.ip4);
+    } else if (profile->ip.type == SL_IPV6) {
+      uint32_t *address = &(profile->ip.ip.v6.link_local_address.value[0]);
+      IP6_ADDR(&ipaddr.u_addr.ip6, address[0], address[1], address[2], address[3]);
+      address = &(profile->ip.ip.v6.global_address.value[0]);
+      IP6_ADDR(&gateway.u_addr.ip6, address[0], address[1], address[2], address[3]);
+      address = &(profile->ip.ip.v6.gateway.value[0]);
+      IP6_ADDR(&netmask.u_addr.ip6, address[0], address[1], address[2], address[3]);
+
+      netif_ip6_addr_set(&(wifi_client_context->netif), 0, &ipaddr.u_addr.ip6);
+      netif_ip6_addr_set(&(wifi_client_context->netif), 1, &gateway.u_addr.ip6);
+      netif_ip6_addr_set(&(wifi_client_context->netif), 2, &netmask.u_addr.ip6);
+    }
+#elif LWIP_IPV4
     ip4_addr_t ipaddr  = { 0 };
     ip4_addr_t gateway = { 0 };
     ip4_addr_t netmask = { 0 };
@@ -241,10 +273,22 @@ static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
     IP4_ADDR(&netmask, address[0], address[1], address[2], address[3]);
 
     netifapi_netif_set_addr(&(wifi_client_context->netif), &ipaddr, &netmask, &gateway);
-  }
+#elif LWIP_IPV6
+    ip6_addr_t link_local_address = { 0 };
+    ip6_addr_t global_address     = { 0 };
+    ip6_addr_t gateway            = { 0 };
+    uint32_t *address             = &(profile->ip.ip.v6.link_local_address.value[0]);
 
-  netifapi_netif_set_up(&(wifi_client_context->netif));
-  netifapi_netif_set_link_up(&(wifi_client_context->netif));
+    IP6_ADDR(&link_local_address, address[0], address[1], address[2], address[3]);
+    address = &(profile->ip.ip.v6.global_address.value[0]);
+    IP6_ADDR(&global_address, address[0], address[1], address[2], address[3]);
+    address = &(profile->ip.ip.v6.gateway.value[0]);
+    IP6_ADDR(&gateway, address[0], address[1], address[2], address[3]);
+    netif_ip6_addr_set(&(wifi_client_context->netif), 0, &link_local_address);
+    netif_ip6_addr_set(&(wifi_client_context->netif), 1, &global_address);
+    netif_ip6_addr_set(&(wifi_client_context->netif), 2, &gateway);
+#endif /* LWIP_IPV6 */
+  }
 
   if (SL_IP_MANAGEMENT_DHCP == profile->ip.mode) {
 #if LWIP_IPV4 && LWIP_DHCP
@@ -252,34 +296,30 @@ static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
     ip_addr_set_zero_ip4(&(wifi_client_context->netif.netmask));
     ip_addr_set_zero_ip4(&(wifi_client_context->netif.gw));
     dhcp_start(&(wifi_client_context->netif));
-#endif /* LWIP_IPV4 && LWIP_DHCP */
-    /*
-       * Enable IPV6
-       */
     //! Wait for DHCP to acquire IP Address
     while (!dhcp_supplied_address(&(wifi_client_context->netif))) {
       osDelay(100);
     }
+    SL_DEBUG_LOG("DHCP IP: %s\n", ip4addr_ntoa((const ip4_addr_t *)&wifi_client_context->netif.ip_addr));
+#endif /* LWIP_IPV4 && LWIP_DHCP */
+    /*
+      * Enable DHCP6 with IPV6
+      */
   }
 
-#if LWIP_IPV4
-  uint64_t addr = wifi_client_context->netif.ip_addr.addr;
-#endif
-#if LWIP_IPV6
-  uint64_t addr = wifi_client_context->netif.ip_addr.u_addr.ip4.addr;
-#endif
-  SL_DEBUG_LOG("DHCP IP: %u.%u.%u.%u\n",
-               NETIF_IPV4_ADDRESS(addr, 0),
-               NETIF_IPV4_ADDRESS(addr, 1),
-               NETIF_IPV4_ADDRESS(addr, 2),
-               NETIF_IPV4_ADDRESS(addr, 3));
-
-#if LWIP_IPV6
-#if LWIP_IPV6_AUTOCONFIG
-  wifi_client_context->netif.ip6_autoconfig_enabled = 1;
-#endif /* LWIP_IPV6_AUTOCONFIG */
+#if LWIP_IPV6 && LWIP_IPV6_AUTOCONFIG
+  // Automatically configure global addresses from Router Advertisements
+  netif_set_ip6_autoconfig_enabled(&(wifi_client_context->netif), 1);
+  // Create and set the link-local address
   netif_create_ip6_linklocal_address(&(wifi_client_context->netif), MAC_48_BIT_SET);
-#endif
+  SL_DEBUG_LOG("IPv6 Address %s\n", ip6addr_ntoa(netif_ip6_addr(&(wifi_client_context->netif), 0)));
+
+  // Wait for the link-local address to up
+  while (!ip6_addr_ispreferred(netif_ip6_addr_state(&(wifi_client_context->netif), 0))) {
+    osDelay(200);
+  }
+#endif /* LWIP_IPV6 && LWIP_IPV6_AUTOCONFIG */
+
   return;
 }
 
@@ -347,6 +387,7 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
+#if LWIP_TESTMODE
   struct sys_timeo **list_head = NULL;
 
   //! Free all timers
@@ -355,7 +396,7 @@ sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
     if (*list_head != NULL)
       sys_untimeout((*list_head)->h, (*list_head)->arg);
   }
-
+#endif
   return sl_wifi_deinit();
 }
 
@@ -370,28 +411,59 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 5000);
+  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 18000);
   VERIFY_STATUS_AND_RETURN(status);
 
   set_sta_link_up(&profile);
-  uint64_t addr                        = wifi_client_context->netif.ip_addr.addr;
-  profile.ip.ip.v4.ip_address.bytes[0] = NETIF_IPV4_ADDRESS(addr, 0);
-  profile.ip.ip.v4.ip_address.bytes[1] = NETIF_IPV4_ADDRESS(addr, 1);
-  profile.ip.ip.v4.ip_address.bytes[2] = NETIF_IPV4_ADDRESS(addr, 2);
-  profile.ip.ip.v4.ip_address.bytes[3] = NETIF_IPV4_ADDRESS(addr, 3);
+#if LWIP_IPV4 && LWIP_IPV6
+  ip_addr_t *addr;
 
-  addr                              = wifi_client_context->netif.gw.addr;
-  profile.ip.ip.v4.gateway.bytes[0] = NETIF_IPV4_ADDRESS(addr, 0);
-  profile.ip.ip.v4.gateway.bytes[1] = NETIF_IPV4_ADDRESS(addr, 1);
-  profile.ip.ip.v4.gateway.bytes[2] = NETIF_IPV4_ADDRESS(addr, 2);
-  profile.ip.ip.v4.gateway.bytes[3] = NETIF_IPV4_ADDRESS(addr, 3);
+  addr = &wifi_client_context->netif.ip_addr;
+  if (addr->type == IPADDR_TYPE_V4) {
+    memcpy(profile.ip.ip.v4.ip_address.bytes, &addr->u_addr.ip4.addr, sizeof(addr->u_addr.ip4.addr));
+  } else if (addr->type == IPADDR_TYPE_V6) {
+    for (int i = 0; i < 4; i++) {
+      profile.ip.ip.v6.link_local_address.value[i] = ntohl(wifi_client_context->netif.ip6_addr[0].u_addr.ip6.addr[i]);
+    }
+  }
 
-  addr                              = wifi_client_context->netif.netmask.addr;
-  profile.ip.ip.v4.netmask.bytes[0] = NETIF_IPV4_ADDRESS(addr, 0);
-  profile.ip.ip.v4.netmask.bytes[1] = NETIF_IPV4_ADDRESS(addr, 1);
-  profile.ip.ip.v4.netmask.bytes[2] = NETIF_IPV4_ADDRESS(addr, 2);
-  profile.ip.ip.v4.netmask.bytes[3] = NETIF_IPV4_ADDRESS(addr, 3);
+  addr = &wifi_client_context->netif.gw;
+  if (addr->type == IPADDR_TYPE_V4) {
+    memcpy(profile.ip.ip.v4.gateway.bytes, &addr->u_addr.ip4.addr, sizeof(addr->u_addr.ip4.addr));
+  } else if (addr->type == IPADDR_TYPE_V6) {
+    for (int i = 0; i < 4; i++) {
+      profile.ip.ip.v6.global_address.value[i] = ntohl(wifi_client_context->netif.ip6_addr[1].u_addr.ip6.addr[i]);
+    }
+  }
 
+  addr = &wifi_client_context->netif.netmask;
+  if (addr->type == IPADDR_TYPE_V4) {
+    memcpy(profile.ip.ip.v4.netmask.bytes, &addr->u_addr.ip4.addr, sizeof(addr->u_addr.ip4.addr));
+  } else if (addr->type == IPADDR_TYPE_V6) {
+    for (int i = 0; i < 4; i++) {
+      profile.ip.ip.v6.gateway.value[i] = ntohl(wifi_client_context->netif.ip6_addr[2].u_addr.ip6.addr[i]);
+    }
+  }
+#else /* LWIP_IPV4 && LWIP_IPV6 */
+#if LWIP_IPV4
+  u32_t *addr;
+
+  addr = &wifi_client_context->netif.ip_addr.addr;
+  memcpy(profile.ip.ip.v4.ip_address.bytes, addr, sizeof(*addr));
+
+  addr = &wifi_client_context->netif.gw.addr;
+  memcpy(profile.ip.ip.v4.gateway.bytes, addr, sizeof(*addr));
+
+  addr = &wifi_client_context->netif.netmask.addr;
+  memcpy(profile.ip.ip.v4.netmask.bytes, addr, sizeof(*addr));
+#elif LWIP_IPV6
+  for (int i = 0; i < 4; i++) {
+    profile.ip.ip.v6.link_local_address.value[i] = lwip_htonl(wifi_client_context->netif.ip6_addr[0].addr[i]);
+    profile.ip.ip.v6.global_address.value[i]     = lwip_htonl(wifi_client_context->netif.ip6_addr[1].addr[i]);
+    profile.ip.ip.v6.gateway.value[i]            = lwip_htonl(wifi_client_context->netif.ip6_addr[2].addr[i]);
+  }
+#endif /* LWIP_IPV6 */
+#endif /* LWIP_IPV4 && LWIP_IPV6 */
   // Set the client profile
   status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
 

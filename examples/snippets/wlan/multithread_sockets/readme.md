@@ -91,7 +91,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make the necessary changes, if required.
 
 ### Configure sl_net_default_values.h
 
@@ -245,19 +245,19 @@ osThreadId_t create_newsocket_with_new_osthread(socket_handler sock_handler,
 
 | **Parameter**       | **Type**             | **Description**                                                                                             |
 |---------------------|----------------------|-------------------------------------------------------------------------------------------------------------|
-| `sock_handler`      | `socket_handler`    | A callback function pointer for handling the socket operations (e.g., sending or receiving data).           |
+| `sock_handler`      | `socket_handler`    | A callback function pointer for handling the socket operations (for example, sending or receiving data).           |
 | `Portnumber`        | `uint32_t`          | The port number on which the socket will operate.                                                          |
 | `ip_address`        | `char *`            | The IP address for the socket connection (use `NULL` for server-side sockets that don't require an address).|
 | `thread_name`       | `char *`            | The name of the OS thread that will be created for this socket.                                            |
-| `thread_priority`   | `uint8_t`           | The priority of the OS thread (e.g., `osPriorityLow`).                                                     |
-| `thread_size`       | `uint32_t`          | The stack size of the OS thread in bytes (e.g., `1024 * 4`).                                               |
-| `flag`              | `uint8_t`           | The socket type or behavior flag (e.g., `SYNC_SOCKET` for synchronized operations or `ASYNC_SOCKET` for asynchronous). |
+| `thread_priority`   | `uint8_t`           | The priority of the OS thread (for example, `osPriorityLow`).                                                     |
+| `thread_size`       | `uint32_t`          | The stack size of the OS thread in bytes (for example, `1024 * 4`).                                               |
+| `flag`              | `uint8_t`           | The socket type or behavior flag (for example, `SYNC_SOCKET` for synchronized operations or `ASYNC_SOCKET` for asynchronous). |
 
 #### **Return Value**  
 
 | **Type**        | **Description**                                                                                 |
 |------------------|-------------------------------------------------------------------------------------------------|
-| `osThreadId_t`   | Returns the ID of the newly created OS thread. On failure, it may return a NULL or error code. |
+| `osThreadId_t`   | Returns the ID of the newly created OS thread. On failure, it returns a NULL or error code. |
 
 ### Example: Multiple Sockets Over Multiple Threads
 
@@ -366,8 +366,8 @@ create_newsocket_with_new_osthread(receive_data_from_tls_server,
 - Throughput Test options
 
     ```c
-      #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512MB data transfer
-      #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1MB data transfer
+      #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512 MB data transfer
+      #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1 MB data transfer
       #define TEST_TIMEOUT      30000         // Throughput test timeout in ms
     ```
 
@@ -402,7 +402,7 @@ By default, three sockets are created in the example: **TCP_TX**, **TCP_RX (clie
 
 #### UDP Tx Throughput
 
-To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the following command from the installed folder's path in the command prompt.
 
 The iPerf command to start the UDP server on the PC is:
 
@@ -449,7 +449,7 @@ The iPerf command to start the UDP client is:
 
 #### TCP Tx Throughput
 
-To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the following command from the installed folder's path in the command prompt.
 
 The iPerf command to start the TCP server is:
 
@@ -507,7 +507,11 @@ To measure TCP Rx throughput, configure the SiWx91x as a TCP client and start a 
 
   > **Note:** The `TCP_Server_throughput.py` script is compatible with Python version 2 and above.
   >
-  > Ensure the `SERVER_PORT` and `SERVER_HOST` macros in the script are updated to match the server machine's configuration.
+  > Ensure the `SERVER_PORT` macro in the script are updated to match the server machine's configuration.
+
+- **For SOC/NCP with EFR host**
+
+  ![Figure: TCP_RX](resources/readme/SERVER_TCP_RX.png)
 
 #### TLS Tx Throughput
 
@@ -553,5 +557,5 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
   ![Figure: TLS_RX](resources/readme/TLS_RX_NCP.png)
 
 > **Note:**
-> The captured reference images are measured in an isolated chamber. However, variations can be observed if Throughputs measured in dense environments, ie. in a dense environment we can observe less throughput.
+> The captured reference images are measured in an isolated chamber. However, variations can be observed if Throughputs measured in dense environments that is, in a dense environment we can observe less throughput.
 

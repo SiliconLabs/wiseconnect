@@ -64,30 +64,30 @@ void gpio_example_init(void)
     status = sl_gpio_driver_init();
     if (status != SL_STATUS_OK) {
       // Prints GPIO initialization fails
-      DEBUGOUT("sl_gpio_driver_init, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_driver_init, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver initialization is successful \n");
+    DEBUGOUT("GPIO driver initialization is successful \r\n");
     // Configure GPIO pin 6 using pin configuration API.
     // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
     // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
     status = sl_gpio_set_configuration(sl_gpio_pin_config);
     if (status != SL_STATUS_OK) {
       // Prints if pin configuration fails
-      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver set pin configuration is successful \n");
+    DEBUGOUT("GPIO driver set pin configuration is successful \r\n");
     // Configure GPIO pin 11 using pin configuration API.
     // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
     // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
     status = sl_gpio_set_configuration(sl_gpio_pin_config1);
     if (status != SL_STATUS_OK) {
       // Prints if pin configuration fails
-      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver set pin configuration is successful \n");
+    DEBUGOUT("GPIO driver set pin configuration is successful \r\n");
     // Configure pin interrupt for GPIO pin. The pin interrupt in this application is performed using external triggering from button.
     // Press button1 for triggering HP GPIO instance pin interrupt
     status = sl_gpio_driver_configure_interrupt(&sl_gpio_pin_config1.port_pin,
@@ -96,10 +96,10 @@ void gpio_example_init(void)
                                                 (sl_gpio_irq_callback_t)&gpio_pin_interrupt0_callback,
                                                 AVL_INTR_NO);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_gpio_configure_pin_interrupt, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_configure_pin_interrupt, Error code: %lu\r\n", status);
       break;
     }
-    DEBUGOUT("GPIO driver interrupt configure is successful \n");
+    DEBUGOUT("GPIO driver interrupt configure is successful \r\n");
   } while (false);
 }
 /*******************************************************************************
@@ -111,11 +111,11 @@ void gpio_example_process_action(void)
   status = sl_gpio_driver_toggle_pin(&sl_gpio_pin_config.port_pin); // Toggle HP GPIO pin 6
   if (status != SL_STATUS_OK) {
     // Prints if toggling pin fails
-    DEBUGOUT("sl_gpio_toggle_pin, Error code: %lu", status);
+    DEBUGOUT("sl_gpio_toggle_pin, Error code: %lu\r\n", status);
     return;
   }
   // Prints indicating successful pin toggle
-  DEBUGOUT("HP GPIO driver toggle pin is successful \n");
+  DEBUGOUT("HP GPIO driver toggle pin is successful \r\n");
 }
 
 /*******************************************************************************
@@ -125,6 +125,6 @@ static void gpio_pin_interrupt0_callback(uint32_t pin_intr)
 {
   if (pin_intr == PIN_INTR_0) {
     // This is with respect to ISR context. Debugout might cause issues sometimes.
-    DEBUGOUT("gpio pin interrupt0\n");
+    DEBUGOUT("gpio pin interrupt0\r\n");
   }
 }

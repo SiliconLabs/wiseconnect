@@ -61,6 +61,8 @@ extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note 
  *   This function should be called before calling any other sl_wifi functions.
+ * @note
+ *   In SoC mode, wireless initialization must be completed before using the NVM3 APIs in the common flash, as flash write and erase operations require communication between the NWP & M4.
  ******************************************************************************/
 sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration,
                          sl_wifi_device_context_t *device_context,
@@ -183,7 +185,7 @@ sl_status_t sl_wifi_get_mac_address(sl_wifi_interface_t interface, sl_mac_addres
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
- *   This API is not supported by Si917 when called directly due to firmware constraints.
+ *   This API is not supported by SiWx91x when called directly due to firmware constraints.
  *   Alternatively, @ref sl_wifi_init can be used to configure the MAC address. sl_wifi_init ensures the appropriate state of firmware and calls this API to set MAC address.
  ******************************************************************************/
 sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_address_t *mac);

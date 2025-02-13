@@ -2,13 +2,13 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
-version: "3.4.0"
+version: "3.4.1"
 sdk:
   id: simplicity_sdk
-  version: "2024.12.0"
+  version: "2024.12.1"
 documentation:
   - docset: wiseconnect
-    version: "3.4.0"
+    version: "3.4.1"
 component_path:
   - path: resources
   - path: components/board

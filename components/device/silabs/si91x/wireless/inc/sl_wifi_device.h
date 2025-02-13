@@ -54,7 +54,7 @@
 #define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
 #endif
 #else
-#define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
+#define MEMORY_CONFIG (BIT(20) | BIT(21))
 #endif
 
 //! @endcond
@@ -100,7 +100,7 @@
  * @details
  * Enables GPIO-based handshake for low power mode.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_LP_GPIO_BASED_HANDSHAKE BIT(3)
 
@@ -128,7 +128,7 @@
  * @details
  * Configures the device to use a 3.3 V power supply for RF.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_RF_SUPPLY_VOL_3_3_VOLT BIT(6)
 
@@ -572,7 +572,7 @@
  * @details When this bit is set, the LED (GPIO_16) will blink to indicate network activity.
  * The LED blinks when a TX packet is sent or when a unicast packet addressed to the device’s MAC is received.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SIWx91x.
  */
 #define SL_SI91X_CUSTOM_FEAT_LED_FEATURE BIT(9)
 
@@ -623,7 +623,7 @@
  * @details This bit enables the auto-configuration feature, which allows the module to automatically configure itself based on predefined parameters.
  * 
  * @note Bits 18 - 19 are reserved.
- * @note Not applicable for SI917.
+ * @note Not applicable for SIWx91x.
  */
 #define SL_SI91X_CUSTOM_FEAT_TRIGGER_AUTO_CONFIG BIT(20)
 
@@ -745,17 +745,15 @@
  * @details Enabling this bit activates the Physical Unclonable Function feature, which provides a unique identifier for each device based on its physical characteristics.
  * 
  * @note Bit 6 is reserved.
- * @note Currently this feature is not supported for SI917.
  */
 #define SL_SI91X_EXT_FEAT_PUF BIT(7)
 
 /**
- * @def SL_SI91X_EXT_FEAT_SPECTRAL_MASK_NOKIA
- * @brief Nokia Spectral mask extended custom bitmap (currently not supported).
- * @details Enabling this bit allows the device to support the Nokia Spectral mask for extended custom bitmap configurations.
+ * @def SL_SI91X_EXT_FEAT_NWP_QSPI_80MHZ_CLK_ENABLE
+ * @brief To switch NWP QSPI clock to 80 MHz.
+ * @details Enabling this bit switches the NWP QSPI clock from the default 40 MHz to 80 MHz. By increasing the QSPI clock speed, flash execution accelerates, resulting in improved throughput (in cases where flash execution is involved).
  */
-#define SL_SI91X_EXT_FEAT_SPECTRAL_MASK_NOKIA BIT(8)
-
+#define SL_SI91X_EXT_FEAT_NWP_QSPI_80MHZ_CLK_ENABLE BIT(8)
 /**
  * @def SL_SI91X_EXT_HTTP_SKIP_DEFAULT_LEADING_CHARACTER
  * @brief Extended feature bitmap to skip default leading character '\' in HTTP header.
@@ -768,7 +766,6 @@
  * @brief To enable PUF (Physical Unclonable Function) private key.
  * @details Enabling this bit activates the use of a private key associated with the PUF feature for enhanced security.
  * 
- * @note Currently this feature is not supported for SI917.
  */
 #define SL_SI91X_EXT_FEAT_PUF_PRIVATE_KEY BIT(10)
 
@@ -878,8 +875,10 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_416K_M4SS_256K
- * @brief To enable 416K memory for NWP and 256K memory for M4.
+ * @brief To enable 416K memory for NWP and 256K memory for M4. This macro is applicable only for SoC mode.
  * @details This configuration allocates 416K memory to the Network Processor (NWP) and 256K memory to the M4 core.
+ * 
+ * @note Ensure that RAM bank 9 remains powered ON in the M4 for low power application use cases.
  */
 #define SL_SI91X_EXT_FEAT_416K_M4SS_256K BIT(21)
 
@@ -894,8 +893,10 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_480K_M4SS_192K
- * @brief To enable 480K memory for NWP and 192K memory for M4.
+ * @brief To enable 480K memory for NWP and 192K memory for M4. This macro is applicable only for SoC mode.
  * @details This configuration allocates 480K memory to the Network Processor (NWP) and 192K memory to the M4 core.
+ * 
+ * @note Ensure that RAM banks 8, and 9 remain powered ON in the M4 for low power application use cases.
  */
 #define SL_SI91X_EXT_FEAT_480K_M4SS_192K BIT(20)
 
@@ -926,145 +927,65 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_672K
- * @brief To enable 672K memory for NWP.
+ * @brief To enable 672K memory for NWP. This macro is applicable for NCP mode only.
  */
 #define SL_SI91X_EXT_FEAT_672K (BIT(20) | BIT(21))
 
 /**
  * @def SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
  * @brief To enable full NWP RAM level configuration.
- * @details This setting configures the Network Processor (NWP) with 672K of memory.
+ * @details This setting configures the NWP with 672K of memory.
  */
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_EXT_FEAT_672K
 
 /**
  * @def SL_SI91X_EXT_FEAT_352K_M4SS_320K
- * @brief To enable 352K memory for NWP (for NCP mode ONLY, to be deprecated soon).
- * @details This setting is soon to be deprecated and should only be used for NCP mode.
- * 
- * @note For NCP mode ONLY, to be deprecated soon.
+ * @brief Enable 352K memory for NWP. The remaining memory will be unused. This macro is applicable for NCP mode only.
  */
 #define SL_SI91X_EXT_FEAT_352K_M4SS_320K SL_SI91X_EXT_FEAT_352K
 
 /**
  * @def SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
- * @brief To enable basic NWP RAM level configuration (for NCP mode ONLY, to be deprecated soon).
+ * @brief To enable basic NWP RAM level configuration. This macro is applicable for NCP mode only.
  * @details This setting configures the Network Processor (NWP) with 352K of memory in NCP mode.
- *  
- * @note For NCP mode ONLY, to be deprecated soon.
+ * 
+ * @note This setting is suitable for low-power examples that do not require significant memory for the NWP.
  */
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV SL_SI91X_EXT_FEAT_352K
 
 /**
  * @def SL_SI91X_EXT_FEAT_672K_M4SS_0K
- * @brief To enable 672K memory for NWP and 0K memory for M4 (for NCP mode ONLY, to be deprecated soon).
+ * @brief To enable 672K memory for NWP and 0K memory for M4. This macro is applicable for NCP mode only.
  * @details This setting configures the Network Processor (NWP) with 672K of memory and allocates no memory to the M4 core in NCP mode.
- * 
- * @note For NCP mode ONLY, to be deprecated soon.
  */
 #define SL_SI91X_EXT_FEAT_672K_M4SS_0K SL_SI91X_EXT_FEAT_672K
 
 /**
  * @def SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
- * @brief To enable full NWP RAM level configuration (for NCP mode ONLY, to be deprecated soon).
- * @details This setting configures the Network Processor (NWP) with 672K of memory and allocates no memory to the M4 core in NCP mode.
- * 
- * @note For NCP mode ONLY, to be deprecated soon.
+ * @brief To enable full NWP RAM level configuration. This macro is applicable for NCP mode only.
+ * @details This setting configures the NWP with 672K of memory and allocates no memory to the M4 core in NCP mode.
  */
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_672K
 
 #endif
 
-#elif defined(SLI_SI917) || defined(SLI_SI915)
-
-#define SL_SI91X_EXT_FEAT_384K_M4SS_320K         0
-#define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV     SL_SI91X_EXT_FEAT_384K_M4SS_320K
-
-/// To enable 448K memory for NWP
-/// To enable 448K memory for NWP
-#define SL_SI91X_EXT_FEAT_448K_M4SS_256K         BIT(21)
-#define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_448K_M4SS_256K
-
-/// To enable 512K memory for NWP
-#define SL_SI91X_EXT_FEAT_512K_M4SS_192K         BIT(20)
-#define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC     SL_SI91X_EXT_FEAT_512K_M4SS_192K
-
-#ifndef SLI_SI91X_MCU_INTERFACE
-// To enable 704K memory for NWP; only supported in NCP
-#define SL_SI91X_EXT_FEAT_704K_M4SS_0K       (BIT(20) | BIT(21))
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO  SL_SI91X_EXT_FEAT_704K_M4SS_0K
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+/**
+ * 
+ * | Configuration                         | BIT(20) | BIT(21) | NCP Mode | SOC Mode |
+ * |---------------------------------------|---------|---------|----------|----------|
+ * | SL_SI91X_EXT_FEAT_352K_M4SS_320K      | 0       | 0       | YES      | YES      |
+ * | SL_SI91X_EXT_FEAT_416K_M4SS_256K      | 0       | 1       | NO       | YES      |
+ * | SL_SI91X_EXT_FEAT_480K_M4SS_192K      | 1       | 0       | NO       | YES      |
+ * | SL_SI91X_EXT_FEAT_672K_M4SS_0K        | 1       | 1       | YES      | NO       |
+ * 
+ */
 
 #endif // SLI_SI917
-
-/// For 9116 chipsets
-#if !(defined(SLI_SI917) || defined(SLI_SI915)) // defaults
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
- * @brief RAM level configuration: Medium NWP and Medium MCU memory.
- * @details This macro sets the RAM level to Medium for both NWP (Network Processor) and MCU (Microcontroller) memory.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_256K_MODE
-
-/**
- * @def SL_SI91X_EXT_FEAT_320K_MODE
- * @brief To enable 320K memory for NWP.
- * @details Enabling this bit sets the memory configuration to 320 KB for the NWP.
- */
-#define SL_SI91X_EXT_FEAT_320K_MODE BIT(20)
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
- * @brief RAM level configuration: Advanced NWP and Basic MCU memory.
- * @details This macro sets the RAM level to Advanced for NWP (Network Processor) and basic for MCU (Microcontroller) memory, equivalent to enabling 320 KB memory.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_320K_MODE
-
-/**
- * @def SL_SI91X_EXT_FEAT_256K_MODE
- * @brief To enable 256K memory for NWP.
- * @details Enabling this bit sets the memory configuration to 256 KB for the NWP. The default memory configuration is 192 KB. The memory configuration can be changed as follows:
- * 
- * | Mode(KB) | BIT[20] | BIT[21] |
- * |:---------|:--------|:--------|
- * | 192      | 0       | 0       |
- * | 256      | 0       | 1       |
- * | 320      | 1       | 0       |
- * | 384      | 1       | 1       |
- * 
- * @note Default memory configuration (RAM) is 192 KB. User can set these bits to change the memory configuration as described.
- */
-#define SL_SI91X_EXT_FEAT_256K_MODE BIT(21)
-
-/**
- * @def SL_SI91X_EXT_FEAT_384K_MODE
- * @brief To enable 384K memory.
- * @details Enabling this bit sets the memory configuration to 384 KB. This configuration is achieved by setting both BIT(20) and BIT(21).
- */
-#define SL_SI91X_EXT_FEAT_384K_MODE (BIT(20) | BIT(21))
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
- * @brief RAM level configuration: All NWP and Zero MCU memory.
- * @details This macro sets the RAM level to 384 KB for NWP (Network Processor) memory with zero configuration for MCU (Microcontroller) memory, equivalent to enabling 384 KB memory.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_384K_MODE
-
-/**
- * @def SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
- * @brief RAM level configuration: All available NWP memory.
- * @details This macro sets the RAM level to the maximum available memory configuration for NWP (Network Processor), which is equivalent to the configuration set by `SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO`.
- */
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
-
-#endif // defaults
 
 /**
  * @def SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE
  * @brief To enable crystal clock for NWP.
- * @details This macro configures the sleep clock source selection for the NWP. The options are as follows:
+ * @details This macro configures the sleep clock source selection for the NWP. Following are the options:
  * 
  * | Selection                                     | BIT[23] | BIT[22] |
  * |:----------------------------------------------|:--------|:--------|
@@ -1089,7 +1010,7 @@
 #else
 /**
  * @def SL_SI91X_EXT_FEAT_XTAL_CLK
- * @brief Define to enable 32KHz crystal clock using the external XTAL OSCILLATOR.
+ * @brief Define to enable 32 KHz crystal clock using the external XTAL OSCILLATOR.
  * @details This macro sets the `SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE` with a value of 2, which configures the sleep clock source to use the 32 KHz clock from the external XTAL OSCILLATOR.
  */
 #define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
@@ -1105,7 +1026,7 @@
 /**
  * @def SL_SI91X_EXT_FEAT_1P8V_SUPPORT
  * @brief To enable 1.8V support for NWP.
- * @details Enabling this bit activates support for 1.8V operation.
+ * @details Enabling this bit activates support for 1.8 V operation.
  */
 #define SL_SI91X_EXT_FEAT_1P8V_SUPPORT BIT(25)
 
@@ -1127,7 +1048,7 @@
 
 /**
  * @def SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS
- * @brief To disable debug prints support in NWP (Network Processor).
+ * @brief To disable debug prints support in NWP.
  * @details By default the prints would be coming on UART2. If this bit is enabled, disable debug prints.
  * To enable prints on UART 1 @ref SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS  bit needs to set.
  */
@@ -1146,7 +1067,7 @@
  * | 1       | 0       | Internal Switch  | Internal Switch  | Internal Switch  |                                
  * | 1       | 1       | Reserved         | Reserved         | Reserved         |
  * 
- * @note SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This internal RF switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8 dBm) mode is not supported in this configuration.
+ * @note SiWx917 has an integrated on-chip Transmit/Receive (T/R) switch. This internal RF switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8 dBm) mode is not supported in this configuration.
  * @note VC1, VC2, and VC3 are control voltage pins of the RF switch.
  */
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(29)
@@ -1192,7 +1113,7 @@
  * @def SL_SI91X_EXT_TCP_FEAT_DHCP_OPT77
  * @brief DHCP USER CLASS.
  * @details
- * This feature enables DHCP Option 77, which allows the device to specify user class information in DHCP requests.
+ * This feature enables DHCP option 77, which allows the device to specify user class information in DHCP requests.
  * 
  * @note Bit 0 is reserved.
  */
@@ -1202,9 +1123,9 @@
  * @def SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE
  * @brief TCP bi-directional acknowledgment update.
  * @details
- * This feature enables bi-directional data transfer by updating TCP acknowledgment handling.
+ * This feature enables bi-directional data transfer by updating TCP acknowledgement handling.
  * 
- * @note Need to enable this bit if user wants to run the bi-directional data transfer.
+ * @note Need to enable this bit if you want to run the bi-directional data transfer.
  * @note Bit 2 is reserved.
  */
 #define SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE BIT(3)
@@ -1253,29 +1174,23 @@
  * receive window sizes larger than 64 KB.
  * 
  * @note If this feature is not enabled, then the maximum possible RX window size is 64 KB.
- * If user wants to use more than 64 KB window size, tcp_rx_window_size_cap in socket configuration is used to increase the window size.
+ * If you want to use more than 64 KB window size, tcp_rx_window_size_cap in socket configuration is used to increase the window size.
  */
 #define SL_SI91X_EXT_TCP_IP_WINDOW_SCALING BIT(8)
 
 /**
  * @def SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE
- * @brief Enable both TCP/IP bypass mode and embedded modes.
- * @details
- * This feature allows the device to use both bypass and non-bypass modes
- * simultaneously, providing flexibility in network communication.
+ * @brief Enables support for dual network stack mode.
  * 
- * @note Enables the feature allows to use both bypass and non-bypass modes simultaneously.
- */
-#define SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE BIT(9)
-
-/**
- * @def SL_SI91X_EXT_TCP_IP_ETH_WIFI_BRIDGE
- * @brief Enable Ethernet to WiFi bridge.
  * @details
- * This feature enables the device to act as a bridge between Ethernet and
- * WiFi networks, facilitates the communication between the two.
+ * This feature enables support for dual network stack mode, which allows two different network
+ * stacks to run on the NWP and the external host simultaneously, which provides flexibility in
+ * network communication.
+ *
+ * @note @ref SL_SI91X_TCP_IP_FEAT_BYPASS bit should not be set to 1 when this bit is enabled.
+ * @note Bit 9 is reserved.
  */
-#define SL_SI91X_EXT_TCP_IP_ETH_WIFI_BRIDGE BIT(10)
+#define SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE BIT(10)
 
 /**
  * @def SL_SI91X_EXT_DYNAMIC_COEX_MEMORY
@@ -1296,7 +1211,7 @@
  * This feature configures the number of select operations the device can
  * handle, with a maximum value of 10.
  * 
- * @note Bits 12 - 15 are used for TOTAL_SELECTS.
+ * @note Bits 12-15 are used for TOTAL_SELECTS.
  */
 #define SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(total_selects) (total_selects << 12)
 
@@ -1308,6 +1223,8 @@
  * from the host, which is recommended for use with TCP sockets.
  * 
  * @note If it is set socket would not be closed until close() is called from host. It is recommended to enable this bit when using TCP sockets.
+ * @note If this bit is enabled, closing the socket will flush any pending data to be sent to remote peer.
+ * @note If this bit is disabled, closing the socket will first send any pending data to remote peer.
  * @note This is always set internally for Si91x chips.
  */
 #define SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE BIT(16)
@@ -1435,7 +1352,7 @@
  * Sets the maximum number of BLE GATT services.
  
  * @note Maximum number of services is 10.
- * @note Bits 8 - 11 are used to set MAX_NBR_ATT_SERV.
+ * @note Bits 8-11 are used to set MAX_NBR_ATT_SERV.
  */
 #define SL_SI91X_BLE_MAX_NBR_ATT_SERV(max_num_of_att_serv) (max_num_of_att_serv << 8)
 /**
@@ -1445,7 +1362,7 @@
  * Sets the maximum number of BLE peripherals.
  
  * @note Maximum number of BLE peripherals is 8. 
- * @note Bits 12 - 15 are used to set MAX_NBR_PERIPHERALS.
+ * @note Bits 12-15 are used to set MAX_NBR_PERIPHERALS.
  */
 #define SL_SI91X_BLE_MAX_NBR_PERIPHERALS(max_num_of_peripherals) (max_num_of_peripherals << 12)
 /**
@@ -1459,7 +1376,7 @@
  *   - 33 - 63: BLE - 10 dBm Mode
  *   - 64 - 127: BLE - HP Mode
  
- * @note Bits 16 - 23 are used to set PWR_INX.
+ * @note Bits 16-23 are used to set PWR_INX.
  */
 #define SL_SI91X_BLE_PWR_INX(power_index) (power_index << 16)
 /**
@@ -1482,7 +1399,7 @@
  * Sets the maximum number of BLE Central devices.
  
  * @note Maximum number of BLE Centrals is 2.
- * @note Bits 27 - 28 are used to set BLE_PWR_INX.
+ * @note Bits 27-28 are used to set BLE_PWR_INX.
  */
 #define SL_SI91X_BLE_MAX_NBR_CENTRALS(max_num_of_centrals) (max_num_of_centrals << 27)
 /**
@@ -1526,7 +1443,7 @@
  * - Increasing the buffer capacity for the notify/write commands helps achieve the best throughput.
  * - See rsi_ble_set_wo_resp_notify_buf_info() to set more buffers for the notify/write commands.
  
- * @note Bits 0 - 4 are used to set NUM_CONN_EVENTS.
+ * @note Bits 0-4 are used to set NUM_CONN_EVENTS.
  */
 #define SL_SI91X_BLE_NUM_CONN_EVENTS(num_conn_events) (num_conn_events << 0)
 /**
@@ -1536,7 +1453,7 @@
  * Specifies the number of record bytes in multiples of 16.
  * - n*16 : (n=60, Default 1024 bytes (1K)).
  
- * @note Bits 5 - 12 are used to set NUM_REC_BYTES.
+ * @note Bits 5-12 are used to set NUM_REC_BYTES.
  */
 #define SL_SI91X_BLE_NUM_REC_BYTES(num_rec_bytes) (num_rec_bytes << 5)
 /**
@@ -1555,7 +1472,7 @@
  * @details
  * As per the ATT protocol, every indication received from the server should be acknowledged (indication response) by the client.
  * - If this bit is disabled, the firmware sends the acknowledgment (indication response).
- * - If this bit is enabled, the APP/Host/User needs to send the acknowledgment (indication response).
+ * - If this bit is enabled, the APP/Host/User needs to send the acknowledgement (indication response).
  */
 #define SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST BIT(14)
 /**
@@ -1600,11 +1517,11 @@
  * Configures the maximum number of AE advertising sets.
  * - Maximum number of AE advertising sets is 2. 
  
- * @note Bits 20 - 23 are used to set the number of AE advertising sets.
+ * @note Bits 20-23 are used to set the number of AE advertising sets.
  */
 #define SL_SI91X_BLE_AE_MAX_ADV_SETS(num_adv_sets) (num_adv_sets << 20)
 
-/// @note Bits 24 -31 are reserved
+/// @note Bits 24-31 are reserved
 /** @} */
 
 /** \addtogroup SI91X_CONFIG_FEATURE_BITMAP
@@ -1626,7 +1543,7 @@
  * @brief Enables Dynamic Voltage Selection (DVS) Configuration 1.
  * @details This bit configures the dynamic voltage selection for the system.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_1 BIT(2)
 
@@ -1635,7 +1552,7 @@
  * @brief Enables Dynamic Voltage Selection (DVS) Configuration 2.
  * @details This bit configures the dynamic voltage selection for the system.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_2 BIT(3)
 
@@ -1644,7 +1561,7 @@
  * @brief Enables Dynamic Voltage Selection (DVS) Configuration 3.
  * @details This bit configures the dynamic voltage selection for the system.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_3 BIT(4)
 
@@ -1653,7 +1570,7 @@
  * @brief Enables Dynamic Voltage Selection (DVS) Configuration 4.
  * @details This bit configures the dynamic voltage selection for the system.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_4 BIT(5)
 
@@ -1672,7 +1589,7 @@
  * @brief Configures External PMU good time to 200 µs.
  * @details This bit selects an external PMU good time of 200 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_200us BIT(7)
 
@@ -1681,7 +1598,7 @@
  * @brief Configures External PMU good time to 300 µs.
  * @details This is a combination of 100 µs and 200 µs good times, totaling 300 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_300us (BIT(6) | BIT(7))
 
@@ -1690,7 +1607,7 @@
  * @brief Configures External PMU good time to 400 µs.
  * @details This bit selects an external PMU good time of 400 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_400us BIT(8)
 
@@ -1699,7 +1616,7 @@
  * @brief Configures External PMU good time to 500 µs.
  * @details This is a combination of 100 µs and 400 µs good times, totaling 500 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_500us (BIT(6) | BIT(8))
 
@@ -1708,7 +1625,7 @@
  * @brief Configures External PMU good time to 600 µs.
  * @details This is a combination of 200 µs and 400 µs good times, totaling 600 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_600us (BIT(7) | BIT(8))
 
@@ -1717,7 +1634,7 @@
  * @brief Configures External PMU good time to 700 µs.
  * @details This is a combination of 100 µs, 200 µs, and 400 µs good times, totaling 700 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_700us (BIT(6) | BIT(7) | BIT(8))
 
@@ -1726,7 +1643,7 @@
  * @brief Configures External PMU good time to 800 µs.
  * @details This bit selects an external PMU good time of 800 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_800us BIT(9)
 
@@ -1735,7 +1652,7 @@
  * @brief Configures External PMU good time to 900 µs.
  * @details This is a combination of 100 µs and 800 µs good times, totaling 900 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_900us (BIT(6) | BIT(9))
 
@@ -1744,7 +1661,7 @@
  * @brief Configures External PMU good time to 1000 µs.
  * @details This is a combination of 200 µs and 800 µs good times, totaling 1000 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1000us (BIT(7) | BIT(9))
 
@@ -1753,7 +1670,7 @@
  * @brief Configures External PMU good time to 1100 µs.
  * @details This is a combination of 100 µs, 200 µs, and 800 µs good times, totaling 1100 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1100us (BIT(6) | BIT(7) | BIT(9))
 
@@ -1762,7 +1679,7 @@
  * @brief Configures External PMU good time to 1200 µs.
  * @details This is a combination of 400 µs and 800 µs good times, totaling 1200 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1200us (BIT(8) | BIT(9))
 
@@ -1771,7 +1688,7 @@
  * @brief Configures External PMU good time to 1300 µs.
  * @details This is a combination of 100 µs, 400 µs, and 800 µs good times, totaling 1300 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1300us (BIT(6) | BIT(8) | BIT(9))
 
@@ -1780,7 +1697,7 @@
  * @brief Configures External PMU good time to 1400 µs.
  * @details This is a combination of 200 µs, 400 µs, and 800 µs good times, totaling 1400 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1400us (BIT(7) | BIT(8) | BIT(9))
 
@@ -1789,7 +1706,7 @@
  * @brief Configures External PMU good time to 1500 µs.
  * @details This is a combination of 100 µs, 200 µs, 400 µs, and 800 µs good times, totaling 1500 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1500us (BIT(6) | BIT(7) | BIT(8) | BIT(9))
 
@@ -1804,7 +1721,7 @@
  * 1. Incase of External PMU, User has to set EXTERNAL_PMU_GOOD_TIME_CONFIGURATION value to external PMU good time, If this is zero then it indicates using Internal PMU.
  * 2. Incase of External PMU 1.0 or 1.05 V, User has to set both the bits config_feature_bit_map[11] and config_feature_bit_map[10].
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_EXTERNAL_LDO_SEL BIT(10)
 
@@ -1814,7 +1731,7 @@
  * @details This field is relevant only if SL_SI91X_FEAT_EXTERNAL_LDO_SEL is enabled (that is, BIT(10) is set).
  * If this bit is set, the LDO voltage is configured to 1.0 V; if cleared, it is set to 1.1 V.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_FEAT_EXTERNAL_LDO_VOL BIT(11)
 
@@ -1850,7 +1767,7 @@
  * @brief Selects ULP_GPIO_9 to enable firmware debug prints.
  * @details If this bit is not set, the default UART2-TX pin GPIO_6 is used.
  * 
- * @note SI917 supports prints only on ULP_GPIO_9.
+ * @note SiWx91x supports prints only on ULP_GPIO_9.
  */
 #define SL_SI91X_ULP_GPIO9_FOR_UART2_TX BIT(18)
 
@@ -1892,7 +1809,7 @@
  * |:-------------------------|:------------------------------------|
  * | Configuration 1          | PTA Main would aggressively assert GRANT if the REQUEST is asserted irrespective of PRIORITY being asserted or not. This would mean any ongoing Wi-Fi transmission would be aborted, and GRANT would be provided to the PTA secondary. |
  * | Configuration 2          | PTA Main would aggressively assert GRANT if the REQUEST is asserted irrespective of PRIORITY being asserted or not, with only one exception of an ongoing ACK/Block ACK Transmission in response to a Wi-Fi reception. If there is an ongoing ACK/Block ACK transmission in response to a Wi-Fi Reception, PTA MAIN would GRANT access if PRIORITY is asserted along with REQUEST. |
- * | Configuration 3          | If there is an ongoing Wi-Fi Transmission (Including ACK/BLOCK ACK), then PTA MAIN would not assert GRANT to an asserted REQUEST. However, if PRIORITY and REQUEST are asserted, PTA MAIN would assert GRANT. |
+ * | Configuration 3          | If there is an ongoing Wi-Fi Transmission (whih includes ACK/BLOCK ACK), then PTA MAIN would not assert GRANT to an asserted REQUEST. However, if PRIORITY and REQUEST are asserted, PTA MAIN would assert GRANT. |
  * 
  * The below configuration describes the pin connections between the EFR32MG21 and the SiW91x device that involves the GRANT, REQUEST, and PRIORITY signal.
  * 0 kept reserved for future. 3-Wire used at DUT are GPIO_7(Grant pin driven by DUT), ULP_GPIO_1(Request i/p pin for DUT) and ULP_GPIO_6(Priority i/p pin for DUT).
@@ -1911,7 +1828,7 @@
  * @details This bit selects a default XTAL good time of 1000 microseconds. This setting is applicable from Release 2.3.0 onward.
  * Prior releases have reserved config_feature_bitmap[31:17]. This setting is intended for chip users and not applicable for device users.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_XTAL_GOODTIME_1000us 0
 
@@ -1920,7 +1837,7 @@
  * @brief Configures XTAL good time to 2000 µs.
  * @details This bit selects an XTAL good time of 2000 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_XTAL_GOODTIME_2000us BIT(24)
 
@@ -1929,7 +1846,7 @@
  * @brief Configures XTAL good time to 3000 µs.
  * @details This bit selects an XTAL good time of 3000 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_XTAL_GOODTIME_3000us BIT(25)
 
@@ -1938,7 +1855,7 @@
  * @brief Configures XTAL good time to 600 µs.
  * @details This is a combination of 2000 µs and 3000 µs XTAL good times, totaling 600 microseconds.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_XTAL_GOODTIME_600us (BIT(24) | BIT(25))
 
@@ -2057,7 +1974,7 @@ typedef enum {
  * @details
  * This macro defines the bit for burning a setting to disable the fast XO (crystal oscillator) into the device.
  * 
- * @note Not applicable for SI917.
+ * @note Not applicable for SiWx91x.
  */
 #define SL_SI91X_BURN_XO_FAST_DISABLE BIT(3)
 

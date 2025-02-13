@@ -4,7 +4,7 @@ quality: production
 label: Wi-Fi - SiWx917 Dev Kit
 category: Example|Wi-Fi
 description: 
-   Demonstrates the features of the SiWx917 Dev Kit Board. This can be tested with the Simplicity Connect mobile app.
+   This application demonstrates the features of the SiWx917 Dev Kit Board. This can be tested with the Simplicity Connect mobile app.
 filter:
 -  name: Wireless Technology
    value:
@@ -14,10 +14,10 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version:  "2024.12.0"
+   version:  "2024.12.1"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.4.0
+   version: 3.4.1
 source:
   - path: app.c
   - path: ble_app.c

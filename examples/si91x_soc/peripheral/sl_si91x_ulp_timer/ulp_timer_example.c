@@ -49,10 +49,7 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define ONE_SEC                       1000000 // 1 second in microseconds
-#define TIME_IN_MICROSECONDS          ONE_SEC // timer timeout in seconds
-#define CLOCKS_PER_MICROSECONDS_20MHZ 20      // clock cycles per microsecond for 20 mhz clock frequency
-#define CLOCKS_PER_MICROSECONDS_32MHZ 32      // clock cycles per microsecond for 32 MHz clock frequency
+#define TIME_IN_MICROSECONDS 1000000 // timer timeout for 1 second in microseconds
 
 /*****************************************************************************
  * ULP Timer-match value calculation :
@@ -61,34 +58,13 @@
  * For normal up/down counter type, timer =  (number of clock cycles per
  *microseconds * time in microseconds)
  ******************************************************************************/
-#define SL_TIMER_MATCH_VALUE \
-  ((CLOCKS_PER_MICROSECONDS_20MHZ) * (TIME_IN_MICROSECONDS)) /* Timer match value for down-counter type with 20mhz
-                                                             clock */
-
-#define ONE_SEC_MATCH_VALUE_256US_TYPE 3906 // Timer match value for 1-sec, in 256us type
-
-#define ONE_SEC_MATCH_VALUE_1US_TYPE 1000000 // Timer match value for 1-sec, in 1us type
-
-#define SL_TIMER_MATCH_VALUE_MHZ \
-  ((CLOCKS_PER_MICROSECONDS_32MHZ) * (TIME_IN_MICROSECONDS)) /*Timer match value for down-counter type with mhz
-                                                              clock */
-
-#define ONE_SEC_MATCH_VALUE_256US_TYPE_MHZ 3906 // Timer match value for 1-sec, in 256us type for 32 mhz clock frequency
-
-#define ONE_SEC_MATCH_VALUE_1US_TYPE_MHZ \
-  1000000 /* Timer match value for 1-sec, in 1us type for 32 mhz clock
-           frequency */
-
-#define LED0 0 // For On-board LED-0
-
-#define ZERO_INTERRUPT_COUNT 0 // Count for zeroth timeout interrupt
-
-#define FIFTH_INTERRUPT_COUNT 5 // Count for fifth timeout interrupt
-
+#define LED0                  0  // For On-board LED-0
+#define ZERO_INTERRUPT_COUNT  0  // Count for zeroth timeout interrupt
+#define FIFTH_INTERRUPT_COUNT 5  // Count for fifth timeout interrupt
 #define TENTH_INTERRUPT_COUNT 10 // Count for tenth timeout interrupt
 
 // Macros used to construct ulp-timer instance
-#define ULP_TIMER_INSTANCE                   0 // timer insatnce used, pass selected timer instance number in place of '0'
+#define ULP_TIMER_INSTANCE                   0 // timer instance used, pass selected timer instance number in place of '0'
 #define _CONCAT_TWO_TOKENS(token_1, token_2) token_1##token_2
 #define CONCAT_TWO_TOKENS(token_1, token_2)  _CONCAT_TWO_TOKENS(token_1, token_2)
 #define SL_ULP_TIMER_HANDLE                  CONCAT_TWO_TOKENS(sl_timer_handle_timer, ULP_TIMER_INSTANCE)
@@ -113,6 +89,7 @@ static sl_power_state_t current_power_state = SL_SI91X_POWER_MANAGER_PS4;
 // Define a flag to track the power state transition
 static bool ps4_to_ps2_transition_done = false;
 static bool ps2_to_ps4_transition_done = false;
+uint32_t match_value                   = 0;
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -142,8 +119,18 @@ void ulp_timer_example_init(void)
     DEBUGOUT("Successfully Configured ULP-timer clock input source \n");
     if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
       DEBUGOUT("Timer executing at PS4 state \n");
-      // Updating timer match-value with 32 mhz
-      SL_ULP_TIMER_HANDLE.timer_match_value = SL_TIMER_MATCH_VALUE_MHZ;
+      // Get match value
+      status = sl_si91x_ulp_timer_get_match_value(SL_ULP_TIMER_HANDLE.timer_type, TIME_IN_MICROSECONDS, &match_value);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_ulp_timer_get_match_value : Invalid Parameters Error "
+                 "Code : %lu \n",
+                 status);
+        break;
+      } else {
+        DEBUGOUT("Successfully match value is fetched\n");
+      }
+      // Updating timer match-value
+      SL_ULP_TIMER_HANDLE.timer_match_value = match_value;
       // Configuring timer instance parameters: mode-periodic, type-1us,
       // match-value: 1second
       status = sl_si91x_ulp_timer_set_configuration(&(SL_ULP_TIMER_HANDLE));
@@ -156,8 +143,17 @@ void ulp_timer_example_init(void)
       DEBUGOUT("Successfully Configured ULP-timer parameters with mhz "
                "parameters \n");
     } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS2) {
-      // Updating timer match-value with 20 mhz
-      SL_ULP_TIMER_HANDLE.timer_match_value = SL_TIMER_MATCH_VALUE;
+      status = sl_si91x_ulp_timer_get_match_value(SL_ULP_TIMER_HANDLE.timer_type, TIME_IN_MICROSECONDS, &match_value);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_ulp_timer_get_match_value : Invalid Parameters Error "
+                 "Code : %lu \n",
+                 status);
+        break;
+      } else {
+        DEBUGOUT("Successfully match value is fetched\n");
+      }
+      // Updating timer match-value
+      SL_ULP_TIMER_HANDLE.timer_match_value = match_value;
       // Configuring timer instance parameters: mode-periodic, type-1us,
       // match-value: 1second
       status = sl_si91x_ulp_timer_set_configuration(&(SL_ULP_TIMER_HANDLE));
@@ -235,9 +231,18 @@ void ulp_timer_example_process_action(void)
           } else {
             DEBUGOUT("Successfully changed timer-direction to up-counter \n");
           }
+          // Get match value
+          status = sl_si91x_ulp_timer_get_match_value(ULP_TIMER_TYP_256US, TIME_IN_MICROSECONDS, &match_value);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("sl_si91x_ulp_timer_get_match_value : Invalid Parameters Error "
+                     "Code : %lu \n",
+                     status);
+          } else {
+            DEBUGOUT("Successfully match value is fetched\n");
+          }
           // Changing timer-instance match value to number of ticks required for
           // 1sec time-out, in 256us mode ( 1000000/256)
-          status = sl_si91x_ulp_timer_set_count(ULP_TIMER_INSTANCE, ONE_SEC_MATCH_VALUE_256US_TYPE_MHZ);
+          status = sl_si91x_ulp_timer_set_count(ULP_TIMER_INSTANCE, match_value);
           if (status != SL_STATUS_OK) {
             DEBUGOUT("sl_si91x_ulp_timer_set_count : Invalid Parameters Error "
                      "Code : %lu \n",
@@ -264,9 +269,18 @@ void ulp_timer_example_process_action(void)
           } else {
             DEBUGOUT("Successfully changed timer-direction to up-counter \n");
           }
+          // Get match value
+          status = sl_si91x_ulp_timer_get_match_value(ULP_TIMER_TYP_256US, TIME_IN_MICROSECONDS, &match_value);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("sl_si91x_ulp_timer_get_match_value : Invalid Parameters Error "
+                     "Code : %lu \n",
+                     status);
+          } else {
+            DEBUGOUT("Successfully match value is fetched\n");
+          }
           // Changing timer-instance match value to number of ticks required for
           // 1sec time-out, in 256us mode ( 1000000/256)
-          status = sl_si91x_ulp_timer_set_count(ULP_TIMER_INSTANCE, ONE_SEC_MATCH_VALUE_256US_TYPE);
+          status = sl_si91x_ulp_timer_set_count(ULP_TIMER_INSTANCE, match_value);
           if (status != SL_STATUS_OK) {
             DEBUGOUT("sl_si91x_ulp_timer_set_count : Invalid Parameters Error "
                      "Code : %lu \n",

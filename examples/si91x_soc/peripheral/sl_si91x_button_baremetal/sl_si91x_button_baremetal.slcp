@@ -1,16 +1,18 @@
 project_name: sl_si91x_button_baremetal
 label: SI91x - Button Baremetal
 description: |
-  Demonstrates how to use button.
+  This application demonstrates how to configure and use a button as an input device. 
+  It includes initializing the GPIO peripheral, configuring the button pin as an input, 
+  and detecting button presses or releases to trigger specific actions.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

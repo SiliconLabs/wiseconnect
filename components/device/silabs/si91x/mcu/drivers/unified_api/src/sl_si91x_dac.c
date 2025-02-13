@@ -141,7 +141,7 @@ sl_status_t sl_si91x_dac_init(sl_dac_clock_config_t *dac_clock)
     /* Enable PTAT for Analog Peripherals*/
     RSI_PS_AnalogPeriPtatEnable();
     /* Power-up Analog(IPMU) Domain peripherals*/
-    RSI_IPMU_PowerGateSet(AUXDAC_PG_ENB | AUXADC_PG_ENB | CMP_NPSS_PG_ENB);
+    RSI_IPMU_PowerGateSet(AUXDAC_PG_ENB | CMP_NPSS_PG_ENB);
     /*Turn on ULPSS SRAM Core/Periphery domains*/
     RSI_PS_UlpssRamBanksPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
     RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);

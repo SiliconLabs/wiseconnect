@@ -10,11 +10,12 @@
       license: Zlib
 - root_path: components/board/silabs/config/brd2708a
 - requires:
-  - name: siwg917y111mgab
+  - name: siwg917y111mgaba
   - name: brd2708a_config
   - name: external_flash_none
   - name: external_psram_8mb
   - name: rsilib_board
+  - name: si91x_common_flash
 - provides:
   - name: brd2708a
   - name: hardware_board
@@ -76,6 +77,6 @@
   - board:pn:BRD2708
   - board:variant:A
   - board:revision:A02
-  - board:device:siwg917y111mgab
+  - board:device:siwg917y111mgaba
   - hardware:has:vcom
   

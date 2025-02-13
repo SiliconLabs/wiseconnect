@@ -1,16 +1,16 @@
 project_name: sl_si91x_sleeptimer
 label: SI91x - Sleeptimer
 description: |
-  Demonstrates how one-shot and periodic sleeptimer can be used.
+  This application demonstrates how one-shot and periodic sleeptimer can be used.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

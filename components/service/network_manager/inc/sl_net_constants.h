@@ -61,24 +61,6 @@ typedef enum {
 } sl_net_interface_t;
 /** @} */
 
-/// WiFi Client Interface
-#define SL_NET_WIFI_CLIENT_INTERFACE (1 << 3)
-
-/// WiFi Access Point Interface
-#define SL_NET_WIFI_AP_INTERFACE (2 << 3)
-
-/// Ethernet Interface
-#define SL_NET_ETHERNET_INTERFACE (3 << 3)
-
-/// Thread Interface
-#define SL_NET_THREAD_INTERFACE (4 << 3)
-
-/// Bluetooth Interface
-#define SL_NET_BLUETOOTH_INTERFACE (5 << 3)
-
-/// Zwave Interface
-#define SL_NET_ZWAVE_INTERFACE (6 << 3)
-
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
 /**

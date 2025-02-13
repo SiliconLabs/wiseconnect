@@ -1,16 +1,18 @@
 project_name: sl_si91x_i2c_driver_leader_using_transfer_api
 label: SI91x - SL_I2C_driver_Leader_Using_Transfer_Api
 description: |
-  Demonstrates how to use the I2C interface on the SI91x SoC device, using transfer API.
+  This application demonstrates how to use the I2C interface on the Si91x SoC device using the transfer API. 
+  It focuses on configuring the I2C peripheral for communication and using the transfer API for sending and receiving data, 
+  providing an efficient, non-blocking way to handle I2C transactions.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

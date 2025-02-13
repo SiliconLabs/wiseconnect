@@ -143,6 +143,8 @@ typedef enum {
  *   Only one TLS version (SL_MQTT_TLS_TLSV_X_X) can be set at a time.
  * @note 
  *   Only one certificate index (SL_MQTT_TLS_CERT_INDEX_X) can be set at a time.
+ * @note
+ *   To select certificate index 0, no additional flags need to be configured explicitly.
  */
 typedef enum {
   SL_MQTT_TLS_ENABLE       = BIT(0), ///< Enable TLS for MQTT.
@@ -173,7 +175,7 @@ typedef struct {
   sl_mqtt_qos_t will_qos_level; ///< Quality of Service level for the Last Will message.
   uint8_t *will_topic;          ///< Pointer to the topic name for the Last Will message.
   uint16_t
-    will_topic_length; ///< Length of the topic name. Should not exceed 200 bytes including NULL termination character.
+    will_topic_length; ///< Length of the topic name. It should not exceed 202 bytes that includes NULL termination character.
   uint8_t *will_message; ///< Pointer to the Last Will message content.
   uint32_t
     will_message_length; ///< Length of the Last Will message content. Should not exceed 60 bytes including NULL termination character.
@@ -193,8 +195,8 @@ typedef struct {
   bool is_duplicate_message;  ///< Flag indicating whether this is a duplicate message.
   uint8_t *topic;             ///< Pointer to the topic name. Must not be NULL.
   uint16_t
-    topic_length;   ///< Length of the topic name. Should not exceed 200 bytes including NULL termination character.
-  uint8_t *content; ///< Pointer to the message content. Must not be NULL.
+    topic_length; ///< Length of the topic name. It should not exceed 202 bytes that includes NULL termination character.
+  uint8_t *content;        ///< Pointer to the message content. Must not be NULL.
   uint32_t content_length; ///< Length of the message content.
 } sl_mqtt_client_message_t;
 
@@ -203,13 +205,13 @@ typedef struct {
  *   MQTT Client broker information structure.
  * 
  * @details
- *   This structure holds the information required to connect to an MQTT broker, including the broker's IP address, port number, connection encryption status, connection timeout, keep-alive interval, and keep-alive retries.
+ *   This structure holds the information required to connect to an MQTT broker, that includes the broker's IP address, port number, connection encryption status, connection timeout, keep-alive interval, and keep-alive retries.
  */
 typedef struct {
   sl_ip_address_t ip; ///< IP address of the broker.
   uint16_t port;      ///< Port number of the broker.
   bool
-    is_connection_encrypted; ///< Indicates if the connection is encrypted. This field would be deprecated in future releases. Users are recommended to use `tls_flags` in @ref sl_mqtt_client_configuration_t.
+    is_connection_encrypted; ///< Indicates if the connection is encrypted. This field would be deprecated in future releases. You are recommended to use `tls_flags` in @ref sl_mqtt_client_configuration_t.
   uint16_t connect_timeout;  ///< MQTT connection timeout in milliseconds.
   uint16_t keep_alive_interval; ///< Keep-alive interval of the MQTT connection in seconds.
   uint16_t keep_alive_retries;  ///< Number of MQTT ping retries.
@@ -224,9 +226,9 @@ typedef struct {
  */
 typedef struct {
   uint16_t
-    username_length; ///< Length of the username. Should not exceed 120 bytes including NULL termination character.
+    username_length; ///< Length of the username. It should not exceed 120 bytes which includes NULL termination character.
   uint16_t
-    password_length; ///< Length of the password. Should not exceed 60 bytes including NULL termination character.
+    password_length; ///< Length of the password. It should not exceed 60 bytes which includes NULL termination character.
   uint8_t data[];    ///< Flexible array to store both the username and password.
 } sl_mqtt_client_credentials_t;
 
@@ -235,7 +237,7 @@ typedef struct {
  *   MQTT Client Configuration structure.
  * 
  * @details
- *   This structure holds the configuration parameters for the MQTT client, including connection settings, retry policies, session options, and security credentials.
+ *   This structure holds the configuration parameters for the MQTT client, that includes connection settings, retry policies, session options, and security credentials.
  */
 typedef struct {
   bool auto_reconnect;            ///< Whether to automatically reconnect to the broker in case of disconnection.
@@ -315,7 +317,7 @@ typedef struct {
     topic_message_handler;           ///< Function pointer to the message handler for the subscribed topic.
   sl_mqtt_qos_t qos_of_subscription; ///< Quality of Service level for the subscription.
   uint16_t
-    topic_length; ///< Length of the subscribed topic. Should not exceed 200 bytes including NULL termination character.
+    topic_length; ///< Length of the subscribed topic. It should not exceed 202 bytes that includes NULL termination character.
   uint8_t topic[]; ///< Flexible array to store the topic name.
 } sl_mqtt_client_topic_subscription_info_t;
 

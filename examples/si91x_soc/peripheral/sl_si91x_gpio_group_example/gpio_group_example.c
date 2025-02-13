@@ -69,10 +69,10 @@ void gpio_group_example_init(void)
     status = sl_gpio_driver_init();
     if (status != SL_STATUS_OK) {
       // Prints GPIO initialization fails
-      DEBUGOUT("sl_gpio_driver_init, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_driver_init, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver initialization is successful \n");
+    DEBUGOUT("GPIO driver initialization is successful \r\n");
     // Configure GPIO pin 11 using pin configuration API.
     // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
     // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
@@ -80,10 +80,10 @@ void gpio_group_example_init(void)
       status = sl_gpio_set_configuration(sl_gpio_pin_config[i]);
       if (status != SL_STATUS_OK) {
         // Prints if pin configuration fails
-        DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+        DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
         break; // breaks if error occurs
       }
-      DEBUGOUT("GPIO driver set pin configuration is successful \n");
+      DEBUGOUT("GPIO driver set pin configuration is successful \r\n");
     }
     uint8_t group_pins[PIN_COUNT] = { sl_gpio_pin_config[0].port_pin.pin,
                                       sl_gpio_pin_config[1].port_pin.pin }; // pins for group interrupt
@@ -105,10 +105,10 @@ void gpio_group_example_init(void)
     status = sl_si91x_gpio_driver_configure_group_interrupt(&config_grp_int,
                                                             (sl_gpio_irq_callback_t)&gpio_group_interrupt0_callback);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_gpio_driver_configure_group_interrupt, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_gpio_driver_configure_group_interrupt, Error code: %lu\r\n", status);
       break;
     }
-    DEBUGOUT("GPIO driver configure group interrupt is successful \n");
+    DEBUGOUT("GPIO driver configure group interrupt is successful \r\n");
 
     uint8_t ulp_group_port[PIN_COUNT] = { sl_gpio_pin_config[2].port_pin.port,
                                           sl_gpio_pin_config[3].port_pin.port }; // port selected for group interrupt
@@ -132,10 +132,10 @@ void gpio_group_example_init(void)
       sl_si91x_gpio_driver_configure_ulp_group_interrupt(&ulp_config_grp_int,
                                                          (sl_gpio_irq_callback_t)&gpio_ulp_group_interrupt_callback);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_gpio_driver_configure_ulp_group_interrupt, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_gpio_driver_configure_ulp_group_interrupt, Error code: %lu\r\n", status);
       break;
     }
-    DEBUGOUT("GPIO driver configure ulp group interrupt is successful \n");
+    DEBUGOUT("GPIO driver configure ulp group interrupt is successful \r\n");
   } while (false);
 }
 /*******************************************************************************
@@ -152,7 +152,7 @@ static void gpio_group_interrupt0_callback(uint32_t grp_intr)
 {
   if (grp_intr == GROUP_INT_1) {
     // This is with respect to ISR context. Debugout might cause issues sometimes.
-    DEBUGOUT("gpio group interrupt1\n");
+    DEBUGOUT("gpio group interrupt1\r\n");
   }
 }
 
@@ -163,6 +163,6 @@ static void gpio_ulp_group_interrupt_callback(uint32_t pin_intr)
 {
   if (pin_intr == ULP_GROUP_INTR_0) {
     // This is with respect to ISR context. Debugout might cause issues sometimes.
-    DEBUGOUT("gpio ulp group interrupt0\n");
+    DEBUGOUT("gpio ulp group interrupt0\r\n");
   }
 }

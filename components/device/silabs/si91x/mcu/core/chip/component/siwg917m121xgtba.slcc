@@ -55,7 +55,7 @@
   - name: device_has_mpu
   - name: device_has_chip
   - name: device_supports_external_flash
-  - name: si91x_common_flash  
+    
 - requires:
   - name: rsilib_chip
   - name: cmsis_common
@@ -70,6 +70,7 @@
     condition: [rsilib_board]
   - name: freertos_config
     condition: [freertos]
+  - name: opn_config
 - recommends:
   - name: si91x_mem_config_1
 - template_contribution:

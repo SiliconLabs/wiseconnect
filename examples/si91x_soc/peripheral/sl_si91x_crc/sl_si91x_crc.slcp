@@ -1,16 +1,17 @@
 project_name: sl_si91x_crc
 label: SI91x - CRC
 description: |
-  Demonstrates how CRC can be used.
+  This application demonstrates how to use the Cyclic Redundancy Check (CRC) for error detection in transmitted data. 
+  It shows how the CRC module can be configured and used to calculate checksums for data to ensure integrity.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

@@ -61,7 +61,7 @@ This process allows the device to update its software over the air (OTA) without
       - (BRD4346A + BRD8045C)
       - (BRD4357A + BRD8045C)
   - Interface and Host MCU Supported
-    - SPI - EFR32 & STM32
+    - SPI - EFR32 and STM32
     - UART - EFR32
 
 ### Software Requirements
@@ -76,7 +76,7 @@ This process allows the device to update its software over the air (OTA) without
 
 ## Getting Started
 
-### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE, and Silicon Labs Devices (SoC, and NCP Modes)
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -91,10 +91,10 @@ This process allows the device to update its software over the air (OTA) without
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
-  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
+  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board follow the below steps:
    	- Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
    	- Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
-   	- After connecting all the boards, the setup should look like the image shown below:
+   	- After connecting all the boards, the setup should look like the following image:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    	- Connect the setup to the computer.
   - Open the FIRMWARE UPDATE µVision project - **firmware_update.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → firmware_update → keil_project**. 
@@ -135,7 +135,7 @@ The application can be configured to suit user requirements and development envi
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 > Note: 
-> The user can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> You can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 ### TCP Configuration
 
@@ -152,7 +152,7 @@ The application can be configured to suit user requirements and development envi
 
 ## Test the Application
 
-### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC, and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -163,13 +163,43 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
-- Flash, run, and debug the application.
+- Flash, Run, and Debug the application.
 
   ![Figure: Log of firmware transfer](resources/readme/image157.png)
 
   ![Figure: Log of firmware transfer](resources/readme/output_soc.png)
 
-- When the firmware update completes, the SiWx91x should be rebooted after which it may take a few minutes to overwrite the old firmware with the new firmware in flash memory.
+- When the firmware update completes, the SiWx91x should be rebooted after which it may take a few minutes to overwrite the old firmware with the new firmware in Flash memory.
+
+### Steps to Create a Combined Image
+
+  #### Case 1: When Security is Disabled
+
+  1. Navigate to the Commander directory.
+
+  2. Copy the NWP firmware image and M4 image into the Commander directory.
+
+  3. Create the nwp_combined_image.rps file:
+
+      ```c
+      commander rps convert <nwp_combined_image.rps> --taapp <original non-encrypted TA rps> --combinedimage
+      ```
+
+  4. Create the m4_combined_image.rps file:
+
+      ```c
+      commander rps convert <m4_combined_image.rps> --app <original non-encrypted M4 rps> --combinedimage
+      ```
+
+  5. Create the final combined image:
+
+      ```c
+      commander rps convert <combined_image.rps> --app <m4_combined_image.rps> --taapp <nwp_combined_image.rps>
+      ```
+
+  #### Case 2: When Security is Enabled
+
+  For devices with security enabled, additional signing and encryption steps are required. Follow the detailed instructions in **Section 6 - Combined Image (NWP + M4)** of the [UG574 SiWx917 SoC Manufacturing Utility User Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf#page=24).
 
 ### Build and Run the TCP Server (Linux PC)
 
@@ -180,10 +210,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 	  user@linux:~$ gcc firmware_update_tcp_server_9117.c -o ota_server.bin
 	  ```
 
-  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/firmware) is the firmware image to be sent to SiWx91x.
+  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWG917-B.2.x.x.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect/tree/master/connectivity_firmware) is the firmware image to be sent to SiWx91x.
 
       ```c
-      user@linux:~$ ./ota_server.bin 5001 SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps
+      user@linux:~$ ./ota_server.bin 5001 SiWG917-B.2.x.x.x.x.x.rps
       ```
 
 ### Build and Run the TCP Server (Windows PC)
@@ -194,8 +224,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
       ![Figure: cygwin server compilation](resources/readme/cygwin_server_compilation.png)
   
-  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/firmware) is the firmware image to be sent to SiWx91x.
+  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWG917-B.2.x.x.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect/tree/master/connectivity_firmware) is the firmware image to be sent to SiWx91x.
 
       ```c
-      ./ota_server 5001 SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps
+      ./ota_server 5001 SiWG917-B.2.x.x.x.x.x.rps
       ```

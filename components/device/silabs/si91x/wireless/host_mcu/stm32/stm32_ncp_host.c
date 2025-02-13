@@ -24,7 +24,6 @@
 #include "sl_si91x_status.h"
 #include "sl_rsi_utility.h"
 #include "sl_constants.h"
-#include "FreeRTOS.h"
 #include "sl_status.h"
 #include "stm32f4xx_hal.h"
 #include "sl_board_configuration.h"

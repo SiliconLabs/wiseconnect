@@ -96,24 +96,108 @@ void sl_si91x_button_init(const sl_button_t *handle);
 
 /***************************************************************************/
 /**
+ * @brief To handle the interrupt when a button changes its state.
+ *
+ * @details This callback is called in the interrupt context whenever a button changes its state.
+ *          It must be implemented by the application to handle the functionality in response to
+ *          the button state change.
+ *
+ * @note This function should contain the functionality to be executed in response to changes of state
+ *       in each of the buttons or callbacks to the appropriate functionality.
+ *
+ * @param[in] pin The button pin which has changed state, either BUTTON0 pin or BUTTON1 pin as defined.
+ *
+ * @param[in] state The new state of the button referenced by the button parameter,
+ *                  either ::BUTTON_PRESSED if the button has been pressed or ::BUTTON_RELEASED if
+ *                  the button has been released.
+ *****************************************************************************/
+void sl_si91x_button_isr(uint8_t pin, int8_t state);
+
+/***************************************************************************/
+/**
  * @brief To get the current state (pressed or released) of a button.
- * 
+ *
  * @details This function returns the shadow state of the button rather than reading the actual state of the pin.
  *          It is correlated with the interrupts and their callbacks, providing a "soft" state.
- * 
- * @param[in] pin The button pin being queried, either SL_BUTTON_BTN0_PIN or SL_BUTTON_BTN1_PIN as defined.
- * 
+ *
+ * @param[in] button_number The button number being queried.
+ *
  * @return int8_t The state of the button:
  *                - ::BUTTON_PRESSED if the button is pressed.
  *                - ::BUTTON_RELEASED if the button is not pressed.
  *                - ::BUTTON_STATE_INVALID if the pin does not match any known button.
  *****************************************************************************/
-int8_t sl_si91x_button_state_get(uint8_t pin);
+uint8_t sl_si91x_button_get_state(uint8_t button_number);
 
 /***************************************************************************/
 /**
  * @brief To return the current state (pressed or released) of the pin associated with a button.
+ *
+ * @details This function reads the actual state of the pin and can be used on startup to
+ *          determine the initial position of the buttons.
+ *
+ * @param[in] pin The button pin being queried
+ * @param[in] port The button port being queried
+ *
+ * @return int8_t The state of the button:
+ *                - ::BUTTON_PRESSED if the button is pressed.
+ *                - ::BUTTON_RELEASED if the button is not pressed.
+ *****************************************************************************/
+uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port);
+
+/***************************************************************************/
+/**
+ * @brief To toggle the value of a local variable associated with the state of a button.
+ *
+ * @details This function toggles the state of a local variable that tracks the state of the specified button.
+ *          It must be implemented by the application to handle the functionality in response to the button state change.
+ *
+ * @note This function should contain the functionality to be executed in response to changes of state
+ *       in each of the buttons or callbacks to the appropriate functionality.
+ *
+ * @param[in] button_number The button number being queried.
+ *****************************************************************************/
+void sl_si91x_button_toggle_state(uint8_t button_number);
+
+/***************************************************************************/
+/**
+ * @brief To set the state (pressed or released) of the pin associated with a button.
+ *
+ * @details This function sets the state of the specified button pin. It must be implemented by the application
+ *          to handle the functionality in response to changes of state in each of the buttons or callbacks to the appropriate functionality.
+ *
+ * @note This function should contain the functionality to be executed in response to changes of state
+ *       in each of the buttons or callbacks to the appropriate functionality.
+ *
+ * @param[in] button_number The button number being queried.
+ * @param[in] state The state of the button to be set:
+ *                  - ::BUTTON_PRESSED if the button state is pressed.
+ *                  - ::BUTTON_RELEASED if the button state is released.
+ *****************************************************************************/
+void sl_si91x_button_set_state(uint8_t button_number, int8_t state);
+
+/***************************************************************************/
+/**
+ * @brief Older API - Not recommended to use.
  * 
+ * @details This function returns the shadow state of the button rather than reading the actual state of the pin.
+ *          It is correlated with the interrupts and their callbacks, providing a "soft" state.
+ *
+ * @param[in] pin The button pin being queried, either SL_BUTTON_BTN0_PIN or SL_BUTTON_BTN1_PIN as defined.
+ *
+ * @return int8_t The state of the button:
+ *                - ::BUTTON_PRESSED if the button is pressed.
+ *                - ::BUTTON_RELEASED if the button is not pressed.
+ *                - ::BUTTON_STATE_INVALID if the pin does not match any known button.
+ *
+ * @note This function is deprecated and should be replaced with `sl_si91x_button_get_state`.
+ *****************************************************************************/
+int8_t sl_si91x_button_state_get(uint8_t pin);
+
+/***************************************************************************/
+/**
+ * @brief Older API - Not recommended to use.
+ *
  * @details This function reads the actual state of the pin and can be used on startup to
  *          determine the initial position of the buttons.
  *
@@ -122,78 +206,45 @@ int8_t sl_si91x_button_state_get(uint8_t pin);
  * @return int8_t The state of the button:
  *                - ::BUTTON_PRESSED if the button is pressed.
  *                - ::BUTTON_RELEASED if the button is not pressed.
+ *
+ * @note This function is deprecated and should be replaced with `sl_si91x_button_state`.
  *****************************************************************************/
 int8_t sl_si91x_button_pin_state(uint8_t pin);
 
 /***************************************************************************/
 /**
- * @brief To handle the interrupt when a button changes its state.
- * 
- * @details This callback is called in the interrupt context whenever a button changes its state.
- *          It must be implemented by the application to handle the functionality in response to 
- *          the button state change.
- * 
- * @note This function should contain the functionality to be executed in response to changes of state
- *       in each of the buttons or callbacks to the appropriate functionality.
- * 
- * @param[in] pin The button pin which has changed state, either BUTTON0 pin or BUTTON1 pin as defined.
- * 
- * @param[out] state The new state of the button referenced by the button parameter,
- *                   either ::BUTTON_PRESSED if the button has been pressed or ::BUTTON_RELEASED if
- *                   the button has been released.
- *****************************************************************************/
-void sl_si91x_button_pin_isr(uint8_t pin, uint8_t state);
-
-/***************************************************************************/
-/**
- * @brief To toggle the value of a local variable associated with the state of a button.
- * 
+ * @brief Older API - Not recommended to use.
+ *
  * @details This function toggles the state of a local variable that tracks the state of the specified button.
  *          It must be implemented by the application to handle the functionality in response to the button state change.
- * 
+ *
  * @note This function should contain the functionality to be executed in response to changes of state
  *       in each of the buttons or callbacks to the appropriate functionality.
- * 
+ *
  * @param[in] pin The button pin which has changed state, either BUTTON0 pin or BUTTON1 pin as defined.
+ *
+ * @note This function is deprecated and should be replaced with `sl_si91x_button_toggle_state`.
  *****************************************************************************/
 void sl_si91x_button_state_toggle(uint8_t pin);
 
 /***************************************************************************/
 /**
- * @brief To set the state (pressed or released) of the pin associated with a button.
- * 
+ * @brief Older API - Not recommended to use.
+ *
  * @details This function sets the state of the specified button pin. It must be implemented by the application
  *          to handle the functionality in response to changes of state in each of the buttons or callbacks to the appropriate functionality.
- * 
+ *
  * @note This function should contain the functionality to be executed in response to changes of state
  *       in each of the buttons or callbacks to the appropriate functionality.
- * 
+ *
  * @param[in] pin The button pin which has changed state, either BUTTON0 pin or BUTTON1 pin as defined.
- * 
  * @param[in] state The state of the button to be set:
  *                  - ::BUTTON_PRESSED if the button state is pressed.
  *                  - ::BUTTON_RELEASED if the button state is released.
+ *
+ * @note This function is deprecated and should be replaced with `sl_si91x_button_set_state`.
  *****************************************************************************/
 void sl_si91x_button_state_set(uint8_t pin, int8_t state);
-
-/***************************************************************************/
-/**
- * @brief To handle the interrupt when a button changes its state.
- * 
- * @details This callback is called in the interrupt context whenever a button changes its state.
- *          It must be implemented by the application to handle the functionality in response to 
- *          the button state change.
- * 
- * @note This function should contain the functionality to be executed in response to changes of state
- *       in each of the buttons or callbacks to the appropriate functionality.
- * 
- * @param[in] pin The button pin which has changed state, either BUTTON0 pin or BUTTON1 pin as defined.
- * 
- * @param[in] state The new state of the button referenced by the button parameter,
- *                  either ::BUTTON_PRESSED if the button has been pressed or ::BUTTON_RELEASED if
- *                  the button has been released.
- *****************************************************************************/
-void sl_si91x_button_isr(uint8_t pin, int8_t state);
 
 /** @} end group BUTTON */
 
@@ -268,15 +319,15 @@ void sl_si91x_button_isr(uint8_t pin, int8_t state);
 *   The commonly used functions include the following:
 *
 *   1. To initialize the button: @ref sl_si91x_button_init 
-*   2. To return the current state (pressed or released) of the pin associated with a button: @ref sl_si91x_button_pin_state 
-*   3. To toggle the value of a local variable associated with the state of button: @ref sl_si91x_button_state_toggle   
+*   2. To return the current state (pressed or released) of the pin associated with a button: @ref sl_si91x_button_state
+*   3. To toggle the value of a local variable associated with the state of button: @ref sl_si91x_button_toggle_state
 *   4. A callback that user can modify for the application: @ref sl_si91x_button_isr  
 *
 *   The @ref sl_si91x_button_init function is automatically invoked when the application starts.
 *
 *   The button driver supports interrupt mode, with or without debounce functionality.The application can
-*   implement @ref sl_si91x_button_pin_state to determine the current state of the button when needed. 
-*   Additionally, @ref sl_si91x_button_state_toggle can be implemented by the application to toggle the 
+*   implement @ref sl_si91x_button_state to determine the current state of the button when needed.
+*   Additionally, @ref sl_si91x_button_toggle_state can be implemented by the application to toggle the
 *   "soft" state, enabling interrupts and their callbacks. The @ref sl_si91x_button_isr is a callback 
 *   function triggered by a change in the button's state, and the application can implement this 
 *   function to define the desired actions upon a state change.

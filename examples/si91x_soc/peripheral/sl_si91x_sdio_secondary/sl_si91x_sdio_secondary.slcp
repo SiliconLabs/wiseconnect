@@ -1,16 +1,16 @@
 project_name: sl_si91x_sdio_secondary
 label: SI91x - SoC Peripheral SDIO Secondary
 description: |
-  Demonstrates how to use the SDIO Secondary interface on the Si91x SoC devices.
+  This application demonstrates how to use the SDIO Secondary interface on the Si91x SoC devices.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: sdio_secondary_example.c
   - path: sdio_secondary_example.h

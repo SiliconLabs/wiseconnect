@@ -41,13 +41,13 @@ When flashed with this example the boot count get updated in the "boot_count" fi
 
 **Note:**
 >- LittleFS service is not supported on stacked flash boards. However, if the board supports external flash, users can connect external flash to access the LittleFS service. 
->- For detailed information about pinset configurations, please refer to the Flash and PSRAM Combinations section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.4.0/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+>- For detailed information about pinset configurations, refer to the Flash and PSRAM Combinations section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.4.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
-  - For Serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)..
+  - For Serial Console setup instructions, refer to [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

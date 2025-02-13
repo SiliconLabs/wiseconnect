@@ -154,7 +154,7 @@ typedef struct {
  * @brief To initialize the Watchdog Timer.
  * 
  * @details This API initializes the Watchdog Timer by enabling the peripheral power. 
- *          It also configures the Watchdog Timer to run during sleep mode and unmasks its interrupt.
+ *          It also unmasks the WDT interrupt.
  * 
  * @note This function should be called before using any other Watchdog Timer functions.
  *******************************************************************************/

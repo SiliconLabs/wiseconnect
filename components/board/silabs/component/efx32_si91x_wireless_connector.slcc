@@ -98,8 +98,3 @@ include:
       - path: sl_sleeptimer_config.h
   - path: "config/brd8036a"
     condition: [brd8036a]
-define:
-  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
-    value: '1'
-  - name: SLI_SI917B0
-    value: '1'

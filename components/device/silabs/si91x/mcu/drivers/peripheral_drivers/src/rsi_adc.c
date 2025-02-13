@@ -69,6 +69,7 @@ uint32_t auxadcCalibValueLoad = 0, auxadcCalibValue = 0;
 uint32_t calib_done = 0;
 // ADC ping or pong interrupt selection variable
 uint8_t pong_enable_sel[MAXIMUM_NUMBER_OF_CHANNEL];
+
 #if defined(SLI_SI917) || defined(SLI_SI915)
 extern dac_config_t dac_callback_fun;
 #endif
@@ -2295,9 +2296,15 @@ void RSI_ADC_PowerControl(POWER_STATE state)
     case ADC_POWER_ON:
       RSI_IPMU_PowerGateSet(AUXADC_PG_ENB);
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_AUX);
+      analog_set_power_state(ADC_BIT_POS, ANALOG_POWERED_ON);
       break;
     case ADC_POWER_OFF:
       RSI_IPMU_PowerGateClr(AUXADC_PG_ENB);
+      analog_set_power_state(ADC_BIT_POS, ANALOG_POWERED_OFF);
+      if (!analog_get_power_state()) {
+        RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
+        RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
+      }
       break;
   }
 }

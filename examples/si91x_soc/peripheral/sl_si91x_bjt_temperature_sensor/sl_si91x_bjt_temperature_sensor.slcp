@@ -1,17 +1,19 @@
 project_name: sl_si91x_bjt_temperature_sensor
 label: SL_BJT_TEMPERATURE_SENSOR
 description: >
-  Demonstrates the how to configure and use the BJT Temperature Sensor peripheral on the
-  the SiWx917 SoC device.
+  This application demonstrates the configuration and usage of the BJT Temperature Sensor 
+  peripheral on the SiWx917 SoC. It showcases how to measure temperature using the on-chip 
+  bipolar junction transistor (BJT) sensor, offering an efficient solution 
+  for thermal monitoring in embedded applications.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: bjt_temperature_sensor_example.c
   - path: app.c

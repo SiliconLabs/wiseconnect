@@ -1,5 +1,5 @@
 id: sl_si91x_littlefs
-label: Little FS for dual flash parts.
+label: Little FS for Dual Flash
 package: platform
 description: >
   A little fail-safe filesystem. This component is used for performing file operations on external flash MX25R6435F. 
@@ -29,3 +29,5 @@ provides:
   - name: sl_si91x_littlefs
 conflicts:
   - name: sl_si91x_littlefs_ext_flash
+  - name: sl_si91x_littlefs_common_flash
+  - name: sl_si91x_nvm3

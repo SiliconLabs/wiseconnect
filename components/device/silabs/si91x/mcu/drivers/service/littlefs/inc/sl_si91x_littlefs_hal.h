@@ -121,6 +121,41 @@ int si91x_block_device_erase(const struct lfs_config *cfg, lfs_block_t block);
  * @return 0 - QSPI_OK
  ******************************************************************************/
 int si91x_block_device_sync(const struct lfs_config *c);
+
+/***************************************************************************/ /**
+ * @brief Locks the LittleFS filesystem to prevent concurrent access.
+ *
+ * This function is used to lock the LittleFS filesystem to prevent concurrent access
+ * from multiple tasks or interrupts. It is typically used in conjunction with
+ * @ref si91x_block_device_unlock to ensure exclusive access to the filesystem.
+ *
+ * @note The default LittleFS protection functions can be substituted by the application
+ * if other synchronization functions are available and disabling interrupts for
+ * extended periods is not desired.
+ *
+ * @param[in] c  Pointer to the LittleFS configuration structure.
+ *
+ * @return 0 - QSPI_OK on success.
+ ******************************************************************************/
+int si91x_block_device_lock(const struct lfs_config *c);
+
+/***************************************************************************/ /**
+ * @brief Unlocks the LittleFS filesystem to allow concurrent access.
+ *
+ * This function is used to unlock the LittleFS filesystem after it has been locked
+ * using @ref si91x_block_device_lock to prevent concurrent access from multiple tasks or interrupts.
+ * It is typically used in conjunction with @ref si91x_block_device_lock to ensure exclusive access to the filesystem.
+ *
+ * @note The default LittleFS protection functions can be substituted by the application
+ * if other synchronization functions are available and disabling interrupts for
+ * extended periods is not desired.
+ *
+ * @param[in] c  Pointer to the LittleFS configuration structure.
+ *
+ * @return 0 - QSPI_OK on success.
+ ******************************************************************************/
+int si91x_block_device_unlock(const struct lfs_config *c);
+
 #ifdef __cplusplus
 }
 #endif

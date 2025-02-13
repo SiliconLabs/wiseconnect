@@ -66,6 +66,51 @@ typedef struct {
 #define DAC_STATIC_MODE_CALLBACK  2
 #define DAC_INPUT_REG_ADDR        0x24043810
 
+// Define bit positions for ADC and DAC
+#define ADC_BIT_POS  0
+#define DAC_BIT_POS  1
+#define COMP_BIT_POS 2
+
+typedef union {
+  uint8_t analog_power;
+
+  struct {
+    uint8_t power_en_adc : 1;
+    uint8_t power_en_dac : 1;
+    uint8_t power_en_comp : 1;
+  } ap;
+} analog_power_control_t;
+
+extern analog_power_control_t analog_power_ctrl;
+// Define macros for analog power states
+#define ANALOG_POWERED_ON  1
+#define ANALOG_POWERED_OFF 0
+
+// Set power state
+__STATIC_INLINE void analog_set_power_state(uint8_t bit_pos, bool power_en_state)
+{
+  switch (bit_pos) {
+    case ADC_BIT_POS:
+      analog_power_ctrl.ap.power_en_adc = power_en_state;
+      break;
+    case DAC_BIT_POS:
+      analog_power_ctrl.ap.power_en_dac = power_en_state;
+      break;
+    case COMP_BIT_POS:
+      analog_power_ctrl.ap.power_en_comp = power_en_state;
+      break;
+    default:
+      // Handle invalid bit position
+      break;
+  }
+}
+
+// Get power state
+__STATIC_INLINE uint8_t analog_get_power_state(void)
+{
+  return analog_power_ctrl.analog_power;
+}
+
 uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc event);
 
 rsi_error_t DAC_WriteData_StaticMode(int16_t input_data);
@@ -138,6 +183,7 @@ void dac_udma_init(void);
 void dac_udma_write(uint8_t ping_pong_write, uint16_t num_of_samples, int16_t *input_buff, uint8_t skip_flag);
 
 void dac_udma_start(void);
+void dac_udma_stop(void);
 uint16_t RSI_DAC_DynamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data);
 rsi_error_t RSI_DAC_DynamicModeStop(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel);
 void dac_udmaTransferComplete(RSI_UDMA_HANDLE_T udmaHandle, RSI_UDMA_DESC_T *pTranDesc, uint32_t channel_no);

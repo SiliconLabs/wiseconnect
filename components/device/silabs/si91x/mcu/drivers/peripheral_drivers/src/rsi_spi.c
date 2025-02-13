@@ -55,6 +55,9 @@
 #define BYTES_FOR_16_DATA_WIDTH 2    // Number of bytes for 16 bit data frame
 #define BYTES_FOR_32_DATA_WIDTH 4    // Number of bytes for 32 bit data frame
 #define DUMMY_DATA              0xA5 // Dummy data to be written in receive only mode by master
+#define SER_DISABLED            0x00 // Disabled all slave.
+#define MODE_FAULT_STATUS_SET   1U   // The status of mode fault setting.
+#define MODE_FAULT_STATUS_CLR   0U   // The status of mode fault clearing.
 /*When use the ULP Master instance with DMA enabled, it is advisable ulp memory used for low power modes */
 #define ULP_SSI_DUMMY_DATA \
   (ULP_SRAM_START_ADDR + (1 * 800)) // Dummy data to be written in receive only mode by master while in PS2 state
@@ -68,6 +71,7 @@ static uint8_t ssi_slave_number    = 0; // variable to store current slave numbe
 static uint8_t cs_gpio_mode_pin = 0; // ULP_SSI primary CS pin number store in this variable.
 #endif
 static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
+static sl_status_t SPI_Set_Mode_Fault_Event(const SPI_RESOURCES *spi);
 
 #ifndef SSI_ROMDRIVER_PRESENT
 #include "rsi_rom_clks.h"
@@ -444,6 +448,11 @@ int32_t SPI_Transfer(const void *data_out,
   if (spi->info->status.busy) {
     return ARM_DRIVER_ERROR_BUSY;
   }
+  // Set the mode fault event if slave select is deactivated in master/ulp_master instance mode.
+  if (SPI_Set_Mode_Fault_Event(spi)) {
+    return ARM_DRIVER_ERROR_UNSUPPORTED;
+  }
+
   spi->info->status.busy       = 1U;
   spi->info->status.data_lost  = 0U;
   spi->info->status.mode_fault = 0U;
@@ -1186,6 +1195,10 @@ int32_t SPI_Send(const void *data,
   if (spi->info->status.busy) {
     return ARM_DRIVER_ERROR_BUSY;
   }
+  // Set the mode fault event if slave select is deactivated in master/ulp_master instance mode.
+  if (SPI_Set_Mode_Fault_Event(spi)) {
+    return ARM_DRIVER_ERROR_UNSUPPORTED;
+  }
   spi->info->status.busy       = 1U;
   spi->info->status.data_lost  = 0U;
   spi->info->status.mode_fault = 0U;
@@ -1354,6 +1367,10 @@ int32_t SPI_Receive(void *data,
   }
   if (spi->info->status.busy) {
     return ARM_DRIVER_ERROR_BUSY;
+  }
+  // Set the mode fault event if slave select is deactivated in master/ulp_master instance mode.
+  if (SPI_Set_Mode_Fault_Event(spi)) {
+    return ARM_DRIVER_ERROR_UNSUPPORTED;
   }
   spi->info->status.busy       = 1U;
   spi->info->status.data_lost  = 0U;
@@ -1731,5 +1748,43 @@ static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width)
     // For 32-bit data frame number of bytes is 4
     data_width_in_bytes = BYTES_FOR_32_DATA_WIDTH;
   }
+}
+
+/**
+ * @fn          void SPI_Set_Mode_Fault_Event(const SPI_RESOURCES *spi)
+ * @brief       Set the callback event as mode fault if Slave enable register is not enabled.
+ * @param[in]   spi        : Pointer to the SPI resources
+ * @return      none
+ */
+static sl_status_t SPI_Set_Mode_Fault_Event(const SPI_RESOURCES *spi)
+{
+  sl_status_t status = SL_STATUS_OK;
+  uint32_t event     = 0;
+  if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
+    // Condition to check slave enable register if no slave enabled set the mode fault event.
+    if (spi->reg->SER == SER_DISABLED) {
+      spi->info->status.mode_fault = MODE_FAULT_STATUS_SET;
+      status                       = SL_STATUS_FAIL;
+      event |= ARM_SPI_EVENT_MODE_FAULT;
+      if (event && spi->info->cb_event) {
+        uint8_t ssi_instance = 0;
+        // Validate the SSI instance that triggered this event
+        if (spi->reg == SSI0) {
+          // Assigning instance number to the callback variable
+          ssi_instance = SSI_MASTER_INSTANCE;
+        } else if (spi->reg == SSI2) {
+          // Assigning instance number to the callback variable
+          ssi_instance = SSI_ULP_MASTER_INSTANCE;
+        }
+        // Appending the instance value in the callback event variable
+        event |= (ssi_instance << SSI_INSTANCE_BIT);
+        spi->info->cb_event(event);
+        if (spi->info->status.mode_fault) {
+          spi->info->status.mode_fault = MODE_FAULT_STATUS_CLR;
+        }
+      }
+    }
+  }
+  return status;
 }
 /** @} */

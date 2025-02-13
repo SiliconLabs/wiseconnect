@@ -72,7 +72,7 @@ Read through the following sections and make any changes needed.
 
     - If user configures, **LONG_RANGE**, Silicon Labs module will update PHY data rates to coded PHY data rate. By default it is configured to 500kbps PHY data rate.
 
-    - If user configures, **TWO_MBPS**, Silicon Labs module will update 2Mbps PHY data rates.
+    - If user configures, **BLE_2MBPS**, Silicon Labs module will update 2Mbps PHY data rates.
 
     ```c
     #define RSI_DEVICE_DATA_RATE                LONG_RANGE
@@ -167,7 +167,7 @@ Follow the steps for successful execution of the application:
 
     ![](resources/readme/500kbps.png)
 
-7. When Silicon Labs module is configured as **TWO_MBPS** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 2mbps and prints in docklight looks as shown below.
+7. When Silicon Labs module is configured as **BLE_2MBPS** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 2mbps and prints in docklight looks as shown below.
 
     ![](resources/readme/2mbps.png)
 

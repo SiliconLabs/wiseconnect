@@ -1,7 +1,7 @@
 project_name: sl_si91x_qei
 label: SI91x - SL_QEI
 description: |
-  Demonstrates how to use the QEI on the SI91x SoC device.
+  This application demonstrates how to use the QEI on the SI91x SoC device.
 category: example|peripheral
 package: platform
 quality: production
@@ -9,10 +9,10 @@ readme:
   - path: readme.md
 sdk:
   id: simplicity_sdk
-  version: 2024.12.0
+  version: 2024.12.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

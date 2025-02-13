@@ -1,16 +1,17 @@
 project_name: sl_si91x_icm40627
 label: sl_si91x_icm40627
 description: |
-  This example project configures ICM40627 Motion Sensor
+  This application demonstrates how to configure and use the ICM40627 motion sensor, a 6-axis sensor that combines a 3-axis accelerometer and a 3-axis gyroscope. 
+  The example covers how to initialize the sensor, configure its settings for various motion detection tasks, and retrieve sensor data for further processing, enabling motion-based applications.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

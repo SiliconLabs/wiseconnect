@@ -37,6 +37,12 @@
 #if defined(SL_CATALOG_FREERTOS_KERNEL_PRESENT)
 extern int FreeRTOS_errno;
 #define SLI_ERRNO_GLOBAL_VAR FreeRTOS_errno
+#elif defined(SL_CATALOG_MICRIUMOS_KERNEL_PRESENT)
+extern int micriumos_errno;
+#define SLI_ERRNO_GLOBAL_VAR micriumos_errno
+#else
+static int single_thread_errno = 0;
+#define SLI_ERRNO_GLOBAL_VAR single_thread_errno
 #endif
 
 // Set a global errno variable for interrupt context

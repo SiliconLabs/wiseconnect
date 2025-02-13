@@ -1,16 +1,16 @@
 project_name: sl_si91x_gpio_group_example
 label: SI91x - SL_GPIO_GROUP_EXAMPLE
 description: |
-  Demonstrates GPIO group interrupts.
+  This application demonstrates how to configure and use GPIO group interrupts on the SiWx917 SoC device.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 readme:
   - path: readme.md
 source:

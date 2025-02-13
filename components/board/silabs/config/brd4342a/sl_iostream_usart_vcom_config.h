@@ -102,8 +102,8 @@
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <usart signal=TX,RX> SL_SI91X_IOSTREAM
-// $[USART_SL_SI91X_IOSTREAM]
+// <ulp_uart signal=TX,RX> SL_SI91X_IOSTREAM
+// $[ULP_UART_SL_SI91X_IOSTREAM]
 #ifndef SL_SI91X_IOSTREAM_PERIPHERAL
 #define SL_SI91X_IOSTREAM_PERIPHERAL ULP_UART
 #endif
@@ -129,7 +129,7 @@
 #ifndef SL_SI91X_IOSTREAM_RX_LOC
 #define SL_SI91X_IOSTREAM_RX_LOC 3
 #endif
-// [USART_SL_SI91X_IOSTREAM]$
+// [ULP_UART_SL_SI91X_IOSTREAM]$
 // <<< sl:end pin_tool >>>
 
 #endif

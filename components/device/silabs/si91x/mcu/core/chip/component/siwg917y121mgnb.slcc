@@ -51,7 +51,7 @@
   - name: device_has_mpu
   - name: device_is_module
   - name: device_no_antenna
-  - name: si91x_common_flash 
+   
 - requires:
   - name: rsilib_chip
   - name: cmsis_common
@@ -67,6 +67,7 @@
   - name: freertos_config
     condition: [freertos]
   - name: si91x_32kHz_external_oscillator
+  - name: opn_config
 - template_contribution:
   - name: device_opn
     value: SIWG917Y121MGNB

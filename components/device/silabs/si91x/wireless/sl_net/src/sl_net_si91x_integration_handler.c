@@ -261,7 +261,7 @@ void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_si91
     sli_si91x_flush_all_socket_data_queues(vap_id_for_flush);
 
     // Shutdown and update the state of the sockets associated with the VAP ID.
-    sli_si91x_vap_shutdown(vap_id_for_flush);
+    sli_si91x_vap_shutdown(vap_id_for_flush, SLI_SI91X_BSD_DISCONNECT_REASON_INTERFACE_DOWN);
 #endif
   }
 #endif
@@ -319,7 +319,8 @@ sl_status_t sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(uint16
         VERIFY_STATUS_AND_RETURN(status);
 
         // update the socket state to disconnected.
-        sli_si91x_sockets[index]->state = DISCONNECTED;
+        sli_si91x_sockets[index]->state             = DISCONNECTED;
+        sli_si91x_sockets[index]->disconnect_reason = SLI_SI91X_BSD_DISCONNECT_REASON_INTERFACE_DOWN;
       }
     }
   }

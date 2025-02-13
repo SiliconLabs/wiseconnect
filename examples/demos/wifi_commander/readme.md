@@ -44,9 +44,9 @@ The Wi-Fi Commander application is a command-line interface application designed
 
 ## Getting Started
 
-In the NCP (Network Co-Processor) context, the application operates on a host MCU or PC, referred to as the NCP Host, while the Wi-Fi stack runs on SiWx91x chipset in SoC Mode, known as the NCP Target.
+In the NCP (Network Co-Processor) context, the application operates on a PC, referred to as the NCP Host, while the Wi-Fi stack runs on SiWx91x chipset in SoC Mode, known as the NCP Target.
 
-The communication between the NCP Host and Target occurs via a serial interface (UART), which can be tunneled through USB if you're using a development kit. This communication is defined by Silicon Labs' proprietary protocol called BGAPI. For the NCP Host side, BGLib serves as the C reference implementation of the BGAPI protocol.
+The communication between the NCP Host and Target occurs via a serial interface (UART), which can be tunneled through USB if you're using a development kit. This communication is defined by Silicon Labs' proprietary protocol called xAPI.
 
 Refer to the instructions here:
 

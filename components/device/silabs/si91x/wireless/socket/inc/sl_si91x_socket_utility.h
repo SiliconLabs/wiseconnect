@@ -85,7 +85,7 @@ sl_status_t sli_si91x_socket_init(uint8_t max_select_count);
 
 sl_status_t sli_si91x_socket_deinit(void);
 
-sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id);
+sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id, sli_si91x_bsd_disconnect_reason_t disconnect_reason);
 
 bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr);
 
@@ -163,10 +163,10 @@ sl_status_t sl_si91x_config_socket(sl_si91x_socket_config_t socket_config);
 /** @} */
 
 /**
- * A internal function to reset the socket.
+ * A internal function to free the socket.
  * @param socket socket FD which needs to be reset.
  */
-void reset_socket_state(int socket);
+void sli_si91x_free_socket(int socket);
 
 /**
  * A internal function to get sl_si91x_socket structure based on socket FD sent

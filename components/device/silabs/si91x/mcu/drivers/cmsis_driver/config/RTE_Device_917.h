@@ -30,6 +30,10 @@
 #define __RTE_DEVICE_H
 #include "rsi_ccp_user_config.h"
 
+#define HP 0
+#define ULP 4
+#define UULP_VBAT 5
+
 // <e> USART0  [Driver_USART0]
 // <i> Configuration settings for Driver_USART0 in component ::CMSIS Driver:USART
 #define RTE_ENABLE_FIFO                    1 
@@ -686,15 +690,15 @@
 #define RTE_ULP_UART_TX_PORT_ID 1
 #endif
 #if (RTE_ULP_UART_TX_PORT_ID == 0)
-#define RTE_ULP_UART_TX_PORT 0
+#define RTE_ULP_UART_TX_PORT HP
 #define RTE_ULP_UART_TX_PIN  3
 #define RTE_ULP_UART_TX_MUX  3
 #elif (RTE_ULP_UART_TX_PORT_ID == 1)
-#define RTE_ULP_UART_TX_PORT 0
+#define RTE_ULP_UART_TX_PORT HP
 #define RTE_ULP_UART_TX_PIN  7
 #define RTE_ULP_UART_TX_MUX  3
 #elif (RTE_ULP_UART_TX_PORT_ID == 2)
-#define RTE_ULP_UART_TX_PORT 0
+#define RTE_ULP_UART_TX_PORT HP
 #define RTE_ULP_UART_TX_PIN  11
 #define RTE_ULP_UART_TX_MUX  3
 #else
@@ -709,15 +713,15 @@
 #define RTE_ULP_UART_RX_PORT_ID 1
 #endif
 #if (RTE_ULP_UART_RX_PORT_ID == 0)
-#define RTE_ULP_UART_RX_PORT 0
+#define RTE_ULP_UART_RX_PORT HP
 #define RTE_ULP_UART_RX_PIN  2
 #define RTE_ULP_UART_RX_MUX  3
 #elif (RTE_ULP_UART_RX_PORT_ID == 1)
-#define RTE_ULP_UART_RX_PORT 0
+#define RTE_ULP_UART_RX_PORT HP
 #define RTE_ULP_UART_RX_PIN  6
 #define RTE_ULP_UART_RX_MUX  3
 #elif (RTE_ULP_UART_RX_PORT_ID == 2)
-#define RTE_ULP_UART_RX_PORT 0
+#define RTE_ULP_UART_RX_PORT HP
 #define RTE_ULP_UART_RX_PIN  9
 #define RTE_ULP_UART_RX_MUX  3
 #else

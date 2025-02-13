@@ -24,12 +24,6 @@
 
 // <h> PSRAM Device Configurations
 
-// <o PSRAM_FREQ_CLK_DIV_FACTOR> PSRAM clock Frequency Division Factor: clock_out = clock_in/ (2 * Division Factor)<f.d>
-// <i> 50% divider is selected with division factor = (2 * Division Factor)
-// <i> if 0,  clock_out = clock_in/2. If greater than 0,  clock_out = clock_in/ (2 * Division Factor)
-// <d> 2
-#define PSRAM_FREQ_CLK_DIV_FACTOR 2
-
 // <o PSRAM_RW_TYPE>PSRAM Read-Write Type
 //   <NORMAL_RW=> Normal Read-Write
 //   <FAST_RW=> Fast Read-Write

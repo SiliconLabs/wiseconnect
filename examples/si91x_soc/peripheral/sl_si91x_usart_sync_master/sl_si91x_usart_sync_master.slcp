@@ -1,17 +1,18 @@
 project_name: sl_si91x_usart_sync_master
 label: SI91x - SL_USART_SYNCHRONOUS_MASTER
 description: >
-  This example project configures USART master transmits and receives data
-  in synchronous full duplex mode.
+  This application demonstrates the usage of the USART master mode for transmitting and receiving data in synchronous full-duplex mode. 
+  It highlights how the USART module enables simultaneous, bidirectional data flow using a synchronized clock signal, ensuring efficient communication between devices. 
+  This mode is ideal for applications where both transmitting and receiving of data need to occur at the same time with high data integrity.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

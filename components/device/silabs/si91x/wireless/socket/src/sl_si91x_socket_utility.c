@@ -258,12 +258,13 @@ sl_status_t sli_si91x_socket_deinit(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id)
+sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id, sli_si91x_bsd_disconnect_reason_t disconnect_reason)
 {
-  // Iterate through all BSD sockets and modify the state to DISCONNECTED those associated with the given VAP ID
+  // Iterate through all BSD sockets and modify the state those associated with the given VAP ID
   for (uint8_t socket_index = 0; socket_index < NUMBER_OF_SOCKETS; socket_index++) {
     if ((sli_si91x_sockets[socket_index] != NULL) && (sli_si91x_sockets[socket_index]->vap_id == vap_id)) {
-      sli_si91x_sockets[socket_index]->state = DISCONNECTED;
+      sli_si91x_sockets[socket_index]->state             = DISCONNECTED;
+      sli_si91x_sockets[socket_index]->disconnect_reason = disconnect_reason;
     }
   }
 
@@ -310,7 +311,7 @@ sl_status_t sl_si91x_config_socket(sl_si91x_socket_config_t socket_config)
   return status;
 }
 
-void reset_socket_state(int socket)
+void sli_si91x_free_socket(int socket)
 {
   if (sli_si91x_sockets[socket] == NULL) {
     return;
@@ -755,12 +756,27 @@ int sli_si91x_shutdown(int socket, int how)
   // Therefore, if Dev attempts to close either first client or server, close request type needs to be set to SHUTDOWN_BY_PORT.
   int close_request_type = (si91x_socket->state == LISTEN) ? SHUTDOWN_BY_PORT : how;
 
-  // If the socket is in an initial state or marked for auto-close, reset it and return
-  if (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED
-      || (si91x_socket->state == DISCONNECTED && is_tcp_auto_close_enabled())) {
-    reset_socket_state(socket);
+  // Check the state of the socket and perform cleanup if necessary
+  if (si91x_socket->state == BOUND            // Socket is in a bound state
+      || si91x_socket->state == INITIALIZED   // Socket is in an initialized state
+      || (si91x_socket->state == DISCONNECTED // Socket is disconnected
+          && si91x_socket->disconnect_reason
+               == SLI_SI91X_BSD_DISCONNECT_REASON_INTERFACE_DOWN) // Disconnection due to interface down
+      || (si91x_socket->state == DISCONNECTED                     // Socket is disconnected
+          && si91x_socket->disconnect_reason
+               == SLI_SI91X_BSD_DISCONNECT_REASON_REMOTE_CLOSED // Disconnection due to remote side terminate
+          && is_tcp_auto_close_enabled())) {                    // Check if TCP auto-close is enabled
+    // Free the resources associated with this socket
+    sli_si91x_free_socket(socket);
 
+    // Return success as the cleanup is successfully performed
     return SI91X_NO_ERROR;
+  }
+
+  // Continuously checks if the transmit data queue of the specified socket is empty.
+  // If the queue is not empty, it waits for 2 milliseconds before checking again.
+  while (!sli_si91x_buffer_queue_empty(&si91x_socket->tx_data_queue)) {
+    osDelay(2);
   }
 
   /*If socket is server socket, SHUTDOWN_BY_PORT is to be used irrespective of 'how' parameter.*/
@@ -793,7 +809,7 @@ int sli_si91x_shutdown(int socket, int how)
   socket_close_response     = (sl_si91x_socket_close_response_t *)packet->data;
 
   if (close_request_type == SHUTDOWN_BY_ID && si91x_socket->id == socket_close_response->socket_id) {
-    reset_socket_state(socket);
+    sli_si91x_free_socket(socket);
     sl_si91x_host_free_buffer(response_buffer);
     return SI91X_NO_ERROR;
   }
@@ -805,7 +821,7 @@ int sli_si91x_shutdown(int socket, int how)
       continue;
     else if (close_request_type == SHUTDOWN_BY_PORT
              && socket_id->local_address.sin6_port == socket_close_response->port_number) {
-      reset_socket_state(index);
+      sli_si91x_free_socket(index);
     }
   }
 
@@ -852,8 +868,9 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
       if (socket == NULL || remote_socket_closure->socket_id != socket->id || socket->state == LISTEN)
         continue;
 
-      socket->state         = DISCONNECTED;
-      uint16_t frame_status = get_si91x_frame_status(rx_packet);
+      socket->state             = DISCONNECTED;
+      socket->disconnect_reason = SLI_SI91X_BSD_DISCONNECT_REASON_REMOTE_CLOSED;
+      uint16_t frame_status     = get_si91x_frame_status(rx_packet);
       sli_si91x_flush_socket_command_queues_based_on_queue_type(index, frame_status);
       sli_si91x_flush_socket_data_queues_based_on_queue_type(index);
 

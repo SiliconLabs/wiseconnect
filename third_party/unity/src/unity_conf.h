@@ -99,17 +99,6 @@ extern "C" {
 #define UNITY_UART_TX_PIN  5
 #define UNITY_UART_TX_PORT gpioPortA
 
-#elif defined(SI917_BRD4325A)
-
-#define UNITY_UART_TYPE_USART_SI917
-#define UNITY_TX           USART_Tx
-#define UNITY_UART         USART0
-#define UNITY_UART_DONE    1
-#define UNITY_UART_RX_PIN  6
-#define UNITY_UART_RX_PORT gpioPortA
-#define UNITY_UART_TX_PIN  5
-#define UNITY_UART_TX_PORT gpioPortA
-
 #endif
 
 #if defined(SLWSTK6240A_EZR32HG) || defined(SLWSTK6241A_EZR32HG) || defined(SLWSTK6242A_EZR32HG) \

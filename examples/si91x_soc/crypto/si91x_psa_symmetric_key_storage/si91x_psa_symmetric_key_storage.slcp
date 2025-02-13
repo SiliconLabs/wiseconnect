@@ -1,7 +1,7 @@
 project_name: si91x_psa_symmetric_key_storage
 label: SI91x - SoC PSA symmetric key storage
 description: >
-  Demonstrates Key generate, import, export and PSA ITS write, read
+  This application demonstrates Key generate, import, export and PSA ITS write, read
   and erase functions for PERSISTENT PLAINTEXT and VOLATILE PLAINTEXT.
 category: example|crypto
 package: platform
@@ -26,10 +26,10 @@ include:
       - path: psa_symmetric_key_storage_app.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:

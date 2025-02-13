@@ -183,10 +183,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 | GPIO pin      | Explorer kit GPIO | Description             |
 | ------------- | ----------------- | ----------------------- |
-| GPIO_26 [P27] |   GPIO_26 [MISO]  | RTE_SSI_SLAVE_SCK_PIN   |
-| GPIO_25 [P25] |   GPIO_25 [SCK]   | RTE_SSI_SLAVE_CS_PIN    |
+| GPIO_26 [P27] |   GPIO_25 [SCK]   | RTE_SSI_SLAVE_SCK_PIN   |
+| GPIO_25 [P25] |   GPIO_28 [CS]    | RTE_SSI_SLAVE_CS_PIN    |
 | GPIO_27 [P29] |   GPIO_27 [MOSI]  | RTE_SSI_SLAVE_MOSI_PIN  |
-| GPIO_28 [P31] |   GPIO_28 [CS]    | RTE_SSI_SLAVE_MISO_PIN  |
+| GPIO_28 [P31] |   GPIO_26 [MISO]  | RTE_SSI_SLAVE_MISO_PIN  |
 
 >**Note:** Make sure the following pin configuration are in the `RTE_Device_xxx.h` file:
 >

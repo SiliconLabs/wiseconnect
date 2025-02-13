@@ -1,16 +1,18 @@
 project_name: sl_si91x_blinky
 label: Si91x - Blinky
 description: |
-  Demonstrates how to blink an LED.
+  This application demonstrates the process of configuring a basic LED blinking functionality. 
+  It highlights how to initialize the GPIO peripheral, set the LED pin as an output, 
+  and toggle its state periodically to achieve a blinking effect.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: app.c
   - path: main.c

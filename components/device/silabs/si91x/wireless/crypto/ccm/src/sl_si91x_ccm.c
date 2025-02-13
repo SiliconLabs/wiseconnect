@@ -136,14 +136,6 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
-  // Verify the length from the firmware against the expected length
-  if ((packet->length
-       != config->msg_length + ((config->encrypt_decrypt == SL_SI91X_CCM_DECRYPT) ? 0 : config->tag_length))) {
-    free(request);
-    if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
-    return SL_STATUS_TRANSMIT;
-  }
   memcpy(output, packet->data, packet->length);
   if (buffer != NULL)
     sl_si91x_host_free_buffer(buffer);

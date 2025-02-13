@@ -143,11 +143,17 @@ The application can be configured to suit your requirements and the development 
   - HTTP_SERVER_IP_ADDRESS refers to HTTP Server IP address.
   - HTTP_URL refers to HTTP resource name.
   - HTTP_HOSTNAME refers to HTTP server hostname.
-  - HTTP_EXTENDED_HEADER refers to HTTP extended header. If NULL, default extented header is filled
+  - HTTP_EXTENDED_HEADER refers to HTTP extended header. If NULL, default extented header is filled.
+
+    The purpose of this macro is to append user configurable header fields to the default HTTP/HTTPS header.
+
+    The extended header may contain multiple header fields, with each field terminated by "\r\n" (0x0D 0x0A).
+
+    Example: key1:value1"\r\n"key2:value2"\r\n"
+
   - USERNAME refers to the username to be used to access the HTTP resource.
   - PASSWORD refers to the password to be used to access the HTTP resource.
-  <br>
-
+  
 - For **Apache HTTP Server**:
 
   - Provide the PC IP where Apache server is running in HTTP_SERVER_IP_ADDRESS.
@@ -226,6 +232,7 @@ The application can be configured to suit your requirements and the development 
     > Example: For Azure Blob Storage URL "https://example1.blob.core.windows.net/example2/firmware.rps>", HTTP_URL will be "example2/firmware.rps".
   
   - Configurations for Azure Blob Storage
+  
     ```c
     //Sample configurations
     #include "azure_baltimore_ca.pem.h"        //Baltimore Root CA

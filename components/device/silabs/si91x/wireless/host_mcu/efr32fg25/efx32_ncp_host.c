@@ -30,7 +30,6 @@
 #include "sl_constants.h"
 #include <stdbool.h>
 #include <string.h>
-#include "FreeRTOS.h"
 
 #define LDMA_MAX_TRANSFER_LENGTH     4096
 #define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)

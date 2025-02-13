@@ -205,11 +205,6 @@ void sli_handle_dhcp_and_rejoin_failure(void *sdk_context, sl_wifi_buffer_t *res
   // Retrieve the packet data from the response buffer
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
 
-  // Check for remote Wi-Fi client disconnection in concurrent mode
-  if (packet->command == RSI_WLAN_RSP_CLIENT_DISCONNECTED && (get_opermode() == SL_SI91X_CONCURRENT_MODE)) {
-    packet->desc[7] = SL_SI91X_WIFI_AP_VAP_ID; // Set the AP VAP ID
-  }
-
   // Create a generic RX packet from the parameters
   status = sl_create_generic_rx_packet_from_params(&node, &temp_buffer, 0, 0, NULL, frame_status);
   if (status != SL_STATUS_OK) {
@@ -652,8 +647,13 @@ void si91x_bus_thread(const void *args)
                 cmd_queues[SI91X_WLAN_CMD].command_in_flight = false;
               }
 
-              // Check if the frame type indicates a failed join operation or a disconnect
-              if (((RSI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK))
+              // Check for the following scenarios:
+              // 1. If an asynchronous RX JOIN command fails (frame status not OK).
+              // 2. If the station (STA) disconnects from a third-party Access Point (AP).
+              // 3. If a third-party station disconnects from the DUT's Access Point (AP).
+              // 4. If the DUT's Access Point (AP) stops operating.
+              if (((RSI_WLAN_RSP_JOIN == frame_type && cmd_queues[SI91X_WLAN_CMD].frame_type != frame_type)
+                   && (frame_status != SL_STATUS_OK))
                   || (RSI_WLAN_RSP_DISCONNECT == frame_type) || (RSI_WLAN_RSP_CLIENT_DISCONNECTED == frame_type)
                   || (RSI_WLAN_RSP_AP_STOP == frame_type)) {
 
@@ -992,8 +992,11 @@ void si91x_bus_thread(const void *args)
                 cmd_queues[SI91X_NETWORK_CMD].frame_type        = 0;
               }
 
-              // Check if the frame type indicates a failed join operation or a disconnect
-              if (((RSI_WLAN_RSP_IPCONFV4 == frame_type) && (frame_status != SL_STATUS_OK))
+              // Check for the following scenarios:
+              // 1. If an IPv4 configuration response (IPCONFV4) fails (frame status not OK).
+              // 2. If there is an IPv4 address change event (IPV4_CHANGE).
+              if (((RSI_WLAN_RSP_IPCONFV4 == frame_type && frame_type != cmd_queues[SI91X_NETWORK_CMD].frame_type)
+                   && (frame_status != SL_STATUS_OK))
                   || (RSI_WLAN_RSP_IPV4_CHANGE == frame_type)) {
                 // Reset current performance profile and set it to high performance
                 reset_coex_current_performance_profile();
@@ -1330,6 +1333,11 @@ void si91x_bus_thread(const void *args)
             sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
             sl_si91x_host_free_buffer(buffer);
 #endif
+          } else if (frame_type == RSI_NET_DUAL_STACK_RX_RAW_DATA_FRAME) {
+
+            // If network dual stack mode is enabled, process the received data frame of type 0x1 and free the buffer.
+            sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
+            sl_si91x_host_free_buffer(buffer);
           } else if (frame_type == SL_SI91X_WIFI_RX_DOT11_DATA) {
             ++cmd_queues[SI91X_WLAN_CMD].rx_counter;
 

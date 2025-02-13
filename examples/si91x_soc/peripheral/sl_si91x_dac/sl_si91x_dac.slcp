@@ -1,17 +1,16 @@
 project_name: sl_si91x_dac
 label: Si91x - SL_DAC
 description: >
-  Demonstrates the how to configure and use the DAC peripheral on the
-  the SiWx917 SoC device.
+  This application demonstrates how to configure and use the DAC (Digital-to-Analog Converter) peripheral on the SiWx917 SoC device.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: dac_example.c
   - path: app.c

@@ -1,17 +1,17 @@
 project_name: sl_si91x_uart
 label: SI91x - SL_UART
 description: >
-  This example project configures UART transmits and receives data
+  This application demonstrates the usage of UART transmits and receives data
   in full duplex mode.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

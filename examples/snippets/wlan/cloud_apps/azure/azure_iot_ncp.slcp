@@ -14,10 +14,10 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version:  "2024.12.0"
+   version:  "2024.12.1"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.4.0
+   version: 3.4.1
 source:
 -  path: app.c
 -  path: main.c
@@ -135,6 +135,10 @@ other_file:
 - path: resources/readme/azurex509devicecreate.png
 - path: resources/readme/iothubstep4image.png
 - path: resources/readme/openssloutputs.png
+- path: resources/readme/power_meter_avg_current_consumption.png
+- path: resources/readme/energy_profiler_step_1.png
+- path: resources/readme/energy_profiler_step_2.png
+- path: resources/readme/energy_profiler_step_3.png
 ui_hints:
    highlight:
    -  path: readme.md

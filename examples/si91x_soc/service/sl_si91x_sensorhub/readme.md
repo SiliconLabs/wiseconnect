@@ -341,16 +341,25 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
 | VCC | (WPK) (3v3) | Connect to 3v3 pin |
 | GND | (WPK) (GND) | Connect to GND pin |
 | ADDR (for BH1750 Light Sensor) |(WPK) (GND) | Connect to GND pin |
-|
 
-### SPI Sensor Pin Configurations
-| Sensor PIN | ULP GPIO PIN | Description |
-| --- | --- | --- |
-| MOSI | ULP_GPIO_1 [ F16/ P16 ] | Connect to SDA pin |
-| MISO | ULP_GPIO_2 [ F10 ] | Connect to SDO pin |
-| CLK | ULP_GPIO_8 | P15 |
-| CS | ULP_GPIO_10 | P17 |
-|
+### SPI Sensor Pin Configurations for BRD4338A radio board
+
+| Sensor PIN  | GPIO pin           | Description              |
+| ------------| ------------------ | ------------------------ |
+| SCK | ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
+| CS0 | ULP_GPIO_10 [P17]  |RTE_SSI_ULP_MASTER_CS0_PIN|
+| MOSI | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
+| MISO | ULP_GPIO_2  [F10]  | ULP_SSI_MASTER_MISO_PIN  |
+
+## SPI Sensor Pin Configurations for BRD4343A radio board
+
+| Sensor PIN | GPIO pin           | Description              |
+| ---------- | ------------------ | ------------------------ |
+| SCK | ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
+| CS1 | ULP_GPIO_4  [P17]  |RTE_SSI_ULP_MASTER_CS1_PIN|
+| MOSI | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
+| MISO | ULP_GPIO_2  [P37]  | ULP_SSI_MASTER_MISO_PIN  |
+
 
 ### ADC Sensor Pin Configurations
 GUVA sensor 
@@ -361,8 +370,8 @@ GUVA sensor
 GY-61
 | Sensor PIN | ULP GPIO PIN | Description |
 | --- | --- | --- |
-| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to ADXL335 GY61 X axis analog output
-| ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output
+| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to ADXL335 GY61 X axis analog output |
+| ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output |
 | ADC Input | ULP_GPIO_1 [ P16 ] | Connect to ADXL335 GY61 Z axis analog output| 
 
 - **Note: Due to limitations with the number of available ULP GPIO pins (3 maximum),choose either the GUVA sensor or the GY-61 sensor.  Both sensors won't fit at the same time.**

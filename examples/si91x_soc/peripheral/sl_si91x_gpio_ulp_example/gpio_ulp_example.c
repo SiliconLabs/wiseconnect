@@ -78,30 +78,30 @@ void gpio_ulp_example_init(void)
     status = sl_gpio_driver_init();
     if (status != SL_STATUS_OK) {
       // Prints GPIO initialization fails
-      DEBUGOUT("sl_gpio_driver_init, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_driver_init, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver initialization is successful \n");
+    DEBUGOUT("GPIO driver initialization is successful \r\n");
     // Configure ULP GPIO pin 2 using driver pin configuration API.
     // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
     // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
     status = sl_gpio_set_configuration(sl_gpio_pin_config);
     if (status != SL_STATUS_OK) {
       // Prints if pin configuration fails
-      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver set pin configuration is successful \n");
+    DEBUGOUT("GPIO driver set pin configuration is successful \r\n");
     // Configure ULP GPIO pin 8 using driver pin configuration API.
     // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
     // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
     status = sl_gpio_set_configuration(sl_gpio_pin_config1);
     if (status != SL_STATUS_OK) {
       // Prints if pin configuration fails
-      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
-    DEBUGOUT("GPIO driver set pin configuration is successful \n");
+    DEBUGOUT("GPIO driver set pin configuration is successful \r\n");
     // Configure ULP GPIO pin interrupts. The pin interrupt in this application is performed using external triggering from button.
     // Connect ULP GPIO8(P15) to low/high for triggering ULP GPIO instance pin interrupt based on event selected.
     status = sl_gpio_driver_configure_interrupt(&sl_gpio_pin_config1.port_pin,
@@ -110,10 +110,10 @@ void gpio_ulp_example_init(void)
                                                 (sl_gpio_irq_callback_t)&gpio_ulp_pin_interrupt_callback,
                                                 AVL_INTR_NO);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_gpio_configure_pin_interrupt, Error code: %lu", status);
+      DEBUGOUT("sl_gpio_configure_pin_interrupt, Error code: %lu\r\n", status);
       break;
     }
-    DEBUGOUT("GPIO driver configure ulp pin interrupt is successful \n");
+    DEBUGOUT("GPIO driver configure ulp pin interrupt is successful \r\n");
   } while (false);
 }
 /*******************************************************************************
@@ -125,20 +125,20 @@ void gpio_ulp_example_process_action(void)
   status = sl_gpio_driver_set_pin(&sl_gpio_pin_config.port_pin); // Set ULP GPIO pin 2
   if (status != SL_STATUS_OK) {
     // Prints if setting pin fails
-    DEBUGOUT("sl_gpio_set_pin, Error code: %lu", status);
+    DEBUGOUT("sl_gpio_set_pin, Error code: %lu\r\n", status);
     return;
   }
   // Prints indicating successful pin setting
-  DEBUGOUT("ULP GPIO driver set pin is successful \n");
+  DEBUGOUT("ULP GPIO driver set pin is successful \r\n");
   delay(DELAY);                                                    // Delay of 1sec
   status = sl_gpio_driver_clear_pin(&sl_gpio_pin_config.port_pin); // Clear ULP GPIO pin 2
   if (status != SL_STATUS_OK) {
     // Prints if clearing pin fails
-    DEBUGOUT("sl_gpio_clear_pin, Error code: %lu", status);
+    DEBUGOUT("sl_gpio_clear_pin, Error code: %lu\r\n", status);
     return;
   }
   // Prints indicating successful pin clearing
-  DEBUGOUT("ULP GPIO driver clear pin is successful \n");
+  DEBUGOUT("ULP GPIO driver clear pin is successful \r\n");
   delay(DELAY); // Delay of 1sec
 }
 
@@ -159,6 +159,6 @@ static void gpio_ulp_pin_interrupt_callback(uint32_t pin_intr)
 {
   if (pin_intr == ULP_PIN_INTR_0) {
     // This is with respect to ISR context. Debugout might cause issues sometimes.
-    DEBUGOUT("gpio ulp pin interrupt0\n");
+    DEBUGOUT("gpio ulp pin interrupt0\r\n");
   }
 }

@@ -285,8 +285,23 @@ typedef struct {
                  ///< - SL_SI91X_XO_CTUNE_FROM_HOST
                  ///< - SL_SI91X_ENABLE_NWP_WDT_FROM_HOST
                  ///< - SL_SI91X_DISABLE_NWP_WDT_FROM_HOST
+                 ///< - SL_SI91X_SET_XTAL_GOOD_TIME_FROM_HOST
+                 ///< - SL_SI91X_SET_PMU_GOOD_TIME_FROM_HOST
   union {
-    uint8_t config_val; ///< Configuration value as per the code selected above.
+    uint16_t config_val; /**< 
+                      * @brief Configuration value as per the code selected above
+                      * 
+                      * |  code  | config_val range for SoC  | config_val range for NCP |
+                      * |--------|---------------------------|---------------------------|
+                      * |SL_SI91X_XO_CTUNE_FROM_HOST| 0 - 255 | 0 - 255 |
+                      * |SL_SI91X_ENABLE_NWP_WDT_FROM_HOST| NA | NA |
+                      * |SL_SI91X_DISABLE_NWP_WDT_FROM_HOST| NA | NA |
+                      * |SL_SI91X_SET_XTAL_GOOD_TIME_FROM_HOST| 600µs - 5000µs | 600µs - 5000µs |
+                      * |SL_SI91X_SET_PMU_GOOD_TIME_FROM_HOST|  900µs - 2000µs | 600µs - 2000µs |
+                      * 
+                      * @note
+                      * The default values for SoC and NCP are set to the minimum value from the range.
+                      */
     // Below structure is used in case of SL_SI91X_ENABLE_NWP_WDT_FROM_HOST
     struct {
       uint8_t wdt_timer_val;    ///< Timer value in seconds for the watchdog timer.
@@ -579,6 +594,7 @@ sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size);
  * 
  * @pre Pre-conditions:
  * - [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) should be called before this API.
+ * - To set XTAL and PMU good time from host, call this API before setting the opermode in [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init).
  * 
  * @param[in] nwp_config
  *   Configuration as identified by @ref sl_si91x_nwp_configuration_t.
@@ -590,6 +606,10 @@ sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size);
  *    - `nwp_config.values.wdt_enable_in_ps` is used to enable WDT in powersave mode.
  * - For `SL_SI91X_DISABLE_NWP_WDT_FROM_HOST`:
  *    - Disables NWP WDT ISR timer. `nwp_config.values.config_val` is not utilized by the NWP.
+ * - For `SL_SI91X_SET_XTAL_GOOD_TIME_FROM_HOST`:
+ *    - To configure XTAL(crystal) good time from host. Please check the @ref sl_si91x_nwp_configuration_t for valid range of values.
+ * - For `SL_SI91X_SET_PMU_GOOD_TIME_FROM_HOST`:
+ *    - To configure PMU good time from host. Please check the @ref sl_si91x_nwp_configuration_t for valid range of values.
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.  

@@ -47,7 +47,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- PSRAM Read-Write type, interface mode, and operation frequency can be configured from "PSRAM Core" component under "Software Components" tab via GUI.
+- PSRAM Read-Write type and interface mode can be configured from "PSRAM Core" component under "Software Components" tab via GUI.
 
 ## PSRAM Core Component Installation
 
@@ -59,7 +59,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > ![Figure: Core Component Installation](resources/readme/core_component.png)
 - Configuration for Pinset
 > ![Figure: PSRAM Pin Configuration](resources/readme/pin_configs.png)
-- Configuration for Clock Frequency, Read-Write type, Interface mode
+- Configuration for Read-Write type and Interface mode
 > ![Figure: PSRAM Device Configuration](resources/readme/device_config.png)
   
 ## Test the Application

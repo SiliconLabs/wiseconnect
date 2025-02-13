@@ -40,11 +40,11 @@
 #define DIVISION_FACTOR        0             // Division factor
 #define QSPI_ODD_DIV_EN        0             // Odd division enable for QSPI clock
 #define QSPI_SWALLO_EN         0             // Swallo enable for QSPI clock
-#define QSPI_DIV_FACTOR        2             // Division factor for QSPI clock
-#define QSPI2_DIV_FACTOR       2             // Division factor for QSPI2 clock
+#define QSPI_DIV_FACTOR        1             // Division factor for QSPI clock
+#define QSPI2_DIV_FACTOR       1             // Division factor for QSPI2 clock
 #define PLL_PREFETCH_LIMIT     (120000000UL) // 120MHz Limit for pll clock
 #define SOC_PLL_FREQ           (180000000UL) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_FREQ          (180000000UL) // 180MHz default Interface PLL Clock as source to all peripherals
+#define INTF_PLL_FREQ          (160000000UL) // 160MHz default Interface PLL Clock as source to all peripherals
 /************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
  ************************************************************************************/
@@ -96,7 +96,7 @@ sl_status_t sl_si91x_clock_manager_init(void)
   sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_FREQ);
 
 #ifdef SL_SI91X_REQUIRES_INTF_PLL
-  // Configuring the interface PLL clock to 180MHz used by the peripherals whose source clock in INTF_PLL
+  // Configuring the interface PLL clock to 160MHz used by the peripherals whose source clock is INTF_PLL
   sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_FREQ, PLL_REF_CLK_VAL_XTAL);
 
 // Configure QSPI clock with INTF PLL as input source

@@ -44,126 +44,201 @@
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
 sl_status_t status;
-sl_gpio_t gpio_port_pin = { SL_BUTTON_BTN1_PORT, SL_BUTTON_BTN1_PIN };
+static uint8_t gpio_initialised = false;
+uint8_t HP_intr[8] = { PIN_INTR_0, PIN_INTR_1, PIN_INTR_2, PIN_INTR_3, PIN_INTR_4, PIN_INTR_5, PIN_INTR_6, PIN_INTR_7 };
+uint8_t HP_button_index  = 0;
+uint8_t ULP_intr[8]      = { ULP_PIN_INTR_0, ULP_PIN_INTR_1, ULP_PIN_INTR_2, ULP_PIN_INTR_3,
+                             ULP_PIN_INTR_4, ULP_PIN_INTR_5, ULP_PIN_INTR_6, ULP_PIN_INTR_7 };
+uint8_t ULP_button_index = 0;
+// This stores the button state so that IRQ ISRs know when to notify buttonIsrs.
+#if (SL_SI91x_BUTTON_COUNT > 0)
+static int8_t buttonState[SL_SI91x_BUTTON_COUNT];
+const sl_button_t *HP_button_context[SL_SI91x_BUTTON_COUNT];
+const sl_button_t *ULP_button_context[SL_SI91x_BUTTON_COUNT];
+const sl_button_t *UULP_button_context[SL_SI91x_BUTTON_COUNT];
+#endif //(SL_SI91x_BUTTON_COUNT > 0)
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-// This stores the button state so that IRQ ISRs know when to notify buttonIsrs.
-#if (SL_SI91x_BUTTON_COUNT > 0)
-static int8_t buttonState[SL_SI91x_BUTTON_COUNT] = { 1, 1 };
-void sl_si91x_button_internal_isr(uint8_t pin);
-void sl_si91x_button_UULP_IRQHandler(uint8_t intr_no);
-void sl_si91x_button_HP_IRQHandler(uint8_t intr_no);
-#endif //(SL_SI91x_BUTTON_COUNT > 0)
+void sl_si91x_button_internal_isr(const sl_button_t *handle);
+static void button_HP_IRQHandler(uint8_t intr_no);
+static void button_ULP_IRQHandler(uint8_t intr_no);
+static void button_UULP_IRQHandler(uint8_t intr_no);
 
 /**
- * @brief Interrupt handler for button
+ * @brief New Interrupt handler for button
  * @return  Nothing
  */
-void sl_si91x_button_UULP_IRQHandler(uint8_t intr_no)
+void button_HP_IRQHandler(uint8_t intr_no)
 {
-  UNUSED_VARIABLE(intr_no);
-#if (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2 == 1)
-  sl_si91x_button_internal_isr(SL_BUTTON_BTN0_PIN);
-#elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  if (intr_no == BUTTON_UULP_INTR) {
-    sl_si91x_button_internal_isr(SL_BUTTON_BTN1_PIN);
-  } else {
-    sl_si91x_button_internal_isr(SL_BUTTON_BTN0_PIN);
-  }
-#endif
+  uint8_t index = intr_no;
+  sl_si91x_button_internal_isr(HP_button_context[index]);
 }
 
-void sl_si91x_button_HP_IRQHandler(uint8_t intr_no)
+void button_ULP_IRQHandler(uint8_t intr_no)
 {
-  UNUSED_VARIABLE(intr_no);
-#if (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2 == 1)
-  sl_si91x_button_internal_isr(SL_BUTTON_BTN1_PIN);
-#endif
+  uint8_t index = intr_no;
+  sl_si91x_button_internal_isr(ULP_button_context[index]);
+}
+
+void button_UULP_IRQHandler(uint8_t intr_no)
+{
+  uint8_t index = intr_no;
+  sl_si91x_button_internal_isr(UULP_button_context[index]);
 }
 
 void sl_si91x_button_init(const sl_button_t *handle)
 {
-#if (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2 == 1)
-  if (handle->button_number == 0U) {
+  sl_si91x_gpio_pin_config_t sl_button_pin_config = { { handle->port, handle->pin }, GPIO_INPUT };
+  sl_gpio_t button_port_pin                       = { handle->port, handle->pin };
 
-    /*GPIO clock is enabled*/
-    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+  do {
+    // GPIO Driver initialization if not initialized.
+    if (!gpio_initialised) {
+      status = sl_gpio_driver_init();
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+    }
 
-    /*UULP gpio is selected*/
-    sl_si91x_gpio_select_uulp_npss_receiver(handle->pin, 1);
+    // Set button configuration
+    status = sl_gpio_set_configuration(sl_button_pin_config);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
 
-    /*UULP gpio pinmux is selected*/
-    sl_si91x_gpio_set_uulp_npss_pin_mux(handle->pin, NPSS_GPIO_PIN_MUX_MODE0);
-
-    /*UULP gpio pin direction is selected*/
-    sl_si91x_gpio_set_uulp_npss_direction(handle->pin, (sl_si91x_gpio_direction_t)GPIO_INPUT);
-
-    status =
+    // Enable button interrupt
+    if (handle->port == UULP_VBAT) {
+      UULP_button_context[handle->pin] = handle;
+      // UULP_intr identifies the interrupt source and is passed to the UULP GPIO callback for processing.
       sl_si91x_gpio_driver_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)handle->interrupt_config,
                                                     handle->pin,
-                                                    (void *)&sl_si91x_button_UULP_IRQHandler);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_gpio_driver_configure_uulp_interrupt, Error code: %lu", status);
+                                                    (void *)&button_UULP_IRQHandler);
+    } else if (handle->port == ULP) {
+      ULP_button_context[ULP_button_index] = handle;
+      // ULP_intr identifies the interrupt source and is passed to the ULP GPIO callback for processing.
+      sl_gpio_driver_configure_interrupt(&button_port_pin,
+                                         ULP_intr[ULP_button_index],
+                                         (sl_gpio_interrupt_flag_t)handle->interrupt_config,
+                                         (void *)&button_ULP_IRQHandler,
+                                         AVL_INTR_NO);
+      ULP_button_index++;
+    } else {
+      HP_button_context[HP_button_index] = handle;
+      // HP_intr identifies the interrupt source and is passed to the HP GPIO callback for processing.
+      sl_gpio_driver_configure_interrupt(&button_port_pin,
+                                         HP_intr[HP_button_index],
+                                         (sl_gpio_interrupt_flag_t)handle->interrupt_config,
+                                         (void *)&button_HP_IRQHandler,
+                                         AVL_INTR_NO);
+      HP_button_index++;
     }
-    DEBUGOUT("UULP interrupt configuration is successful \n");
-  }
-  /*Clear interrupt to eliminate false interrupts after unmasking*/
-  sl_si91x_gpio_clear_uulp_interrupt(BUTTON_UULP_INTR);
 
-  /*un mask the NPSS GPIO interrupt*/
-  sl_si91x_gpio_unmask_uulp_npss_interrupt(BUTTON_UULP_INTR);
-
-  if (handle->button_number == 1U) {
-
-    /*Enable clock for EGPIO module*/
-    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
-
-    /*PAD selection*/
-    sl_si91x_gpio_driver_enable_pad_selection(handle->pad);
-
-    /*Set pin Direction*/
-    sl_si91x_gpio_driver_set_pin_direction(handle->port, handle->pin, (sl_si91x_gpio_direction_t)GPIO_INPUT);
-
-    /*REN enable */
-    sl_si91x_gpio_driver_enable_pad_receiver((handle->port * MAX_GPIO_PORT_PIN) + handle->pin);
-
-    /* Set pin mode */
-    sl_gpio_set_pin_mode(handle->port, handle->pin, (sl_gpio_mode_t)SL_GPIO_MODE_0, SET);
-
-    status = sl_gpio_driver_configure_interrupt(&gpio_port_pin,
-                                                BUTTON_M4_INTR,
-                                                (sl_gpio_interrupt_flag_t)handle->interrupt_config,
-                                                (void *)&sl_si91x_button_HP_IRQHandler,
-                                                AVL_INTR_NO);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_gpio_driver_configure_interrupt, Error code: %lu", status);
-    }
-  }
-#elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  /*GPIO clock is enabled*/
-  sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
-
-  /*UULP gpio is selected*/
-  sl_si91x_gpio_select_uulp_npss_receiver(handle->pin, 1);
-
-  /*UULP gpio pinmux is selected*/
-  sl_si91x_gpio_set_uulp_npss_pin_mux(handle->pin, NPSS_GPIO_PIN_MUX_MODE0);
-
-  /*UULP gpio pin direction is selected*/
-  sl_si91x_gpio_set_uulp_npss_direction(handle->pin, (sl_si91x_gpio_direction_t)GPIO_INPUT);
-
-  status =
-    sl_si91x_gpio_driver_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)handle->interrupt_config,
-                                                  handle->pin,
-                                                  (void *)&sl_si91x_button_UULP_IRQHandler);
-  if (status != SL_STATUS_OK) {
-    DEBUGOUT("sl_si91x_gpio_driver_configure_uulp_interrupt, Error code: %lu", status);
-  }
-  DEBUGOUT("UULP interrupt configuration is successful \n");
-#endif
+    gpio_initialised                   = true;
+    buttonState[handle->button_number] = 1;
+  } while (false);
 }
+
+uint8_t sl_si91x_button_get_state(uint8_t button_number)
+{
+  // Note: this returns the "soft" state rather than reading the port
+  //  so it gives with the interrupts and their callbacks
+  return buttonState[button_number];
+}
+
+void sl_si91x_button_set_state(uint8_t button_number, int8_t state)
+{
+  // Note: this sets the "soft" state
+  //  so it gives with the interrupts and their callbacks
+  if (button_number < SL_SI91x_MAX_BUTTON_COUNT) {
+    buttonState[button_number] = state;
+  }
+}
+
+void sl_si91x_button_toggle_state(uint8_t button_number)
+{
+  // Note: this toggles the "soft" state
+  //  so it gives with the interrupts and their callbacks
+  if (button_number < SL_SI91x_MAX_BUTTON_COUNT) {
+    buttonState[button_number] = !buttonState[button_number];
+  }
+}
+
+uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
+{
+  if (port == HP || port == ULP) {
+    return sl_gpio_get_pin_input(port, pin);
+  } else {
+    return sl_si91x_gpio_get_uulp_npss_pin(pin);
+  }
+}
+
+/***************************************************************************/ /**
+*
+* @brief DEBOUNCE operation is based upon the theory that when multiple reads in a row
+* return the same value, we have passed any debounce created by the mechanical
+* action of a button. The define "DEBOUNCE" specifies how many reads in a row
+* should return the same value.
+*
+* Typically, software debounce is disabled by defaulting to a value of '0',
+* which will cause the preprocessor to strip out the debounce code and save
+* flash space.
+*
+* @note This is how you can configure the debounce functionality.
+*
+ ******************************************************************************/
+#ifndef DEBOUNCE
+#define DEBOUNCE 500
+#endif //DEBOUNCE
+
+#if (SL_SI91x_BUTTON_COUNT > 0)
+/**
+ * @brief Internal ISR for button handling with optional debounce.
+ *
+ * This function handles the button interrupt service routine (ISR). It reads
+ * the button state and, if debounce is enabled, ensures that the state is
+ * consistent for a specified number of reads before considering it stable.
+ * If the button state has changed, it notifies the application via a callback.
+ *
+ * @param[in] pin The pin number associated with the button.
+ */
+void sl_si91x_button_internal_isr(const sl_button_t *handle)
+{
+  int8_t buttonStateNow;
+
+#if (DEBOUNCE > 0)
+  uint8_t buttonStatePrev;
+  uint32_t debounce;
+#endif //(DEBOUNCE > 0)
+
+  buttonStateNow = sl_si91x_button_state(handle->pin, handle->port);
+
+#if (DEBOUNCE > 0)
+  // Read button until we get "DEBOUNCE" number of consistent readings
+  for (debounce = 0; debounce < DEBOUNCE; debounce = (buttonStateNow == buttonStatePrev) ? debounce + 1 : 0) {
+    buttonStatePrev = buttonStateNow;
+    buttonStateNow  = sl_si91x_button_state(handle->pin, handle->port);
+  }
+#endif //(DEBOUNCE > 0)
+
+  if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
+    //state changed, notify app
+    sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
+  } else {
+    //state changed, notify app
+    sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
+  }
+}
+
+SL_WEAK void sl_si91x_button_isr(uint8_t pin, int8_t state)
+{
+  (void)pin;
+  (void)state;
+}
+#endif // (SL_SI91x_BUTTON_COUNT > 0)
+
+/*Older version APIs (Not recommended to use)*/
 
 int8_t sl_si91x_button_state_get(uint8_t pin)
 {
@@ -219,67 +294,3 @@ int8_t sl_si91x_button_pin_state(uint8_t pin)
   else
     return RSI_NPSSGPIO_GetPin(pin) ? BUTTON_RELEASED : BUTTON_PRESSED;
 }
-
-/***************************************************************************/ /**
-*
-* @brief DEBOUNCE operation is based upon the theory that when multiple reads in a row
-* return the same value, we have passed any debounce created by the mechanical
-* action of a button. The define "DEBOUNCE" specifies how many reads in a row
-* should return the same value.
-*
-* Typically, software debounce is disabled by defaulting to a value of '0',
-* which will cause the preprocessor to strip out the debounce code and save
-* flash space.
-*
-* @note This is how you can configure the debounce functionality.
-*
- ******************************************************************************/
-#ifndef DEBOUNCE
-#define DEBOUNCE 500
-#endif //DEBOUNCE
-
-#if (SL_SI91x_BUTTON_COUNT > 0)
-/**
- * @brief Internal ISR for button handling with optional debounce.
- *
- * This function handles the button interrupt service routine (ISR). It reads
- * the button state and, if debounce is enabled, ensures that the state is
- * consistent for a specified number of reads before considering it stable.
- * If the button state has changed, it notifies the application via a callback.
- *
- * @param[in] pin The pin number associated with the button.
- */
-void sl_si91x_button_internal_isr(uint8_t pin)
-{
-  int8_t buttonStateNow;
-
-#if (DEBOUNCE > 0)
-  uint8_t buttonStatePrev;
-  uint32_t debounce;
-#endif //(DEBOUNCE > 0)
-
-  buttonStateNow = sl_si91x_button_pin_state(pin);
-
-#if (DEBOUNCE > 0)
-  // Read button until we get "DEBOUNCE" number of consistent readings
-  for (debounce = 0; debounce < DEBOUNCE; debounce = (buttonStateNow == buttonStatePrev) ? debounce + 1 : 0) {
-    buttonStatePrev = buttonStateNow;
-    buttonStateNow  = sl_si91x_button_pin_state(pin);
-  }
-#endif //(DEBOUNCE > 0)
-
-  if (buttonStateNow != sl_si91x_button_state_get(pin)) {
-    //state changed, notify app
-    sl_si91x_button_isr(pin, BUTTON_PRESSED);
-  } else {
-    //state changed, notify app
-    sl_si91x_button_isr(pin, BUTTON_RELEASED);
-  }
-}
-
-SL_WEAK void sl_si91x_button_isr(uint8_t pin, int8_t state)
-{
-  (void)pin;
-  (void)state;
-}
-#endif // (SL_SI91x_BUTTON_COUNT > 0)

@@ -24,7 +24,10 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 - A Windows PC
 - A Wireless Access Point
 - SoC Mode:
-  - Silicon Labs [BRD4342A, BRD4338A, BRD4343A](https://www.silabs.com/)
+  - Radio Boards
+    - [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board)
+  	- [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module)
+    - [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board)
   - For Soc Mode, the Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
   - USB to UART converter
 - NCP Mode:
@@ -48,14 +51,13 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 
 ### Setup Diagram
 
-  - **SoC:**
+- **SoC:**
 
-![Figure: Setup Diagram SoC Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupsoc.png)
+  ![Figure: Setup Diagram SoC Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupsoc.png)
 
 - **NCP:**
 
-![Figure: Setup Diagram NCP Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupncp.png)
-
+  ![Figure: Setup Diagram NCP Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupncp.png)
 
 >**NOTE:**
 >
@@ -173,6 +175,25 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    ![Application prints](resources/readme/application_prints_soc1.png)
 
    ![Application prints](resources/readme/application_prints_soc2.png)
+
+### Using Simplicity Studio Energy Profiler for Current Measurement
+
+- After the application code is flashed onto the module, the energy profiler can be used to measure current consumption.
+
+- From Tools, choose **Energy Profiler** and click **OK**.
+
+    ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_1.png)
+
+- From Quick Access, choose **Start Energy Capture** option.
+
+    ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_2.png)
+
+    > **Note** The target part and board name have to be reverted to default to flash application binary.
+
+  ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_3.png)
+- The following example shows the average current consumption measured in the power meter.
+
+    ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
 
 ###  Follow the steps below for successful execution of the application:
 

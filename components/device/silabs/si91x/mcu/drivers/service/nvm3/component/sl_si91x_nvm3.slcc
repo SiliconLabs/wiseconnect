@@ -31,3 +31,7 @@ requires:
     condition: [si91x_dual_flash]
 provides:
   - name: sl_si91x_nvm3
+conflicts:
+  - name: sl_si91x_littlefs
+  - name: sl_si91x_littlefs_common_flash
+  - name: sl_si91x_littlefs_ext_flash

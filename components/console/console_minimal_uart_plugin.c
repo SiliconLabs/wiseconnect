@@ -73,6 +73,9 @@ static void post_uart_rx_handler(char character);
 /******************************************************
  *               Variable Definitions
  ******************************************************/
+// Indicates if new data has been received in the UART console
+volatile uint8_t console_data_rx_receive;
+// Indicates if a new line of input is ready to be processed
 volatile uint8_t console_line_ready;
 
 static uint8_t user_rx_buffer[USER_RX_BUFFER_COUNT][USER_RX_BUFFER_SIZE];
@@ -105,6 +108,7 @@ void cache_uart_rx_data(const char character)
 {
   uart_rx_cache[uart_rx_write_iter] = character;
   uart_rx_write_iter                = (uart_rx_write_iter + 1) % sizeof(uart_rx_cache);
+  console_data_rx_receive           = 1;
 }
 
 uint32_t console_read_data_from_cache(char *buffer, uint32_t buffer_size)
@@ -115,7 +119,7 @@ uint32_t console_read_data_from_cache(char *buffer, uint32_t buffer_size)
     ++a;
     uart_rx_read_iter = (uart_rx_read_iter + 1) % sizeof(uart_rx_cache);
   }
-
+  console_data_rx_receive = 0;
   return a;
 }
 
@@ -125,6 +129,7 @@ void console_process_uart_data(void)
     post_uart_rx_handler(uart_rx_cache[uart_rx_read_iter]);
     uart_rx_read_iter = (uart_rx_read_iter + 1) % sizeof(uart_rx_cache);
   }
+  console_data_rx_receive = 0;
 }
 
 static void post_uart_rx_handler(char character)

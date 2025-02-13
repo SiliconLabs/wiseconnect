@@ -1,17 +1,18 @@
 project_name: sl_si91x_joystick
 label: SI91x - SL_JOYSTICK
 description: >
-  Demonstrates the use of the Joystick Driver on the the SiWx917 SoC
-  device and it prints the joystick position while pressing it.
+  This application demonstrates how to use the Joystick Driver on the SiWx917 SoC device. 
+  It allows reading the joystick position and prints the position when the joystick is pressed, 
+  providing an interface for interactive applications that require joystick input.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: joystick_example.c
   - path: app.c

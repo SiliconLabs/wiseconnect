@@ -1,16 +1,18 @@
 project_name: sl_si91x_i2s_loopback
 label: SI91x - SL_I2S_LOOPBACK
 description: |
-  Demonstrates how to use the I2S loopback on the SI91x SoC device.
+  This application demonstrates how to configure and use the I2S loopback on the Si91x SoC device. 
+  It allows you to send and receive audio data within the device using the I2S interface, 
+  enabling a loopback test to verify the functionality of the I2S peripheral.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

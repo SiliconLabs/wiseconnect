@@ -269,14 +269,14 @@ static void sli_process_request(sl_http_server_t *handle, int client_socket)
 
   // Check if the handler's list has the URI
   for (uint16_t i = 0; i < handle->config.handlers_count; i++) {
-    if (strcmp(handle->config.handlers_list[i].uri, request->uri.path) == 0) {
+    if (request->uri.path && strcmp(handle->config.handlers_list[i].uri, request->uri.path) == 0) {
       // If the handler is present, call the handler
       handle->config.handlers_list[i].handler(handle, request);
       break;
     }
   }
 
-  if (false == handle->response_sent) {
+  if (request->uri.path && false == handle->response_sent) {
     handle->config.default_handler(handle, &(handle->request));
   }
   return;
@@ -392,7 +392,6 @@ static void sli_http_server(const void *arg)
         sli_process_request(server_handle, client_socket);
       }
     }
-    osDelay(100);
     close(client_socket);
     server_handle->rem_resp_length = 0;
   }

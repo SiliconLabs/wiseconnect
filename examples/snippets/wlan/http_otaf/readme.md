@@ -45,7 +45,7 @@ This process allows the device to update its software OTA without needing a phys
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
     - SiWx917 Pro Kit [Si917-PK6032A]
     - SiWx917 AC1 Module Explorer Kit (BRD2708A)
-  	
+
 - **NCP Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
@@ -116,7 +116,7 @@ The application can be configured to suit your requirements and the development 
 
   - Select HTTPS CERTIFICATE INDEX
 
-    - For HTTPS Certificate index select, thr fefault value of the CERTIFICATE_INDEX is set to '0'. To set SL_SI91X_HTTPS_CERTIFICATE_INDEX_1, modify the CERTIFICATE_INDEX to '1' and to set SL_SI91X_HTTPS_CERTIFICATE_INDEX_2, modify the CERTIFICATE_INDEX to '2'.
+    - For HTTPS Certificate index select, the default value of the CERTIFICATE_INDEX is set to '0'. To set SL_SI91X_HTTPS_CERTIFICATE_INDEX_1, modify the CERTIFICATE_INDEX to '1' and to set SL_SI91X_HTTPS_CERTIFICATE_INDEX_2, modify the CERTIFICATE_INDEX to '2'.
   
       ```c
       //! set 1 for selecting SL_SI91X_HTTPS_CERTIFICATE_INDEX_1, set 2 for selecting SL_SI91X_HTTPS_CERTIFICATE_INDEX_2
@@ -137,7 +137,7 @@ The application can be configured to suit your requirements and the development 
       #define FW_UPDATE_TYPE TA_FW_UPDATE
       ```
 
-    - Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which firmware files needs to be downloaded, the parameters below need to be configured.
+    - Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which the firmware files need to be downloaded, the following parameters need to be configured.
       - Configure FLAGS to choose the version and security type to be enabled.
 
         Valid configurations are:
@@ -156,6 +156,12 @@ The application can be configured to suit your requirements and the development 
         - HTTP_URL refers to HTTP resource name.
         - HTTP_HOSTNAME refers to HTTP server hostname.
         - HTTP_EXTENDED_HEADER refers to HTTP extended header. If NULL, the default extented header is filled.
+        
+          The purpose of this macro is to append user configurable header fields to the default HTTP/HTTPS header.
+          The extended header may contain multiple header fields, with each field terminated by "\r\n" (0x0D 0x0A).
+        
+          Example: key1:value1"\r\n"key2:value2"\r\n"
+        
         - USERNAME refers to the username to be used to access the HTTP resource.
         - PASSWORD refers to the password to be used to access the HTTP resource.
 

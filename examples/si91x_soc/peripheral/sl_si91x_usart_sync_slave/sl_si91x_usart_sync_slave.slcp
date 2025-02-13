@@ -1,17 +1,17 @@
 project_name: sl_si91x_usart_sync_slave
 label: SI91x - SL_USART_SYNCHRONOUS_SLAVE
 description: >
-  This example project configures USART slave and transmits and receives data
-  in synchronous full duplex mode as a slave.
+  This application demonstrates the usage of USART in slave mode, transmitting and receiving data in synchronous full-duplex mode. 
+  It showcases how the USART slave interface allows data exchange between a master and slave device with synchronized clocks, ensuring efficient and reliable communication.
 category: example|peripheral
 package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 source:
   - path: main.c
   - path: app.c

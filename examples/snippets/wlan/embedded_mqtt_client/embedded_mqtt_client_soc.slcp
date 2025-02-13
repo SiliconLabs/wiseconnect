@@ -14,10 +14,10 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version:  "2024.12.0"
+   version:  "2024.12.1"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.4.0
+   version: 3.4.1
 source:
 -  path: app.c
 -  path: main.c
@@ -68,6 +68,7 @@ other_file:
 -  path: resources/readme/application_prints_ncp.png
 -  path: resources/readme/application_prints_soc.png
 -  path: resources/readme/connect.png
+-  path: resources/readme/connect_subscribe.png
 -  path: resources/readme/delete_connections.png
 -  path: resources/readme/mqtt_explorer_msg.png
 -  path: resources/readme/setup_soc_ncp.png

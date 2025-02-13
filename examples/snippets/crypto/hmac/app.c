@@ -38,7 +38,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define USE_WRAPPED_KEYS
+#define USE_WRAPPED_KEYS 0
 
 /******************************************************
  *               Variable Definitions
@@ -111,7 +111,7 @@ uint8_t wrapped_key[WRAPPED_KEY_BUFLEN]; //Buffer to store wrapped key output
 uint8_t wrap_iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 #endif
 
-sl_si91x_hmac_config_t config = { 0 };
+sl_si91x_hmac_config_t hmac_config = { 0 };
 
 /******************************************************
  *               Function Declarations
@@ -138,11 +138,11 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi Init Success\r\n");
 
-  memset(&config, 0, sizeof(sl_si91x_hmac_config_t));
-  config.hmac_mode       = SL_SI91X_HMAC_SHA_512;
-  config.msg_length      = sizeof(msg);
-  config.msg             = msg;
-  int wrap_hmac_sha_mode = config.hmac_mode;
+  memset(&hmac_config, 0, sizeof(sl_si91x_hmac_config_t));
+  hmac_config.hmac_mode  = SL_SI91X_HMAC_SHA_512;
+  hmac_config.msg_length = sizeof(msg);
+  hmac_config.msg        = msg;
+  int wrap_hmac_sha_mode = hmac_config.hmac_mode;
 
 #ifdef USE_WRAPPED_KEYS
   wrap_config.key_type     = SL_SI91X_TRANSPARENT_KEY;
@@ -157,23 +157,24 @@ static void application_start(void *argument)
   status = sl_si91x_wrap(&wrap_config, wrapped_key);
   if (status != SL_STATUS_OK) {
     printf("\r\nWrap failed, Error Code : 0x%lX\r\n", status);
+    return;
   }
   printf("\r\nWrap success\r\n");
 
-  config.key_config.B0.key_type = SL_SI91X_WRAPPED_KEY;
-  config.key_config.B0.key      = wrapped_key;
-  config.key_config.B0.key_size =
+  hmac_config.key_config.B0.key_type = SL_SI91X_WRAPPED_KEY;
+  hmac_config.key_config.B0.key      = wrapped_key;
+  hmac_config.key_config.B0.key_size =
     wrap_config.key_size; // key_size is updated to the padded and wrapped key's size in "sl_si91x_wrap" API
-  config.key_config.B0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
-  memcpy(config.key_config.B0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
+  hmac_config.key_config.B0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
+  memcpy(hmac_config.key_config.B0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
 
 #else
-  config.key_config.B0.key_type = SL_SI91X_TRANSPARENT_KEY;
-  config.key_config.B0.key      = key;
-  config.key_config.B0.key_size = sizeof(key);
+  hmac_config.key_config.B0.key_type = SL_SI91X_TRANSPARENT_KEY;
+  hmac_config.key_config.B0.key      = key;
+  hmac_config.key_config.B0.key_size = sizeof(key);
 #endif
 
-  status = sl_si91x_hmac(&config, digest);
+  status = sl_si91x_hmac(&hmac_config, digest);
   if (status != SL_STATUS_OK) {
     printf("\r\nHMAC failed, Error Code : 0x%lX\r\n", status);
     return;

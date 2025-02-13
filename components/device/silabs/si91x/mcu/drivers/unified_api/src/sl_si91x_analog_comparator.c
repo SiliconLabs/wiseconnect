@@ -28,6 +28,7 @@
 ******************************************************************************/
 #include "sl_si91x_analog_comparator.h"
 #include "rsi_comparator.h"
+#include "rsi_dac.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "aux_reference_volt_config.h"
 
@@ -70,6 +71,10 @@ void ANALOG_COMPARATOR2_IRQHandler(void);
 void sl_si91x_analog_comparator_init(void)
 {
   float vref_value = LDO_REF_VOLTAGE; // Reference voltage to LDO, Min is 1.8V and Max is 3.3V
+
+  RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_AUX);
+
+  analog_set_power_state(COMP_BIT_POS, ANALOG_POWERED_ON);
 
   // Configure the AUX clock source
   RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_MHZ_RC_CLK);
@@ -241,8 +246,12 @@ sl_status_t sl_si91x_analog_comparator_unregister_callback(sl_analog_comparator_
 *******************************************************************************/
 void sl_si91x_analog_comparator_deinit(void)
 {
-  // Disabling ULPSS AUX clock
-  RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
+  analog_set_power_state(COMP_BIT_POS, ANALOG_POWERED_OFF);
+  if (!analog_get_power_state()) {
+    // Disabling ULPSS AUX clock
+    RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
+    RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_AUX);
+  }
   // Disablng Interrupt
   NVIC_DisableIRQ(COMP1_IRQn);
   NVIC_DisableIRQ(COMP2_IRQn);

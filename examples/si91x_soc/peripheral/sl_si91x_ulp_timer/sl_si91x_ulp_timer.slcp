@@ -1,7 +1,7 @@
 project_name: sl_si91x_ulp_timer
 label: SI91x - SL_ULP_Timer
 description: |
-  Demonstrates ULP Timer functionality.
+  This application demonstrates ULP Timer functionality.
 category: example|peripheral
 package: platform
 quality: production
@@ -16,10 +16,10 @@ source:
   - path: app.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.0"
+  version:  "2024.12.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.0
+    version: 3.4.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
