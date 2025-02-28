@@ -699,10 +699,29 @@ EX: To hide the SysTick handler in the cmsis_os2.c file, you can implement the f
 #endif /* SysTick */
 ```
 
-### Appendix D: Exception Handlers
+### Appendix D: GPIO(31-34) JTAG Pins 
+
+By default, GPIO pins 31-34 are used for JTAG and SWD functions, which are required for debugging and programming. To use these pins as regular GPIOs, call sl_si91x_gpio_driver_enable_pad_selection() to override the default behavior, and then configure the pins using sl_gpio_set_configuration(). The PAD selection number for GPIO pins 31-34 is 9.
+Here is a code snippet to configure GPIO pin 32 for GPIO mode:
+
+```C
+  // Define a configuration structure for GPIO pins that are required, specifying its port, pin number and direction.
+  // Below configurations is for GPIO 32. Here SL_SI91X_GPIO_32_PORT corresponds to GPIO pin 32 port and
+  // SL_SI91X_GPIO_32_PIN refers to GPIO pin number 32. Same representation followed
+  // for other port and pins.
+  static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_32_PORT, SL_SI91X_GPIO_32_PIN }, GPIO_OUTPUT };
+  // Pad selection for GPIO 32
+  sl_si91x_gpio_driver_enable_pad_selection(9);
+  // Configure GPIO pin 32 using driver pin configuration API.
+  // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
+  // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
+  sl_gpio_set_configuration(sl_gpio_pin_config);
+```
+
+### Appendix E: Exception Handlers
 Exception handlers are critical for managing unexpected events and ensuring system stability. Implementing custom exception handlers allows developers to handle specific exceptions and perform necessary actions to maintain system reliability. 
 
-### Appendix E: Acronyms and Abbreviations
+### Appendix F: Acronyms and Abbreviations
 
 | **Term** | **Description** |
 |----------|-----------------|
@@ -735,7 +754,7 @@ Exception handlers are critical for managing unexpected events and ensuring syst
 | VCOM (Virtual COM Port) | A software interface that emulates a physical COM port. |
 | XTAL (Crystal Oscillator) | An electronic oscillator circuit that uses the mechanical resonance of a vibrating crystal to create an electrical signal with a precise frequency. |
 
-### Appendix F: Contact Information
+### Appendix G: Contact Information
 For further assistance and support, please contact:
 
 * Silicon Labs Support: [Silicon Labs Support] (https://www.silabs.com/support)

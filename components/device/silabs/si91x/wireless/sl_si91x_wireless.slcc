@@ -107,6 +107,7 @@ requires:
   name: sl_si91x_socket
 - condition: ["network_manager"]
   name: sl_si91x_network_stack
+- name: sl_si91x_fwup
 - name: sl_si91x_buffer_management
 - name: bit
 - name: cmsis_os2_ext_task_register
@@ -132,6 +133,8 @@ requires:
   name: sl_si91x_ncp_bus
 - name: sl_si91x_errno
 - name: emlib_core
+- name: wifi
+- name: wifi_resources
 
 recommends:
 - id: "%extension-wiseconnect3_sdk%sl_si91x_internal_stack"

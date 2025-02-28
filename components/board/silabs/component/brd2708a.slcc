@@ -33,8 +33,6 @@
     value: '1'
   - name: SLI_SI91X_MCU_COMMON_FLASH_MODE
     value: '1'
-  - name: SLI_SI91X_MCU_EXTERNAL_LDO_FOR_PSRAM
-    value: '1' 
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
   - name: SI917Y_DEVKIT

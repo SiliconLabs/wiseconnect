@@ -30,7 +30,7 @@
 #define SL_SI91X_BUTTON_1_PORT HP
 #endif
 #ifndef SL_SI91X_BUTTON_1_PIN
-#define SL_SI91X_BUTTON_1_PIN 1
+#define SL_SI91X_BUTTON_1_PIN 49
 #endif
 // [GPIO_SL_SI91X_BUTTON_1]$
 // <<< sl:end pin_tool >>>

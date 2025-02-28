@@ -62,7 +62,7 @@ extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
  * @note 
  *   This function should be called before calling any other sl_wifi functions.
  * @note
- *   In SoC mode, wireless initialization must be completed before using the NVM3 APIs in the common flash, as flash write and erase operations require communication with the NWP-M4.
+ *   In SoC mode, wireless initialization must be completed before using the NVM3 APIs in the common flash, as flash write and erase operations require communication between the NWP & M4.
  ******************************************************************************/
 sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration,
                          sl_wifi_device_context_t *device_context,

@@ -134,7 +134,7 @@ static sl_status_t sli_si91x_uart_command_handler(uint8_t *cmd,
 ************************************************************************************/
 sl_status_t sl_si91x_bus_init(void)
 {
-  uint8_t boot_cmd[4] = { '|', 'U', 'b', SLI_SI91X_BAUDRATE };
+  uint8_t boot_cmd[5] = { '|', 'U', 'b', SLI_SI91X_BAUDRATE, '\0' };
   uint8_t *response   = NULL;
   sl_status_t status;
   uint16_t temp;

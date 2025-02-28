@@ -354,7 +354,7 @@ typedef struct {
 /**
  * @struct sl_wifi_advanced_client_configuration_t
  * @brief Wi-Fi Client interface advanced configuration structure.
- * @note  Default beacon missed count is 40, A unicast probe request will be sent from the module to the AP at 21st beacon count and subsequently at the 31st beacon count.
+ * @note  The default beacon missed count is set to 40. A unicast probe request sents from the module to the Access Point (AP) at the 21st beacon count and again at the 31st beacon count.
  */
 typedef struct {
   uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure

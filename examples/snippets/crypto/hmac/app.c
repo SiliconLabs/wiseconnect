@@ -104,7 +104,7 @@ uint8_t digest[64] = { 0x80, 0xb2, 0x42, 0x63, 0xc7, 0xc1, 0xa3, 0xeb, 0xb7, 0x1
                        0x95, 0xe6, 0x4f, 0x73, 0xf6, 0x3f, 0x0a, 0xec, 0x8b, 0x91, 0x5a, 0x98, 0x5d, 0x78, 0x65, 0x98 };
 */
 
-#ifdef USE_WRAPPED_KEYS
+#if USE_WRAPPED_KEYS
 #define WRAPPED_KEY_BUFLEN 512
 sl_si91x_wrap_config_t wrap_config = { 0 };
 uint8_t wrapped_key[WRAPPED_KEY_BUFLEN]; //Buffer to store wrapped key output
@@ -142,9 +142,8 @@ static void application_start(void *argument)
   hmac_config.hmac_mode  = SL_SI91X_HMAC_SHA_512;
   hmac_config.msg_length = sizeof(msg);
   hmac_config.msg        = msg;
-  int wrap_hmac_sha_mode = hmac_config.hmac_mode;
 
-#ifdef USE_WRAPPED_KEYS
+#if USE_WRAPPED_KEYS
   wrap_config.key_type     = SL_SI91X_TRANSPARENT_KEY;
   wrap_config.key_size     = sizeof(key);
   wrap_config.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
@@ -152,7 +151,7 @@ static void application_start(void *argument)
   memcpy(wrap_config.key_buffer, key, wrap_config.key_size);
   memcpy(wrap_config.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
   wrap_config.padding       = SL_SI91X_HMAC_PADDING;
-  wrap_config.hmac_sha_mode = wrap_hmac_sha_mode;
+  wrap_config.hmac_sha_mode = hmac_config.hmac_mode;
 
   status = sl_si91x_wrap(&wrap_config, wrapped_key);
   if (status != SL_STATUS_OK) {

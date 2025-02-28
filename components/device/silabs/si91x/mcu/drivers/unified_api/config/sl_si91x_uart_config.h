@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 #include "sl_si91x_usart.h"
+#include "sl_si91x_uart_common_config.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
@@ -78,12 +79,10 @@ extern "C" {
 #define SL_UART1_DATA_BITS SL_USART_DATA_BITS_8
 
 // <o SL_UART1_FLOW_CONTROL_TYPE> Flow control
-// <SL_USART_FLOW_CONTROL_NONE=> None
-// <SL_USART_FLOW_CONTROL_CTS=> CTS
-// <SL_USART_FLOW_CONTROL_RTS=> RTS
-// <SL_USART_FLOW_CONTROL_RTS_CTS=> CTS/RTS
-// <i> Default: USART_FLOW_CONTROL_NONE
-#define SL_UART1_FLOW_CONTROL_TYPE SL_USART_FLOW_CONTROL_NONE
+// <ARM_USART_FLOW_CONTROL_NONE=> None
+// <ARM_USART_FLOW_CONTROL_RTS_CTS=> CTS/RTS
+// <i> Default: ARM_USART_FLOW_CONTROL_NONE
+#define SL_UART1_FLOW_CONTROL_TYPE ARM_USART_FLOW_CONTROL_NONE
 #endif
 
 // </h>  UART1 Configuration
@@ -93,6 +92,12 @@ extern "C" {
 }
 #endif
 // <<< end of configuration section >>>
+
+#if (SL_UART1_FLOW_CONTROL_TYPE == ARM_USART_FLOW_CONTROL_RTS_CTS)
+#if !defined(SL_UART1_CTS_PIN) && !defined(SL_UART1_RTS_PIN)
+#warning "Select CTS, RTS gpio pins"
+#endif
+#endif
 
 #if (UART_UC)
 sl_si91x_usart_control_config_t uart1_configuration = { .baudrate      = SL_UART1_BAUDRATE,

@@ -113,7 +113,7 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 
 // From Linux include/uapi/linux/tcp.h
 // See https://www.kernel.org/doc/Documentation/networking/tls.txt for more details.
-#define TCP_ULP	0x001f		///< Attach a ULP (Upper Layer Protocols) to a TCP connection.
+#define TCP_ULP	0x001f		///< Attach a ULP (Upper Layer Protocol) to a TCP connection.
 
 /*
  * si91x socket options
@@ -402,7 +402,7 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len);
  *   The addr argument of type @ref sockaddr is the address is that to which datagrams are to be sent.
  * 
  * @param[in] addr_len 
- *   The addr_len argument of type @ref socklen_t indicates the amount of space pointed to by addr, in bytes.
+ *   The addr_len argument of type @ref socklen_t indicates the amount of space pointed to by address, in bytes.
  * 
  * @return
  *   Returns 0 if successful. Otherwise, returns -1 and sets the global variable `errno` to indicate the error.

@@ -70,6 +70,30 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - EAST POSITION: East/Right position value(mV).
   - WEST POSITION: West/Left position value(mV).
   - JOYSTICK_MV_ERR_CARDINAL_ONLY:Joystick error mV value for Cardinal Directions only.
+### Pin Configuration
+
+#### Pin Configuration of the WPK[BRD4002A] Base Board, and with radio board
+
+The following table lists the mentioned pin numbers for the Si917 radio board. If you want to use a different radio board, see the board-specific user guide.
+
+  | CHANNEL | PIN TO ADCP | 
+  | --- | --- | 
+  | 1 | ULP_GPIO_1 [P16] | 
+  | 2 | GPIO_27 [P29] | 
+  | 3 | ULP_GPIO_8 [P15] | 
+  | 4 | GPIO_25 [P25] | 
+  | 5 | ULP_GPIO_8 [P15] | 
+  | 6 | ULP_GPIO_10 [P17] | 
+  | 7 | GPIO_25 [P25] | 
+  | 8 | GPIO_27 [P29] | 
+  | 9 | GPIO_29 [P33] | 
+  | 10 | GPIO_29 [P33] | 
+  | 11 | ULP_GPIO_1 [P16] | 
+  | 12 | ULP_GPIO_1 [P16] | 
+  | 13 | ULP_GPIO_7 [EXP_HEADER-15] | 
+  | 14 | GPIO_26 [P27] | 
+  | 15 | GPIO_28 [P31] | 
+  | 16 | GPIO_30 [P35] | 
 
 ### Joystick on BRD4002A
 

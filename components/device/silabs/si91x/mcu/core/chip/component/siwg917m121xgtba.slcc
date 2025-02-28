@@ -72,7 +72,7 @@
     condition: [freertos]
   - name: opn_config
 - recommends:
-  - name: si91x_mem_config_1
+  - id: si91x_mem_config_1
 - template_contribution:
   - name: device_opn
     value: SIWG917M121XGTBA

@@ -1,4 +1,5 @@
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
 * @file i2c_leader_example.c
 * @brief I2C DRIVER examples functions
 *******************************************************************************
@@ -14,21 +15,25 @@
 * sections of the MSLA applicable to Source Code.
 *
 ******************************************************************************/
-#include "i2c_app.h"
 #include "app.h"
+#include "cmsis_os2.h"
+#include "i2c_app.h"
 #include "rsi_debug.h"
+#include "sl_component_catalog.h"
 #include "sl_i2c_instances.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_peripheral_i2c.h"
-#include "cmsis_os2.h"
-#include "sl_component_catalog.h"
-
+#ifdef SLI_SI917
+#include "sl_si91x_i2c_init_i2c2_config.h"
+#else
+#include "sl_si91x_i2c_init_i2c0_config.h"
+#endif
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 #ifdef SLI_SI915
 #define I2C_INSTANCE_USED \
-  0 // Update this macro with i2c instance number used for application, 0 for instance 0, 1 for instance 1 and 2 for ulp instance (instance 2).
+  0 // Update this macro with i2c instance number used for application, 0 for instance 0, 1 for instance 1 and 2  for ulp instance (instance 2).
 #else
 #define I2C_INSTANCE_USED 2
 #endif
@@ -62,7 +67,12 @@ typedef enum {
  ******************************************************************************/
 sl_i2c_instance_t i2c_instance = I2C_INSTANCE_USED;
 static uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS];
+#if SL_I2C_I2C2_INIT_DMA \
+  == 0 // including config.h file in this application, when DMA disable == 0 is uint8_t data type or enable == 1 is uint32_t data type
 static uint8_t i2c_write_buffer[I2C_SIZE_BUFFERS];
+#else
+static uint32_t i2c_write_buffer[I2C_SIZE_BUFFERS];
+#endif
 static i2c_action_enum_t current_mode           = I2C_SEND_DATA;
 static boolean_t i2c_send_data_flag             = false;
 static boolean_t i2c_receive_data_flag          = false;
@@ -111,7 +121,8 @@ void i2c_init(void)
 
   // Update structure name as per instance used, to register I2C callback
   sl_i2c_config.i2c_callback = i2c_leader_callback;
-  // Initializing I2C instance (update i2c config-strucure name as per instance used)
+  // Initializing I2C instance (update i2c config-strucure name as per instance
+  // used)
   i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_config);
   DEBUGINIT();
 
@@ -123,14 +134,18 @@ void i2c_init(void)
   // Configuring RX and TX FIFO thresholds
   i2c_status = sl_i2c_driver_configure_fifo_threshold(i2c_instance, I2C_TX_FIFO_THRESHOLD, I2C_RX_FIFO_THRESHOLD);
   if (i2c_status != SL_I2C_SUCCESS) {
-    DEBUGOUT("sl_i2c_driver_configure_fifo_threshold : Invalid Parameters, Error Code : %u \n", i2c_status);
+    DEBUGOUT("sl_i2c_driver_configure_fifo_threshold : Invalid Parameters, "
+             "Error Code : %u \n",
+             i2c_status);
   } else {
     DEBUGOUT("Successfully configured i2c TX & RX FIFO thresholds\n");
   }
   // Enabling combined format transfer, by enabling repeated start
   i2c_status = sl_i2c_driver_enable_repeated_start(i2c_instance, true);
   if (i2c_status != SL_I2C_SUCCESS) {
-    DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, Error Code : %u \n", i2c_status);
+    DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, Error "
+             "Code : %u \n",
+             i2c_status);
   } else {
     DEBUGOUT("Successfully enabled repeated start\n");
   }
@@ -176,8 +191,10 @@ void i2c_leader_example_process_action(void)
       if (i2c_send_data_flag) {
         //  Validation for executing the API only once.
         if (sl_i2c_config.transfer_type == SL_I2C_USING_NON_DMA) {
-          i2c_status =
-            sl_i2c_driver_send_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_write_buffer, I2C_TX_LENGTH);
+          i2c_status = sl_i2c_driver_send_data_blocking(i2c_instance,
+                                                        FOLLOWER_I2C_ADDR,
+                                                        (uint8_t *)i2c_write_buffer,
+                                                        I2C_TX_LENGTH);
           if (i2c_status != SL_I2C_SUCCESS) {
             DEBUGOUT("sl_i2c_driver_send_data_blocking : Invalid Parameters, "
                      "Error Code : %u \n",
@@ -222,7 +239,9 @@ void i2c_leader_example_process_action(void)
         // Disabling repeated start before last cycle of transfer
         i2c_status = sl_i2c_driver_enable_repeated_start(i2c_instance, false);
         if (i2c_status != SL_I2C_SUCCESS) {
-          DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, Error Code : %u \n", i2c_status);
+          DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, "
+                   "Error Code : %u \n",
+                   i2c_status);
         }
         // Validation for executing the API only once.
         if (sl_i2c_config.transfer_type == SL_I2C_USING_NON_DMA) {
@@ -241,7 +260,8 @@ void i2c_leader_example_process_action(void)
                                                                I2C_RX_LENGTH,
                                                                &p_dma_config);
           if (i2c_status != SL_I2C_SUCCESS) {
-            DEBUGOUT("sl_i2c_driver_receive_data_non_blocking : Invalid Parameters, Error "
+            DEBUGOUT("sl_i2c_driver_receive_data_non_blocking : Invalid "
+                     "Parameters, Error "
                      "Code : %u \n",
                      i2c_status);
             break;
@@ -298,8 +318,8 @@ static void compare_data(void)
 {
   uint32_t data_index = 0;
   for (data_index = 0; data_index < I2C_SIZE_BUFFERS; data_index++) {
-    // If the i2c_read_buffer and buffer are same, it will be continued else, the
-    // for loop will be break.
+    // If the i2c_read_buffer and buffer are same, it will be continued else,
+    // the for loop will be break.
     if (i2c_write_buffer[data_index] != i2c_read_buffer[data_index]) {
       break;
     }

@@ -80,4 +80,4 @@ The project uses BTN0 by default. To change the button to BTN1, follow the below
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
 >
-> - To ensure proper functionality when adding additional button instances, update the button pin configuration file with the GPIO details of the new instances.
+> - A maximum of 8 HP GPIO buttons, 8 ULP GPIO buttons, and 5 UULP GPIO buttons can be used simultaneously. This limitation arises from the number of available GPIO interrupts allocated for each GPIO type.

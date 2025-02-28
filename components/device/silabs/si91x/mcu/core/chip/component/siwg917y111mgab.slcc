@@ -16,6 +16,8 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SLI_SI91X_MCU_EXTERNAL_LDO_FOR_PSRAM
+    value: '1'
   - name: SL_SI91X_ACX_MODULE
     value: '1'
   - name: SRAM_BASE
@@ -49,7 +51,6 @@
   - name: device_has_mpu
   - name: device_is_module
   - name: device_has_antenna
-   
   - name: device_supports_external_psram
 - requires:
   - name: rsilib_chip

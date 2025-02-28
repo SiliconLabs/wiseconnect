@@ -10,8 +10,8 @@ metadata:
     license: MSLA
 component_root_path: "components/device/silabs/si91x/mcu/drivers/hardware_drivers/mic"
 config_file:
-  - path: "config/sl_si91x_mic_config.h"
-  - file_id: mic_config
+  - path: config/sl_si91x_mic_config.h
+    file_id: mic_config
 include:
   - path: inc
     file_list:

@@ -102,6 +102,9 @@ extern volatile uint32_t tx_socket_command_queues_status;
 
 extern volatile uint32_t tx_socket_data_queues_status;
 
+uint32_t sl_si91x_socket_selected_ciphers          = SSL_ALL_CIPHERS;
+uint32_t sl_si91x_socket_selected_extended_ciphers = SSL_EXT_CIPHERS;
+
 /******************************************************
  *               Function Definitions
  ******************************************************/
@@ -520,9 +523,9 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const in
   // Check for SSL feature and fill it in SSL bitmap
   if (si91x_bsd_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) {
     socket_create_request.ssl_bitmap         = si91x_bsd_socket->ssl_bitmap;
-    socket_create_request.ssl_ciphers_bitmap = SSL_ALL_CIPHERS;
+    socket_create_request.ssl_ciphers_bitmap = sl_si91x_socket_selected_ciphers;
 #if defined(SLI_SI917) || defined(SLI_SI915)
-    socket_create_request.ssl_ext_ciphers_bitmap = SSL_EXT_CIPHERS;
+    socket_create_request.ssl_ext_ciphers_bitmap = sl_si91x_socket_selected_extended_ciphers;
 #endif
     // Check if cert index is not default index
     if (si91x_bsd_socket->certificate_index > SI91X_CERT_INDEX_0) {
@@ -1546,4 +1549,14 @@ bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr)
   }
 
   return false; // Invalid or unsupported type
+}
+
+void sl_si91x_set_socket_cipherlist(uint32_t cipher_list)
+{
+  sl_si91x_socket_selected_ciphers = cipher_list;
+}
+
+void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list)
+{
+  sl_si91x_socket_selected_extended_ciphers = extended_cipher_list;
 }

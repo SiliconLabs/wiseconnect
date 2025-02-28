@@ -58,9 +58,8 @@
 // Receive data length
 #define RECV_BUFFER_SIZE 1027
 
-#define FW_RPS_FILE_SIZE 1870912
-#define FW_HEADER_SIZE   64
-#define CHUNK_SIZE       1024
+#define FW_HEADER_SIZE 64
+#define CHUNK_SIZE     1024
 
 /******************************************************
  *               Global Variable
@@ -160,8 +159,7 @@ sl_status_t m4_firmware_update_app()
   int16_t recv_size                 = 0;
   uint8_t send_buffer[3]            = { 0 };
   uint8_t fwup_chunk_type           = 0;
-
-  chunk_max_count += (FW_RPS_FILE_SIZE - FW_HEADER_SIZE) / CHUNK_SIZE;
+  uint32_t fw_image_size            = 0;
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
@@ -185,7 +183,7 @@ sl_status_t m4_firmware_update_app()
   printf("\r\nM4 Firmware update start\r\n");
   while (1) {
 
-    if (chunk > chunk_max_count) {
+    if (chunk > (chunk_max_count + 1)) {
       printf("\r\n chunk : %d > chunk_max_count %d. Firmware update failed.\r\n", chunk, chunk_max_count);
       close(client_socket);
       return SL_STATUS_FAIL;
@@ -238,6 +236,15 @@ sl_status_t m4_firmware_update_app()
 
       // Call corresponding firmware upgrade API based on the chunk type
       if (fwup_chunk_type == SL_FWUP_RPS_HEADER) {
+        //! Send the first chunk to extract OTA image size
+        status = sl_wifi_get_firmware_size((void *)recv_buffer, &fw_image_size);
+        if (status != SL_STATUS_OK) {
+          printf("Unable to fetch firmware size. Status: 0x%lx\n", status);
+          close(client_socket);
+          return SL_STATUS_FAIL;
+        }
+        printf("\r\n Image size = 0x%lx\r\n", fw_image_size);
+        chunk_max_count += ((fw_image_size - FW_HEADER_SIZE) / CHUNK_SIZE) + 1;
         // Send RPS header which is received as first chunk
         status = sl_si91x_fwup_start(recv_buffer);
       } else {

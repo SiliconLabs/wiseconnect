@@ -46,10 +46,6 @@
 // <h>Watchdog Timer Configuration
 
 // <o SL_WDT_SYSTEM_RESET_TIME> System-reset time
-//   <TIME_DELAY_2=> 0.122 ms
-//   <TIME_DELAY_3=> 0.24 ms
-//   <TIME_DELAY_4=> 0.48 ms
-//   <TIME_DELAY_5=> 0.9 ms
 //   <TIME_DELAY_6=> 1.9 ms
 //   <TIME_DELAY_7=> 3.9 ms
 //   <TIME_DELAY_8=> 7.8 ms
@@ -80,11 +76,6 @@
 #define SL_WDT_SYSTEM_RESET_TIME TIME_DELAY_17
 
 // <o SL_WDT_INTERRUPT_TIME> Interrupt Time
-//   <TIME_DELAY_1=> 0.0610 ms
-//   <TIME_DELAY_2=> 0.122 ms
-//   <TIME_DELAY_3=> 0.24 ms
-//   <TIME_DELAY_4=> 0.48 ms
-//   <TIME_DELAY_5=> 0.9 ms
 //   <TIME_DELAY_6=> 1.9 ms
 //   <TIME_DELAY_7=> 3.9 ms
 //   <TIME_DELAY_8=> 7.8 ms
@@ -115,12 +106,6 @@
 #define SL_WDT_INTERRUPT_TIME TIME_DELAY_15
 
 // <o SL_WDT_WINDOW_TIME> Window Time
-//   <TIME_DELAY_0=> 0.0305 ms
-//   <TIME_DELAY_1=> 0.0610 ms
-//   <TIME_DELAY_2=> 0.122 ms
-//   <TIME_DELAY_3=> 0.24 ms
-//   <TIME_DELAY_4=> 0.48 ms
-//   <TIME_DELAY_5=> 0.9 ms
 //   <TIME_DELAY_6=> 1.9 ms
 //   <TIME_DELAY_7=> 3.9 ms
 //   <TIME_DELAY_8=> 7.8 ms
@@ -132,7 +117,7 @@
 //   <TIME_DELAY_14=> 500 ms
 //   <TIME_DELAY_15=> 1000 ms
 // <i> Selection of Window Time
-#define SL_WDT_WINDOW_TIME TIME_DELAY_0
+#define SL_WDT_WINDOW_TIME TIME_DELAY_6
 
 // </h>
 // </e>

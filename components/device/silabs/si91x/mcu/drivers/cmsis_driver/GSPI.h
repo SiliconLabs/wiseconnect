@@ -136,10 +136,8 @@ typedef const struct _GSPI_PIN {
 typedef  struct GSPI_IO_PINS {
 	GSPI_PIN      *clock;            
 	GSPI_PIN      *cs0;
-#ifdef GSPI_MULTI_SLAVE
 	GSPI_PIN      *cs1;  
 	GSPI_PIN      *cs2; 
-#endif	
 	GSPI_PIN      *mosi;             
 	GSPI_PIN      *miso;            
 } GSPI_IO;

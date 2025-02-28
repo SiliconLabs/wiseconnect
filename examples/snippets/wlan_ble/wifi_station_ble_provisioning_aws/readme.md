@@ -44,16 +44,13 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
   - To enable wakeup based on button press, configure the PM Wakeup Source and enable the GPIO Wakeup in the software components.
 
 - **Alarm-based Wakeup**:
-  - ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
-  - To enable wakeup based on Alarm, configure the PM Wakeup Source and enable the Calendar Wakeup in the software components.
-  - By default, the alarm time is set to 5 seconds. Users can configure this as needed when enabling Calendar Wakeup in the PM Wakeup Source Configuration.
+  - ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **PUBLISH_PERIODICITY** time period.
 
 After M4 processor wakes up via any of the above processes, the application publishes the **MQTT_publish_QOS0_PAYLOAD** message on the **MQTT_TOPIC2** topic.
 
-If macro **SL_SI91X_TICKLESS_MODE** is disabled, then the M4 processor does not go to sleep. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes the **MQTT_publish_QOS0_PAYLOAD** message on the **MQTT_TOPIC2** topic in the following cases:
+If the SL_SI91X_TICKLESS_MODE macro is disabled, for alarm-based wakeup, configure the PM(Power Manager) wakeup source and enable the calendar wakeup within the software components. By default, the alarm is set to trigger after 30 seconds, but users can modify this setting as needed when enabling the calendar wakeup in the PM(Power Manager) wakeup source.
 
-- Once in every **PUBLISH_PERIODICITY** time period.
-- When an incoming publish is received by the application.
+![PM Wakeup Source Configuration](resources/readme/pm_wakeup_configuration.png)
 
 **NCP Mode**:
 

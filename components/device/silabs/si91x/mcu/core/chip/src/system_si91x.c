@@ -42,6 +42,7 @@
 #include "rsi_ulpss_clk.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_clks.h"
+
 #if defined(SLI_SI91X_MCU_PSRAM_PRESENT)
 #include "rsi_d_cache.h"
 #endif
@@ -51,6 +52,35 @@
 #define MCU_RETENTION_BASE_ADDRESS 0x24048600
 #define NPSS_GPIO_CTRL             (MCU_RETENTION_BASE_ADDRESS + 0x1C)
 #endif
+
+// Default clock selection for LF_FSM
+// This will be used if no specific configuration is provided.
+#define LF_FSM_CLK_SEL KHZ_XTAL_CLK_SEL
+
+// Conditional configuration if LF_FSM_CLOCK_UC is defined
+#ifdef LF_FSM_CLOCK_UC
+#include "sl_si91x_lf_fsm_clock_sel.h"
+// Check for invalid simultaneous configuration
+#if (_32KHZ_XTAL_CLOCK == 1) && (_32KHZ_RC_CLOCK == 1)
+#error "Both _32KHZ_XTAL_CLOCK and _32KHZ_RC_CLOCK are enabled! Only one should be active."
+
+// Check if the 32kHz XTAL clock is enabled
+#elif (_32KHZ_XTAL_CLOCK == 1)
+// Override default clock selection with XTAL clock
+#undef LF_FSM_CLK_SEL
+#define LF_FSM_CLK_SEL KHZ_XTAL_CLK_SEL
+
+// Check if the 32kHz RC clock is enabled
+#elif (_32KHZ_RC_CLOCK == 1)
+// Override default clock selection with RC clock
+#undef LF_FSM_CLK_SEL
+#define LF_FSM_CLK_SEL KHZ_RC_CLK_SEL
+
+// Error handling for invalid or missing configuration
+#else
+#error "No valid LF_FSM clock source defined under LF_FSM_CLOCK_UC!"
+#endif
+#endif // LF_FSM_CLOCK_UC
 
 #if defined(SLI_SI915)
 #define BG_LDO_REG1        0x129 //IPMU Bandgap Top register
@@ -146,8 +176,8 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   // Configuring RC 32KHz Clock for LF-FSM
   RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
 #else
-  /* Configuring XTAL 32.768kHz Clock for LF-FSM */
-  RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL);
+  /* Configuring 32kHz Clock for LF-FSM */
+  RSI_PS_FsmLfClkSel(LF_FSM_CLK_SEL);
 #endif // SI91X_32kHz_EXTERNAL_OSCILLATOR
 
   /* Configuring RC-MHz Clock for HF-FSM */

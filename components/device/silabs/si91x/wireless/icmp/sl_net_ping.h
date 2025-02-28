@@ -47,14 +47,17 @@
  * @param[in] ip_address
  *   The destination IP address should be of type [sl_ip_address_type_t](../wiseconnect-api-reference-guide-common/sl-ip-address-t) either IPv4 or IPv6.
  * @param[in] ping_packet_size
- *   The ping packet size is defined, with a valid range of [0, 300].
+ *   The size of the ping packet must fall within the valid range of [0, 300].
  * @return
  *   [sl_status_t](https://docs.silabs.com/gecko-platform/latest/platform-common/status) - Status of the operation.
  *   - SL_STATUS_OK: Operation successful.
  *   - SL_STATUS_NOT_INITIALIZED: Device is not initialized.
  *   - SL_STATUS_INVALID_PARAMETER: Invalid IP address type.
  * 
- * @note This is an asynchronous API. The response is recieved via [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) with [SL_NET_PING_RESPONSE_EVENT](wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) as event.
+ * @note 
+ * 1. This is an asynchronous API. The response is recieved via [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) with [SL_NET_PING_RESPONSE_EVENT](wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) as event.
+ * 2. [SL_SI91X_FEAT_LONG_ICMP_PACKET](../wiseconnect-api-reference-guide-si91x-driver/si91-x-feature-bitmap#sl-si91-x-feat-long-icmp-packet) enables support for long-sized ICMP packets. 
+ *    Enable this to receive and process the ICMP requests of size more than 308 bytes sent from peers.
  ******************************************************************************/
 sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_packet_size);
 

@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-The Wireless Test application is a command-line interface (CLI) application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.
+The Wireless Test application is a Command-Line Interface (CLI) application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.
 
 ## Prerequisites/Setup Requirements
 
@@ -83,7 +83,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
-For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+For project folder structure details, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 
 
@@ -91,7 +91,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-- The application uses the default configurations as provided in the **wifi_commands.c** and the user can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **wifi_commands.c** and you can choose to configure these parameters as needed.
  
 > **Note** :
 
@@ -106,7 +106,7 @@ The application can be configured to suit your requirements and development envi
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+See the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application in Studio.
 - Flash, run, and debug the application.
@@ -554,7 +554,7 @@ The above command will increase the Transmit power to 1 dBm in channel 11.
 
 **Note:** To update the gain table, configure the gain_table_payload[] of sl_wifi_update_gain_table_command_handler in wifi_command.c file.
 
-**Note:** For changing the UART instance of the wireless_test example, refer to the VCOM section of the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+**Note:** For changing the UART instance of the wireless_test example, see the VCOM section of the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 The changes needs to be configured in rsi_debug.c file and RTE_Device_917.h file. 
 
 
@@ -622,12 +622,15 @@ ble_per_receive <enable> <phy_rate> <channel> [-a <ant_sel>] [-c <rf_chain>]
 >```
 
 ### **bt_per_stats**
-Read BLE transmit and receive statistics
+Read BLE transmit & receive statistics
 
 **Syntax:**
 ```perl
-bt_per_stats
+bt_per_stats [-t <time_duration>]
 ```
+|Parameter       |Description                                                                                |
+|----------------|-------------------------------------------------------------------------------------------|
+|*time_duration*        |Time duration in seconds             |
 
 **Response Structure:**
 ```perl
@@ -664,6 +667,7 @@ bt_per_stats
   // Dummy array of length 5
   uint16_t dummy[5];
 ```
+**Note:** The "tx_dones" parameter will return 0 in continuous mode.
 
 **Example:**
 ```perl
@@ -903,7 +907,7 @@ ble_stop_advertising
 >set_region_configuration -a client world
 >```
 
-3. Enable PER mode continuous stream TX with 1 Mbps PHY at channel 10 and max power setting specified by the Gain Table:
+3. Enable PER mode continuous stream TX with 1 Mbps PHY at channel 10 and maximum power setting specified by the Gain Table:
 >```perl
 >ble_per_transmit 1 32 1 10 79 1
 >```
@@ -1071,12 +1075,12 @@ The structure variable for the newly created command is *_wireless_test_new_cmd_
 - For any new command, we have to declare a function in **console_commands/src/console_command_database.c** file with a specific proptotype as shown below.
 *extern sl_status_t wireless_test_new_cmd_command_handler( console_args_t* arguments );*
 
-- The function name can be anything, but the return type and argument must be as shown above.
+- The function name can be anything, but the return type and argument must be as aforesaid mentioned.
 
 **The string array for argument description of the command handler:**
 
 - In the above figure, *_wireless_test_new_cmd_arg_help* is the string array which needs to be defined.
-- We need to define a string array in **console_commands/src/console_command_database.c** file which briefly explains about the arguments in the command handler. The declaration is as shown below.
+- We need to define a string array in **console_commands/src/console_command_database.c** file which briefly explains about the arguments in the command handler. Following is the declaration.
 
   **![cmdhandler](resources/readme/picture4.png)**
 
@@ -1103,15 +1107,15 @@ In the command handler, the arguments passed in the cli command are internally m
   **![cmdhandler](resources/readme/picture10.png)**
 
 
-- So, the overall changes we need to make in  **console_commands/src/console_command_database.c** file is as shown below:
+- Following are the overall changes we need to make in  **console_commands/src/console_command_database.c** file:
 
 
   **![cmdhandler](resources/readme/picture5.png)**
   
   
-- So, the CLI command that can be used with the above changes is *wireless_test_new_cmd -s Optional_String 1 2*.
+- So, the CLI command that can be used with the prescribed changes is *wireless_test_new_cmd -s Optional_String 1 2*.
 
-3. The command handler should be defined in a relevant file as shown below. The arguments can be accessed directly or by using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG() as shown below. 
+3. The command handler should be defined in a relevant file as shown below. Following arguments can be accessed directly or by using GET_COMMAND_ARG() or GET_OPTIONAL_COMMAND_ARG(). 
 
 
 **![cmdhandler](resources/readme/picture6.png)**

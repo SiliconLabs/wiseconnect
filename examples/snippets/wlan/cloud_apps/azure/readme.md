@@ -51,14 +51,13 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 
 ### Setup Diagram
 
-  - **SoC:**
+- **SoC:**
 
-![Figure: Setup Diagram SoC Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupsoc.png)
+  ![Figure: Setup Diagram SoC Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupsoc.png)
 
 - **NCP:**
 
-![Figure: Setup Diagram NCP Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupncp.png)
-
+  ![Figure: Setup Diagram NCP Mode for Azure MQTT Subscribe-Publish Example](resources/readme/azuresetupncp.png)
 
 >**NOTE:**
 >
@@ -179,20 +178,20 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Using Simplicity Studio Energy Profiler for Current Measurement
 
-- Once the application code is flashed onto the module, the energy profiler can be used to measure current consumption.
+- After the application code is flashed onto the module, the energy profiler can be used to measure current consumption.
 
-- From tools, choose Energy Profiler and click "OK".
+- From Tools, choose **Energy Profiler** and click **OK**.
 
     ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_1.png)
 
-- From Quick Access, choose Start Energy Capture option.
+- From Quick Access, choose **Start Energy Capture** option.
 
     ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_2.png)
 
     > **Note** The target part and board name have to be reverted to default to flash application binary.
 
   ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_3.png)
-- Average current consumption measured in power-meter.
+- The following example shows the average current consumption measured in the power meter.
 
     ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
 

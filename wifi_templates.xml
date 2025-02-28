@@ -1081,6 +1081,36 @@
     <properties key="readmeFiles" value="examples/snippets/flash_read_write/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="fw_update_bootloader_xmodem_ncp" label="Firmware Update via Bootloader using Xmodem (NCP)" description="Firmware flashing of Si91x device using host uart xmodem bootloader.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/fw_update_bootloader_xmodem/fw_update_bootloader_xmodem_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4186c"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg24.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/fw_update_bootloader_xmodem/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="fw_update_bootloader_xmodem_soc" label="Firmware Update via Bootloader using Xmodem (SoC)" description="Firmware flashing of Si91x device using host uart xmodem bootloader.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/fw_update_bootloader_xmodem/fw_update_bootloader_xmodem_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4186c"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg24.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/fw_update_bootloader_xmodem/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
 <descriptors name="iostream_usart_baremetal" label="SL Si91x - IOSTREAM USART Baremetal" description="Demonstrates how to use the USART peripheral on the Si91x SoC device.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -2821,6 +2851,36 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/cloud_apps/azure/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="wifi_ble_power_save_ncp" label="Wi-Fi Coex - Wi-Fi BLE Power Save (NCP)" description="The coex application demonstrates the procedure about how to configure the device in WisConnect coex mode with wlan standby and ble connected power save in Low Power mode">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_ble_power_save/wifi_ble_power_save_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wifi_ble_power_save/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
+  </descriptors>
+<descriptors name="wifi_ble_power_save_soc" label="Wi-Fi Coex - Wi-Fi BLE Power Save (SoC)" description="The coex application demonstrates the procedure about how to configure the device in WisConnect coex mode with wlan standby and ble connected power save or in Low Power mode">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_ble_power_save/wifi_ble_power_save_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wifi_ble_power_save/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate"/>
+  </descriptors>
 <descriptors name="wifi_calibration_app_ncp" label="Wi-Fi - Calibration App (NCP)" description="Calibrates carrier frequency offset and Tx gain offset and update that to the Flash/Efuse.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -3240,36 +3300,6 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/enterprise_client/readme.md"/>
 	<properties key="filters" value="Device\  Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
-  </descriptors>
-<descriptors name="wifi_firmware_flashing_from_host_uart_xmodem_bootloader_ncp" label="Wi-Fi - Firmware Flashing (NCP)" description="Firmware flashing of Si91x device using host uart xmodem bootloader.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/wlan/firmware_flashing_from_host_uart_xmodem/firmware_flashing_ncp.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4186c"/>
-    <properties key="partCompatibility" value=" mcu.arm.efr32.mg24.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/snippets/wlan/firmware_flashing_from_host_uart_xmodem/readme.md"/>
-	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
-  </descriptors>
-<descriptors name="wifi_firmware_flashing_from_host_uart_xmodem_bootloader_soc" label="Wi-Fi - Firmware Flashing (SoC)" description="Firmware flashing of Si91x device using host uart xmodem bootloader.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/wlan/firmware_flashing_from_host_uart_xmodem/firmware_flashing_soc.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4186c"/>
-    <properties key="partCompatibility" value=" mcu.arm.efr32.mg24.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/snippets/wlan/firmware_flashing_from_host_uart_xmodem/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_firmware_update_fg25_ncp" label="Wi-Fi - Firmware Update (NCP)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>

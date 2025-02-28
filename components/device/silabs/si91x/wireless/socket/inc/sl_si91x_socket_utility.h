@@ -255,3 +255,15 @@ int32_t sli_get_socket_command_from_host_packet(sl_wifi_buffer_t *buffer);
 void sli_si91x_set_socket_event(uint32_t event_mask);
 
 sl_status_t sli_si91x_flush_select_request_table(uint16_t error_code);
+
+/**
+ * Sets the list of ciphers used when creating sockets
+ * @param cipher_list  Bitmap of selected ciphers
+ */
+void sl_si91x_set_socket_cipherlist(uint32_t cipher_list);
+
+/**
+ * Sets the list of extended ciphers used when creating sockets
+ * @param extended_cipher_list  Bitmap of selected extended ciphers
+ */
+void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list);

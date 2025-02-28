@@ -54,7 +54,7 @@
   - name: device_has_mpu
   - name: device_has_chip
   - name: device_supports_external_flash
-    
+  - name: device_supports_external_psram
 - requires:
   - name: rsilib_chip
   - name: cmsis_common
@@ -69,7 +69,7 @@
     condition: [freertos]
   - name: opn_config
 - recommends:
-  - name: si91x_mem_config_1
+  - id: si91x_mem_config_1
 - template_contribution:
   - name: device_opn
     value: SIWG917M111XGTBA

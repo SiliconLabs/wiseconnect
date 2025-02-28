@@ -4,9 +4,8 @@ label: Button
 description: >
   The Button Driver provides an implementation of the Generic Button API. 
   This driver supports configurable debouncing.
-  This component is instantiable, but only two named instances —'btn0' and 'btn1'can be created.
+  This component is instantiable i.e. named instances can be created.
   For each instance, a configuration is generated along with an initialization struct set according to this configuration.
-  Instances should be named only 'btn0' or 'btn1'.
 category: Device|Si91x|MCU|Hardware
 quality: production
 metadata:
