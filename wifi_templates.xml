@@ -560,7 +560,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/ble_per/ble_per_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -2750,7 +2750,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/aws_device_shadow/aws_device_shadow_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917y121mgnb.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -3335,7 +3335,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917y121mgnb.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -3620,7 +3620,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan/m4_firmware_update/m4_firmware_update_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y121mgnb.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -3755,7 +3755,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/low_power/powersave_standby_associated/powersave_standby_associated_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917y121mgnb.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -3800,7 +3800,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/low_power/powersave_standby_associated_tcp_client/powersave_standby_associated_tcp_client_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y121mgnb.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -4355,7 +4355,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/wlan_throughput/wlan_throughput_psram.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a brd4339a brd4343q brd2708a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y121mgnb.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>

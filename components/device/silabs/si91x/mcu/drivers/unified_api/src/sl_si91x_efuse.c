@@ -34,8 +34,6 @@
 
 #define MAX_ADDRESS           0x31                   // Max possible value of address
 #define MAX_BIT_POS           7                      // Max possible value of bit position
-#define SOC_MIN_FREQUENCY     1000000                // Minimum frequency of efuse clock
-#define SOC_MAX_FREQUENCY     180000000              // Maximum frequency of efuse clock
 #define EFUSE_CLK_ENABLE      BIT(5)                 // Enables EFUSE_CLK_ENABLE
 #define EFUSE_PCLK_ENABLE     BIT(19)                // Enables EFUSE_PCLK_ENABLE
 #define EFUSE_CLK_DISABLE     ((uint32_t)0U << (5))  // Disables EFUSE_CLK_ENABLE
@@ -242,12 +240,6 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_word(uint16_t address, uint16_t *r
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-    if ((soc_clk < SOC_MIN_FREQUENCY) || (soc_clk > SOC_MAX_FREQUENCY)) {
-      // To Validate efuse clock frequency with its respective maximum and
-      // minimum frequencies, if not in range, returns error code.
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
     error_status = RSI_EFUSE_MemMapReadWord(EFUSE, address, read_word, soc_clk);
     status       = convert_rsi_to_sl_error_code(error_status);
   } while (false);
@@ -282,12 +274,6 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_byte(uint16_t address, uint8_t *re
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-    if ((soc_clk < SOC_MIN_FREQUENCY) || (soc_clk > SOC_MAX_FREQUENCY)) {
-      // To Validate efuse clock frequency with its respective maximum and
-      // minimum frequencies, if not in range, returns error code.
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
     error_status = RSI_EFUSE_MemMapReadByte(EFUSE, address, read_byte, soc_clk);
     status       = convert_rsi_to_sl_error_code(error_status);
   } while (false);
@@ -320,12 +306,6 @@ sl_status_t sl_si91x_efuse_fsm_read_byte(uint16_t address, uint8_t *read_byte, u
       // To validate the read_byte pointer, if the parameters is NULL,
       // it returns an error code
       status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    if ((soc_clk < SOC_MIN_FREQUENCY) || (soc_clk > SOC_MAX_FREQUENCY)) {
-      // To Validate efuse clock frequency with its respective maximum and
-      // minimum frequencies, if not in range, returns error code.
-      status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     error_status = RSI_EFUSE_FsmReadByte(EFUSE, address, read_byte, soc_clk);

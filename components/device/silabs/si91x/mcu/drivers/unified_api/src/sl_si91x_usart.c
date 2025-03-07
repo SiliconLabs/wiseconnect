@@ -267,8 +267,6 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
     }
     // Get the USART Insatnce
     usart_instance = get_usart_instance(usart_handle);
-    // Unregister the user callback
-    sl_si91x_usart_unregister_event_callback();
     // Unregister user callback for multiple instance
     sl_si91x_usart_multiple_instance_unregister_event_callback(usart_instance);
     //Deinit the USART/UART

@@ -97,8 +97,6 @@ configuration:
 readme:
 - path: readme.md
 other_file:
-- path: resources/readme/cli_setup.png
-- path: resources/readme/cli_station.png
 - path: resources/readme/clidemo_soc_ncp.png
 - path: resources/readme/build_output.png
 - path: resources/readme/help.png
@@ -164,6 +162,9 @@ other_file:
 - path: resources/readme/usb_to_uart_2.png
 - path: resources/readme/wifi_init-prints.png
 - path: resources/readme/xml.png
+- path: resources/readme/cli_wifi_ble_setup_ncp.png
+- path: resources/readme/sta_ncp.png
+- path: resources/readme/cli_ble_ncp.png
 
 ui_hints:
   highlight:

@@ -646,6 +646,7 @@ int sli_si91x_socket(int family, int type, int protocol, sl_si91x_socket_receive
   si91x_socket->protocol                  = protocol;
   si91x_socket->state                     = INITIALIZED;
   si91x_socket->recv_data_callback        = callback;
+  si91x_socket->client_id                 = -1;
 
   // Return the socket index
   return socket_index;
@@ -676,6 +677,9 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
   if (si91x_client_socket == NULL)
     return -1;
   memcpy(&si91x_client_socket->local_address, &si91x_server_socket->local_address, sizeof(struct sockaddr_in6));
+
+  // Fill VAP_ID
+  si91x_client_socket->vap_id = si91x_server_socket->vap_id;
 
   // Create accept request
   accept_request.socket_id   = (uint8_t)si91x_server_socket->id;
@@ -1177,7 +1181,8 @@ int sli_si91x_get_socket_id(sl_si91x_packet_t *packet)
       if (((sl_si91x_socket_close_response_t *)packet->data)->socket_id == 0) {
         const uint16_t port = ((sl_si91x_socket_close_response_t *)packet->data)->port_number;
         for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
-          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port) {
+          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+              && sli_si91x_sockets[i]->state == LISTEN) {
             return sli_si91x_sockets[i]->id;
           }
         }

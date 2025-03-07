@@ -368,7 +368,10 @@
 #define SL_STATUS_SI91X_FLASH_WRITE_OR_FLASH_DATA_VERIFICATION_FAILED \
   ((sl_status_t)0x100F8) ///< Unable to write to flash OR flash data verification failed.
 #define SL_STATUS_SI91X_CALIBRATION_DATA_VERIFICATION_FAILED \
-  ((sl_status_t)0x100F9)                                                ///< Calibration data verification failed.
+  ((sl_status_t)0x100F9)                                               ///< Calibration data verification failed.
+#define SL_STATUS_SI91X_EVM_INDEX_LIMIT_REACHED ((sl_status_t)0x100FD) ///< EVM index limit reached.
+#define SL_STATUS_SI91X_EFUSE_ALREADY_POPULATED \
+  ((sl_status_t)0x100FA) ///< Efuse data is already populated. Write prohibited.
 #define SL_STATUS_SI91X_SNMP_INTERNAL_ERROR      ((sl_status_t)0x10100) ///< SNMP internal error.
 #define SL_STATUS_SI91X_SNMP_INVALID_IP_PROTOCOL ((sl_status_t)0x10104) ///< SNMP invalid IP protocol error.
 #define SL_STATUS_SI91X_UNSUPPORTED_PWR_IDX_915  ((sl_status_t)0x10105) ///< Unsupported power index for 915
@@ -481,6 +484,8 @@
 #define SL_STATUS_SI91X_FW_UP_WRONG_PACKET_INFO ((sl_status_t)0x1DD40) ///< Wrong packet info.
 #define SL_STATUS_SI91X_INVALID_LENGTH \
   ((sl_status_t)0x1DD41) ///< All payload chunks length together can't be greater than total image size in header, during firmware upgradation.
+#define SL_STATUS_SI91X_FW_UP_CORRUPTED_RPS_HEADER \
+  ((sl_status_t)0x1DD49) ///< Corrupted RPS header encountered or Received empty RPS file(no data) during firmware update.
 #define SL_STATUS_SI91X_SOCKET_NOT_CONNECTED \
   ((sl_status_t)0x1FFFF) ///< Listening TCP socket in device is not connected to the remote peer, or the LTCP socket is not yet opened in the device.
 #define SL_STATUS_SI91X_SOCKET_LIMIT_EXCEEDED \

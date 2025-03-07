@@ -551,7 +551,7 @@
 
 /**
  * @def SL_SI91X_CUSTOM_FEAT_DNS_SERVER_IN_DHCP_OFFER
- * @brief Includes DNS server IP address in DHCP offer response when in AP mode.
+ * @brief Includes DNS server IP address in DHCP offer response when in AP mode. This feature is currently not supported.
  * @details When this bit is set, the DHCP server runs in AP mode and includes the DNS server IP address in the DHCP offer response sent to clients.
  */
 #define SL_SI91X_CUSTOM_FEAT_DNS_SERVER_IN_DHCP_OFFER BIT(6)

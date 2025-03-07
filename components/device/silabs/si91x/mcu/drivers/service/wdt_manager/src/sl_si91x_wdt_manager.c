@@ -134,9 +134,12 @@ sl_watchdog_manager_reset_reason_t sl_wdt_manager_get_system_reset_status(void)
   switch (SL_SI91X_WDT_RESET & get_status) {
     case SL_SI91X_MCU_WWD_WINDOW_RESET:
     case SL_SI91X_MCU_WWD_RESET:
+      DEBUGOUT("\r\n MCU WDT System Reset  \r\n");
+      return SL_SI91X_WATCHDOG_MANAGER_RESET_WATCHDOG;
+
     case SL_SI91X_NWP_WWD_WINDOW_RESET:
     case SL_SI91X_NWP_WWD_RESET:
-      DEBUGOUT("\r\n WDT System Reset  \r\n");
+      DEBUGOUT("\r\n NWP WDT System Reset  \r\n");
       return SL_SI91X_WATCHDOG_MANAGER_RESET_WATCHDOG;
 
     case SL_SI91X_HOST_RESET_REQUEST:

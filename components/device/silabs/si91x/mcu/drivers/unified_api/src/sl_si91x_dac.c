@@ -119,23 +119,8 @@ sl_status_t sl_si91x_dac_init(sl_dac_clock_config_t *dac_clock)
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-    // For M4 MCU clock will be set 180 MHZ.
-#if !defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
-    if (dac_clock->soc_pll_clock >= SOC_PREFETCH_LIMIT) {
-      /*Configure the prefetch and registering when SOC clock is more than 120Mhz*/
-      /*Configure the SOC PLL to 220MHz*/
-      ICACHE2_ADDR_TRANSLATE_1_REG =
-        BIT(21); //icache output will be registered and given to processor. This bit has to be set above 120MHz.
-      /*When set, enables registering in M4-NWP AHB2AHB. This will have performance penalty. This has to be set above 100MHz.
-        When this bit is set, bypass the AHB bus registering in AHB bridge, which is present in between MCU and NWP
-        subsystems. It should be asserted when MCU clock is less than 100MHz.*/
-      MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
-      MISC_CONFIG_MISC_CTRL1 |= BIT(4); //Enable Register ROM as clock frequency is 200 Mhz
-    }
-    dac_clock->division_factor = EVEN_VALUE;
-    /* Switch ULP Pro clock to 90 MHZ */
-    RSI_ULPSS_ClockConfig(M4CLK, ENABLE, dac_clock->division_factor, ODD_DIV_FACTOR);
-#else
+
+#ifdef SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
     /* Power-up Button Calibration*/
     RSI_PS_BodPwrGateButtonCalibEnable();
     /* Enable PTAT for Analog Peripherals*/
