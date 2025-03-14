@@ -1,0 +1,36 @@
+id: ssi_ulp_component
+label: PM ULP SSI
+package: platform
+description: >
+  ULP SSI component will enable  SSI in the low-power mode. It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed.
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+requires:
+  - name: sl_ssi
+  - name: cmsis_spi
+
+provides:
+  - name: ssi_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: ssi_ps2
+    value: sl_si91x_ssi.o
+  - name: ssi_ps2
+    value: rsi_spi.o
+  - name: ssi_ps2
+    value: SPI.o
+  - name: ssi_ps2
+    value: memcpy*.o
+  - name: ssi_ps2
+    value: UDMA.o
+  - name: ssi_ps2
+    value: rsi_udma.o
+  - name: ssi_ps2
+    value: rsi_udma_wrapper.o
+

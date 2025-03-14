@@ -1,0 +1,49 @@
+project_name: sl_si91x_dma
+label: SI91x - SL_DMA
+description: |
+  demostrate UDMA functionality.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.1
+readme:
+  - path: readme.md
+source:
+  - path: app.c
+  - path: main.c
+  - path: dma_example.c
+  - path: dma_example.h
+  - path: app.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: status
+  - id: sl_dma
+    from: wiseconnect3_sdk
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+
+other_file:
+  - path: resources/readme/outputConsoleI_DMA.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/ucScreenDMA.png
+define:
+  - name: __STATIC_INLINE
+    value: static inline
+provides:
+  - name: si91x_soc
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

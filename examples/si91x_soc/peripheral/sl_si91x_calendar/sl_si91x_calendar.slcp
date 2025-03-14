@@ -1,0 +1,47 @@
+project_name: sl_si91x_calendar
+label: SI91x - SL_CALENDAR
+description: >
+  This application demonstrates how to configure and use the Calendar peripheral on the SiLabs MCU. 
+  It includes setting up the calendar module, configuring date and time values, 
+  and using the peripheral to manage time-based events or scheduling functionalities effectively.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.1
+readme:
+  - path: readme.md
+source:
+  - path: calendar_example.c
+  - path: app.c
+  - path: main.c
+  - path: app.h
+  - path: calendar_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_calendar
+    from: wiseconnect3_sdk
+  - id: sl_ulp_timer
+    from: wiseconnect3_sdk
+
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

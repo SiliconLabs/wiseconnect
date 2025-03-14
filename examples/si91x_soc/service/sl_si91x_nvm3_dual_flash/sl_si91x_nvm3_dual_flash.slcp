@@ -1,0 +1,48 @@
+project_name: sl_si91x_nvm3_dual_flash
+label: sl_si91x_nvm3_dual_flash
+description: |
+  This application demonstrates NVM3 write, read and erase functions.
+category: example|peripheral
+package: platform
+quality: production
+readme:
+  - path: readme.md
+source:
+  - path: main.c
+  - path: app.c
+  - path: nvm3_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: nvm3_app.h
+sdk:
+  id: simplicity_sdk
+  version:  "2024.12.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.4.1
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: freertos
+  - id: freertos_heap_4
+  - id: nvm3_lib
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output.png
+template_contribution:
+  - name: NVM3_DUAL_FLASH
+    value: 1
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
