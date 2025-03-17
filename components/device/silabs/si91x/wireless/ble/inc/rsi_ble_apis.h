@@ -3439,6 +3439,30 @@ int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len
 
 /*==============================================*/
 /**
+ * @fn         int32_t rsi_ble_set_att_cmd_async(uint8_t *dev_addr, uint16_t handle,
+ *                                         uint8_t data_len, const uint8_t *p_data)
+ * @brief      Set the attribute value without waiting for an ACK from the remote device. This is a blocking API.
+ *             If the API returns RSI_ERROR_BLE_DEV_BUF_FULL  (-31) error then wait until the \ref rsi_ble_on_le_more_data_req_t event gets received from the module.
+ * @pre Pre-conditions:
+ *        \ref rsi_ble_connect() API needs to be called before this API.
+ * @param[in]  dev_addr - remote device address
+ * @param[in]  handle 	- attribute value handle
+ * @param[in]  data_len - attribute value length
+ * @param[in]  p_data 	- attribute value
+ * @return The following values are returned:
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
+ *     - 0x4E60  -  Invalid Handle range 
+ *     - 0x4E62  -  Invalid Parameters 
+ *     - 0x4D04  -  BLE not connected 
+ *     - 0x4D05  -  BLE Socket not available 
+ *     - 0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ */
+int32_t rsi_ble_set_att_cmd_async(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, const uint8_t *p_data);
+
+/*==============================================*/
+/**
  * @fn         int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
  *                                             uint16_t handle,
  *                                             uint16_t offset,

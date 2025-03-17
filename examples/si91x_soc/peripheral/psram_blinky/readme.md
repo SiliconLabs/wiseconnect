@@ -14,7 +14,7 @@
 
 ## Purpo/sescope
 
-- This example project demonstrates blinky application (GPIO/LED toggle) executing from PSRAM. By default, the Text segment, Data segment, BSS segment, Stack and Heap are placed in PSRAM.
+- This example project demonstrates blinky application (GPIO/LED toggle) executing from PSRAM. By default, the Text and Data segments are placed in PSRAM.
 
 ## Prerequisites/Setup Requirements
 

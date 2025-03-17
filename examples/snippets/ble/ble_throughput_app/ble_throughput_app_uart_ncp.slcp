@@ -55,7 +55,7 @@ component:
   from: wiseconnect3_sdk
 - id: ble
   from: wiseconnect3_sdk
-- id: sl_si91x_basic_buffers
+- id: sl_si91x_mem_pool_buffers_with_quota
   from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_linker_option

@@ -58,5 +58,3 @@ typedef struct {
 #define SPI_EUSART_LDMA_TX     ldmaPeripheralSignal_EUSART1_TXFL
 #define SPI_EUSART_LDMA_RX     ldmaPeripheralSignal_EUSART1_RXFL
 #define SPI_EUSART_ROUTE_INDEX 1
-
-#define PACKET_PENDING_INT_PRI 3

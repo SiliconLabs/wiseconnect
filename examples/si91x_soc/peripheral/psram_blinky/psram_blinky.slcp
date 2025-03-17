@@ -28,13 +28,7 @@ toolchain_settings:
 component:
   - id: sl_system
   - id: sleeptimer
-  - id: bss_segment_in_psram
-    from: wiseconnect3_sdk
   - id: data_segment_in_psram
-    from: wiseconnect3_sdk
-  - id: stack_segment_in_psram
-    from: wiseconnect3_sdk
-  - id: heap_segment_in_psram
     from: wiseconnect3_sdk
   - id: text_segment_in_psram
     from: wiseconnect3_sdk
