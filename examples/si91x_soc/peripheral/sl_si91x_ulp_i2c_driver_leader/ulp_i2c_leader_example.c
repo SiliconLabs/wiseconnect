@@ -167,6 +167,7 @@ void ulp_i2c_leader_example_process_action(void)
         DEBUGOUT("Switching PS4->PS2 state, reset follower within 10 seconds\n");
         // Control power management by adjusting clock references and shutting down
         // the power supply
+        // This function is for demonstration purpose only. For more details, refer to the README file.
         sl_si91x_wireless_shutdown();
         // Adding 10 seconds delay before 2nd cycle of transfer
         delay(TEN_SECOND_DELAY_HP_MODE);

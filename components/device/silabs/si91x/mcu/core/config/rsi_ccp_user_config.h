@@ -33,10 +33,6 @@
 /* To enable 9116 chip -->  Add #define CHIP_9118 */
 /* To enable 9115 chip -->  Add #define CHIP_915 */
 
-/* #define CHIP_9118 */
-/* #define CHIP_915 */
-//#define SLI_SI917
-
 #ifdef CHIP_915
 #if !defined(SLI_SI917) && !defined(SLI_SI915)
 #define SLI_SI917

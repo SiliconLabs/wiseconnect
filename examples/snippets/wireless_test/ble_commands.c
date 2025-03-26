@@ -754,23 +754,26 @@ sl_status_t rsi_ble_per_receive_command_handler(console_args_t *arguments)
 sl_status_t rsi_bt_per_stats_command_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
-  sl_status_t status = SL_STATUS_OK;
-  status             = rsi_bt_per_stats(BT_PER_STATS_CMD_ID, &per_stats);
-  VERIFY_STATUS_AND_RETURN(status);
+  sl_status_t status    = SL_STATUS_OK;
+  uint8_t time_duration = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 1, const uint8_t);
+  for (int z = 1; z <= time_duration; z++) {
+    status = rsi_bt_per_stats(BT_PER_STATS_CMD_ID, &per_stats);
+    VERIFY_STATUS_AND_RETURN(status);
+    osDelay(1000);
 
-  printf("\r\n{\r\n"
-         "\t\"crc_fail_cnt\": %u\r\n"
-         "\t\"crc_pass_cnt\": %u\r\n"
-         "\t\"tx_dones\": %u\r\n"
-         "\t\"rssi\": %d\r\n"
-         "\t\"id_pkts_rcvd\":%u\r\n"
-         "}\r\n",
-         per_stats.crc_fail_cnt,
-         per_stats.crc_pass_cnt,
-         per_stats.tx_dones,
-         per_stats.rssi,
-         per_stats.id_pkts_rcvd);
-
+    printf("\r\n{\r\n"
+           "\t\"crc_fail_cnt\": %u\r\n"
+           "\t\"crc_pass_cnt\": %u\r\n"
+           "\t\"tx_dones\": %u\r\n"
+           "\t\"rssi\": %d\r\n"
+           "\t\"id_pkts_rcvd\":%u\r\n"
+           "}\r\n",
+           per_stats.crc_fail_cnt,
+           per_stats.crc_pass_cnt,
+           per_stats.tx_dones,
+           per_stats.rssi,
+           per_stats.id_pkts_rcvd);
+  }
   return SL_STATUS_OK;
 }
 

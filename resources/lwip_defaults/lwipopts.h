@@ -221,12 +221,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define DEFAULT_ACCEPTMBOX_SIZE   6
 #define DEFAULT_THREAD_STACKSIZE  500
 
-#if defined(SLI_SI91X_FREERTOS_SUPPORT)
-//#include "cmsis_os.h"
-#define TCPIP_THREAD_PRIO 2
-#elif defined(SLI_SI91X_MICIRUM_SUPPORT)
-#define TCPIP_THREAD_PRIO 1
-#endif
+#define TCPIP_THREAD_PRIO 24 // osPriorityNormal
 
 #ifndef LWIP_TESTMODE
 #define LWIP_TESTMODE 1

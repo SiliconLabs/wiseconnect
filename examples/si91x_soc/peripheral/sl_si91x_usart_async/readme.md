@@ -115,29 +115,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 >
 >- Add data_in buffer to watch window for checking receive data.
 
-## Configuring SOCPLL clock
+## Configuring higher clock
 
-For baud rates higher than 2 million, configure the SOCPLL clock by following the below steps:
-
-1. In `usart_async_example.c` (path: /$project/usart_async_example.c, add the following lines of code:
+For baud rates higher than 2 million, change the clock source to USART_SOCPLLCLK in `RTE_Device_917.h` (/$project/config/RTE_Device_917.h):
 
     ```c
-    #include "rsi_rom_clks.h"
-
-    #define SOC_PLL_CLK             120000000 // SOC_PLL clock frequency
-    #define SOC_PLL_REF_CLK         40000000 // SOC_PLL reference clock frequency
-    ```
-
-2. Configure PLL clocks as shown below:
-
-    ```c
-    RSI_CLK_SetSocPllFreq(M4CLK, SOC_PLL_CLK, SOC_PLL_REF_CLK); //To configure SOCPLL clock frequency
-    ```
-
-3. Change the clock source to USART_SOCPLLCLK in `RTE_Device_917.h` (/$project/config/RTE_Device_917.h)
-
-    ```c
-    #define RTE_USART0_CLK_SRC  // for UART1
+    #define RTE_USART0_CLK_SRC   
     ```
 
 > **Note:**

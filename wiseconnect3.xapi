@@ -21,6 +21,11 @@
                 Unsigned 8-bit integer
             </description>
         </type>
+        <type datatype="int8" name="int8" length="1">
+            <description>
+                int
+            </description>
+        </type>
         <type datatype="uint8array" name="uint8array" length="1">
             <description>
                 Variable length byte array. The first byte defines the length
@@ -45,11 +50,6 @@
                 Bluetooth address
             </description>
         </type>
-        <type name="ipv4_address" datatype="uint32" length="4">
-            <description>
-                Description
-            </description>
-        </type>
         <type name="ipv6_address" datatype="uuid_128" length="16">
             <description>
                 Description
@@ -60,14 +60,24 @@
                 Description
             </description>
         </type>
-        <type name="bssid" datatype="uint8array" length="6">
+        <type name="bssid" datatype="byte_array" length="6">
             <description>
-                Array representing the BSSID (MAC address) consisting of 6 bytes.
+                BSSID
+            </description>
+        </type>
+        <type name="scan_ssid" datatype="byte_array" length="32">
+            <description>
+                Scan SSID.
             </description>
         </type>
         <type name="api_credential" datatype="uint8array" length="32">
             <description>
                 Credential data object.
+            </description>
+        </type>
+        <type name="ipv4_address" datatype="ipv4_addr" length="4">
+            <description>
+                IPv4 address
             </description>
         </type>
     </types>
@@ -88,19 +98,59 @@
                 Indicates that the device has started and the radio is ready. This event carries the module build number.
             </description>
             <params>
-                <param name="major" type="uint16">
+                <param name="app_major" type="uint8">
                     <description>
                         Major release version.
                     </description>
                 </param>
-                <param name="minor" type="uint16">
+                <param name="app_minor" type="uint8">
                     <description>
                         Minor release version.
                     </description>
                 </param>
-                <param name="patch" type="uint16">
+                <param name="app_patch" type="uint8">
                     <description>
                         Patch release number.
+                    </description>
+                </param>
+                <param name="fw_chip_id" type="uint8">
+                    <description>
+                        Chip ID
+                    </description>
+                </param>
+                <param name="fw_rom_id" type="uint8">
+                    <description>
+                        ROM ID
+                    </description>
+                </param>
+                <param name="fw_major" type="uint8">
+                    <description>
+                        Major Version Number
+                    </description>
+                </param>
+                <param name="fw_minor" type="uint8">
+                    <description>
+                        Minor version Number
+                    </description>
+                </param>
+                <param name="fw_security_version" type="uint8">
+                    <description>
+                        Security Version
+                    </description>
+                </param>
+                <param name="fw_patch_num" type="uint8">
+                    <description>
+                        Patch Number
+                    </description>
+                </param>
+                <param name="fw_customer_id" type="uint8">
+                    <description>
+                        Customer ID
+                    </description>
+                </param>
+                <param name="fw_build_num" type="uint16">
+                    <description>
+                        Build Number
                     </description>
                 </param>
             </params>
@@ -214,6 +264,11 @@
             <enum name="profile_id_default_wifi_ap_profile" value="0" title="Wi-Fi Access Point Default Profile">
                 <description>
                     Default profile for Wi-Fi Access Point configuration.
+                </description>
+            </enum>
+            <enum name="profile_id_default_wifi_client_profile" value="0" title="Wi-Fi Client Default Profile">
+                <description>
+                    Default profile for Wi-Fi Client configuration.
                 </description>
             </enum>
         </enums>
@@ -342,7 +397,7 @@
                         Sixth octet of the mac address.
                     </description>
                 </param>
-                <param name="band" type="uint8" enum="net_intf_band_mode">
+                <param name="band" type="uint8" enum="net_intf_band">
                     <description>
                         si91x Wi-Fi band mode defines the supported frequency bands for the device. At present, only the 2.4 GHz band is supported.
                     </description>
@@ -475,7 +530,7 @@
                         The sixth octet of the device's MAC address.
                     </description>
                 </param>
-                <param name="band" type="uint8" enum="net_intf_band_mode">
+                <param name="band" type="uint8" enum="net_intf_band">
                     <description>
                         The current Wi-Fi band mode of the si91x device. This defines the supported frequency bands. Currently, only the 2.4 GHz band is supported.
                     </description>
@@ -563,7 +618,7 @@
                 </param>
             </params>
         </event>
-        <enums name="band_mode" title="band_mode">
+        <enums name="band" title="band mode">
             <enum name="band_mode_2_4_ghz" value="0x00" title="Wi-Fi Band 2.4 GHz">
                 <description>
                     2.4 GHz Wi-Fi band.
@@ -774,6 +829,21 @@
                         The configuration feature bit map that represents the device's configuration features, including network and device-specific settings.
                     </description>
                 </param>
+            </returns>
+        </command>
+        <command name="load_default_device_config" index="0x0A">
+            <description>
+                Loads the default si91x device configuration based on the specified network interface.
+            </description>
+            <params>
+                <param name="net_interface" type="uint8" enum="net_intf_interface">
+                    <description>
+                        Network interface to be initialized.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
             </returns>
         </command>
     </class>
@@ -1115,13 +1185,6 @@
                 </description>
             </enum>
         </enums>
-        <enums name="channel" title="Wi-Fi Channels">
-            <enum name="channel_auto" value="0x00" title="Wi-Fi Channel Auto">
-                <description>
-                    Wi-Fi Channel Auto.
-                </description>
-            </enum>
-        </enums>
         <enums name="ip_management" title="IP Management Modes">
             <enum name="ip_management_static_ip" value="0x01" title="Static IP">
                 <description>
@@ -1326,7 +1389,7 @@
                 Sets the channel for the specified network interface.
             </description>
             <params>
-                <param name="channel" type="uint16" enum="net_profile_channel">
+                <param name="channel" type="uint16">
                     <description>
                         Channel number to set for the access point.
                     </description>
@@ -1381,64 +1444,19 @@
                 Note: Please ensure that sl_wifi_net_intf_up should be called before this API.
             </description>
             <params>
-                <param name="ipv4_octet_1" type="uint8">
+                <param name="ipv4_address" type="ipv4_address">
                     <description>
-                        First octet of the IPv4 address.
+                        IPv4 address.
                     </description>
                 </param>
-                <param name="ipv4_octet_2" type="uint8">
+                <param name="gateway" type="ipv4_address">
                     <description>
-                        Second octet of the IPv4 address.
+                        Gateway address.
                     </description>
                 </param>
-                <param name="ipv4_octet_3" type="uint8">
+                <param name="netmask" type="ipv4_address">
                     <description>
-                        Third octet of the IPv4 address.
-                    </description>
-                </param>
-                <param name="ipv4_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the IPv4 address.
-                    </description>
-                </param>
-                <param name="gateway_octet_1" type="uint8">
-                    <description>
-                        First octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_2" type="uint8">
-                    <description>
-                        Second octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_3" type="uint8">
-                    <description>
-                        Third octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="netmask_octet_1" type="uint8">
-                    <description>
-                        First octet of the subnet mask.
-                    </description>
-                </param>
-                <param name="netmask_octet_2" type="uint8">
-                    <description>
-                        Second octet of the subnet mask.
-                    </description>
-                </param>
-                <param name="netmask_octet_3" type="uint8">
-                    <description>
-                        Third octet of the subnet mask.
-                    </description>
-                </param>
-                <param name="netmask_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the subnet mask.
+                        Subnet Mask.
                     </description>
                 </param>
             </params>
@@ -1815,7 +1833,7 @@
                         Result of the command.
                     </description>
                 </param>
-                <param name="channel" type="uint16" enum="net_profile_channel">
+                <param name="channel" type="uint16">
                     <description>
                         Current channel number set for the access point.
                     </description>
@@ -1868,64 +1886,19 @@
                         Result of the command.
                     </description>
                 </param>
-                <param name="ipv4_octet_1" type="uint8">
+                <param name="ipv4_address" type="ipv4_address">
                     <description>
-                        First octet of the IPv4 address.
+                        IPv4 address.
                     </description>
                 </param>
-                <param name="ipv4_octet_2" type="uint8">
+                <param name="gateway" type="ipv4_address">
                     <description>
-                        Second octet of the IPv4 address.
+                        Gateway address.
                     </description>
                 </param>
-                <param name="ipv4_octet_3" type="uint8">
+                <param name="netmask" type="ipv4_address">
                     <description>
-                        Third octet of the IPv4 address.
-                    </description>
-                </param>
-                <param name="ipv4_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the IPv4 address.
-                    </description>
-                </param>
-                <param name="gateway_octet_1" type="uint8">
-                    <description>
-                        First octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_2" type="uint8">
-                    <description>
-                        Second octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_3" type="uint8">
-                    <description>
-                        Third octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="netmask_octet_1" type="uint8">
-                    <description>
-                        First octet of the subnet mask.
-                    </description>
-                </param>
-                <param name="netmask_octet_2" type="uint8">
-                    <description>
-                        Second octet of the subnet mask.
-                    </description>
-                </param>
-                <param name="netmask_octet_3" type="uint8">
-                    <description>
-                        Third octet of the subnet mask.
-                    </description>
-                </param>
-                <param name="netmask_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the subnet mask.
+                        Subnet Mask.
                     </description>
                 </param>
             </returns>
@@ -2184,6 +2157,216 @@
                 </param>
             </returns>
         </command>
+        <command name="set_client_ssid" index="0x15">
+            <description>
+                Sets the SSID for the specified network interface.
+                Note: Please ensure that the SSID should be provided in hexadecimal format.
+            </description>
+            <params>
+                <param name="ssid" type="api_ssid">
+                    <description>
+                        The SSID of the access point to which the client wants to connect.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
+            </returns>
+        </command>
+        <enums name="bss_type" title="bss_type">
+            <description>
+                Enumeration of possible BSS types.
+            </description>
+            <enum name="bss_type_infrastructure" value="0x00">
+                <description>
+                    Standard Wi-Fi connection with an access point.
+                </description>
+            </enum>
+            <enum name="bss_type_adhoc" value="0x01">
+                <description>
+                    Direct connection between devices without an access point.
+                </description>
+            </enum>
+            <enum name="bss_type_any" value="0x02">
+                <description>
+                    Any available BSS type.
+                </description>
+            </enum>
+            <enum name="bss_type_unknown" value="0x03">
+                <description>
+                    unknown BSS type.
+                </description>
+            </enum>
+        </enums>
+        <command name="set_client_config" index="0x16">
+            <description>
+                Configures the Client interface settings.
+            </description>
+            <params>
+                <param name="bssid" type="bssid">
+                    <description>
+                        The BSSID (Basic Service Set Identifier) of the access point.
+                    </description>
+                </param>
+                <param name="bss_type" type="uint16" enum="net_profile_bss_type">
+                    <description>
+                        The BSS (Basic Service Set) type of the network.
+                    </description>
+                </param>
+                <param name="client_security" type="uint16" enum="net_profile_security_type">
+                    <description>
+                        The security type used by the access point (e.g., WPA2, WPA3).
+                    </description>
+                </param>
+                <param name="client_encryption" type="uint8" enum="net_profile_encryption_type">
+                    <description>
+                        The encryption type used for securing the connection.
+                    </description>
+                </param>
+                <param name="client_options" type="uint32" enum="net_profile_client_flag">
+                    <description>
+                        Additional configuration options for the access point.
+                    </description>
+                </param>
+                <param name="credential_id" type="uint32">
+                    <description>
+                        The identifier for the credentials associated with the access point.
+                    </description>
+                </param>
+                <param name="channel_bitmap_2_4g" type="uint16">
+                    <description>
+                        A bitmap representing available channels in the 2.4 GHz frequency band.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
+            </returns>
+        </command>
+        <command name="set_client_channel" index="0x10">
+            <description>
+                Configures the wireless channel.
+            </description>
+            <params>
+                <param name="channel" type="uint16">
+                    <description>
+                        The channel number to connect to the access point.
+                    </description>
+                </param>
+                <param name="band" type="uint8" enum="net_profile_band">
+                    <description>
+                        The frequency band to be used (e.g., 2.4 GHz, 5 GHz).
+                    </description>
+                </param>
+                <param name="bandwidth" type="uint8" enum="net_profile_bandwidth">
+                    <description>
+                        The channel bandwidth to be used (e.g., 20 MHz, 40 MHz).
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
+            </returns>
+        </command>
+        <command name="get_client_ssid" index="0x11">
+            <description>
+                Retrieves the SSID (Service Set Identifier) of the Access Point (AP) currently in use or connected to.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="ssid" type="api_ssid">
+                    <description>
+                        SSID of the current Access Point as a string. This is the name of the Wi-Fi network to which the device is connected or attempting to connect.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_client_config" index="0x12">
+            <description>
+                Retrieves the configuration settings for the client.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="bssid" type="bssid">
+                    <description>
+                        The BSSID (Basic Service Set Identifier) of the access point.
+                    </description>
+                </param>
+                <param name="bss_type" type="uint16" enum="net_profile_bss_type">
+                    <description>
+                        The BSS (Basic Service Set) type of the network.
+                    </description>
+                </param>
+                <param name="client_security" type="uint16" enum="net_profile_security_type">
+                    <description>
+                        The security type used by the access point (e.g., WPA2, WPA3).
+                    </description>
+                </param>
+                <param name="client_encryption" type="uint8" enum="net_profile_encryption_type">
+                    <description>
+                        The encryption type used for securing the connection.
+                    </description>
+                </param>
+                <param name="client_options" type="uint32" enum="net_profile_client_flag">
+                    <description>
+                        Additional configuration options for the access point.
+                    </description>
+                </param>
+                <param name="credential_id" type="uint32">
+                    <description>
+                        The identifier for the credentials associated with the access point.
+                    </description>
+                </param>
+                <param name="channel_bitmap_2_4g" type="uint16">
+                    <description>
+                        A bitmap representing available channels in the 2.4 GHz frequency band.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_client_channel" index="0x13">
+            <description>
+                Retrieves the current channel settings for the client.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="channel" type="uint16">
+                    <description>
+                        Current channel number set for the access point.
+                    </description>
+                </param>
+                <param name="band" type="uint8" enum="net_profile_band">
+                    <description>
+                        Frequency band in use by the access point (e.g., 2.4 GHz, 5 GHz).
+                    </description>
+                </param>
+                <param name="bandwidth" type="uint8" enum="net_profile_bandwidth">
+                    <description>
+                        Bandwidth in use by the access point (e.g., 20 MHz, 40 MHz).
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <enums name="client_flag" title="client_flag">
+            <enum name="client_flag_no_join_option" value="0x00">
+                <description>
+                    Wi-Fi Client Join with no flags.
+                </description>
+            </enum>
+            <enum name="client_flag_join_with_no_csa" value="0x01">
+                <description>
+                    Wi-Fi Client Join without Channel Switch Announcement (CSA).
+                </description>
+            </enum>
+            <enum name="client_flag_join_with_scan" value="0x02">
+                <description>
+                    Wi-Fi Client Join with Scan.
+                </description>
+            </enum>
+        </enums>
     </class>
     <class name="ap" index="0x05" title="Access point">
         <description>
@@ -2267,6 +2450,88 @@
                 </param>
             </params>
         </event>
+        <enums name="deauth_reason" title="deauth_reason">
+            <description>
+                Enumeration of de-authentication reasons from an access point.
+            </description>
+            <enum name="deauth_reason_wifi_deauth" value="0x00" title="De-Authentication from radius server">
+                <description>
+                    De-Authentication from radius server.
+                </description>
+            </enum>
+            <enum name="deauth_reason_wifi_deauth_unspecified" value="0x01" title="Unspecified de-authentication">
+                <description>
+                    Unspecified de-authentication reason.
+                </description>
+            </enum>
+        </enums>
+        <command name="disconnect_client" index="0x01">
+            <description>
+                Disconnects a client with the specified MAC address from Access Point (AP).
+                Use this function to disassociate (disconnect) a client from Access Point.
+            </description>
+            <params>
+                <param name="net_interface" type="uint8" enum="net_intf_interface">
+                    <description>
+                        Network interface.
+                    </description>
+                </param>
+                <param name="mac_address" type="mac_address">
+                    <description>
+                        MAC address of the client.
+                    </description>
+                </param>
+                <param name="reason" type="uint8" enum="ap_deauth_reason">
+                    <description>
+                        Reason for de-authentication.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
+            </returns>
+        </command>
+        <command name="get_client_info" index="0x00">
+            <description>
+                Return the Wi-Fi client information of all clients connected to the AP.
+            </description>
+            <params>
+                <param name="net_interface" type="uint8" enum="net_intf_interface">
+                    <description>
+                        Network interface.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+                <param name="client_count" type="uint8">
+                    <description>
+                        Indicates the total count of Wi-Fi clients currently connected to the network.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <event name="get_client_info_event" index="0x02" title="get_client_info_event">
+            <description>
+                Provides an array containing the IP address and MAC address of the client.
+            </description>
+            <params>
+                <param name="ipv4_address" type="ipv4_address">
+                    <description>
+                        IPv4 address of the client.
+                    </description>
+                </param>
+                <param name="mac_address" type="mac_address">
+                    <description>
+                        MAC address of the client.
+                    </description>
+                </param>
+            </params>
+        </event>
     </class>
     <class name="net_cred" index="0x13" title="Network Credential">
         <description>
@@ -2279,29 +2544,27 @@
             </description>
             <!-- <enum name="INVALID_CREDENTIAL_ID" value="0x00" title="Invalid Credential ID">
                 <description>Invalid Credential ID.</description>
-            </enum>
-            <enum name="DEFAULT_WIFI_CLIENT_CREDENTIAL_ID" value="0x01" title="Default Wi-Fi Client Credential ID">
-                <description>
-                    Default Wi-Fi Client Credential ID. 
-                    By default, `default_wifi_client_credential` from `sl_net_default_values.h` is used. 
-                    The user can override this by setting the credential using `sl_net_set_credential`.
-                </description>
             </enum> -->
+            <enum name="credential_id_default_wifi_client_credential_id" value="0x01" title="Default Wi-Fi Client Credential ID">
+                <description>
+                    Default Wi-Fi Client Credential ID.
+                </description>
+            </enum>
             <enum name="credential_id_default_wifi_ap" value="0x02" title="Default Wi-Fi AP Credential ID">
                 <description>
                     Default Wi-Fi Access Point Credential ID.
-                    By default, `default_wifi_ap_credential` from `sl_net_default_values.h` is used.
-                    The user can override this by setting the credential using sl_wifi_net_cred_set command.
                 </description>
             </enum>
-            <!-- <enum name="WIFI_EAP_CLIENT_CREDENTIAL_ID" value="0x03" title="Wi-Fi EAP Client Credential ID">
+            <!-- <enum name="USER_CREDENTIAL_ID" value="0x03" title="User Credential ID">
+                <description>
+                    User Credential ID. Allows user-defined credentials.
+                </description>
+            </enum>
+            <enum name="WIFI_EAP_CLIENT_CREDENTIAL_ID" value="0x03" title="Wi-Fi EAP Client Credential ID">
                 <description>Wi-Fi EAP Client Credential ID for EAP authentication.</description>
             </enum>
             <enum name="WIFI_EAP_SERVER_CREDENTIAL_ID" value="0x04" title="Wi-Fi EAP Server Credential ID">
                 <description>Wi-Fi EAP Server Credential ID for EAP server authentication.</description>
-            </enum>
-            <enum name="USER_CREDENTIAL_ID" value="0x05" title="User Credential ID">
-                <description>User Credential ID. Allows user-defined credentials.</description>
             </enum>
             <enum name="TLS_CLIENT_CREDENTIAL_START" value="0x0100" title="TLS Client Credential Start">
                 <description>Starting point for TLS Client Credential IDs.</description>
@@ -2457,6 +2720,81 @@
         </command>
     </class>
     <class name="common" index="0x01" title="common">
+        <enums name="wifi_interface" title="Wi-Fi Interface Types">
+            <description>
+                Enumeration of available Wi-Fi interface types.
+            </description>
+            <enum name="wifi_interface_invalid" value="0x00" title="Invalid Interface">
+                <description>
+                    Invalid interface.
+                </description>
+            </enum>
+            <enum name="wifi_interface_client_interface" value="0x01" title="Wi-Fi Client Interface">
+                <description>
+                    Wi-Fi client interface.
+                </description>
+            </enum>
+            <enum name="wifi_interface_ap_interface" value="0x02" title="Wi-Fi Access Point Interface">
+                <description>
+                    Wi-Fi access point interface.
+                </description>
+            </enum>
+            <enum name="wifi_interface_radio_2_4ghz_interface" value="0x04" title="2.4 GHz Radio Interface">
+                <description>
+                    2.4 GHz radio interface.
+                </description>
+            </enum>
+            <enum name="wifi_interface_radio_5ghz_interface" value="0x08" title="5 GHz Radio Interface">
+                <description>
+                    5 GHz radio interface.
+                </description>
+            </enum>
+            <enum name="wifi_interface_dual_interface" value="0x0C" title="Dual Radio Interface">
+                <description>
+                    Dual radio interface (2.4 GHz and 5 GHz).
+                </description>
+            </enum>
+            <enum name="wifi_interface_transceiver_interface" value="0x80" title="Wi-Fi Transceiver Mode Interface">
+                <description>
+                    Wi-Fi Transceiver mode interface.
+                </description>
+            </enum>
+            <enum name="wifi_interface_client_2_4ghz_interface" value="0x05" title="Wi-Fi Client 2.4 GHz Interface">
+                <description>
+                    Wi-Fi client interface on the 2.4 GHz radio.
+                </description>
+            </enum>
+            <enum name="wifi_interface_ap_2_4ghz_interface" value="0x06" title="Wi-Fi Access Point 2.4 GHz Interface">
+                <description>
+                    Wi-Fi access point interface on the 2.4 GHz radio.
+                </description>
+            </enum>
+            <enum name="wifi_interface_client_5ghz_interface" value="0x09" title="Wi-Fi Client 5 GHz Interface">
+                <description>
+                    Wi-Fi client interface on the 5 GHz radio.
+                </description>
+            </enum>
+            <enum name="wifi_interface_ap_5ghz_interface" value="0x0A" title="Wi-Fi Access Point 5 GHz Interface">
+                <description>
+                    Wi-Fi access point interface on the 5 GHz radio.
+                </description>
+            </enum>
+            <enum name="wifi_interface_client_dual_interface" value="0x0D" title="Wi-Fi Client Dual Interface">
+                <description>
+                    Wi-Fi client interface on both 2.4 GHz and 5 GHz radios.
+                </description>
+            </enum>
+            <enum name="wifi_interface_ap_dual_interface" value="0x0E" title="Wi-Fi Access Point Dual Interface">
+                <description>
+                    Wi-Fi access point interface on both 2.4 GHz and 5 GHz radios.
+                </description>
+            </enum>
+            <enum name="wifi_interface_all_interfaces" value="0x1F" title="All Wi-Fi Interfaces">
+                <description>
+                    All available Wi-Fi interfaces (Client, Access Point, 2.4 GHz, 5 GHz).
+                </description>
+            </enum>
+        </enums>
         <command name="get_firmware_version" index="0x00">
             <params/>
             <returns>
@@ -2507,5 +2845,252 @@
                 </param>
             </returns>
         </command>
+    </class>
+    <class name="scan" index="0x03" title="Wi-Fi Scan">
+        <event name="results_event" index="0x00" title="Scan result event">
+            <description>
+                The scan_results_event event is triggered when a Wi-Fi scan completes, providing details about the discovered Wi-Fi networks.
+            </description>
+            <params>
+                <param name="rf_channel" type="uint8">
+                    <description>
+                        Displays the Wi-Fi channel on which the detected AP is operating.
+                    </description>
+                </param>
+                <param name="security_mode" type="uint8">
+                    <description>
+                        Displays the security type of the detected AP.
+                    </description>
+                </param>
+                <param name="rssi" type="int8">
+                    <description>
+                        Displays the Received Signal Strength Indicator (RSSI) for the detected AP.
+                    </description>
+                </param>
+                <param name="network_type" type="uint8">
+                    <description>
+                        Displays the network ID associated with the detected network (AP). This ID can be used to reference the network in subsequent operations.
+                    </description>
+                </param>
+                <param name="ssid" type="scan_ssid">
+                    <description>
+                        Displays the SSID (Service Set Identifier) of the detected AP.
+                    </description>
+                </param>
+                <param name="bssid" type="bssid">
+                    <description>
+                        The BSSID (Basic Service Set Identifier) of the detected AP.
+                    </description>
+                </param>
+            </params>
+        </event>
+        <enums name="mode" title="scan mode">
+            <description>
+                Defines the available types of Wi-Fi scans that can be performed.
+            </description>
+            <enum name="mode_active" value="0x00" title="Active Scan">
+                <description>
+                    Transmit probe requests and listen for responses.
+                </description>
+            </enum>
+            <enum name="mode_passive" value="0x01" title="Passive Scan">
+                <description>
+                    No active transmissions, listen for AP beacons and broadcast probe responses.
+                </description>
+            </enum>
+            <enum name="mode_extended" value="0x02" title="Extended Active Scan">
+                <description>
+                    Transmit probe requests and listen for responses to get more than SL_WIFI_MAX_SCANNED_AP number of results.
+                </description>
+            </enum>
+            <enum name="mode_prohibited_channels" value="0x04" title="Scan Prohibited Channels">
+                <description>
+                    Scan channels prohibited by regulatory region.
+                </description>
+            </enum>
+            <enum name="mode_advance" value="0x08" title="Advanced Scan">
+                <description>
+                    Scan for Access Points while the module is in a connected state. This is used for background scanning and enables the background scan feature, which can later be stopped using the stop_scan function.
+                </description>
+            </enum>
+        </enums>
+        <command name="start" index="0x00">
+            <description>
+                Configures the Wi-Fi scan settings for the specified network interface.
+                Note: Please ensure that the network interface is brought up (e.g., via `sl_wifi_net_intf_up`) before invoking this API.
+            </description>
+            <params>
+                <param name="wifi_interface" type="uint8" enum="common_wifi_interface">
+                    <description>
+                        Wi-Fi interface to perform the scan on (e.g., Client Interface, Access Point Interface, etc.).
+                    </description>
+                </param>
+                <param name="mode" type="uint8" enum="scan_mode">
+                    <description>
+                        Type of scan to perform (e.g., Active Scan, Passive Scan, Extended Active Scan, etc.).
+                    </description>
+                </param>
+                <param name="flags" type="uint32">
+                    <description>
+                        Reserved flags for future use.
+                    </description>
+                </param>
+                <param name="channel_bitmap_2_4ghz" type="uint16">
+                    <description>
+                        Bitmap of selected 2.4 GHz channels to scan, represented as a bitmask.
+                    </description>
+                </param>
+                <param name="lp_mode" type="uint8">
+                    <description>
+                        Low Power (LP) mode setting. Set to 1 to enable LP mode, or 0 to disable LP mode. Enabling LP mode can reduce power consumption during passive scans.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the scan command.
+                    </description>
+                </param>
+                <param name="is_in_progress" type="uint8">
+                    <description>
+                        Status of the scan command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="start_with_ssid" index="0x01">
+            <description>
+                Configures a Wi-Fi scan for a specific SSID on the specified network interface.
+            </description>
+            <params>
+                <param name="wifi_interface" type="uint8" enum="common_wifi_interface">
+                    <description>
+                        Wi-Fi interface to perform the scan on (e.g., Client Interface, Access Point Interface).
+                    </description>
+                </param>
+                <param name="ssid" type="api_ssid">
+                    <description>
+                        SSID to scan for. This is the identifier of the wireless network to be used in the scan.
+                    </description>
+                </param>
+                <param name="mode" type="uint8" enum="scan_mode">
+                    <description>
+                        Type of scan to perform (e.g., Active Scan, Passive Scan, Extended Active Scan).
+                    </description>
+                </param>
+                <param name="flags" type="uint32">
+                    <description>
+                        Reserved flags for future use.
+                    </description>
+                </param>
+                <param name="channel_bitmap_2_4ghz" type="uint16">
+                    <description>
+                        Bitmap of selected 2.4 GHz channels to scan, represented as a bitmask.
+                    </description>
+                </param>
+                <param name="lp_mode" type="uint8">
+                    <description>
+                        Low Power (LP) mode setting. Set to 1 to enable LP mode, or 0 to disable LP mode. Enabling LP mode can reduce power consumption during passive scans.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the scan command.
+                    </description>
+                </param>
+                <param name="is_in_progress" type="uint8">
+                    <description>
+                        Status of the scan command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <event name="error_event" index="0x01" title="Scan Error Event">
+            <description>
+                The error_event is triggered when a Wi-Fi scan encounters an error.
+            </description>
+            <params>
+                <param name="status" type="errorcode">
+                    <description>
+                        Represents the error status of the scan operation.
+                    </description>
+                </param>
+            </params>
+        </event>
+        <event name="complete_event" index="0x02" title="Scan Complete Event">
+            <description>
+                Represents Wi-Fi scan complete.
+            </description>
+            <params>
+                <param name="status" type="errorcode">
+                    <description>
+                        Represents the status of the scan operation.
+                    </description>
+                </param>
+            </params>
+        </event>
+    </class>
+    <class name="ping" index="0x15" title="ping">
+        <command name="ipv4" index="0x00">
+            <description>
+                Send an ICMP ping request to a specific IP address. Ensure that SL_SI91X_TCP_IP_FEAT_ICMP is enabled
+                in the TCP/IP feature bitmap by calling sl_wifi_net_intf_set_si91x_boot_config(), and make sure this
+                function is called before invoking sl_wifi_net_intf_init() API.
+            </description>
+            <params>
+                <param name="ipv4_address" type="ipv4_address">
+                    <description>
+                        Destination IPv4 address.
+                    </description>
+                </param>
+                <param name="ping_size" type="uint16">
+                    <description>
+                        Size of the ping packet. Valid range is from 0 to 300 bytes.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
+            </returns>
+        </command>
+        <event name="ipv4_response_event" index="0x00">
+            <description>
+                This event holds the response data for a ping operation, including the IP version, ping size, and the destination IP address.
+            </description>
+            <params>
+                <param name="ip_version" type="uint16">
+                    <description>
+                        IP version (for example, IPv4 or IPv6).
+                    </description>
+                </param>
+                <param name="ping_size" type="uint16">
+                    <description>
+                        Size of the ping packet.
+                    </description>
+                </param>
+                <param name="ipv4_address" type="ipv4_address">
+                    <description>
+                        Destination IPv4 address.
+                    </description>
+                </param>
+            </params>
+        </event>
+    </class>
+    <class name="client" index="0x04" title="client">
+        <event name="join_event" index="0x00">
+            <description>
+                Event triggered when the client joins a network.
+            </description>
+            <params>
+                <param name="is_connected" type="uint8">
+                    <description>
+                        Indicates whether the client successfully connected (1 for connected, 0 for disconnected).
+                    </description>
+                </param>
+            </params>
+        </event>
     </class>
 </api>

@@ -150,7 +150,11 @@ void UartIrqHandler(USART_RESOURCES *usart)
   if (((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) && (usart->info->cb_event)) {
     //check if receiver contains atleast one char in RBR reg
     if (usart->pREGS->LSR_b.DR) {
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+      usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint16_t)usart->pREGS->RBR;
+#else
       usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
+#endif
       usart->info->xfer.rx_cnt++;
 
       // Check if requested amount of data is received
@@ -701,7 +705,12 @@ int32_t USART_Send_Data(const void *data,
   // Set Send active flag
   usart->info->xfer.send_active = 1U;
   // Save transmit buffer info
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+  usart->info->xfer.tx_buf = (uint16_t *)data;
+#else
   usart->info->xfer.tx_buf = (uint8_t *)data;
+#endif
+
   usart->info->xfer.tx_num = num;
   usart->info->xfer.tx_cnt = 0U;
   if (usart->dma_tx) {
@@ -714,81 +723,82 @@ int32_t USART_Send_Data(const void *data,
       chnl_cfg.periAck         = USART0_ACK;
       chnl_cfg.periphReq       = 1;
       chnl_cfg.reqMask         = 0;
-    }
-    if (usart->pREGS == UART1) {
+    } else if (usart->pREGS == UART1) {
       chnl_cfg.channelPrioHigh = UDMA0_CHNL_PRIO_LVL;
       chnl_cfg.dmaCh           = RTE_UART1_CHNL_UDMA_TX_CH;
       chnl_cfg.periAck         = UART1_ACK;
       chnl_cfg.periphReq       = 1;
       chnl_cfg.reqMask         = 0;
-    }
-    if (usart->pREGS == ULP_UART) {
+    } else if (usart->pREGS == ULP_UART) {
       chnl_cfg.channelPrioHigh = UDMA1_CHNL_PRIO_LVL;
       chnl_cfg.dmaCh           = RTE_ULPUART_CHNL_UDMA_TX_CH;
       chnl_cfg.periAck         = UART3_ACK;
       chnl_cfg.periphReq       = 1;
       chnl_cfg.reqMask         = 0;
-    }
-
-    // Configure DMA channel
-    if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1) || (usart->pREGS == ULP_UART)) {
-#ifdef SL_SI91X_USART_DMA
-      sl_dma_xfer_t dma_transfer_tx = { 0 };
-      uint32_t channel              = usart->dma_tx->channel + 1;
-      uint32_t channel_priority     = chnl_cfg.channelPrioHigh;
-      sl_dma_callback_t usart_tx_callback;
-      //Initialize sl_dma callback structure
-      usart_tx_callback.transfer_complete_cb = usart_transfer_complete_callback;
-      usart_tx_callback.error_cb             = usart_error_callback;
-      //Initialize sl_dma transfer structure
-      dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(usart->info->xfer.tx_buf));
-      dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (usart->pREGS->THR));
-      dma_transfer_tx.src_inc        = SRC_INC_8;
-      dma_transfer_tx.dst_inc        = DST_INC_NONE;
-      dma_transfer_tx.xfer_size      = SRC_SIZE_8;
-      dma_transfer_tx.transfer_count = num;
-      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
-      dma_transfer_tx.dma_mode       = UDMA_MODE_BASIC;
-      dma_transfer_tx.signal         = (uint8_t)chnl_cfg.periAck;
-
-      //Allocate DMA channel for Tx
-      status = sl_si91x_dma_allocate_channel(dma_init.dma_number, &channel, channel_priority);
-      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
-        return ARM_DRIVER_ERROR;
-      }
-      //Register transfer complete and error callback
-      if (sl_si91x_dma_register_callbacks(dma_init.dma_number, channel, &usart_tx_callback)) {
-        return ARM_DRIVER_ERROR;
-      }
-      //Configure the channel for DMA transfer
-      if (sl_si91x_dma_transfer(dma_init.dma_number, channel, &dma_transfer_tx)) {
-        return ARM_DRIVER_ERROR;
-      }
-#else
-      stat = UDMAx_ChannelConfigure(udma,
-                                    usart->dma_tx->channel,
-                                    (uint32_t)(usart->info->xfer.tx_buf),
-                                    (uint32_t) & (usart->pREGS->THR),
-                                    num,
-                                    usart->dma_tx->control,
-                                    &chnl_cfg,
-                                    usart->dma_tx->cb_event,
-                                    chnl_info,
-                                    udmaHandle);
-      if (stat == -1) {
-        return ARM_DRIVER_ERROR;
-      }
-#endif
-#ifdef SL_SI91X_USART_DMA
-      sl_si91x_dma_channel_enable(dma_init.dma_number, usart->dma_tx->channel + 1);
-      sl_si91x_dma_enable(dma_init.dma_number);
-#else
-      UDMAx_ChannelEnable(usart->dma_tx->channel, udma, udmaHandle);
-      UDMAx_DMAEnable(udma, udmaHandle);
-#endif
     } else {
       return ARM_DRIVER_ERROR;
     }
+
+    // Configure DMA channel for USART TX
+#ifdef SL_SI91X_USART_DMA
+    sl_dma_xfer_t dma_transfer_tx = { 0 };
+    uint32_t channel              = usart->dma_tx->channel + 1;
+    uint32_t channel_priority     = chnl_cfg.channelPrioHigh;
+    sl_dma_callback_t usart_tx_callback;
+    //Initialize sl_dma callback structure
+    usart_tx_callback.transfer_complete_cb = usart_transfer_complete_callback;
+    usart_tx_callback.error_cb             = usart_error_callback;
+    //Initialize sl_dma transfer structure
+    dma_transfer_tx.src_addr  = (uint32_t *)((uint32_t)(usart->info->xfer.tx_buf));
+    dma_transfer_tx.dest_addr = (uint32_t *)((uint32_t) & (usart->pREGS->THR));
+    dma_transfer_tx.dst_inc   = DST_INC_NONE;
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+    dma_transfer_tx.src_inc   = SRC_INC_16;
+    dma_transfer_tx.xfer_size = SRC_SIZE_16;
+#else
+    dma_transfer_tx.src_inc   = SRC_INC_8;
+    dma_transfer_tx.xfer_size = SRC_SIZE_8;
+#endif
+    dma_transfer_tx.transfer_count = num;
+    dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+    dma_transfer_tx.dma_mode       = UDMA_MODE_BASIC;
+    dma_transfer_tx.signal         = (uint8_t)chnl_cfg.periAck;
+
+    //Allocate DMA channel for Tx
+    status = sl_si91x_dma_allocate_channel(dma_init.dma_number, &channel, channel_priority);
+    if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Register transfer complete and error callback
+    if (sl_si91x_dma_register_callbacks(dma_init.dma_number, channel, &usart_tx_callback)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Configure the channel for DMA transfer
+    if (sl_si91x_dma_transfer(dma_init.dma_number, channel, &dma_transfer_tx)) {
+      return ARM_DRIVER_ERROR;
+    }
+#else
+    stat = UDMAx_ChannelConfigure(udma,
+                                  usart->dma_tx->channel,
+                                  (uint32_t)(usart->info->xfer.tx_buf),
+                                  (uint32_t) & (usart->pREGS->THR),
+                                  num,
+                                  usart->dma_tx->control,
+                                  &chnl_cfg,
+                                  usart->dma_tx->cb_event,
+                                  chnl_info,
+                                  udmaHandle);
+    if (stat == -1) {
+      return ARM_DRIVER_ERROR;
+    }
+#endif
+#ifdef SL_SI91X_USART_DMA
+    sl_si91x_dma_channel_enable(dma_init.dma_number, usart->dma_tx->channel + 1);
+    sl_si91x_dma_enable(dma_init.dma_number);
+#else
+    UDMAx_ChannelEnable(usart->dma_tx->channel, udma, udmaHandle);
+    UDMAx_DMAEnable(udma, udmaHandle);
+#endif
   } else {
     // Fill TX FIFO
     if (usart->pREGS->LSR & USART_LSR_THRE) {
@@ -859,7 +869,12 @@ int32_t USART_Receive_Data(const void *data,
   usart->info->rx_status.rx_parity_error  = 0U;
 
   // Save receive buffer info
-  usart->info->xfer.rx_buf = (uint8_t *)(const void *)data;
+
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+  usart->info->xfer.rx_buf = (uint16_t *)data;
+#else
+  usart->info->xfer.rx_buf = (uint8_t *)data;
+#endif
   usart->info->xfer.rx_cnt = 0U;
 
   // DMA mode
@@ -899,11 +914,16 @@ int32_t USART_Receive_Data(const void *data,
       usart_rx_callback.transfer_complete_cb = usart_transfer_complete_callback;
       usart_rx_callback.error_cb             = usart_error_callback;
       //Initialize sl_dma transfer structure
-      dma_transfer_rx.src_addr       = (uint32_t *)((uint32_t) & (usart->pREGS->RBR));
-      dma_transfer_rx.dest_addr      = (uint32_t *)((uint32_t)(usart->info->xfer.rx_buf));
-      dma_transfer_rx.src_inc        = SRC_INC_NONE;
-      dma_transfer_rx.dst_inc        = DST_INC_8;
-      dma_transfer_rx.xfer_size      = SRC_SIZE_8;
+      dma_transfer_rx.src_addr  = (uint32_t *)((uint32_t) & (usart->pREGS->RBR));
+      dma_transfer_rx.dest_addr = (uint32_t *)((uint32_t)(usart->info->xfer.rx_buf));
+      dma_transfer_rx.src_inc   = SRC_INC_NONE;
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+      dma_transfer_rx.dst_inc   = DST_INC_16;
+      dma_transfer_rx.xfer_size = SRC_SIZE_16;
+#else
+      dma_transfer_rx.dst_inc   = DST_INC_8;
+      dma_transfer_rx.xfer_size = SRC_SIZE_8;
+#endif
       dma_transfer_rx.transfer_count = num;
       dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
       dma_transfer_rx.dma_mode       = UDMA_MODE_BASIC;
@@ -1098,7 +1118,6 @@ int32_t USART_Control(uint32_t control,
       return ARM_DRIVER_OK;
 
     case ARM_USART_CONTROL_RX:
-
       if (arg) {
         if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
           if (usart->io.rx->pin > 63) {
@@ -1148,12 +1167,13 @@ int32_t USART_Control(uint32_t control,
       // Disable transmit holding register empty interrupt
       usart->pREGS->IER &= (uint32_t)(~USART_INTR_THRE);
 
-      if (usart->dma_rx || usart->dma_tx) {
-        fcr |= USART_DMA_MODE_EN;
-      }
       // Transmit FIFO reset
       fcr = USART_FIFO_ENABLE;
       fcr |= USART_FIFO_TX_RESET;
+
+      if (usart->dma_rx || usart->dma_tx) {
+        fcr |= USART_DMA_MODE_EN;
+      }
 
       usart->pREGS->FCR = fcr;
 
@@ -1178,12 +1198,14 @@ int32_t USART_Control(uint32_t control,
       // Disable receive data available interrupt
       usart->pREGS->IER &= (uint32_t)(~USART_INTR_RX_DATA);
 
-      if (usart->dma_rx || usart->dma_tx) {
-        fcr |= USART_DMA_MODE_EN;
-      }
       // Receive FIFO reset
       fcr = USART_FIFO_ENABLE;
       fcr |= USART_FIFO_RX_RESET;
+
+      if (usart->dma_rx || usart->dma_tx) {
+        fcr |= USART_DMA_MODE_EN;
+      }
+
       usart->pREGS->FCR = fcr;
 
       // If DMA mode - disable DMA channel
@@ -1191,11 +1213,11 @@ int32_t USART_Control(uint32_t control,
           && (usart->pREGS == UART0 || usart->pREGS == USART0 || usart->pREGS == UART1 || usart->pREGS == ULP_UART)) {
         //DISABLE DMa
 #ifdef SL_SI91X_USART_DMA
-        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
+        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_rx->channel + 1)) {
           return ARM_DRIVER_ERROR;
         }
 #else
-        UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
+        UDMAx_ChannelDisable(usart->dma_rx->channel, udma, udmaHandle);
 #endif
       }
       // Clear RX busy status
@@ -1232,13 +1254,16 @@ int32_t USART_Control(uint32_t control,
         UDMAx_ChannelDisable(usart->dma_rx->channel, udma, udmaHandle);
 #endif
       }
+
+      // Transmit and receive FIFO reset
+      fcr = USART_FIFO_ENABLE;
+      fcr |= USART_FIFO_RX_RESET | USART_FIFO_TX_RESET;
+
       // Set trigger level
       if (usart->dma_rx || usart->dma_tx) {
         fcr |= USART_DMA_MODE_EN;
       }
-      // Transmit and receive FIFO reset
-      fcr = USART_FIFO_ENABLE;
-      fcr |= USART_FIFO_RX_RESET | USART_FIFO_TX_RESET;
+
       usart->pREGS->FCR = fcr;
 
       // Clear busy statuses
@@ -1346,7 +1371,6 @@ int32_t USART_Control(uint32_t control,
        parity with the Line Control Register (LCR) has no effect*/
       if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
         if (usart->capabilities.irda) {
-
           //IR TX PIN
           if (usart->io.ir_tx->pin > 63) {
             RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.ir_tx->pin - 64));
@@ -1687,6 +1711,8 @@ ARM_USART_STATUS USART_GetStatus(const USART_RESOURCES *usart)
  */
 int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *usart)
 {
+  int32_t execution_status = ARM_DRIVER_ERROR_UNSUPPORTED;
+
   if ((usart->info->flags & USART_FLAG_CONFIGURED) == 0U) {
     // USART is not configured
     return ARM_DRIVER_ERROR;
@@ -1696,43 +1722,39 @@ int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *
     return ARM_DRIVER_ERROR_UNSUPPORTED;
   }
 
-  if (control == ARM_USART_RTS_CLEAR) {
-    if (usart->capabilities.rts) {
-      usart->pREGS->MCR &= (uint32_t)(~USART_MODEM_RTS_SET);
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
-  }
-  if (control == ARM_USART_RTS_SET) {
-    if (usart->capabilities.rts) {
-      usart->pREGS->MCR |= USART_MODEM_RTS_SET;
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
-  }
-  if (control == ARM_USART_DTR_CLEAR) {
-    if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-      if (usart->capabilities.dtr) {
+  switch (control) {
+    case ARM_USART_RTS_CLEAR:
+      if (usart->capabilities.rts) {
+        usart->pREGS->MCR &= (uint32_t)(~USART_MODEM_RTS_SET);
+        execution_status = ARM_DRIVER_OK;
+      }
+      break;
+
+    case ARM_USART_RTS_SET:
+      if (usart->capabilities.rts) {
+        usart->pREGS->MCR |= USART_MODEM_RTS_SET;
+        execution_status = ARM_DRIVER_OK;
+      }
+      break;
+
+    case ARM_USART_DTR_CLEAR:
+      if (((usart->pREGS == UART0) || (usart->pREGS == USART0)) && usart->capabilities.dtr) {
         usart->pREGS->MCR &= (uint32_t)(~USART_MODEM_DTR_SET);
-      } else {
-        return ARM_DRIVER_ERROR_UNSUPPORTED;
+        execution_status = ARM_DRIVER_OK;
       }
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
-  }
-  if (control == ARM_USART_DTR_SET) {
-    if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-      if (usart->capabilities.dtr) {
+      break;
+
+    case ARM_USART_DTR_SET:
+      if (((usart->pREGS == UART0) || (usart->pREGS == USART0)) && usart->capabilities.dtr) {
         usart->pREGS->MCR |= USART_MODEM_DTR_SET;
-      } else {
-        return ARM_DRIVER_ERROR_UNSUPPORTED;
+        execution_status = ARM_DRIVER_OK;
       }
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
+      break;
+
+    default:
+      break;
   }
-  return ARM_DRIVER_OK;
+  return execution_status;
 }
 
 /**
@@ -1743,53 +1765,24 @@ int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *
  */
 ARM_USART_MODEM_STATUS USART_GetModemStatus(const USART_RESOURCES *usart)
 {
-  ARM_USART_MODEM_STATUS modem_status;
+  ARM_USART_MODEM_STATUS modem_status = { 0U, 0U, 0U, 0U };
   uint32_t msr;
 
   if (usart->pREGS && (usart->info->flags & USART_FLAG_CONFIGURED)) {
     msr = usart->pREGS->MSR;
 
-    if (usart->capabilities.cts) {
-      if (msr & UART_MSR_CTS) {
-        modem_status.cts = 1U;
-      } else {
-        modem_status.cts = 0U;
-      }
-    } else {
-      modem_status.cts = 0U;
+    if ((usart->capabilities.cts) && (msr & UART_MSR_CTS)) {
+      modem_status.cts = 1U;
     }
-    if (usart->capabilities.dsr) {
-      if (msr & UART_MSR_DSR) {
-        modem_status.dsr = 1U;
-      } else {
-        modem_status.dsr = 0U;
-      }
-    } else {
-      modem_status.dsr = 0U;
+    if ((usart->capabilities.dsr) && (msr & UART_MSR_DSR)) {
+      modem_status.dsr = 1U;
     }
-    if (usart->capabilities.ri) {
-      if (msr & UART_MSR_RI) {
-        modem_status.ri = 1U;
-      } else {
-        modem_status.ri = 0U;
-      }
-    } else {
-      modem_status.ri = 0U;
+    if ((usart->capabilities.ri) && (msr & UART_MSR_RI)) {
+      modem_status.ri = 1U;
     }
-    if (usart->capabilities.dcd) {
-      if (msr & UART_MSR_DCD) {
-        modem_status.dcd = 1U;
-      } else {
-        modem_status.dcd = 0U;
-      }
-    } else {
-      modem_status.dcd = 0U;
+    if ((usart->capabilities.dcd) && (msr & UART_MSR_DCD)) {
+      modem_status.dcd = 1U;
     }
-  } else {
-    modem_status.cts = 0U;
-    modem_status.dsr = 0U;
-    modem_status.ri  = 0U;
-    modem_status.dcd = 0U;
   }
   return modem_status;
 }

@@ -76,8 +76,8 @@ The application can be configured to suit your requirements and development envi
        ```
   - Configure the following macros to set the number of peripheral and central connections that can be made
        ```c
-       #define RSI_BLE_MAX_NBR_SLAVES    1
-       #define RSI_BLE_MAX_NBR_MASTERS   1
+       #define RSI_BLE_MAX_NBR_PERIPHERALS    1
+       #define RSI_BLE_MAX_NBR_CENTRALS   1
        ```
   - Fill the name of the peripheral to be connected to in the following macro
        ```c

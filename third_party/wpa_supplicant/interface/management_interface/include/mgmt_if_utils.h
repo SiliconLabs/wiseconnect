@@ -26,8 +26,6 @@
 /** Beacon Elements offset***************************/
 #define BEACON_IES_START_OFFSET 36
 
-#define sl_send_host_rx_pkt(pkt) sli_send_rx_pkt_to_command_parser((uint8_t *)pkt)
-
 unsigned int get_akm_suites_info(const uint16 akmcnt, const uint8 *ie_data);
 char *wise_get_pmk(void);
 uint16 is_pmk_present(void);
@@ -63,4 +61,5 @@ uint8 is_connected_state(void);
 uint8 is_eap_okc_enabled(void);
 uint8 get_operating_mode(void);
 uint8 mgmtif_is_tcp_bypass_enabled(void);
+bool check_ssid_match(uint8_t *);
 #endif /* MGMT_IF_UTILS_H */

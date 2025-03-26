@@ -35,7 +35,7 @@ void process_rx_pkt_from_nwp(uint8 *rx_pkt)
     SL_PKT_GET_RXPKT_SCATTER_BUFF_LEN(rx_pkt, 0)
       - (SL_PKT_GET_RXPKT_HOST_DESC_OFFSET(rx_pkt) + HOST_DESC_LENGTH + SL_PKT_RX_HDESC_GET_DW1_EXT_DESC_SIZE(rx_pkt)));
 
-  if (host_q == SL_WLAN_MGMT_Q) {
+  if ((host_q == SL_WLAN_MGMT_Q) || (host_q == TH0_COMMON_Q)) {
     mgmtif_rx_process_mgmt_frame(rx_pkt);
   } else {
     mgmtif_rx_process_data_frame(rx_pkt, SL_PKT_RX_HDESC_GET_DW3_STA_ID(rx_pkt));

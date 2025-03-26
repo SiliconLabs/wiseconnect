@@ -89,6 +89,10 @@ int16 process_network_params_rsp(uint8 *rx_pkt)
       struct wpa_supplicant *wpa_s = rsi_wsc_cb.supplicant_priv;
 #endif
       if ((rsi_wsc_cb.sc_params.feature_bit_map & FEAT_HIDE_PSK_CREDENTIALS)
+          // Below security type check is to handle WPA3 transition with WPA3 authentication
+          // Here the pmk is already filled with the WPA2 PMK
+          // To avoid publishing the wrong PMK of WPA3 connection, clearing the psk.
+          || (net_param_frm_module->sec_type == SEC_MODE_WPA3)
 #ifdef FIPS_CODE_ENABLE
           || rsi_wsc_cb.fips.fips_mode_enable
 #endif

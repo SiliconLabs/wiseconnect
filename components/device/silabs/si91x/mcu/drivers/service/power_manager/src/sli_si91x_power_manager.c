@@ -247,7 +247,10 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   }
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
   // Initializing and configuring the wakeup sources as per UC inputs, if available
-  sl_si91x_power_manager_wakeup_init();
+  status = sl_si91x_power_manager_wakeup_init();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 #endif
 
 #if (configUSE_TICKLESS_IDLE == 0)
@@ -563,8 +566,13 @@ static void ps4_to_ps0_state_change(void)
   // Low power hardware configuration to switch off the components which are not required.
   sli_si91x_power_manager_low_power_hw_config(true);
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  sl_status_t status_ps4_to_ps0 = SL_STATUS_OK;
   // Initializing and configuring the wakeup sources as per UC inputs, if available
-  sl_si91x_power_manager_wakeup_init();
+  status_ps4_to_ps0 = sl_si91x_power_manager_wakeup_init();
+  if (status_ps4_to_ps0 != SL_STATUS_OK) {
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status_ps4_to_ps0);
+    return;
+  }
 #endif
   // Configuring the clocks as per the sleep state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_SLEEP, SL_SI91X_POWER_MANAGER_POWERSAVE);
@@ -633,8 +641,13 @@ static void ps3_to_ps0_state_change(void)
   config.wakeup_callback_address = SL_SLEEP_WAKEUP_CALLBACK_ADDRESS;
   sli_si91x_power_manager_low_power_hw_config(true);
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  sl_status_t status_ps3_to_ps0 = SL_STATUS_OK;
   // Initializing and configuring the wakeup sources as per UC inputs, if available
-  sl_si91x_power_manager_wakeup_init();
+  status_ps3_to_ps0 = sl_si91x_power_manager_wakeup_init();
+  if (status_ps3_to_ps0 != SL_STATUS_OK) {
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status_ps3_to_ps0);
+    return;
+  }
 #endif
   // Configuring the clocks as per the sleep state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_SLEEP, SL_SI91X_POWER_MANAGER_POWERSAVE);

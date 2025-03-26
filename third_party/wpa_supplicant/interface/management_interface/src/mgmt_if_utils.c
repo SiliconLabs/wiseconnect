@@ -285,3 +285,32 @@ void send_ap_join_fail_response(void)
   sl_mgmt_indicate_to_host(SLI_WLAN_RSP_JOIN, 1, WISE_ERROR_UNABLE_TO_FORM_AUTOGO, &go);
   SL_PRINTF(WLAN_UMAC_MAIN_WISE_ERROR_UNABLE_TO_FORM_AUTOGO, WLAN_UMAC, LOG_ERROR);
 }
+
+bool check_ssid_match(uint8_t *buf)
+{
+  // check for ssid length
+  if (buf[0] == 0) {
+    return false;
+  }
+  if (mgmt_if_adapter.operating_mode == WISE_MODE_AP) {
+    if (!mgmt_if_adapter.bgscan_ssid_len) {
+      return true;
+    }
+    if ((mgmt_if_adapter.bgscan_ssid_len == buf[0])
+        && (os_memcmp(&buf[1], (uint8_t *)mgmt_if_adapter.bgscan_ssid, mgmt_if_adapter.bgscan_ssid_len) == 0)) {
+      return true;
+    }
+  } else {
+    if ((mgmt_if_adapter.state >= WISE_STATE_CONNECTED) && (mgmt_if_adapter.multi_probe == 1)) {
+      return true;
+    }
+    if (!mgmt_if_adapter.ssid_len) {
+      return true;
+    }
+    if ((mgmt_if_adapter.ssid_len == buf[0])
+        && (os_memcmp(&buf[1], (uint8_t *)mgmt_if_adapter.ssid, mgmt_if_adapter.ssid_len) == 0)) {
+      return true;
+    }
+  }
+  return false;
+}

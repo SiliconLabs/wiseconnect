@@ -159,4 +159,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 >
 > **Note:**
 >
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, as the wireless shutdown scenario is not supported in the current SDK.
+>
+> **Note:**
+>
 >- Header connection pin references mentioned here are all specific to BRD4338A. If the user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.
+>- To use GPIO pins 31-34 in GPIO mode, please refer to [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)

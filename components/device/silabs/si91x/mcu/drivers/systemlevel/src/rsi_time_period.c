@@ -333,7 +333,8 @@ rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
 
 rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
 {
-  uint32_t rtc_time_period = 0, clock_type = 0;
+  uint32_t rtc_time_period = 0;
+  uint32_t clock_type      = 0;
 
   UNUSED_PARAMETER(u32TimePeriod);
   /*Check for the NULL parameter*/

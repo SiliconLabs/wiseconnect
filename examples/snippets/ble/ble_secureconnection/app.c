@@ -676,7 +676,7 @@ void ble_smp_test_app(void *argument)
       case RSI_BLE_SMP_REQ_EVENT: {
         LOG_PRINT("\n smp_req - str_remote_address : %s\r\n", str_remote_address);
 
-        //! initiate SMP protocol as a Master
+        //! initiate SMP protocol as a Central
 
         pairing_info_available = 0;
 
@@ -709,7 +709,7 @@ void ble_smp_test_app(void *argument)
 
       case RSI_BLE_SMP_PASSKEY_EVENT: {
         LOG_PRINT("\n smp_passkey event, str_remote_address : %s\r\n", str_remote_address);
-        //! initiate SMP protocol as a Master
+        //! initiate SMP protocol as a Central
 
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_SMP_PASSKEY_EVENT);

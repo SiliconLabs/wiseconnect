@@ -250,6 +250,7 @@ void sl_ulp_dac_example_process_action(void)
         DEBUGOUT("Switching the dac from PS3 -> PS2 state\n");
         // Control power management by adjusting clock references and shutting
         // down the power supply
+        // This function is for demonstration purpose only. For more details, refer to the README file.
         sl_si91x_wireless_shutdown();
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
         /* Due to calling trim_efuse API om power manager it will change the clock

@@ -120,12 +120,12 @@ extern sl_wifi_event_handler_t si91x_event_handler;
 extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
 extern sl_si91x_buffer_queue_t sli_tx_data_queue;
 
-extern sl_status_t sl_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **queue_packet,
-                                                           sl_wifi_buffer_t **packet_buffer,
-                                                           uint16_t packet_id,
-                                                           uint8_t flags,
-                                                           void *sdk_context,
-                                                           uint16_t frame_status);
+sl_status_t sli_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **queue_packet,
+                                                     sl_wifi_buffer_t **packet_buffer,
+                                                     uint16_t packet_id,
+                                                     uint8_t flags,
+                                                     void *sdk_context,
+                                                     uint16_t frame_status);
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 // External declaration of a function to configure M4 DMA descriptors on reset
@@ -324,17 +324,37 @@ static void set_async_event(uint32_t event_mask)
 // Function to check if the bus is ready for writing
 bool sli_si91x_is_bus_ready(bool global_queue_block)
 {
+  // If the global queue block flag is set, the bus is not ready
   if (global_queue_block) {
     return false;
   }
+
+#ifndef SLI_SI91X_MCU_INTERFACE
+  // If the current performance profile is not high performance, request wakeup
+  if ((current_performance_profile != HIGH_PERFORMANCE) && (si91x_req_wakeup() != SL_STATUS_OK)) {
+    return false;
+  }
+#endif
+
   uint16_t interrupt_status = 0;
+  // Read the interrupt status from the bus
   sl_si91x_bus_read_interrupt_status(&interrupt_status);
+
+#ifndef SLI_SI91X_MCU_INTERFACE
+  // Clear the sleep indicator if the current performance profile is not high performance
+  if (current_performance_profile != HIGH_PERFORMANCE) {
+    sl_si91x_host_clear_sleep_indicator();
+  }
+#endif
+
+  // If the buffer is full, unmask the TA interrupt and return false
   if (interrupt_status & RSI_BUFFER_FULL) {
 #ifdef SLI_SI91X_MCU_INTERFACE
     unmask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
 #endif
     return false;
   }
+  // The bus is ready for writing
   return true;
 }
 
@@ -358,6 +378,16 @@ static sli_si91x_socket_t *get_socket_from_packet(sl_si91x_packet_t *socket_pack
     const sli_si91x_socket_t *si91x_socket = sli_si91x_get_socket_from_id(socket_id, RESET, -1);
     return get_si91x_socket(si91x_socket->client_id);
   } else if (socket_packet->command == RSI_WLAN_RSP_SOCKET_CLOSE) {
+    if (((sl_si91x_socket_close_response_t *)socket_packet->data)->socket_id == 0) {
+      const uint16_t port = ((sl_si91x_socket_close_response_t *)socket_packet->data)->port_number;
+      for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
+        if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+            && sli_si91x_sockets[i]->state == LISTEN) {
+          return sli_si91x_sockets[i];
+        }
+      }
+      return NULL;
+    }
     return sli_si91x_get_socket_from_id(socket_id, RESET, -1);
   } else {
     return sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
@@ -377,7 +407,7 @@ static void sli_handle_dhcp_and_rejoin_failure(void *sdk_context,
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
 
   // Create a generic RX packet from the parameters
-  status = sl_create_generic_rx_packet_from_params(&node, &temp_buffer, 0, 0, NULL, frame_status);
+  status = sli_create_generic_rx_packet_from_params(&node, &temp_buffer, 0, 0, NULL, frame_status);
   if (status != SL_STATUS_OK) {
     return; // Exit if packet creation fails
   }
@@ -521,6 +551,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case RSI_COMMON_RSP_GET_RAM_DUMP:
           case RSI_COMMON_RSP_ANTENNA_SELECT:
           case RSI_COMMON_RSP_ENCRYPT_CRYPTO:
+          case SLI_SI91X_FW_FALLBACK_RSP_FROM_HOST:
 #ifdef SLI_PUF_ENABLE
           case RSI_COMMON_RSP_PUF_ENROLL:
           case RSI_COMMON_RSP_PUF_DIS_ENROLL:
@@ -1434,19 +1465,13 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 #endif
   if (*event & SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT) {
     // Check if the bus is ready for a packet
-    sl_si91x_bus_read_interrupt_status(&interrupt_status);
-    if (!(interrupt_status & RSI_BUFFER_FULL)) {
+    if (sli_si91x_is_bus_ready(global_queue_block)) {
       bus_write_data_frame(&sli_tx_data_queue);
       if (sli_si91x_buffer_queue_empty(&sli_tx_data_queue)) {
         *event &= ~SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT;
         tx_generic_socket_data_queues_status &= ~(SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT);
       }
     }
-#ifdef SLI_SI91X_MCU_INTERFACE
-    else {
-      unmask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
-    }
-#endif
   }
 
   return;
@@ -1492,17 +1517,20 @@ extern inline uint32_t sli_wifi_event_handler_get_wait_time(uint32_t *event)
   // TODO: Add checking ALL socket command queues
 
   // Set wait time:
-  // If there might be a buffer to receive, do that immediately,
-  // If the last interrupt_status check indicates buffer full, wait up to 10ms,
-  // If there is queue not empty or some event to be processed do that immediately,
-  // Otherwise there is nothing left to do and thus wait for an event
   if (*event & SL_SI91X_NCP_HOST_BUS_RX_EVENT) {
+    // If there might be a buffer to receive, do that immediately.
     bus_wait_time = 0;
+  } else if (global_queue_block) {
+    // If there is global queue blocked, wait forever.
+    bus_wait_time = osWaitForever;
   } else if (interrupt_status & RSI_BUFFER_FULL) {
+    // If the last interrupt_status check indicates buffer full, wait up to 10ms.
     bus_wait_time = 10;
   } else if (tx_queues_empty == 0) {
+    // If all queues are empty and no event to be processed, wait indefinitely.
     bus_wait_time = osWaitForever;
   } else {
+    // Else any TX queues pending further will be given immediately
     bus_wait_time = 0;
   }
 
@@ -1719,12 +1747,12 @@ void sli_wifi_handle_event(uint32_t *event)
   return;
 }
 
-sl_status_t sl_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **queue_packet,
-                                                    sl_wifi_buffer_t **packet_buffer,
-                                                    uint16_t packet_id,
-                                                    uint8_t flags,
-                                                    void *sdk_context,
-                                                    uint16_t frame_status)
+sl_status_t sli_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **queue_packet,
+                                                     sl_wifi_buffer_t **packet_buffer,
+                                                     uint16_t packet_id,
+                                                     uint8_t flags,
+                                                     void *sdk_context,
+                                                     uint16_t frame_status)
 {
   sli_si91x_queue_packet_t *packet = NULL;
   sl_wifi_buffer_t *buffer         = NULL;

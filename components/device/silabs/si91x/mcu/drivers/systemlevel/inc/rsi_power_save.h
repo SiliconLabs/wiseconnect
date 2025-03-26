@@ -678,7 +678,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
     ;
 
   /*Disable ulp mode isolation */
-  BATT_FF->M4_ULP_MODE_CONFIG &= ~(0x3F);
+  BATT_FF->M4_ULP_MODE_CONFIG &= ~0x3F;
 
 #if !defined(SLI_SI917) && !defined(SLI_SI915)
   /*Disables clock to ULP-M4SS AHB-AHB Bridge since the MCU is in PS2 state logically*/

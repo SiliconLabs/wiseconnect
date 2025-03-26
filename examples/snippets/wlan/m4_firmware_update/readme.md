@@ -28,9 +28,13 @@ This process allows the device to update its software over the air (OTA) without
 ### Hardware Requirements  
 
 - Windows PC
-- Silicon Labs SiWx917 Evaluation Kit [WPK/WSTK + BRD4325A]
 - Wireless Access Point
 - Linux PC or Cygwin on Windows (to build and run the TCP server source provided)
+- Radio Boards
+  - BRD4338A [SiWx917-RB4338A]
+  - BRD4342A [SiWx917-RB4342A]
+- Kits
+  - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 

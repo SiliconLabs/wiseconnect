@@ -316,11 +316,12 @@
 #define RESOLVE_ENABLE                          0
 #define LOCAL_MTU_SIZE                          232
 
-#define PERIPHERAL1 0
-#define PERIPHERAL2 1
-#define PERIPHERAL3 2
-#define CENTRAL1    RSI_BLE_MAX_NBR_PERIPHERALS
-#define CENTRAL2    RSI_BLE_MAX_NBR_PERIPHERALS + 1
+#define PERIPHERAL1                     0
+#define PERIPHERAL2                     1
+#define PERIPHERAL3                     2
+#define CENTRAL1                        RSI_BLE_MAX_NBR_PERIPHERALS
+#define CENTRAL2                        RSI_BLE_MAX_NBR_PERIPHERALS + 1
+#define VARIABLE_LENGTH_CHARACTERISTICS 0
 
 /***********************************************************************************************************************************************/
 //! application events list
@@ -564,7 +565,6 @@ int32_t rsi_initiate_power_save(void);
 int32_t rsi_initiate_power_awake(void);
 void rsi_ble_main_app_task(void);
 void rsi_ble_task_on_conn(void *parameters);
-void rsi_ble_slave_app_task(void);
 void rsi_common_app_task(void);
 
 #endif

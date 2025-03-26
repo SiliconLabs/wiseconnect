@@ -76,6 +76,7 @@ typedef void (*sl_adc_callback_t)(uint8_t channel, uint8_t event);
 #define SL_INTERNAL_DMA          INTERNAL_DMA             ///< Internal DMA event
 #define SL_ADC_STATIC_MODE_EVENT ADC_STATIC_MODE_CALLBACK ///< Static mode event
 #define SIGN_BIT                 BIT(11)                  ///< Sign/magnitude bit
+#define ADC_DIFFERENTIAL_INPUT   1 ///< To check condition in config file, this macro value '1' should constant.
 
 /**
  * @brief Enumeration for ADC input types.

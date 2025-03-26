@@ -341,7 +341,7 @@ sl_status_t sl_si91x_veml6035_read_interrupt_status(sl_i2c_instance_t i2c_instan
   *threshold_low  = false;
   *threshold_high = false;
 
-  status = veml6035_read_register(i2c_instance, addr, SL_VEML6035_IF, &regdata);
+  status = veml6035_read_register(i2c_instance, addr, SL_VEML6035_ALS_CONF, &regdata);
   if (status != SL_STATUS_OK) {
     return status;
   }

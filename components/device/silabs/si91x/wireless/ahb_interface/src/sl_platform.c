@@ -45,7 +45,7 @@
 
 sl_status_t sli_si91x_submit_rx_pkt(void);
 void sl_board_enable_vcom(void);
-sl_status_t si91x_bootup_firmware(const uint8_t select_option);
+sl_status_t si91x_bootup_firmware(const uint8_t select_option, uint8_t image_number);
 
 void sli_si91x_platform_init(void)
 {
@@ -75,7 +75,7 @@ void sl_board_enable_vcom(void)
   //empty function
 }
 
-sl_status_t si91x_bootup_firmware(const uint8_t select_option)
+sl_status_t si91x_bootup_firmware(const uint8_t select_option, uint8_t image_number)
 {
   uint8_t skip_bootload_sequence = 0;
   si91x_status_t retval          = RSI_ERROR_NONE;
@@ -98,7 +98,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
         return convert_si91x_status_to_sl_status(retval);
       }
     } while ((retval == RSI_ERROR_WAITING_FOR_BOARD_READY) || (retval == RSI_ERROR_IN_OS_OPERATION));
-    retval = rsi_select_option(select_option);
+    retval = rsi_select_option(select_option, image_number);
     VERIFY_STATUS_AND_RETURN(convert_si91x_status_to_sl_status(retval));
   }
 

@@ -134,24 +134,25 @@ sl_status_t sl_si91x_fwup_load(const uint8_t *content, uint16_t length);
 
 /***************************************************************************/ /**
  * @brief
- *   Abort the firmware update process on the SiWx91x device and reset all firmware upgrade helper variables in the NWP. This is a blocking API.
+ *   Abort firmware installation during firmware update process.
  * 
  * @details
- *   This function aborts the ongoing firmware update process on the SiWx91x device. It is a blocking API and will not return until the process is aborted.
- * 
+ *   This function aborts the firmware installation phase during the firmware update process. It effectively halts any installation during next bootup.
+ *
  *   This is a blocking API.
- * 
+ *
  * @pre Pre-conditions:
  * - @ref sl_si91x_fwup_load should be called before this API.
- * 
+ *
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
- * 
+ *
  * @note
- *   After successful completion of firmware loading using the @ref sl_si91x_fwup_load API, the user can call this abort API.
+ *   Call this API before performing a soft or hard reset of the SiWx91x device in scenarios where the update needs to be canceled for any reason.
+ *
  * @note
- *   Ensure to call this abort API before performing a soft or hard reset of the SiWx91x device.
- *  
+ *   Calling the API would be ineffective, if only partial firmware chunks have been received and the update hasn't been marked as complete.
+ *
  * @note
  *  The following table summarizes the support for different modes and network stacks:
  * 
@@ -358,7 +359,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  * - If content of any field contains a comma then NULL delimiter should be used.
  * - This API will wait until the response is received from NWP.
  * - When the SL_SI91X_FEAT_LONG_HTTP_URL feature is enabled, the maximum supported URL length for HTTP OTAF is 2048 bytes.
- * - To select certificate index 0, no additional flags need to be configured explicitly.
+ * - To select certificate index 0, no additional flags are required to be configured explicitly.
  * 
  * @note
  *  The following table summarizes the support for different modes and network stacks:

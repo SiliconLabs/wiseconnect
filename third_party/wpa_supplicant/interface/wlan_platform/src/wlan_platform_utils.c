@@ -69,9 +69,6 @@ sl_wlan_mgmt_if_rx_pkt_t *sl_prepare_rx_pkt_from_linear_buffer(uint16 type,
 
   rx_host_desc = SL_PKT_GET_RXPKT_HDESC_ADDR(rx_pkt);
 
-  if (data) {
-    rx_host_desc->dword1.byte1 = *data;
-  }
   if (len <= SL_WLAN_MGMT_IF_PKT_BLOCK_SIZE - (SL_WLAN_MGMT_IF_RX_PKT_STRUCT_SIZE + HOST_DESC_LENGTH)) {
     rx_pkt->scatter_info[0].len = len;
     len                         = 0;
@@ -119,7 +116,7 @@ sl_wlan_mgmt_if_rx_pkt_t *sl_prepare_rx_pkt_from_linear_buffer(uint16 type,
   return rx_pkt;
 }
 
-/**
+/**************************************************************************/ /**
  * @brief Indicates a management packet to the host.
  *
  * This function processes the provided data to prepare a management RX packet
@@ -137,8 +134,8 @@ sl_wlan_mgmt_if_rx_pkt_t *sl_prepare_rx_pkt_from_linear_buffer(uint16 type,
  * packet using the `sl_prepare_rx_pkt_from_linear_buffer` function. If packet 
  * preparation fails, the function logs an error and triggers an assertion. 
  * Upon successful preparation, the packet is indicated to the host using the 
- * `sl_send_rx_pkt_to_command_parser` function.
- */
+ * `sli_send_host_rx_pkt` function.
+ *****************************************************************************/
 
 void sl_mgmt_indicate_to_host(uint16 type, uint16 len, uint16 status, uint8 *data)
 {
@@ -159,9 +156,24 @@ void sl_mgmt_indicate_to_host(uint16 type, uint16 len, uint16 status, uint8 *dat
     SL_DEBUG_LOG("[ERROR] SL_MGMT_ASSERT_PREPEND_BUFFER_FAILED: file %s, line %d\n", __FILE__, __LINE__);
     SL_MGMT_ASSERT(0);
   }
+  sli_send_host_rx_pkt(rx_pkt);
+  return;
+}
 
+/**************************************************************************/ /**
+ * @brief Process the rx_pkt packet to the host.
+ *
+ * This fucntion processes the rx_pkt and forwared it to the host via `sli_send_rx_pkt_to_command_parser`.
+ *
+ * @param[in] rx_pkt Pointer to the RX packet to host.
+ *
+ * @return SL_STATUS_OK if the packet sent to the host or the response from the `sli_send_rx_pkt_to_command_parser`.
+ *****************************************************************************/
+
+sl_status_t sli_send_host_rx_pkt(uint8_t *rx_pkt)
+{
   // Indicate the packet to the host
-  host_desc_t *rx_host_desc = (host_desc_t *)((uint32)rx_pkt + SL_WLAN_MGMT_IF_RX_HOST_DESC_OFFSET);
+  host_desc_t *rx_host_desc = (host_desc_t *)SL_PKT_GET_RXPKT_HDESC_ADDR(rx_pkt);
 
   if ((mgmt_if_adapter.rejoin_going_on == SL_TRUE) && (!is_join_cmd_from_host())
       && (rx_host_desc->dword3.token != WISE_ERROR_WRONG_STATE)
@@ -171,7 +183,7 @@ void sl_mgmt_indicate_to_host(uint16 type, uint16 len, uint16 status, uint8 *dat
           && (rx_host_desc->dword0.frame_type != RSI_RSP_MODULE_STATE)
           && (rx_host_desc->dword0.frame_type != SLI_WLAN_RSP_RF_POWER_LEVEL))) {
     sl_free_rx_pkt(rx_pkt);
-    return;
+    return SL_STATUS_OK;
   }
 
   if (rx_host_desc->dword0.frame_type == SLI_WLAN_RSP_JOIN) {
@@ -199,7 +211,7 @@ void sl_mgmt_indicate_to_host(uint16 type, uint16 len, uint16 status, uint8 *dat
     }
   }
 
-  sli_send_rx_pkt_to_command_parser((uint8_t *)rx_pkt);
+  return sli_send_rx_pkt_to_command_parser((uint8_t *)rx_pkt);
 }
 
 sl_status_t free_tx_host_q(void)

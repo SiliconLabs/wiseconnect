@@ -203,7 +203,7 @@ void Default_Reset_Handler(void)
 void Copy_Table(void)
 {
   /* Initialize data and bss */
-  volatile unsigned long *pulSrc;
+  const volatile unsigned long *pulSrc;
   volatile unsigned long *pulDest;
   pulSrc = &_sidata;
   /* Copy the data segment initializers from flash to SRAM */
@@ -224,7 +224,7 @@ void Zero_Table(void)
   uint32_t *pulDest;
   pulDest = &__bss_start__;
 
-  for (; pulDest < &__bss_end__;) {
+  while (pulDest < &__bss_end__) {
     *pulDest++ = 0UL;
   }
 }
@@ -392,7 +392,7 @@ void RSI_Default_Reset_Handler(void)
  * @param  None
  * @retval None
  */
-__attribute__((used)) void Default_Handler(void)
+__attribute__((used)) static void Default_Handler(void)
 {
   /* Go into an infinite loop. */
   while (true) {

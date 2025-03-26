@@ -70,13 +70,14 @@
 /*=======================================================================*/
 // BLE Attribute Security Define
 /*=======================================================================*/
-#define ATT_REC_MAINTAIN_IN_HOST BIT(0) ///< Att record maintained by the stack
+#define ATT_REC_MAINTAIN_IN_HOST BIT(0) ///< Attribute record maintained in Host
 #define SEC_MODE_1_LEVEL_1       BIT(1) ///< NO Auth and No Enc
 #define SEC_MODE_1_LEVEL_2       BIT(2) ///< UnAUTH with Enc
 #define SEC_MODE_1_LEVEL_3       BIT(3) ///< AUTH with Enc
 #define SEC_MODE_1_LEVEL_4       BIT(4) ///< AUTH LE_SC Pairing with Enc
 #define ON_BR_EDR_LINK_ONLY      BIT(5) ///< BR/EDR link-only mode
 #define ON_LE_LINK_ONLY          BIT(6) ///< LE link-only mode
+#define VARIABLE_ATT_CHAR_VAL    BIT(7) ///< Variable characteristic value length
 /*=======================================================================*/
 // Max Tx data length and Tx timeout values
 /*=======================================================================*/
@@ -218,6 +219,14 @@
 #define RSI_BLE_NUM_CONN_EVENTS 20 ///< Defines the number of BLE connection events.
 #endif
 
+#if !RSI_BLE_MAX_NBR_PERIPHERALS /* Wireless initialization is failing with error 
+SL_STATUS_SI91X_INVALID_CONFIG_RANGE_PROVIDED(0x10063) for the 0P + 2C configuration. Therefore, for the 0P configuration, 
+the number of peripherals has been updated to 1, and the number of connection events has been set to 8. */
+#undef RSI_BLE_MAX_NBR_PERIPHERALS
+#undef RSI_BLE_NUM_CONN_EVENTS
+#define RSI_BLE_NUM_CONN_EVENTS     8
+#define RSI_BLE_MAX_NBR_PERIPHERALS 1
+#endif
 /* Number of BLE GATT RECORD SIZE IN (n*16 BYTES), eg:(0x40*16) = 1024 bytes */
 #ifndef RSI_BLE_NUM_REC_BYTES
 #define RSI_BLE_NUM_REC_BYTES 0x40 ///< Defines the number of bytes to be received in a BLE operation.

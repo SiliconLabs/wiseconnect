@@ -368,7 +368,7 @@ typedef struct {
 /**
  * @struct sl_wifi_advanced_client_configuration_t
  * @brief Wi-Fi Client interface advanced configuration structure.
- * @note  The default beacon missed count is set to 40. A unicast probe request will be sent from the module to the access point (AP) at the 21st beacon count and again at the 31st beacon count.
+ * @note  The default beacon missed count is set to 40. A unicast probe request sents from the module to the Access Point (AP) at the 21st beacon count and again at the 31st beacon count.
  */
 typedef struct {
   uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure
@@ -715,10 +715,16 @@ typedef struct {
   /// | 3            | Should be set to enable To DS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                               |
   /// | 4            | Should be set to enable From DS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                             |
   /// | 5            | Should be set if host requires TX data status report. Token is used for synchronization between data packets sent and reports received.         |
-  /// | 6:7          | Reserved.                                                                                                                                      |
+  /// | 6            | Should be set if the extended descriptor contains channel, tx_power and is_last_packet information                                              |
+  /// | 7            | Should be set if immediate transfer is enabled.                                                                                                 |
   /// @note If addr1 is multicast/broadcast, ctrl_flags bit 1 is ignored, and the frame is sent as a non-QoS frame, that is, QoS control field should not be present in the MAC header.
   uint8_t ctrl_flags;
-  uint8_t reserved1; ///< Reserved
+  /// ctrl_flags1 bit description:
+  /// | Bit position | flags bit description
+  /// |--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+  /// | 0            | Should be set if it is the last packet of that channel.                                                                                                           |
+  /// | 1:7          | Reserved.                                                                                                                                      |
+  uint8_t ctrl_flags1;
   uint8_t reserved2; ///< Reserved
   uint8_t
     priority; ///< Data Packets are queued to respective queue based on priority. Best Effort - 0, Background - 1, Video - 2, Voice - 3
@@ -730,6 +736,8 @@ typedef struct {
   uint8_t addr2[6]; ///< Transmitter MAC address
   uint8_t addr3[6]; ///< Destination MAC address
   uint8_t addr4[6]; ///< Source MAC address. Initialization of addr4 is optional
+  uint8_t channel;  ///< Channel
+  uint8_t tx_power; ///< Transmission power
 } sl_wifi_transceiver_tx_data_control_t;
 
 /**
@@ -848,7 +856,7 @@ typedef struct {
   /// | SL_STATUS_ACK_ERR (0x1)      | Ack error                                                                                                                           |
   /// | SL_STATUS_CS_BUSY (0x2)      | Carrier sense busy                                                                                                                  |
   /// | SL_STATUS_UNKNOWN_PEER (0x3) | If @ref sl_wifi_send_transceiver_data was called for a peer that was not added or was deleted before the data packet was sent out.  |
-  sl_status_t status;
+  uint32_t status;
   /// Rate at which data packet has been sent. Rate is invalid if error is SL_STATUS_CS_BUSY or SL_STATUS_UNKNOWN_PEER.
   uint32_t rate;
   /// Priority used for the data packet from control->priority in the corresponding call to @ref sl_wifi_send_transceiver_data.
@@ -869,7 +877,7 @@ typedef struct {
   /// | :----------------------------| :------------------------------------------------------------------------------------------------------------------------------------|
   /// | SL_STATUS_OK (0x0)           | Success                                                                                                                              |
   /// | SL_STATUS_UNKNOWN_PEER (0x3) | If SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT feature is enabled and data packet is received from a peer not present in MAC layer |
-  sl_status_t status;
+  uint32_t status;
   /// RSSI of the received 802.11 frame. This field is valid only if status is set to success.
   int8_t rssi;
   /// Rate of the received 802.11 frame as per @ref sl_wifi_data_rate_t. This field is valid only if status is set to success.

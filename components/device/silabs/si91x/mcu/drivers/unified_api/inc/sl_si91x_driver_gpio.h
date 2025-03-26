@@ -907,6 +907,8 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
  *         - SL_STATUS_OK   - Success. 
  *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
  * 
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt`.
+ * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
@@ -924,6 +926,8 @@ sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_inter
  * @return Status code indicating the result:
  *        - SL_STATUS_OK   - Success. 
  *        - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
+ *
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_driver_mask_clear_uulp_npss_interrupt`.
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -944,9 +948,63 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
  *         - SL_STATUS_OK   - Success. 
  *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
  * 
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_driver_clear_uulp_npss_interrupt`.
+ * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
+
+/***************************************************************************/ /**
+ * @brief       Mask the selected NPSS GPIO interrupt.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock() 
+ * -   sl_si91x_gpio_set_uulp_pad_configuration()
+ * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
+ * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
+ * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
+ * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4) to be masked \ref sl_si91x_uulp_gpio_interrupt_t
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK   - Success. 
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
+ *
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
+
+/***************************************************************************/ /**
+ * @brief       Unmask the selected NPSS GPIO interrupt.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock()
+ * -   sl_si91x_gpio_set_uulp_pad_configuration() 
+ * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
+ * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
+ * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
+ * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4) to be unmasked \ref sl_si91x_uulp_gpio_interrupt_t
+ * @return Status code indicating the result:
+ *        - SL_STATUS_OK   - Success. 
+ *        - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_mask_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
+
+/***************************************************************************/ /**
+ * @brief    Clear the selected NPSS GPIO interrupt.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock() 
+ * -   sl_si91x_gpio_set_uulp_pad_configuration()
+ * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
+ * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
+ * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction()
+ * -   sl_si91x_gpio_configure_uulp_interrupt() 
+ * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4) to be cleared \ref sl_si91x_uulp_gpio_interrupt_t
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK   - Success. 
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument. 
+ *
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
  * @brief     Get the current status of all the NPSS GPIO interrupt status.

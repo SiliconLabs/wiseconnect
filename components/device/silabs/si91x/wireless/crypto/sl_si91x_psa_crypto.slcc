@@ -21,6 +21,7 @@ include:
 
 requires:
 - name: sl_si91x_crypto
+- name: psa_crypto
 
 template_contribution:
 - name: mbedtls_config

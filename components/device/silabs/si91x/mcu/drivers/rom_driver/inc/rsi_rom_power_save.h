@@ -119,7 +119,7 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
                                                           uint8_t taRamRetEnable,
                                                           uint8_t M4RamRetEnable)
 {
-  // TODO: Check  silicon rev from flash/efuse offset; for 1.4V do this programming
+  // Check silicon rev from flash/efuse offset; for 1.4V do this programming
   if (SiliconRev >= 0x14) {
     if (taRamRetEnable) {
       MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |= HPSRAM_RET_ULP_MODE_EN;
@@ -188,15 +188,14 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig_bypass(uint32_t stack_address,
                                                       uint32_t mode)
 {
   UNUSED_PARAMETER(vector_offset);
-  qspi_reg_t *qspi_reg2 = (qspi_reg_t *)M4SS_PSRAM_QSPI_BASE_ADDRESS;
+  const qspi_reg_t *qspi_reg2 = (const qspi_reg_t *)M4SS_PSRAM_QSPI_BASE_ADDRESS;
   if (mode == RSI_WAKEUP_WITH_RETENTION) {
     *(uint32 *)RSI_WAKE_FROM_FLASH_JUMP_ADDR = jump_cb_address;
   } else {
-    if (MCURET_BOOTSTATUS_REG & BIT(13) || (M4_BBFF_STORAGE1 & PSRAM_SEC_EN)) {
-      if (((((qspi_reg_t *)QSPI)->QSPI_AES_CONFIG) & QSPI_KEY_SIZE_256)
-          || ((qspi_reg2->QSPI_AES_CONFIG) & QSPI_KEY_SIZE_256)) {
-        M4_BBFF_STORAGE1 |= KEY_LENGTH;
-      }
+    if ((MCURET_BOOTSTATUS_REG & BIT(13) || (M4_BBFF_STORAGE1 & PSRAM_SEC_EN))
+        && (((((qspi_reg_t *)QSPI)->QSPI_AES_CONFIG) & QSPI_KEY_SIZE_256)
+            || ((qspi_reg2->QSPI_AES_CONFIG) & QSPI_KEY_SIZE_256))) {
+      M4_BBFF_STORAGE1 |= KEY_LENGTH;
     }
     M4_BBFF_STORAGE1 &= ~(0xffUL << STACK_AND_CB_ADDR_BIT_NO);
     //! Keeping stack address with 2k granularity.

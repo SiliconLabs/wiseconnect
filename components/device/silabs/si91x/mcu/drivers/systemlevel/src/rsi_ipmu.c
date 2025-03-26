@@ -652,17 +652,17 @@ uint32_t RSI_IPMU_32MHzClkClib(void)
 
 rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config)
 {
-  volatile uint32_t index          = 0;
-  volatile uint32_t program_len    = 0;
-  volatile uint32_t reg_addr       = 0;
-  volatile uint32_t reg_write_data = 0;
-  volatile uint32_t clear_cnt      = 0;
-  volatile uint32_t cnt            = 0;
-  volatile uint32_t reg_read_data  = 0;
-  volatile uint32_t write_mask     = 0;
-  volatile uint32_t write_bit_pos  = 0;
-  volatile uint8_t msb             = 0;
-  volatile uint8_t lsb             = 0;
+  uint32_t index          = 0;
+  uint32_t program_len    = 0;
+  uint32_t reg_addr       = 0;
+  uint32_t reg_write_data = 0;
+  uint32_t clear_cnt      = 0;
+  uint32_t cnt            = 0;
+  uint32_t reg_read_data  = 0;
+  uint32_t write_mask     = 0;
+  uint32_t write_bit_pos  = 0;
+  uint8_t msb             = 0;
+  uint8_t lsb             = 0;
 
   if (config == NULL) {
     return INVALID_PARAMETERS;
@@ -714,18 +714,15 @@ rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config)
 
 uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
 {
-  volatile uint32_t index          = 0;
-  volatile uint32_t program_len    = 0;
-  volatile uint32_t reg_addr       = 0;
-  volatile uint32_t clear_cnt      = 0;
-  volatile uint32_t cnt            = 0;
-  volatile uint32_t reg_write_data = 0;
-  volatile uint32_t reg_read_data  = 0;
-  volatile uint32_t write_mask     = 0;
-  volatile uint32_t write_bit_pos  = 0;
-  volatile uint8_t msb             = 0;
-  volatile uint8_t lsb             = 0;
-  (void)reg_addr;
+  uint32_t index          = 0;
+  uint32_t program_len    = 0;
+  uint32_t clear_cnt      = 0;
+  uint32_t cnt            = 0;
+  uint32_t reg_write_data = 0;
+  uint32_t write_mask     = 0;
+  uint32_t write_bit_pos  = 0;
+  uint8_t msb             = 0;
+  uint8_t lsb             = 0;
 
   if (config == NULL) {
     return INVALID_PARAMETERS;
@@ -736,7 +733,6 @@ uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
     return INVALID_PARAMETERS;
   }
   for (index = 0; index < program_len; index++) {
-
     reg_write_data = config[2U * (index + 1)];
 
     lsb = ((reg_write_data >> LSB_POSITION) & POSITION_BITS_MASK);
@@ -758,7 +754,7 @@ uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
     } while (cnt < (clear_cnt + lsb));
     reg_write_data &= write_mask;
     /*Write to the hardware register*/
-    reg_write_data = (reg_read_data | (reg_write_data << lsb));
+    reg_write_data = reg_write_data << lsb;
   }
   return reg_write_data;
 }
@@ -1400,7 +1396,7 @@ void RSI_IPMU_32KHzROClkClib(void)
     /* Read calibrated trim value after low frequency calibration done */
     ro32k_trim = ((ULP_SPI_MEM_MAP(ULPCLKS_CALIB_DONE_REG_ADDR) & RO_TRIM_VALUE_LF) >> 4);
     /*Mask the bits where the trim value need to write */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &= (uint32_t)(~(MASK32KRO_TRIM_VALUE_WRITE_BITS));
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &= (uint32_t)(~MASK32KRO_TRIM_VALUE_WRITE_BITS);
     /* Programming the calibrated trim to SPI register. */
     ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= (ro32k_trim << 16);
     /*  trim given from spi goes to the block */
@@ -1414,7 +1410,7 @@ void RSI_IPMU_32KHzROClkClib(void)
     }
     /* Check if it is greater than a particular value */
     if (no_of_tst_clk_khz_ro > PARTICULAR_FREQ_MAX) {
-      ULP_SPI_MEM_MAP(iPMU_SPARE_REG1_OFFSET) &= ~((BIT(18) | BIT(19)));
+      ULP_SPI_MEM_MAP(iPMU_SPARE_REG1_OFFSET) &= ~(BIT(18) | BIT(19));
     }
   } while ((no_of_tst_clk_khz_ro < PARTICULAR_FREQ_MIN) || (no_of_tst_clk_khz_ro > PARTICULAR_FREQ_MAX));
 
@@ -1467,7 +1463,7 @@ void RSI_IPMU_32KHzRCClkClib(void)
     }
     /* Check if it is greater than a particular value */
     if (no_of_tst_clk_khz_rc > PARTICULAR_FREQ_MAX) {
-      ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) &= ~((BIT(12) | BIT(13)));
+      ULP_SPI_MEM_MAP(ULPCLKS_32KRC_CLK_REG_OFFSET) &= ~(BIT(12) | BIT(13));
     }
   } while ((no_of_tst_clk_khz_rc < PARTICULAR_FREQ_MIN) || (no_of_tst_clk_khz_rc > PARTICULAR_FREQ_MAX));
 
@@ -1644,7 +1640,7 @@ uint32_t RSI_Clks_Calibration(INPUT_CLOCK_T inputclk, SLEEP_CLOCK_T sleep_clk_ty
   while (!M4CLK->CLK_CALIB_STS_REG1_b.CC_DONE_b)
     ;
 
-  if ((M4CLK->CLK_CALIB_STS_REG1_b.CC_ERROR_b)) {
+  if (M4CLK->CLK_CALIB_STS_REG1_b.CC_ERROR_b) {
     M4CLK->CLK_CALIB_CTRL_REG1_b.CC_SOFT_RST_b = 0x1;
   }
 

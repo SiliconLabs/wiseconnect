@@ -277,9 +277,9 @@ sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_
  *   Get time and date information from NTP.
  * 
  * @details
- *   The function retrieves the current NTP epoch time and date. It operates in synchronous and asynchronous mode based on the timeout value.
+ *   The function retrieves the current NTP epoch time and date. It operates in synchronous, and asynchronous mode based on the timeout value.
  *   - **Synchronous Mode:** If the timeout value is non-zero then, function waits for the response until the timeout occurs. It returns the value in the provided data buffer.
- *   - **Asynchronous Mode:** If the timeout value is zero then, function returns immediately, It returns the value via the @ref sl_sntp_client_event_handler_t callback.
+ *   - **Asynchronous Mode:** If the timeout value is zero then, function returns immediately. It returns the value via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @param[in] data		      
  *    A valid pointer to a data buffer must have value greater than or equal to 50 bytes. In synchronous mode, the time and date parameters are return in string format in the buffer. In asynchronous mode, the parameter is specified by the user via a user_data parameter of the event handler.

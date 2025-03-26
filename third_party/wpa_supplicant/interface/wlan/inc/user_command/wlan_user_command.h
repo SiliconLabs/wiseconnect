@@ -79,6 +79,15 @@
 #define EXT_FEAT_WAKEFI_WURX_ENABLE BIT(30)
 #endif
 
+// Region codes for Gain Table Command
+#define REGION_FCC        0
+#define REGION_ETSI       1
+#define REGION_TELEC      2
+#define REGION_WORLD_WIDE 3
+#define REGION_KCC        4
+#define REGION_WORLD_SAFE 5
+#define REGION_SRRC       6
+
 /* Reg Domain */
 #define REGION_US_NUM   1
 #define REGION_EU_NUM   2
@@ -88,6 +97,7 @@
 #ifdef REGION_CONFIG_DISABLE_FOR_ACX
 #define REGION_US_MIX_NUM 6
 #endif /* REGION_CONFIG_DISABLE_FOR_ACX */
+#define REGION_CN_NUM 7
 
 /* SET_REGION Command Errors */
 

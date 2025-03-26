@@ -88,11 +88,11 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/sl_si91x_etm/component
   - path: components/device/silabs/si91x/mcu/drivers/service/littlefs/component
   - path: components/device/silabs/si91x/mcu/drivers/service/cpc/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/component
   - path: components/device/silabs/si91x/mcu/core/chip/component
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/core/cmsis/component
   - path: components/device/silabs/si91x/mcu/core/config/component
-  - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/hal/component
   - path: components/segger_sysview
   - path: third_party/aws_sdk

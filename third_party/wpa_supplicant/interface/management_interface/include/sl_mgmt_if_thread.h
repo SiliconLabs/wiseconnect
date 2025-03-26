@@ -22,9 +22,6 @@
 #define SL_WLAN_MGMT_IF_TX_PKT_STRUCT_SIZE sizeof(sl_wlan_mgmt_if_tx_pkt_t)
 #define SL_WLAN_MGMT_IF_RX_PKT_STRUCT_SIZE sizeof(sl_wlan_mgmt_if_rx_pkt_t)
 
-#define SL_WLAN_MGMT_IF_TX_HOST_DESC_OFFSET (SL_WLAN_MGMT_IF_TX_PKT_STRUCT_SIZE - HOST_DESC_LENGTH)
-#define SL_WLAN_MGMT_IF_RX_HOST_DESC_OFFSET (SL_WLAN_MGMT_IF_RX_PKT_STRUCT_SIZE - HOST_DESC_LENGTH)
-
 #define sl_wlan_mgmt_if_pkt_priority_t sli_nhcp_pkt_priority_t
 #define WLAN_MGMT_IF_HIGH_PRIORITY     NHCP_HIGH_PRIORITY
 #define WLAN_MGMT_IF_LOW_PRIORITY      NHCP_LOW_PRIORITY

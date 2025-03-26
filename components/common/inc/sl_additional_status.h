@@ -368,7 +368,10 @@
 #define SL_STATUS_SI91X_FLASH_WRITE_OR_FLASH_DATA_VERIFICATION_FAILED \
   ((sl_status_t)0x100F8) ///< Unable to write to flash OR flash data verification failed.
 #define SL_STATUS_SI91X_CALIBRATION_DATA_VERIFICATION_FAILED \
-  ((sl_status_t)0x100F9)                                                ///< Calibration data verification failed.
+  ((sl_status_t)0x100F9)                                               ///< Calibration data verification failed.
+#define SL_STATUS_SI91X_EVM_INDEX_LIMIT_REACHED ((sl_status_t)0x100FD) ///< EVM index limit reached.
+#define SL_STATUS_SI91X_EFUSE_ALREADY_POPULATED \
+  ((sl_status_t)0x100FA) ///< Efuse data is already populated. Write prohibited.
 #define SL_STATUS_SI91X_SNMP_INTERNAL_ERROR      ((sl_status_t)0x10100) ///< SNMP internal error.
 #define SL_STATUS_SI91X_SNMP_INVALID_IP_PROTOCOL ((sl_status_t)0x10104) ///< SNMP invalid IP protocol error.
 #define SL_STATUS_SI91X_UNSUPPORTED_PWR_IDX_915  ((sl_status_t)0x10105) ///< Unsupported power index for 915
@@ -481,6 +484,28 @@
 #define SL_STATUS_SI91X_FW_UP_WRONG_PACKET_INFO ((sl_status_t)0x1DD40) ///< Wrong packet info.
 #define SL_STATUS_SI91X_INVALID_LENGTH \
   ((sl_status_t)0x1DD41) ///< All payload chunks length together can't be greater than total image size in header, during firmware upgradation.
+
+//FW fallback error codes
+#define SL_STATUS_SI91X_AB_FALLBACK_NOT_ENABLED ((sl_status_t)0x1DD0A) ///< AB fall-back feature is not enabled
+#define SL_STATUS_SI91X_INVALID_ERASE_LENGTH_OR_ADDRESS \
+  ((sl_status_t)0x1DD0C) ///< Invalid erase length or address specified for the operation
+#define SL_STATUS_SI91X_INVALID_READ_OR_WRITE_REQUEST \
+  ((sl_status_t)0x1DD0D) ///< The read or write request is invalid or not supported
+#define SL_STATUS_SI91X_INVALID_FLASH_RANGE \
+  ((sl_status_t)0x1DD0E) ///< The specified flash range is invalid or out of bounds
+#define SL_STATUS_SI91X_FLASH_ADDRESS_OUT_OF_BOUNDARY \
+  ((sl_status_t)0x1DD0F) ///< The flash address is out of the allowable boundary
+#define SL_STATUS_SI91X_INVALID_OPERATION_ON_NWP_ACTIVE_IMAGE \
+  ((sl_status_t)0x1DD10) ///< Operation attempted on an active NWP image which is not allowed
+#define SL_STATUS_SI91X_MAX_INPUT_LENGTH_EXCEED_1K_SIZE \
+  ((sl_status_t)0x1DD11) ///< The input length exceeds the maximum allowed size of 1KB
+#define SL_STATUS_SI91X_INVALID_FW_ROLLBACK_SUBCOMMAND \
+  ((sl_status_t)0x1DD12) ///< The sub-command for firmware fallback is invalid
+#define SL_STATUS_SI91X_INVALID_CONFIG_FOR_FW_ROLLBACK \
+  ((sl_status_t)0x1DD13) ///< The configuration for firmware fallback is invalid, applicable for 8MB SoC common-flash
+
+#define SL_STATUS_SI91X_FW_UP_CORRUPTED_RPS_HEADER \
+  ((sl_status_t)0x1DD49) ///< Corrupted RPS header encountered or Received empty RPS file(no data) during firmware update.
 #define SL_STATUS_SI91X_SOCKET_NOT_CONNECTED \
   ((sl_status_t)0x1FFFF) ///< Listening TCP socket in device is not connected to the remote peer, or the LTCP socket is not yet opened in the device.
 #define SL_STATUS_SI91X_SOCKET_LIMIT_EXCEEDED \

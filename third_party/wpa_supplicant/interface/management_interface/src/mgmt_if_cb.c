@@ -435,7 +435,8 @@ void wpas_start_wps_apconf(void *wpa_ctx)
 
   if (ap_conf->security_type == SEC_MODE_WPA) {
     ssid->proto = WPA_PROTO_WPA;
-  } else if ((ap_conf->security_type == SEC_MODE_WPA2) || (ap_conf->security_type == SEC_MODE_WPA3)) {
+  } else if ((ap_conf->security_type == SEC_MODE_WPA2) || (ap_conf->security_type == SEC_MODE_WPA3)
+             || (ap_conf->security_type == SEC_MODE_WPA3_TRANSITION)) {
     ssid->proto = WPA_PROTO_RSN;
   }
 
@@ -695,11 +696,10 @@ int wpa_driver_rsi_join(void *priv, void *params_p)
     uJoinFrame->joinFrameSnd.nwType = LMAC_OP_AP;
     mgmt_if_adapter.ap_mode_set     = 1;
 
-    if (params->key_mgmt_suite != KEY_MGMT_NONE) {
-      if (mgmt_if_adapter.sec_type_enable == 1)
-        mgmt_hm_load_ap_caps(IEEE80211_F_PRIVACY | IEEE80211_F_WPA1);
-      else if ((mgmt_if_adapter.sec_type_enable == 2) || (mgmt_if_adapter.sec_type_enable == 7))
-        mgmt_hm_load_ap_caps(IEEE80211_F_PRIVACY | IEEE80211_F_WPA2);
+    if (mgmt_if_adapter.sec_type_enable == SEC_MODE_WPA) {
+      mgmt_hm_load_ap_caps(IEEE80211_F_PRIVACY | IEEE80211_F_WPA1);
+    } else if ((mgmt_if_adapter.sec_type_enable != SEC_MODE_OPEN)) {
+      mgmt_hm_load_ap_caps(IEEE80211_F_PRIVACY | IEEE80211_F_WPA2);
     } else {
       mgmt_hm_load_ap_caps(0);
     }
@@ -2124,13 +2124,7 @@ int16 process_mbss_scan_results(uint8 *buf, uint16 ies_len, uint8 *result_data)
       }
       // mark parsed NT index to discard any duplicate index found
       parsed_nt_indices |= (1 << mb_inx_ie[2]);
-      if (((mgmt_if_adapter.state >= WISE_STATE_CONNECTED) && (mgmt_if_adapter.multi_probe == 1))
-          || (mgmt_if_adapter.ssid_len == 0)
-          || ((mgmt_if_adapter.ssid_len == nt_sub_profile[5])
-              && (sl_memcmp((uint8 *)&nt_sub_profile[6],
-                            (uint8 *)sl_get_ssid_from_mgmt_if_adapter(),
-                            mgmt_if_adapter.ssid_len)
-                  == 0))) {
+      if (check_ssid_match(&nt_sub_profile[5])) {
         result->mbssid_params.mbssid_index = mb_inx_ie[2];
         sl_memzero(new_bss, ies_len); // new_bss initial length
         // generate IEs for NT profile

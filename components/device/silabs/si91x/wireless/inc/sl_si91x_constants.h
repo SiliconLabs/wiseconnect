@@ -35,6 +35,10 @@
 /// Load NWP firmware.
 #define LOAD_NWP_FW '1'
 
+#define NWP_FW_LOAD_CMD       0x41 ///< Command to update the NWP firmware
+#define NWP_FW_IMAGE_NUMBER_0 0    ///< Image number for the first NWP firmware image
+#define NWP_FW_IMAGE_NUMBER_1 1    ///< Image number for the second NWP firmware image
+
 /// Load default NWP firmware active low.
 /// @note This is ONLY applicable in Network Co-Processor (NCP) mode for Si91x devices.
 #define LOAD_DEFAULT_NWP_FW_ACTIVE_LOW 0x71
@@ -62,6 +66,16 @@
 /// Bitmap to enable TLS version 1.3
 #define SL_SI91X_TLS_V_1_3 BIT(8)
 #endif
+
+/// Bitmap to enable DTLS version 1.0
+#define SL_SI91X_DTLS_V_1_0 BIT(2)
+
+/// Bitmap to enable DTLS version 1.2
+#define SL_SI91X_DTLS_V_1_2 BIT(3)
+
+/// Bit to enable DTLS feature
+#define SL_SI91X_ENABLE_DTLS BIT(13)
+
 /** @} */
 
 /** \addtogroup SI91X_HTTP_CLIENT_DEFINE
@@ -413,13 +427,14 @@ typedef enum {
   RSI_COMMON_REQ_PUF_INTR_KEY    = 0xCE
 #endif
   ,
-  RSI_COMMON_REQ_SWITCH_PROTO  = 0x77,
-  RSI_COMMON_REQ_GET_RAM_DUMP  = 0x92,
-  RSI_COMMON_REQ_ASSERT        = 0xE1,
-  RSI_COMMON_REQ_SET_RTC_TIMER = 0xE9,
-  RSI_COMMON_REQ_GET_RTC_TIMER = 0xF2,
-  RSI_COMMON_REQ_SET_CONFIG    = 0xBA,
-  RSI_COMMON_REQ_GET_CONFIG    = 0x0C
+  RSI_COMMON_REQ_SWITCH_PROTO         = 0x77,
+  RSI_COMMON_REQ_GET_RAM_DUMP         = 0x92,
+  RSI_COMMON_REQ_ASSERT               = 0xE1,
+  RSI_COMMON_REQ_SET_RTC_TIMER        = 0xE9,
+  RSI_COMMON_REQ_GET_RTC_TIMER        = 0xF2,
+  RSI_COMMON_REQ_SET_CONFIG           = 0xBA,
+  RSI_COMMON_REQ_GET_CONFIG           = 0x0C,
+  SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST = 0x2C,
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_REQ_GPIO_CONFIG = 0x28
@@ -471,15 +486,16 @@ typedef enum {
 #endif
   // Reusing RSI_WLAN_REQ_FW_VERSION as RSI_COMMON_REQ_FW_VERSION
   ,
-  RSI_COMMON_RSP_GET_EFUSE_DATA = 0xA0,
-  RSI_COMMON_RSP_FW_VERSION     = 0x49,
-  RSI_COMMON_RSP_SWITCH_PROTO   = 0x77,
-  RSI_COMMON_RSP_GET_RAM_DUMP   = 0x92,
-  RSI_COMMON_RSP_ASSERT         = 0xE1,
-  RSI_COMMON_RSP_SET_RTC_TIMER  = 0xE9,
-  RSI_COMMON_RSP_GET_RTC_TIMER  = 0xF2,
-  RSI_COMMON_RSP_SET_CONFIG     = 0xBA,
-  RSI_COMMON_RSP_GET_CONFIG     = 0x0C
+  RSI_COMMON_RSP_GET_EFUSE_DATA       = 0xA0,
+  RSI_COMMON_RSP_FW_VERSION           = 0x49,
+  RSI_COMMON_RSP_SWITCH_PROTO         = 0x77,
+  RSI_COMMON_RSP_GET_RAM_DUMP         = 0x92,
+  RSI_COMMON_RSP_ASSERT               = 0xE1,
+  RSI_COMMON_RSP_SET_RTC_TIMER        = 0xE9,
+  RSI_COMMON_RSP_GET_RTC_TIMER        = 0xF2,
+  RSI_COMMON_RSP_SET_CONFIG           = 0xBA,
+  RSI_COMMON_RSP_GET_CONFIG           = 0x0C,
+  SLI_SI91X_FW_FALLBACK_RSP_FROM_HOST = 0x2C,
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_RSP_GPIO_CONFIG = 0x28

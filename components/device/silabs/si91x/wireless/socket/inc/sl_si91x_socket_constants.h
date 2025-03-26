@@ -103,6 +103,9 @@
 #define SL_SI91X_SO_SOCK_VAP_ID                      25 ///< To configure the socket VAP ID
 #define SL_SI91X_SO_TLS_SNI                          47 ///< To configure the TLS SNI extension
 #define SL_SI91X_SO_TLS_ALPN                         50 ///< To configure the TLS ALPN extension
+#define SL_SI91X_SO_DTLS_ENABLE                      51 ///< To enable DTLS
+#define SL_SI91X_SO_DTLS_V_1_0_ENABLE                52 ///< To enable DTLS 1.0
+#define SL_SI91X_SO_DTLS_V_1_2_ENABLE                53 ///< To enable DTLS 1.2
 /** @} */
 
 #define SHUTDOWN_BY_ID   0

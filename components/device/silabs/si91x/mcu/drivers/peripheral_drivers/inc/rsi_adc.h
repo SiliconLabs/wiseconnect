@@ -335,11 +335,11 @@ rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t mode);
 rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t mode);
 rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode);
 rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode);
-rsi_error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
+rsi_error_t RSI_ADC_ExtTrigConfig(const AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
 rsi_error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id);
 rsi_error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel);
-uint8_t RSI_ADC_ExtTrigStatusRead(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
-rsi_error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
+uint8_t RSI_ADC_ExtTrigStatusRead(const AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
+rsi_error_t RSI_ADC_ExtTrigStatusClear(const AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
 #endif
 rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num);
 
@@ -383,7 +383,7 @@ rsi_error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on
 
 rsi_error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-uint32_t RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP_Type *pstcADC);
+uint32_t RSI_ADC_ChnlIntrStatus(const AUX_ADC_DAC_COMP_Type *pstcADC);
 
 void RSI_ADC_PowerControl(POWER_STATE state);
 
@@ -400,7 +400,7 @@ rsi_error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
 
 rsi_error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id);
 
-rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC);
+rsi_error_t RSI_ADC_InterruptHandler(const AUX_ADC_DAC_COMP_Type *pstcADC);
 
 void RSI_ADC_ThreshInterruptClr(AUX_ADC_DAC_COMP_Type *pstcADC);
 
@@ -419,7 +419,7 @@ rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
                              uint16_t an_perif_adc_in_sel,
                              uint8_t an_perif_adc_diffmode);
 
-int16_t RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t data_process_en, uint8_t diff_en);
+int16_t RSI_ADC_ReadDataStatic(const AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t data_process_en, uint8_t diff_en);
 
 int16_t RSI_ADC_GainOffsetCal(int16_t data, uint8_t diff_en);
 

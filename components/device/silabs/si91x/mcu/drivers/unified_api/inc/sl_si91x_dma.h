@@ -266,7 +266,7 @@ extern sl_channel_data_t sl_ulp_dma_channel_allocation_data_t[SL_ULP_DMA_CHANNEL
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init);
+sl_status_t sl_si91x_dma_init(const sl_dma_init_t *dma_init);
 
 /***************************************************************************/
 /**

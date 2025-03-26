@@ -4,7 +4,8 @@
 
 - [Overview](#overview)
 - [Migration Steps](#migration-steps)
-  - [Update Appliction name](#update-application-name)
+  - [Update Application name](#update-application-name)
+  - [Deprecated Macros](#deprecated-macros)
 
 ## Overview
 
@@ -27,4 +28,17 @@ Refer to the tables in each of the sections that follow which map the v3.4.1 API
 
 ### Update Application name
 
+**Note:** The following elements are applicable to both NCP and SoC modes.
+
 - Starting from the 3.4.2 release, the application **wifi_firmware_flashing_from_host_uart_xmodem_bootloader_ncp** has been renamed to **fw_update_bootloader_xmodem** to reduce the application name length and resolve studio build issues caused by long path names.
+
+### Deprecated Macros
+
+**Note:** The following elements are applicable to both NCP and SoC modes.
+
+- Deprecated **SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM** macro.
+  > **Note**: Starting from WC-3.4.2, the SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM macro is deprecated. It is recommended to use the updated macros to ensure compatibility with future releases.
+
+  | **Module**| **v3.4.1**                                       | **v3.4.2**                                           |
+  |-----------|--------------------------------------------------|------------------------------------------------------|
+  | Wi-Fi     | `SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM` | `SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM` |

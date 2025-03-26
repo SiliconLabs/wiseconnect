@@ -189,7 +189,7 @@ typedef struct _I2S_STATUS {
   uint8_t frame_error;                   // Sync Frame error detected (cleared on start of next send/receive operation)
 } I2S_STATUS;
 
-// I2S Information (Run-Time)
+// I2S Information Run Time
 typedef struct _I2S_INFO 
 {
   ARM_SAI_SignalEvent_t   cb_event;      // Event callback

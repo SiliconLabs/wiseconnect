@@ -1127,8 +1127,9 @@ void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
  * This API is used to mask the UULP NPSS GPIO interrupt.
  * Few actions are required to be performed before interrupt mask is performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select the .
+ *
  *  @note: All the UULP interrupts are masked by default.
+ *  @note This function is deprecated and should be replaced with `sl_si91x_gpio_mask_set_uulp_npss_interrupt`.
 *******************************************************************************/
 void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1146,6 +1147,7 @@ void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
  *  - Set the direction of the GPIO pin.
  *  - Un-mask interrupt by setting corresponding bit in register.
  *  @note: All the UULP interrupts are masked by default.
+ *  @note This function is deprecated and should be replaced with `sl_si91x_gpio_mask_clear_uulp_npss_interrupt`.
 *******************************************************************************/
 void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1155,10 +1157,50 @@ void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 
 /*******************************************************************************
  * This API is used to clear the UULP interrupt.
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_clear_uulp_npss_interrupt`.
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt)
 {
   GPIO_NPSS_INTERRUPT_CLEAR_REG = (npssgpio_interrupt << 1);
+}
+
+/*******************************************************************************
+ * This API is used to mask the UULP NPSS GPIO interrupt.
+ * Few actions are required to be performed before interrupt mask is performed,
+ *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
+ *
+ *  @note: All the UULP interrupts are masked by default.
+*******************************************************************************/
+void sl_si91x_gpio_mask_set_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(npssgpio_interrupt));
+  GPIO_NPSS_INTERRUPT_MASK_SET_REG = (BIT(npssgpio_interrupt) << 1);
+}
+
+/*******************************************************************************
+ * This API is used to un-mask the UULP NPSS GPIO interrupt.
+ * Few actions are required to be performed before interrupt un-mask is performed,
+ *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
+ *  - Set UULP PAD configuration register.
+ *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Set the mode of the GPIO pin.
+ *  - Set the direction of the GPIO pin.
+ *  - Un-mask interrupt by setting corresponding bit in register.
+ *  @note: All the UULP interrupts are masked by default.
+*******************************************************************************/
+void sl_si91x_gpio_mask_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(npssgpio_interrupt));
+  GPIO_NPSS_INTERRUPT_MASK_CLR_REG = (BIT(npssgpio_interrupt) << 1);
+}
+
+/*******************************************************************************
+ * This API is used to clear the UULP interrupt.
+*******************************************************************************/
+void sl_si91x_gpio_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(npssgpio_interrupt));
+  GPIO_NPSS_INTERRUPT_CLEAR_REG = (BIT(npssgpio_interrupt) << 1);
 }
 
 /*******************************************************************************
@@ -1196,9 +1238,13 @@ void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_FLAG(flags));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_INTR(npssgpio_interrupt));
-  npssgpio_interrupt = BIT(npssgpio_interrupt);
+
   // Unmask NPSS interrupt
-  sl_si91x_gpio_unmask_uulp_npss_interrupt(npssgpio_interrupt);
+  sl_si91x_gpio_mask_clear_uulp_npss_interrupt(npssgpio_interrupt);
+
+  // need bit position of GPIO number to write into config register
+  npssgpio_interrupt = BIT(npssgpio_interrupt);
+
   // Enable or disable interrupt rising edge in GPIO UULP instance
   if ((flags & SL_GPIO_INTERRUPT_RISING_EDGE) == SL_GPIO_INTERRUPT_RISING_EDGE) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_0);

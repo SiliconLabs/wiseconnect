@@ -2016,6 +2016,13 @@ static void wpa_supplicant_process_3_of_4(struct wpa_sm *sm,
 
 	key_info = WPA_GET_BE16(key->key_info);
 
+#ifdef SUPPLICANT_PORTING
+	// Trigger deauthentication if the PTK install bit is not set in EAPOL-3.
+	if (!(key_info & WPA_KEY_INFO_INSTALL)) {
+		goto failed;
+	}
+#endif
+
 	wpa_hexdump(MSG_DEBUG, "WPA: IE KeyData", key_data, key_data_len);
 	if (wpa_supplicant_parse_ies(key_data, key_data_len, &ie) < 0)
 		goto failed;

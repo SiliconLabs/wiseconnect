@@ -879,24 +879,25 @@ void RSI_OPAMP_InstrAMP(uint8_t vin_p_sel,
 
 /*==============================================*/
 /**   
- * @fn          void RSI_OPAMP1_Config(OPAMP_type *Opamp,uint32_t channel,OPAMP_CONFIG_T *config)
+ * @fn          void RSI_OPAMP1_Config(OPAMP_type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp1 
  * @param[in]   Opamp   : pointer to opamp
  * @param[in]   channel : channel no to set in dynamic mode           
  * @param[in]   config  : pointer to opamp configuration                       
  * @return      none
  */
-void RSI_OPAMP1_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *config)
+void RSI_OPAMP1_Config(OPAMP_Type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
 {
 
   if (config->opamp1.opamp1_dyn_en) {
-    Opamp->OPAMP_1_b.OPAMP1_DYN_EN                                                            = 1;
-    AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP = (uint32_t)((
-      config->opamp1.opamp1_out_mux_sel << 29 | config->opamp1.opamp1_sel_p_mux << 25
-      | config->opamp1.opamp1_sel_n_mux << 22 | config->opamp1.opamp1_out_mux_en << 21
-      | config->opamp1.opamp1_res_to_out_vdd << 20 | config->opamp1.opamp1_res_mux_sel << 17
-      | config->opamp1.opamp1_en_res_bank << 16 | config->opamp1.opamp1_r2_sel << 13
-      | config->opamp1.opamp1_r1_sel << 11 | config->opamp1.opamp1_lp_mode << 10 | config->opamp1.opamp1_enable << 9));
+    Opamp->OPAMP_1_b.OPAMP1_DYN_EN = 1;
+    AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP =
+      (uint32_t)(config->opamp1.opamp1_out_mux_sel << 29 | config->opamp1.opamp1_sel_p_mux << 25
+                 | config->opamp1.opamp1_sel_n_mux << 22 | config->opamp1.opamp1_out_mux_en << 21
+                 | config->opamp1.opamp1_res_to_out_vdd << 20 | config->opamp1.opamp1_res_mux_sel << 17
+                 | config->opamp1.opamp1_en_res_bank << 16 | config->opamp1.opamp1_r2_sel << 13
+                 | config->opamp1.opamp1_r1_sel << 11 | config->opamp1.opamp1_lp_mode << 10
+                 | config->opamp1.opamp1_enable << 9);
   } else {
     Opamp->OPAMP_1_b.OPAMP1_EN_RES_BANK    = config->opamp1.opamp1_en_res_bank;
     Opamp->OPAMP_1_b.OPAMP1_INN_SEL        = config->opamp1.opamp1_sel_n_mux;
@@ -914,14 +915,14 @@ void RSI_OPAMP1_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
 
 /*==============================================*/
 /**   
- * @fn          void RSI_OPAMP2_Config(OPAMP_Type *Opamp,uint32_t channel,OPAMP_CONFIG_T *config)
+ * @fn          void RSI_OPAMP2_Config(OPAMP_Type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp2 
  * @param[in]   Opamp   : pointer to opamp
  * @param[in]   channel : channel no  to set in dynamic mode           
  * @param[in]   config  : pointer to opamp configuration                        
  * @return      none
  */
-void RSI_OPAMP2_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *config)
+void RSI_OPAMP2_Config(OPAMP_Type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
 {
 
   if (config->opamp2.opamp2_dyn_en) {
@@ -949,14 +950,14 @@ void RSI_OPAMP2_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
 
 /*==============================================*/
 /**   
- * @fn          void RSI_OPAMP3_Config(OPAMP_Type *Opamp,uint32_t channel,OPAMP_CONFIG_T *config)
+ * @fn          void RSI_OPAMP3_Config(OPAMP_Type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp3 
  * @param[in]   Opamp   : pointer to opamp
  * @param[in]   channel : channel no to set in dynamic mode           
  * @param[in]   config  : pointer to opamp configuration                        
  * @return      none
  */
-void RSI_OPAMP3_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *config)
+void RSI_OPAMP3_Config(OPAMP_Type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
 {
   if (config->opamp3.opamp3_dyn_en) {
     Opamp->OPAMP_3_b.OPAMP3_DYN_EN = 1;

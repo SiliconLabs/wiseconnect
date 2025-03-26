@@ -52,8 +52,8 @@
 #define GPIO_ULP_INTERRUPT_MAX_VALUE            7  // GPIO interrupt maximum value
 #define GPIO_ULP_MAX_PIN_NUM                    11 // GPIO ULP maximum pin number
 #define GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE 16 // NPSSGPIO maximum value
-#define GPIO_NPSS_WAKEUP_MAX_VALUE              4  //NPSSGPIO maximum value
-#define GPIO_NPSS_PIN_MAX_VALUE                 4  //NPSSGPIO pin maximum value
+#define GPIO_NPSS_WAKEUP_MAX_VALUE              4  // NPSSGPIO maximum value
+#define GPIO_NPSS_PIN_MAX_VALUE                 4  // NPSSGPIO pin maximum value
 #define GPIO_MAX_PAD_NUM                        34 // GPIO maximum pad number
 #define GPIO_MAX_PIN_NUM                        57 // Maximum number of GPIO pins in m4 instance
 
@@ -104,6 +104,9 @@
 #define OUTPUT_VALUE           0  // GPIO output value
 
 #define ULP_PERI_ON_SOC_GPIO_HOST_PAD_PIN_MODE 11 // Pin mode for HP pin to act as ULP pin within the host pad range
+#define ULP_PERI_ON_SOC_GPIO_PORT_B_OFFSET     3  // Offset for PORT_B HP GPIO to act as ULP pin
+#define ULP_PERI_ON_SOC_GPIO_PORT_C_OFFSET     6  // Offset for PORT_C HP GPIO to act as ULP pin
+#define ULP_PERI_ON_SOC_GPIO_PORT_D_OFFSET     10 // Offset for PORT_D HP GPIO to act as ULP pin
 #define SOC_PERI_ON_ULP_GPIO_OFFSET            64 // Offset for ULP GPIO to act as HP pin
 #define ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET   19 // Offset for HP GPIO to act as ULP pin within the host pad range
 #define ULP_PERI_ON_SOC_GPIO_OFFSET            6  // Offset for HP GPIO to act as ULP pin
@@ -1669,8 +1672,9 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
  * Few actions are required to be performed before interrupt mask is
  * performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select the .
+ * 
  *  @note: All the UULP interrupts are masked by default.
+ *  @note This function is deprecated and should be replaced with `sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt`.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1714,6 +1718,7 @@ uint32_t sl_si91x_gpio_driver_get_ulp_interrupt_status(uint32_t flags)
  *  - Set the direction of the GPIO pin.
  *  - Un-mask interrupt by setting corresponding bit in register.
  *  @note: All the UULP interrupts are masked by default.
+ *  @note This function is deprecated and should be replaced with `sl_si91x_gpio_driver_mask_clear_uulp_npss_interrupt`.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1728,6 +1733,7 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
 
 /*******************************************************************************
  * This API is used to clear the UULP interrupt.
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_driver_clear_uulp_npss_interrupt`.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1737,6 +1743,62 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt
   }
   // Clear UULP GPIO interrupt
   sl_si91x_gpio_clear_uulp_interrupt(npssgpio_interrupt);
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * This API is used to mask the UULP NPSS GPIO interrupt.
+ * Few actions are required to be performed before interrupt mask is
+ * performed,
+ *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
+ *
+ *  @note: All the UULP interrupts are masked by default.
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  // Check if npssgpio_interrupt exceeds the maximum allowed
+  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Mask UULP GPIO interrupt
+  sl_si91x_gpio_mask_set_uulp_npss_interrupt(npssgpio_interrupt);
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * This API is used to un-mask the UULP NPSS GPIO interrupt.
+ * Few actions are required to be performed before interrupt un-mask is
+ * performed,
+ *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
+ *  - Set UULP PAD configuration register.
+ *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Set the mode of the GPIO pin.
+ *  - Set the direction of the GPIO pin.
+ *  - Un-mask interrupt by setting corresponding bit in register.
+ *  @note: All the UULP interrupts are masked by default.
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_mask_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  // Check if npssgpio_interrupt exceeds the maximum allowed
+  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Unmask UULP GPIO interrupt
+  sl_si91x_gpio_mask_clear_uulp_npss_interrupt(npssgpio_interrupt);
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * This API is used to clear the UULP interrupt.
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  // Check if npssgpio_interrupt exceeds the maximum allowed
+  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Clear UULP GPIO interrupt
+  sl_si91x_gpio_clear_uulp_npss_interrupt(npssgpio_interrupt);
   return SL_STATUS_OK;
 }
 
@@ -1899,25 +1961,25 @@ void GRP_IRQ1_Handler(void)
 void UULP_PIN_IRQ_Handler(void)
 {
   uint32_t flag = 0;
-  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_1) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_1);
-    flag = PIN_INTR_0;
+  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_0_STATUS_BIT) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_npss_interrupt(UULP_GPIO_INTERRUPT_0);
+    flag = UULP_GPIO_INTERRUPT_0;
   }
-  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_2) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_2);
-    flag = PIN_INTR_1;
+  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_1_STATUS_BIT) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_npss_interrupt(UULP_GPIO_INTERRUPT_1);
+    flag = UULP_GPIO_INTERRUPT_1;
   }
-  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_3) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_3);
-    flag = PIN_INTR_2;
+  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_2_STATUS_BIT) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_npss_interrupt(UULP_GPIO_INTERRUPT_2);
+    flag = UULP_GPIO_INTERRUPT_2;
   }
-  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_4) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_4);
-    flag = PIN_INTR_3;
+  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_3_STATUS_BIT) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_npss_interrupt(UULP_GPIO_INTERRUPT_3);
+    flag = UULP_GPIO_INTERRUPT_3;
   }
-  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_5) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_5);
-    flag = PIN_INTR_4;
+  if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_4_STATUS_BIT) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_npss_interrupt(UULP_GPIO_INTERRUPT_4);
+    flag = UULP_GPIO_INTERRUPT_4;
   }
   if (gpio_uulp_pin_int_callback_fptr[flag] != NULL) {
     gpio_uulp_pin_int_callback_fptr[flag](flag);
@@ -2173,30 +2235,55 @@ sl_status_t sl_si91x_gpio_driver_set_ulp_peri_on_soc_pin_mode(sl_gpio_t *gpio, s
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
   }
-  // If the high power pin should be configured as a ULP pin
-  // Check if the pin is within the host pad range
-  if (gpio->pin >= HOST_PAD_MIN && gpio->pin <= HOST_PAD_MAX) {
+  //Setting offset value for PORT_A HP GPIO to act as ULP pin
+  if (gpio->port == SL_GPIO_PORT_A) {
+    // If the high power pin should be configured as a ULP pin
+    // Check if the pin is within the host pad range
+    if (gpio->pin >= HOST_PAD_MIN && gpio->pin <= HOST_PAD_MAX) {
+      // Set pin mode(mode 11) for HP pin to act as ULP pin
+      sl_gpio_set_pin_mode(gpio->port, gpio->pin, ULP_PERI_ON_SOC_GPIO_HOST_PAD_PIN_MODE, OUTPUT_VALUE);
+      // Set pin mode for corresponding ULP pin
+      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET, 0, OUTPUT_VALUE);
+      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET, mode);
+    } else {
+      // If not host pad pin then set pin mode (mode 9) for HP pin to act as ULP pin
+      sl_gpio_set_pin_mode(gpio->port, gpio->pin, SL_GPIO_MODE_9, OUTPUT_VALUE);
+      if (gpio->pin == 15) {
+        // Set pin mode for pin 15, exception because the offset is different from others
+        sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET, 0, OUTPUT_VALUE);
+        sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET, mode);
+      } else if (gpio->pin >= ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+                 && gpio->pin <= ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+        // Set pin mode for specific range of pins
+        sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET, 0, OUTPUT_VALUE);
+        sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET, mode);
+      } else {
+        // Set pin mode for other pins
+        sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_OFFSET, 0, OUTPUT_VALUE);
+        sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_OFFSET, mode);
+      }
+    }
+  } else if (gpio->port == SL_GPIO_PORT_B) { //Setting offset value for PORT_B HP GPIO to act as ULP pin
+    // If the high power pin should be configured as a ULP pin
     // Set pin mode(mode 11) for HP pin to act as ULP pin
     sl_gpio_set_pin_mode(gpio->port, gpio->pin, ULP_PERI_ON_SOC_GPIO_HOST_PAD_PIN_MODE, OUTPUT_VALUE);
     // Set pin mode for corresponding ULP pin
-    sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET, 0, OUTPUT_VALUE);
-    sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_HOST_PAD_OFFSET, mode);
+    sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_PORT_B_OFFSET, 0, OUTPUT_VALUE);
+    sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_PORT_B_OFFSET, mode);
   } else {
-    // If not host pad pin then set pin mode (mode 9) for HP pin to act as ULP pin
-    sl_gpio_set_pin_mode(gpio->port, gpio->pin, SL_GPIO_MODE_9, OUTPUT_VALUE);
-    if (gpio->pin == 15) {
-      // Set pin mode for pin 15, exception because the offset is different from others
-      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET, 0, OUTPUT_VALUE);
-      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_PIN15_OFFSET, mode);
-    } else if (gpio->pin >= ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
-               && gpio->pin <= ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
-      // Set pin mode for specific range of pins
-      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET, 0, OUTPUT_VALUE);
-      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_OFFSET, mode);
-    } else {
-      // Set pin mode for other pins
-      sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_OFFSET, 0, OUTPUT_VALUE);
-      sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_OFFSET, mode);
+    if (gpio->port == SL_GPIO_PORT_C) { //Setting offset value for PORT_C HP GPIO to act as ULP pin
+      if ((gpio->pin == 14) || (gpio->pin == 15)) {
+        // Set pin mode for specific range of pins
+        sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin - ULP_PERI_ON_SOC_GPIO_PORT_C_OFFSET, 0, OUTPUT_VALUE);
+        sl_si91x_gpio_ulp_soc_mode(gpio->pin - ULP_PERI_ON_SOC_GPIO_PORT_C_OFFSET, mode);
+      }
+    }
+    if (gpio->port == SL_GPIO_PORT_D) { //Setting offset value for PORT_D HP GPIO to act as ULP pin
+      if ((gpio->pin == 0) || (gpio->pin == 1)) {
+        // Set pin mode for specific range of pins
+        sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, gpio->pin + ULP_PERI_ON_SOC_GPIO_PORT_D_OFFSET, 0, OUTPUT_VALUE);
+        sl_si91x_gpio_ulp_soc_mode(gpio->pin + ULP_PERI_ON_SOC_GPIO_PORT_D_OFFSET, mode);
+      }
     }
   }
   return status;

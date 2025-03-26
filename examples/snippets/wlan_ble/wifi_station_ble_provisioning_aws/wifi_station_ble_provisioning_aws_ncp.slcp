@@ -115,6 +115,7 @@ other_file:
   - path: resources/readme/aws_create_policy.png
   - path: resources/readme/aws_iot_mqtt_host_url.png
   - path: resources/readme/dut_scan_result.png
+  - path: resources/readme/pm_wakeup_configuration.png
 ui_hints:
   highlight:
     - path: readme.md

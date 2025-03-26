@@ -42,9 +42,6 @@ extern void wpas_mbo_non_pref_chan_changed(struct wpa_supplicant *wpa_s);
 extern int wpa_non_pref_chan_cmp(const void *_a, const void *_b);
 extern int wpa_non_pref_chan_is_eq(struct wpa_mbo_non_pref_channel *a, struct wpa_mbo_non_pref_channel *b);
 
-#ifdef SUPPLICANT_NON_ROM
-extern unsigned long os_random(void);
-#endif
 void supp_wps_mem_init(uint32 size)
 {
   wps_mem_init(size);

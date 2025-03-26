@@ -88,6 +88,9 @@
 
 #define SI91X_MAX_CERT_SEND_SIZE 1400
 
+// User gain table related
+#define SLI_MAX_GAIN_TABLE_SIZE_WITH_SU_TB 160
+
 /** NOTE: For power save related info
  * https://confluence.silabs.com/pages/viewpage.action?spaceKey=RPD&title=Master+++Power+Save+modes
  * https://confluence.silabs.com/display/RPD/Master+WLAN+APIs#MasterWLANAPIs-rsi_wlan_power_save_profile
@@ -710,7 +713,6 @@ typedef struct {
 /// disassociate command request structure
 #pragma pack(1)
 typedef struct {
-  // FIXME: Enumerate
   /// 0- Module in Client mode, 1- AP mode
   uint16_t mode_flag;
 
@@ -1276,9 +1278,11 @@ typedef struct {
   uint8_t band;         ///< band value
   uint8_t bandwidth;    ///< bandwidth value
   uint16_t size;        ///< payload size
-  uint32_t reserved;    ///< Reserved
+  uint8_t x_offset;     ///< X: bump up offset for 52 tone RU
+  uint8_t y_offset;     ///< Y: bump up offset for 106 tone RU
+  uint16_t reserved;    ///< Reserved
   uint8_t gain_table[]; ///< payload
-} sl_si91x_gain_table_info_t;
+} sli_si91x_gain_table_info_t;
 
 /// Si91x specific 11AX configuration parameters
 typedef struct {
@@ -1364,6 +1368,11 @@ typedef struct {
   uint16_t output_buffer_length;
 
 } SL_ATTRIBUTE_PACKED sl_si91x_read_flash_request_t;
+
+typedef struct {
+  // sub_cmd
+  uint8_t sub_cmd;
+} SL_ATTRIBUTE_PACKED sli_si91x_read_status_t;
 
 #endif // SLI_SI91X_MCU_INTERFACE
 

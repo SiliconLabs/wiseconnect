@@ -100,7 +100,7 @@ sl_config_timer_config_t ct_configuration = {
 };
 
 // <<< sl:start pin_tool >>>
-// <sct signal=IN0,OUT0,OUT1> SL_SCT
+// <sct signal=IN0,(OUT0),(OUT1)> SL_SCT
 // $[SCT_SL_SCT]
 #ifndef SL_SCT_PERIPHERAL
 #define SL_SCT_PERIPHERAL SCT

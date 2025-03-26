@@ -56,99 +56,41 @@ const sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
 
 #define BAND_VALUE 1
 
-uint8_t gain_table_payload[] = {
-  //{{{
-  4, //NUM_OF_REGIONS
-  0,
-  0xB, //NUM_OF_CHANNELS
-       //   rate,  11b, 11g, 11n, 11ax
-  1,
-  34,
-  26,
-  24,
-  22,
-  2,
-  36,
-  30,
-  30,
-  28,
-  3,
-  40,
-  34,
-  34,
-  32,
-  4,
-  40,
-  36,
-  36,
-  34,
-  5,
-  40,
-  38,
-  38,
-  38,
-  6,
-  40,
-  38,
-  38,
-  38,
-  7,
-  40,
-  38,
-  38,
-  38,
-  8,
-  40,
-  38,
-  38,
-  38,
-  9,
-  40,
-  36,
-  36,
-  32,
-  10,
-  36,
-  34,
-  34,
-  28,
-  11,
-  36,
-  28,
-  26,
-  24,
-  1,
-  0x11,
-  255,
-  36,
-  36,
-  36,
-  36,
-  2,
-  0x23,
-  12,
-  36,
-  36,
-  36,
-  36,
-  13,
-  34,
-  34,
-  34,
-  34,
-  14,
-  34,
-  34,
-  34,
-  34,
-  4,
-  0x11,
-  255,
-  36,
-  36,
-  36,
-  36,
-};
+//! Update Bump up offset for 52 Tone RU as per Region
+#define X_BUMP_UP_OFFSET_52_TONE_RU 1
+
+//! Update Bump up offset for 106 Tone RU as per Region
+#define Y_BUMP_UP_OFFSET_106_TONE_RU 2
+
+/* clang-format off */
+  uint8_t su_gain_table_payload[]  = {
+    4,//NUM_OF_REGIONS
+        0, 0xB,//NUM_OF_CHANNELS
+    //   rate,  11b, 11g, 11n, 11ax(SU) 11ax(TB)
+            1,  32,  22,  22,  20,      14,
+            2,  32,  26,  26,  24,      20,
+            3,  34,  28,  28,  26,      30,
+            4,  36,  34,  32,  30,      32,
+            5,  36,  34,  34,  32,      32,
+            6,  36,  36,  36,  34,      34,
+            7,  36,  34,  34,  32,      28,
+            8,  36,  32,  32,  30,      28,
+            9,  36,  30,  30,  28,      28,
+           10,  32,  28,  28,  24,      14,
+           11,  32,  22,  22,  20,      14,
+        1,0x11,
+           255, 34,  36,  36,  36,      24,
+        2,0x22,
+           13,  34,  38,  36,  36,      24,
+           14,  38,   0,   0,   0,       0,
+        3, 0x25,
+           1,   32,  22,  22,  20,      14,
+           2,   32,  26,  26,  24,      20,
+           11,  32,  22,  22,  20,      14,
+           13,  34,  36,  36,  36,      24,
+           14,  38,  0,   0,    0,      0,
+    };
+/* clang-format on */
 
 /******************************************************
  *               Variable Definitions
@@ -235,7 +177,12 @@ static void application_start(void *argument)
   }
   printf("\r\nAntenna Command Frame Success \r\n");
 
-  status = sl_wifi_update_gain_table(BAND_VALUE, BANDWIDTH, gain_table_payload, sizeof(gain_table_payload));
+  status = sl_wifi_update_su_gain_table(BAND_VALUE,
+                                        BANDWIDTH,
+                                        su_gain_table_payload,
+                                        sizeof(su_gain_table_payload),
+                                        X_BUMP_UP_OFFSET_52_TONE_RU,
+                                        Y_BUMP_UP_OFFSET_106_TONE_RU);
   if (status != SL_STATUS_OK) {
     printf("Failed to update gain table, Error Code: 0x%lx\r\n", status);
     return;

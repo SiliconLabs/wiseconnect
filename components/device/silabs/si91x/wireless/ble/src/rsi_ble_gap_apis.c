@@ -2142,7 +2142,7 @@ int32_t rsi_ble_extended_connect_with_params(void *ble_extended_conn_params)
 /*==============================================*/
 /**
  * @fn         int32_t rsi_ble_read_transmit_power(rsi_ble_tx_pwr_t *resp)
- * @brief      used to read minimum and maximum transmit powers supported by the controller
+ * @brief      used to read minimum and maximum transmit powers supported by the controller based on the country region. 
  * @param[in]  none
  * @param[out] resp -  filled by the controller. Controller fills Minimum TX Power and Maximum TX power in this resp
  *             Min_TX_Power : Units in dBm Ranges from -127 to +20 \n
@@ -2150,7 +2150,7 @@ int32_t rsi_ble_extended_connect_with_params(void *ble_extended_conn_params)
  * @return     0  =  success \n
  *            !0  = failure \n
  * @section description
- * This function used to read minimum and maximum transmit powers supported by the controller.
+ * This function is used to read minimum and maximum transmit powers supported by the controller based on the country region.
  */
 
 int32_t rsi_ble_read_transmit_power(void *resp)

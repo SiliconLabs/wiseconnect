@@ -110,9 +110,6 @@ sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_c
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_watchdog_set_configuration API.
    */
-#if (WDT_TIMER_UC == 1)
-  timer_config_ptr = &sl_watchdog_timer_config_handle;
-#endif
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // will return an error code
@@ -132,6 +129,9 @@ sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_c
       status = SL_STATUS_INVALID_CONFIGURATION;
       break;
     }
+#if (WDT_TIMER_UC == 1)
+    timer_config_ptr = &sl_watchdog_timer_config_handle;
+#endif
     // Configure the WDT system reset value
     RSI_WWDT_ConfigSysRstTimer(MCU_WDT, timer_config_ptr->system_reset_time);
     // configure the WDT timeout interrupt time

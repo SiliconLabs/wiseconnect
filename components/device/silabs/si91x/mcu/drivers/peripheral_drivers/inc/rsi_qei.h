@@ -549,6 +549,18 @@ STATIC INLINE void RSI_QEI_IntrMask(volatile QEI_Type *pstcQei, uint32_t intrMas
 
 /*===================================================*/
 /**
+ * @fn          STATIC INLINE uint32_t RSI_QEI_GetIntrMask(volatile QEI_Type *pstcQei)
+ * @brief       Get the value of the QEI interrupts Mask bits
+ * @param[in]   pstcQei : Pointer to the QEI register instance
+ * @return      returns the interrupt Mask bits
+ */
+STATIC INLINE uint32_t RSI_QEI_GetIntrMask(volatile QEI_Type *pstcQei)
+{
+  return (pstcQei->QEI_INTR_MASK_REG);
+}
+
+/*===================================================*/
+/**
  * @fn          STATIC INLINE uint32_t RSI_QEI_GetIntrStatus(volatile QEI_Type  *pstcQei)
  * @brief       Get the interrupt status of QEI module
  * @param[in]   pstcQei : Pointer to the QEI register instance

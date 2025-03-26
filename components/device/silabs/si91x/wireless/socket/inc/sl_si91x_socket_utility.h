@@ -254,6 +254,11 @@ void sli_si91x_set_socket_event(uint32_t event_mask);
 
 sl_status_t sli_si91x_flush_select_request_table(uint16_t error_code);
 
+sl_status_t sli_si91x_udp_connect_if_unconnected(sli_si91x_socket_t *si91x_socket,
+                                                 const struct sockaddr *to_addr,
+                                                 socklen_t to_addr_len,
+                                                 int socket_id);
+
 /**
  * Sets the list of ciphers used when creating sockets
  * @param cipher_list  Bitmap of selected ciphers

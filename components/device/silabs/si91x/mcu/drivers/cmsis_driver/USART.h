@@ -51,8 +51,13 @@ extern "C" {
 typedef struct _USART_TRANSFER_INFO {
   uint32_t                rx_num;        // Total number of data to be received
   uint32_t                tx_num;        // Total number of data to be send
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+  uint16_t                *rx_buf;        // Pointer to in data buffer
+  uint16_t                *tx_buf;        // Pointer to out data buffer
+#else
   uint8_t                *rx_buf;        // Pointer to in data buffer
   uint8_t                *tx_buf;        // Pointer to out data buffer
+#endif
   uint32_t                rx_cnt;        // Number of data received
   uint32_t                tx_cnt;        // Number of data sent
   uint8_t                 tx_def_val;    // Transmit default value (used in USART_SYNC_MASTER_MODE_RX)
@@ -115,14 +120,14 @@ typedef  struct _USART0_DMA
 #define USART_FIFO_RX_QUARTER_FULL    (0x01 << 6)   /*!< Receive FIFO Quarter full   */
 #define USART_FIFO_RX_HALF_FULL        (0x01 << 7)   /*!< Receive FIFO half full      */
 #define USART_FIFO_RX_AFULL            (0x03 << 6)   /*!< RX FIFO Almost Full         */
-#define USART_DMA_MODE_EN							 (1UL << 3)
+#define USART_DMA_MODE_EN							 (1UL << 3)    /*!< Enable DMA MODE */
 
 /*!< USART (Interrupt Enable Register)*/
 #define USART_INTR_RX_DATA             (0x01 << 0)   /*!< Enable Received Data Available Interrupt.    */
 #define USART_INTR_THRE                (0x01 << 1)   /*!< Enable Transmit Holding Register Empty Interrupt.*/
 #define USART_INTR_RXRDY               (0x01 << 2)   /*!< Receive Ready Interrupt     */
-#define USART_INTR_MODEM_STATUS        (0x01 << 3)   /*!< TODO                        */
-#define USART_INTR_PROGRAMMABLE_THRE   (0x01 << 7)   /*!< TODO THRE Interrupt         */
+#define USART_INTR_MODEM_STATUS        (0x01 << 3)   /*!< Enable Modem Status Interrupt */
+#define USART_INTR_PROGRAMMABLE_THRE   (0x01 << 7)   /*!< Enable Programmable THRE Interrupt */
 
 /*!< USART (Interrupt Identity Register)*/
 #define USART_MODEM_STATUS_INTR        (0x00 << 0)

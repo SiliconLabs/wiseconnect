@@ -204,6 +204,10 @@ Follow the steps below for successful execution of the application:
 >
 >- Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
 >
+> **Note:**
+>
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, as the wireless shutdown scenario is not supported in the current SDK.
+>
 >**Note:**
 >
 >- The required files for low-power state are moved to RAM; the rest of the application is executed from flash.

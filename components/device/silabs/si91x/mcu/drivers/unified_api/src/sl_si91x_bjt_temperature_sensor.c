@@ -56,7 +56,7 @@
 #define NUMBER_OF_CHANNELS            1       // configuring the number of channels with 1
 #define MINIMUM_NUMBER_OF_CHANNELS    1       // Minimum number of channel enable
 #define MAXIMUM_NUMBER_OF_CHANNELS    16      // Maximum number of channel enable
-#define MAX_SAMPLING_RATE             5000000 // Maximum sampling rate 5 Msps.
+#define MAX_SAMPLING_RATE             2500000 // Maximum sampling rate 2.5 Msps.
 #define MINIMUM_DEGREE_TEMP_VALUE     -40     // minimum degree celsius bjt temperature sensor value
 #define MAXIMUM_DEGREE_TEMP_VALUE     125     // maximum bjt degree celsius temperature sensor value
 #define MINIMUM_FAHRENHEIT_TEMP_VALUE -40     // minimum fahrenheit bjt temperature sensor value
@@ -82,110 +82,93 @@ adc_ch_config_t sl_bjt_channel_config = { .input_type[0]     = SL_ADC_SINGLE_END
  ******************************************************************************/
 static sl_status_t sl_si91x_bjt_temperature_sensor_disable(void);
 static void callback_event(uint8_t channel_no, uint8_t event);
-static sl_status_t validate_bjt_parameters(adc_config_t *sl_bjt_temperature_sensor_config);
-static sl_status_t validate_bjt_channel_parameters(adc_ch_config_t *sl_bjt_temperature_sensor_channel_config);
-static OPAMP_CONFIG_T UnityGB = { { /*opamp1_dyn_en;*/ 0,
+static sl_status_t validate_bjt_parameters(const adc_config_t *sl_bjt_temperature_sensor_config);
+static sl_status_t validate_bjt_channel_parameters(const adc_ch_config_t *sl_bjt_temperature_sensor_channel_config);
+static OPAMP_CONFIG_T UnityGB = { { 0,
 #ifdef SL_SI91X_ACX_MODULE
-                                    /*opamp1_sel_p_mux;*/ 5,
+                                    5,
 #else
-
-                                    /*opamp1_sel_p_mux;*/ 1,
+                                    1,
 #endif
-                                    /*opamp1_sel_n_mux;*/ 4,
-                                    /*opamp1_lp_mode;*/ 0,
-                                    /*opamp1_r1_sel;*/ 1,
-                                    /*opamp1_r2_sel;*/ 0,
-                                    /*opamp1_en_res_bank;*/ 0,
-                                    /*opamp1_res_mux_sel;*/ 0,
-                                    /*opamp1_res_to_out_vdd;*/ 0,
-                                    /*opamp1_out_mux_en;*/ 1,
-                                    /*opamp1_out_mux_sel;*/ 0,
-                                    /*opamp1_enable;*/ 1 },
+                                    4,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                    1 },
                                   {
-                                    /*  opamp2_dyn_en;*/ 0,
-                                    /*  opamp2_sel_p_mux;*/ 2,
-                                    /*  opamp2_sel_n_mux;*/ 3,
-                                    /*  opamp2_lp_mode;*/ 0,
-                                    /*  opamp2_r1_sel;*/ 1,
-                                    /*  opamp2_r2_sel;*/ 0,
-                                    /*  opamp2_en_res_bank;*/ 0,
-                                    /*  opamp2_res_mux_sel;*/ 0,
-                                    /*  opamp2_res_to_out_vdd;*/ 0,
-                                    /*  opamp2_out_mux_en;*/ 1,
-                                    /*  opamp2_enable;*/ 1,
-
+                                    0,
+                                    2,
+                                    3,
+                                    0,
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    1,
                                   },
                                   {
-                                    /* opamp3_dyn_en;*/ 0,
-                                    /* opamp3_sel_p_mux;*/ 0,
-                                    /* opamp3_sel_n_mux;*/ 0,
-                                    /* opamp3_lp_mode;*/ 0,
-                                    /* opamp3_r1_sel;*/ 0,
-                                    /* opamp3_r2_sel;*/ 0,
-                                    /* opamp3_en_res_bank;*/ 0,
-                                    /* opamp3_res_mux_sel;*/ 0,
-                                    /* opamp3_res_to_out_vdd;*/ 0,
-                                    /* opamp3_out_mux_en;*/ 0,
-                                    /* opamp3_enable;*/ 0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
                                   } };
 
 /*******************************************************************************
  * To validate the parameters BJT configuration
  ******************************************************************************/
-static sl_status_t validate_bjt_parameters(adc_config_t *sl_bjt_temperature_sensor_config)
+static sl_status_t validate_bjt_parameters(const adc_config_t *sl_bjt_temperature_sensor_config)
 {
-  sl_status_t status;
-  do {
-    if (sl_bjt_temperature_sensor_config == NULL) {
-      status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    // Validates the ADC operation mode, if it is not either static or fifo mode it returns error code.
-    if (sl_bjt_temperature_sensor_config->operation_mode != SL_ADC_STATIC_MODE) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // If the number of channel is not in range i.e., between 1 and 19, returns the error code.
-    if ((sl_bjt_temperature_sensor_config->num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNELS)
-        || (sl_bjt_temperature_sensor_config->num_of_channel_enable > MAXIMUM_NUMBER_OF_CHANNELS)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
+  sl_status_t status = SL_STATUS_OK;
+
+  if (sl_bjt_temperature_sensor_config == NULL) {
+    status = SL_STATUS_NULL_POINTER;
+  }
+  // Validates the ADC operation mode, if it is not either static or fifo mode it returns error code.
+  // If the number of channel is not in range i.e., between 1 and 16, returns the error code.
+  else if ((sl_bjt_temperature_sensor_config->operation_mode != SL_ADC_STATIC_MODE)
+           || (sl_bjt_temperature_sensor_config->num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNELS)
+           || (sl_bjt_temperature_sensor_config->num_of_channel_enable > MAXIMUM_NUMBER_OF_CHANNELS)) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Returns SL_STATUS_OK if the parameters are appropriate
   return status;
 }
 
 /*******************************************************************************
 * To validate the parameters BJT channel configuration
  ******************************************************************************/
-static sl_status_t validate_bjt_channel_parameters(adc_ch_config_t *sl_bjt_temperature_sensor_channel_config)
+static sl_status_t validate_bjt_channel_parameters(const adc_ch_config_t *sl_bjt_temperature_sensor_channel_config)
 {
-  sl_status_t status;
-  do {
-    if (sl_bjt_temperature_sensor_channel_config == NULL) {
-      status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    // Validate input type
-    if (sl_bjt_temperature_sensor_channel_config->input_type[0] != SL_ADC_SINGLE_ENDED) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Verify the user given sampling rate is proper or not
-    if (sl_bjt_temperature_sensor_channel_config->sampling_rate[0] > MAX_SAMPLING_RATE) {
-      status = SL_STATUS_INVALID_RANGE;
-      break;
-    }
-    if ((sl_bjt_temperature_sensor_channel_config->num_of_samples[0] < CHANNEL_SAMPLE_LENGTH)
-        || (sl_bjt_temperature_sensor_channel_config->num_of_samples[0] > CHANNEL_SAMPLE_LENGTH)) {
-      status = SL_STATUS_INVALID_COUNT;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
+  // Returns SL_STATUS_OK if the parameter are appropriate
+  sl_status_t status = SL_STATUS_OK;
+
+  if (sl_bjt_temperature_sensor_channel_config == NULL) {
+    status = SL_STATUS_NULL_POINTER;
+  } // Validate input type
+  else if (sl_bjt_temperature_sensor_channel_config->input_type[0] != SL_ADC_SINGLE_ENDED) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  } // Verify the user given sampling rate is proper or not
+  else if (sl_bjt_temperature_sensor_channel_config->sampling_rate[0] > MAX_SAMPLING_RATE) {
+    status = SL_STATUS_INVALID_RANGE;
+  } else if ((sl_bjt_temperature_sensor_channel_config->num_of_samples[0] < CHANNEL_SAMPLE_LENGTH)
+             || (sl_bjt_temperature_sensor_channel_config->num_of_samples[0] > CHANNEL_SAMPLE_LENGTH)) {
+    status = SL_STATUS_INVALID_COUNT;
+  }
   return status;
 }
 
@@ -195,42 +178,37 @@ static sl_status_t validate_bjt_channel_parameters(adc_ch_config_t *sl_bjt_tempe
 sl_status_t sl_si91x_bjt_temperature_sensor_init(adc_ch_config_t sl_bjt_temperature_sensor_channel_config,
                                                  adc_config_t sl_bjt_temperature_sensor_config)
 {
-  sl_status_t status;
-  do {
-    // Validate BJT parameters, if the parameters incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Validate BJT channel parameters, if the parameters incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_bjt_channel_parameters(&sl_bjt_temperature_sensor_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    //Initializing the adc to initialize the channel and operation mode
-    status = sl_si91x_adc_init(sl_bjt_temperature_sensor_channel_config, sl_bjt_temperature_sensor_config, VREF_VALUE);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Configure ADC to initialize the channel and operation mode
-    status = sl_si91x_adc_set_channel_configuration(sl_bjt_temperature_sensor_channel_config,
-                                                    sl_bjt_temperature_sensor_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Register user callback function
-    status = sl_si91x_adc_register_event_callback(callback_event);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // starting the adc configuration.
-    status = sl_si91x_adc_start(sl_bjt_temperature_sensor_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-  } while (false);
+  sl_status_t status = SL_STATUS_OK;
+  // Validate BJT parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Validate BJT channel parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_bjt_channel_parameters(&sl_bjt_temperature_sensor_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  //Initializing the adc to initialize the channel and operation mode
+  status = sl_si91x_adc_init(sl_bjt_temperature_sensor_channel_config, sl_bjt_temperature_sensor_config, VREF_VALUE);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Configure ADC to initialize the channel and operation mode
+  status =
+    sl_si91x_adc_set_channel_configuration(sl_bjt_temperature_sensor_channel_config, sl_bjt_temperature_sensor_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Register user callback function
+  status = sl_si91x_adc_register_event_callback(callback_event);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // starting the adc configuration.
+  status = sl_si91x_adc_start(sl_bjt_temperature_sensor_config);
   return status;
 }
 
@@ -246,12 +224,17 @@ sl_status_t sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration(
   sl_bjt_temperature_sensor_channel_config.pos_inp_sel[0] = POS_IP_OPAMP; /* Positive input to ADC using OPAMP1 */
   sl_bjt_temperature_sensor_channel_config.opamp_gain[0] =
     OPAMP_GAIN_OPAMP; /* OPAMP gain value if opamp output is one of input to ADC*/
-  // Initialize opamp1 to give band gap input to opamp that gives it's output to ADC
-  RSI_OPAMP1_Config(OPAMP, OPAMP_CHANNEL, &UnityGB);
-  // Configure ADC to configure band gap the positive input selection and opamp gain
-  status = sl_si91x_adc_set_channel_configuration(sl_bjt_temperature_sensor_channel_config, sl_bjt_config);
-  if (status != SL_STATUS_OK) {
-    status = SL_STATUS_FAIL;
+  // Validate BJT channel parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_bjt_channel_parameters(&sl_bjt_temperature_sensor_channel_config);
+  if (status == SL_STATUS_OK) {
+    // Initialize opamp1 to give band gap input to opamp that gives it's output to ADC
+    RSI_OPAMP1_Config(OPAMP, OPAMP_CHANNEL, &UnityGB);
+    // Configure ADC to configure band gap the positive input selection and opamp gain
+    status = sl_si91x_adc_set_channel_configuration(sl_bjt_temperature_sensor_channel_config, sl_bjt_config);
+    if (status != SL_STATUS_OK) {
+      status = SL_STATUS_FAIL;
+    }
   }
   return status;
 }
@@ -273,53 +256,52 @@ sl_status_t sl_si91x_bjt_temperature_sensor_read_data(double *temp_data)
   RSI_EGPIO_UlpPadDriverDisableState(9, ulp_Pullup);
 #endif
 
-  float adc_off = 0, Vbg = 0;
-  do {
-    if (temp_data == NULL) {
-      status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    //Initializing and configuring the band gap
-    status = sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration(sl_bjt_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    if ((chnl0_complete_flag)) {
-      chnl0_complete_flag = false;
-      adc_output_bg[i] =
-        RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process_en_opamp, sl_bjt_channel_config.input_type[0]);
-    }
-    //Initializing and configuring the bjt temperature sensor
-    status = sl_si91x_bjt_temperature_sensor_set_channel_configuration(sl_bjt_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // We are just reading multiple times so that we will not get previous ADC values
-    while (read_data < READ_DATA_LIMIT) {
-      adc_output_bjt[i] =
-        RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process_en_bjt, sl_bjt_channel_config.input_type[0]);
-      read_data++;
-    }
-    /* In two’s complement format, the MSb (11th bit) of the conversion result determines the polarity,
+  float adc_off = 0;
+  float Vbg     = 0;
+
+  if (temp_data == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  //Initializing and configuring the band gap
+  status = sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration(sl_bjt_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  if (chnl0_complete_flag) {
+    chnl0_complete_flag = false;
+    adc_output_bg[i] =
+      RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process_en_opamp, sl_bjt_channel_config.input_type[0]);
+  }
+  //Initializing and configuring the bjt temperature sensor
+  status = sl_si91x_bjt_temperature_sensor_set_channel_configuration(sl_bjt_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // We are just reading multiple times so that we will not get previous ADC values
+  while (read_data < READ_DATA_LIMIT) {
+    adc_output_bjt[i] =
+      RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process_en_bjt, sl_bjt_channel_config.input_type[0]);
+    read_data++;
+  }
+  /* In two’s complement format, the MSb (11th bit) of the conversion result determines the polarity,
           when the MSb = ‘0’, the result is positive, and when the MSb = ‘1’, the result is negative*/
-    if ((uint32_t)adc_output_bjt[i] & BIT(11)) {
-      adc_output_bjt[i] = ((uint32_t)(adc_output_bjt[i]) & BJT_DATA_CLEAR);
-    } else {
-      adc_output_bjt[i] = ((uint32_t)adc_output_bjt[i] | BJT_SIGN_BIT);
-    }
-    //This API is used to program The offset value for AUX ADC single ended mode
-    adc_off = (float)RSI_IPMU_Auxadcoff_SeEfuse();
-    //This API is used to program the BG voltage for BJT temperature sensor
-    Vbg = (float)RSI_IPMU_Vbg_Tsbjt_Efuse();
-    // This API is used to program the offset voltage
-    Voffset = (int32_t)(961 - RSI_IPMU_Delvbe_Tsbjt_Efuse());
-    /* formula to calculate BJT temperature sensor it is the division of bjt temperature sensor *
+  if ((uint32_t)adc_output_bjt[i] & BIT(11)) {
+    adc_output_bjt[i] = (float)((uint32_t)(adc_output_bjt[i]) & BJT_DATA_CLEAR);
+  } else {
+    adc_output_bjt[i] = (float)((uint32_t)adc_output_bjt[i] | BJT_SIGN_BIT);
+  }
+  //This API is used to program The offset value for AUX ADC single ended mode
+  adc_off = (float)RSI_IPMU_Auxadcoff_SeEfuse();
+  //This API is used to program the BG voltage for BJT temperature sensor
+  Vbg = (float)RSI_IPMU_Vbg_Tsbjt_Efuse();
+  // This API is used to program the offset voltage
+  Voffset = (int32_t)(961 - RSI_IPMU_Delvbe_Tsbjt_Efuse());
+  /* formula to calculate BJT temperature sensor it is the division of bjt temperature sensor *
      * output to the opamp2 output which is multipled with opamp voltage Vbg and offset voltage */
-    *temp_data = -273
-                 + (310
-                    * ((((adc_output_bjt[i] - adc_off) / (adc_output_bg[i] - adc_off)) * (Vbg / (float)1000))
-                       + ((float)(Voffset) / (float)1000)));
-  } while (false);
+  *temp_data = -273
+               + (310
+                  * ((((adc_output_bjt[i] - adc_off) / (adc_output_bg[i] - adc_off)) * (Vbg / (float)1000))
+                     + ((float)(Voffset) / (float)1000)));
   return status;
 }
 
@@ -330,19 +312,18 @@ sl_status_t sl_si91x_bjt_temperature_sensor_set_channel_configuration(
   adc_ch_config_t sl_bjt_temperature_sensor_channel_config)
 {
   sl_status_t status;
-  sl_bjt_temperature_sensor_channel_config.pos_inp_sel[0] =
-    POS_IP_BJT; /* Positive input to ADC from temperature sensor */
-  do {
+  // Validate BJT channel parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_bjt_channel_parameters(&sl_bjt_temperature_sensor_channel_config);
+  if (status == SL_STATUS_OK) {
     status = sl_si91x_bjt_temperature_sensor_state(SL_BJT_TEMPERATURE_SENSOR_ENABLE);
-    if (status != SL_STATUS_OK) {
-      break;
+    if (status == SL_STATUS_OK) {
+      sl_bjt_temperature_sensor_channel_config.pos_inp_sel[0] =
+        POS_IP_BJT; /* Positive input to ADC from temperature sensor */
+      // Configure ADC channel to configure the BJT positive input selection
+      status = sl_si91x_adc_set_channel_configuration(sl_bjt_temperature_sensor_channel_config, sl_bjt_config);
     }
-    // Configure ADC channel to configure the BJT positive input selection
-    status = sl_si91x_adc_set_channel_configuration(sl_bjt_temperature_sensor_channel_config, sl_bjt_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-  } while (false);
+  }
   return status;
 }
 
@@ -352,24 +333,22 @@ sl_status_t sl_si91x_bjt_temperature_sensor_set_channel_configuration(
 sl_status_t sl_si91x_bjt_temperature_sensor_state(sl_bjt_temperature_sensor_state_t state)
 {
   sl_status_t status;
-  do {
-    // Returns invalid parameter if other than enabling (or) disabling is choosen
-    if (state >= SL_BJT_TEMPERATURE_SENSOR_LAST) {
-      status = SL_STATUS_INVALID_PARAMETER;
-    }
-    if (state == SL_BJT_TEMPERATURE_SENSOR_ENABLE) {
+
+  switch (state) {
+    case SL_BJT_TEMPERATURE_SENSOR_DISABLE:
+      // Disable the sensor based on sl_bjt_temperature_sensor_state_t selection
+      status = sl_si91x_bjt_temperature_sensor_disable();
+      break;
+    case SL_BJT_TEMPERATURE_SENSOR_ENABLE:
       // Enable the sensor based on sl_bjt_temperature_sensor_state_t selection
       status = sl_si91x_adc_temperature_sensor_enable();
-      if (status != SL_STATUS_OK)
-        break;
-    }
-    if (state == SL_BJT_TEMPERATURE_SENSOR_DISABLE) {
-      //Disable the sensor based on sl_bjt_temperature_sensor_state_t selection
-      status = sl_si91x_bjt_temperature_sensor_disable();
-      if (status != SL_STATUS_OK)
-        break;
-    }
-  } while (false);
+      break;
+    default:
+      // Returns invalid parameter if other than enabling (or) disabling is chosen
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+  }
+
   return status;
 }
 
@@ -378,11 +357,9 @@ sl_status_t sl_si91x_bjt_temperature_sensor_state(sl_bjt_temperature_sensor_stat
  *****************************************************************************/
 static sl_status_t sl_si91x_bjt_temperature_sensor_disable(void)
 {
-  sl_status_t status;
   //Disable the sensor based on sl_bjt_temperature_sensor_state_t selection
   AUX_ADC_DAC_COMP->TS_PTAT_ENABLE_b.TS_PTAT_EN = 0U;
-  status                                        = SL_STATUS_OK;
-  return status;
+  return SL_STATUS_OK;
 }
 
 /*******************************************************************************
@@ -395,22 +372,20 @@ static sl_status_t sl_si91x_bjt_temperature_sensor_disable(void)
 sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperature_sensor_config)
 {
   sl_status_t status;
-  do {
-    status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
+
+  status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  if (AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_ENABLE == ENABLE) {
+    status = sl_si91x_adc_stop(sl_bjt_temperature_sensor_config);
     if (status != SL_STATUS_OK) {
-      break;
+      return status;
     }
-    if (AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_ENABLE == ENABLE) {
-      status = sl_si91x_adc_stop(sl_bjt_temperature_sensor_config);
-      if (status != SL_STATUS_OK) {
-        break;
-      }
-    }
-    status = sl_si91x_adc_deinit(sl_bjt_temperature_sensor_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-  } while (false);
+  }
+
+  status = sl_si91x_adc_deinit(sl_bjt_temperature_sensor_config);
   return status;
 }
 
@@ -436,7 +411,7 @@ sl_status_t sl_si91x_get_bjt_temperature_sensor_conversion(double *temp_data,
         status = SL_STATUS_OK;
         break;
       case SL_BJT_FAHRENHEIT:
-        *temp_data = (double)((*temp_data * 9 / 5) + 32);
+        *temp_data = ((*temp_data * 9 / 5) + 32);
         if (!((*temp_data >= MINIMUM_FAHRENHEIT_TEMP_VALUE) && (*temp_data <= MAXIMUM_FAHRENHEIT_TEMP_VALUE))) {
           status = SL_STATUS_FAIL;
           break;
@@ -444,7 +419,7 @@ sl_status_t sl_si91x_get_bjt_temperature_sensor_conversion(double *temp_data,
         status = SL_STATUS_OK;
         break;
       case SL_BJT_KELVIN:
-        *temp_data = (double)(*temp_data + 273.15);
+        *temp_data = (*temp_data + 273.15);
         if (!((*temp_data >= MINIMUM_KELVIN_TEMP_VALUE) && (*temp_data <= MAXIMUM_KELVIN_TEMP_VALUE))) {
           status = SL_STATUS_FAIL;
           break;

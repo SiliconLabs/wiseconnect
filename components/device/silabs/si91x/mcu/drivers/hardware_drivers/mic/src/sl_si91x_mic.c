@@ -136,7 +136,7 @@ sl_status_t sl_si91x_mic_deinit(void)
 
   do {
     /* Deinitialize I2S microphone and clear the driver handle */
-    status = sl_si91x_i2s_deinit(&i2s_mic_driver_handle);
+    status = sl_si91x_i2s_deinit((sl_i2s_handle_t *)i2s_mic_driver_handle);
     if (status != SL_STATUS_OK) {
       break;
     }

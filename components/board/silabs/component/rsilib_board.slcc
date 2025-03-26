@@ -24,6 +24,7 @@ include:
     - path: "sl_sio_board.h"
     - path: "sl_sysrtc_board.h"
     - path: "sl_qei_board.h"
+    - path: "sl_rs485_board.h"
 provides:
   - name: rsilib_board
   - name: wiseconnect_platform_soc_mode

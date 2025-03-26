@@ -33,6 +33,15 @@
 #include "USART.h"
 #include "clock_update.h"
 #include "rsi_usart.h"
+#if (SLI_SI91X_MCU_RS485_MODE== 1)
+#include "sl_si91x_driver_gpio.h"
+#ifdef UART1_RS485_MODE
+#include "sl_si91x_uart1_rs485_common_config.h"
+#endif
+#ifdef UART0_RS485_MODE
+#include "sl_si91x_uart0_rs485_common_config.h"
+#endif
+#endif
 #ifdef USART_MODULE
 #include "sl_si91x_usart_common_config.h"
 #endif
@@ -200,8 +209,8 @@ static  USART_RESOURCES USART0_Resources = {
 		&usart0_clock,
 		&usart0_tx,
 		&usart0_rx,
-		&usart0_rts,
 		&usart0_cts,
+		&usart0_rts,
 		&usart0_ir_tx,
 		&usart0_ir_rx ,
 		},
@@ -731,7 +740,7 @@ static int32_t ARM_UART1_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_UART1_Transfer (const void *data_out,void *data_in,uint32_t num)
+static int32_t ARM_UART1_Transfer (const void *data_out, void *data_in, uint32_t num)
 {
   if((num < RTE_UART1_DMA_TX_LEN_PER_DES) && (num < RTE_UART1_DMA_RX_LEN_PER_DES)) {
       UART1_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -930,7 +939,7 @@ static int32_t ARM_ULP_UART_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_ULP_UART_Transfer (const void *data_out,void *data_in,uint32_t num)
+static int32_t ARM_ULP_UART_Transfer (const void *data_out, void *data_in, uint32_t num)
 {
   if((num < RTE_ULP_UART_DMA_TX_LEN_PER_DES) && (num < RTE_ULP_UART_DMA_RX_LEN_PER_DES)) {
       ULP_UART_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -1064,67 +1073,69 @@ void ULP_UART_IRQ_HANDLER (void)
 uint32_t USART_GetParity_StopBit(uint8_t usart_peripheral)
 {
   uint32_t reg_value = false;
-  do {
-    if (usart_peripheral >= UARTLAST) {
-      break;
-    }
-    if (usart_peripheral == USART_0) {
-      reg_value = USART0_Resources.pREGS->LCR;
-      break;
-    }
-    if (usart_peripheral == UART_1) {
-      reg_value = UART1_Resources.pREGS->LCR;
-      break;
-    }
-    if (usart_peripheral == ULPUART) {
-      reg_value = ULP_UART_Resources.pREGS->LCR;
-      break;
-    }
-  } while (false);
+	switch (usart_peripheral) {
+		case USART_0:
+			reg_value = USART0_Resources.pREGS->LCR;
+			break;
+
+		case UART_1:
+			reg_value = UART1_Resources.pREGS->LCR;
+			break;
+
+		case ULPUART:
+			reg_value = ULP_UART_Resources.pREGS->LCR;
+			break;
+
+		default:
+			break;
+	}
+
   return reg_value;
 }
 uint32_t USART_GetBaudrate(uint8_t usart_peripheral)
 {
   uint32_t baud_rate = false;
-  do {
-    if (usart_peripheral >= UARTLAST) {
-      break;
-    }
-    if (usart_peripheral == USART_0) {
-      baud_rate = USART0_Resources.info->baudrate;
-      break;
-    }
-    if (usart_peripheral == UART_1) {
-      baud_rate = UART1_Resources.info->baudrate;
-      break;
-    }
-    if (usart_peripheral == ULPUART) {
-      baud_rate = ULP_UART_Resources.info->baudrate;
-      break;
-    }
-  } while (false);
+
+	switch (usart_peripheral) {
+		case USART_0:
+			baud_rate = USART0_Resources.info->baudrate;
+			break;
+
+		case UART_1:
+			baud_rate = UART1_Resources.info->baudrate;
+			break;
+
+		case ULPUART:
+			baud_rate = ULP_UART_Resources.info->baudrate;
+			break;
+
+		default:
+			break;
+	}
+
   return baud_rate;
 }
 uint8_t USART_GetInitState(uint8_t usart_peripheral)
 {
   uint8_t init_state = false;
-  do {
-    if (usart_peripheral >= UARTLAST) {
-      break;
-    }
-    if (usart_peripheral == USART_0) {
-      init_state = (USART0_Resources.info->flags & USART_FLAG_INITIALIZED);
-      break;
-    }
-    if (usart_peripheral == UART_1) {
-      init_state = (UART1_Resources.info->flags & USART_FLAG_INITIALIZED);
-      break;
-    }
-    if (usart_peripheral == ULPUART) {
-      init_state = (ULP_UART_Resources.info->flags & USART_FLAG_INITIALIZED);
-      break;
-    }
-  } while (false);
+
+	switch (usart_peripheral) {
+		case USART_0:
+			init_state = (USART0_Resources.info->flags & USART_FLAG_INITIALIZED);
+			break;
+
+		case UART_1:
+			init_state = (UART1_Resources.info->flags & USART_FLAG_INITIALIZED);
+			break;
+
+		case ULPUART:
+			init_state = (ULP_UART_Resources.info->flags & USART_FLAG_INITIALIZED);
+			break;
+
+		default:
+			break;
+	}
+
   return init_state;
 }
 

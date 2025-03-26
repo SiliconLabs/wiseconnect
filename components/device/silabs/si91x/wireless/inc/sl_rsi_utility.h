@@ -327,7 +327,7 @@ sl_status_t sli_si91x_flush_queue_based_on_type(sli_si91x_command_queue_t *queue
                                                 void *user_data);
 
 /* Function used to check whether queue is empty or not */
-uint32_t sl_si91x_host_queue_status(sl_si91x_buffer_queue_t *queue);
+uint32_t sl_si91x_host_queue_status(const sl_si91x_buffer_queue_t *queue);
 
 // These aren't host APIs. These should go into a wifi bus API header
 /* Function used to set buffer pointer to point to specified memory address */

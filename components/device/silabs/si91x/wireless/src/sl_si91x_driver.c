@@ -108,6 +108,17 @@ extern osMutexId_t side_band_crypto_mutex;
 // Private Key Password is required for encrypted private key, format is like "\"12345678\""
 #define SL_DEFAULT_PRIVATE_KEY_PASSWORD ""
 
+// Internal Wi-Fi transceiver mode configurations
+#define SLI_EIA_BIT_IN_CTRL_FLAG         BIT(6) //< Extended Information Available bit in Control Flags
+#define SLI_EIA_BIT_IN_HOST_DESC         BIT(4) //< Extended Information Available bit in Host Descriptor
+#define SLI_IMMEDIATE_TRF_CTRL_FLAGS     BIT(7) //< Immediate Transfer bit in Control Flags
+#define SLI_IMMEDIATE_TRF_HOST_DESC      BIT(6) //< Immediate Transfer bit in Host Descriptor
+#define SLI_LAST_PKT                     BIT(0) //< Last Packet bit in Control Flags1
+#define SLI_IS_LAST_PKT(ctrl_flags1)     (ctrl_flags1 & SLI_LAST_PKT)
+#define SLI_IS_EIA_PKT(ctrl_flags)       (ctrl_flags & SLI_EIA_BIT_IN_CTRL_FLAG)
+#define SLI_IS_IMMEDIATE_TRF(ctrl_flags) (ctrl_flags & SLI_IMMEDIATE_TRF_CTRL_FLAGS)
+#define SLI_EXT_DESC_SIZE_IF_EIA_PKT     5
+
 /*========================================================================*/
 // 11ax params
 /*========================================================================*/
@@ -155,7 +166,7 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
 sl_status_t sli_verify_device_boot(uint32_t *rom_version);
 sl_status_t sl_si91x_enable_radio(void);
 sl_status_t sli_wifi_select_option(const uint8_t configuration);
-sl_status_t si91x_bootup_firmware(const uint8_t select_option);
+sl_status_t si91x_bootup_firmware(const uint8_t select_option, uint8_t image_number);
 sl_status_t sl_si91x_host_power_cycle(void);
 
 // This variable stores the frame status of response packet in case of API executed being failed.
@@ -430,7 +441,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   // firmware bootup is require only for the first time, no need to do it again if we call init after deinit
   static bool is_bootup_firmware_required = true;
   if (is_bootup_firmware_required) {
-    status = si91x_bootup_firmware(select_option);
+    status = si91x_bootup_firmware(select_option, config->nwp_fw_image_number);
     VERIFY_STATUS_AND_RETURN(status);
     is_bootup_firmware_required = false;
   } else {
@@ -439,7 +450,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
     sli_si91x_submit_rx_pkt();
   }
 #else
-  status = si91x_bootup_firmware(select_option);
+  status = si91x_bootup_firmware(select_option, config->nwp_fw_image_number);
   VERIFY_STATUS_AND_RETURN(status);
 #endif
 
@@ -1979,6 +1990,42 @@ sl_status_t sl_si91x_m4_ta_secure_handshake(uint8_t sub_cmd_type,
   return status;
 }
 
+sl_status_t sl_si91x_read_status(sl_si91x_read_status_t read_id, uint8_t *output)
+{
+  sl_wifi_buffer_t *buffer             = NULL;
+  const sl_si91x_packet_t *packet      = NULL;
+  sl_status_t status                   = SL_STATUS_OK;
+  sli_si91x_read_status_t read_request = { 0 };
+
+  SL_VERIFY_POINTER_OR_RETURN(output, SL_STATUS_NULL_POINTER);
+
+  if ((read_id < SL_SI91X_READ_NWP_DEBUG_PORT_STATUS) || (read_id > SL_SI91X_READ_MCU_DEBUG_PORT_STATUS)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  read_request.sub_cmd = (uint8_t)read_id;
+  status               = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
+                                        SI91X_COMMON_CMD,
+                                        &read_request,
+                                        sizeof(sli_si91x_read_status_t),
+                                        SL_SI91X_WAIT_FOR_COMMAND_RESPONSE,
+                                        NULL,
+                                        &buffer);
+  if (status != SL_STATUS_OK) {
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer);
+    return status;
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  if (packet->length > 0)
+    memcpy(output, packet->data, packet->length);
+  sl_si91x_host_free_buffer(buffer);
+
+  return status;
+}
+
 // Perform a soft reset
 static sl_status_t sl_si91x_soft_reset(void)
 {
@@ -2405,7 +2452,14 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
     mac_hdr_len += MAC80211_HDR_ADDR4_LEN;
   }
 
+  // Initialize ext_desc_size with the base size for transceiver TX data
   ext_desc_size = TRANSCEIVER_TX_DATA_EXT_DESC_SIZE;
+
+  // Check if the control flags indicate an EIA packet
+  if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
+    // If it is an EIA packet, add 5 bytes for the following fields: channel, tx_power, is_last_packet, reserved1, reserved2
+    ext_desc_size += SLI_EXT_DESC_SIZE_IF_EIA_PKT;
+  }
 
   // Allocate a data buffer with space for the data and metadata
   status = sl_si91x_allocate_data_buffer(&buffer,
@@ -2441,6 +2495,11 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   // Fill packet type
   host_desc = packet->desc;
 
+  // Clear the extended descriptor if EIA is set
+  if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
+    memset(packet->data, 0, ext_desc_size); //! Clear ext_desc_size bytes starting from packet->data
+  }
+
   host_desc[2] = 0x01; //! Frame Type
   if (IS_CFM_TO_HOST_SET(control->ctrl_flags)) {
     host_desc[3] |= CONFIRM_REQUIRED_TO_HOST; //! This bit is used to set CONFIRM_REQUIRED_TO_HOST in firmware.
@@ -2471,6 +2530,19 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
 
   //! Initialize extended desc
   memcpy(&host_desc[16], &control->token, TRANSCEIVER_TX_DATA_EXT_DESC_SIZE);
+
+  //! If it is an EIA packet, update extended descriptor fields
+  if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
+    host_desc[7] |= SLI_EIA_BIT_IN_HOST_DESC; //! EIA Enable
+    if (SLI_IS_IMMEDIATE_TRF(control->ctrl_flags)) {
+      host_desc[7] |= SLI_IMMEDIATE_TRF_HOST_DESC; //! Immediate Transfer
+    }
+    host_desc[20] = control->channel;  //! Channel
+    host_desc[21] = control->tx_power; //! Transmission Power
+    if (SLI_IS_LAST_PKT(control->ctrl_flags1)) {
+      host_desc[22] |= SLI_LAST_PKT; //! Last Packet
+    }
+  }
 
   // Send command packet to the SI91x socket data queue and await a response
   return sl_si91x_driver_send_data_packet(buffer, wait_time);
@@ -2561,7 +2633,7 @@ sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version)
   return status;
 }
 
-sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size)
+sl_status_t sl_si91x_get_firmware_size(const void *buffer, uint32_t *fw_image_size)
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(buffer);
   const sl_si91x_firmware_header_t *firmware_header = (const sl_si91x_firmware_header_t *)buffer;
@@ -2638,7 +2710,7 @@ sl_status_t sl_si91x_get_nwp_config(const sl_si91x_nwp_get_configuration_t *nwp_
   return status;
 }
 
-sl_status_t sl_si91x_debug_log(sl_si91x_assertion_t *assertion)
+sl_status_t sl_si91x_debug_log(const sl_si91x_assertion_t *assertion)
 {
   sl_status_t status                = SL_STATUS_OK;
   sl_si91x_debug_log_t debug_config = { 0 };

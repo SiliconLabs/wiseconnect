@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
- * @file sl_si91x_button_init_inst_config.h
+ * @file sl_si91x_button_init_INSTANCE_config.h
  * @brief Button Driver Configuration
  *******************************************************************************
  * # License
@@ -39,9 +39,9 @@
 // [GPIO_SL_SI91X_BUTTON_INSTANCE]$
 // <<< sl:end pin_tool >>>
 
-#define SL_BUTTON_INSTANCE_PIN    SL_SI91X_BUTTON_0_PIN
-#define SL_BUTTON_INSTANCE_PORT   SL_SI91X_BUTTON_0_PORT
-#define SL_BUTTON_INSTANCE_NUMBER RTE_BUTTON0_NUMBER
+#define SL_BUTTON_INSTANCE_PIN    SL_SI91X_BUTTON_INSTANCE_PIN
+#define SL_BUTTON_INSTANCE_PORT   SL_SI91X_BUTTON_INSTANCE_PORT
+#define SL_BUTTON_INSTANCE_NUMBER RTE_INSTANCE_NUMBER
 
 #endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_BUTTON_INIT_INSTANCE_CONFIG_H

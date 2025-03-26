@@ -302,7 +302,7 @@ void SystemInit(void)
   fpuInit();
 
   /* Enable REF Clock Control*/
-  //FIXME: This will be configured by boot-loader based on product mode
+  // This will be configured by boot-loader based on product mode
   *(volatile uint32_t *)0x41300004 = BIT(24);
 
   /*Moving to BG sampling mode */

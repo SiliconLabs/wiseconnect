@@ -284,37 +284,52 @@ int16_t rsi_waitfor_boardready(void)
 #endif
   return RSI_ERROR_WAITING_FOR_BOARD_READY;
 }
-
 /**
- * @fn          int16 rsi_select_option(uint8 cmd)
- * @brief       Sends cmd to select option to load or update configuration
- * @param[in]   uint8 cmd, type of configuration to be saved
- * @param[out]  none
- * @return      errCode
-                < 0 = Command issue failed
- *              0  = SUCCESS
+ * @fn          int16_t rsi_select_option(uint8_t cmd, uint8_t fw_image_number)
+ * @brief       Sends a command to select an option to load or update configuration.
+ * @param[in]   cmd - Type of configuration to be saved or loaded.
+ *                    Possible values:
+ *                    - BURN_NWP_FW (0x42)
+ *                    - LOAD_NWP_FW (0x31)
+ *                    - LOAD_DEFAULT_NWP_FW_ACTIVE_LOW (0x71)
+ *                    - CHECK_NWP_INTEGRITY (0x41)
+ *                    - NWP_FW_LOAD_CMD (0x41)
+ * @param[in]   fw_image_number - Firmware image number to be loaded (used with NWP_FW_LOAD_CMD).
+ * @return      int16_t - Error code.
+ *                    - < 0 : Command issue failed.
+ *                    -   0 : SUCCESS.
+ *                    - -28 : Firmware Load or Upgrade timeout error.
+ *                    - -14 : Valid Firmware not present.
+ *                    - -15 : Invalid Option.
  * @section description
- * This API is used to send firmware load request to WiFi module or update default configurations.
+ * This API is used to send a firmware load request to the WiFi module or update default configurations.
  */
-int16_t rsi_select_option(uint8_t cmd)
+int16_t rsi_select_option(uint8_t cmd, uint8_t fw_image_number)
 {
   uint16_t boot_cmd             = 0;
   int16_t retval                = 0;
   uint16_t read_value           = 0;
-  uint8_t image_number          = 0;
   volatile int32_t loop_counter = 0;
 
   boot_cmd = HOST_INTERACT_REG_VALID | cmd;
   if (cmd == CHECK_NWP_INTEGRITY) {
     boot_cmd &= 0xF0FF;
-    boot_cmd = boot_cmd | (uint16_t)(image_number << 8);
+    boot_cmd = boot_cmd | (uint16_t)(fw_image_number << 8);
   }
+
+  // If command is 0x41, clear the upper nibble of the second byte and add firmware image number
+  if (cmd == NWP_FW_LOAD_CMD) {
+    boot_cmd &= 0xF0FF;                           // Clear the upper nibble of the second byte
+    boot_cmd |= (uint16_t)(fw_image_number << 8); // Add the firmware image number
+  }
+
   retval = rsi_boot_insn(REG_WRITE, &boot_cmd);
   if (retval < 0) {
     return retval;
   }
 
-  if ((cmd != LOAD_NWP_FW) && (cmd != LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) && (cmd != RSI_JUMP_TO_PC)) {
+  if ((cmd != LOAD_NWP_FW) && (cmd != LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) && (cmd != RSI_JUMP_TO_PC)
+      && (cmd != NWP_FW_LOAD_CMD)) {
     RSI_RESET_LOOP_COUNTER(loop_counter);
     RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_SELECT_OPTION)
     {
@@ -342,7 +357,8 @@ int16_t rsi_select_option(uint8_t cmd)
       }
     }
     RSI_CHECK_LOOP_COUNTER(loop_counter, RSI_LOOP_COUNT_SELECT_OPTION);
-  } else if ((cmd == LOAD_NWP_FW) || (cmd == LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) || (cmd == RSI_JUMP_TO_PC)) {
+  } else if ((cmd == LOAD_NWP_FW) || (cmd == LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) || (cmd == RSI_JUMP_TO_PC)
+             || (cmd == NWP_FW_LOAD_CMD)) {
     retval = rsi_boot_insn(REG_READ, &read_value);
     if (retval < 0) {
       return retval;

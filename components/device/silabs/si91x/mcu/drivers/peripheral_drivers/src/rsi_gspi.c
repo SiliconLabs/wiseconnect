@@ -394,7 +394,7 @@ void GSPI_Write_Dummy_Byte(const GSPI_RESOURCES *gspi)
   (void)flush_data;
   gspi->reg->GSPI_INTR_MASK |= (GSPI_INTR_MASK_BIT);
   GSPI0->GSPI_CONFIG1_b.GSPI_MANUAL_CSN = 1;
-  while ((GSPI0->GSPI_STATUS & GSPI_MAN_CSN))
+  while (!(GSPI0->GSPI_STATUS & GSPI_MAN_CSN))
     ;
   // Pin mux configuration after all operations
   if (gspi->reg == GSPI0) {

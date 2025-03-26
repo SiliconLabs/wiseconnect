@@ -104,14 +104,6 @@ void sl_si91x_config_timer_init(void)
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *timer_config_ptr)
 {
-  /* CONFIG_TIMER_UC is defined by default. when this macro (CONFIG_TIMER_UC) is defined, peripheral
-  * configuration is directly taken from the configuration set in the universal configuration (UC).
-  * if the application requires the configuration to be changed in run-time, undefined this macro
-  * and change the peripheral configuration.
-  */
-#if (CONFIG_TIMER_UC == 1)
-  timer_config_ptr = &ct_configuration;
-#endif
   uint32_t config_value;
   sl_status_t status;
   do {
@@ -130,6 +122,14 @@ sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *ti
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    /* CONFIG_TIMER_UC is defined by default. when this macro (CONFIG_TIMER_UC) is defined, peripheral
+    * configuration is directly taken from the configuration set in the universal configuration (UC).
+    * if the application requires the configuration to be changed in run-time, undefined this macro
+    * and change the peripheral configuration.
+    */
+#if (CONFIG_TIMER_UC == 1)
+    timer_config_ptr = &ct_configuration;
+#endif
     // Evaluating timer-config parameters ORed value
     status = evaluate_config_params(timer_config_ptr, &config_value);
     if (status != SL_STATUS_OK) {

@@ -425,7 +425,7 @@ static void application_start(void *argument)
           SL_DEBUG_LOG("SSID %s\n", access_point.ssid.value);
 
           sl_wifi_set_join_callback(join_callback_handler, NULL);
-          status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, 15000);
+          status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, 18000);
         } else {
           LOG_PRINT("\r\nFailed to set credentials; status: %lu\n", status);
         }

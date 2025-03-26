@@ -473,6 +473,105 @@ int32_t sli_get_socket_command_from_host_packet(sl_wifi_buffer_t *buffer)
   return (packet == NULL ? -1 : packet->command);
 }
 
+void sli_si91x_create_socket_request(sli_si91x_socket_t *si91x_bsd_socket,
+                                     sl_si91x_socket_create_request_t *socket_create_request,
+                                     int type,
+                                     const int *backlog,
+                                     sl_si91x_wait_period_t *wait_period)
+{
+  if (si91x_bsd_socket->local_address.sin6_family == AF_INET6) {
+    socket_create_request->ip_version = SL_IPV6_VERSION;
+
+    memcpy(socket_create_request->dest_ip_addr.ipv6_address,
+           si91x_bsd_socket->remote_address.sin6_addr.__u6_addr.__u6_addr8,
+           SL_IPV6_ADDRESS_LENGTH);
+  } else {
+    socket_create_request->ip_version = SL_IPV4_ADDRESS_LENGTH;
+    memcpy(socket_create_request->dest_ip_addr.ipv4_address,
+           &((struct sockaddr_in *)&si91x_bsd_socket->remote_address)->sin_addr,
+           SL_IPV4_ADDRESS_LENGTH);
+  }
+
+  socket_create_request->local_port  = si91x_bsd_socket->local_address.sin6_port;
+  socket_create_request->remote_port = si91x_bsd_socket->remote_address.sin6_port;
+
+  // Fill socket type
+  socket_create_request->socket_type = (uint16_t)type;
+
+  if (type == SI91X_SOCKET_TCP_SERVER) {
+    socket_create_request->max_count = (backlog == NULL) ? 0 : (uint16_t)*backlog;
+    socket_create_request->socket_bitmap |= SI91X_SOCKET_FEAT_LTCP_ACCEPT;
+    si91x_bsd_socket->socket_events = osEventFlagsNew(NULL);
+  } else {
+    socket_create_request->max_count = 0;
+  }
+
+  if (si91x_bsd_socket->recv_data_callback == NULL) {
+    socket_create_request->socket_bitmap |= SI91X_SOCKET_FEAT_SYNCHRONOUS;
+  }
+
+  socket_create_request->socket_bitmap |= SI91X_SOCKET_FEAT_TCP_RX_WINDOW;
+
+  // Set the RX window size
+  socket_create_request->rx_window_size = TCP_RX_WINDOW_SIZE;
+
+  // Fill VAP_ID
+  socket_create_request->vap_id                = si91x_bsd_socket->vap_id;
+  socket_create_request->tos                   = 0;
+  socket_create_request->max_tcp_retries_count = si91x_bsd_socket->max_tcp_retries ? si91x_bsd_socket->max_tcp_retries
+                                                                                   : MAX_TCP_RETRY_COUNT;
+  socket_create_request->tcp_keepalive_initial_time = si91x_bsd_socket->tcp_keepalive_initial_time
+                                                        ? si91x_bsd_socket->tcp_keepalive_initial_time
+                                                        : DEFAULT_TCP_KEEP_ALIVE_TIME;
+  socket_create_request->tcp_mss                    = si91x_bsd_socket->mss;
+
+  // Check for SSL feature and fill it in SSL bitmap
+  if ((si91x_bsd_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) || (si91x_bsd_socket->ssl_bitmap & SL_SI91X_ENABLE_DTLS)) {
+    socket_create_request->ssl_bitmap         = si91x_bsd_socket->ssl_bitmap;
+    socket_create_request->ssl_ciphers_bitmap = sl_si91x_socket_selected_ciphers;
+#if defined(SLI_SI917) || defined(SLI_SI915)
+    socket_create_request->ssl_ext_ciphers_bitmap = sl_si91x_socket_selected_extended_ciphers;
+#endif
+    // Check if cert index is not default index
+    if (si91x_bsd_socket->certificate_index > SI91X_CERT_INDEX_0) {
+      socket_create_request->socket_bitmap |= SI91X_SOCKET_FEAT_CERT_INDEX;
+    }
+
+    socket_create_request->socket_cert_inx = si91x_bsd_socket->certificate_index;
+
+    // Check if extension is provided my application and memcopy until the provided size of extensions
+    if (si91x_bsd_socket->tls_extensions.total_extensions > 0) {
+      memcpy(socket_create_request->tls_extension_data,
+             si91x_bsd_socket->tls_extensions.buffer,
+             si91x_bsd_socket->tls_extensions.current_size_of_extensions);
+
+      socket_create_request->total_extension_length = si91x_bsd_socket->tls_extensions.current_size_of_extensions;
+      socket_create_request->no_of_tls_extensions   = si91x_bsd_socket->tls_extensions.total_extensions;
+    }
+    *wait_period = SL_SI91X_WAIT_FOR_RESPONSE(150000); // timeout is 15 sec
+  }
+
+  // Check for HIGH_PERFORMANCE feature bit
+  if (si91x_bsd_socket->ssl_bitmap & SI91X_HIGH_PERFORMANCE_SOCKET) {
+    socket_create_request->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
+  }
+
+  // Check for Websocket feature bit
+  if (si91x_bsd_socket->ssl_bitmap & SI91X_WEBSOCKET_FEAT) {
+    sli_si91x_handle_websocket(socket_create_request, si91x_bsd_socket);
+  }
+
+  // Check for TCP ACK INDICATION feature bit
+  if (si91x_bsd_socket->socket_bitmap & SI91X_SOCKET_FEAT_TCP_ACK_INDICATION) {
+    socket_create_request->socket_bitmap |= SI91X_SOCKET_FEAT_TCP_ACK_INDICATION;
+  }
+#if defined(SLI_SI917) || defined(SLI_SI915)
+  // Set socket's max retransmission timeout value and TOS (Type of Service) if applicable
+  socket_create_request->max_retransmission_timeout_value = (uint8_t)si91x_bsd_socket->max_retransmission_timeout_value;
+  socket_create_request->tos                              = (uint16_t)si91x_bsd_socket->tos;
+#endif
+}
+
 // Prepare socket request based on socket type and send the request down to the driver.
 // socket type : [SL_SOCKET_TCP_SERVER, SL_SOCKET_TCP_CLIENT, SL_SOCKET_LUDP, SL_SOCKET_UDP_CLIENT]
 sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const int *backlog)
@@ -493,97 +592,7 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const in
   sl_wifi_buffer_t *buffer  = NULL;
   sl_si91x_packet_t *packet = NULL;
 
-  if (si91x_bsd_socket->local_address.sin6_family == AF_INET6) {
-    socket_create_request.ip_version = SL_IPV6_VERSION;
-
-    memcpy(socket_create_request.dest_ip_addr.ipv6_address,
-           si91x_bsd_socket->remote_address.sin6_addr.__u6_addr.__u6_addr8,
-           SL_IPV6_ADDRESS_LENGTH);
-  } else {
-    socket_create_request.ip_version = SL_IPV4_ADDRESS_LENGTH;
-    memcpy(socket_create_request.dest_ip_addr.ipv4_address,
-           &((struct sockaddr_in *)&si91x_bsd_socket->remote_address)->sin_addr,
-           SL_IPV4_ADDRESS_LENGTH);
-  }
-
-  socket_create_request.local_port  = si91x_bsd_socket->local_address.sin6_port;
-  socket_create_request.remote_port = si91x_bsd_socket->remote_address.sin6_port;
-
-  // Fill socket type
-  socket_create_request.socket_type = (uint16_t)type;
-
-  if (type == SI91X_SOCKET_TCP_SERVER) {
-    socket_create_request.max_count = (backlog == NULL) ? 0 : (uint16_t)*backlog;
-    socket_create_request.socket_bitmap |= SI91X_SOCKET_FEAT_LTCP_ACCEPT;
-    si91x_bsd_socket->socket_events = osEventFlagsNew(NULL);
-  } else {
-    socket_create_request.max_count = 0;
-  }
-
-  if (si91x_bsd_socket->recv_data_callback == NULL) {
-    socket_create_request.socket_bitmap |= SI91X_SOCKET_FEAT_SYNCHRONOUS;
-  }
-
-  socket_create_request.socket_bitmap |= SI91X_SOCKET_FEAT_TCP_RX_WINDOW;
-
-  // Set the RX window size
-  socket_create_request.rx_window_size = TCP_RX_WINDOW_SIZE;
-
-  // Fill VAP_ID
-  socket_create_request.vap_id                = si91x_bsd_socket->vap_id;
-  socket_create_request.tos                   = 0;
-  socket_create_request.max_tcp_retries_count = si91x_bsd_socket->max_tcp_retries ? si91x_bsd_socket->max_tcp_retries
-                                                                                  : MAX_TCP_RETRY_COUNT;
-  socket_create_request.tcp_keepalive_initial_time = si91x_bsd_socket->tcp_keepalive_initial_time
-                                                       ? si91x_bsd_socket->tcp_keepalive_initial_time
-                                                       : DEFAULT_TCP_KEEP_ALIVE_TIME;
-  socket_create_request.tcp_mss                    = si91x_bsd_socket->mss;
-
-  // Check for SSL feature and fill it in SSL bitmap
-  if (si91x_bsd_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) {
-    socket_create_request.ssl_bitmap         = si91x_bsd_socket->ssl_bitmap;
-    socket_create_request.ssl_ciphers_bitmap = sl_si91x_socket_selected_ciphers;
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    socket_create_request.ssl_ext_ciphers_bitmap = sl_si91x_socket_selected_extended_ciphers;
-#endif
-    // Check if cert index is not default index
-    if (si91x_bsd_socket->certificate_index > SI91X_CERT_INDEX_0) {
-      socket_create_request.socket_bitmap |= SI91X_SOCKET_FEAT_CERT_INDEX;
-    }
-
-    socket_create_request.socket_cert_inx = si91x_bsd_socket->certificate_index;
-
-    // Check if extension is provided my application and memcopy until the provided size of extensions
-    if (si91x_bsd_socket->tls_extensions.total_extensions > 0) {
-      memcpy(socket_create_request.tls_extension_data,
-             si91x_bsd_socket->tls_extensions.buffer,
-             si91x_bsd_socket->tls_extensions.current_size_of_extensions);
-
-      socket_create_request.total_extension_length = si91x_bsd_socket->tls_extensions.current_size_of_extensions;
-      socket_create_request.no_of_tls_extensions   = si91x_bsd_socket->tls_extensions.total_extensions;
-    }
-    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(150000); // timeout is 15 sec
-  }
-
-  // Check for HIGH_PERFORMANCE feature bit
-  if (si91x_bsd_socket->ssl_bitmap & SI91X_HIGH_PERFORMANCE_SOCKET) {
-    socket_create_request.ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
-  }
-
-  // Check for Websocket feature bit
-  if (si91x_bsd_socket->ssl_bitmap & SI91X_WEBSOCKET_FEAT) {
-    sli_si91x_handle_websocket(&socket_create_request, si91x_bsd_socket);
-  }
-
-  // Check for TCP ACK INDICATION feature bit
-  if (si91x_bsd_socket->socket_bitmap & SI91X_SOCKET_FEAT_TCP_ACK_INDICATION) {
-    socket_create_request.socket_bitmap |= SI91X_SOCKET_FEAT_TCP_ACK_INDICATION;
-  }
-#if defined(SLI_SI917) || defined(SLI_SI915)
-  // Set socket's max retransmission timeout value and TOS (Type of Service) if applicable
-  socket_create_request.max_retransmission_timeout_value = (uint8_t)si91x_bsd_socket->max_retransmission_timeout_value;
-  socket_create_request.tos                              = (uint16_t)si91x_bsd_socket->tos;
-#endif
+  sli_si91x_create_socket_request(si91x_bsd_socket, &socket_create_request, type, backlog, &wait_period);
 
   // Store socket role for future references.
   si91x_bsd_socket->role = type;
@@ -665,6 +674,7 @@ int sli_si91x_socket(int family, int type, int protocol, sl_si91x_socket_receive
   si91x_socket->protocol                  = protocol;
   si91x_socket->state                     = INITIALIZED;
   si91x_socket->recv_data_callback        = callback;
+  si91x_socket->client_id                 = -1;
 
   // Return the socket index
   return socket_index;
@@ -695,6 +705,9 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
   if (si91x_client_socket == NULL)
     return -1;
   memcpy(&si91x_client_socket->local_address, &si91x_server_socket->local_address, sizeof(struct sockaddr_in6));
+
+  // Fill VAP_ID
+  si91x_client_socket->vap_id = si91x_server_socket->vap_id;
 
   // Create accept request
   accept_request.socket_id   = (uint8_t)si91x_server_socket->id;
@@ -1200,7 +1213,8 @@ int sli_si91x_get_socket_id(sl_si91x_packet_t *packet)
       if (((sl_si91x_socket_close_response_t *)packet->data)->socket_id == 0) {
         const uint16_t port = ((sl_si91x_socket_close_response_t *)packet->data)->port_number;
         for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
-          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port) {
+          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+              && sli_si91x_sockets[i]->state == LISTEN) {
             return sli_si91x_sockets[i]->id;
           }
         }
@@ -1209,6 +1223,7 @@ int sli_si91x_get_socket_id(sl_si91x_packet_t *packet)
         return ((sl_si91x_socket_close_response_t *)packet->data)->socket_id;
       }
     case RSI_WLAN_RSP_SELECT_REQUEST:
+      __attribute__((fallthrough));
     default:
       return -1;
   }
@@ -1313,6 +1328,135 @@ int sli_si91x_bind(int socket_id, const struct sockaddr *addr, socklen_t addr_le
   return SI91X_NO_ERROR;
 }
 
+bool sli_check_null_sets_and_range(int nfds,
+                                   const fd_set *readfds,
+                                   const fd_set *writefds,
+                                   const struct timeval *timeout)
+{
+
+  // Check if all file descriptor sets are NULL
+  if ((readfds == NULL) && (writefds == NULL)) {
+    return true; // Invalid argument, no sets specified
+  }
+
+  // Check if the number of file descriptors (nfds) is within a valid range
+  if (nfds < 0 || nfds > NUMBER_OF_SOCKETS) {
+    return true; // Invalid argument, nfds out of range
+  }
+
+  // Check if the provided timeout is valid
+  if ((timeout != NULL) && ((timeout->tv_sec < 0) || (timeout->tv_usec < 0))) {
+    return true; // Invalid argument, negative timeout
+  }
+  return false;
+}
+
+uint8_t sli_prepare_select_request(int nfds,
+                                   const fd_set *readfds,
+                                   const fd_set *writefds,
+                                   sl_si91x_socket_select_req_t *request)
+{
+
+  // Loop through the provided file descriptor sets and populate the select request structure
+  for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
+    // Retrieve the si91x_socket associated with the index
+    const sli_si91x_socket_t *socket = get_si91x_socket(host_socket_index);
+
+    // Throw error if the socket file descriptor set is invalid
+    if (socket == NULL
+        && ((readfds != NULL && FD_ISSET(host_socket_index, readfds))
+            || (writefds != NULL && FD_ISSET(host_socket_index, writefds)))) {
+      return EBADF; // Bad file descriptor
+    }
+
+    // The code will reach this if clause in the case of a socket being NULL and the socket being neither set in readfds nor writefds.
+    // Continue to next socket if this one is not in use
+    if (socket == NULL) {
+      continue;
+    }
+
+    // Check if the socket is set for read operations in the readfds set
+    // Set the corresponding bit in the read file descriptor set
+    if ((readfds != NULL) && (FD_ISSET(host_socket_index, readfds))) {
+      request->read_fds.fd_array[0] |= (1U << socket->id);
+    }
+
+    // Check if the socket is set for write operations in the writefds set
+    // Set the corresponding bit in the write file descriptor set
+    if ((writefds != NULL) && (FD_ISSET(host_socket_index, writefds))) {
+      request->write_fds.fd_array[0] |= (1U << socket->id);
+    }
+
+    // Update the maximum file descriptor number encountered
+    if (request->num_fd <= socket->id) {
+      request->num_fd = (uint8_t)(socket->id + 1);
+    }
+  }
+  return 0; // Indicate success
+}
+
+void sli_handle_timeout(const struct timeval *timeout, sl_si91x_socket_select_req_t *request, uint32_t *wait_time)
+{
+  request->select_timeout.tv_sec  = timeout->tv_sec;
+  request->select_timeout.tv_usec = timeout->tv_usec;
+  // Convert timeout to milliseconds and add extra wait time for the response
+  *wait_time = ((request->select_timeout.tv_sec * 1000) + (request->select_timeout.tv_usec / 1000)
+                + SI91X_HOST_WAIT_FOR_SELECT_RSP);
+}
+
+sl_status_t sli_wait_for_select_response(const sl_si91x_socket_select_req_t *request, uint32_t wait_time)
+{
+  // Start measuring the time for the select operation
+  uint32_t start_time   = osKernelGetTickCount();
+  uint32_t elapsed_time = 0;
+  sl_status_t status    = SL_STATUS_OK;
+
+  do {
+    // Wait for the select response event (using the select_id)
+    uint32_t events =
+      osEventFlagsWait(si91x_socket_select_events, BIT(request->select_id), osFlagsWaitAny, (wait_time - elapsed_time));
+
+    // Handle cases where the wait times out or resources are unavailable
+    if (events == (uint32_t)osErrorTimeout || events == (uint32_t)osErrorResource) {
+      return SL_STATUS_TIMEOUT; // Set status to timeout if no response was received
+    }
+
+    // Check if the response data for the select request is available
+    if (select_request_table[request->select_id].response_data != NULL) {
+      break; // Exit the loop if response is received
+    }
+
+    // Update the elapsed time
+    elapsed_time = sl_si91x_host_elapsed_time(start_time);
+  } while (elapsed_time <= wait_time);
+
+  return status;
+}
+
+int32_t sli_handle_select_result(const sli_si91x_select_request_t *select_request,
+                                 fd_set *readfds,
+                                 fd_set *writefds,
+                                 fd_set *exceptfds)
+{
+  // Initialize the total file descriptor count
+  int32_t total_fd_set_count = -1;
+  // If the firmware status is OK, process the select response and update the file descriptor sets
+  if (select_request_table[select_request->select_id].frame_status == SL_STATUS_OK) {
+    total_fd_set_count = handle_select_response(select_request_table[select_request->select_id].response_data,
+                                                readfds,
+                                                writefds,
+                                                exceptfds);
+  }
+
+  // Free the memory allocated for the response data
+  free(select_request_table[select_request->select_id].response_data);
+  // Clear the select ID in the internal table
+  sli_si91x_clear_select_id(select_request->select_id);
+
+  // Return the total number of file descriptors set in the read, write, or exception sets
+  return total_fd_set_count;
+}
+
 int sli_si91x_select(int nfds,
                      fd_set *readfds,
                      fd_set *writefds,
@@ -1327,64 +1471,18 @@ int sli_si91x_select(int nfds,
   // Define a structure to hold the select request parameters
   sl_si91x_socket_select_req_t request = { 0 };
 
-  // Check if all file descriptor sets are NULL
-  if ((readfds == NULL) && (writefds == NULL)) {
-    SET_ERROR_AND_RETURN(EINVAL); // Invalid argument, no sets specified
+  if (sli_check_null_sets_and_range(nfds, readfds, writefds, timeout)) {
+    SET_ERROR_AND_RETURN(EINVAL);
   }
 
-  // Check if the number of file descriptors (nfds) is within a valid range
-  if (nfds < 0 || nfds > NUMBER_OF_SOCKETS) {
-    SET_ERROR_AND_RETURN(EINVAL); // Invalid argument, nfds out of range
+  // Prepare the select request structure
+  uint8_t error = sli_prepare_select_request(nfds, readfds, writefds, &request);
+  if (error != 0) {
+    SET_ERROR_AND_RETURN(EBADF);
   }
 
-  // Check if the provided timeout is valid
-  if ((timeout != NULL) && ((timeout->tv_sec < 0) || (timeout->tv_usec < 0))) {
-    SET_ERROR_AND_RETURN(EINVAL); // Invalid argument, negative timeout
-  }
-
-  // Loop through the provided file descriptor sets and populate the select request structure
-  for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
-    const sli_si91x_socket_t *socket =
-      get_si91x_socket(host_socket_index); // Retrieve the si91x_socket associated with the index
-
-    // Throw error if the socket file descriptor set is invalid
-    if (socket == NULL
-        && ((readfds != NULL && FD_ISSET(host_socket_index, readfds))
-            || (writefds != NULL && FD_ISSET(host_socket_index, writefds)))) {
-      SET_ERROR_AND_RETURN(EBADF); // Bad file descriptor
-    }
-
-    // The code will reach this if clause in the case of a socket being NULL and the socket being neither set in readfds nor writefds.
-    // Continue to next socket if this one is not in use
-    if (socket == NULL) {
-      continue;
-    }
-
-    // Check if the socket is set for read operations in the readfds set
-    // Set the corresponding bit in the read file descriptor set
-    if ((readfds != NULL) && (FD_ISSET(host_socket_index, readfds))) {
-      request.read_fds.fd_array[0] |= (1U << socket->id);
-    }
-
-    // Check if the socket is set for write operations in the writefds set
-    // Set the corresponding bit in the write file descriptor set
-    if ((writefds != NULL) && (FD_ISSET(host_socket_index, writefds))) {
-      request.write_fds.fd_array[0] |= (1U << socket->id);
-    }
-
-    // Update the maximum file descriptor number encountered
-    if (request.num_fd <= socket->id) {
-      request.num_fd = (uint8_t)(socket->id + 1);
-    }
-  }
-
-  // Handle timeout: If a timeout is provided, calculate the wait time
   if (timeout != NULL) {
-    request.select_timeout.tv_sec  = timeout->tv_sec;
-    request.select_timeout.tv_usec = timeout->tv_usec;
-    // Convert timeout to milliseconds and add extra wait time for the response
-    select_response_wait_time = ((request.select_timeout.tv_sec * 1000) + (request.select_timeout.tv_usec / 1000)
-                                 + SI91X_HOST_WAIT_FOR_SELECT_RSP);
+    sli_handle_timeout(timeout, &request, &select_response_wait_time);
   } else {
     // If no timeout is specified, set the request to indicate no timeout and wait indefinitely
     request.no_timeout        = 1;
@@ -1397,7 +1495,6 @@ int sli_si91x_select(int nfds,
   SET_ERRNO_AND_RETURN_IF_TRUE((select_request == NULL), EPERM);
   // Assign the callback function for this select request
   select_request->select_callback = callback;
-
   // Set the select_id in the request structure
   request.select_id = select_request->select_id;
 
@@ -1415,33 +1512,7 @@ int sli_si91x_select(int nfds,
     return SL_SI91X_RETURN_IMMEDIATELY;
   }
 
-  // Start measuring the time for the select operation
-  uint32_t start_time   = osKernelGetTickCount();
-  uint32_t elapsed_time = 0;
-
-  do {
-    // Wait for the select response event (using the select_id)
-    uint32_t events = osEventFlagsWait(si91x_socket_select_events,
-                                       BIT(request.select_id),
-                                       osFlagsWaitAny,
-                                       (select_response_wait_time - elapsed_time));
-
-    // Handle cases where the wait times out or resources are unavailable
-    if (events == (uint32_t)osErrorTimeout || events == (uint32_t)osErrorResource) {
-      status = SL_STATUS_TIMEOUT; // Set status to timeout if no response was received
-      break;
-    } else {
-      status = SL_STATUS_OK; // Set status to OK if response was received
-    }
-
-    // Check if the response data for the select request is available
-    if (select_request_table[request.select_id].response_data != NULL) {
-      break; // Exit the loop if response is received
-    }
-
-    // Update the elapsed time
-    elapsed_time = sl_si91x_host_elapsed_time(start_time);
-  } while (elapsed_time <= select_response_wait_time);
+  status = sli_wait_for_select_response(&request, select_response_wait_time);
 
   // If the select operation timed out or failed, clear the select ID and exit
   if (status != SL_STATUS_OK) {
@@ -1450,24 +1521,9 @@ int sli_si91x_select(int nfds,
   // Verify the status and return if an error occurred
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
-  // Convert and save the firmware status from the select request
   convert_and_save_firmware_status(select_request_table[request.select_id].frame_status);
 
-  // Initialize the total file descriptor count
-  int32_t total_fd_set_count = -1;
-  // If the firmware status is OK, process the select response and update the file descriptor sets
-  if (select_request_table[request.select_id].frame_status == SL_STATUS_OK) {
-    total_fd_set_count =
-      handle_select_response(select_request_table[request.select_id].response_data, readfds, writefds, exceptfds);
-  }
-
-  // Free the memory allocated for the response data
-  free(select_request_table[request.select_id].response_data);
-  // Clear the select ID in the internal table
-  sli_si91x_clear_select_id(request.select_id);
-
-  // Return the total number of file descriptors set in the read, write, or exception sets
-  return total_fd_set_count;
+  return sli_handle_select_result(select_request, readfds, writefds, exceptfds);
 }
 
 static sli_si91x_select_request_t *sli_si91x_get_available_select_id(void)
@@ -1548,6 +1604,30 @@ sl_status_t sli_si91x_flush_select_request_table(uint16_t error_code)
   }
   // Return SL_STATUS_OK to indicate the function completed successfully
   return SL_STATUS_OK;
+}
+
+sl_status_t sli_si91x_udp_connect_if_unconnected(sli_si91x_socket_t *si91x_socket,
+                                                 const struct sockaddr *to_addr,
+                                                 socklen_t to_addr_len,
+                                                 int socket_id)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (si91x_socket->type == SOCK_DGRAM && (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED)) {
+    if (si91x_socket->ssl_bitmap & SL_SI91X_ENABLE_DTLS) {
+      memcpy(&si91x_socket->remote_address,
+             to_addr,
+             (to_addr_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6) : to_addr_len);
+    }
+    status = create_and_send_socket_request(socket_id, SI91X_SOCKET_UDP_CLIENT, NULL);
+
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    si91x_socket->state = UDP_UNCONNECTED_READY;
+  }
+
+  return status;
 }
 
 void sl_si91x_set_socket_cipherlist(uint32_t cipher_list)

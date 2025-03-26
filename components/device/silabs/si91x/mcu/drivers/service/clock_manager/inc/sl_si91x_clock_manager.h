@@ -48,7 +48,8 @@ extern "C" {
 // -----------------------------------------------------------------------------------
 // GLOBAL DEFINES / MACROS
 // Macros for defining supported PLL Ref Clock frequencies
-#define PLL_REF_CLK_VAL_XTAL (40000000UL) ///< PLL reference clock frequency value of XTAL CLK
+#define PLL_REF_CLK_VAL_XTAL (40000000UL)  ///< PLL reference clock frequency value of XTAL CLK
+#define MAX_PLL_FREQUENCY    (180000000UL) ///< Max PLL frequency is 180MHz
 // -----------------------------------------------------------------------------------
 
 /***************************************************************************/

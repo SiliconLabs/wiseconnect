@@ -111,7 +111,7 @@ void rsi_sta_connected_notification_to_host(uint8 *mac_addr, uint8 con_event_typ
                                      ((uint32)rxPkt + SL_PKT_GET_RXPKT_HOST_DESC_OFFSET(rxPkt) + (HOST_DESC_LENGTH)));
   sl_memcpy((uint8 *)SL_PKT_GET_RXPKT_SCATTER_BUFF_ADDR(rxPkt, 0), mac_addr, 6);
   SL_PKT_SET_RXPKT_NEXT_PTR(rxPkt, NULL);
-  sl_send_host_rx_pkt(rxPkt);
+  sli_send_host_rx_pkt(rxPkt);
 }
 
 #if 1 //ndef ROM_IMAGE_20
@@ -209,10 +209,7 @@ int16 sli_process_on_air_mgmt(uint8 *buf, uint16 len, int rcv_freq, int rcv_rssi
       meta_data->rssiVal    = -rcv_rssi;
       /* If user configured ssid exists then allow only probe responses with
      * matching ssid*/
-      if (((mgmt_if_adapter.state >= WISE_STATE_CONNECTED) && (mgmt_if_adapter.multi_probe == 1))
-          || (!mgmt_if_adapter.ssid_len)
-          || (mgmt_if_adapter.ssid_len == buf[37]
-              && sl_memcmp(&buf[38], (uint8 *)sl_get_ssid_from_mgmt_if_adapter(), mgmt_if_adapter.ssid_len) == 0)) {
+      if (check_ssid_match(&buf[37])) {
         /* process the scan result of the received probe response BSSID */
         if (process_tx_bss_scan_result(buf, ies_len, (uint8 *)meta_data) == -1)
           goto out;
@@ -939,6 +936,12 @@ void send_supplicant_command(uint8 *txPkt)
       bg_scan.ssid_len = sl_strlen((char *)scan_cb->scanFrameSnd.ssid);
       if (bg_scan.ssid_len > 0) {
         sl_memcpy(bg_scan.ssid, scan_cb->scanFrameSnd.ssid, bg_scan.ssid_len);
+
+        // copy scan ssid into bgscan
+        mgmt_if_adapter.bgscan_ssid_len = bg_scan.ssid_len;
+        sl_memcpy((char *)mgmt_if_adapter.bgscan_ssid,
+                  (char *)scan_cb->scanFrameSnd.ssid,
+                  mgmt_if_adapter.bgscan_ssid_len);
       }
 
       //! Fill channel bitmap
@@ -1090,8 +1093,9 @@ void send_supplicant_command(uint8 *txPkt)
             if (mgmt_if_adapter.region_code == 1) {
               (*(uint16 *)&scan_cb->scanFrameSnd.channel_bit_mask[0]) = 0x7FF;
             }
-            /* For EU and KR region, upto 13-channels */
-            else if ((mgmt_if_adapter.region_code == 2) || (mgmt_if_adapter.region_code == 5)) {
+            // For EU, KR and CN(SRRC) region, upto 13-channels
+            else if ((mgmt_if_adapter.region_code == 2) || (mgmt_if_adapter.region_code == 5)
+                     || (mgmt_if_adapter.region_code == REGION_CN_NUM)) {
               (*(uint16 *)&scan_cb->scanFrameSnd.channel_bit_mask[0]) = 0x1FFF;
             }
             /* For World mode and JAPAN mode upto 14-channels */
@@ -2016,7 +2020,7 @@ int8 get_scan_results(uint8 scan_flag)
   else
 #endif
   {
-    sl_send_host_rx_pkt((uint8 *)rxPkt);
+    sli_send_host_rx_pkt((uint8 *)rxPkt);
   }
   return 0;
 }
@@ -2028,7 +2032,6 @@ static void set_module_mac(uint8 *mac)
   sl_memcpy(app_info->PermanentAddress, mac, MAC_ADDR_LEN);
 #endif /* DATA_PATH_UMAC_ENABLE */
   sl_memcpy(mgmt_if_adapter.mac_first_if, mac, MAC_ADDR_LEN);
-  /* During the card ready read, we did not take the mac address into sc_params so take it here */
   if (mgmt_if_adapter.operating_mode == WISE_CONCURRENT_MODE) {
     sl_memcpy(mgmt_if_adapter.mac_second_if, mac + MAC_ADDR_LEN, MAC_ADDR_LEN);
   }
@@ -2879,7 +2882,7 @@ void wise_module_state(uint8 currentState)
               &notification,
               SL_PKT_GET_RXPKT_SCATTER_BUFF_LEN(rxPkt, 0));
     SL_PKT_SET_RXPKT_NEXT_PTR(rxPkt, NULL);
-    sl_send_host_rx_pkt(rxPkt);
+    sli_send_host_rx_pkt(rxPkt);
   } else {
     uint16 assertion_val = UMAC_ASSERT_NO_BUFFER_FOR_ASYNC_MSG_IN_STATE_I;
     switch (currentState) {

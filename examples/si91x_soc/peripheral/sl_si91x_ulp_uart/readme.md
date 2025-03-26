@@ -172,3 +172,7 @@ Follow the steps below for successful execution of the application:
 
 > **Note:**
 > Header connection pin references mentioned here are all specific to BRD4338A. If user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.
+>
+> **Note:**
+>
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, as the wireless shutdown scenario is not supported in the current SDK.

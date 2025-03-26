@@ -30,7 +30,7 @@
 
 #include "rsi_sysrtc.h"
 #include "sl_sysrtc_board.h"
-#define SET_ULP_MCUAPB_TA_CTRL (*(volatile uint32_t *)(0x41300008))
+
 #if defined(SI91X_SYSRTC_COUNT) && (SI91X_SYSRTC_COUNT > 0)
 
 // SYSRTC Default pins for compare group is taken as Mode 3
@@ -91,7 +91,9 @@ void rsi_sysrtc_init(const rsi_sysrtc_config_t *p_config)
     // Wait to be ready
     rsi_sysrtc_wait_ready();
   }
-  SET_ULP_MCUAPB_TA_CTRL |= BIT(16);
+  // BIT-16 in the "NWPAON_NPSS_PWRCTRL_SET_REG" register is used to keep the SYSRTC active during sleep mode.
+  // Previously, this bit was manually set from the M4 core. However, it is now enabled by default in the TA firmware,
+  // so manual configuration from the M4 is no longer required.
   // Set configuration
   SYSRTC0->CFG = (p_config->enable_debug_run ? 1UL : 0UL) << _SYSRTC_CFG_DEBUGRUN_SHIFT;
 }
@@ -143,20 +145,12 @@ void rsi_sysrtc_set_capture_reg(const uint32_t group)
  ******************************************************************************/
 void rsi_sysrtc_set_capture_gpio(const uint32_t group)
 {
-  uint8_t gpio_pin;
-  uint8_t gpio_mode;
-  switch (group) {
-    case 0:
-      gpio_pin  = SL_SI91X_SYSRTC_GROUP0_CAPTURE_PIN;
-      gpio_mode = SL_SI91X_SYSRTC_GROUP0_CAPTURE_MODE;
-      break;
-    case 1:
-      gpio_pin  = SL_SI91X_SYSRTC_GROUP1_CAPTURE_PIN;
-      gpio_mode = SL_SI91X_SYSRTC_GROUP1_CAPTURE_MODE;
-      break;
-    default:
+  uint8_t gpio_pin  = SL_SI91X_SYSRTC_GROUP0_CAPTURE_PIN;
+  uint8_t gpio_mode = SL_SI91X_SYSRTC_GROUP0_CAPTURE_MODE;
 
-      break;
+  if (group == 1) {
+    gpio_pin  = SL_SI91X_SYSRTC_GROUP1_CAPTURE_PIN;
+    gpio_mode = SL_SI91X_SYSRTC_GROUP1_CAPTURE_MODE;
   }
   if (group <= 1) {
     RSI_NPSSGPIO_InputBufferEn(gpio_pin, 1U);
@@ -170,28 +164,20 @@ void rsi_sysrtc_set_capture_gpio(const uint32_t group)
  ******************************************************************************/
 void rsi_sysrtc_set_compare_gpio(const uint32_t group, const uint32_t chan)
 {
-  uint8_t ch0_gpio_pin;
-  uint8_t ch1_gpio_pin;
-  uint8_t gpio_mode;
+  uint8_t ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN1;
+  uint8_t ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN2;
+  uint8_t gpio_mode    = SL_SI91X_SYSRTC_GROUP1_COMPARE_MODE;
 
-  switch (group) {
-    case 0:
+  if (group == 0) {
 #ifdef SYSRTC_CMP_DEF_PINS
-      ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN1;
-      ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN2;
-      gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_MODE;
+    ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN1;
+    ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN2;
+    gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_MODE;
 #else
-      ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN1;
-      ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN2;
-      gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_MODE;
+    ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN1;
+    ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN2;
+    gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_MODE;
 #endif
-      break;
-    case 1:
-      ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN1;
-      ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN2;
-      gpio_mode    = SL_SI91X_SYSRTC_GROUP1_COMPARE_MODE;
-
-      break;
   }
   if (group <= 1) {
     RSI_NPSSGPIO_InputBufferEn(ch0_gpio_pin, 1U);
@@ -204,7 +190,6 @@ void rsi_sysrtc_set_compare_gpio(const uint32_t group, const uint32_t chan)
       RSI_NPSSGPIO_SetDir(ch1_gpio_pin, 0U);
     }
   }
-  return;
 }
 
 /***************************************************************************/ /**

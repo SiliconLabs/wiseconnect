@@ -22,16 +22,16 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define WRITE_ADD_1 0x00001   // efuse address 1
-#define WRITE_ADD_2 0x00002   // efuse address 2
-#define HOLD        40        // Hold Time
-#define CLOCK       170000000 // Clock Time
-#define BIT_POS_0   0         // Bit position 0
-#define BIT_POS_1   1         // Bit position 1
-#define BIT_POS_3   3         // Bit position 3
-#define BIT_POS_5   5         // Bit position 5
-#define MATCH_BYTE  0x2A      // 1 byte to be read
-#define MATCH_WORD  0x032A    // 1 word to be read
+#define WRITE_ADD_1 0x00001 // efuse address 1
+#define WRITE_ADD_2 0x00002 // efuse address 2
+#define HOLD        40      // Hold Time
+#define CLOCK       100     // Clock
+#define BIT_POS_0   0       // Bit position 0
+#define BIT_POS_1   1       // Bit position 1
+#define BIT_POS_3   3       // Bit position 3
+#define BIT_POS_5   5       // Bit position 5
+#define MATCH_BYTE  0x2A    // 1 byte to be read
+#define MATCH_WORD  0x032A  // 1 word to be read
 
 /* Since efuse is a one-time programmable, WRITE_ENABLE macro must not be enabled unless user wants to use efuse write */
 #define WRITE_ENABLE 0 // Enables efuse write if set to '1'

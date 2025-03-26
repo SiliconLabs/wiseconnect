@@ -35,10 +35,15 @@
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
-#define BUTTON_M4_INTR            6 // M4 Pin interrupt number
-#define BUTTON_UULP_INTR          2 // UULP GPIO pin interrupt 2
-#define AVL_INTR_NO               0 // available interrupt number
-#define SL_SI91x_MAX_BUTTON_COUNT SL_SI91x_BUTTON_COUNT
+#define BUTTON_M4_INTR   6 // M4 Pin interrupt number
+#define BUTTON_UULP_INTR 2 // UULP GPIO pin interrupt 2
+#define AVL_INTR_NO      0 // available interrupt number
+
+#define MAX_HP_BUTTON_COUNT   8 // The maximum number of HP GPIO interrupts that can be configured simultaneously.
+#define MAX_ULP_BUTTON_COUNT  8 // The maximum number of ULP GPIO interrupts that can be configured simultaneously.
+#define MAX_UULP_BUTTON_COUNT 5 // The maximum number of UULP GPIO interrupts that can be configured simultaneously.
+#define SL_SI91x_MAX_BUTTON_COUNT \
+  MAX_HP_BUTTON_COUNT + MAX_ULP_BUTTON_COUNT + MAX_UULP_BUTTON_COUNT // Total available GPIO interrupts
 
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
@@ -53,9 +58,9 @@ uint8_t ULP_button_index = 0;
 // This stores the button state so that IRQ ISRs know when to notify buttonIsrs.
 #if (SL_SI91x_BUTTON_COUNT > 0)
 static int8_t buttonState[SL_SI91x_BUTTON_COUNT];
-const sl_button_t *HP_button_context[SL_SI91x_BUTTON_COUNT];
-const sl_button_t *ULP_button_context[SL_SI91x_BUTTON_COUNT];
-const sl_button_t *UULP_button_context[SL_SI91x_BUTTON_COUNT];
+const sl_button_t *HP_button_context[MAX_HP_BUTTON_COUNT];
+const sl_button_t *ULP_button_context[MAX_ULP_BUTTON_COUNT];
+const sl_button_t *UULP_button_context[MAX_UULP_BUTTON_COUNT];
 #endif //(SL_SI91x_BUTTON_COUNT > 0)
 
 /*******************************************************************************

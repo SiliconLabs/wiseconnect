@@ -256,6 +256,30 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
       break;
     }
 #endif
+
+    case SL_SI91X_SO_DTLS_ENABLE: {
+      // Enable DTLS for the socket
+      SET_ERRNO_AND_RETURN_IF_TRUE((*(uint16_t *)option_value) != SL_SI91X_ENABLE_DTLS, EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_DTLS;
+      break;
+    }
+
+    case SL_SI91X_SO_DTLS_V_1_0_ENABLE: {
+      // Enable DTLS version 1.0 for the socket
+      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint16_t *)option_value) != (SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_0)),
+                                   EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_0;
+      break;
+    }
+
+    case SL_SI91X_SO_DTLS_V_1_2_ENABLE: {
+      // Enable DTLS version 1.0 for the socket
+      SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint16_t *)option_value) != (SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_2)),
+                                   EINVAL);
+      si91x_socket->ssl_bitmap |= SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_2;
+      break;
+    }
+
     default: {
       // Invalid socket option
       SET_ERROR_AND_RETURN(ENOPROTOOPT);

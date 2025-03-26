@@ -34,3 +34,5 @@ template_contribution:
 documentation:
     docset: wiseconnect
     document: wiseconnect-api-reference-guide-si91x-peripherals/sdio
+conflicts:
+  - name: sl_hspi_secondary    

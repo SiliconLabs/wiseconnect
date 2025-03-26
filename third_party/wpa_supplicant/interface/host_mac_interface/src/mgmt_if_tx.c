@@ -219,7 +219,7 @@ sl_status_t rsi_send_eapol_cmd(uint8 *data, size_t data_len, uint8 *msg, uint8 c
   /* Copy the msg TODO Try to avoid sl_memcpy here */
   sl_memcpy(scatter_buf0_addr, msg, SL_ETH_HDR_LEN);
 
-  status = sli_send_pkt_to_nhcp_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
+  status = sli_hal_nhcp_send_pkt_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\nFailed to send TX packet to NWP: 0x%lX\r\n", status);
     SL_MGMT_ASSERT(0);
@@ -249,7 +249,7 @@ sl_status_t rsi_set_keys_frame_cmd(set_keys_t *tmp_setkey, uint8 ap_iface, uint1
   SL_PKT_TX_HDESC_SET_DW0_QNUM(txPkt, SL_WLAN_MGMT_Q);
   *keys_configured = 1;
 
-  status = sli_send_pkt_to_nhcp_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
+  status = sli_hal_nhcp_send_pkt_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\nFailed to send TX packet to NWP: 0x%lX\r\n", status);
     SL_MGMT_ASSERT(0);

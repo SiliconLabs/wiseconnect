@@ -68,10 +68,3 @@ typedef struct {
 #define SPI_USART_LDMA_TX     ldmaPeripheralSignal_USART2_TXBL
 #define SPI_USART_LDMA_RX     ldmaPeripheralSignal_USART2_RXDATAV
 #define SPI_USART_ROUTE_INDEX 2
-
-#ifdef SL_NCP_UART_INTERFACE
-#define NCP_RX_IRQ USART0_RX_IRQn
-#else
-#define NCP_RX_IRQ GPIO_ODD_IRQn
-#endif
-#define PACKET_PENDING_INT_PRI 3

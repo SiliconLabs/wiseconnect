@@ -52,7 +52,7 @@
 //   ! MACROS
 /*=======================================================================*/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        5000
+#define TIMEOUT_MS        18000
 #define WIFI_SCAN_TIMEOUT 10000
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)

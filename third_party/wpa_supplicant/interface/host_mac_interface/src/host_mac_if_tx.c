@@ -52,7 +52,7 @@ int32 send_msg_to_nwp(uint8 *data, uint16 data_len, uint32 data_type)
   SL_PKT_SET_TXPKT_NEXT_PTR(txPkt, 0);
   SL_PKT_TX_HDESC_SET_DW0_FRAME_TYPE(txPkt, data_type);
 
-  status = sli_send_pkt_to_nhcp_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
+  status = sli_hal_nhcp_send_pkt_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\nFailed to send TX packet to NWP: 0x%lX\r\n", status);
     SL_MGMT_ASSERT(0);
@@ -96,7 +96,7 @@ int32 send_msg_to_nwp_2(uint8 *buf,
   }
 
   /* TODO : Try passing type as 0 in sl_mgmt_prepare_tx_pkt and accordingly remove below lines */
-  SL_PKT_TX_HDESC_SET_DW0_LENGTH(txPkt, buf_len);
+  SL_PKT_TX_HDESC_SET_DW0_LENGTH(txPkt, (buf_len + offset_len));
   SL_PKT_TX_HDESC_SET_DW0_QNUM(txPkt, SL_WLAN_MGMT_Q);
   SL_PKT_TX_HDESC_SET_DW0_FRAME_TYPE(txPkt, frame_type);
 
@@ -114,7 +114,7 @@ int32 send_msg_to_nwp_2(uint8 *buf,
     SL_PKT_TX_HDESC_SET_DW2_B1(txPkt, 0);
   }
 
-  status = sli_send_pkt_to_nhcp_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
+  status = sli_hal_nhcp_send_pkt_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\nFailed to send TX packet to NWP: 0x%lX\r\n", status);
     SL_MGMT_ASSERT(0);

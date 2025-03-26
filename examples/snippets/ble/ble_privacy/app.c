@@ -427,7 +427,7 @@ static void rsi_ble_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconn
  * @return     none.
  * @section description
  * This callback function is invoked when an SMP request event is received (we are in central mode)
- * Note: slave requested to start SMP request, we have to send SMP request command
+ * Note: peripheral requested to start SMP request, we have to send SMP request command
  */
 void rsi_ble_on_smp_request(rsi_bt_event_smp_req_t *remote_dev_address)
 {

@@ -976,6 +976,46 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
 }
 /*==============================================*/
 /**
+ * @fn         int32_t rsi_ble_set_att_cmd_async(uint8_t *dev_addr, uint16_t handle,
+ *                                         uint8_t data_len, uint8_t *p_data)
+ * @brief      Set the attribute value without waiting for an ACK from the remote device. This is a Blocking API.
+ *             If the API returns RSI_ERROR_BLE_DEV_BUF_FULL  (-31) error then wait untill the \ref rsi_ble_on_le_more_data_req_t event gets received from the module.
+ * @pre        \ref rsi_ble_connect() API needs to be called before this API.
+ * @param[in]  dev_addr - remote device address
+ * @param[in]  handle 	- attribute value handle
+ * @param[in]  data_len - attribute value length
+ * @param[in]  p_data 	- attribute value
+ * @return     0		-	Success \n
+ *             Non-Zero Value	-	Failure \n
+ *             0x4E60  -  Invalid Handle range \n
+ *             0x4E62  -  Invalid Parameters \n
+ *             0x4D04  -  BLE not connected \n
+ *             0x4D05  -  BLE Socket not available \n
+ *             0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured \n
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ *
+ */
+
+int32_t rsi_ble_set_att_cmd_async(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, const uint8_t *p_data)
+{
+
+  SL_PRINTF(SL_RSI_BLE_SET_ATT_COMMAND_ASYNC, BLE, LOG_INFO, "HANDLE: %2x, DATA_LEN: %1x", handle, data_len);
+  rsi_ble_set_att_cmd_t set_att_cmd_A;
+  memset(&set_att_cmd_A, 0, sizeof(set_att_cmd_A));
+#ifdef BD_ADDR_IN_ASCII
+  rsi_ascii_dev_address_to_6bytes_rev(set_att_cmd_A.dev_addr, dev_addr);
+#else
+  memcpy((uint8_t *)set_att_cmd_A.dev_addr, (int8_t *)dev_addr, 6);
+#endif
+  rsi_uint16_to_2bytes(set_att_cmd_A.handle, handle);
+  set_att_cmd_A.length = (uint8_t)(RSI_MIN(sizeof(set_att_cmd_A.att_value), data_len));
+  memcpy(set_att_cmd_A.att_value, p_data, set_att_cmd_A.length);
+
+  return rsi_bt_driver_send_cmd(RSI_BLE_REQ_WRITE_NO_ACK, &set_att_cmd_A, NULL);
+}
+
+/*==============================================*/
+/**
  * @fn         int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle,
  *                                         uint8_t data_len, uint8_t *p_data)
  * @brief      Set the attribute value without waiting for an ACK from the remote device. This is a Blocking API.
@@ -999,7 +1039,7 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
 int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, const uint8_t *p_data)
 {
 
-  SL_PRINTF(SL_RSI_BLE_SET_ATT_COMMAND, BLE, LOG_INFO, "HANDLE: %2x, DATA_LEN: %1x", handle, data_len);
+  SL_PRINTF(SL_RSI_BLE_SET_ATT_COMMAND, BLE, LOG_INFO);
   rsi_ble_set_att_cmd_t set_att_cmd;
   memset(&set_att_cmd, 0, sizeof(set_att_cmd));
 #ifdef BD_ADDR_IN_ASCII
@@ -1010,7 +1050,6 @@ int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len
   rsi_uint16_to_2bytes(set_att_cmd.handle, handle);
   set_att_cmd.length = (uint8_t)(RSI_MIN(sizeof(set_att_cmd.att_value), data_len));
   memcpy(set_att_cmd.att_value, p_data, set_att_cmd.length);
-
   return rsi_bt_driver_send_cmd(RSI_BLE_REQ_WRITE_NO_ACK, &set_att_cmd, NULL);
 }
 

@@ -73,7 +73,7 @@ define:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/image502a.png
+  - path: resources/readme/setup_diagram_soc.png
   - path: resources/readme/output.png
 ui_hints:
   highlight:

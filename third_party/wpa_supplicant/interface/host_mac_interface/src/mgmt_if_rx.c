@@ -76,7 +76,7 @@ int16 mgmtif_rx_process_on_air_mgmt(uint8 *rxPkt)
       return WLAN_STATUS_SUCCESS;
     }
   } else {
-    return sl_send_host_rx_pkt(rxPkt);
+    return sli_send_host_rx_pkt(rxPkt);
   }
 
   return WLAN_STATUS_SUCCESS;
@@ -244,11 +244,11 @@ int16 mgmtif_rx_process_on_air_mgmt_pkt(uint8 *rxPkt, uint8 *send_to_host)
 
     SL_PKT_RX_HDESC_SET_DW3_TOKEN(rxPkt, 0x0);
     *send_to_host = 1;
-    SL_PKT_TX_HDESC_SET_DW3_QUEUE_ID(rxPkt, UMAC_DATA_QUEUE0);
+    SL_PKT_RX_HDESC_SET_DW3_QUEUE_ID(rxPkt, UMAC_DATA_QUEUE0);
 
     return WLAN_STATUS_SUCCESS;
   } else
-    SL_PKT_TX_HDESC_SET_DW3_QUEUE_ID(rxPkt, UMAC_DATA_QUEUE1);
+    SL_PKT_RX_HDESC_SET_DW3_QUEUE_ID(rxPkt, UMAC_DATA_QUEUE1);
 
   return mgmtif_process_on_air_mgmt_pkt((uint8 *)rxPkt, buf, msg_len, rcv_freq, rcv_rssi, rcv_channel);
 }
@@ -493,7 +493,7 @@ static int16 decode_mgmt_cmd_response(uint8 *rx_pkt)
     // Dword3 Queue ID bit is used to indicate whether the pkt should be freed.
     // Setting it to zero so that pkt is not freed until sending to host is complete.
     SL_PKT_RX_HDESC_SET_DW3_QUEUE_ID(rx_pkt, 0);
-    retval = sl_send_host_rx_pkt(rx_pkt);
+    retval = sli_send_host_rx_pkt(rx_pkt);
   } else if (!default_case) {
     SL_PKT_RX_HDESC_SET_DW3_QUEUE_ID(rx_pkt, 1);
   }

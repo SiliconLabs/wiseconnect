@@ -114,8 +114,8 @@ static uint16 parse_gain_table_command(WLAN_USR_GAIN_TABLE_Req *gain_table_info)
   for (ii = 0; ii < number_of_regions; ii++) {
     region_code = gain_table_info->gain_table[offset++];
 
-    if ((region_code != REGION_US_NUM) && (region_code != REGION_EU_NUM) && (region_code != REGION_JAP_NUM)
-        && (region_code != REGION_WRLD_NUM) && (region_code != REGION_KR_NUM)) {
+    if ((region_code != REGION_FCC) && (region_code != REGION_ETSI) && (region_code != REGION_TELEC)
+        && (region_code != REGION_WORLD_WIDE) && (region_code != REGION_KCC) && (region_code != REGION_SRRC)) {
       return REGION_CODE_NOT_SUPPORTED;
     }
 
@@ -328,6 +328,23 @@ static int16 check_state(uint16 cmd, uint8 operating_mode)
 
     case SLI_WLAN_REQ_RSSI: {
       ret_val = (mgmt_if_adapter.state < WISE_STATE_CONNECTED);
+    } break;
+
+    case SLI_WLAN_REQ_PER_PARAMS: {
+      ret_val = ((curr_state < WISE_STATE_INIT_DONE) || (operating_mode != WISE_MODE_PER));
+    } break;
+
+    case SLI_WLAN_REQ_PER_STATS: {
+      // This command is allowed after Opermode is set.
+      ret_val = (curr_state == WISE_STATE_INIT);
+    } break;
+
+    case SLI_WLAN_REQ_GET_MAC_ADDR: {
+      ret_val = (curr_state < WISE_STATE_INIT_DONE);
+    } break;
+
+    case SLI_WLAN_REQ_SET_MAC: {
+      ret_val = !((curr_state == WISE_STATE_OPERMODE_SET) || (curr_state == WISE_STATE_MAC_DONE));
     } break;
 
     default: {
@@ -629,6 +646,16 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
   }
 
   sl_memzero(status, sizeof(mgmt_command_status_t));
+  switch (command_id) {
+    case SLI_WLAN_REQ_DYNAMIC_POOL:
+    case SLI_WLAN_REQ_CONFIG:
+    case SLI_WLAN_REQ_TIMEOUTS: {
+      sl_mgmt_indicate_to_host(command_id, 0, CMD_STATUS_NO_ERROR, NULL);
+      goto STATE_FAILURE;
+    }
+    default:
+      break;
+  }
 
   state_validity_status = check_state(command_id, mgmt_if_adapter.operating_mode);
   if (state_validity_status == INVALID_STATE)
@@ -813,23 +840,25 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
       }
 
       case SLI_WLAN_REQ_GET_MAC_ADDR: {
-        if (mgmt_if_adapter.state < WISE_STATE_INIT_DONE) {
-          status->command = SLI_WLAN_RSP_GET_MAC_ADDR;
-          status->status  = WISE_ERROR_WRONG_STATE;
-        } else {
-          uint8 size      = MAC_ADDR_LEN;
-          uint8 *MAC_addr = (uint8 *)driver_get_mac_addr();
-          if (mgmt_if_adapter.operating_mode == WISE_CONCURRENT_MODE) {
-            size += MAC_ADDR_LEN;
-          }
-          status->command = SLI_WLAN_RSP_GET_MAC_ADDR;
-          status->status  = CMD_STATUS_NO_ERROR;
-          status->length  = size;
-          status->message = sl_malloc(size);
-          sl_memcpy(status->message, MAC_addr, size);
+        uint8_t size = MAC_ADDR_LEN;
+        if (mgmt_if_adapter.operating_mode == WISE_CONCURRENT_MODE) {
+          size += MAC_ADDR_LEN;
         }
-        break;
-      }
+        status->command = SLI_WLAN_RSP_GET_MAC_ADDR;
+        status->status  = CMD_STATUS_NO_ERROR;
+        status->length  = size;
+        status->message = sl_malloc(size);
+        if (status->message != NULL) {
+          sl_memcpy(status->message, mgmt_if_adapter.mac_first_if, MAC_ADDR_LEN);
+          if (mgmt_if_adapter.operating_mode == WISE_CONCURRENT_MODE) {
+            sl_memcpy(status->message + MAC_ADDR_LEN, mgmt_if_adapter.mac_second_if, MAC_ADDR_LEN);
+          }
+        } else {
+          status->status = MEM_ALLOC_FAILED;
+          status->length = 0;
+        }
+        cmd_status = MGMT_IF_FREE_CMD_PKT;
+      } break;
 
       case SLI_WLAN_REQ_SET_MAC: {
         cmd_status = MGMT_IF_FWD_CMD_TO_UMAC;
@@ -1043,6 +1072,8 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
           mgmt_if_adapter.region_code = 3;
         } else if (!(sl_strncmp(tmp_set_region_ap->country_code, (uint8 *)("KR"), 2))) {
           mgmt_if_adapter.region_code = 5;
+        } else if (!(sl_strncmp(tmp_set_region_ap->country_code, (uint8 *)("CN"), 2))) {
+          mgmt_if_adapter.region_code = REGION_CN_NUM;
         }
         mgmt_if_adapter.set_region_given = 1;
         cmd_status                       = MGMT_IF_FWD_CMD_TO_UMAC;
@@ -1278,7 +1309,7 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
       case SLI_WLAN_REQ_PER_STATS: {
 #ifdef CONFIG_IEEE_80211J
         if ((mgmt_if_adapter.ext_custom_feature_bit_map & EXT_FEAT_IEEE_80211J) && !mgmt_if_adapter.set_region_given) {
-          status->command = SLI_WLAN_RSP_SCAN;
+          status->command = command_id;
           status->status  = SET_REGION_NOT_GIVEN_IN_11J;
           break;
         }
@@ -1426,7 +1457,8 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
   }
 
   if (cmd_status == MGMT_IF_FWD_CMD_TO_UMAC) {
-    uint32_t pkt_sent_status = sli_send_pkt_to_nhcp_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
+    uint32_t pkt_sent_status =
+      sli_hal_nhcp_send_pkt_without_copy((uint8_t *)(&((sli_nhcp_tx_pkt_t *)txPkt)->host_desc));
     if (pkt_sent_status != SL_STATUS_OK) {
       SL_DEBUG_LOG("\r\nFailed to send TX packet to NWP: 0x%lX\r\n", status);
       SL_MGMT_ASSERT(0);

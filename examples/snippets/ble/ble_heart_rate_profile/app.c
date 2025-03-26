@@ -1125,10 +1125,10 @@ adv:
           if (attr_desc_list.att_desc[ix].att_type_uuid.val.val16 == 0x2902) {
             data[0] = 0x01;
             data[1] = 0x00;
-            rsi_ble_set_att_cmd(conn_event_to_app.dev_addr,
-                                *((uint16_t *)attr_desc_list.att_desc[ix].handle),
-                                2,
-                                (uint8_t *)data);
+            rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
+                                      *((uint16_t *)attr_desc_list.att_desc[ix].handle),
+                                      2,
+                                      (uint8_t *)data);
           }
           LOG_PRINT("Notification enabled \n");
         }

@@ -348,7 +348,10 @@ typedef enum rsi_common_cmd_request_e {
   RSI_COMMON_REQ_SET_RTC_TIMER = 0xE9,
   RSI_COMMON_REQ_GET_RTC_TIMER = 0xF2,
   RSI_COMMON_REQ_SET_CONFIG    = 0xBA,
-  RSI_COMMON_REQ_GET_CONFIG    = 0x0C
+  RSI_COMMON_REQ_GET_CONFIG    = 0x0C,
+
+  // FW Fall back request from host
+  SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST = 0x2C
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_REQ_GPIO_CONFIG = 0x28
@@ -357,6 +360,7 @@ typedef enum rsi_common_cmd_request_e {
   ,
   RSI_COMMON_REQ_DEVICE_LOGGING_INIT = 0x82
 #endif
+
 } rsi_common_cmd_request_t;
 
 #ifdef SLI_PUF_ENABLE

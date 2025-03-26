@@ -98,7 +98,7 @@ int16 mgmtif_process_disconnect(uint8 *rxPkt, uint32 vap_id)
   // Dword3 Queue ID bit is used to indicate whether the pkt should be freed.
   // Setting it to zero so that pkt is not freed until sending to host is complete.
   SL_PKT_RX_HDESC_SET_DW3_QUEUE_ID(rxPkt, 0);
-  retval = sl_send_host_rx_pkt((uint8 *)rxPkt);
+  retval = sli_send_host_rx_pkt((uint8 *)rxPkt);
   return retval;
 }
 

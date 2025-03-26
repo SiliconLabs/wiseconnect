@@ -77,14 +77,17 @@ readme:
 - path: readme.md
 other_file:
 - path: resources/readme/setup_soc_ncp.png
-- path: resources/readme/application_prints_soc_ncp.png
-- path: resources/readme/alarm_timer_configure.png
-- path: resources/readme/wakeup_configure.png
+- path: resources/readme/application_prints_soc.png
+- path: resources/readme/application_prints_ncp.png
+- path: resources/readme/wakeup_config_1.png
+- path: resources/readme/wakeup_config_2.png
 - path: resources/readme/stm32_setup.png
 - path: resources/readme/energy_profiler_step_1.png
 - path: resources/readme/energy_profiler_step_2.png
 - path: resources/readme/energy_profiler_step_3.png
 - path: resources/readme/power_meter_avg_current_consumption.png
+- path: resources/readme/set_ram_level_1.png
+- path: resources/readme/set_ram_level_2.png
 
 ui_hints:
   highlight:

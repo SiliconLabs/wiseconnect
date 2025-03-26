@@ -851,6 +851,9 @@ void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
  *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
  * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be masked
  *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
+ * 
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_mask_set_uulp_npss_interrupt`.
+ * 
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
@@ -864,6 +867,9 @@ void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
  *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
  * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be unmasked
  *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
+ * 
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_mask_clear_uulp_npss_interrupt`.
+ * 
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
@@ -878,9 +884,49 @@ void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
  *        \ref sl_si91x_gpio_configure_uulp_interrupt() \n
  * @param[in]   npssgpio_interrupt - Bit position of the NPSS GPIO interrupt to be cleared
  *                    \ref  sl_si91x_uulp_gpio_interrupt_bit_t
+ * 
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_clear_uulp_npss_interrupt`.
+ * 
  * @return      none
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
+
+/***************************************************************************/ /**
+ * @brief       Mask the selected NPSS GPIO interrupt.
+ * @pre   \ref sl_si91x_gpio_enable_clock() \n
+ *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
+ *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
+ *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
+ *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
+ * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4) to be masked \ref sl_si91x_uulp_gpio_interrupt_t
+ * @return      none
+*******************************************************************************/
+void sl_si91x_gpio_mask_set_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
+
+/***************************************************************************/ /**
+ * @brief        Unmask the selected NPSS GPIO interrupt.
+ * @pre   \ref sl_si91x_gpio_enable_clock() \n
+ *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
+ *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
+ *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
+ *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
+ * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4) to be unmasked \ref sl_si91x_uulp_gpio_interrupt_t
+ * @return      none
+*******************************************************************************/
+void sl_si91x_gpio_mask_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
+
+/***************************************************************************/ /**
+ * @brief    Clear the selected NPSS GPIO interrupt.
+ * @pre   \ref sl_si91x_gpio_enable_clock() \n
+ *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
+ *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
+ *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
+ *        \ref sl_si91x_gpio_set_uulp_npss_direction() \n
+ *        \ref sl_si91x_gpio_configure_uulp_interrupt() \n
+ * @param[in]   npssgpio_interrupt - NPSS GPIO pin number (0 to 4) to be cleared \ref sl_si91x_uulp_gpio_interrupt_t
+ * @return      none
+*******************************************************************************/
+void sl_si91x_gpio_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
  * @brief     Get the current status of all the NPSS GPIO interrupt status.

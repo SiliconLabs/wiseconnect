@@ -147,6 +147,23 @@ typedef struct {
   sl_si91x_aes_key_config_t key_config; ///< Key configuration
 } sl_si91x_aes_config_t;
 
+/**
+ * @brief Structure defines the PSA AES Multipart configuration.
+ * 
+ * This structure defines PSA AES Multipart configuration required for the operation which includes 
+ * type of operation, input message, length of input message, key configuration structure, and so on. 
+ */
+typedef struct {
+  sl_si91x_aes_mode_t aes_mode;         ///< AES Mode
+  sl_si91x_aes_type_t encrypt_decrypt;  ///< Encryption or decryption
+  const uint8_t *msg;                   ///< Pointer to the input message
+  uint16_t msg_length;                  ///< Length of the message
+  uint8_t iv[SL_SI91X_IV_SIZE];         ///< Initialization vector
+  uint8_t iv_flag;                      ///< Flag to indicate whether iv is set or not
+  sl_si91x_aes_key_config_t key_config; ///< Key configuration
+  uint8_t chunk_flag;                   ///< Flag to indicate chunk number
+} sl_si91x_psa_aes_multipart_config_t;
+
 /** @} */
 
 /******************************************************

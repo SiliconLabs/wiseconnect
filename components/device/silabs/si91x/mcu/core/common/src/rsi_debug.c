@@ -179,8 +179,7 @@ int WRITEFUNC(int iFileHandle, const char *pcBuffer, int iLength)
   (void)pcBuffer; // Explicitly mark pcBuffer as unused to avoid warnings
 
 #if defined(DEBUG_ENABLE)
-  int i;
-  for (i = 0; i < iLength; i++) {
+  for (int i = 0; i < iLength; i++) {
     Board_UARTPutChar(pcBuffer[i]);
   }
 #endif
@@ -370,21 +369,21 @@ int stdin_getchar(void)
     ch = Board_UARTGetChar();
 #endif
   } while (ch == -1);
-  return (ch);
+  return ch;
 }
 int stdout_putchar(int ch)
 {
 #ifdef DEBUG_UART
-  (Board_UARTPutChar(ch));
+  Board_UARTPutChar((uint8_t)ch);
 #endif
-  return (ch);
+  return ch;
 }
 int stderr_putchar(int ch)
 {
 #ifdef DEBUG_UART
-  Board_UARTPutChar(ch);
+  Board_UARTPutChar((uint8_t)ch);
 #endif
-  return (ch);
+  return ch;
 }
 
 #endif // SLI_SI91X_DBG_MIDDLEWARE_EN

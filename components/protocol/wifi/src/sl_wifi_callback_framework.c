@@ -99,7 +99,7 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
 
     rx_cb_data.length = payload_length - payload_offset;
     rx_cb_data.buffer = packet->data + payload_offset;
-    rx_cb_data.rssi   = *(uint16_t *)(&packet->data[0]); //Extended descriptor in data[] for rssi
+    rx_cb_data.rssi   = *(int8_t *)(&packet->data[0]);   //Extended descriptor in data[] for rssi
     rx_cb_data.rate   = *(uint16_t *)(&packet->data[2]); //Extended descriptor in data[] for rate
 
     /*

@@ -71,7 +71,17 @@ void fpuInit(void);
 extern void set_scdc(uint32_t Deepsleep);
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-#include "sl_si91x_psram_config.h"
+
+#if defined(SLI_SI91X_MCU_PSRAM_APS1604M_SQR)
+#include "sl_si91x_psram_aps1604m_sqr_config.h"
+#elif defined(SLI_SI91X_MCU_PSRAM_APS6404L_SQH)
+#include "sl_si91x_psram_aps6404l_sqh_config.h"
+#elif defined(SLI_SI91X_MCU_PSRAM_APS6404L_SQRH)
+#include "sl_si91x_psram_aps6404l_sqrh_config.h"
+#else
+#error "No valid PSRAM configuration defined"
+#endif
+
 #endif
 
 uint32_t nvic_enable[MAX_NVIC_REGS] = { 0 };
@@ -441,6 +451,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   RSI_PS_LatchCntrlClr(LATCH_TOP_SPI | LATCH_TRANSPARENT_HF | LATCH_TRANSPARENT_LF);
 
   ipmuDummyRead = MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP;
+  (void)ipmuDummyRead;
 
   /*Update the SCB with Deep sleep BIT */
   SCB->SCR = 0x4;
@@ -532,7 +543,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   __asm volatile("isb");
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
   /* if flash is not initialised ,then raise a request to NWP */
-  if (!(in_ps2_state) && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
+  if (!in_ps2_state && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
     //!check NWP wokeup or not
     if (!(P2P_STATUS_REG & TA_IS_ACTIVE)) {
       //!wakeup NWP
@@ -567,7 +578,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   RSI_Restore_Context();
 #endif
   /*Restore the default value to the processor clock */
-  if ((in_ps2_state)) {
+  if (in_ps2_state) {
     ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP_PROC_CLK_SEL = (unsigned int)(ulp_proc_clk & 0xF);
   }
 
@@ -578,7 +589,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 
 // READ_MBR_MAGIC_WORD_ON_WAKEUP
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-  if (!(in_ps2_state)) {
+  if (!in_ps2_state) {
     //!Poll for flash magic word
     while (MBR_MAGIC_WORD != 0x5A5A)
       ;
@@ -607,9 +618,18 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 
   /*IPMU dummy read to make IPMU block out of RESET*/
   ipmuDummyRead = ULP_SPI_MEM_MAP(0x144);
+  (void)ipmuDummyRead;
+
   // After Wakeup
-  if (!((in_ps2_state) && (MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b))) {
-#if (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
+  if (!(in_ps2_state && (MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b))) {
+#if (XTAL_CAP_MODE == POWER_TARN_ALWAYS_USE)
+    // disable the XTAL CAP mode
+    //SCDC0
+    RSI_IPMU_ProgramConfigData(scdc_volt_sel1);
+    RSI_IPMU_ProgramConfigData(scdc_volt_trim_efuse);
+    //SCDC0_1
+    RSI_IPMU_ProgramConfigData(scdc_volt_sel2);
+#elif (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
     if (lf_clk_mode & BIT(4)) {
       // disable the XTAL CAP mode
       RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUTS);
@@ -631,15 +651,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
         RSI_IPMU_ProgramConfigData(scdc_volt_sel2);
       }
     }
-#endif
-
-#if (XTAL_CAP_MODE == POWER_TARN_ALWAYS_USE)
-    // disable the XTAL CAP mode
-    //SCDC0
-    RSI_IPMU_ProgramConfigData(scdc_volt_sel1);
-    RSI_IPMU_ProgramConfigData(scdc_volt_trim_efuse);
-    //SCDC0_1
-    RSI_IPMU_ProgramConfigData(scdc_volt_sel2);
 #endif
   }
   /*Spare register write sequence*/
@@ -669,7 +680,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   }
   if (disable_pads_ctrl) {
     ULP_SPI_MEM_MAP(0x141) |= (BIT(11)); // ULP PADS PDO ON
-    disable_pads_ctrl = 0;
   }
 
   /* powerup FPU domain*/

@@ -44,7 +44,7 @@
 #define NEW_WINDOW_TIME          TIME_DELAY_10 // for 32 milliseconds window time
 #define SL_WDT_INTERRUPT_TIME    15            // WDT Interrupt Time for 1 seconds
 #define SL_WDT_SYSTEM_RESET_TIME 17            // WDT System Reset Time for 4 seconds
-#define SL_WDT_WINDOW_TIME       0             // WDT Window Time for 0.0325 milli-seconds
+#define SL_WDT_WINDOW_TIME       6             // WDT Window Time for 1.9 milli-seconds
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/

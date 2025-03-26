@@ -15,15 +15,11 @@ include:
   - path: .
     file_list:
       - path: Driver_Common.h
-      - path: EMAC.h
       - path: GSPI.h
       - path: I2C.h
-      - path: MCI.h
-      - path: PHY_LAN8742A.h
       - path: SAI.h
       - path: SPI.h
       - path: UDMA.h
       - path: USART.h
-      - path: USB.h
 provides:
   - name: cmsis_peripheral_headers

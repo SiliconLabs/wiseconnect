@@ -95,7 +95,7 @@ extern rsi_ble_event_conn_status_t conn_event_to_app;
  *                    Constants
  ******************************************************/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        5000
+#define TIMEOUT_MS        18000
 #define WIFI_SCAN_TIMEOUT 10000
 
 #define MQTT_TOPIC1               "aws_status"   //! Subscribe Topic to receive the message from cloud

@@ -1,10 +1,16 @@
-# Migrating from WiSeConnect™ SDK v3.4.2 to v3.5.0
+#Migrating from WiSeConnect™ SDK v3 .4.2 to v3 .5.0
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Migration Steps](#migration-steps)
   - [Updated default TCP/IP thread priority in LWIP stack](#updated-default-tcpip-thread-priority-in-lwip-stack)
+  - [Updated User Gain Table API](#Updated-user-gain-table-API)
+  - [API Naming Corrections](#api-naming-corrections)
+  - [Changes to Reserved Fields](#changes-to-reserved-fields)
+  - [Updated Structures](#updated-structures)
+  - [Deprecated APIs](#deprecated-APIs)
+  - [Deprecated Macros](#deprecated-macros)
 
 ## Overview
 
@@ -38,9 +44,63 @@ To address this, we have updated the TCP/IP thread in LWIP priority to osPriorit
 
 Increasing the LWIP TCP/IP thread priority can affect the functionality of application threads, as their priorities are lower compared to the TCP/IP thread.
 
-### Update Types
+### Updated-user-gain-table-API
+
+As part of the migration from WiSeConnect™ SDK v3.4.2 to v3.5.0, A new API `sl_wifi_update_su_gain_table` is added for loading Wi-Fi user gain table values to get more gain in 11ax SU operation. 
+
+**Reason for Change**
+This request aims to support at least two 11ax Power tables (SU and TB), as currently only one power table is supported. Due to this limitation, we are using lower TB-based power levels in 11ax, which reduces overall 11ax performance.
+ 
+With current tests:
+ 
+- ETSI/MIC TX powers are reduced by about ~6dB for 11ax (limited by 26Tone RU - PSD).
+- FCC Band edge for 26Tone RU is worse by up to ~2dB compared to other 11ax cases.
+  -  With the new power table, we will be able to support both TB and SU side by side with two different power levels, without compromising the SU power table.
+  - We should be able to support different levels or backoffs for various tones (26, 52, 106, etc.).
+  - Supporting different backoffs based on the placement of 26-tone or 52-tone (whether center, edge of 20MHz, etc.) is optional.
+**User Impact**
+
+Increased gain values as per mentioned above.
+
+### API Naming Corrections
 
 | **Module** | **v3.4.2** | **v3.5.0** |
 |------------|------------|------------|
 | Wi-Fi | **sl_si91x_network_params_response_t** | typo error corrected as **sli_si91x_network_params_response_t** |
-| Wi-Fi | **sl_si91x_rsp_wireless_info_t** | added new member variable named bssid to store the address of connected AP|
+
+### Changes to Reserved Fields
+
+| **Module** | **v3.4.2** | **v3.5.0** |
+|------------|------------|------------|
+| Wi-Fi | reserved **BIT 6** in **ctrl_flags** member variable of **sl_wifi_transceiver_tx_data_control_t** | used for **Extended Information** |
+| Wi-Fi | reserved **BIT 7** in **ctrl_flags** member variable of **sl_wifi_transceiver_tx_data_control_t** | used for **Immediate Transfer** |
+| Wi-Fi | **reserved1** member variable of **sl_wifi_transceiver_tx_data_control_t** | renamed to **ctrl_flags1** |
+
+### Updated Structures
+
+| **Module** | **v3.4.2** | **v3.5.0** |
+|------------|------------|------------|
+| Wi-Fi | The **status** member variable in **sl_wifi_transceiver_tx_data_confirmation_t** is of type **sl_status_t** | The **status** member variable in **sl_wifi_transceiver_tx_data_confirmation_t** has been changed to **uint32_t** |
+| Wi-Fi | The **status** member variable in **sl_wifi_transceiver_rx_data_t** is of type **sl_status_t** | The **status** member variable in **sl_wifi_transceiver_rx_data_t** has been changed to **uint32_t** |
+
+### Deprecated APIs
+
+**Note:** The following elements are applicable to both NCP and SoC modes.
+
+- Deprecated **sl_wifi_update_gain_table** API.
+  > **Note**: Starting from WC-3.5.0, the sl_wifi_update_gain_table API is deprecated. It is recommended to use the updated API to ensure compatibility with future releases.
+
+  | **Module**| **v3.4.2**                  | **v3.5.0**                     |
+  |-----------|-----------------------------|--------------------------------|
+  | Wi-Fi     | `sl_wifi_update_gain_table` | `sl_wifi_update_su_gain_table` |
+
+### Deprecated Macros
+
+**Note:** The following elements are applicable to both NCP and SoC modes.
+
+- Deprecated **SL_SI91X_TCP_IP_FEAT_POP3_CLIENT** macro.
+  > **Note**: Starting from WC-3.5.0, the SL_SI91X_TCP_IP_FEAT_POP3_CLIENT macro is deprecated. It is recommended to use the updated macros to ensure compatibility with future releases.
+
+  | **Module**| **v3.4.2**                                       | **v3.5.0**                                           |
+  |-----------|--------------------------------------------------|------------------------------------------------------|
+  | Wi-Fi     | `SL_SI91X_TCP_IP_FEAT_POP3_CLIENT`               | `SL_SI91X_TCP_IP_FEAT_DTLS_THREE_SOCKETS`            |

@@ -144,7 +144,7 @@ static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint1
 }
 #endif
 
-sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
+sl_status_t sl_si91x_sha(uint8_t sha_mode, const uint8_t *msg, uint16_t msg_length, uint8_t *digest)
 {
   // Input pointer check
   if ((msg == NULL) != (msg_length == 0)) {

@@ -96,7 +96,6 @@ extern "C" {
 #endif
 
 // </h>  USART Configuration
-
 // </e>
 
 #ifdef __cplusplus

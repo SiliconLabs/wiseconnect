@@ -22,9 +22,9 @@ Ping is used diagnostically to ensure that the host computer the user is trying 
 - A Windows PC.
 - A Wi-Fi Access Point.
 - SoC Mode:
-  - Silicon Labs [BRD4388A](https://www.silabs.com/)
+  - Silicon Labs [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
 - NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/wireless/zigbee/efr32mg21-series-2-socs/device.efr32mg21a020f1024im32)
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -49,8 +49,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
-
-The application can be configured to suit your requirements and development environment.
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
@@ -96,6 +94,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application.
-- After the application gets executed successfully, the MAC addresses of the remote clients that gets connected or disconnected to the newly created station ping are printed on the console.
+- Upon successfully connecting to the Access Point, the device initiates ping requests to the specified REMOTE_IP_ADDRESS with the configured PING_PACKET_SIZE to verify the availability of the target device.
 
   ![Station_Ping_Output](resources/readme/station_ping_output.png)

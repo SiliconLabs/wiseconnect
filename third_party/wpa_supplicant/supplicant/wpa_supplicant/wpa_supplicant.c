@@ -9720,6 +9720,12 @@ static int sme_sae_auth(struct wpa_supplicant *wpa_s, u16 auth_transaction,
 #if UNUSED_FEAT_IN_SUPP_29
 		wpa_dbg(wpa_s, MSG_DEBUG, "SME SAE confirm");
 #endif
+#ifdef SUPPLICANT_PORTING
+	// If a CONFIRM 2 frame is recived when STA is in Accepted state, then the latest CONFIRM 2 frame is dropped
+	if (wpa_s->sme.sae.state == SAE_ACCEPTED) {
+			return 2;
+	}
+#endif
 		SL_PRINTF(WLAN_SUPP_SME_SAE_CONFIRM, WLAN_UMAC, LOG_INFO);
 		if (wpa_s->sme.sae.state != SAE_CONFIRMED){
 #ifdef SUPPLICANT_PORTING

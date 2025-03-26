@@ -1627,10 +1627,10 @@ void rsi_ble_task_on_conn(void *parameters)
           LOG_PRINT("\r\nIn receive notification event - conn%d \n", l_conn_id);
           //! clear the served event
           rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_DATA_RECEIVE_EVENT);
-          status = rsi_ble_set_att_value(rsi_connected_dev_addr, //enable the notifications
-                                         notify_handle + 1,
-                                         2,
-                                         notify_data);
+          status = rsi_ble_set_att_value_async(rsi_connected_dev_addr, //enable the notifications
+                                               notify_handle + 1,
+                                               2,
+                                               notify_data);
           if (status != RSI_SUCCESS) {
             if (status == RSI_ERROR_BLE_DEV_BUF_FULL) {
               LOG_PRINT("\r\nNotify failed with buffer error - conn%d \r\n", l_conn_id);

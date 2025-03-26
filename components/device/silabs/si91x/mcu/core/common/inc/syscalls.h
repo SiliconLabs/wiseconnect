@@ -35,7 +35,7 @@ int _kill(int pid, int sig);
 void initialise_monitor_handles();
 int _getpid(void);
 void _exit(int status);
-int _write(int file, char *ptr, int len);
+int _write(int file, const char *ptr, int len);
 int _close(int file);
 void *_sbrk(int incr);
 int _isatty(int file);

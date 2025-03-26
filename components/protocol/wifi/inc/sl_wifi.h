@@ -64,7 +64,7 @@ extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
  *   In SoC mode, wireless initialization must be completed before using the NVM3 APIs in the common flash, as flash write and erase operations require communication between the NWP & M4.
  ******************************************************************************/
 sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration,
-                         sl_wifi_device_context_t *device_context,
+                         const sl_wifi_device_context_t *device_context,
                          sl_wifi_event_handler_t event_handler);
 
 /***************************************************************************/ /**
@@ -135,7 +135,7 @@ sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info);
  * @note
  *   Moving forward, this API will be deprecated. Instead, use the [sl_si91x_get_firmware_size](../wiseconnect-api-reference-guide-si91x-driver/si91-x-driver-functions#sl-si91x-get-firmware-size) API.
  ******************************************************************************/
-sl_status_t sl_wifi_get_firmware_size(void *buffer, uint32_t *fw_image_size);
+sl_status_t sl_wifi_get_firmware_size(const void *buffer, uint32_t *fw_image_size);
 
 /***************************************************************************/ /**
  * @brief
@@ -373,40 +373,166 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
 
 /***************************************************************************/ /**
  * @brief
- *   Assign the user configurable channel gain values in different regions to the module from user. 
- * @pre Pre-conditions:
- * - 
- *   This method is used for overwriting default gain tables that are present in firmware.
- * @pre Pre-conditions:
- * - 
- *   Customer can load gain tables for 2.4 GHz-20 MHz.
- * @pre Pre-conditions:
- * -
- * This is a blocking API.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_wifi_init should be called before this API.
- * @param[in]  band 
+ *   Assign the user configurable channel gain table entries in different regions to the module from the user.
+ * 
+ * @details
+ *   This function overwrites the default gain tables present in the firmware. Customers can load gain tables for 2.4 GHz-20 MHz. This is a blocking API.
+ * 
+ * @param[in]  band
  *    1 - 2.4 GHz
- * @param[in]  bandwidth   
+ * 
+ * @param[in]  bandwidth
  *    0 - 20 MHz
+ * 
  * @param[in]  payload
- *    Pass channel gain values for different regions in a given array format.
- * @param[in]  payload_len
+ *    Pass channel gain table entries for different regions in a given array format. 
+ *    The gain array format is as follows: \n
+ *     No Of Regions, \n
+ *     Region code, \n
+ *     No Of Channels, \n
+ *     | Rate | 11b Gain Value | 11g Gain Value | 11n Gain Value | 11ax Gain Value|
+ *     |------|----------------|----------------|----------------|----------------|
+ *     |  x   |        x       |        x       |        x       |       x        |
+ *    Repeat the above format for all regions codes.
+ * 
+ * @param[in]  payload_length
  *    Max payload length (table size) in 2.4 GHz is 128 bytes.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ *    sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details..
+ * 
+ * @pre Pre-conditions:
+ *   @ref sl_wifi_init should be called before this API.
+ * 
  * @note 
+ *   1. This API will be deprecated in further releases. Suggested to use updated API @ref sl_wifi_update_su_gain_table for better gain table entries in 11ax SU operation.
  *   1. This frame must be used only by customers who have done FCC/ETSI/TELEC/KCC certification with their own antenna. Silicon Labs is not liable for inappropriate usage of this frame that may result in violation of FCC/ETSI/TELEC/KCC or any certifications. 
  *   2. Internally, firmware maintains two tables: Worldwide table, and Region-based table. Worldwide table is populated by the firmware with maximum power values that the chip can transmit and meet target specs like EVM. Region-based table has a default gain value set.
- *   3. When certifying with user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
+ *   3. When certifying with a user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
  *   4. The FCC/ETSI/TELEC/KCC maximum power level should be loaded in an end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region-based user gain table sent by the application is copied onto the Region-based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
- *   5. For Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
- *   6. In a 2.4 GHz band, 40 MHz is not supported.
+ *   5. For the Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
+ *   6. In the 2.4 GHz band, 40 MHz is not supported.
  *   7. Executing this API overwrites calibration values in certified modules.
  *   8. In FCC-certified modules, this API triggers an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
+ *   9. Below are the default gain tables:
+ *      - Si917 IC OPNs:
+ *      <br> Number of regions: 4
+ *   | Region    | Number of channels | Channel | 11b | 11g | 11n | 11ax |
+ *   |-----------|--------------------|---------|-----|-----|-----|------|
+ *   | FCC       | 0xB                |         |     |     |     |      |
+ *   |           |                    |  1      | 33  | 24  |  21 |  20  |
+ *   |           |                    |  2      | 34  | 28  |  28 |  24  |
+ *   |           |                    |  3      | 40  | 30  |  32 |  30  |
+ *   |           |                    |  4      | 40  | 33  |  36 |  31  |
+ *   |           |                    |  5      | 40  | 35  |  36 |  32  |
+ *   |           |                    |  6      | 40  | 35  |  36 |  31  |
+ *   |           |                    |  7      | 40  | 34  |  36 |  30  |
+ *   |           |                    |  8      | 38  | 32  |  36 |  32  |
+ *   |           |                    |  9      | 38  | 34  |  34 |  28  |
+ *   |           |                    | 10      | 34  | 30  |  30 |  22  |
+ *   |           |                    | 11      | 34  | 24  |  22 |  20  |
+ *   | ETSI      | 0x11               |         |     |     |     |      |
+ *   |           |                    | 255     | 36  | 36  |  36 |  24  |
+ *   | TELEC     | 0x24               |         |     |     |     |      |
+ *   |           |                    |   2     | 34  | 28  |  32 |  24  |
+ *   |           |                    |  10     | 34  | 36  |  36 |  24  |
+ *   |           |                    |  13     | 34  | 26  |  24 |  24  |
+ *   |           |                    |  14     | 36  |  0  |   0 |   0  |
+ *   | KCC       | 0x11               |         |     |     |     |      |
+ *   |           |                    | 255     | 36  | 36  |  36 |  36  |
+ *
+ *      - Si917 ACx OPNs:
+ *      <br> Number of regions: 6
+ *   | Region        | Number of channels | Channel | 11b | 11g | 11n | 11ax |
+ *   |---------------|--------------------|---------|-----|-----|-----|------|
+ *   | FCC           |  0x29              |         |     |     |     |      |
+ *   |               |                    |       1 |  30 |  20 |  20 |   18 |
+ *   |               |                    |       2 |  36 |  26 |  26 |   22 |
+ *   |               |                    |       3 |  40 |  30 |  30 |   26 |
+ *   |               |                    |       4 |  40 |  36 |  36 |   32 |
+ *   |               |                    |       7 |  40 |  40 |  40 |   36 |
+ *   |               |                    |       8 |  40 |  36 |  34 |   36 |
+ *   |               |                    |       9 |  40 |  34 |  32 |   28 |
+ *   |               |                    |      10 |  36 |  30 |  28 |   20 |
+ *   |               |                    |      11 |  30 |  20 |  18 |   16 |
+ *   | ETSI          |  0x11              |         |     |     |     |      |
+ *   |               |                    |     255 |  24 |  28 |  28 |   14 |
+ *   | TELEC         |  0x24              |         |     |     |     |      |
+ *   |               |                    |       1 |  28 |  28 |  26 |   16 |
+ *   |               |                    |      12 |  28 |  36 |  36 |   16 |
+ *   |               |                    |      13 |  28 |  26 |  26 |   16 |
+ *   |               |                    |      14 |  28 |   0 |   0 |    0 |
+ *   | KCC           |  0x11              |         |     |     |     |      |
+ *   |               |                    |     255 |  36 |  36 |  36 |   36 |
+ *   | WORLDSAFE     |  0x24              |         |     |     |     |      |
+ *   |               |                    |       1 |  24 |  20 |  20 |   14 |
+ *   |               |                    |       2 |  24 |  26 |  26 |   14 |
+ *   |               |                    |      10 |  24 |  28 |  28 |   14 |
+ *   |               |                    |      11 |  24 |  20 |  18 |   14 |
+ *   | SRRC          |  0x24              |         |     |     |     |      |
+ *   |               |                    |       1 |  26 |  20 |  20 |   14 |
+ *   |               |                    |       2 |  26 |  26 |  26 |   14 |
+ *   |               |                    |      10 |  26 |  30 |  30 |   14 |
+ *   |               |                    |      13 |  26 |  20 |  20 |   14 |
  ******************************************************************************/
-sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *payload, uint16_t payload_len);
+sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uint8_t *payload, uint16_t payload_length);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Assign the user configurable channel gain table entries in different regions to the module from the user including 11ax SU and 11ax TB.
+ * 
+ * @details
+ *   This function overwrites the default gain tables present in the firmware. Customers can load gain tables for 2.4 GHz-20 MHz. This is a blocking API.
+ * 
+ * @param[in]  band
+ *    1 - 2.4 GHz
+ * 
+ * @param[in]  bandwidth
+ *    0 - 20 MHz
+ * 
+ * @param[in]  payload
+ *    Pass channel gain table entries for different regions in a given array format. 
+ *    The gain array format is as follows: \n
+ *     No Of Regions, \n
+ *     Region code, \n
+ *     No Of Channels, \n
+ *     | Rate | 11b Gain Value | 11g Gain Value | 11n Gain Value | 11ax(SU Gain) | 11ax(TB Gain) |
+ *     |------|----------------|----------------|----------------|---------------|---------------|
+ *     |  x   |        x       |        x       |        x       |       x       |       x       |
+ *    Repeat the above format for all regions codes.
+ *    This table contains the separate gain table entries for 11ax SU and TB
+ * 
+ * @param[in]  payload_length
+ *    Max payload length (table size) in 2.4 GHz is 160 bytes.
+ *  
+ * @param[in]  x_offset
+ *    Bump up offset for 11ax 56 tone RU
+ * 
+ * @param[in]  y_offset
+ *    Bump up offset for 11ax 106 tone RU
+ * 
+ * @return
+ *    sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * 
+ * @pre Pre-conditions:
+ *   @ref sl_wifi_init should be called before this API.
+ * 
+ * @note
+ *   1. This frame must be used only by customers who have done FCC/ETSI/TELEC/KCC certification with their own antenna. Silicon Labs is not liable for inappropriate usage of this frame that may result in violation of FCC/ETSI/TELEC/KCC or any certifications.
+ *   2. Internally, firmware maintains two tables: Worldwide table, and Region-based table. Worldwide table is populated by the firmware with maximum power values that the chip can transmit and meet target specs like EVM. Region-based table has a default gain value set.
+ *   3. When certifying with a user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
+ *   4. The FCC/ETSI/TELEC/KCC maximum power level should be loaded in an end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region-based user gain table sent by the application is copied onto the Region-based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
+ *   5. For the Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
+ *   6. In the 2.4 GHz band, 40 MHz is not supported.
+ *   7. Executing this API overwrites calibration values in certified modules.
+ *   8. In FCC-certified modules, this API triggers an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
+ *  ******************************************************************************/
+sl_status_t sl_wifi_update_su_gain_table(uint8_t band,
+                                         uint8_t bandwidth,
+                                         const uint8_t *payload,
+                                         uint16_t payload_length,
+                                         uint8_t x_offset,
+                                         uint8_t y_offset);
 
 /***************************************************************************/ /**
  * @brief
@@ -481,7 +607,8 @@ sl_status_t sl_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Stops an ongoing Wi-Fi scan operation on the specified interface, including background scanning.
+ *   Stops an ongoing advanced Wi-Fi scan operation on the specified interface.
+ *   Advanced scan allows the user to perform a scan while the SiWx91x device is in a connected state.
  * @pre Pre-conditions:
  *   This API is applicable only for client interface.
  *   @ref sl_wifi_init should be called before this API.
@@ -649,7 +776,7 @@ sl_status_t sl_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *
  *   trigger_level_change: [0, 90]
  ******************************************************************************/
 sl_status_t sl_wifi_set_roam_configuration(sl_wifi_interface_t interface,
-                                           sl_wifi_roam_configuration_t *roam_configuration);
+                                           const sl_wifi_roam_configuration_t *roam_configuration);
 
 /***************************************************************************/ /**
  * @brief
@@ -722,7 +849,7 @@ sl_status_t sl_wifi_set_certificate(uint8_t certificate_type, const uint8_t *buf
  ******************************************************************************/
 sl_status_t sl_wifi_set_certificate_with_index(uint8_t certificate_type,
                                                uint8_t certificate_index,
-                                               uint8_t *buffer,
+                                               const uint8_t *buffer,
                                                uint32_t certificate_length);
 
 /***************************************************************************/ /**
@@ -768,7 +895,7 @@ sl_status_t sl_wifi_send_raw_data_frame(sl_wifi_interface_t interface, const voi
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
+sl_status_t sl_wifi_enable_target_wake_time(const sl_wifi_twt_request_t *twt_req);
 
 /***************************************************************************/ /**
  * @brief
@@ -781,7 +908,7 @@ sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-sl_status_t sl_wifi_disable_target_wake_time(sl_wifi_twt_request_t *twt_req);
+sl_status_t sl_wifi_disable_target_wake_time(const sl_wifi_twt_request_t *twt_req);
 
 /***************************************************************************/ /**
  * @brief
@@ -1571,10 +1698,14 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  * // Prepare payload
  * <Prepare data payload in "payload" buffer>
  * <Initialize data control block @ref sl_wifi_transceiver_tx_data_control_t >
- * control->ctrl_flags = BIT(0) | BIT(1) | BIT(2) | BIT(5); // Enable 4-addr MAC hdr, QoS frame, Fixed data rate, send status report for data packet
+ * control->ctrl_flags = BIT(0) | BIT(1) | BIT(2) | BIT(5) | BIT(6) | BIT(7);   // Configure control flags to enable 4-addr MAC header, QoS frame, fixed data rate, send status report, extended information, and immediate transfer.
  * control->priority   = 2;                                 // Voice priority queue
  * control->rate       = SL_WIFI_DATA_RATE_36;
  * control->token      = token;
+ * control->ctrl_flags1= BIT(0);    // Set if it is last packet of that channel
+ * control->channel    = channel_number;
+ * control->tx_power   = transmission_power;
+ * @note If BIT(6) of ctrl_flags is set, then fill channel, tx_power, and ctrl_flags1 BIT(0) information.
  * <Fill control addr1, addr2, addr3 and addr4(optionally) with 6 byte RA, NWP, DA and SA MAC addresses respectively>
  *
  * // Call API to encapsulate the data with 802.11 MAC header and send it to MAC layer.
@@ -1583,6 +1714,6 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  ******************************************************************************/
 sl_status_t sl_wifi_send_transceiver_data(sl_wifi_interface_t interface,
                                           sl_wifi_transceiver_tx_data_control_t *control,
-                                          uint8_t *payload,
+                                          const uint8_t *payload,
                                           uint16_t payload_len);
 /** @} */

@@ -19,9 +19,6 @@
 #include "includes.h"
 #include "common.h"
 #include "supplicant_mgmt_if.h"
-#ifdef FIPS_CODE_ENABLE
-extern RNG hrng;
-#endif
 
 void * _os_zalloc(size_t size);
 void * os_memdup(const void *src, size_t len);
@@ -120,9 +117,6 @@ void os_daemonize_terminate(const char *pid_file)
 #endif
 }
 
-#define HWRNG_CTRL 0x41080000
-#define HWRNG_REG  0x41080004 
-
 int os_get_random(unsigned char *buf, size_t len)
 {
 #if __LINUX__
@@ -140,53 +134,27 @@ int os_get_random(unsigned char *buf, size_t len)
 
 	return rc != len ? -1 : 0;
 #else
-#ifdef FIPS_CODE_ENABLE
-  int status = 0;
-  status = RNG_GenerateBlock(supp_rom_bss_ptr->hrng, buf, len);
-  if((status != 0) && (WSC->fips.fips_mode_enable == 1))
-  {
-    RSI_FIPS_CONTINUOUS_RANDOM_TEST_FAIL();    
-    return status;
-}
-#else
-  u16 ii;
-  *(volatile uint16 *)(HWRNG_CTRL) &= ~(BIT(0) | BIT(1)); 
-  *(volatile uint16 *)(HWRNG_CTRL) |= BIT(0); 
+	if (buf == NULL) {
+		return -1;
+	}
 
-
-  for (ii = 0; ii < len; ii++)
-  {
-    buf[ii] = *(volatile uint16 *)(HWRNG_REG) ; 
-  }
-  return 0;
+	return ((crypto_get_random(buf, len) != 0)? -1 : 0);
 #endif
-#endif
-  return 0;
 }
-//#endif
-#ifdef SUPPLICANT_NON_ROM
+
 unsigned long os_random(void)
 {
 #ifdef __LINUX__
 	return random();
 #else
-#ifdef FIPS_CODE_ENABLE
-  uint32 output = 0;
-  int status = 0;
-  status = RNG_GenerateBlock(supp_rom_bss_ptr->hrng, &output, 4);
-  if((status != 0) && (WSC->fips.fips_mode_enable == 1))
-  {
-    RSI_FIPS_CONTINUOUS_RANDOM_TEST_FAIL();    
-  }
-  return output;
-#else
-  *(volatile uint16 *)(HWRNG_CTRL) &= ~(BIT(0) | BIT(1)); 
-  *(volatile uint16 *)(HWRNG_CTRL) |= BIT(0); 
-  return  ((*(volatile uint16 *)(HWRNG_REG)) <<16) |  (*(volatile uint16 *)(HWRNG_REG)) ; 
-#endif
+	uint32_t random_value = 0;
+	if (crypto_get_random((unsigned char *)&random_value, sizeof(random_value)) != 0) {
+		SL_MGMT_ASSERT(0); // Assert in case of failure
+	}
+
+	return random_value;
 #endif
 }
-
 
 char * os_rel2abs_path(const char *rel_path)
 {
@@ -230,17 +198,14 @@ char * os_rel2abs_path(const char *rel_path)
 #endif
 }
 
-
 int os_program_init(void)
 {
 	return 0;
 }
 
-
 void os_program_deinit(void)
 {
 }
-
 
 int os_setenv(const char *name, const char *value, int overwrite)
 {
@@ -250,7 +215,6 @@ int os_setenv(const char *name, const char *value, int overwrite)
     return 0;
 #endif
 }
-
 
 int os_unsetenv(const char *name)
 {
@@ -265,7 +229,6 @@ int os_unsetenv(const char *name)
     return 0;
 #endif
 }
-
 
 FILE * os_fopen(const char *pac_file, const char *rw)
 {
@@ -313,7 +276,7 @@ char * os_readfile(const char *name, size_t *ret_len)
 	char *buf = NULL;
 	uint32 len = 0;
 	uint32 write_addr;
-#if 1
+
 	if (strcmp("wifiuser.pem", name) == 0)
 	{
 		write_addr = (uint32 )cpf_get_cert_flash_addr();
@@ -343,7 +306,7 @@ char * os_readfile(const char *name, size_t *ret_len)
     {
     }
   }
-#endif
+
   *ret_len = len;
   if (!buf){
         SLI_WLAN_MGMT_ASSERT(UMAC_ASSERT_BUF_NOT_ALLOCATED_IN_OS_READ_FILE_1);
@@ -376,17 +339,20 @@ char * os_fgets(char *buf , int len, FILE * f)
 	}
 	return buf;
 }
+
 #if UNUSED_FEAT_IN_SUPP_29
 int os_fdatasync(FILE *stream)
 {
 	return 0;
 }
 #endif
+
 int os_fclose(FILE *v) 
 {
 	pac_file_read_write_loc = cpf_get_eap_pac_file_len_addr(); /*Reset it with the initial location in flash mem*/
 	return 0;
 }
+
 size_t  os_fwrite(const char *buf, size_t num_rec, size_t len, FILE * f) 
 {
 	char *tmp_buf;
@@ -414,6 +380,7 @@ size_t  os_fwrite(const char *buf, size_t num_rec, size_t len, FILE * f)
 	os_free(tmp_buf);
 	return len;
 }
+
 #if !K60_PORTING
 void * os_malloc(size_t size)
 {
@@ -430,9 +397,7 @@ void * os_realloc(void *ptr, size_t size)
 	return realloc(ptr, size);
 }
 #endif
-#endif /*SUPPLICANT_NON_ROM*/
-//#ifdef SUPPLICANT_ROM 
-#if 1
+
 void * _os_zalloc(size_t size)
 {
 	void *n = os_malloc(size);
@@ -440,30 +405,24 @@ void * _os_zalloc(size_t size)
 		os_memset(n, 0, size);
 	return n;
 }
-#endif
-
-
 
 #if !K60_PORTING
-
 void * os_malloc(size_t size)
 {
 	return malloc(size);
 }
-
 
 void * os_realloc(void *ptr, size_t size)
 {
 	return realloc(ptr, size);
 }
 
-
 void os_free(void *ptr)
 {
 	free(ptr);
 }
-
 #endif
+
 void * os_memcpy(void *dest, const void *src, size_t n)
 {
 	char *d = dest;

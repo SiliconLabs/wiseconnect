@@ -299,6 +299,9 @@ static const uint8_t hid_report_map[] = {
   /*==============================================*/
 };
 #endif
+rsi_ble_event_profile_by_uuid_t ble_servs;
+rsi_ble_event_read_by_type1_t char_servs;
+rsi_ble_event_gatt_desc_t att_desc;
 
 osSemaphoreId_t ble_main_task_sem;
 
@@ -581,11 +584,10 @@ static void rsi_ble_on_read_req_event(uint16_t event_id, rsi_ble_read_req_t *rsi
  * @section description
  * This is a callback function
  */
-static void rsi_ble_on_profiles_event(uint16_t resp_status, profile_descriptors_t *rsi_ble_resp_profile)
+static void rsi_ble_on_profiles_event(uint16_t resp_status, rsi_ble_event_profile_by_uuid_t *rsi_ble_resp_profile)
 {
-  UNUSED_PARAMETER(
-    rsi_ble_resp_profile); //This statement is added only to resolve compilation warning, value is unchanged
   att_resp_status = resp_status;
+  memcpy(&ble_servs, rsi_ble_resp_profile, sizeof(rsi_ble_event_profile_by_uuid_t));
   rsi_ble_app_set_event(RSI_BLE_EVENT_GATT_PROFILE_RESP);
 }
 
@@ -598,11 +600,10 @@ static void rsi_ble_on_profiles_event(uint16_t resp_status, profile_descriptors_
  * @section description
  */
 static void rsi_ble_on_char_services_event(uint16_t resp_status,
-                                           rsi_ble_resp_char_services_t *rsi_ble_resp_char_services)
+                                           rsi_ble_event_read_by_type1_t *rsi_ble_resp_char_services)
 {
-  UNUSED_PARAMETER(
-    rsi_ble_resp_char_services); //This statement is added only to resolve compilation warning, value is unchanged
   att_resp_status = resp_status;
+  memcpy(&char_servs, rsi_ble_resp_char_services, sizeof(rsi_ble_event_read_by_type1_t));
   rsi_ble_app_set_event(RSI_BLE_EVENT_GATT_CHAR_SERVICES_RESP);
 }
 
@@ -616,11 +617,10 @@ static void rsi_ble_on_char_services_event(uint16_t resp_status,
  * @section description
  * this callback function is invoked when response is received for attribute descriptor
  */
-static void ble_on_att_desc_event(uint16_t resp_status, rsi_ble_resp_att_descs_t *rsi_ble_resp_att_desc)
+static void ble_on_att_desc_event(uint16_t resp_status, rsi_ble_event_gatt_desc_t *rsi_ble_resp_att_desc)
 {
-  //This statement is added only to resolve compilation warning, value is unchanged
-  UNUSED_PARAMETER(rsi_ble_resp_att_desc);
   att_resp_status = resp_status;
+  memcpy(&att_desc, rsi_ble_resp_att_desc, sizeof(rsi_ble_event_gatt_desc_t));
   rsi_ble_app_set_event(RSI_BLE_EVENT_GATT_CHAR_DESC_RESP);
 }
 
@@ -1331,9 +1331,9 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   adv_data_len = strlen(RSI_BLE_APP_HIDS) + 13;
 #elif (GATT_ROLE == CLIENT)
   uuid_t service_uuid;
-  profile_descriptors_t ble_servs         = { 0 };
-  rsi_ble_resp_char_services_t char_servs = { 0 };
-  rsi_ble_resp_att_descs_t att_desc       = { 0 };
+  // rsi_ble_event_profile_by_uuid_t ble_servs         = { 0 };
+  // rsi_ble_resp_char_services_t char_servs = { 0 };
+  // rsi_ble_resp_att_descs_t att_desc       = { 0 };
 #endif
 
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
@@ -1370,10 +1370,10 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
 
   //! registering the GATT callback functions
   rsi_ble_gatt_register_callbacks(NULL,
-                                  rsi_ble_on_profiles_event,
-                                  rsi_ble_on_char_services_event,
                                   NULL,
-                                  ble_on_att_desc_event,
+                                  NULL,
+                                  NULL,
+                                  NULL,
                                   NULL,
                                   NULL,
                                   rsi_ble_on_gatt_write_event,
@@ -1382,10 +1382,10 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
                                   rsi_ble_on_read_req_event,
                                   rsi_ble_on_mtu_event,
                                   NULL,
+                                  ble_on_att_desc_event,
                                   NULL,
-                                  NULL,
-                                  NULL,
-                                  NULL,
+                                  rsi_ble_on_profiles_event,
+                                  rsi_ble_on_char_services_event,
                                   NULL,
                                   NULL,
                                   NULL,
@@ -1750,7 +1750,7 @@ scan:
         //Get the HID service handles, if it exixts in remote device.
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_HID_SERVICE_UUID;
-        rsi_ble_get_profile(glbl_enc_enabled.dev_addr, service_uuid, &ble_servs);
+        rsi_ble_get_profile_async(glbl_enc_enabled.dev_addr, service_uuid, NULL);
 #endif
       } break;
 
@@ -1762,15 +1762,14 @@ scan:
         rsi_ble_app_clear_event(RSI_BLE_EVENT_GATT_PROFILE_RESP);
 
         if (att_resp_status == 0) {
-          LOG_PRINT("Service UUID : 0x%04x (Handle range 0x%04x - 0x%04x)\n",
-                    ble_servs.profile_uuid.val.val16,
+          LOG_PRINT("Handle range 0x%04x - 0x%04x\n",
                     *(uint16_t *)ble_servs.start_handle,
                     *(uint16_t *)ble_servs.end_handle);
           //! query characteristic services, with in the particular range, from the connected remote device.
-          rsi_ble_get_char_services(remote_dev_bd_addr,
-                                    *(uint16_t *)ble_servs.start_handle,
-                                    *(uint16_t *)ble_servs.end_handle,
-                                    &char_servs);
+          rsi_ble_get_char_services_async(remote_dev_bd_addr,
+                                          *(uint16_t *)ble_servs.start_handle,
+                                          *(uint16_t *)ble_servs.end_handle,
+                                          NULL);
         }
       } break;
 
@@ -1798,17 +1797,17 @@ scan:
           //If number of characteristic discovered is less than 3, means we have no more chars in the specified service.
           //else start discovering the next list of characteristics starting from the end of the last discovered characteristic.
           if (char_servs.num_of_services >= 3) {
-            rsi_ble_get_char_services(remote_dev_bd_addr,
-                                      char_servs.char_services[ix - 1].handle + 2,
-                                      *(uint16_t *)ble_servs.end_handle,
-                                      &char_servs);
+            rsi_ble_get_char_services_async(remote_dev_bd_addr,
+                                            char_servs.char_services[ix - 1].handle + 2,
+                                            *(uint16_t *)ble_servs.end_handle,
+                                            NULL);
           } else {
             //if all characteristic has been discovered, discover the descriptors one by one from the desc hanlde list.
             if (desc_handle_index > desc_handle_index_1) {
-              rsi_ble_get_att_descriptors(conn_event_to_app.dev_addr,
-                                          desc_range[desc_handle_index_1],
-                                          desc_range[desc_handle_index_1],
-                                          &att_desc);
+              rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                                desc_range[desc_handle_index_1],
+                                                desc_range[desc_handle_index_1],
+                                                NULL);
               desc_handle_index_1 += 1;
             } else {
               desc_handle_index_1 = desc_handle_index = 0;
@@ -1818,10 +1817,10 @@ scan:
         } else if (att_resp_status == 0x4E60) {
           if (desc_handle_index > desc_handle_index_1) {
             //if all characteristic has been discovered, discover the descriptors one by one from the desc handle list.
-            rsi_ble_get_att_descriptors(conn_event_to_app.dev_addr,
-                                        desc_range[desc_handle_index_1],
-                                        desc_range[desc_handle_index_1],
-                                        &att_desc);
+            rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                              desc_range[desc_handle_index_1],
+                                              desc_range[desc_handle_index_1],
+                                              NULL);
             desc_handle_index_1 += 1;
           } else {
             desc_handle_index_1 = desc_handle_index = 0;
@@ -1845,26 +1844,26 @@ scan:
               uint8_t data[2];
               data[0] = 0x01;
               data[1] = 0x00;
-              rsi_ble_set_att_cmd(conn_event_to_app.dev_addr,
-                                  *((uint16_t *)att_desc.att_desc[ix].handle),
-                                  2,
-                                  (uint8_t *)data);
+              rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
+                                        *((uint16_t *)att_desc.att_desc[ix].handle),
+                                        2,
+                                        (uint8_t *)data);
               LOG_PRINT("Notification enabled \n");
             }
           }
-          memset(&att_desc, 0, sizeof(rsi_ble_resp_att_descs_t));
+          memset(&att_desc, 0, sizeof(rsi_ble_event_gatt_desc_t));
           //Check for the next descriptor in the list.
           if (desc_handle_index > desc_handle_index_1) {
-            rsi_ble_get_att_descriptors(conn_event_to_app.dev_addr,
-                                        desc_range[desc_handle_index_1],
-                                        desc_range[desc_handle_index_1],
-                                        &att_desc);
+            rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                              desc_range[desc_handle_index_1],
+                                              desc_range[desc_handle_index_1],
+                                              NULL);
             desc_handle_index_1 += 1;
           } else {
             desc_handle_index_1 = desc_handle_index = 0;
           }
         }
-        memset(&att_desc, 0, sizeof(rsi_ble_resp_att_descs_t));
+        memset(&att_desc, 0, sizeof(rsi_ble_event_gatt_desc_t));
       } break;
 #endif
 

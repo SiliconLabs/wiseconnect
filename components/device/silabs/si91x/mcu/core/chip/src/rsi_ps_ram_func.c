@@ -28,10 +28,8 @@
 
 /*Note : Enable the WiSe_MCU_MODE if it is WiSeMCU product, and comment off the MCU_MODE define*/
 #define MCU_MODE
-//#define WiSe_MCU_MODE
 /*Note : Update the FLASH define based on product integrated flash */
 #define GIGA_DEVICE
-//#define FLASH_BASED_RET_SLEEP
 /*Note please update this stack pointer based on application stack/RAM usage*/
 #define INTERMEDIATE_SP 0x8000
 /*Note please update this FLASH_VECTOR_OFFSET based on Application vector offset, default is 0x8012000*/
@@ -132,9 +130,8 @@ void Init_QspiStc(void)
   spi_configs_giga.spi_config_5.busy_bit_pos         = 0;
   spi_configs_giga.spi_config_5.d7_d4_data           = 0xf;
   spi_configs_giga.spi_config_5.dummy_bytes_for_rdsr = 0x0;
-  //spi_configs_giga.spi_config_5.auto_address_27_24     = 0x4;
-  spi_configs_giga.spi_config_5.reset_type      = 0x0;
-  spi_configs_giga.spi_config_5.block_erase_cmd = BLOCK_ERASE;
+  spi_configs_giga.spi_config_5.reset_type           = 0x0;
+  spi_configs_giga.spi_config_5.block_erase_cmd      = BLOCK_ERASE;
 
   spi_configs_giga.spi_config_6.chip_erase_cmd   = CHIP_ERASE;
   spi_configs_giga.spi_config_6.sector_erase_cmd = SECTOR_ERASE;
@@ -232,8 +229,7 @@ void Init_QspiStc(void)
   spi_configs_giga.spi_config_5.busy_bit_pos         = 0;
   spi_configs_giga.spi_config_5.d7_d4_data           = 0xf;
   spi_configs_giga.spi_config_5.dummy_bytes_for_rdsr = 0x0;
-  //spi_configs_giga.spi_config_5.auto_address_27_24     = 0x4;
-  spi_configs_giga.spi_config_5.reset_type = 0x3;
+  spi_configs_giga.spi_config_5.reset_type           = 0x3;
 #ifdef EN_MACRONIX_QUAD_FLASH
   spi_configs_giga.spi_config_5.reset_type = 0x4;
 #endif

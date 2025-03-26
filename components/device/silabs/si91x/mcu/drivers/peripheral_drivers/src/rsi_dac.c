@@ -184,7 +184,7 @@ rsi_error_t DAC_Start(uint8_t operation_mode)
 
 /*==============================================*/
 /**
- * @fn           rsi_error_t DAC_PingPongReconfig(int16_t *wr_buf,uint16_t length)
+ * @fn           rsi_error_t DAC_PingPongReconfig(int16_t *wr_buf, uint16_t length)
  * @brief        This API used for reconfigure the udma ping or pong descriptor for 
  *               playing continuous digital word in DAC input buffer. 
  *               This API used in DAC in FIFO mode.
@@ -261,7 +261,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
     clk_div_fac = (uint16_t)ceil((2 * system_clocks.ulpss_ref_clk) / sampl_rate);
     // Configure the DAC division factor for required sampling rate
     RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-    return (uint32_t)((clk_div_fac * sampl_rate) / 2);
+    return ((clk_div_fac * sampl_rate) / 2);
   }
 }
 
@@ -390,8 +390,8 @@ rsi_error_t RSI_DAC_DynamicModeConfig(AUX_ADC_DAC_COMP_Type *pstcDAC,
 
 /*==============================================*/
 /**
- * @fn           rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,uint16_t channel_no,
- *                                                    uint16_t *data,uint32_t len)
+ * @fn           rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint16_t channel_no,
+ *                                                    const uint16_t *data, uint32_t len)
  * @brief        This API is used to write input data DAC in dynamic mode  
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[in]    channel_no  : DAC channel to be configured as 0,1,2 ...15 when ADC multichannel enable is present
@@ -401,17 +401,16 @@ rsi_error_t RSI_DAC_DynamicModeConfig(AUX_ADC_DAC_COMP_Type *pstcDAC,
  */
 rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
                                          uint16_t channel_no,
-                                         uint16_t *data,
+                                         const uint16_t *data,
                                          uint32_t len)
 {
-  uint32_t i;
-  for (i = 0; i < len; i++) {
+  for (uint32_t i = 0; i < len; i++) {
     // clear the DAC input register in dynamic mode
-    pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel_no].ADC_CH_BIT_MAP_CONFIG_0_b.CHANNEL_BITMAP &= (0x7FFFFFFF);
+    pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel_no].ADC_CH_BIT_MAP_CONFIG_0_b.CHANNEL_BITMAP &= 0x7FFFFFFF;
     // Feed the input sample in dynamic mode
     pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel_no].ADC_CH_BIT_MAP_CONFIG_0_b.CHANNEL_BITMAP |= (data[i]) << 31;
     // clear the DAC input register in dynamic mode
-    pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel_no].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP &= (0xFFFFFE00);
+    pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel_no].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP &= 0xFFFFFE00;
     // Feed the input sample in dynamic mode
     pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel_no].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP |= (data[i]) >> 1;
   }
@@ -420,7 +419,7 @@ rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
 
 /*==============================================*/
 /**
- * @fn           rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,int16_t *data,
+ * @fn           rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, const int16_t *data,
  *                               uint8_t static_fifo_mode,uint16_t len)
  * @brief        This API is used to write input data to DAC in static or in FIFO mode. 
  * @param[in]    pstcADC             : Pointer to the AUX_ADC_DAC_COMP_Type structure.
@@ -432,11 +431,13 @@ rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
  * @param[in]    len                 : This parameter define length of data to DAC
  * @return       execution status 
  */
-rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, int16_t *data, uint8_t static_fifo_mode, uint16_t len)
+rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
+                              const int16_t *data,
+                              uint8_t static_fifo_mode,
+                              uint16_t len)
 {
-  uint32_t i;
   (void)static_fifo_mode;
-  for (i = 0; i < len; i++) {
+  for (uint32_t i = 0; i < len; i++) {
 #ifdef CHIP_9118
     if (static_fifo_mode == 0) {
       pstcDAC->AUXDAC_DATA_REG_b.AUXDAC_DATA = (*data);
@@ -456,13 +457,13 @@ rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, int16_t *data, uin
 
 /*==============================================*/
 /**
- * @fn           uint16_t RSI_DAC_ReadData(AUX_ADC_DAC_COMP_Type *pstcDAC)
+ * @fn           uint16_t RSI_DAC_ReadData(const AUX_ADC_DAC_COMP_Type *pstcDAC)
  * @brief        This API is used to Read output data of DAC in FIFO or static mode. 
  * @param[in]    pstcADC             : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[out]   data                : Output data 
  * @return       Output data of DAC. 
  */
-uint16_t RSI_DAC_ReadData(AUX_ADC_DAC_COMP_Type *pstcDAC)
+uint16_t RSI_DAC_ReadData(const AUX_ADC_DAC_COMP_Type *pstcDAC)
 {
   uint16_t data;
   data = pstcDAC->AUXDAC_CONIG_1_b.AUXDAC_DATA_S;
@@ -471,17 +472,17 @@ uint16_t RSI_DAC_ReadData(AUX_ADC_DAC_COMP_Type *pstcDAC)
 
 /*==============================================*/
 /**
- * @fn           uint16_t RSI_DAC_DynamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel,uint16_t data)
+ * @fn           uint16_t RSI_DAC_DynamicModeReadData(const AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel,uint16_t data)
  * @brief        This API is used to Read output data 
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  : DAC channel to be configured as 0,1,2 ...15 when ADC multichannel enable is present 
  * @param[out]   data     : Output data in dynamic mode  
  * @return       DAC output data , where DAC in dynamic mode. 
  */
-uint16_t RSI_DAC_DynamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data)
+uint16_t RSI_DAC_DynamicModeReadData(const AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data)
 {
   data = (uint16_t)(pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP);
-  data = data << 1;
+  data = (uint16_t)(data << 1);
   data = (uint16_t)(data | (pstcDAC->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_0_b.CHANNEL_BITMAP >> 31));
   return data;
 }
@@ -715,13 +716,13 @@ rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 
 /*==============================================*/
 /**
- * @fn           rsi_error_t RSI_DAC_InterruptClr(AUX_ADC_DAC_COMP_Type *pstcDAC)
+ * @fn           rsi_error_t RSI_DAC_InterruptClr(const AUX_ADC_DAC_COMP_Type *pstcDAC)
  * @brief        This API is used to clear the DAC interrupt in FIFO mode.
  * @param[in]    pstcADC      : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @return       zero on success. 
  *
  */
-rsi_error_t RSI_DAC_InterruptClr(AUX_ADC_DAC_COMP_Type *pstcDAC)
+rsi_error_t RSI_DAC_InterruptClr(const AUX_ADC_DAC_COMP_Type *pstcDAC)
 {
 #ifdef CHIP_9118
   pstcDAC->AUXDAC_CTRL_1_b.DAC_FIFO_FLUSH = 1U;

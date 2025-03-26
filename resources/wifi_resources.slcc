@@ -18,6 +18,7 @@ include:
     - path: aws_client_certificate.pem.crt.h
     - path: aws_client_private_key.pem.key.h
     - path: aws_starfield_ca.pem.h
+    - path: aws_ota_certificate.pem.h
     - path: azure_baltimore_ca.pem.h
     - path: cacert.pem.h
     - path: clientcert.pem.h

@@ -543,6 +543,38 @@ sl_status_t sl_si91x_command_to_write_common_flash(uint32_t write_address,
 sl_status_t sl_si91x_command_to_read_common_flash(uint32_t read_address, size_t length, uint8_t *output_buffer);
 
 /***************************************************************************/ /**
+ * @brief 
+ *   Reads the status of a specified id.
+ *
+ * @details
+ *   This function reads the status specified by the read_id parameter and stores the result in the location pointed to by the output parameter.
+ *   This is a blocking API.
+ *
+ * @pre Pre-conditions:
+ * - [sl_wifi_init](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) should be called before this API.
+ *
+ * @param[in] read_id 
+ *   Status to be read, which is of type @ref sl_si91x_read_status_t.
+ * 
+ * @param[out] output 
+ *   Pointer to a variable where the status value will be stored.
+ * 
+ * | read_id                                | output | Description                                           |
+ * |----------------------------------------|--------|-------------------------------------------------------|
+ * | SL_SI91X_READ_NWP_DEBUG_PORT_STATUS    | 0      | Indicates the NWP debug port status is locked.        |
+ * |                                        | 1      | Indicates the NWP debug port status is unlocked.      |
+ * | SL_SI91X_READ_MCU_DEBUG_PORT_STATUS    | 0      | Indicates the MCU debug port status is locked.        |
+ * |                                        | 1      | Indicates the MCU debug port status is unlocked.      |
+ * 
+ * @return
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * 
+ * @note
+ *  This API is only applicable in SoC mode.
+ ******************************************************************************/
+sl_status_t sl_si91x_read_status(sl_si91x_read_status_t read_id, uint8_t *output);
+
+/***************************************************************************/ /**
  * @brief
  *   Retrieve the firmware version currently installed on the SiWx91x device. 
  * 
@@ -580,7 +612,7 @@ sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version);
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.  
  ******************************************************************************/
-sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size);
+sl_status_t sl_si91x_get_firmware_size(const void *buffer, uint32_t *fw_image_size);
 
 /***************************************************************************/
 /**
@@ -658,7 +690,7 @@ sl_status_t sl_si91x_get_nwp_config(const sl_si91x_nwp_get_configuration_t *nwp_
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_debug_log(sl_si91x_assertion_t *assertion);
+sl_status_t sl_si91x_debug_log(const sl_si91x_assertion_t *assertion);
 /** @} */
 
 /***************************************************************************/ /**
