@@ -15,7 +15,7 @@ source:
   - path: si70xx_example.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2024.12.2"
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

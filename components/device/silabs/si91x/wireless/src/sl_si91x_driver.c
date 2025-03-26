@@ -1960,6 +1960,42 @@ sl_status_t sl_si91x_m4_ta_secure_handshake(uint8_t sub_cmd_type,
   return status;
 }
 
+sl_status_t sl_si91x_read_status(sl_si91x_read_status_t read_id, uint8_t *output)
+{
+  sl_wifi_buffer_t *buffer             = NULL;
+  const sl_si91x_packet_t *packet      = NULL;
+  sl_status_t status                   = SL_STATUS_OK;
+  sli_si91x_read_status_t read_request = { 0 };
+
+  SL_VERIFY_POINTER_OR_RETURN(output, SL_STATUS_NULL_POINTER);
+
+  if ((read_id < SL_SI91X_READ_NWP_DEBUG_PORT_STATUS) || (read_id > SL_SI91X_READ_MCU_DEBUG_PORT_STATUS)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  read_request.sub_cmd = (uint8_t)read_id;
+  status               = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
+                                        SI91X_COMMON_CMD,
+                                        &read_request,
+                                        sizeof(sli_si91x_read_status_t),
+                                        SL_SI91X_WAIT_FOR_COMMAND_RESPONSE,
+                                        NULL,
+                                        &buffer);
+  if (status != SL_STATUS_OK) {
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer);
+    return status;
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  if (packet->length > 0)
+    memcpy(output, packet->data, packet->length);
+  sl_si91x_host_free_buffer(buffer);
+
+  return status;
+}
+
 // Perform a soft reset
 static sl_status_t sl_si91x_soft_reset(void)
 {

@@ -54,7 +54,7 @@ osSemaphoreId_t select_sem;
 *               Variable Declarations
 ******************************************************/
 static int32_t sli_si91x_get_aws_error(int32_t status);
-static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port);
+static int32_t sli_si91x_connect_to_network(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port);
 int32_t _iot_tls_verify_cert(void *data, int *crt, int depth, uint32_t *flags);
 
 
@@ -127,7 +127,7 @@ IoT_Error_t iot_tls_is_connected(Network *pNetwork)
   return NETWORK_PHYSICAL_LAYER_CONNECTED;
 }
 
-static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port)
+static int32_t sli_si91x_connect_to_network(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port)
 {
   int32_t status  =0;
 #ifdef SLI_SI91X_ENABLE_IPV6
@@ -250,7 +250,7 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
     return NETWORK_ERR_NET_UNKNOWN_HOST;
   }
 
-  status = sli_si91x_ConnecttoNetwork(pNetwork,
+  status = sli_si91x_connect_to_network(pNetwork,
 						               	(TLS_SOCKET),
                             &dns_query_response,
                             pNetwork->tlsConnectParams.DestinationPort,

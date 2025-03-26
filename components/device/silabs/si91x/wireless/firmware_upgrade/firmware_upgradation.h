@@ -48,7 +48,7 @@
  *   Pointer to the RPS header content.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *  
  * @note
  *  The following table summarizes the support for different modes and network stacks:
@@ -76,7 +76,7 @@ sl_status_t sl_si91x_fwup_start(const uint8_t *rps_header);
  *   Length of the content in bytes.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *  
  * @note
  *  The following table summarizes the support for different modes and network stacks:
@@ -101,7 +101,7 @@ sl_status_t sl_si91x_fwup_load(const uint8_t *content, uint16_t length);
  * - @ref sl_si91x_fwup_load should be called before this API.
  *
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *
  * @note
  *   Call this API before performing a soft or hard reset of the SiWx91x device in scenarios where the update needs to be canceled for any reason.
@@ -141,7 +141,7 @@ sl_status_t sl_si91x_fwup_abort(void);
  *   - 2: End of the file 
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *  The following table summarizes the support for different modes and network stacks:
@@ -163,7 +163,7 @@ sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_im
  *   This function enables the fast firmware upgrade mode on the Si91x device. It optimizes the firmware upgrade process for speed.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *  
  * @note
  *  The following table summarizes the support for different modes and network stacks:
@@ -215,7 +215,7 @@ sl_status_t sl_si91x_set_fast_fw_up(void);
  *   OTAF upgrade done asynchronously when this is set to true, else synchronous upgrade.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *   For a safe firmware upgrade via TCP server, it will take approximately 65 seconds to upgrade the firmware of a 1.5 MB file.

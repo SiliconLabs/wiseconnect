@@ -148,12 +148,18 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() must be called to set the pin direction.
  * 
  * @param[in] gpio Pointer to the structure of type \ref sl_gpio_t.
- * @param[in] int_no Specifies the interrupt number to trigger (0 to 7).
+ * @param[in] int_no Specifies the interrupt number to trigger,
+ *                  - For High Performance (HP) GPIO ports:
+ *                      Valid values are (0-7). All 8 interrupts can be used simultaneously.
+ *                  - For Ultra-Low Power (ULP) GPIO port:
+ *                      Valid values are (0-7). (0-7) interrupts can be configured simultaneously, but only one interrupt is served at a time.
+ *                  - For Ultra-Ultra Low Power (UULP) GPIO port:
+ *                      Valid values are (0-4). (0-4) interrupts can be configured simultaneously, but only one interrupt is served at a time.
  * @param[in] flags Interrupt configuration flags of type sl_gpio_interrupt_flag_t.
  * @param[in] gpio_callback IRQ callback function pointer of type \ref sl_gpio_irq_callback_t.
- * @param[out] avl_intr_no Pointer to the available interrupt number. If no interrupt is available, 
- *                         it returns SL_GPIO_INTERRUPT_UNAVAILABLE (0xFF).
- * 
+ * @param[out] avl_intr_no Pointer to the available interrupt number. This parameter is currently
+ *                         unused and will be ignored.
+ *
  * @return Status code indicating the result:
  * -   SL_STATUS_OK - Success.
  * -   SL_STATUS_BUSY  - Interrupt is busy and cannot carry out the requested operation.

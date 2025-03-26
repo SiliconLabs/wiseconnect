@@ -122,6 +122,9 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define	SL_SO_HIGH_PERFORMANCE_SOCKET	0x1027	///< Enables high-performance socket.
 #define SL_SO_TLS_SNI                  0x1028  ///< Passes SNI extension for SSL socket.
 #define SL_SO_TLS_ALPN                 0x1029  ///< Passes ALPN extension for SSL socket.
+#define SL_SO_MSS                      0x102A  ///< Sets the Maximum Segment Size (MSS) for a socket.
+#define SL_SO_SOCK_VAP_ID              0x102B  ///< Sets the VAP ID for a socket.
+#define SL_SO_MAXRETRY                 0x102C  ///< Sets the maximum number of retries for a socket.
 /** @} */
 
 /*

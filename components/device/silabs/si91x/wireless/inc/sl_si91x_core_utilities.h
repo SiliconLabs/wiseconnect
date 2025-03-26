@@ -47,7 +47,7 @@ extern sli_task_register_id_t sli_fw_status_storage_index;
  *   This function fetches the firmware status value that is specific to the current thread.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  ******************************************************************************/
 static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
 {

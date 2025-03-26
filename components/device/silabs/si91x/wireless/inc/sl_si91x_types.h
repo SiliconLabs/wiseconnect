@@ -115,6 +115,12 @@ typedef enum {
   SL_SI91X_WIFI_CLIENT_VAP_ID, ///< Wi-Fi Client VAP ID
   SL_SI91X_WIFI_AP_VAP_ID,     ///< Wi-Fi Access Point VAP ID
 } sl_si91x_wifi_vap_id_t;
+
+/// Si91x read status types
+typedef enum {
+  SL_SI91X_READ_NWP_DEBUG_PORT_STATUS = 9, ///< Read NWP debug port status
+  SL_SI91X_READ_MCU_DEBUG_PORT_STATUS = 10 ///< Read MCU debug port status
+} sl_si91x_read_status_t;
 /** @} */
 
 /** \addtogroup SL_SI91X_TYPES 

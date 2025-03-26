@@ -5,7 +5,7 @@ description: >
 version: "3.4.2"
 sdk:
   id: simplicity_sdk
-  version: "2024.12.1"
+  version: "2024.12.2"
 documentation:
   - docset: wiseconnect
     version: "3.4.2"

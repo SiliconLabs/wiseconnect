@@ -8,6 +8,8 @@ quality: production
 metadata:
   sbom:
     license: MSLA
+define:
+  - name: TEXT_SEGMENT_IN_PSRAM
 provides:
   - name: text_segment_in_psram
 requires:

@@ -58,7 +58,7 @@
  * | SL_NET_EVENT_COUNT                   | Not Applicable, Internally used by SDK |
  * 
  * @param status
- * Status of type sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * Status of type sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @param data
  * Data received, corresponding to the event type.
@@ -67,7 +67,7 @@
  * Length of the data received.
  * 
  * @return
- * Status of type sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * Status of type sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  */
 typedef sl_status_t (*sl_net_event_handler_t)(sl_net_event_t event,
                                               sl_status_t status,
