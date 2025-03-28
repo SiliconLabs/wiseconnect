@@ -1,22 +1,22 @@
-# **WiSeConnect3\_SDK\_3.4.0-hotfix.1.1 SoC Release Notes**
+# **WiSeConnect3\_SDK\_3.4.0-hotfix.2.1 SoC Release Notes**
 
 ## **Release Details**
 
 |**Item**|**Details**|
 | :- | :- |
-|Release date|21st February 2025|
-|SDK Version|3\.4.0-hotfix.1.1|
-|Firmware Version|<p>Standard: 1711.2.13.3.0.0.15</p><p>Lite Wireless: 1711.2.13.3.0.2.15</p>|
+|Release date|28th March 2025|
+|SDK Version|3\.4.0-hotfix.2.1|
+|Firmware Version|<p>Standard: 1711.2.13.3.0.0.11</p><p>Lite Wireless: 1711.2.13.3.0.2.11</p>|
 |GSDK/SiSDK Version|SiSDK 2024.12.0|
 |Studio Version|5\.10.0.0|
-|Release Package Name|WiSeConnect3\_SDK\_3.4.0-hotfix.1.1|
+|Release Package Name|WiSeConnect3\_SDK\_3.4.0-hotfix.2.1|
 |Supported RTOS|FreeRTOS|
 |Operating Modes Supported|Wi-Fi STA, Wi-Fi AP, Wi-Fi STA+BLE, Wi-Fi STA+AP|
 
 - SiWx917 release consists of two components:
   - SiWx91x Connectivity Firmware:
-    - Standard Wireless Firmware - SiWx917 Firmware Binary available as SiWG917-B.2.13.3.0.0.15.rps
-    - Lite Wireless Firmware - SiWx917 Firmware Binary is available as SiWG917-B.2.13.3.0.2.15.rps, this image is with reduced features for parts with SiWG917M110LGTBA OPN. 
+    - Standard Wireless Firmware - SiWx917 Firmware Binary available as SiWG917-B.2.13.3.0.0.11.rps
+    - Lite Wireless Firmware - SiWx917 Firmware Binary is available as SiWG917-B.2.13.3.0.2.11.rps, this image is with reduced features for parts with SiWG917M110LGTBA OPN. 
   - Wiseconnect3 Library - Wiseconnect3 SDK library runs on internal Cortex M4
 
 **Note:**
@@ -161,25 +161,28 @@
 
 ### **System**
 
-   - None
+  - None
 
 ### **MCU**
 
-   - None
+  - None
 
 ### **SDK**
 
-   - None
+- **Enhancements / New features** 
+  - None
+- **Fixed Issues** 
+  - Fixed an issue with socket and data packet handling that caused the application to halt when connected to a third-party client.  
+  - Fixed an issue with incorrect VAP ID mapping in the HTTP client socket that caused accept failures.
+  - Fixed an issue with handling socket closure for sockets in the listen state.
+- **Documentation** 
+  - None
 
 ### **Wi-Fi/Network Stack**
 
-   - Region gain tables of module boards and module OPNs updated.
+  - None
 
 ### **BLE**
-
-   - None
-
-### **Multi-protocol**
 
   - None
 
@@ -286,7 +289,7 @@
 - It is strongly recommended not to configure any M4 Clock from application context
 - It is strongly recommended to migrate to new GPIO driver for configuring GPIO interrupt(s). IRQ Handlers are available in GPIO driver and it is recommended to use only registered callback functions in the application layer. Please follow the migration guide for more details.
 
-## **Known Issues of WiSeConnect3\_SDK\_3.4.0-hotfix.1.1 Release**
+## **Known Issues of WiSeConnect3\_SDK\_3.4.0-hotfix.2.1 Release**
 
 ### **MCU**
 
@@ -597,6 +600,7 @@ On encountering a problem, it can be mitigated by considering the following opti
 > |14|rsi\_ble\_indicate\_value\_sync|rsi\_ble\_indicate\_value|
 
 <br>
+
 
 # **WiSeConnect3\_SDK\_3.4.0 SoC Release Notes**
 

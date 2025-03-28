@@ -1,20 +1,20 @@
-# **WiSeConnect3\_SDK\_3.4.0-hotfix.1.1 NCP Release Notes**   
+# **WiSeConnect3\_SDK\_3.4.0-hotfix.2.1 NCP Release Notes**   
 
 ## **Release Details**
 
 |**Item**|**Details**|
 | :- | :- |
-|Release date|21st February 2025|
-|SDK Version|3\.4.0-hotfix.1.1|
-|Firmware Version|Standard: 1711.2.13.3.0.0.15|
+|Release date|28th March 2025|
+|SDK Version|3\.4.0-hotfix.2.1|
+|Firmware Version|Standard: 1711.2.13.3.0.0.11|
 |GSDK/SiSDK Version|SiSDK 2024.12.0|
 |Studio Version|5\.10.0.0|
-|Release Package Name|WiSeConnect3\_SDK\_3.4.0-hotfix.1.1|
+|Release Package Name|WiSeConnect3\_SDK\_3.4.0-hotfix.2.1|
 |Supported RTOS|FreeRTOS|
 |Operating Modes Supported|Wi-Fi STA, Wi-Fi AP, Wi-Fi STA+BLE, Wi-Fi STA+AP|
 
 - SiWx917 release consists of two components
-  - Standard Wireless Firmware -  SiWx917 Firmware Binary available as SiWG917-B.2.13.3.0.0.15.rps
+  - Standard Wireless Firmware -  SiWx917 Firmware Binary available as SiWG917-B.2.13.3.0.0.11.rps
   - Wiseconnect3 Library - Wiseconnect3 SDK library runs on the external host in NCP mode.
 
 Note:
@@ -92,19 +92,26 @@ Note:
 
   - None
 
+### **MCU**
+
+  - None
+
 ### **SDK**
 
+- **Enhancements / New features** 
+  - None
+- **Fixed Issues** 
+  - Fixed an issue with socket and data packet handling that caused the application to halt when connected to a third-party client.  
+  - Fixed an issue with incorrect VAP ID mapping in the HTTP client socket that caused accept failures.
+  - Fixed an issue with handling socket closure for sockets in the listen state.
+- **Documentation** 
   - None
 
 ### **Wi-Fi/Network Stack**
 
-  - Region gain tables of module boards and module OPNs updated.
-
-### **BLE**
-
   - None
 
-### **Multi-protocol**
+### **BLE**
 
   - None
 
@@ -175,7 +182,7 @@ Note:
   - To achieve higher throughput for both Wi-Fi and BLE, use medium connection intervals, such as 45 to 80 ms with maximum supervision timeout
   - Ensure Wi-Fi activity consumes lower intervals
 
-## **Known Issues of WiSeConnect3\_SDK\_3.4.0-hotfix.1.1 Release**
+## **Known Issues of WiSeConnect3\_SDK\_3.4.0-hotfix.2.1 Release**
 
 ### **System**
 
@@ -446,6 +453,7 @@ Note:
 > |14|rsi\_ble\_indicate\_value\_sync|rsi\_ble\_indicate\_value|
 
 <br>
+
 
 # **WiSeConnect3\_SDK\_3.4.0 NCP Release Notes**   
 

@@ -642,6 +642,7 @@ int sli_si91x_socket(int family, int type, int protocol, sl_si91x_socket_receive
   si91x_socket->protocol                  = protocol;
   si91x_socket->state                     = INITIALIZED;
   si91x_socket->recv_data_callback        = callback;
+  si91x_socket->client_id                 = -1;
 
   // Return the socket index
   return socket_index;
@@ -672,6 +673,9 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
   if (si91x_client_socket == NULL)
     return -1;
   memcpy(&si91x_client_socket->local_address, &si91x_server_socket->local_address, sizeof(struct sockaddr_in6));
+
+  // Fill VAP_ID
+  si91x_client_socket->vap_id = si91x_server_socket->vap_id;
 
   // Create accept request
   accept_request.socket_id   = (uint8_t)si91x_server_socket->id;
@@ -761,6 +765,12 @@ int sli_si91x_shutdown(int socket, int how)
     reset_socket_state(socket);
 
     return SI91X_NO_ERROR;
+  }
+
+  // Continuously checks if the transmit data queue of the specified socket is empty.
+  // If the queue is not empty, it waits for 2 milliseconds before checking again.
+  while (!sli_si91x_buffer_queue_empty(&si91x_socket->tx_data_queue)) {
+    osDelay(2);
   }
 
   /*If socket is server socket, SHUTDOWN_BY_PORT is to be used irrespective of 'how' parameter.*/
@@ -1157,7 +1167,8 @@ int sli_si91x_get_socket_id(sl_si91x_packet_t *packet)
       if (((sl_si91x_socket_close_response_t *)packet->data)->socket_id == 0) {
         const uint16_t port = ((sl_si91x_socket_close_response_t *)packet->data)->port_number;
         for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
-          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port) {
+          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+              && sli_si91x_sockets[i]->state == LISTEN) {
             return sli_si91x_sockets[i]->id;
           }
         }

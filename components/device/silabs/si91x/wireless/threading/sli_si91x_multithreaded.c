@@ -1669,9 +1669,25 @@ static sli_si91x_socket_t *get_socket_from_packet(sl_si91x_packet_t *socket_pack
       RESET,
       (int16_t)(socket_create_response->socket_type[0] | (socket_create_response->socket_type[1] << 8)));
   } else if (socket_packet->command == RSI_WLAN_RSP_SOCKET_ACCEPT) {
-    const sli_si91x_socket_t *si91x_socket = sli_si91x_get_socket_from_id(socket_id, RESET, -1);
-    return get_si91x_socket(si91x_socket->client_id);
+    const uint16_t port = ((sl_si91x_rsp_ltcp_est_t *)socket_packet->data)->src_port_num;
+    for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
+      if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+          && sli_si91x_sockets[i]->state == LISTEN) {
+        return sli_si91x_sockets[sli_si91x_sockets[i]->client_id];
+      }
+    }
+    return NULL;
   } else if (socket_packet->command == RSI_WLAN_RSP_SOCKET_CLOSE) {
+    if (((sl_si91x_socket_close_response_t *)socket_packet->data)->socket_id == 0) {
+      const uint16_t port = ((sl_si91x_socket_close_response_t *)socket_packet->data)->port_number;
+      for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
+        if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+            && sli_si91x_sockets[i]->state == LISTEN) {
+          return sli_si91x_sockets[i];
+        }
+      }
+      return NULL;
+    }
     return sli_si91x_get_socket_from_id(socket_id, RESET, -1);
   } else {
     return sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
