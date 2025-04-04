@@ -577,18 +577,15 @@
 
 #if defined(SLI_SI917) || defined(SLI_SI915)
 #ifndef RSI_SSL_EXT_CIPHERS
-#define RSI_SSL_EXT_CIPHERS SSL_TLSV1_3_ALL_CIPHERS
+#define RSI_SSL_EXT_CIPHERS SL_SI91X_TLSV1_3_ALL_CIPHERS
 #endif
 #endif
 
 // ssl ciphers
 #ifndef RSI_SSL_CIPHERS
-#if RSI_SSL_RELEASE_2_0
-#define RSI_SSL_CIPHERS SSL_RELEASE_2_0_ALL_CIPHERS
-#else
-#define RSI_SSL_CIPHERS \
-  (BIT_DHE_RSA_GCM | BIT_ECDHE_RSA_GCM | BIT_DHE_RSA_CBC | BIT_ECDHE_RSA_CBC | BIT_ECDHE_ECDSA_CBC | SSL_NEW_CIPHERS)
-#endif
+#define RSI_SSL_CIPHERS                                                                            \
+  (BIT_DHE_RSA_GCM | BIT_ECDHE_RSA_GCM | BIT_DHE_RSA_CBC | BIT_ECDHE_RSA_CBC | BIT_ECDHE_ECDSA_CBC \
+   | SL_SI91X_TLS_NEW_CIPHERS)
 #endif
 
 // Enable TCP over SSL with TLS version depends on remote side

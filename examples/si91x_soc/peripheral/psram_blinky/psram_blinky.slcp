@@ -2,7 +2,7 @@ project_name: psram_blinky
 label: SI91x - SoC Peripheral PSRAM Blinky
 description: >
   This application demonstrates a blinky application running from PSRAM. 
-  The program's Text, Data, BSS, Stack, and Heap segments are placed in PSRAM to utilize external memory effectively. 
+  The program's Text and Data segments are placed in PSRAM to utilize external memory effectively. 
   It highlights memory configuration for applications requiring execution from PSRAM, enabling expanded memory space usage and optimizing on-chip resources.
 category: example|peripheral
 package: platform

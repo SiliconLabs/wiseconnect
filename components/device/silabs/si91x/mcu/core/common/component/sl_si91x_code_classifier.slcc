@@ -15,6 +15,9 @@ include:
     - path: "sl_si91x_code_classifier.h"
 provides:
   - name: sl_si91x_code_classifier
+requires:
+  - name: text_segment_in_psram
+  - name: data_segment_in_psram
 define:
 - name: SL_SI91X_CODE_CLASSIFIER_ENABLE
   value: "1"

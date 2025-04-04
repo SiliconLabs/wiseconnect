@@ -43,7 +43,7 @@
  *   This function sends an ICMP ping request to a specific IP address (IPv4 or IPv6) with a user defined ping packet size.
  *   It verifies the device’s initialization status and validates the IP address type before sending the request to the specific IP address.
  * @pre Pre-condition:
- *  - [sl_net_init](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) should be called before this API.
+ *  - [sl_net_up](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-up) should be called before this API.
  * @param[in] ip_address
  *   The destination IP address should be of type [sl_ip_address_type_t](../wiseconnect-api-reference-guide-common/sl-ip-address-t) either IPv4 or IPv6.
  * @param[in] ping_packet_size
@@ -55,9 +55,9 @@
  *   - SL_STATUS_INVALID_PARAMETER: Invalid IP address type.
  * 
  * @note 
- * 1. This is an asynchronous API. The response is recieved via [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) with [SL_NET_PING_RESPONSE_EVENT](wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) as event.
- * 2. [SL_SI91X_FEAT_LONG_ICMP_PACKET](../wiseconnect-api-reference-guide-si91x-driver/si91-x-feature-bitmap#sl-si91-x-feat-long-icmp-packet) enables support for long-sized ICMP packets. 
- *    Enable this to receive and process the ICMP requests of size more than 308 bytes sent from peers.
+ * 1. This API is asynchronous. The ping response is delivered through the registered [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) callback, 
+ * using the event type [SL_NET_PING_RESPONSE_EVENT](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t). 
+ * To receive this event, the sl_net_event_handler_t must be registered via [sl_net_init()](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) API. 
  ******************************************************************************/
 sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_packet_size);
 

@@ -17,7 +17,7 @@
 ## Purpose / Scope
 
 The coex application demonstrates the procedure about how to configure the device in WisConnect coex mode with wlan standby and BLE connected power save.
-In this coex application, Silicon Labs BLE device connects with remote BLE device (ex:Smart phone with spp pro application) and issue connected power save command to module.In parallel Silicon Labs WiFi interface connects with an Access Point in station mode and issue connected power save command.
+In this coex application, Silicon Labs BLE device connects with remote BLE device (ex:Smart phone with Simplicity Connect App) and issue connected power save command to module.In parallel Silicon Labs WiFi interface connects with an Access Point in station mode and issue connected power save command.
 
 ## Prerequisites / Setup Requirements
 
@@ -300,12 +300,6 @@ RSI_BLE_ATT_PROPERTY_NOTIFY is used to set the NOTIFY property to an attribute v
 
 - Follow the below steps for the successful execution of the application.
 
-- Follow the below steps for the successful execution of the application.
-
-### Build the Application
-
-- Follow the below steps for the successful execution of the application.
-
 #### SoC Mode
 ### Tickless Mode
 
@@ -349,36 +343,58 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 #### Steps to be followed to verify WLAN Station BLE Provisioning with Android **Simplicity Connect App**
 
 1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK mode to connect the SiWx91x in STA mode.
-2. On the Windows PC2, which is connected to the AP through LAN, download the OpenSSL package from the link mentioned above and run the SSL server using the following command: 
-Openssl.exe s_server -accept<SERVER_PORT> –cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
-Example: **openssl.exe s_server –accept 5001 –cert server-cert.pem -key server-key.pem –tls1_2**
 
-   ![](resources/readme/output1.png)
+2. In Windows PC2 (Remote PC) which is connected to AP, run the Openssl server by giving the following command:
 
-3. After the program executes, the Silicon Labs BLE enters the advertising state, and the WLAN connects to the access point, establishing SSL connectivity with the SSL server running on Windows PC1. Please refer to the image below for connection establishment on Windows PC1.
+  ```sh
+      > Openssl.exe s_server -accept<SERVER_PORT> –cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
 
-   ![](resources/readme/output2.png)
+      Example:
+      > openssl.exe s_server –accept 5001 –cert server-cert.pem -key server-key.pem –tls1_2
+  ```
 
-4. Open a BLE scanner app on the smartphone and perform a scan.
+   ![](resources/readme/openssl_command.png)
 
-5. In the app, the Silicon Labs module device will appear with the name configured in the macro RSI_BLE_APP_SIMPLE_CHAT (e.g., 'WLAN_BLE_SIMPLE_CHAT') or, in some cases, as the internal name 'SimpleBLEPeripheral' for the Silicon Labs device.
+3. Once the program runs, BLE starts advertising, and WLAN connects to the AP, establishing an SSL connection with the server running on Windows PC1.
 
-6. Initiate BLE connection from the App.
+   ![](resources/readme/wlan_connection1.png)
 
-7. After a successful connection, the BLE scanner displays the supported services of the Silicon Labs module.
+4. After WLAN obtains an IP address, the power save command is sent to the module.
 
-8. Select the attribute service added with RSI_BLE_NEW_SERVICE_UUID (e.g., 0xAABB) and enable notifications for the attribute UUID RSI_BLE_ATTRIBUTE_2_UUID (e.g., 0x1BB1) to receive data sent by the Wi-Fi STA.
+   ![](resources/readme/power_save_log.png)
 
-9. Now, from the SSL server on Windows PC1, send a message (e.g., 'Hello from WiFi STA') to the Silicon Labs device. The Silicon Labs device forwards the received message to the remote BLE device connected over the BLE protocol. The user can observe the message notification on the attribute UUID RSI_BLE_ATTRIBUTE_2_UUID (e.g., 0x1BB1) in the BLE scanner app.
+5. Open a Simplicity Connect App in the Smartphone and do the scan.
 
-   ![](resources/readme/ble_remote_device_output.png)
+6. The Siwx917 device advertises as the "WLAN_BLE_SIMPLE_CHAT" and can be configured using the "RSI_BLE_APP_DEVICE_NAME" macro and Initiate connection from the Simplicity Connect App.
 
-10. Now, send a message (e.g., 'Hello from BT slave') from the GATT client (in the smartphone BLE scanner app) using the attribute RSI_BLE_ATTRIBUTE_1_UUID (e.g., 0x1AA1) to the Silicon Labs device. The Silicon Labs device forwards the received message from the remote BLE device to the SSL server over the Wi-Fi protocol. The user can observe the message in the UDP socket application.
+   ![](resources/readme/ble_scan.png)
 
-   ![](resources/readme/output3.png)
+7. After a successful connection, the Simplicity Connect App displays the supported services of the Silicon Labs SiWx91x module.
 
-   ![](resources/readme/output4.png)
+8. Select the attribute service (RSI_BLE_NEW_SERVICE_UUID, e.g., 0xAABB) and enable notifications for the attribute UUID (RSI_BLE_ATTRIBUTE_2_UUID, e.g., 0x1BB1) to receive Wi-Fi STA data.
 
-11. After proper coex power save mode selection, the power save command is sent to the module.
+   ![](resources/readme/SI_Connect_notify1.png)
 
-12. Note down power measurement by connecting Module to Agilent Power meter setup.
+9. Send a message from the SSL server on Windows PC1 (e.g., 'Hello from WLAN'). The SiWx91x module forwards this to the BLE device.
+
+   ![](resources/readme/send_hello_from_ssl_log.png)
+
+10. The user can observe the message notification on the attribute UUID RSI_BLE_ATTRIBUTE_2_UUID (e.g., 0x1BB1) in the Simplicity Connect App.
+
+   ![](resources/readme/SI_Connect_notify2.png)
+
+   ![](resources/readme/SI_Connect_activity_log.png)
+
+11. From the Simplicity Connect App, send a message (e.g., 'Hello from BLE') using attribute UUID (RSI_BLE_ATTRIBUTE_1_UUID, e.g., 0x1AA1). The user can observe the message in the Openssl server.
+
+   ![](resources/readme/SI_Connect_ble_message.png)
+
+   ![](resources/readme/SSL_server_log.png)
+
+12. Note down power measurement by connecting Module to Energy Profiler
+
+   ![](resources/readme/output12.png)
+
+13. The following are the serial prints:
+
+   ![](resources/readme/serial_prints.png)

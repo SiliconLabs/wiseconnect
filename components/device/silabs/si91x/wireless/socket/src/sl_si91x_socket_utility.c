@@ -102,8 +102,8 @@ extern volatile uint32_t tx_socket_command_queues_status;
 
 extern volatile uint32_t tx_socket_data_queues_status;
 
-uint32_t sl_si91x_socket_selected_ciphers          = SSL_ALL_CIPHERS;
-uint32_t sl_si91x_socket_selected_extended_ciphers = SSL_EXT_CIPHERS;
+uint32_t sl_si91x_socket_selected_ciphers          = SL_SI91X_TLS_DEFAULT_CIPHERS;
+uint32_t sl_si91x_socket_selected_extended_ciphers = SL_SI91X_TLS_EXT_CIPHERS;
 
 /******************************************************
  *               Function Definitions

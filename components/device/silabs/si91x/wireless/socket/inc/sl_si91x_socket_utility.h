@@ -256,14 +256,27 @@ void sli_si91x_set_socket_event(uint32_t event_mask);
 
 sl_status_t sli_si91x_flush_select_request_table(uint16_t error_code);
 
+/** 
+ * @addtogroup SOCKET_CONFIGURATION_FUNCTION
+ * @{
+ */
+
 /**
- * Sets the list of ciphers used when creating sockets
- * @param cipher_list  Bitmap of selected ciphers
+ * @brief Sets the list of ciphers to be used when creating sockets.
+ *
+ * This function allows you to specify the ciphers that should be used when creating sockets for secure communication.
+ *
+ * @param[in] cipher_list A bitmap of the selected ciphers from @ref SI91X_SOCKET_CIPHERS.
  */
 void sl_si91x_set_socket_cipherlist(uint32_t cipher_list);
 
 /**
- * Sets the list of extended ciphers used when creating sockets
- * @param extended_cipher_list  Bitmap of selected extended ciphers
+ * @brief Sets the list of extended ciphers to be used when creating sockets.
+ *
+ * This function allows you to specify the extended ciphers that should be used when creating sockets for secure communication.
+ *
+ * @param[in] extended_cipher_list A bitmap of the selected extended ciphers from @ref SI91X_EXTENDED_CIPHERS.
  */
 void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list);
+
+/** @} */

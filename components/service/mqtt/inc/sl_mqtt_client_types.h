@@ -197,7 +197,7 @@ typedef struct {
   uint16_t
     topic_length; ///< Length of the topic name. It should not exceed 202 bytes that includes NULL termination character.
   uint8_t *content;        ///< Pointer to the message content. Must not be NULL.
-  uint32_t content_length; ///< Length of the message content.
+  uint32_t content_length; ///< Length of the message content. It should not exceed 1024 bytes.
 } sl_mqtt_client_message_t;
 
 /**
