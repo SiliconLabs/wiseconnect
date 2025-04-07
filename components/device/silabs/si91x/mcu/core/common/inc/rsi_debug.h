@@ -72,4 +72,8 @@ void dummy_printf(const char *fmt, ...);
 #define DEBUGIN()
 #endif
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif // __RSI_DEBUG_H__

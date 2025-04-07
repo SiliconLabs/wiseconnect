@@ -40,13 +40,18 @@ sl_bod_uc_param_t usr_config_params = { .slot_value = SL_BOD_DEFAULT_SLOT_VALUE,
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
 
+/******************************************************************************
+**************************   BOD Callback Function   **************************
+******************************************************************************/
 static void bod_callback(void)
 {
   // Set the BOD interrupt flag
   sl_bod_inter_flag = 1;
-  // Clear the BOD interrupt
-  sl_si91x_bod_clear_interrupt();
 }
+
+/******************************************************************************
+************   Initializes the BOD (Brown-Out Detection) example   ************
+******************************************************************************/
 void bod_example_init(void)
 {
   sl_status_t status    = SL_STATUS_FAIL; // Variable to store the status of BOD operations
@@ -99,6 +104,9 @@ void bod_example_init(void)
   } while (false);
 }
 
+/*****************************************************************************
+ ******** Process action for the BOD (Brown-Out Detection) example. **********
+ *****************************************************************************/
 void bod_example_process_action(void)
 {
   sl_status_t status                = SL_STATUS_FAIL; // Variable to store the status of BOD operations
@@ -121,14 +129,13 @@ void bod_example_process_action(void)
                        "enabled. It may pull down the RESET pin, and the current "
                        "battery level is %.2f%%\n\n",
                        vbat_percentage);
-            } else {
-              DEBUGOUT(" Your Vbatt status is less than the threshold voltage i.e "
-                       "%.2fV battery Percentage is -- %.3f%%\n\n",
-                       vbatt,
-                       vbat_percentage);
             }
           } else {
-          } // Blackout mode is disabled
+            DEBUGOUT(" Your Vbatt status is less than the threshold voltage i.e "
+                     "%.2fV battery Percentage is -- %.3f%%\n\n",
+                     vbatt,
+                     vbat_percentage);
+          }
           // Clear the BOD interrupt flag
           sl_bod_inter_flag = 0;
         } else {

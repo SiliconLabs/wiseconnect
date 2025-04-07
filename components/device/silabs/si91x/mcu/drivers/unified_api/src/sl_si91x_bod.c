@@ -157,7 +157,7 @@ sl_status_t sl_si91x_bod_config_slot_value(uint16_t slot_value)
     return SL_STATUS_NOT_INITIALIZED; // Return not initialized status
   }
   // Validate slot value range
-  if (slot_value > SL_BOD_SLOT_MIN_VALUE && slot_value > SL_BOD_SLOT_MAX_VALUE) {
+  if ((slot_value < SL_BOD_SLOT_MIN_VALUE) || (slot_value >= SL_BOD_SLOT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER; // Return invalid parameter status
   }
   // Configure the BOD Slot value
@@ -169,7 +169,6 @@ sl_status_t sl_si91x_bod_config_slot_value(uint16_t slot_value)
     return SL_STATUS_FAIL; // Return failure status
   }
 }
-
 /*******************************************************************************
  * Function to configure button values
  ******************************************************************************/
@@ -288,7 +287,7 @@ sl_status_t sl_si91x_bod_set_configuration(sl_bod_uc_param_t usr_config_params)
   }
 
   // Set the BOD mode to automatic
-  status = sl_si91x_bod_set_mode(SL_BOD_MODE_MANUAL);
+  status = sl_si91x_bod_set_mode(SL_BOD_MODE_AUTOMATIC);
   if (status != SL_STATUS_OK) {
     return status; // Return if setting mode fails
   }
@@ -339,8 +338,20 @@ void sl_si91x_bod_NVIC_enable_irq(void)
  ******************************************************************************/
 sl_status_t sl_si91x_bod_register_callback(bod_callback_t callback)
 {
-  user_callback = callback; // Register the callback function
-  return SL_STATUS_OK;      // Return success
+
+  // Validate instance, if the parameters is NULL, it returns an error code.
+  if (callback == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  // To validate the function pointer if the parameters is not NULL then, it
+  // returns an error code
+  if (user_callback != NULL) {
+    return SL_STATUS_BUSY;
+  }
+  // User callback address is passed to the static variable which is called
+  // at the time of interrupt
+  user_callback = callback;
+  return SL_STATUS_OK;
 }
 
 /*******************************************************************************
