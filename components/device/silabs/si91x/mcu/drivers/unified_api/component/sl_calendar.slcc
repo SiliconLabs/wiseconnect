@@ -4,10 +4,12 @@ package: platform
 description: >
   The calendar driver will set the day and time for the RTC. 
   When activated, it can also generate triggers for second and millisecond timeouts. 
-  Once the date and time have been set, the RTC will maintain them until the next power cycle.
-  It also supports ULP and  UULP power domain.
-  When you install this component, it will also be installing the  Calendar dependency component, 
-  which is the calendar driver's implementation.
+  Once the date and time have been set, the RTC will maintain them until the next power cycle. 
+  RTC time is a free-flowing counter which can count up to 4 Centuries. 
+  Conversion to any other format such as Unix/NTP timestamps, are subject to its own range limitation.
+  It also supports ULP and UULP power domain.
+  When this component is installed, it will also install the Calendar dependency component(s), 
+  which is used by the driver.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 metadata:

@@ -30,7 +30,7 @@
 
 #include "rsi_sysrtc.h"
 #include "sl_sysrtc_board.h"
-#define SET_ULP_MCUAPB_TA_CTRL (*(volatile uint32_t *)(0x41300008))
+
 #if defined(SI91X_SYSRTC_COUNT) && (SI91X_SYSRTC_COUNT > 0)
 
 // SYSRTC Default pins for compare group is taken as Mode 3
@@ -91,7 +91,9 @@ void rsi_sysrtc_init(const rsi_sysrtc_config_t *p_config)
     // Wait to be ready
     rsi_sysrtc_wait_ready();
   }
-  SET_ULP_MCUAPB_TA_CTRL |= BIT(16);
+  // BIT-16 in the "NWPAON_NPSS_PWRCTRL_SET_REG" register is used to keep the SYSRTC active during sleep mode.
+  // Previously, this bit was manually set from the M4 core. However, it is now enabled by default in the TA firmware,
+  // so manual configuration from the M4 is no longer required.
   // Set configuration
   SYSRTC0->CFG = (p_config->enable_debug_run ? 1UL : 0UL) << _SYSRTC_CFG_DEBUGRUN_SHIFT;
 }

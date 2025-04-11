@@ -67,7 +67,28 @@ typedef enum {
 } sl_si91x_band_mode_t;
 
 /// Si91x region code.
-/// @note Singapore region not currently supported.
+/// @note Singapore region is not currently supported.
+/// @note The suggested mapping for different countries is to be used only for guidance purpose. The customer is expected to verify corresponding country emission requirements and get certification.
+
+/**
+ * @details
+ * Guidance for Region code Mapping for Different Countries
+ * | Country         | Country Code  |  Max power (Based on Regulatory domain)   | Frequency Range (Based on Regulatory Domain) | Suggested Region Code Mapping |
+ * |:----------------|:--------------|:------------------------------------------|:---------------------------------------------|:------------------------------|
+ * | Korea           | KR            | 23 dBm                                    | 2400 - 2483.5                                | KR                            |
+ * | Hong Kong       | HK            | 36 dBm                                    | 2400 - 2483.5                                | EU                            |
+ * | Singapore       | SG            | 200 mW (23 dBm)                           | 2400 - 2483.5                                | EU                            |
+ * | Malaysia        | MY            | 500 mW (27 dBm)                           | 2402 - 2482                                  | EU                            |
+ * | Australia       | AU            | 4000 mW (36 dBm)                          | 2400 - 2483.5                                | EU                            |
+ * | Taiwan          | TW            | 30 dBm                                    | 2400 - 2483.5                                | EU                            |
+ * | Thailand        | TH            | 20 dBm                                    | 2402 - 2482                                  | EU                            |
+ * | Mexico          | MX            | 20 dBm                                    | 2402 - 2482                                  | EU                            |
+ * | Vietnam         | VN            | 20 dBm                                    | 2402 - 2482                                  | EU                            |
+ * | Indonesia       | ID            | 500mW (27 dBm)                            | 2400 - 2483.5                                | EU                            |
+ * | China           | CN            | 20 dBm                                    | 2400 - 2483.5                                | CN                            |
+ *
+ **/
+
 typedef enum {
   DEFAULT_REGION, ///< Factory default region
   US,             ///< United States
@@ -94,6 +115,12 @@ typedef enum {
   SL_SI91X_WIFI_CLIENT_VAP_ID, ///< Wi-Fi Client VAP ID
   SL_SI91X_WIFI_AP_VAP_ID,     ///< Wi-Fi Access Point VAP ID
 } sl_si91x_wifi_vap_id_t;
+
+/// Si91x read status types
+typedef enum {
+  SL_SI91X_READ_NWP_DEBUG_PORT_STATUS = 9, ///< Read NWP debug port status
+  SL_SI91X_READ_MCU_DEBUG_PORT_STATUS = 10 ///< Read MCU debug port status
+} sl_si91x_read_status_t;
 /** @} */
 
 /** \addtogroup SL_SI91X_TYPES 

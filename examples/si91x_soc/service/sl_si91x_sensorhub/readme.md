@@ -57,14 +57,14 @@
       * PS2 Active > PS1 
       * PS2 Active > PS4 Active
     
-> **Note:** These transitions are not enabled by default. To enable, please use below mentioned configurations in 'PowerSave Configurations:' section.
+> **Note:** These transitions are not enabled by default. To enable, use below mentioned configurations in 'PowerSave Configurations:' section.
 
 ## Framework
 
 
 ![Figure: Architecture](resources/readme/image508b.png)
 
-- SensorHub has 4 tasks: 
+- SensorHub has four tasks: 
   * Application task: This task handles the Create Sensor, Start Sensor, Stop Sensor, and Delete Sensor.
   * Event manager task: This task deals with processing the events of Sensor Hub and notifying the Application.
   * Sensor task: This task primarily involves managing sensors, including controlling them, obtaining data from the sensors, and dispatching events to the Event Manager.
@@ -72,7 +72,7 @@
 
 ## Prerequisites/Setup Requirements
 
- - To use this application following Hardware, Software and Project Setup are required.
+ - To use this application following Hardware, Software, and Project Setup are required.
 
 ### Hardware Requirements	
 
@@ -115,7 +115,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 2. Configure the following parameters in the ***sensorhub_config.c*** file:
     * **Data Sample Modes:**
-      - **Polling Sensor Mode** configures the below parameters:
+      - **Polling Sensor Mode** configures the following parameters:
 
         ```c
 
@@ -124,7 +124,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
         ```
 
         - If sensor_mode is selected as ***SL_SH_POLLING_MODE***, then data_deliver.data_mode should be configured as **one** of the following for a sensor configuration structure:
-            - For **TIMEOUT Data Mode** configure the below parameters:
+            - For **TIMEOUT Data Mode** configure the following parameters:
 
               ```c
 
@@ -132,7 +132,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
               .data_deliver.timeout       = 1000
               ```
 
-            - For **THRESHOLD Data Mode** configure the below parameters:
+            - For **THRESHOLD Data Mode** configure the following parameters:
 
               ```c
 
@@ -140,7 +140,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
               .data_deliver.threshold     = 1000,
               ```
 
-            - For **SAMPLING Data Mode** configure the below parameters:
+            - For **SAMPLING Data Mode** configure the following parameters:
 
               ```c
 
@@ -208,10 +208,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
             .data_deliver.data_mode     = SL_SH_NO_DATA_MODE,
             ```
 3. **PowerSave Configurations:**
-    * To configure the power save transitions from PS2 to PS4 and vice-versa, please update the below macro in the  preprocessor settings:
+    * To configure the power save transitions from PS2 to PS4 and vice-versa, update the below macro in the  preprocessor settings:
       ```c
       SL_SH_POWER_STATE_TRANSITIONS=1
-      //Enabling this macro will move the application from PS4 state to PS2 state. 
+      //Enable this macro moves the application from PS4 state to PS2 state. 
       //In PS2 state the sensor data will be sampled and collected.
       ```
 
@@ -279,7 +279,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
           ```C
           SL_SH_PS1_STATE=1 
-          //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
+          //Enabling this macro moves the core from PS2 Active state to PS1 state by using the Power_Task 
           ```
 5. **SDC Configurations**:
     - Disable the ADC **SH_ADC_ENABLE** macro if enabled in the preprocessor settings and enable the **SH_SDC_ENABLE** macro for the sdc
@@ -319,7 +319,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     ![Figure: Introduction](resources/readme/wakeup.png)
    
 ### AWS Configuration
-AWS will ONLY begin by implementing the modifications and settings listed below.
+AWS ONLY begins by implementing the modifications and settings listed below.
 
 >Note: AWS will work ONLY in PS4 Active power state.
 
@@ -334,59 +334,48 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
 
 ### I2C Sensor Pin Configurations
 
-| Sensor PIN | ULP GPIO PIN | Description |
-| --- | --- | --- |
-| SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to SCL pin |
-| SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to SDA pin |
-| VCC | (WPK) (3v3) | Connect to 3v3 pin |
-| GND | (WPK) (GND) | Connect to GND pin |
-| ADDR (for BH1750 Light Sensor) |(WPK) (GND) | Connect to GND pin |
+|          Sensor PIN            |         ULP GPIO PIN       |     Description    |
+| -------------------------------| -------------------------- | -------------------|
+|             SCL                | ULP_GPIO_7 [EXP_HEADER-15] | Connect to SCL pin |
+|             SDA                | ULP_GPIO_6 [EXP_HEADER-16] | Connect to SDA pin |
+|             VCC                |         (WPK) (3v3)        | Connect to 3v3 pin |
+|             GND                |         (WPK) (GND)        | Connect to GND pin |
+| ADDR (for BH1750 Light Sensor) |         (WPK) (GND)        | Connect to GND pin |
 
 ### SPI Sensor Pin Configurations for BRD4338A radio board
 
-| Sensor PIN  | GPIO pin           | Description              |
-| ------------| ------------------ | ------------------------ |
-| SCK | ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
-| CS0 | ULP_GPIO_10 [P17]  |RTE_SSI_ULP_MASTER_CS0_PIN|
-| MOSI | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
-| MISO | ULP_GPIO_2  [F10]  | ULP_SSI_MASTER_MISO_PIN  |
-
-## SPI Sensor Pin Configurations for BRD4343A radio board
-
-| Sensor PIN | GPIO pin           | Description              |
-| ---------- | ------------------ | ------------------------ |
-| SCK | ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
-| CS1 | ULP_GPIO_4  [P17]  |RTE_SSI_ULP_MASTER_CS1_PIN|
-| MOSI | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
-| MISO | ULP_GPIO_2  [P37]  | ULP_SSI_MASTER_MISO_PIN  |
+| Sensor PIN  | BRD4338A GPIO pin  | BRD4338A Description | BRD4343A GPIO pin   | BRD4343A Description
+| ------------| ------------------ | -------------------- | ------------------- | -------------------- |
+| SCK         | ULP_GPIO_8  [P15]  | P15                  |  ULP_GPIO_8  [P15]  | P15                  |
+| CS          | ULP_GPIO_10 [P17]  | P17                  |  ULP_GPIO_4  [P17]  | P17                  |  
+| MOSI        | ULP_GPIO_1  [P16]  | Connect to SDA       |  ULP_GPIO_1  [P16]  | Connect to SDA       |  
+| MISO        | ULP_GPIO_2  [F10]  | Connect to SDO       |  ULP_GPIO_2  [P37]  | Connect to SDO       |
 
 
-### ADC Sensor Pin Configurations
-GUVA sensor 
-| Sensor PIN | ULP GPIO PIN | Description |
-| --- | --- | --- |
-| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36) / GUVA sensor output| 
+### ADC Sensor Pin Configurations 
+| Sensor PIN |   ULP GPIO PIN     |             Description(for GUVA sensor)             |
+| ---------- | ------------------ | ---------------------------------------------------- |
+| ADC Input  | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36) / GUVA sensor output| 
 
-GY-61
-| Sensor PIN | ULP GPIO PIN | Description |
-| --- | --- | --- |
-| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to ADXL335 GY61 X axis analog output |
-| ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output |
-| ADC Input | ULP_GPIO_1 [ P16 ] | Connect to ADXL335 GY61 Z axis analog output| 
+| Sensor PIN |   ULP GPIO PIN      |         Description(for GY61 Sensor)        |
+| ---------  | ------------------- | -------------------------------------------- |
+|  ADC Input | ULP_GPIO_8 [ P15 ]  | Connect to ADXL335 GY61 X axis analog output |
+|  ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output |
+|  ADC Input | ULP_GPIO_1 [ P16 ]  | Connect to ADXL335 GY61 Z axis analog output | 
 
-- **Note: Due to limitations with the number of available ULP GPIO pins (3 maximum),choose either the GUVA sensor or the GY-61 sensor.  Both sensors won't fit at the same time.**
+- **Note: Due to limitations with the number of available ULP GPIO pins (maximum 3),choose either the GUVA sensor or the GY-61 sensor.  Both sensors won't fit at the same time.**
 
 ### SDC Sensor Pin Configurations
 
-| Sensor PIN | ULP GPIO PIN | Description |
-| --- | --- | --- |
-| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36)
+| Sensor PIN |   ULP GPIO PIN     |           Description            |
+| ---------- | ------------------ | -------------------------------- |
+| ADC Input  | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36) |
 | 
 
 ## Test the Application
 
 - Compile and run the application.
-- Connect the I2C, SPI and (ADC or SDC) sensors, based on the above pin configuration.
+- Connect the I2C, SPI, and (ADC or SDC) sensors, based on the above pin configuration.
 
 ## Expected Results
 
@@ -396,11 +385,11 @@ GY-61
 >#### General
   >
   >- The GPIO based Interrupt Sensor Mode won't function in Sleep mode.
-  >- SPI sensor will only work in PS4 state
-  >- Disable ADC if using SPI sensor
+  >- SPI sensor only works in PS4 state.
+  >- Disable ADC if using SPI sensor.
 >#### ADC
   >
-  >- ADC static mode will read the data from the ADC registers and does not depends on ADC Interrupt.
-  >- ADC static mode only supports SensorHub's Polling mode. And it will read 1 sample at a time based on the Sensor Hub Polling Sampling interval
-  >- ADC FIFO mode will support SensorHub Interrupt Mode.
-  >- To use ADC with High sampling rate increase the number of samples
+  >- ADC static mode reads the data from the ADC registers and does not depends on ADC Interrupt.
+  >- ADC static mode only supports SensorHub's Polling mode. And it reads 1 sample at a time based on the Sensor Hub Polling Sampling interval.
+  >- ADC FIFO mode supports SensorHub Interrupt Mode.
+  >- To use ADC with High sampling rate increase the number of samples.

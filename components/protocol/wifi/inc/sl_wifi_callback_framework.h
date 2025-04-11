@@ -57,7 +57,7 @@
  *   Optional user-provided argument passed in @ref sl_wifi_set_callback. This parameter allows the user to pass additional context or information to the callback function.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   In case of event failure, the `SL_WIFI_FAIL_EVENT_STATUS_INDICATION` bit is set in the `event` parameter.
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.
@@ -90,7 +90,7 @@ typedef sl_status_t (*sl_wifi_callback_function_t)(sl_wifi_event_t event,
  *
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in the event.
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.
@@ -125,7 +125,7 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *   Optional user provided argument passed in [sl_wifi_set_stats_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-stats-callback).
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *
  * @note
  *  SL_WIFI_STATS_MODULE_STATE_EVENT messages are used to indicate module state to the host. These messages are enabled by setting the 10th bit of the custom feature bitmap in opermode.
@@ -259,7 +259,7 @@ typedef sl_status_t (*sl_wifi_stats_callback_t)(sl_wifi_event_t event,
  *   Optional user provided argument passed in [sl_wifi_set_join_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-join-callback).
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *
  * @note This is valid in WiFi client mode only
  * @note
@@ -305,7 +305,7 @@ typedef sl_status_t (*sl_wifi_join_callback_t)(sl_wifi_event_t event,
  *   Optional user provided argument passed in [sl_wifi_set_twt_config_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-twt-config-callback).
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   In case of event failure, the `SL_WIFI_FAIL_EVENT_STATUS_INDICATION` bit is set in the `event` parameter.
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.
@@ -338,7 +338,7 @@ typedef sl_status_t (*sl_wifi_twt_config_callback_t)(sl_wifi_event_t event,
  *   Optional user provided argument passed in [sl_wifi_set_transceiver_callback](../pages/wifi-callback-framework#sl-wifi-set-transceiver-callback)
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/4.1/common/api/group-status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note
@@ -368,7 +368,7 @@ typedef sl_status_t (*sl_wifi_transceiver_callback_t)(sl_wifi_event_t event,
  * - The Wi-Fi module must be initialized by calling @ref sl_wifi_init before this API can be used.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   Callbacks can be set only for event groups defined in @ref sl_wifi_event_group_t, not for individual events defined in @ref sl_wifi_event_t.
  ******************************************************************************/
@@ -387,7 +387,7 @@ sl_status_t sl_wifi_set_callback(sl_wifi_event_group_t group, sl_wifi_callback_f
  *  Buffer containing raw data from NWP firmware
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *
  * @note
  *   Passing the event handler is optional. User can implement their own event dispatching handler if they prefer.
@@ -410,7 +410,7 @@ extern sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_
  *   - @ref sl_wifi_init should be called before this API.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   All the individual Wi-Fi events related to this group would be triggered via this callback.
  ******************************************************************************/
@@ -435,7 +435,7 @@ static inline sl_status_t sl_wifi_set_scan_callback(sl_wifi_scan_callback_t func
  *   @ref sl_wifi_init should be called before this API.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   All the individual Wi-Fi events related to this group will be triggered via this callback.
  ******************************************************************************/
@@ -460,7 +460,7 @@ static inline sl_status_t sl_wifi_set_join_callback(sl_wifi_join_callback_t func
  *   @ref sl_wifi_init should be called before this API.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   All the individual Wi-Fi events related to this group would be triggered via this callback.
  ******************************************************************************/
@@ -485,7 +485,7 @@ static inline sl_status_t sl_wifi_set_twt_config_callback(sl_wifi_twt_config_cal
  *   @ref sl_wifi_init should be called before this API.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   All the individual Wi-Fi events related to this group would be triggered via this callback.
  ******************************************************************************/
@@ -509,7 +509,7 @@ static inline sl_status_t sl_wifi_set_stats_callback(sl_wifi_stats_callback_t fu
  * - @ref sl_wifi_init should be called before this API.
  * @return
 *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/4.1/common/api/group-status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   All the individual Wi-Fi events related to this group will be triggered via this callback.
  ******************************************************************************/

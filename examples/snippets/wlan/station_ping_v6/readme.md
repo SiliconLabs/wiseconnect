@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-Ping is used diagnostically to ensure that the host computer the user is trying to reach is actually operating. Ping works by sending an Internet Control Message Protocol (ICMP) Echo Request to a specified interface on the network and waiting for a reply. The application demonstrates how to configure the SiWx91x module in client mode to send a ping request to the target IP address.
+Ping is used diagnostically to ensure that the host computer user is trying to reach is actually operating. Ping works by sending an Internet Control Message Protocol (ICMP) Echo Request to a specified interface on the network and waiting for a reply. The application demonstrates how to configure the SiWx91x module in client mode to send a ping request to the target IP address.
 
 ## Prerequisites/Setup Requirements
 
@@ -22,11 +22,23 @@ Ping is used diagnostically to ensure that the host computer the user is trying 
 - A Windows PC.
 - A Wi-Fi Access Point.
 - SoC Mode:
-  - Silicon Labs [BRD4388A](https://www.silabs.com/)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
+      - BRD4342A [SiWx917-RB4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
+  	  - BRD4343A [SiWx917-RB4343A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
   - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - Silicon Labs [WSTK](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview)
+  - NCP Expansion Kit with NCP Radio Boards
+    - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
 
 ### Software Requirements
 
@@ -50,9 +62,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
-
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes if required.
 
 - In the Project Explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
@@ -96,6 +106,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application.
-- After the application gets executed successfully, the MAC addresses of the remote clients that gets connected or disconnected to the newly created station ping are printed on the console.
+- Upon successfully connecting to the Access Point, the device initiates ping requests to the specified REMOTE_IP_ADDRESS with the configured PING_PACKET_SIZE to verify the availability of the target device.
 
   ![Station_Ping_Output](resources/readme/station_ping_output.png)

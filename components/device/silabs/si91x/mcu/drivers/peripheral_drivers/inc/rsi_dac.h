@@ -82,6 +82,7 @@ typedef union {
 } analog_power_control_t;
 
 extern analog_power_control_t analog_power_ctrl;
+
 // Define macros for analog power states
 #define ANALOG_POWERED_ON  1
 #define ANALOG_POWERED_OFF 0
@@ -110,7 +111,6 @@ __STATIC_INLINE uint8_t analog_get_power_state(void)
 {
   return analog_power_ctrl.analog_power;
 }
-
 uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc event);
 
 rsi_error_t DAC_WriteData_StaticMode(int16_t input_data);

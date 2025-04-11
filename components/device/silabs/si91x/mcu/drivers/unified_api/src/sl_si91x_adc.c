@@ -112,18 +112,12 @@ sl_adc_version_t sl_si91x_adc_get_version(void)
  ******************************************************************************/
 sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configuration)
 {
-  boolean_t adc_clock     = ENABLE;
-  boolean_t odd_divfactor = 0;
-  sl_status_t status      = SL_STATUS_OK;
-  do {
-    if (clock_configuration == NULL) {
-      status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    clock_configuration->division_factor = 1;
-    /* Switch ULP Pro clock to 90MHz */
-    RSI_ULPSS_ClockConfig(M4CLK, adc_clock, clock_configuration->division_factor, odd_divfactor);
-  } while (false);
+  sl_status_t status = SL_STATUS_OK;
+  (void)clock_configuration;
+  if (clock_configuration == NULL) {
+    status = SL_STATUS_NULL_POINTER;
+  }
+
   return status;
 }
 

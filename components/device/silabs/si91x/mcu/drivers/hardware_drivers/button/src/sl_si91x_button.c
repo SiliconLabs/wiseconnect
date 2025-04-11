@@ -31,14 +31,19 @@
 #if defined(DEBUG_UART)
 #include "rsi_debug.h"
 #endif // DEBUG_UART
-
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
-#define BUTTON_M4_INTR            6 // M4 Pin interrupt number
-#define BUTTON_UULP_INTR          2 // UULP GPIO pin interrupt 2
-#define AVL_INTR_NO               0 // available interrupt number
-#define SL_SI91x_MAX_BUTTON_COUNT SL_SI91x_BUTTON_COUNT
+#define BUTTON_M4_INTR   6 // M4 Pin interrupt number
+#define BUTTON_UULP_INTR 2 // UULP GPIO pin interrupt 2
+#define AVL_INTR_NO      0 // available interrupt number
+
+#define MAX_HP_BUTTON_COUNT   8 // The maximum number of HP GPIO interrupts that can be configured simultaneously.
+#define MAX_ULP_BUTTON_COUNT  8 // The maximum number of ULP GPIO interrupts that can be configured simultaneously.
+#define MAX_UULP_BUTTON_COUNT 5 // The maximum number of UULP GPIO interrupts that can be configured simultaneously.
+#define SL_SI91x_MAX_BUTTON_COUNT \
+  MAX_HP_BUTTON_COUNT + MAX_ULP_BUTTON_COUNT + MAX_UULP_BUTTON_COUNT // Total available GPIO interrupts
 
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
@@ -53,9 +58,9 @@ uint8_t ULP_button_index = 0;
 // This stores the button state so that IRQ ISRs know when to notify buttonIsrs.
 #if (SL_SI91x_BUTTON_COUNT > 0)
 static int8_t buttonState[SL_SI91x_BUTTON_COUNT];
-const sl_button_t *HP_button_context[SL_SI91x_BUTTON_COUNT];
-const sl_button_t *ULP_button_context[SL_SI91x_BUTTON_COUNT];
-const sl_button_t *UULP_button_context[SL_SI91x_BUTTON_COUNT];
+const sl_button_t *HP_button_context[MAX_HP_BUTTON_COUNT];
+const sl_button_t *ULP_button_context[MAX_ULP_BUTTON_COUNT];
+const sl_button_t *UULP_button_context[MAX_UULP_BUTTON_COUNT];
 #endif //(SL_SI91x_BUTTON_COUNT > 0)
 
 /*******************************************************************************
@@ -178,8 +183,7 @@ uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
 *
 * @brief DEBOUNCE operation is based upon the theory that when multiple reads in a row
 * return the same value, we have passed any debounce created by the mechanical
-* action of a button. The define "DEBOUNCE" specifies how many reads in a row
-* should return the same value.
+* action of a button.
 *
 * Typically, software debounce is disabled by defaulting to a value of '0',
 * which will cause the preprocessor to strip out the debounce code and save
@@ -188,10 +192,6 @@ uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
 * @note This is how you can configure the debounce functionality.
 *
  ******************************************************************************/
-#ifndef DEBOUNCE
-#define DEBOUNCE 500
-#endif //DEBOUNCE
-
 #if (SL_SI91x_BUTTON_COUNT > 0)
 /**
  * @brief Internal ISR for button handling with optional debounce.
@@ -205,23 +205,35 @@ uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
  */
 void sl_si91x_button_internal_isr(const sl_button_t *handle)
 {
-  int8_t buttonStateNow;
+  int8_t buttonStateNow = 0;
+  buttonStateNow        = sl_si91x_button_state(handle->pin, handle->port);
 
-#if (DEBOUNCE > 0)
-  uint8_t buttonStatePrev;
-  uint32_t debounce;
-#endif //(DEBOUNCE > 0)
-
-  buttonStateNow = sl_si91x_button_state(handle->pin, handle->port);
-
-#if (DEBOUNCE > 0)
-  // Read button until we get "DEBOUNCE" number of consistent readings
-  for (debounce = 0; debounce < DEBOUNCE; debounce = (buttonStateNow == buttonStatePrev) ? debounce + 1 : 0) {
-    buttonStatePrev = buttonStateNow;
-    buttonStateNow  = sl_si91x_button_state(handle->pin, handle->port);
+#if defined(SL_SI91X_BUTTON_DEBOUNCE)
+  sl_si91x_delay_ms(2); // Introduces a 2ms delay to mitigate button debounce effects.
+  if (handle->interrupt_config == SL_GPIO_INTERRUPT_FALLING_EDGE) {
+    if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
+      if (buttonStateNow == LOW) {
+        //state changed, notify app
+        sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
+      }
+    }
+  } else if (handle->interrupt_config == SL_GPIO_INTERRUPT_RISE_EDGE) {
+    if (buttonStateNow == sl_si91x_button_get_state(handle->button_number)) {
+      if (buttonStateNow == HIGH) {
+        //state changed, notify app
+        sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
+      }
+    }
+  } else {
+    if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
+      //state changed, notify app
+      sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
+    } else {
+      //state changed, notify app
+      sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
+    }
   }
-#endif //(DEBOUNCE > 0)
-
+#else
   if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
     //state changed, notify app
     sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
@@ -229,6 +241,7 @@ void sl_si91x_button_internal_isr(const sl_button_t *handle)
     //state changed, notify app
     sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
   }
+#endif
 }
 
 SL_WEAK void sl_si91x_button_isr(uint8_t pin, int8_t state)

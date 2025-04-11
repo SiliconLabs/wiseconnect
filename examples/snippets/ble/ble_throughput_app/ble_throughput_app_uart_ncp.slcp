@@ -15,10 +15,10 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2024.12.2"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.4.1
+  version: 3.4.2
 source:
 - path: app.c
 - path: main.c
@@ -55,7 +55,7 @@ component:
   from: wiseconnect3_sdk
 - id: ble
   from: wiseconnect3_sdk
-- id: sl_si91x_basic_buffers
+- id: sl_si91x_mem_pool_buffers_with_quota
   from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_linker_option

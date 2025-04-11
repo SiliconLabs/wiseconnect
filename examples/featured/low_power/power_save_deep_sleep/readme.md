@@ -27,36 +27,34 @@ Refer to the datasheet for current consumption values without RAM retention.
 - (Optional) Power analyzer 
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview)
     - Radio Boards 
-  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4338A [SiWx917-RB4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-  	- SiWx917 Pro Kit [Si917-PK6032A]
-    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview)
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
     - NCP Expansion Kit with NCP Radio Boards
-      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
-      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - [BRD4346A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4346a-wifi-6-bluetooth-le-soc-4mb-flash-radio-board?tab=overview) + [BRD8045A](https://www.silabs.com/development-tools/wireless/wi-fi/expansion-adapter-board-for-co-processor-radio-boards?tab=overview)
+      - [BRD4357A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4357a-wi-fi-6-bluetooth-le-4mb-flash-radio-board-for-rcp-and-ncp-modules?tab=overview) + [BRD8045A](https://www.silabs.com/development-tools/wireless/wi-fi/expansion-adapter-board-for-co-processor-radio-boards?tab=overview)
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
     - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
     - NCP Expansion Kit with NCP Radio Boards
-      - (BRD4346A + BRD8045C)
-      - (BRD4357A + BRD8045C)
+      - [BRD4346A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4346a-wifi-6-bluetooth-le-soc-4mb-flash-radio-board?tab=overview) + [BRD8045C](https://www.silabs.com/development-tools/wireless/wi-fi/shield-adapter-board-for-co-processor-radio-boards?tab=overview)
+      - [BRD4357A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4357a-wi-fi-6-bluetooth-le-4mb-flash-radio-board-for-rcp-and-ncp-modules?tab=overview) + [BRD8045C](https://www.silabs.com/development-tools/wireless/wi-fi/shield-adapter-board-for-co-processor-radio-boards?tab=overview)
   - Interface and Host MCU Supported
     - SPI - EFR32 & STM32
     - UART - EFR32
 
 ### Software Requirements
 
-- Simplicity Studio IDE (to be used with Silicon Labs MCU)
-- Keil IDE (to be used with STM32F411RE MCU)
+- Simplicity Studio IDE - [Simplicity Studio IDE](https://www.silabs.com/developer-tools/simplicity-studio) (to be used with Silicon Labs MCU)
+- Keil IDE - [Keil IDE](https://www.keil.com/) (to be used with STM32F411RE MCU)
 - Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
 
 ### Set up Diagram
@@ -69,17 +67,18 @@ Refer to the datasheet for current consumption values without RAM retention.
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-  - Install Studio and WiSeConnect 3 extension
-  - Connect your device to the computer
-  - Upgrade your connectivity firmware
-  - Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio).
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension).
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer).
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware).
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project).
   
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
-  - Install the [Keil IDE](https://www.keil.com/)
-  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Install the [Keil IDE](https://www.keil.com/).
+  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect).
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to the STM32F411RE Nucleo Board by following these steps:
    	- Connect the male Arduino compatible header on the carrier board to the female Arduino compatible header on the STM32F411RE Nucleo board.
@@ -93,24 +92,36 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 **Soc Mode**:
 
-The M4 processor is set in sleep mode. To wakeup the M4 processor, use one of the methods shown below:
+The M4 processor is set to sleep mode. To wakeup the M4 processor, use the method shown below:
 
-- ALARM timer-based - In this method, an ALARM timer is run that wakes up the M4 processor periodically as configured in the Universal Configurator in 'Wakeup Source Configuration' under `WiseConnect 3 SDK v3.1.3 -> Device -> MCU -> Service -> Power Manager -> ULP Peripheral -> Wakeup Source Configuration`, as shown below.
+- ALARM timer-based - In this method, an ALARM timer is run that wakes up the M4 processor periodically as configured in the Universal Configurator in 'Wakeup Source Configuration' under `WiseConnect 3 SDK v3.4.2 -> Device -> Si91x -> MCU -> Service -> Power Manager -> UULP Wakeup Sources -> PM Wakeup Source Configuration`, as shown below.
 
-  ![Wakeup Source Configuration](resources/readme/wakeup_configure.png)
+  ![Wakeup Source Configuration](resources/readme/wakeup_config_1.png)
 
-  ![Alarm timer Configuration](resources/readme/alarm_timer_configure.png)
+  ![Alarm timer Configuration](resources/readme/wakeup_config_2.png)
+
+- Configure the following parameter in **app.c**.
+
+  - Power Profile
+
+    ```c
+    #define POWER_SAVE_PROFILE DEEP_SLEEP_WITHOUT_RAM_RETENTION
+    ```
+
+    > **Note** : By default DEEP_SLEEP_WITHOUT_RAM_RETENTION is enabled.
 
 ## Test the Application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer to the instructions [here](https://docs.silabs.com/simplicity-studio-5-users-guide/5.10.1/ss-5-users-guide-building-and-flashing/) to:
 
 - Build the application.
 - Flash, run, and debug the application.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#build-an-application) to:
 
 - Build the application.
 - Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
@@ -118,9 +129,15 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Output
 
-  ![Application Prints Soc](resources/readme/application_prints_soc_ncp.png)
+**SoC Mode**:
+
+  ![Application Prints Soc](resources/readme/application_prints_soc.png)
   
   ![Energy profiler Soc](resources/readme/power_meter_avg_current_consumption.png)
+
+**NCP Mode**:
+
+  ![Application Prints NCP](resources/readme/application_prints_ncp.png)
 
 ### Using Simplicity Studio Energy Profiler for Current Measurement
   
@@ -146,4 +163,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > - The reference images which are captured were measured in an isolated chamber and might vary in an open environment.
 > - To achieve the lowest power numbers in unconnected sleep, in SoC mode, configure both NWP and M4 to sleep without RAM retention.
 > - To achieve the datasheet number for the deepsleep with 352 k RAM retained, configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to sleep without RAM retention.
+> - This can be configured by navigating to `WiseConnect 3 SDK v3.4.2 -> Device -> Si91x -> Memory Configuration`, as shown below:
+>   ![set_ram_level_1](resources/readme/set_ram_level_1.png)
+>   ![set_ram_level_2](resources/readme/set_ram_level_2.png)
 > - A flash erase is required to flash any other application after the user runs the powersave application(s). If not, the module will not allow any application to be flashed.

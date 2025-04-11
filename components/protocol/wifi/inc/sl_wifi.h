@@ -406,6 +406,66 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  *   6. In a 2.4 GHz band, 40 MHz is not supported.
  *   7. Executing this API overwrites calibration values in certified modules.
  *   8. In FCC-certified modules, this API triggers an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
+ *   9. Below are the default gain tables:
+ *      - Si917 IC OPNs:
+ *      <br> Number of regions: 4
+ *   | Region    | Number of channels | Channel | 11b | 11g | 11n | 11ax |
+ *   |-----------|--------------------|---------|-----|-----|-----|------|
+ *   | FCC       | 0xB                |         |     |     |     |      |
+ *   |           |                    |  1      | 33  | 24  |  21 |  20  |
+ *   |           |                    |  2      | 34  | 28  |  28 |  24  |
+ *   |           |                    |  3      | 40  | 30  |  32 |  30  |
+ *   |           |                    |  4      | 40  | 33  |  36 |  31  |
+ *   |           |                    |  5      | 40  | 35  |  36 |  32  |
+ *   |           |                    |  6      | 40  | 35  |  36 |  31  |
+ *   |           |                    |  7      | 40  | 34  |  36 |  30  |
+ *   |           |                    |  8      | 38  | 32  |  36 |  32  |
+ *   |           |                    |  9      | 38  | 34  |  34 |  28  |
+ *   |           |                    | 10      | 34  | 30  |  30 |  22  |
+ *   |           |                    | 11      | 34  | 24  |  22 |  20  |
+ *   | ETSI      | 0x11               |         |     |     |     |      |
+ *   |           |                    | 255     | 36  | 36  |  36 |  24  |
+ *   | TELEC     | 0x24               |         |     |     |     |      |
+ *   |           |                    |   2     | 34  | 28  |  32 |  24  |
+ *   |           |                    |  10     | 34  | 36  |  36 |  24  |
+ *   |           |                    |  13     | 34  | 26  |  24 |  24  |
+ *   |           |                    |  14     | 36  |  0  |   0 |   0  |
+ *   | KCC       | 0x11               |         |     |     |     |      |
+ *   |           |                    | 255     | 36  | 36  |  36 |  36  |
+ *
+ *      - Si917 ACx OPNs:
+ *      <br> Number of regions: 6
+ *   | Region        | Number of channels | Channel | 11b | 11g | 11n | 11ax |
+ *   |---------------|--------------------|---------|-----|-----|-----|------|
+ *   | FCC           |  0x29              |         |     |     |     |      |
+ *   |               |                    |       1 |  30 |  20 |  20 |   18 |
+ *   |               |                    |       2 |  36 |  26 |  26 |   22 |
+ *   |               |                    |       3 |  40 |  30 |  30 |   26 |
+ *   |               |                    |       4 |  40 |  36 |  36 |   32 |
+ *   |               |                    |       7 |  40 |  40 |  40 |   36 |
+ *   |               |                    |       8 |  40 |  36 |  34 |   36 |
+ *   |               |                    |       9 |  40 |  34 |  32 |   28 |
+ *   |               |                    |      10 |  36 |  30 |  28 |   20 |
+ *   |               |                    |      11 |  30 |  20 |  18 |   16 |
+ *   | ETSI          |  0x11              |         |     |     |     |      |
+ *   |               |                    |     255 |  24 |  28 |  28 |   14 |
+ *   | TELEC         |  0x24              |         |     |     |     |      |
+ *   |               |                    |       1 |  28 |  28 |  26 |   16 |
+ *   |               |                    |      12 |  28 |  36 |  36 |   16 |
+ *   |               |                    |      13 |  28 |  26 |  26 |   16 |
+ *   |               |                    |      14 |  28 |   0 |   0 |    0 |
+ *   | KCC           |  0x11              |         |     |     |     |      |
+ *   |               |                    |     255 |  36 |  36 |  36 |   36 |
+ *   | WORLDSAFE     |  0x24              |         |     |     |     |      |
+ *   |               |                    |       1 |  24 |  20 |  20 |   14 |
+ *   |               |                    |       2 |  24 |  26 |  26 |   14 |
+ *   |               |                    |      10 |  24 |  28 |  28 |   14 |
+ *   |               |                    |      11 |  24 |  20 |  18 |   14 |
+ *   | SRRC          |  0x24              |         |     |     |     |      |
+ *   |               |                    |       1 |  26 |  20 |  20 |   14 |
+ *   |               |                    |       2 |  26 |  26 |  26 |   14 |
+ *   |               |                    |      10 |  26 |  30 |  30 |   14 |
+ *   |               |                    |      13 |  26 |  20 |  20 |   14 |
  ******************************************************************************/
 sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *payload, uint16_t payload_len);
 
@@ -482,7 +542,8 @@ sl_status_t sl_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Stops an ongoing Wi-Fi scan operation on the specified interface, including background scanning.
+ *   Stops an ongoing advanced Wi-Fi scan operation on the specified interface.
+ *   An advanced scan allows the user to perform a scan while the SiWx91x device is in a connected state.
  * @pre Pre-conditions:
  *   This API is applicable only for client interface.
  *   @ref sl_wifi_init should be called before this API.

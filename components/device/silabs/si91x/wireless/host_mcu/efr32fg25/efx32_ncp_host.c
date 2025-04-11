@@ -33,6 +33,7 @@
 
 #define LDMA_MAX_TRANSFER_LENGTH     4096
 #define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
+#define PACKET_PENDING_INT_PRI       3
 
 static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam);
 

@@ -70,13 +70,16 @@ Please refer to the following APIs which are common for all 3 instances and are 
 ```
 
 - Using \ref sl_gpio_set_configuration(), we can configure mode and direction using port and pin for all 3 instances. By default, the mode is set to mode0 using this API.
-- When it is needed to explicitly configure GPIO to other mode use \ref sl_gpio_driver_set_pin_mode() - applicable to HP, ULP  instance.
+- To configure the GPIO to a different mode, use \ref sl_gpio_driver_set_pin_mode() - applicable to HP, ULP  instance.
 - Configure GPIO to another direction using \ref sl_si91x_gpio_driver_set_pin_direction() - applicable for all 3 instances, \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() for UULP  instance. To achieve other modes in GPIO, refer to pin MUX section in HRM.
-- There are also other APIs for increasing driver strength - \ref sl_si91x_gpio_driver_select_pad_driver_strength(), 
-slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
-slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
-disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
-- The PAD for corresponding GPIO is taken care of implicitly, if explicitly want to use refer to \ref sl_si91x_gpio_driver_enable_pad_selection().
+- There are several individual APIs available for specific GPIO configurations:
+  - Driver Strength (HP instance): The sl_si91x_gpio_driver_select_pad_driver_strength() function allows you to adjust the driver strength in the High Power (HP) instance.
+  - Driver Strength (ULP instance): The sl_si91x_gpio_driver_select_ulp_pad_driver_strength() function allows you to adjust the driver strength in the Ultra-Low Power (ULP) instance.
+  - Slew Rate (HP instance): Use sl_gpio_driver_set_slew_rate() to configure the slew rate for the High Power (HP) instance.
+  - Slew Rate (ULP instance): The sl_si91x_gpio_driver_select_ulp_pad_slew_rate() function is used to set the slew rate for the Ultra-Low Power (ULP) instance.
+  - Driver Disable State (HP instance): The sl_si91x_gpio_driver_select_pad_driver_disable_state() function enables the configuration of pull-up, pull-down, or repeater functionality for GPIO pins in the High Power (HP) instance.
+  - Driver Disable State (ULP instance): The sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state() function enables the configuration of pull-up, pull-down, or repeater functionality for GPIO pins in the Ultra-Low Power (ULP) instance.
+- The PAD selection for corresponding GPIO is taken care implicitly in \ref sl_gpio_set_configuration(). If you explicitly want to use, refer to \ref sl_si91x_gpio_driver_enable_pad_selection().
 - To enable host PAD selection for GPIO pin numbers(25 - 30) refer to \ref sl_si91x_gpio_driver_enable_host_pad_selection().
 **Note:** Do not enable PAD selection number 9, as it is pre-configured for other function .
 
@@ -90,6 +93,7 @@ Below are the list of GPIO examples available and it's functionality:
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
   |||
+
 ## About Example Code
 
 - Clear all GPIO interrupts and enable the clock.
@@ -132,8 +136,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 - [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -161,3 +165,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+> - To use GPIO pins 31-34 in GPIO mode, see the [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md).

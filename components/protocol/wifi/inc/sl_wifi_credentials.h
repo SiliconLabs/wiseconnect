@@ -63,7 +63,7 @@
  *   Length of the credential data object.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  ******************************************************************************/
 sl_status_t sl_wifi_set_credential(sl_wifi_credential_id_t id,
                                    sl_wifi_credential_type_t type,
@@ -95,7 +95,7 @@ sl_status_t sl_wifi_set_credential(sl_wifi_credential_id_t id,
  *   out: Number of bytes written.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  ******************************************************************************/
 sl_status_t sl_wifi_get_credential(sl_wifi_credential_id_t id,
                                    sl_wifi_credential_type_t *type,
@@ -118,7 +118,7 @@ sl_status_t sl_wifi_get_credential(sl_wifi_credential_id_t id,
  *   Credential identifier as identified by @ref sl_wifi_credential_id_t.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  ******************************************************************************/
 sl_status_t sl_wifi_delete_credential(sl_wifi_credential_id_t id);
 

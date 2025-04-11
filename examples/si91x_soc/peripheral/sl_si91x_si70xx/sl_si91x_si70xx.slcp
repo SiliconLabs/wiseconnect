@@ -15,7 +15,7 @@ source:
   - path: si70xx_example.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2024.12.2"
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -56,6 +56,6 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.4.2
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

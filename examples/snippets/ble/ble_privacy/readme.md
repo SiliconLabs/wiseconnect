@@ -10,8 +10,8 @@
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
-  - [Verify BLE Privacy application as a Slave](#verify-ble-privacy-application-as-a-slave)
-  - [Verify BLE Privacy application as a Master](#verify-ble-privacy-application-as-a-master)
+  - [Verify BLE Privacy application as a Peripheral](#verify-ble-privacy-application-as-a-peripheral)
+  - [Verify BLE Privacy application as a Central](#verify-ble-privacy-application-as-a-central)
 
 ## Purpose/Scope
 

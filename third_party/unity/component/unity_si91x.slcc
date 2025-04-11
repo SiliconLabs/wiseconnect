@@ -2,7 +2,7 @@ id: "unity_si91x"
 package: "platform"
 description: "Unity test framework"
 category: "Test|Framework"
-quality: "test"
+quality: "evaluation"
 metadata:
   sbom:
     license: MSLA

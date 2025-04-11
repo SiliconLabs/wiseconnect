@@ -25,10 +25,10 @@ include:
       - path: psa_ccm_app.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2024.12.2"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.4.2
 component:
   - id: sl_system
   - id: freertos

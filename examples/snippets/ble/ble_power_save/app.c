@@ -80,7 +80,7 @@ static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN]      = { 0 };
 static rsi_ble_event_conn_status_t rsi_app_connected_device     = { 0 };
 static rsi_ble_event_disconnect_t rsi_app_disconnected_device   = { 0 };
 uint8_t rsi_ble_states_bitmap;
-osSemaphoreId_t ble_slave_conn_sem;
+osSemaphoreId_t ble_peripheral_conn_sem;
 osSemaphoreId_t ble_main_task_sem;
 static volatile uint32_t ble_app_event_map;
 static volatile uint32_t ble_app_event_map1;
@@ -292,7 +292,7 @@ void rsi_ble_on_connect_event(rsi_ble_event_conn_status_t *resp_conn)
   rsi_ble_app_set_event(RSI_APP_EVENT_CONNECTED);
 
   //! unblock connection semaphore
-  osSemaphoreRelease(ble_slave_conn_sem);
+  osSemaphoreRelease(ble_peripheral_conn_sem);
 }
 
 /*==============================================*/
@@ -309,7 +309,7 @@ void rsi_ble_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconnect, ui
 {
   UNUSED_PARAMETER(reason); //This statement is added only to resolve compilation warning, value is unchanged
   memcpy(&rsi_app_disconnected_device, resp_disconnect, sizeof(rsi_ble_event_disconnect_t));
-  //! Comparing Remote slave bd address to check the scan bitmap
+  //! Comparing Remote peripheral bd address to check the scan bitmap
   if (!(memcmp(remote_dev_bd_addr, (uint8_t *)resp_disconnect->dev_addr, 6))) {
     CLR_BIT1(rsi_ble_states_bitmap, RSI_SCAN_STATE);
   } else {
@@ -334,8 +334,8 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
   rsi_app_connected_device.status = resp_enh_conn->status;
   rsi_ble_app_set_event(RSI_APP_EVENT_CONNECTED);
   //! unblock connection semaphore
-  if (ble_slave_conn_sem) {
-    osSemaphoreRelease(ble_slave_conn_sem);
+  if (ble_peripheral_conn_sem) {
+    osSemaphoreRelease(ble_peripheral_conn_sem);
   }
 }
 
@@ -454,7 +454,7 @@ void ble_app_task(void *argument)
   }
   LOG_PRINT("\n Get local name: %s\n", rsi_app_resp_get_local_name.name);
 
-  ble_slave_conn_sem = osSemaphoreNew(1, 0, NULL);
+  ble_peripheral_conn_sem = osSemaphoreNew(1, 0, NULL);
 
 #if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_ROLE))
   //! prepare advertise data //local/device name
@@ -541,8 +541,8 @@ void ble_app_task(void *argument)
           return;
         }
 
-        if (ble_slave_conn_sem) {
-          osSemaphoreAcquire(ble_slave_conn_sem, 10000);
+        if (ble_peripheral_conn_sem) {
+          osSemaphoreAcquire(ble_peripheral_conn_sem, 10000);
         }
         // need to give sufficient time to connect to remote device
         osDelay(10000);

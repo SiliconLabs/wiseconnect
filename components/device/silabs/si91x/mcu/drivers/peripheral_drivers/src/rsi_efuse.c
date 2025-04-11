@@ -176,8 +176,15 @@ rsi_error_t efuse_fsm_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t
 {
   float read_time;
   uint8_t read_parameter;
-  read_time      = ((1 / SocClk) * (1000));
+
+  //Program EFUSE_RD_TMNG_PARAM_REG according to the apb bus clk frequency
+  read_time      = ((1.0f / SocClk) * (1000));
   read_parameter = 42 / (uint8_t)read_time;
+
+  //The delay for TRD should be at least 42ns. Therefore, if the read parameter is less than 42ns, it will be updated to minimum of 42ns.
+  if (read_parameter < 2) {
+    read_parameter = 2;
+  }
   /* Check for valid parameters */
   if (pstcEfuse == NULL) {
     return ERROR_EFUSE_INVALID_PARAMETERS;
@@ -222,8 +229,15 @@ rsi_error_t efuse_mem_map_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uin
 {
   float read_time;
   uint8_t read_parameter;
-  read_time      = ((1 / SocClk) * (1000));
+
+  //Program EFUSE_RD_TMNG_PARAM_REG according to the apb bus clk frequency
+  read_time      = ((1.0f / SocClk) * (1000));
   read_parameter = 42 / (uint8_t)read_time;
+
+  //The delay for TRD should be at least 42ns. Therefore, if the read parameter is less than 42ns, it will be updated to exceed 42ns.
+  if (read_parameter < 2) {
+    read_parameter = 2;
+  }
   // Check for valid parameters
   if (pstcEfuse == NULL) {
     return ERROR_EFUSE_INVALID_PARAMETERS;
@@ -261,8 +275,15 @@ rsi_error_t efuse_mem_map_read_word(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uin
 {
   float read_time;
   uint8_t read_parameter;
-  read_time      = ((1 / SocClk) * (1000));
+
+  //Program EFUSE_RD_TMNG_PARAM_REG according to the apb bus clk frequency
+  read_time      = ((1.0f / SocClk) * (1000));
   read_parameter = 42 / (uint8_t)read_time;
+
+  //The delay for TRD should be at least 42ns. Therefore, if the read parameter is less than 42ns, it will be updated to exceed 42ns.
+  if (read_parameter < 2) {
+    read_parameter = 2;
+  }
   // Check for valid parameters
   if (pstcEfuse == NULL) {
     return ERROR_EFUSE_INVALID_PARAMETERS;

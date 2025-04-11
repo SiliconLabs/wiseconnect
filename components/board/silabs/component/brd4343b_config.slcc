@@ -223,6 +223,16 @@
       file_id: pin_config
     path: brd4343b/pin_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%analog_comparator_instance"
+      file_id: analog_comparator_config
+      instance: comparator1
+    path: common_config/sl_si91x_analog_comparator_comparator1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%analog_comparator_instance"
+      file_id: analog_comparator_config
+      instance: comparator2
+    path: common_config/sl_si91x_analog_comparator_comparator2_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%sl_si91x_button_917"
       file_id: button_config
       instance: btn0

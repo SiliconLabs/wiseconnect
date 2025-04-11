@@ -117,7 +117,8 @@ For more information on the memory architecture and hardware interfaces of PSRAM
 
 - **Cache Coherency:** This is especially crucial when a buffer placed in PSRAM is accessed by both the NWP and M4 cores for bidirectional transactions. While the M4 core accesses PSRAM through cache, the Master (NWP core and DMA) interacts with PSRAM directly. Therefore, if PSRAM is used as a shared buffer, it's essential to move such buffers to SRAM.
 - Only the Text and Data segments are recommended for installation in Wireless Applications from PSRAM.
-- **BSS & Heap region:** In PSRAM enabled demos, moving of text, data and stack segments to PSRAM is allowed. BSS and Heap should still be in SRAM. For Wi-Fi and BLE applications, the BSS and heap regions are not configured to PSRAM.
+- **BSS, Heap & Stack region:** In PSRAM enabled demos, moving of text and data segments to PSRAM is supported. However, the BSS, Heap, and Stack regions should remain in SRAM. For SDK applications, the BSS, Heap and Stack regions are not configured to PSRAM.
+- **Code Classifier Usage:** The Code Classifier can be used to optimize memory allocation by selectively moving specific elements between SRAM and PSRAM. This is particularly useful in scenarios where performance improvements or memory usage optimizations are required. By classifying code, initialized data, or uninitialized data, developers can ensure efficient memory utilization and enhance application performance. For usage details, refer to the Code Classifier Demo Application.
 
 #### Flash and PSRAM Combinations
 
@@ -175,6 +176,15 @@ This section outlines how to utilize a 32 kHz external oscillator with UULP_GPIO
 - In an RTOS environment, it is recommended to use signaling mechanisms (such as Semaphore, Mutex, or EventFlag) rather than using simple "Variables/Flags" within user callbacks to detect "*Transfer Complete*" for high-speed communication peripherals. This approach helps to ensure thread safety and reliable communication
 
 Refer to the User callback recommendation code snippet in the [Appendices](#user-callback-recommendation) for details on how to override the default SysTick handler in the CMSIS wrapper.
+
+### 32kHz Clock Configurations 
+- By default, the 32kHz XTAL clock source is enabled for Sleep-Timer, LF-FSM, and SysRTC on IC boards. For module boards, the Sleep-Timer and SysRTC use an External Oscillator clock, while LF-FSM operates with a 32kHz RC clock.
+- To change the clock source:
+  - For Sleep-Timer, switch from XTAL to RC by installing the Sleep-Timer clock configuration.
+  - For SysRTC, use the UC configuration for SysRTC.
+  - For LF-FSM, install the LF-FSM clock configuration component.
+- For module boards, LF-FSM does not support clock source selection, as the external oscillator does not feed into the LF-FSM domain.
+  
 
 ## Power Architecture
 
@@ -699,10 +709,40 @@ EX: To hide the SysTick handler in the cmsis_os2.c file, you can implement the f
 #endif /* SysTick */
 ```
 
-### Appendix D: Exception Handlers
+### Appendix D: GPIO(31-34) JTAG Pins 
+
+By default, GPIO pins 31-34 are used for JTAG and SWD functions, which are required for debugging and programming. To use these pins as regular GPIOs, call sl_si91x_gpio_driver_enable_pad_selection() to override the default behavior, and then configure the pins using sl_gpio_set_configuration(). The PAD selection number for GPIO pins 31-34 is 9.
+The following code snippet illustrates how to configure GPIO pin 32 for GPIO mode:
+
+```C
+  // Define a configuration structure for any GPIO pins that are required, specifying the port, pin number, and direction.
+  // The following configuration example is for GPIO 32. In this example, SL_SI91X_GPIO_32_PORT corresponds to GPIO pin 32 port and
+  // SL_SI91X_GPIO_32_PIN refers to GPIO pin number 32. Follow this representation for other ports and pins.
+  static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_32_PORT, SL_SI91X_GPIO_32_PIN }, GPIO_OUTPUT };
+  // Pad selection for GPIO 32
+  sl_si91x_gpio_driver_enable_pad_selection(9);
+  // Configure GPIO pin 32 using driver pin configuration API.
+  // When using this API, GPIO mode by default is set as MODE 0. If any other mode is selected for any GPIO, use
+  // corresponding API sl_gpio_driver_set_pin_mode() to set the mode.
+  sl_gpio_set_configuration(sl_gpio_pin_config);
+```
+
+### Appendix E: Millisecond Delay Function (sl_si91x_delay_ms) 
+
+The sl_si91x_delay_ms() function provides a software-based millisecond delay, allowing developers to introduce appropriate pauses into their application's execution. While simple to use, understanding its behavior and potential limitations is crucial for ensuring system stability and predictable timing.
+
+Functionality:
+
+The sl_si91x_delay_ms function halts the processor for a specified duration, measured in milliseconds.
+
+```C
+  sl_si91x_delay_ms(100); // Pause execution for 100 milliseconds.
+```
+
+### Appendix F: Exception Handlers
 Exception handlers are critical for managing unexpected events and ensuring system stability. Implementing custom exception handlers allows developers to handle specific exceptions and perform necessary actions to maintain system reliability. 
 
-### Appendix E: Acronyms and Abbreviations
+### Appendix G: Acronyms and Abbreviations
 
 | **Term** | **Description** |
 |----------|-----------------|
@@ -735,7 +775,7 @@ Exception handlers are critical for managing unexpected events and ensuring syst
 | VCOM (Virtual COM Port) | A software interface that emulates a physical COM port. |
 | XTAL (Crystal Oscillator) | An electronic oscillator circuit that uses the mechanical resonance of a vibrating crystal to create an electrical signal with a precise frequency. |
 
-### Appendix F: Contact Information
+### Appendix H: Contact Information
 For further assistance and support, please contact:
 
 * Silicon Labs Support: [Silicon Labs Support] (https://www.silabs.com/support)

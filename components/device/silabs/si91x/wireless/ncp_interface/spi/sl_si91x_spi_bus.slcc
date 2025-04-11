@@ -20,7 +20,7 @@ requires:
   name: sli_si91x_ncp_spi_config
 
 recommends:
-- condition: device_efx
+- condition: [device_efx]
   id: spidrv
   instance: ["exp"]
 

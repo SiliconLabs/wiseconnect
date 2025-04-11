@@ -102,6 +102,9 @@ extern volatile uint32_t tx_socket_command_queues_status;
 
 extern volatile uint32_t tx_socket_data_queues_status;
 
+uint32_t sl_si91x_socket_selected_ciphers          = SL_SI91X_TLS_DEFAULT_CIPHERS;
+uint32_t sl_si91x_socket_selected_extended_ciphers = SL_SI91X_TLS_EXT_CIPHERS;
+
 /******************************************************
  *               Function Definitions
  ******************************************************/
@@ -520,9 +523,9 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const in
   // Check for SSL feature and fill it in SSL bitmap
   if (si91x_bsd_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) {
     socket_create_request.ssl_bitmap         = si91x_bsd_socket->ssl_bitmap;
-    socket_create_request.ssl_ciphers_bitmap = SSL_ALL_CIPHERS;
+    socket_create_request.ssl_ciphers_bitmap = sl_si91x_socket_selected_ciphers;
 #if defined(SLI_SI917) || defined(SLI_SI915)
-    socket_create_request.ssl_ext_ciphers_bitmap = SSL_EXT_CIPHERS;
+    socket_create_request.ssl_ext_ciphers_bitmap = sl_si91x_socket_selected_extended_ciphers;
 #endif
     // Check if cert index is not default index
     if (si91x_bsd_socket->certificate_index > SI91X_CERT_INDEX_0) {
@@ -643,6 +646,7 @@ int sli_si91x_socket(int family, int type, int protocol, sl_si91x_socket_receive
   si91x_socket->protocol                  = protocol;
   si91x_socket->state                     = INITIALIZED;
   si91x_socket->recv_data_callback        = callback;
+  si91x_socket->client_id                 = -1;
 
   // Return the socket index
   return socket_index;
@@ -673,6 +677,9 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
   if (si91x_client_socket == NULL)
     return -1;
   memcpy(&si91x_client_socket->local_address, &si91x_server_socket->local_address, sizeof(struct sockaddr_in6));
+
+  // Fill VAP_ID
+  si91x_client_socket->vap_id = si91x_server_socket->vap_id;
 
   // Create accept request
   accept_request.socket_id   = (uint8_t)si91x_server_socket->id;
@@ -1174,7 +1181,8 @@ int sli_si91x_get_socket_id(sl_si91x_packet_t *packet)
       if (((sl_si91x_socket_close_response_t *)packet->data)->socket_id == 0) {
         const uint16_t port = ((sl_si91x_socket_close_response_t *)packet->data)->port_number;
         for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
-          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port) {
+          if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+              && sli_si91x_sockets[i]->state == LISTEN) {
             return sli_si91x_sockets[i]->id;
           }
         }
@@ -1546,4 +1554,14 @@ bool sli_si91x_is_ip_address_zero(const sl_ip_address_t *ip_addr)
   }
 
   return false; // Invalid or unsupported type
+}
+
+void sl_si91x_set_socket_cipherlist(uint32_t cipher_list)
+{
+  sl_si91x_socket_selected_ciphers = cipher_list;
+}
+
+void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list)
+{
+  sl_si91x_socket_selected_extended_ciphers = extended_cipher_list;
 }

@@ -14,5 +14,7 @@ config_file:
 define:
   - name: SI91X_32kHz_EXTERNAL_OSCILLATOR
     value: '1'
+conflicts:
+  - name: sl_si91x_lf_fsm_clock_selection
 provides:
   - name: si91x_32kHz_external_oscillator

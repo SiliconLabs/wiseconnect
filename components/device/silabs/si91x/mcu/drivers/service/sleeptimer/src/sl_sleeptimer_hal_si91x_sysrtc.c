@@ -40,6 +40,41 @@
 #if (SL_SLEEPTIMER_WALLCLOCK_CONFIG == 1)
 #error "Wall clock feature not present"
 #endif
+
+// Default clock selection for the SLEEP TIMER.
+// This is used if no specific configuration is provided for the clock source.
+#define SLEEP_TIMER_CLK_SEL         RSI_SYSRTC_CLK_32kHz_Xtal // Default to 32kHz XTAL clock
+#define SLEEP_TIMER_CLOCK_FREQUENCY DEFAULT_32KHZ_XTAL_CLOCK  // Default frequency for 32kHz XTAL clock
+
+// Check if the macro SLEEP_TIMER_CLOCK_UC is defined, indicating the configuration will be customized
+#ifdef SLEEP_TIMER_CLOCK_UC
+#include "sl_si91x_sleep_timer_clock_sel.h" // Include the custom sleep timer clock configuration header
+
+// Ensure that both clocks (XTAL and RC) are not enabled simultaneously for the sleep timer
+#if ((_32KHZ_XTAL_ST_CLOCK == 1) && (_32KHZ_RC_ST_CLOCK == 1))
+#error "Both 32kHz XTAL and RC clocks cannot be enabled simultaneously!"  // Error if both clocks are enabled
+
+// If the 32kHz XTAL clock is enabled, override the default selection and set the clock source to XTAL
+#elif (_32KHZ_XTAL_ST_CLOCK == 1)
+#undef SLEEP_TIMER_CLK_SEL                                    // Remove the previous clock source definition
+#undef SLEEP_TIMER_CLOCK_FREQUENCY                            // Remove the previous frequency setting
+#define SLEEP_TIMER_CLK_SEL         RSI_SYSRTC_CLK_32kHz_Xtal // Set the clock to 32kHz XTAL
+#define SLEEP_TIMER_CLOCK_FREQUENCY DEFAULT_32KHZ_XTAL_CLOCK  // Set the frequency to 32kHz XTAL
+
+// If the 32kHz RC clock is enabled, override the default selection and set the clock source to RC
+#elif (_32KHZ_RC_ST_CLOCK == 1)
+#undef SLEEP_TIMER_CLK_SEL                                  // Remove the previous clock source definition
+#undef SLEEP_TIMER_CLOCK_FREQUENCY                          // Remove the previous frequency setting
+#define SLEEP_TIMER_CLK_SEL         RSI_SYSRTC_CLK_32kHz_RC // Set the clock to 32kHz RC
+#define SLEEP_TIMER_CLOCK_FREQUENCY DEFAULT_32KHZ_RC_CLOCK  // Set the frequency to 32kHz RC
+
+// If no valid clock source is defined, raise an error indicating the issue
+#else
+#error "No valid clock source defined for SLEEP_TIMER_CLK_SEL!"  // Error if no valid clock is configured
+#endif
+
+#endif // End of SLEEP_TIMER_CLOCK_UC configuration
+
 // Minimum difference between current count value and what the comparator of the timer can be set to.
 // 1 tick is added to the minimum diff for the algorithm of compensation for the IRQ handler that
 // triggers when CNT == compare_value + 1. For more details refer to sleeptimer_hal_set_compare() function's header.
@@ -83,8 +118,8 @@ void sleeptimer_hal_init_timer(void)
   const rsi_sysrtc_group_channel_compare_config_t group_compare_channel_config =
     SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_DEFAULT_REGMODE;
 
-  // Enable 32kHz XTAL clock to SYSRTC peripheral
-  rsi_sysrtc_clk_set(RSI_SYSRTC_CLK_32kHz_Xtal, 0u);
+  // Enable 32kHz clock to SYSRTC peripheral
+  rsi_sysrtc_clk_set(SLEEP_TIMER_CLK_SEL, 0u);
 
   // Initialize SYSRTC module
   rsi_sysrtc_init(&sysrtc_config);
@@ -299,7 +334,7 @@ void SLEEPTIMER_SI91X_INTERRUPT_HANDLER(void)
 uint32_t sleeptimer_hal_get_timer_frequency(void)
 {
   // There is currently no call for in Si91x library to obtain peripheral frequency of SYSRTC.
-  return DEFAULT_32KHZ_XTAL_CLOCK;
+  return SLEEP_TIMER_CLOCK_FREQUENCY;
 }
 
 /*******************************************************************************

@@ -83,7 +83,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     #define WRITE_ADD_1         0x00001        // efuse address 1
     #define WRITE_ADD_2         0x00002        // efuse address 2
     #define HOLD                40             // count value depends on clock frequency of EFUSE controller
-    #define CLOCK               170000000      // Clock Time
+    #define CLOCK               100            // Clock  
     #define BIT_POS_0           0              // Bit position 0
     #define BIT_POS_1           1              // Bit position 1
     #define BIT_POS_3           3              // Bit position 3
@@ -98,7 +98,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. When the application runs, console prints MATCH if read data matches with the expected data, else prints UNMATCH.
+2. When the application is executed, the console displays "MATCH" if the read data matches the expected data (when WRITE_ENABLE is set to 1 in 
+   the application).
 3. By default write into efuse is disabled by using macro WRITE ENABLE. To write into efuse set the WRITE ENABLE macro.
 4. After successful program execution the prints in serial console looks as shown below.
 
@@ -108,4 +109,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
-> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Further then, copy the necessary code from the driver handler to your custom interrupt handler.

@@ -26,24 +26,22 @@ The Wireless Test application is a Command-Line Interface (CLI) application desi
 - A Micro-coaxial connector plug to SMA-female cable (RF connector) for connecting the U.Fl port of the Si917 radio board to the Spectrum Analyzer or Signal Generator.
 - **SoC Mode**:
   - Standalone
-    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview)
     - Radio Boards 
-  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4338A [SiWx917-RB4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
       - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
   	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-  	- SiWx917 Pro Kit [Si917-PK6032A]
-    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
   	
 - **NCP Mode**:
   - Standalone
-    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A]
+    - BRD4002A Wireless Pro Kit Mainboard [SI-MB4002A](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview)
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
     - NCP Expansion Kit with NCP Radio Boards
-      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
-      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+      - [BRD4346A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4346a-wifi-6-bluetooth-le-soc-4mb-flash-radio-board?tab=overview) + [BRD8045C](https://www.silabs.com/development-tools/wireless/wi-fi/shield-adapter-board-for-co-processor-radio-boards?tab=overview)
+      - [BRD4357A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4357a-wi-fi-6-bluetooth-le-4mb-flash-radio-board-for-rcp-and-ncp-modules?tab=overview) + [BRD8045C](https://www.silabs.com/development-tools/wireless/wi-fi/shield-adapter-board-for-co-processor-radio-boards?tab=overview)
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)  
   - Interface and Host MCU Supported
@@ -52,7 +50,7 @@ The Wireless Test application is a Command-Line Interface (CLI) application desi
 
 ### Software Requirements
 
-- Simplicity Studio
+- Simplicity Studio IDE - [Simplicity Studio IDE](https://www.silabs.com/developer-tools/simplicity-studio)
 - A Serial terminal software such as [Serial Debug Assistant](https://apps.microsoft.com/detail/9NBLGGH43HDM?rtc=1&hl=en-in&gl=in)
 
 Note : The user can also use the Simplicity studio’s console window for sending and receiving the CLI command but it is recommended to use Serial Debug Assistant for ease of the command usage.
@@ -60,18 +58,33 @@ Note : The user can also use the Simplicity studio’s console window for sendin
 
 ### Setup Diagram
 
-- The figure below shows the setup and the connections for the WLAN RF testing.
+#### SoC
 
-![Figure: Setup Diagram SoC Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup.png)
+- The following figure shows the setup and the connections for the WLAN RF testing.
 
-- The figure below shows the setup and the connections for SiWG917 in Station mode.
+  ![Figure: Setup Diagram SoC Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup.png)
 
-![Figure: Setup Diagram SoC Mode for wireless_test Example for Station Mode](resources/readme/sta.png)
+- The following figure shows the setup and the connections for SiWG917 in Station mode.
 
-- The figure below shows the setup and the connections for SiWG917 in BLE Advertising mode.
+  ![Figure: Setup Diagram SoC Mode for wireless_test Example for Station Mode](resources/readme/sta.png)
 
-![Figure: Setup Diagram SoC Mode for wireless_test Example for Advertising](resources/readme/cli_ble.png)
+- The following figure shows the setup and the connections for SiWG917 in BLE Advertising mode.
 
+  ![Figure: Setup Diagram SoC Mode for wireless_test Example for Advertising](resources/readme/cli_ble.png)
+
+#### NCP
+
+- The following figure shows the setup and the connections for the WLAN RF testing.
+
+  ![Figure: Setup Diagram NCP Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup_ncp.png)
+
+- The following figure shows the setup and the connections for SiWG917 (NCP) in Station mode.
+
+  ![Figure: Setup Diagram NCP Mode for wireless_test Example for Station Mode](resources/readme/sta_ncp.png)
+
+- The following figure shows the setup and the connections for SiWG917 (NCP) in BLE Advertising mode.
+
+  ![Figure: Setup Diagram NCP Mode for wireless_test Example for Advertising](resources/readme/cli_ble_ncp.png)
 
 ## Getting Started
 
@@ -622,12 +635,15 @@ ble_per_receive <enable> <phy_rate> <channel> [-a <ant_sel>] [-c <rf_chain>]
 >```
 
 ### **bt_per_stats**
-Read BLE transmit and receive statistics
+Read BLE transmit & receive statistics
 
 **Syntax:**
 ```perl
-bt_per_stats
+bt_per_stats [-t <time_duration>]
 ```
+|Parameter       |Description                                                                                |
+|----------------|-------------------------------------------------------------------------------------------|
+|*time_duration*        |Time duration in seconds             |
 
 **Response Structure:**
 ```perl
@@ -664,6 +680,7 @@ bt_per_stats
   // Dummy array of length 5
   uint16_t dummy[5];
 ```
+**Note:** The "tx_dones" parameter will return 0 in continuous mode.
 
 **Example:**
 ```perl

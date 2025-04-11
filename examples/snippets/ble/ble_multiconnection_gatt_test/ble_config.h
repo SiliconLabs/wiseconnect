@@ -564,7 +564,6 @@ int32_t rsi_initiate_power_save(void);
 int32_t rsi_initiate_power_awake(void);
 void rsi_ble_main_app_task(void);
 void rsi_ble_task_on_conn(void *parameters);
-void rsi_ble_slave_app_task(void);
 void rsi_common_app_task(void);
 
 #endif

@@ -87,6 +87,12 @@ extern osMutexId_t side_band_crypto_mutex;
 #define SL_CRYPTO_PKT_LEN 128
 #endif
 
+#ifdef SLI_SI91X_MCU_INTERFACE
+// Combined Image defines
+#define SLI_COMBINED_IMAGE             BIT(7)
+#define SLI_COMBINED_IMAGE_SIZE_OFFSET 48
+#endif
+
 // Enterprise configuration command parameters
 /*=======================================================================*/
 
@@ -1954,6 +1960,42 @@ sl_status_t sl_si91x_m4_ta_secure_handshake(uint8_t sub_cmd_type,
   return status;
 }
 
+sl_status_t sl_si91x_read_status(sl_si91x_read_status_t read_id, uint8_t *output)
+{
+  sl_wifi_buffer_t *buffer             = NULL;
+  const sl_si91x_packet_t *packet      = NULL;
+  sl_status_t status                   = SL_STATUS_OK;
+  sli_si91x_read_status_t read_request = { 0 };
+
+  SL_VERIFY_POINTER_OR_RETURN(output, SL_STATUS_NULL_POINTER);
+
+  if ((read_id < SL_SI91X_READ_NWP_DEBUG_PORT_STATUS) || (read_id > SL_SI91X_READ_MCU_DEBUG_PORT_STATUS)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  read_request.sub_cmd = (uint8_t)read_id;
+  status               = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
+                                        SI91X_COMMON_CMD,
+                                        &read_request,
+                                        sizeof(sli_si91x_read_status_t),
+                                        SL_SI91X_WAIT_FOR_COMMAND_RESPONSE,
+                                        NULL,
+                                        &buffer);
+  if (status != SL_STATUS_OK) {
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer);
+    return status;
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  if (packet->length > 0)
+    memcpy(output, packet->data, packet->length);
+  sl_si91x_host_free_buffer(buffer);
+
+  return status;
+}
+
 // Perform a soft reset
 static sl_status_t sl_si91x_soft_reset(void)
 {
@@ -2451,91 +2493,6 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   return sl_si91x_driver_send_data_packet(buffer, wait_time);
 }
 
-sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags)
-{
-  static uint16_t boot_cmd = 0;
-  uint16_t read_value      = 0;
-  uint32_t offset          = 0;
-  uint32_t retval          = 0;
-  uint32_t boot_insn       = 0;
-  uint32_t poll_resp       = 0;
-
-  //! If it is a start of file set the boot cmd to pong valid
-  if (flags & SL_SI91X_FW_START_OF_FILE) {
-    boot_cmd = RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID;
-  }
-
-  //! check for invalid packet
-  if ((fw_image_size % SL_SI91X_MIN_CHUNK_SIZE != 0) && (!(flags & SL_SI91X_FW_END_OF_FILE))) {
-    return SL_STATUS_FAIL;
-  }
-
-  //! loop to execute multiple of 4K chunks
-  while (offset < fw_image_size) {
-    switch (boot_cmd) {
-      case (RSI_HOST_INTERACT_REG_VALID | RSI_PING_VALID):
-        boot_insn = RSI_PONG_WRITE;
-        poll_resp = RSI_PING_AVAIL;
-        boot_cmd  = RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID;
-        break;
-
-      case (RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID):
-        boot_insn = RSI_PING_WRITE;
-        poll_resp = RSI_PONG_AVAIL;
-        boot_cmd  = RSI_HOST_INTERACT_REG_VALID | RSI_PING_VALID;
-        break;
-
-      default:
-        return SL_STATUS_FAIL;
-    }
-
-    retval = sl_si91x_boot_instruction((uint8_t)boot_insn, (uint16_t *)(firmware_image + offset));
-    VERIFY_STATUS_AND_RETURN(retval);
-
-    while (1) {
-      retval = sl_si91x_boot_instruction(RSI_REG_READ, &read_value);
-      VERIFY_STATUS_AND_RETURN(retval);
-
-      if (read_value == (RSI_HOST_INTERACT_REG_VALID | poll_resp)) {
-        break;
-      }
-    }
-    offset += SL_SI91X_MIN_CHUNK_SIZE;
-  }
-
-  //! For last chunk set boot cmd as End of file reached
-  if (flags & SL_SI91X_FW_END_OF_FILE) {
-    boot_cmd = RSI_HOST_INTERACT_REG_VALID | RSI_EOF_REACHED;
-
-    retval = sl_si91x_boot_instruction(RSI_REG_WRITE, &boot_cmd);
-    VERIFY_STATUS_AND_RETURN(retval);
-
-    //! check for successful firmware upgrade
-    do {
-      retval = sl_si91x_boot_instruction(RSI_REG_READ, &read_value);
-      VERIFY_STATUS_AND_RETURN(retval);
-
-    } while (read_value != (RSI_HOST_INTERACT_REG_VALID | RSI_FWUP_SUCCESSFUL));
-  }
-  return retval;
-}
-
-sl_status_t sl_si91x_set_fast_fw_up(void)
-{
-  uint32_t read_data = 0;
-  sl_status_t retval = 0;
-  retval             = sl_si91x_bus_read_memory(SL_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
-  VERIFY_STATUS_AND_RETURN(retval);
-
-  //disabling safe upgradation bit
-  if (read_data & SL_SI91X_SAFE_UPGRADE) {
-    read_data &= ~(SL_SI91X_SAFE_UPGRADE);
-    retval = sl_si91x_bus_write_memory(SL_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
-    VERIFY_STATUS_AND_RETURN(retval);
-  }
-  return retval;
-}
-
 void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer)
 {
   CORE_irqState_t state = CORE_EnterAtomic();
@@ -2624,10 +2581,20 @@ sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version)
 sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size)
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(buffer);
+  const sl_si91x_firmware_header_t *firmware_header = (const sl_si91x_firmware_header_t *)buffer;
 
-  const sl_si91x_firmware_header_t *fw = (const sl_si91x_firmware_header_t *)buffer;
-
-  *fw_image_size = (fw->image_size + sizeof(sl_si91x_firmware_header_t));
+#ifdef SLI_SI91X_MCU_INTERFACE
+  // Check for SLI_COMBINED_IMAGE flag in control_flags
+  if (firmware_header->control_flags & SLI_COMBINED_IMAGE) {
+    // If SLI_COMBINED_IMAGE is set, read the combined image size from firmware_header[48-51]
+    *fw_image_size = *(const uint32_t *)((const uint8_t *)firmware_header + SLI_COMBINED_IMAGE_SIZE_OFFSET);
+  } else {
+    // If SLI_COMBINED_IMAGE is not set, calculate the single image size
+    *fw_image_size = firmware_header->image_size + sizeof(sl_si91x_firmware_header_t);
+  }
+#else
+  *fw_image_size = firmware_header->image_size + sizeof(sl_si91x_firmware_header_t);
+#endif
 
   return SL_STATUS_OK;
 }

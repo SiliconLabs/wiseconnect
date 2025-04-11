@@ -15,13 +15,11 @@ provides:
 source:
 - path: sl_net/src/sl_si91x_net_internal_stack.c
 - path: icmp/sl_net_ping.c
-- path: firmware_upgrade/firmware_upgradation.c
 - path: src/sl_si91x_http_client_callback_framework.c
   condition: ["http_client"]
 include:
 - path: sl_net/inc
 - path: icmp
-- path: firmware_upgrade
 - path: inc/http_client/inc
   condition: ["http_client"]
 - path: inc/mqtt/inc
@@ -31,9 +29,6 @@ include:
 - path: icmp
   file_list:
     - path: sl_net_ping.h
-- path: firmware_upgrade
-  file_list:
-    - path: firmware_upgradation.h
 - path: inc/http_client/inc
   file_list:
     - path: sl_si91x_http_client_callback_framework.h

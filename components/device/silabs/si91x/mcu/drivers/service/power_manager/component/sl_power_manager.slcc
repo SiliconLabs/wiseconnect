@@ -50,5 +50,7 @@ template_contribution:
       include: sl_si91x_power_manager.h
       handler: sl_si91x_power_manager_init
     priority: -9995
+  - name: sl_si91x_power_manager_present
+    value: true
 provides:
   - name: sl_power_manager

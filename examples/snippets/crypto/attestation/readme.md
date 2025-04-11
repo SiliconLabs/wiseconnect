@@ -21,6 +21,8 @@
 
 ## Prerequisites/Setup Requirements
 
+- This application works when security is enabled and keys are programmed in the device.
+
 ### Hardware Requirements
 
   - Windows PC 
@@ -35,7 +37,7 @@
 
 #### SoC Mode
 
-  ![Figure: Introduction](resources/readme/image502a.png)
+  ![Figure: Introduction](resources/readme/setup_diagram_soc.png)
 
 ## Getting Started
 

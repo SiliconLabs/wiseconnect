@@ -116,7 +116,7 @@
  *   Pointer to a Wi-Fi buffer contains information related to the event, of type @ref sl_wifi_buffer_t
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in the event.
  *   The data would be of type sl_status_t, and data_length can be ignored.
@@ -354,7 +354,7 @@ typedef struct {
 /**
  * @struct sl_wifi_advanced_client_configuration_t
  * @brief Wi-Fi Client interface advanced configuration structure.
- * @note  The default beacon missed count is set to 40. A unicast probe request sents from the module to the Access Point (AP) at the 21st beacon count and again at the 31st beacon count.
+ * @note  The default beacon missed count is set to 40. A unicast probe request is sent from the module to the Access Point (AP) at the 21st beacon count and again at the 31st beacon count.
  */
 typedef struct {
   uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure

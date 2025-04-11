@@ -42,7 +42,7 @@ extern "C" {
 
 // <o SL_ADC_CHANNEL_2_INPUT_TYPE> Input Type
 //   <SL_ADC_SINGLE_ENDED=>  Single ended
-//   <SL_ADC_DIFFERENTIAL=> Differential
+//   <ADC_DIFFERENTIAL_INPUT=> Differential
 // <i> Selection of the ADC input type.
 #define SL_ADC_CHANNEL_2_INPUT_TYPE SL_ADC_SINGLE_ENDED
 
@@ -58,7 +58,7 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc_ch2 signal=P,N> SL_ADC_CH2
+// <adc_ch2 signal=P,(N)> SL_ADC_CH2
 // $[ADC_CH2_SL_ADC_CH2]
 #ifndef SL_ADC_CH2_PERIPHERAL
 #define SL_ADC_CH2_PERIPHERAL ADC_CH2
@@ -75,18 +75,12 @@ extern "C" {
 #define SL_ADC_CH2_P_LOC 26
 #endif
 
-// ADC_CH2 N on GPIO_30
-#ifndef SL_ADC_CH2_N_PORT
-#define SL_ADC_CH2_N_PORT HP
-#endif
-#ifndef SL_ADC_CH2_N_PIN
-#define SL_ADC_CH2_N_PIN 30
-#endif
-#ifndef SL_ADC_CH2_N_LOC
-#define SL_ADC_CH2_N_LOC 360
-#endif
 // [ADC_CH2_SL_ADC_CH2]$
 // <<< sl:end pin_tool >>>
+
+#if (!defined(SL_ADC_CH2_N_PORT) && (SL_ADC_CHANNEL_2_INPUT_TYPE == ADC_DIFFERENTIAL_INPUT))
+#warning "Channel_2's ADC_N pin is not set up for a differential input type"
+#endif
 
 // Positive Input Channel Selection
 #ifdef SL_ADC_CH2_P_PIN

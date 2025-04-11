@@ -8,6 +8,8 @@ quality: production
 metadata:
   sbom:
     license: MSLA
+define:
+  - name: BSS_SEGMENT_IN_PSRAM
 provides:
   - name: bss_segment_in_psram
 requires:

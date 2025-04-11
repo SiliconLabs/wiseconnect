@@ -1148,12 +1148,13 @@ int32_t USART_Control(uint32_t control,
       // Disable transmit holding register empty interrupt
       usart->pREGS->IER &= (uint32_t)(~USART_INTR_THRE);
 
-      if (usart->dma_rx || usart->dma_tx) {
-        fcr |= USART_DMA_MODE_EN;
-      }
       // Transmit FIFO reset
       fcr = USART_FIFO_ENABLE;
       fcr |= USART_FIFO_TX_RESET;
+
+      if (usart->dma_rx || usart->dma_tx) {
+        fcr |= USART_DMA_MODE_EN;
+      }
 
       usart->pREGS->FCR = fcr;
 
@@ -1178,12 +1179,14 @@ int32_t USART_Control(uint32_t control,
       // Disable receive data available interrupt
       usart->pREGS->IER &= (uint32_t)(~USART_INTR_RX_DATA);
 
-      if (usart->dma_rx || usart->dma_tx) {
-        fcr |= USART_DMA_MODE_EN;
-      }
       // Receive FIFO reset
       fcr = USART_FIFO_ENABLE;
       fcr |= USART_FIFO_RX_RESET;
+
+      if (usart->dma_rx || usart->dma_tx) {
+        fcr |= USART_DMA_MODE_EN;
+      }
+
       usart->pREGS->FCR = fcr;
 
       // If DMA mode - disable DMA channel
@@ -1191,11 +1194,11 @@ int32_t USART_Control(uint32_t control,
           && (usart->pREGS == UART0 || usart->pREGS == USART0 || usart->pREGS == UART1 || usart->pREGS == ULP_UART)) {
         //DISABLE DMa
 #ifdef SL_SI91X_USART_DMA
-        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_tx->channel + 1)) {
+        if (sl_si91x_dma_channel_disable(dma_init.dma_number, usart->dma_rx->channel + 1)) {
           return ARM_DRIVER_ERROR;
         }
 #else
-        UDMAx_ChannelDisable(usart->dma_tx->channel, udma, udmaHandle);
+        UDMAx_ChannelDisable(usart->dma_rx->channel, udma, udmaHandle);
 #endif
       }
       // Clear RX busy status
@@ -1232,13 +1235,16 @@ int32_t USART_Control(uint32_t control,
         UDMAx_ChannelDisable(usart->dma_rx->channel, udma, udmaHandle);
 #endif
       }
+
+      // Transmit and receive FIFO reset
+      fcr = USART_FIFO_ENABLE;
+      fcr |= USART_FIFO_RX_RESET | USART_FIFO_TX_RESET;
+
       // Set trigger level
       if (usart->dma_rx || usart->dma_tx) {
         fcr |= USART_DMA_MODE_EN;
       }
-      // Transmit and receive FIFO reset
-      fcr = USART_FIFO_ENABLE;
-      fcr |= USART_FIFO_RX_RESET | USART_FIFO_TX_RESET;
+
       usart->pREGS->FCR = fcr;
 
       // Clear busy statuses

@@ -34,6 +34,13 @@
 
 #define LDMA_MAX_TRANSFER_LENGTH     4096
 #define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
+#define PACKET_PENDING_INT_PRI       3
+
+#ifdef SL_NCP_UART_INTERFACE
+#define NCP_RX_IRQ USART0_RX_IRQn
+#else
+#define NCP_RX_IRQ GPIO_ODD_IRQn
+#endif
 
 #ifndef SL_SI91X_NCP_UART_BAUDRATE
 // ToDo: This Macro is depricated and should be removed in upcoming releases.

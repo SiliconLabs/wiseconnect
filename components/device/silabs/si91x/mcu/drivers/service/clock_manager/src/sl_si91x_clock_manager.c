@@ -45,6 +45,12 @@
 #define PLL_PREFETCH_LIMIT     (120000000UL) // 120MHz Limit for pll clock
 #define SOC_PLL_FREQ           (180000000UL) // 180MHz default SoC PLL Clock as source to Processor
 #define INTF_PLL_FREQ          (160000000UL) // 160MHz default Interface PLL Clock as source to all peripherals
+#define LOW_FREQ_CLK_DIV_FAC \
+  6 // Division factor used for delay calibration when system clock is below the CLOCK_THRESHOLD macro
+#define HIGH_FREQ_CLK_DIV_FAC \
+  12 // Division factor used for delay calibration when system clock is above the CLOCK_THRESHOLD macro
+#define MILLISECONDS_TO_CYCLES 1000      // Conversion factor from milliseconds to clock cycles.
+#define CLOCK_THRESHOLD        120000000 //Threshold clock frequency in Hertz for delay calibration.
 /************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
  ************************************************************************************/
@@ -381,4 +387,33 @@ static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
       break;
   }
   return status;
+}
+
+/***************************************************************************/
+/**
+ * @brief Delays execution for the specified number of milliseconds.
+ *
+ * @param[in] milli_seconds Delay time in milliseconds.
+ *
+ * @note This function provides a blocking delay.The delay is calibrated based on the SystemCoreClock frequency.
+ *  If SystemCoreClock < CLOCK_THRESHOLD, the delay is calibrated with a division factor of LOW_FREQ_CLK_DIV_FAC.
+ *  If SystemCoreClock >= CLOCK_THRESHOLD, the delay is calibrated with a division factor of HIGH_FREQ_CLK_DIV_FAC.
+ *  This function uses `__NOP()` instructions for the delay loop.
+ ***************************************************************************/
+void sl_si91x_delay_ms(uint32_t milli_seconds)
+{
+  extern uint32_t SystemCoreClock;                                   // Get the system clock frequency
+  uint32_t cycles_per_ms = SystemCoreClock / MILLISECONDS_TO_CYCLES; // Calculate cycles for ms
+
+  // Calibrate the delay based on the system clock frequency
+  if (SystemCoreClock < CLOCK_THRESHOLD) {                                   // If SystemCoreClock < 120 MHz
+    cycles_per_ms = (cycles_per_ms * milli_seconds) / LOW_FREQ_CLK_DIV_FAC;  // Use division factor 6
+  } else {                                                                   // If SystemCoreClock >= 120 MHz
+    cycles_per_ms = (cycles_per_ms * milli_seconds) / HIGH_FREQ_CLK_DIV_FAC; // Use division factor 12
+  }
+
+  // Delay loop using NOP instructions
+  while (cycles_per_ms--) {
+    __NOP(); // No operation instruction
+  }
 }

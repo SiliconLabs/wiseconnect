@@ -17,10 +17,10 @@ filter:
       - Intermediate
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.1"
+  version:  "2024.12.2"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.4.2
 source:
   - path: app.c
   - path: main.c
@@ -115,6 +115,7 @@ other_file:
   - path: resources/readme/aws_create_policy.png
   - path: resources/readme/aws_iot_mqtt_host_url.png
   - path: resources/readme/dut_scan_result.png
+  - path: resources/readme/pm_wakeup_configuration.png
 ui_hints:
   highlight:
     - path: readme.md

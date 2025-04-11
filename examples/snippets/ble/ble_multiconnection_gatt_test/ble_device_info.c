@@ -100,7 +100,7 @@ uint8_t rsi_get_remote_device_role(uint8_t *remote_dev_addr)
 {
   uint8_t role = CENTRAL_ROLE, i;
 
-  //! Loop all structures and if the device addr is matched for slave structure, then return peripheral role or else central role
+  //! Loop all structures and if the device addr is matched for peripheral structure, then return peripheral role or else central role
   for (i = 0; i < TOTAL_CONNECTIONS; i++) {
     if (memcmp(rsi_ble_conn_info[i].remote_dev_addr, remote_dev_addr, RSI_REM_DEV_ADDR_LEN) == 0) {
       return rsi_ble_conn_info[i].remote_device_role;

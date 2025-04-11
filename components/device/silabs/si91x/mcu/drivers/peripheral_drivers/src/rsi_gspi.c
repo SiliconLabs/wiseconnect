@@ -394,7 +394,7 @@ void GSPI_Write_Dummy_Byte(const GSPI_RESOURCES *gspi)
   (void)flush_data;
   gspi->reg->GSPI_INTR_MASK |= (GSPI_INTR_MASK_BIT);
   GSPI0->GSPI_CONFIG1_b.GSPI_MANUAL_CSN = 1;
-  while ((GSPI0->GSPI_STATUS & GSPI_MAN_CSN))
+  while (!(GSPI0->GSPI_STATUS & GSPI_MAN_CSN))
     ;
   // Pin mux configuration after all operations
   if (gspi->reg == GSPI0) {
@@ -525,17 +525,32 @@ set_speed:
 
           switch (slavenumber) {
             case GSPI_CS0:
-              cs_pin = gspi->io.cs0->pin;
+              if (gspi->io.cs0 != NULL) {
+                cs_pin = gspi->io.cs0->pin;
+              } else {
+                return ARM_DRIVER_ERROR_PARAMETER;
+              }
               break;
             case GSPI_CS1:
-              cs_pin = gspi->io.cs1->pin;
+              if (gspi->io.cs1 != NULL) {
+                cs_pin = gspi->io.cs1->pin;
+              } else {
+                return ARM_DRIVER_ERROR_PARAMETER;
+              }
               break;
             case GSPI_CS2:
-              cs_pin = gspi->io.cs2->pin;
+              if (gspi->io.cs2 != NULL) {
+                cs_pin = gspi->io.cs2->pin;
+              } else {
+                return ARM_DRIVER_ERROR_PARAMETER;
+              }
+              break;
+            default:
+              return ARM_DRIVER_ERROR_PARAMETER;
               break;
           }
           RSI_EGPIO_SetPin(EGPIO, 0, cs_pin, 1);
-
+          // Disabling the manual cs pin
           gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN = 0;
           while ((gspi->reg->GSPI_STATUS & GSPI_MAN_CSN))
             ;
@@ -550,13 +565,28 @@ set_speed:
         } else {
           switch (slavenumber) {
             case GSPI_CS0:
-              cs_pin = gspi->io.cs0->pin;
+              if (gspi->io.cs0 != NULL) {
+                cs_pin = gspi->io.cs0->pin;
+              } else {
+                return ARM_DRIVER_ERROR_PARAMETER;
+              }
               break;
             case GSPI_CS1:
-              cs_pin = gspi->io.cs1->pin;
+              if (gspi->io.cs1 != NULL) {
+                cs_pin = gspi->io.cs1->pin;
+              } else {
+                return ARM_DRIVER_ERROR_PARAMETER;
+              }
               break;
             case GSPI_CS2:
-              cs_pin = gspi->io.cs2->pin;
+              if (gspi->io.cs1 != NULL) {
+                cs_pin = gspi->io.cs2->pin;
+              } else {
+                return ARM_DRIVER_ERROR_PARAMETER;
+              }
+              break;
+            default:
+              return ARM_DRIVER_ERROR_PARAMETER;
               break;
           }
           RSI_EGPIO_SetPin(EGPIO, 0, cs_pin, 0);
@@ -584,22 +614,37 @@ set_speed:
         //!pad selection,host pad gpio mode enables for host pad gpios are already pogrammed in initialization
         switch (slavenumber) {
           case GSPI_CS0:
-            cs_pin = gspi->io.cs0->pin;
-            if (gspi->io.cs0->pad_sel != 0) {
-              RSI_EGPIO_PadSelectionEnable(gspi->io.cs0->pad_sel);
+            if (gspi->io.cs0 != NULL) {
+              cs_pin = gspi->io.cs0->pin;
+              if (gspi->io.cs0->pad_sel != 0) {
+                RSI_EGPIO_PadSelectionEnable(gspi->io.cs0->pad_sel);
+              }
+            } else {
+              return ARM_DRIVER_ERROR_PARAMETER;
             }
             break;
           case GSPI_CS1:
-            cs_pin = gspi->io.cs1->pin;
-            if (gspi->io.cs1->pad_sel != 0) {
-              RSI_EGPIO_PadSelectionEnable(gspi->io.cs1->pad_sel);
+            if (gspi->io.cs1 != NULL) {
+              cs_pin = gspi->io.cs1->pin;
+              if (gspi->io.cs1->pad_sel != 0) {
+                RSI_EGPIO_PadSelectionEnable(gspi->io.cs1->pad_sel);
+              }
+            } else {
+              return ARM_DRIVER_ERROR_PARAMETER;
             }
             break;
           case GSPI_CS2:
-            cs_pin = gspi->io.cs2->pin;
-            if (gspi->io.cs2->pad_sel != 0) {
-              RSI_EGPIO_PadSelectionEnable(gspi->io.cs2->pad_sel);
+            if (gspi->io.cs2 != NULL) {
+              cs_pin = gspi->io.cs2->pin;
+              if (gspi->io.cs2->pad_sel != 0) {
+                RSI_EGPIO_PadSelectionEnable(gspi->io.cs2->pad_sel);
+              }
+            } else {
+              return ARM_DRIVER_ERROR_PARAMETER;
             }
+            break;
+          default:
+            return ARM_DRIVER_ERROR_PARAMETER;
             break;
         }
         if (cs_pin > 63) {

@@ -70,40 +70,41 @@ typedef AON_CLK_T low_freq_fsm_clock_t;  ///< Renaming low frequency fsm-clock t
  * @brief Enumeration to represent possible time delay values for WDT interrupt time and system reset time with a 32.768 KHz clock frequency.
  * 
  * @details This enumeration defines the possible time delay values for the Watchdog Timer (WDT) interrupt and system reset times when using a 32.768 KHz clock frequency.
+ * 
  */
 typedef enum {
-  TIME_DELAY_0,    ///< Time delay of 0.0305 milliseconds
-  TIME_DELAY_1,    ///< Time delay of 0.0610 milliseconds
-  TIME_DELAY_2,    ///< Time delay of 0.122 milliseconds
-  TIME_DELAY_3,    ///< Time delay of 0.24 milliseconds
-  TIME_DELAY_4,    ///< Time delay of 0.48 milliseconds
-  TIME_DELAY_5,    ///< Time delay of 0.9 millisecond
-  TIME_DELAY_6,    ///< Time delay of 1.9 milliseconds
-  TIME_DELAY_7,    ///< Time delay of 3.9 milliseconds
-  TIME_DELAY_8,    ///< Time delay of 7.8 milliseconds
-  TIME_DELAY_9,    ///< Time delay of 15.6 milliseconds
-  TIME_DELAY_10,   ///< Time delay of 31.2 milliseconds
-  TIME_DELAY_11,   ///< Time delay of 62.5 milliseconds
-  TIME_DELAY_12,   ///< Time delay of 125 milliseconds
-  TIME_DELAY_13,   ///< Time delay of 250 milliseconds
-  TIME_DELAY_14,   ///< Time delay of 500 milliseconds
-  TIME_DELAY_15,   ///< Time delay of 1000 milliseconds
-  TIME_DELAY_16,   ///< Time delay of 2000 milliseconds
-  TIME_DELAY_17,   ///< Time delay of 4000 milliseconds
-  TIME_DELAY_18,   ///< Time delay of 8000 milliseconds
-  TIME_DELAY_19,   ///< Time delay of 16000 milliseconds
-  TIME_DELAY_20,   ///< Time delay of 32000 milliseconds
-  TIME_DELAY_21,   ///< Time delay of 64000 milliseconds
-  TIME_DELAY_22,   ///< Time delay of 128000 milliseconds
-  TIME_DELAY_23,   ///< Time delay of 256000 milliseconds
-  TIME_DELAY_24,   ///< Time delay of 512000 milliseconds
-  TIME_DELAY_25,   ///< Time delay of 1024000 milliseconds
-  TIME_DELAY_26,   ///< Time delay of 2048000 milliseconds
-  TIME_DELAY_27,   ///< Time delay of 4096000 milliseconds
-  TIME_DELAY_28,   ///< Time delay of 8192000 milliseconds
-  TIME_DELAY_29,   ///< Time delay of 16384000 milliseconds
-  TIME_DELAY_30,   ///< Time delay of 32768000 milliseconds
-  TIME_DELAY_31,   ///< Time delay of 65536000 milliseconds
+  TIME_DELAY_0,    ///< Time delay for 1 clock pulse
+  TIME_DELAY_1,    ///< Time delay for 2 clock pulses
+  TIME_DELAY_2,    ///< Time delay for 4 clock pulses
+  TIME_DELAY_3,    ///< Time delay for 8 clock pulses
+  TIME_DELAY_4,    ///< Time delay for 16 clock pulses
+  TIME_DELAY_5,    ///< Time delay for 32 clock pulses
+  TIME_DELAY_6,    ///< Time delay for 64 clock pulses
+  TIME_DELAY_7,    ///< Time delay for 128 clock pulses
+  TIME_DELAY_8,    ///< Time delay for 256 clock pulses
+  TIME_DELAY_9,    ///< Time delay for 512 clock pulses
+  TIME_DELAY_10,   ///< Time delay for 1024 clock pulses
+  TIME_DELAY_11,   ///< Time delay for 2048 clock pulses
+  TIME_DELAY_12,   ///< Time delay for 4096 clock pulses
+  TIME_DELAY_13,   ///< Time delay for 8192 clock pulses
+  TIME_DELAY_14,   ///< Time delay for 16384 clock pulses
+  TIME_DELAY_15,   ///< Time delay for 32768 clock pulses
+  TIME_DELAY_16,   ///< Time delay for 65536 clock pulses
+  TIME_DELAY_17,   ///< Time delay for 131072 clock pulses
+  TIME_DELAY_18,   ///< Time delay for 262144 clock pulses
+  TIME_DELAY_19,   ///< Time delay for 524288 clock pulses
+  TIME_DELAY_20,   ///< Time delay for 1048576 clock pulses
+  TIME_DELAY_21,   ///< Time delay for 2097152 clock pulses
+  TIME_DELAY_22,   ///< Time delay for 4194304 clock pulses
+  TIME_DELAY_23,   ///< Time delay for 8388608 clock pulses
+  TIME_DELAY_24,   ///< Time delay for 16777216 clock pulses
+  TIME_DELAY_25,   ///< Time delay for 33554432 clock pulses
+  TIME_DELAY_26,   ///< Time delay for 67108864 clock pulses
+  TIME_DELAY_27,   ///< Time delay for 134217728 clock pulses
+  TIME_DELAY_28,   ///< Time delay for 268435456 clock pulses
+  TIME_DELAY_29,   ///< Time delay for 536870912 clock pulses
+  TIME_DELAY_30,   ///< Time delay for 1073741824 clock pulses
+  TIME_DELAY_31,   ///< Time delay for 2147483648 clock pulses
   TIME_DELAY_LAST, ///< Time delay value validation
 } time_delays_t;
 

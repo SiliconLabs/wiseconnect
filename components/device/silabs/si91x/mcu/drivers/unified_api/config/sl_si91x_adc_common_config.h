@@ -54,8 +54,8 @@ extern "C" {
 // <<< end of configuration section >>>
 
 sl_adc_config_t sl_adc_config = {
-  .num_of_channel_enable = NUMBER_OF_CHANNEL,
   .operation_mode        = SL_ADC_OPERATION_MODE,
+  .num_of_channel_enable = NUMBER_OF_CHANNEL,
 };
 
 #ifdef __cplusplus

@@ -276,7 +276,7 @@
 #define RSI_SSL_VERSION 0
 
 //! ssl ciphers
-#define RSI_SSL_CIPHERS SSL_ALL_CIPHERS
+#define RSI_SSL_CIPHERS SL_SI91X_TLS_DEFAULT_CIPHERS
 
 //! Enable TCP over SSL with TLS version depends on remote side
 #define PROTOCOL_DFLT_VERSION BIT(0)

@@ -1364,6 +1364,11 @@ typedef struct {
 
 } SL_ATTRIBUTE_PACKED sl_si91x_read_flash_request_t;
 
+typedef struct {
+  // sub_cmd
+  uint8_t sub_cmd;
+} SL_ATTRIBUTE_PACKED sli_si91x_read_status_t;
+
 #endif // SLI_SI91X_MCU_INTERFACE
 
 /** \addtogroup SL_SI91X_TYPES

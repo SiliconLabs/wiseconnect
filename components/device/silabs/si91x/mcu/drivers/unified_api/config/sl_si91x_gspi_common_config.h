@@ -56,7 +56,7 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <gspi_master signal=SCK_,CS0_,MOSI_,MISO_> SL_GSPI_MASTER
+// <gspi_master signal=SCK_,(CS0_),(CS1_),(CS2_),MOSI_,MISO_> SL_GSPI_MASTER
 // $[GSPI_MASTER_SL_GSPI_MASTER]
 #ifndef SL_GSPI_MASTER_PERIPHERAL
 #define SL_GSPI_MASTER_PERIPHERAL GSPI_MASTER
@@ -107,6 +107,10 @@ extern "C" {
 #endif
 // [GSPI_MASTER_SL_GSPI_MASTER]$
 // <<< sl:end pin_tool >>>
+
+#if !(defined(SL_GSPI_MASTER_CS0__PORT) || defined(SL_GSPI_MASTER_CS1__PORT) || defined(SL_GSPI_MASTER_CS2__PORT))
+#warning "No Chip Select pin is configured for GSPI_MASTER"
+#endif
 
 #ifdef __cplusplus
 }

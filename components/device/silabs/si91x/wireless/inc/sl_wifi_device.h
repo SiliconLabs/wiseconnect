@@ -171,8 +171,9 @@
  * Enables support for long-sized Internet Control Message Protocol (ICMP) packets.
  * Enable this bit to receive and process the ICMP requests of size more than 308 bytes sent from peers.
  * A maximum packet size of 1472 bytes can be processed for ICMP and 1452 bytes for ICMPv6.
- * The limit for sending ICMP/ICMPv6 packets to peers continues to be limited to 308 bytes that is, with the API sl_si91x_send_ping.
- * @note Bit 11 are reserved.
+ * The size limit for sending ICMP/ICMPv6 packets to peers using the sl_si91x_send_ping API remains restricted to 300 bytes.
+ * 
+ * @note Bit 11 is reserved.
  */
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
 
@@ -550,7 +551,7 @@
 
 /**
  * @def SL_SI91X_CUSTOM_FEAT_DNS_SERVER_IN_DHCP_OFFER
- * @brief Includes DNS server IP address in DHCP offer response when in AP mode.
+ * @brief Includes DNS server IP address in DHCP offer response when in AP mode. This feature is currently not supported.
  * @details When this bit is set, the DHCP server runs in AP mode and includes the DNS server IP address in the DHCP offer response sent to clients.
  */
 #define SL_SI91X_CUSTOM_FEAT_DNS_SERVER_IN_DHCP_OFFER BIT(6)
@@ -724,24 +725,33 @@
 #define SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT BIT(3)
 
 /**
+ * @def SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM
+ * @brief Extended custom bitmap for AP broadcast customization.
+ * @details Enabling this bit configures the Access Point to send broadcast packets before the Delivery Traffic Indication Message (DTIM) interval.
+ * 
+ * @note If this bit is enabled, the clients connected in power save mode might miss the packets.
+ */
+#define SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM BIT(4)
+/**
  * @def SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM
- * @brief Extended custom bitmap for AP Broadcast customization.
+ * @brief Extended custom bitmap for AP broadcast customization.
  * @details Enabling this bit configures the Access Point to send broadcast packets before the DTIM (Delivery Traffic Indication Message) interval.
  * 
- * @note If this bit is enabled, the clients connected in power save mode might miss the packet.
+ * @note If this bit is enabled, the clients connected in power save mode might miss the packets.
+ * @note  The macro SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM is being deprecated and will be removed in the future. Use SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM instead.
  */
-#define SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM BIT(4)
+#define SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM
 
 /**
  * @def SL_SI91X_EXT_FEAT_FCC_LOW_PWR
  * @brief Extended custom bitmap to support FCC (currently not supported).
- * @details Enabling this bit allows the device to operate in a mode that complies with FCC (Federal Communications Commission) regulations for low power operation.
+ * @details Enabling this bit allows the device to operate in a mode that complies with Federal Communications Commission (FCC) regulations for low power operation.
  */
 #define SL_SI91X_EXT_FEAT_FCC_LOW_PWR BIT(5)
 
 /**
  * @def SL_SI91X_EXT_FEAT_PUF
- * @brief To enable PUF (Physical Unclonable Function).
+ * @brief To enable Physical Unclonable Function (PUF).
  * @details Enabling this bit activates the Physical Unclonable Function feature, which provides a unique identifier for each device based on its physical characteristics.
  * 
  * @note Bit 6 is reserved.

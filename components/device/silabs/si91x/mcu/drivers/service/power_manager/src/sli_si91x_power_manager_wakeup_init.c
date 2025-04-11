@@ -83,7 +83,7 @@ static void set_periodic_alarm(uint32_t alarm_time);
 
 #if defined(SL_ENABLE_GPIO_WAKEUP_SOURCE) && (SL_ENABLE_GPIO_WAKEUP_SOURCE == ENABLE)
 __attribute__((weak)) void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr);
-static sl_status_t uulp_gpio_configuration(uint8_t pin);
+static sl_status_t uulp_gpio_configuration(uint8_t pin, uint8_t polarity);
 #endif // SL_ENABLE_GPIO_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_WDT_WAKEUP_SOURCE) && (SL_ENABLE_WDT_WAKEUP_SOURCE == ENABLE)
@@ -191,19 +191,19 @@ sl_status_t sli_si91x_power_manager_gpio_init(void)
 #if defined(SL_ENABLE_GPIO_WAKEUP_SOURCE) && (SL_ENABLE_GPIO_WAKEUP_SOURCE == ENABLE)
 
 #if defined(ENABLE_NPSS_GPIO_0) && (ENABLE_NPSS_GPIO_0 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_0);
+  uulp_gpio_configuration(UULP_GPIO_0, NPSS_GPIO_0_POLARITY);
 #endif // ENABLE_NPSS_GPIO_0
 
 #if defined(ENABLE_NPSS_GPIO_1) && (ENABLE_NPSS_GPIO_1 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_1);
+  uulp_gpio_configuration(UULP_GPIO_1, NPSS_GPIO_1_POLARITY);
 #endif // ENABLE_NPSS_GPIO_1
 
 #if defined(ENABLE_NPSS_GPIO_2) && (ENABLE_NPSS_GPIO_2 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_2);
+  uulp_gpio_configuration(UULP_GPIO_2, NPSS_GPIO_2_POLARITY);
 #endif // ENABLE_NPSS_GPIO_2
 
 #if defined(ENABLE_NPSS_GPIO_3) && (ENABLE_NPSS_GPIO_3 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_3);
+  uulp_gpio_configuration(UULP_GPIO_3, NPSS_GPIO_3_POLARITY);
 #endif // ENABLE_NPSS_GPIO_4
 #endif // SL_ENABLE_GPIO_WAKEUP_SOURCE
   return status;
@@ -378,9 +378,10 @@ static void calendar_callback_function(void)
 #endif // SL_ENABLE_CALENDAR_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_GPIO_WAKEUP_SOURCE) && (SL_ENABLE_GPIO_WAKEUP_SOURCE == ENABLE)
-static sl_status_t uulp_gpio_configuration(uint8_t pin)
+static sl_status_t uulp_gpio_configuration(uint8_t pin, uint8_t polarity)
 {
   sl_status_t status = SL_STATUS_OK;
+  sl_si91x_gpio_interrupt_config_flag_t polarity_flag;
   if (pin > 3) {
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
@@ -404,7 +405,7 @@ static sl_status_t uulp_gpio_configuration(uint8_t pin)
   if (status != SL_STATUS_OK) {
     return status;
   }
-  status = sl_si91x_gpio_driver_select_uulp_npss_polarity(pin, POLARITY_LOW);
+  status = sl_si91x_gpio_driver_select_uulp_npss_polarity(pin, polarity);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -412,10 +413,12 @@ static sl_status_t uulp_gpio_configuration(uint8_t pin)
   if (status != SL_STATUS_OK) {
     return status;
   }
-  status =
-    sl_si91x_gpio_driver_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_LEVEL_LOW,
-                                                  pin,
-                                                  (void *)&gpio_uulp_pin_interrupt_callback);
+  if (polarity == POLARITY_HIGH) {
+    polarity_flag = SL_GPIO_INTERRUPT_LEVEL_HIGH;
+  } else if (polarity == POLARITY_LOW) {
+    polarity_flag = SL_GPIO_INTERRUPT_LEVEL_LOW;
+  }
+  status = sl_si91x_gpio_driver_configure_uulp_interrupt(polarity_flag, pin, (void *)&gpio_uulp_pin_interrupt_callback);
   if (status != SL_STATUS_OK) {
     return status;
   }

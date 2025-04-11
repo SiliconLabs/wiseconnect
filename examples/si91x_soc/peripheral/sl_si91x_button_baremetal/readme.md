@@ -45,7 +45,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
- The application will toggle the selected LED on each selected button press.
+ The application toggles the selected LED on each selected button press.
 
 ### Configuration
 
@@ -63,7 +63,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The project uses BTN0 by default. To change the button to BTN1, follow the below steps:
 
-1. Add btn1 instance by traversing to the below path and select "Add New Instances" :
+1. Add btn1 instance by traversing to the below path and select "Add New Instances":
     "Software Components -> WiSeConnect 3 SDK -> Device -> Si91x -> MCU -> Drivers -> BUTTON"
 
    ![Figure: Adding Button Instance](resources/readme/image600d.png)
@@ -76,6 +76,10 @@ The project uses BTN0 by default. To change the button to BTN1, follow the below
 
 > **Note:**
 >
-> - In case of DEVKIT board (BRD2605A), the blue LED will toggle on button press. No other LED instance will work for this board. To further use the DEVKIT LED, refer to the RGB LED application.
+> - In case of DEVKIT board (BRD2605A), the blue LED toggles on button press. No other LED instance works for this board. To further use the DEVKIT LED, refer to the RGB LED application.
 >
-> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Further then, copy the necessary code from the driver handler to your custom interrupt handler.
+>
+> - A maximum of 8 HP GPIO buttons, 8 ULP GPIO buttons, and 5 UULP GPIO buttons can be used simultaneously. This limitation arises from the number of available GPIO interrupts allocated for each GPIO type.
+>
+> - By default, the `SL_SI91X_BUTTON_DEBOUNCE` macro is disabled. If debouncing is needed, please enable the `SL_SI91X_BUTTON_DEBOUNCE` macro in studio preprocessor settings.

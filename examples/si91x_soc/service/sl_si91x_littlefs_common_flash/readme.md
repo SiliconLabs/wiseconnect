@@ -40,7 +40,7 @@ When flashed with this example the boot count get updated in the "boot_count" fi
 - Silicon Labs Si917 Evaluation Kit + External Flash
 
 **Note:**
->- For detailed information about pinset configurations, refer to the Flash and PSRAM Combinations section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.4.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+>- For detailed information about pinset configurations, refer to the Flash and PSRAM Combinations section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/release/v3.4.2/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 
 ### Software Requirements
 
@@ -70,7 +70,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 3. Reset the MCU, every reset will increase the boot count.
 > **Note**:
 >
->- When we run the littlefs example first time, after flash erase we will see the error **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. So ignore the error when run first time.
+>- When we run the littlefs example first time, after flash erase we see the errors **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. So ignore the error when its run first time.
 >- To reset the boot count, erase the chip.
 
 

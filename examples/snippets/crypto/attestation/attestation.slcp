@@ -6,10 +6,10 @@ description: |
 category: example|crypto
 package: platform
 quality: production
-sdk: {id: simplicity_sdk, version:  "2024.12.1"}
+sdk: {id: simplicity_sdk, version:  "2024.12.2"}
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.1
+    version: 3.4.2
 source:
   - path: app.c
   - path: main.c
@@ -73,7 +73,7 @@ define:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/image502a.png
+  - path: resources/readme/setup_diagram_soc.png
   - path: resources/readme/output.png
 ui_hints:
   highlight:

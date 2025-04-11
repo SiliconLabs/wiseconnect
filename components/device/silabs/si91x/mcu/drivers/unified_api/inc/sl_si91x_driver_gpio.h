@@ -197,7 +197,8 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
                                                             sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
- * @brief    Select the driver disabled state control for an HP instance GPIO pin.
+ * @brief    Select the configuration of pull-up, pull-down, or repeater functionality 
+ *            for GPIO pins in the High-Power (HP) instance. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
  * -   \ref sl_si91x_gpio_driver_enable_clock
@@ -664,7 +665,8 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
                                                                 sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
- * @brief        Select the driver-disabled state control for the ULP instance of the GPIO peripheral.
+ * @brief  Select the configuration of pull-up, pull-down, or repeater functionality 
+ *            for GPIO pins in the Ultra-Low-Power (ULP) instance. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 

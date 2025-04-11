@@ -806,7 +806,7 @@ static void rsi_ble_on_connect_event(rsi_ble_event_conn_status_t *resp_conn)
 
       //! check if conn_id is valid
       if (ble_conn_id < TOTAL_CONNECTIONS) {
-        rsi_ble_conn_info[ble_conn_id].remote_device_role = CENTRAL_ROLE; //! remote device is slave
+        rsi_ble_conn_info[ble_conn_id].remote_device_role = CENTRAL_ROLE; //! remote device is peripheral
         memcpy(&rsi_ble_conn_info[ble_conn_id].conn_event_to_app, resp_conn, sizeof(rsi_ble_event_conn_status_t));
         rsi_ble_conn_info[ble_conn_id].is_enhanced_conn = false;
         central_conn_id                                 = ble_conn_id;
@@ -1832,7 +1832,7 @@ static int32_t rsi_ble_dual_role(void)
     LOG_PRINT("\r\n Advertising started, local device name : %s\r\n", (char *)RSI_BLE_APP_GATT_TEST);
   }
 
-  //! Module scans if slave connections are configured
+  //! Module scans if peripheral connections are configured
   if (RSI_BLE_MAX_NBR_PERIPHERALS > 0) {
     //! start scanning
     status = rsi_ble_start_scanning();
@@ -1918,13 +1918,13 @@ void rsi_ble_main_app_task()
       case RSI_APP_EVENT_ADV_REPORT: {
         //! clear the advertise report event.
         rsi_ble_app_clear_event(RSI_APP_EVENT_ADV_REPORT);
-        //! create task if max slave connections not reached
+        //! create task if max peripheral connections not reached
         if (peripheral_task_instances < RSI_BLE_MAX_NBR_PERIPHERALS) {
           //! check for valid connection id
           if ((peripheral_conn_id < TOTAL_CONNECTIONS) && (peripheral_con_req_pending == 1)) {
             //! store the connection identifier in individual connection specific buffer
             rsi_parsed_conf.rsi_ble_config.rsi_ble_conn_config[peripheral_task_instances].conn_id = peripheral_conn_id;
-            //! create a thread for processing new slave connection
+            //! create a thread for processing new peripheral connection
             const osThreadAttr_t ble_peripheral_attr = {
               .name       = "ble_peripheral_task",
               .priority   = osPriorityNormal,
@@ -1972,7 +1972,7 @@ void rsi_ble_main_app_task()
                 .conn_id = central_conn_id;
 
               //! create a thread for processing new central connection
-              const osThreadAttr_t ble_master_attr = {
+              const osThreadAttr_t ble_central_attr = {
                 .name       = "ble_central_task",
                 .priority   = osPriorityNormal,
                 .stack_mem  = 0,
@@ -1986,7 +1986,7 @@ void rsi_ble_main_app_task()
                 osThreadNew(rsi_ble_task_on_conn,
                             (void *)&rsi_parsed_conf.rsi_ble_config
                               .rsi_ble_conn_config[RSI_BLE_MAX_NBR_PERIPHERALS + central_task_instances],
-                            &ble_master_attr);
+                            &ble_central_attr);
               if (ble_app_task_handle[central_conn_id] == NULL) {
                 LOG_PRINT("\r\n task%d failed to create\r\n", central_conn_id);
                 //! remove device from local list
@@ -2027,9 +2027,9 @@ void rsi_ble_main_app_task()
               rsi_parsed_conf.rsi_ble_config.rsi_ble_conn_config[RSI_BLE_MAX_NBR_PERIPHERALS + central_task_instances]
                 .conn_id = central_conn_id;
               //LOG_PRINT("free bytes remaining before connection1 - %ld \r\n",xPortGetFreeHeapSize());
-              //! create a thread for processing new master connection
+              //! create a thread for processing new central connection
               const osThreadAttr_t ble_central_attr = {
-                .name       = "ble_master_task",
+                .name       = "ble_central_task",
                 .priority   = osPriorityNormal,
                 .stack_mem  = 0,
                 .stack_size = 3072,

@@ -42,12 +42,13 @@
 // <<< end of configuration section >>>
 #if USER_CONFIGURATION_ENABLE
 // <<< sl:start pin_tool >>>
-// <usart0 signal=TX,RX,CTS,RTS> SL_USART0
+// <usart0 signal=TX,RX,(CTS),(RTS)> SL_USART0
 // $[USART0_SL_USART0]
 #ifndef SL_USART0_PERIPHERAL
 #define SL_USART0_PERIPHERAL USART0
 #endif
 #warning "USART peripheral is not configured. Please configure the USART pins according to the board connections."
+
 // USART0 TX on GPIO_30
 #ifndef SL_USART0_TX_PORT
 #define SL_USART0_TX_PORT HP
@@ -70,27 +71,6 @@
 #define SL_USART0_RX_LOC 10
 #endif
 
-// USART0 CTS on GPIO_26
-#ifndef SL_USART0_CTS_PORT
-#define SL_USART0_CTS_PORT HP
-#endif
-#ifndef SL_USART0_CTS_PIN
-#define SL_USART0_CTS_PIN 26
-#endif
-#ifndef SL_USART0_CTS_LOC
-#define SL_USART0_CTS_LOC 15
-#endif
-
-// USART0 RTS on GPIO_28
-#ifndef SL_USART0_RTS_PORT
-#define SL_USART0_RTS_PORT HP
-#endif
-#ifndef SL_USART0_RTS_PIN
-#define SL_USART0_RTS_PIN 28
-#endif
-#ifndef SL_USART0_RTS_LOC
-#define SL_USART0_RTS_LOC 19
-#endif
 // [USART0_SL_USART0]$
 // <<< sl:end pin_tool >>>
 #endif

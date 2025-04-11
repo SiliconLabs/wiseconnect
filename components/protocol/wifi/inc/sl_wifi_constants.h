@@ -80,6 +80,7 @@
  * @brief Enumeration for Wi-Fi security types.
  *
  * @note WPA3 Transition security type is not currently supported while running as an Access Point (AP).
+ * @note To enable any WPA3 mode, the bit represented by the macro [SL_SI91X_EXT_FEAT_IEEE_80211W](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-custom-feature-bitmap#sl-si91-x-ext-feat-ieee-80211-w) must be set in the [ext_custom_feature_bit_map](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-boot-configuration-t#ext-custom-feature-bit-map).
  */
 typedef enum {
   SL_WIFI_OPEN                       = 0,  ///< Wi-Fi Open security type
@@ -309,9 +310,10 @@ typedef enum {
  */
 typedef enum {
   SL_WIFI_BSS_TYPE_INFRASTRUCTURE =
-    0,                            ///< Infrastructure BSS: Standard Wi-Fi Infrastructure network with an access point
-  SL_WIFI_BSS_TYPE_ADHOC   = 1,   ///< Ad-hoc BSS: Peer-to-peer Wi-Fi network without an access point
-  SL_WIFI_BSS_TYPE_ANY     = 2,   ///< Any Wi-Fi BSS type
+    0, ///< Infrastructure BSS: Standard Wi-Fi Infrastructure network with an access point
+  SL_WIFI_BSS_TYPE_ADHOC =
+    1, ///< Ad-hoc BSS: Peer-to-peer Wi-Fi network without an access point. (Currently not supported)
+  SL_WIFI_BSS_TYPE_ANY     = 2,   ///< Any Wi-Fi BSS type. (Currently not supported)
   SL_WIFI_BSS_TYPE_UNKNOWN = 0xFF ///< Unknown Wi-Fi BSS type
 } sl_wifi_bss_type_t;
 

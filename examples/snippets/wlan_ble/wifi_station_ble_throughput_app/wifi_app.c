@@ -62,7 +62,7 @@
 //   ! MACROS
 /*=======================================================================*/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        10000
+#define TIMEOUT_MS        18000
 #define WIFI_SCAN_TIMEOUT 10000
 
 #define BYTES_TO_RECEIVE           (1 << 28) //256MB

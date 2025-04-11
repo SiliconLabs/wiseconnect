@@ -52,11 +52,8 @@
 //   <SL_ADC_CHANNEL_14=>  channel_14
 //   <SL_ADC_CHANNEL_15=>  channel_15
 //   <SL_ADC_CHANNEL_16=>  channel_16
-#ifndef SLI_SI915
+
 #define JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_1
-#else
-#define JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_2
-#endif
 
 //</e>
 
@@ -93,6 +90,12 @@
 #define JOYSTICK_MV_ERR_CARDINAL_ONLY 150
 
 // </h> end Joystick Voltage value Configuration
+
+#ifndef SLI_SI915
+#define SL_JOYSTICK_ADC_CHANNEL JOYSTICK_ADC_CHANNEL
+#else
+#define SL_JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_2
+#endif
 
 // <<< end of configuration section >>>
 

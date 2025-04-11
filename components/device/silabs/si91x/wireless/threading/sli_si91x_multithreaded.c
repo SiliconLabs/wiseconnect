@@ -1003,8 +1003,6 @@ void si91x_bus_thread(const void *args)
                 current_performance_profile = HIGH_PERFORMANCE;
                 // check for command in flight and create dummy packets for respective queues to be cleared
                 sli_handle_dhcp_and_rejoin_failure(cmd_queues[SI91X_NETWORK_CMD].sdk_context, buffer, frame_status);
-                sli_si91x_add_to_queue(&cmd_queues[SI91X_NETWORK_CMD].event_queue, packet);
-                set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
               }
               break;
             }
@@ -1472,19 +1470,13 @@ void si91x_bus_thread(const void *args)
 #endif
     if (event & SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT) {
       // Check if the bus is ready for a packet
-      sl_si91x_bus_read_interrupt_status(&interrupt_status);
-      if (!(interrupt_status & RSI_BUFFER_FULL)) {
+      if (sli_si91x_is_bus_ready(global_queue_block)) {
         bus_write_data_frame(&sli_tx_data_queue);
         if (sli_si91x_buffer_queue_empty(&sli_tx_data_queue)) {
           event &= ~SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT;
           tx_generic_socket_data_queues_status &= ~(SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT);
         }
       }
-#ifdef SLI_SI91X_MCU_INTERFACE
-      else {
-        unmask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
-      }
-#endif
     }
     if (event & SL_SI91X_TERMINATE_BUS_THREAD_EVENT) {
       // Clear the termination event flag
@@ -1646,17 +1638,37 @@ static void set_async_event(uint32_t event_mask)
 // Function to check if the bus is ready for writing
 bool sli_si91x_is_bus_ready(bool global_queue_block)
 {
+  // If the global queue block flag is set, the bus is not ready
   if (global_queue_block) {
     return false;
   }
+
+#ifndef SLI_SI91X_MCU_INTERFACE
+  // If the current performance profile is not high performance, request wakeup
+  if ((current_performance_profile != HIGH_PERFORMANCE) && (si91x_req_wakeup() != SL_STATUS_OK)) {
+    return false;
+  }
+#endif
+
   uint16_t interrupt_status = 0;
+  // Read the interrupt status from the bus
   sl_si91x_bus_read_interrupt_status(&interrupt_status);
+
+#ifndef SLI_SI91X_MCU_INTERFACE
+  // Clear the sleep indicator if the current performance profile is not high performance
+  if (current_performance_profile != HIGH_PERFORMANCE) {
+    sl_si91x_host_clear_sleep_indicator();
+  }
+#endif
+
+  // If the buffer is full, unmask the TA interrupt and return false
   if (interrupt_status & RSI_BUFFER_FULL) {
 #ifdef SLI_SI91X_MCU_INTERFACE
     unmask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
 #endif
     return false;
   }
+  // The bus is ready for writing
   return true;
 }
 
@@ -1677,9 +1689,25 @@ static sli_si91x_socket_t *get_socket_from_packet(sl_si91x_packet_t *socket_pack
       RESET,
       (int16_t)(socket_create_response->socket_type[0] | (socket_create_response->socket_type[1] << 8)));
   } else if (socket_packet->command == RSI_WLAN_RSP_SOCKET_ACCEPT) {
-    const sli_si91x_socket_t *si91x_socket = sli_si91x_get_socket_from_id(socket_id, RESET, -1);
-    return get_si91x_socket(si91x_socket->client_id);
+    const uint16_t port = ((sl_si91x_rsp_ltcp_est_t *)socket_packet->data)->src_port_num;
+    for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
+      if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+          && sli_si91x_sockets[i]->state == LISTEN) {
+        return sli_si91x_sockets[sli_si91x_sockets[i]->client_id];
+      }
+    }
+    return NULL;
   } else if (socket_packet->command == RSI_WLAN_RSP_SOCKET_CLOSE) {
+    if (((sl_si91x_socket_close_response_t *)socket_packet->data)->socket_id == 0) {
+      const uint16_t port = ((sl_si91x_socket_close_response_t *)socket_packet->data)->port_number;
+      for (int i = 0; i < NUMBER_OF_SOCKETS; ++i) {
+        if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+            && sli_si91x_sockets[i]->state == LISTEN) {
+          return sli_si91x_sockets[i];
+        }
+      }
+      return NULL;
+    }
     return sli_si91x_get_socket_from_id(socket_id, RESET, -1);
   } else {
     return sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
