@@ -754,6 +754,8 @@ sl_status_t sl_si91x_uart_rs485_init(usart_peripheral_t uart_instance);
  *         - SL_STATUS_OK  - Success.
  *         - SL_STATUS_INVALID_PARAMETER  - Passed Invalid uart instance.
  *         - SL_STATUS_NOT_SUPPORTED  - UART INstance not supported.
+ * @note 
+ * To maintain backward compatibility, SL_UART1_RS485_TRANSMIT_MODE is initially defined as 0 in configuration file. However, the actual transmit mode will be determined and set internally according to the selected transfer mode.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

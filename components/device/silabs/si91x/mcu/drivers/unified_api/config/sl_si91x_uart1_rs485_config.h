@@ -94,15 +94,10 @@ extern "C" {
 // </h>  UART1 Configuration
 // </e>
 
-//  <e>UART1_RS485 UC Configuration
-//  <i> Enable: Enable UART1_RS485 UC.
-//  <i> Disable: Disable UART1_RS485 UC.
-//  <i> Default: 1
+//  <h>UART1_RS485 UC Configuration
 #define SL_UART1_RS485_MULTIDROP_ENABLE 1
 #define RS485_UART_UC                   1
-// <h>UART1_RS485 Configuration
-
-#if (SL_UART1_RS485_MULTIDROP_ENABLE)
+#define SL_UART1_RS485_TRANSMIT_MODE    0
 
 // <o SL_UART1_RS485_TRANSFER_MODE> Transfer Mode
 // <SL_UART_SW_CTRL_HALF_DUPLEX_MODE=> SW_CTRL_HALF_DUPLEX
@@ -146,18 +141,7 @@ extern "C" {
 // <i> Default: 1
 #define SL_UART1_RS485_SEND_ADDR 1
 
-// <o SL_UART1_RS485_TRANSMIT_MODE> Transmit Mode
-// <SL_UART_RS485_TX_MODE_0=> Mode 0
-// <SL_UART_RS485_TX_MODE_1=> Mode 1
-// <i> Default: Mode 2
-#define SL_UART1_RS485_TRANSMIT_MODE SL_UART_RS485_TX_MODE_0
-
-// <o SL_UART1_RS485_SLAVE_ADDRESS> Slave Address <1 - 255>
-// <i> Default: 11
-#define SL_UART1_RS485_SLAVE_ADDRESS 11
-#endif
-// </h>  UART1_RS485 Configuration
-// </e>
+// </h>  UART1_RS485 UC Configuration
 
 #ifdef __cplusplus
 }
@@ -174,7 +158,6 @@ sl_si91x_usart_control_config_t uart1_configuration = { .baudrate     = SL_UART1
 
 #endif //UART_UC
 
-#if (SL_UART1_RS485_MULTIDROP_ENABLE)
 usart_rs485_config_t uart1_rs485_configuration = { .transfer_mode           = SL_UART1_RS485_TRANSFER_MODE,
                                                    .de_pol                  = SL_UART1_RS485_DE_POL,
                                                    .re_pol                  = SL_UART1_RS485_RE_POL,
@@ -186,8 +169,6 @@ usart_rs485_config_t uart1_rs485_configuration = { .transfer_mode           = SL
                                                    .multidrop.addr_match    = SL_UART1_RS485_ADDR_MATCH,
                                                    .multidrop.send_addr     = SL_UART1_RS485_SEND_ADDR,
                                                    .multidrop.transmit_mode = SL_UART1_RS485_TRANSMIT_MODE };
-
-#endif //RS485_UART1_UC
 
 #define SL_UART1_RS485_RE_PIN  SL_RS485_UART1_RE_PIN
 #define SL_UART1_RS485_RE_PORT SL_RS485_UART1_RE_PORT

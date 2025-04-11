@@ -52,7 +52,7 @@
   *                    Constants
   ******************************************************/
 //! Server IP address - The IP address of the server where the OTA update will be fetched.
-#define SERVER_IP_ADDRESS "192.168.83.62"
+#define SERVER_IP_ADDRESS "192.168.0.158"
 
 //! Server port number - The port on which the server is listening for connections.
 #define SERVER_PORT 5005
@@ -100,7 +100,17 @@ extern uint32_t __rom_length;
 /** @brief Example firmware image size. */
 #define DEFAULT_NWP_IMAGE_SIZE 0x2EFE0
 
+//! Enables or disables toggling of slot information during the firmware update process.
 #define SL_APP_TOGGLE_SLOT_INFO 0
+
+//! Enables or disables updating of firmware slot information after a successful firmware update.
+#define SL_APP_UPDATE_FIRMWARE_SLOT 0
+
+// Get the start address of the ROM from the linker script
+uint32_t rom_address = (uint32_t)&__rom_start;
+// Get the length of the ROM from the linker script
+uint32_t rom_length = (uint32_t)&__rom_length;
+// Initialize the Wi-Fi client interface
 
 /******************************************************
   *               Function Declarations
@@ -124,8 +134,11 @@ static sl_status_t sl_app_processing_response(int client_socket,
                                               uint16_t fwup_chunk_length,
                                               uint16_t *chunk,
                                               uint16_t *chunk_max_count);
+//! Displays detailed information about the current firmware slots.
 void sl_app_display_ab_slot_info(const sl_si91x_fw_ab_slot_management_t *slot_info);
 
+//! Handles the retrieval and initialization of firmware slot information.
+static void sl_app_handle_ab_slot_info(sl_si91x_fw_ab_slot_management_t *app_ab_slot_info);
 /******************************************************
   *               Global Variable
   ******************************************************/
@@ -142,7 +155,7 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuration = {
+static sl_wifi_device_configuration_t sl_wifi_firmware_update_configuration = {
   .boot_option         = NWP_FW_LOAD_CMD,
   .nwp_fw_image_number = NWP_FW_IMAGE_NUMBER_0,
   .mac_address         = NULL,
@@ -179,6 +192,7 @@ void app_init(const void *unused)
   UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
+
 static void application_start(void *argument)
 {
   sl_status_t status                 = SL_STATUS_FAIL;
@@ -191,20 +205,33 @@ static void application_start(void *argument)
 
   UNUSED_PARAMETER(argument); // Avoids compiler warning for unused parameter
 
-  // Get the start address of the ROM from the linker script
-  uint32_t rom_address = (uint32_t)&__rom_start;
-  // Get the length of the ROM from the linker script
-  uint32_t rom_length = (uint32_t)&__rom_length;
-  // Initialize the Wi-Fi client interface
+  DEBUGOUT("\r\n FW FallBack App is Running:%lX \r\n", rom_address);
 
-  DEBUGOUT("\r\nFW FallBack App is Running:%lX\r\n", rom_address);
+  // This function checks the current active NWP slot information retrieved from the slot management structure.
+  // If the active slot is valid (either SLOT_A or SLOT_B), it assigns the corresponding firmware image number
+  // to the Wi-Fi firmware update configuration.
+  status = sl_si91x_ab_get_slot_info(&app_ab_slot_info);
+  if (app_ab_slot_info.nwp_slot_info.current_active_nwp_slot != 0xFF
+      && (app_ab_slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_A
+          || app_ab_slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_B)) {
+    sl_wifi_firmware_update_configuration.nwp_fw_image_number =
+      app_ab_slot_info.nwp_slot_info.current_active_nwp_slot - 1;
+    DEBUGOUT(" \r\n Assigned NWP Image Number from Slot Info: %d \r\n",
+             sl_wifi_firmware_update_configuration.nwp_fw_image_number);
+  }
+
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     while (1)
       ; // Halt execution in case of failure
   }
-  DEBUGOUT("\r\nWi-Fi Init Success\r\n");
+
+  // Retrieve the current slot information
+  sl_app_handle_ab_slot_info(&app_ab_slot_info);
+
+  // Display the slot information
+  sl_app_display_ab_slot_info(&app_ab_slot_info);
 
   // Retrieve the current firmware version
   status = sl_wifi_get_firmware_version(&version);
@@ -214,46 +241,19 @@ static void application_start(void *argument)
     print_firmware_version(&version);
   }
 
-  // Retrieve the current slot information
-  status = sl_si91x_ab_get_slot_info(&app_ab_slot_info);
-  sl_app_display_ab_slot_info(&app_ab_slot_info);
-  if (status == SL_SI91X_AB_ERR_INVALID_SLOT_INFO) {
-    // If getting slot info fails, print the error and current ROM address and length
-    DEBUGOUT("\r\n get_slot info fail loading default slot info :%lX %lX %lX \r\n", status, rom_address, rom_length);
-
-    // Set the slot info for the M4 core using the current linker address and length
-    status = sl_si91x_ab_upgrade_set_slot_info(rom_address - SLI_SI91X_CHUNK_LENGTH,
-                                               rom_length,
-                                               SL_SI91X_AB_OTA_IMAGE_TYPE_M4);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("Failed to update M4 slot, error: %lu\n", status);
-    } else {
-      DEBUGOUT("Successfully updated M4 slot with address: %lX and length: %lX\n", rom_address, rom_length);
-    }
-
-    // Set the slot info for the NWP core using predefined offset and image size
-    status = sl_si91x_ab_upgrade_set_slot_info(DEFAULT_NWP_SLOT_A_OFFSET,
-                                               DEFAULT_NWP_IMAGE_SIZE,
-                                               SL_SI91X_AB_OTA_IMAGE_TYPE_NWP);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("Failed to update NWP slot, error: %lu\n", status);
-    } else {
-      DEBUGOUT(" \r\n Successfully updated NWP slot with offset: %X and size: %X \r\n",
-               DEFAULT_NWP_SLOT_A_OFFSET,
-               DEFAULT_NWP_IMAGE_SIZE);
-    }
-  }
-
   // Bring up the Wi-Fi client interface
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
 #if SL_APP_TOGGLE_SLOT_INFO
+    // This API toggles the active firmware slot between Slot A and Slot B for
+    // both the M4 and NWP cores. If valid images are not present in both slots,
+    // the toggle operation may fail or result in undefined behavior.
     status = sl_si91x_toggle_slot_info(1, 1);
     if (status != SL_STATUS_OK) {
       while (1)
         ;
     }
-    sl_si91x_soc_nvic_reset();
+    sl_si91x_soc_nvic_reset(); //Reset the system to apply the new slot configuration
 #endif
     DEBUGOUT("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     osThreadExit(); // Exit thread on failure
@@ -286,14 +286,25 @@ static void application_start(void *argument)
   status = firmware_update_process(client_socket);
   if (status == SL_STATUS_OK) {
     DEBUGOUT("\r\nFirmware update was successful. Task will continue monitoring.\r\n");
-    // Optionally reset the system after firmware update
-    sl_si91x_soc_nvic_reset();
+    // reset the system after firmware update
+    //sl_si91x_soc_nvic_reset();
   } else {
     DEBUGOUT("\r\nFirmware update failed. Retrying...\r\n");
     osThreadExit();
   }
 }
 
+/**
+ * @brief Manages the overall firmware update process by handling communication with the server.
+ *
+ * This function coordinates the sending of requests, receiving of responses,
+ * and processing of firmware data chunks. It maintains the state of the firmware
+ * update process and handles errors appropriately.
+ *
+ * @param client_socket The socket descriptor for communication with the server.
+ *
+ * @return The status of the operation (success, error, or completion).
+ */
 static sl_status_t firmware_update_process(int client_socket)
 {
   uint16_t data_chunk           = 0;                     // Tracks the current firmware data chunk
@@ -331,12 +342,15 @@ static sl_status_t firmware_update_process(int client_socket)
         // Perform integrity check on the downloaded firmware
         status = sl_si91x_verify_image(ota_image_start_address);
         if (status != SL_STATUS_SI91X_FW_UPDATE_DONE) {
-          DEBUGOUT("\r\nFirmware integrity check fail:%lX\r\n", status);
+          DEBUGOUT("\r\nFirmware verify check fail:%lX\r\n", status);
           return STATE_ERROR;
         } else {
-          DEBUGOUT("\r\nFirmware integrity check success:%lX\r\n", status);
+          DEBUGOUT("\r\nFirmware verify check success:%lX\r\n", status);
+#if SL_APP_UPDATE_FIRMWARE_SLOT
           // Updating M4 firmware slot
           if (m4_ota_image) {
+            // Set the slot information for the M4 core
+            // This API updates the slot information for the M4 core with the new firmware image.
             status =
               sl_si91x_ab_upgrade_set_slot_info(ota_image_start_address, ota_image_size, SL_SI91X_AB_OTA_IMAGE_TYPE_M4);
             if (status != SL_STATUS_OK) {
@@ -346,6 +360,8 @@ static sl_status_t firmware_update_process(int client_socket)
 
           // Updating NWP firmware slot
           if (ta_ota_image) {
+            // Set the slot information for the NWP core
+            // This API updates the slot information for the NWP core with the new firmware image.
             status = sl_si91x_ab_upgrade_set_slot_info(ota_image_start_address,
                                                        ota_image_size,
                                                        SL_SI91X_AB_OTA_IMAGE_TYPE_NWP);
@@ -353,6 +369,7 @@ static sl_status_t firmware_update_process(int client_socket)
               DEBUGOUT("Failed to update NWP slot, error: %lu\n", status);
             }
           }
+#endif
         }
         return SL_STATUS_OK; // Return success
 
@@ -369,6 +386,19 @@ static sl_status_t firmware_update_process(int client_socket)
     }
   }
 }
+/**
+ * @brief Sends a request to the server for a firmware update, specifying the chunk to be received.
+ *
+ * This function constructs and sends a request message to the server, indicating
+ * the chunk number to be sent. It handles errors related to socket operations and
+ * manages the state of the firmware update process.
+ *
+ * @param client_socket The socket descriptor for communication with the server.
+ * @param data_chunk The current chunk number being requested.
+ * @param chunk_max_count The maximum number of chunks expected from the server.
+ *
+ * @return The status of the operation (success, error, or waiting for response).
+ */
 static sl_status_t sl_app_sending_request(int client_socket, uint16_t data_chunk, uint16_t chunk_max_count)
 {
   uint8_t send_buffer[3] = { 0 }; // Buffer to hold the request message
@@ -417,6 +447,21 @@ static sl_status_t sl_app_receiving_response(int client_socket, uint8_t *fwup_ch
   return STATE_PROCESSING_RESPONSE;
 }
 
+/**
+ * @brief Processes the received firmware update chunk, verifying and storing the data appropriately.
+ *
+ * This function handles the received firmware chunk based on its type (header or content).
+ * It extracts metadata from the header, erases flash memory if necessary, and writes the
+ * firmware content to flash memory. It also manages the state of the firmware update process.
+ *
+ * @param client_socket The socket descriptor for communication with the server.
+ * @param fwup_chunk_type The type of the received firmware chunk (header or content).
+ * @param fwup_chunk_length The length of the received firmware chunk.
+ * @param data_chunk Pointer to a variable tracking the current firmware data chunk.
+ * @param chunk_max_count Pointer to a variable holding the maximum number of chunks expected.
+ *
+ * @return The status of the operation (success, error, or completion).
+ */
 static sl_status_t sl_app_processing_response(int client_socket,
                                               uint8_t fwup_chunk_type,
                                               uint16_t fwup_chunk_length,
@@ -520,6 +565,14 @@ static sl_status_t sl_app_processing_response(int client_socket,
 
   return STATE_COMPLETED; // Firmware update completed successfully
 }
+/**
+ * @brief Displays detailed information about the current firmware slots.
+ *
+ * This function prints the slot information, including the magic word, slot IDs,
+ * image offsets, image sizes, and currently active slots for both M4 and NWP cores.
+ *
+ * @param slot_info Pointer to the structure containing slot information.
+ */
 void sl_app_display_ab_slot_info(const sl_si91x_fw_ab_slot_management_t *slot_info)
 {
   if (slot_info == NULL) {
@@ -535,12 +588,12 @@ void sl_app_display_ab_slot_info(const sl_si91x_fw_ab_slot_management_t *slot_in
   DEBUGOUT("\r\nM4 Slot A:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->m4_slot_info.m4_slot_A.slot_id);
   DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->m4_slot_info.m4_slot_A.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lu bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_A.image_size);
+  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_A.image_size);
 
   DEBUGOUT("\r\nM4 Slot B:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->m4_slot_info.m4_slot_B.slot_id);
   DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->m4_slot_info.m4_slot_B.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lu bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_B.image_size);
+  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_B.image_size);
 
   DEBUGOUT("\r\nCurrently Active M4 Slot: %c", slot_info->m4_slot_info.current_active_M4_slot == SLOT_A ? 'A' : 'B');
 
@@ -549,17 +602,72 @@ void sl_app_display_ab_slot_info(const sl_si91x_fw_ab_slot_management_t *slot_in
   DEBUGOUT("\r\nNWP Slot A:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->nwp_slot_info.nwp_slot_A.slot_id);
   DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lu bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.image_size);
+  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.image_size);
 
   DEBUGOUT("\r\nNWP Slot B:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->nwp_slot_info.nwp_slot_B.slot_id);
   DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lu bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.image_size);
+  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.image_size);
 
   DEBUGOUT("\r\nCurrently Active NWP Slot: %c", slot_info->nwp_slot_info.current_active_nwp_slot == SLOT_A ? 'A' : 'B');
 
   DEBUGOUT("\r\nSlot Structure CRC: 0x%lX", (unsigned long)slot_info->slot_struct_crc);
   DEBUGOUT("\r\n=============================================\r\n");
+}
+
+/**
+ * @brief Handles the retrieval and initialization of firmware slot information.
+ *
+ * This function retrieves the current slot information and, if not available,
+ * loads default slot information for both M4 and NWP cores.
+ *
+ * @param app_ab_slot_info Pointer to the structure to store the slot information.
+ */
+static void sl_app_handle_ab_slot_info(sl_si91x_fw_ab_slot_management_t *app_ab_slot_info)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+
+  // Retrieve the current slot information
+  status = sl_si91x_ab_get_slot_info(app_ab_slot_info);
+
+  if (status == SL_STATUS_OK) {
+    // Slot information is available, print it
+    DEBUGOUT("\r\nSlot information retrieved successfully.\r\n");
+    return;
+  }
+
+  // If slot information is not available, log the error and load default information
+  DEBUGOUT("\r\nSlot information is not available. Loading default slot information.\r\n");
+
+  // Set the slot info for the M4 core
+  status =
+    sl_si91x_ab_upgrade_set_slot_info(rom_address - SLI_SI91X_CHUNK_LENGTH, rom_length, SL_SI91X_AB_OTA_IMAGE_TYPE_M4);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("Failed to update M4 slot, error: %lu\n", status);
+  } else {
+    DEBUGOUT("Successfully updated M4 slot with address: %lX and length: %lX\n", rom_address, rom_length);
+  }
+
+  // Set the slot info for the NWP core
+  status = sl_si91x_ab_upgrade_set_slot_info(DEFAULT_NWP_SLOT_A_OFFSET,
+                                             DEFAULT_NWP_IMAGE_SIZE,
+                                             SL_SI91X_AB_OTA_IMAGE_TYPE_NWP);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("Failed to update NWP slot, error: %lu\n", status);
+  } else {
+    DEBUGOUT("Successfully updated NWP slot with offset: %X and size: %X\n",
+             DEFAULT_NWP_SLOT_A_OFFSET,
+             DEFAULT_NWP_IMAGE_SIZE);
+  }
+
+  // Read back the updated slot information
+  DEBUGOUT("\r\nReading back updated slot information...\r\n");
+  status = sl_si91x_ab_get_slot_info(app_ab_slot_info);
+  if (status == SL_STATUS_OK) {
+    DEBUGOUT("\r\nUpdated slot information retrieved successfully.\r\n");
+  } else {
+    DEBUGOUT("\r\nFailed to retrieve updated slot information, error: %lu\n", status);
+  }
 }
 
 // End of file

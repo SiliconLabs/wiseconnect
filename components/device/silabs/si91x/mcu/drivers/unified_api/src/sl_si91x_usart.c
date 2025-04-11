@@ -1452,14 +1452,6 @@ sl_status_t sl_si91x_uart_rs485_rx_hardware_address_set(usart_peripheral_t uart_
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-
-#if (RS485_USART_UC == 1)
-    *rx_addr = SL_UART0_RS485_SLAVE_ADDRESS;
-#endif
-#if (RS485_UART_UC == 1)
-    *rx_addr = SL_UART1_RS485_SLAVE_ADDRESS;
-#endif
-
     if (uart_instance == USART_0) {
       rsi_usart_rs485_rx_address_set(UART0, *rx_addr);
       status = SL_STATUS_OK;
@@ -1555,11 +1547,9 @@ sl_status_t sl_si91x_uart_rs485_transfer_hardware_address(usart_peripheral_t uar
     }
     // Set the SLave address to which data wants to transmit from UC
 #if (RS485_USART_UC == 1)
-    *tx_address                    = SL_UART0_RS485_SLAVE_ADDRESS;
     uart_rs485_multidrop.send_addr = uart0_rs485_configuration.multidrop.send_addr;
 #endif
 #if (RS485_UART_UC == 1)
-    *tx_address                    = SL_UART1_RS485_SLAVE_ADDRESS;
     uart_rs485_multidrop.send_addr = uart1_rs485_configuration.multidrop.send_addr;
 #endif
 

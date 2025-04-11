@@ -96,8 +96,33 @@ The application can be configured to suit your requirements and development envi
   ```c
   #define SL_APP_TOGGLE_SLOT_INFO 0 
   ```
+- The firmware slot update functionality is controlled by the following macro:
+  ```c
+  #define SL_APP_UPDATE_FIRMWARE_SLOT 0 
+  ```
+  - Purpose: Controls whether the firmware slot information for M4 and NWP cores is updated after a successful firmware update.
+    - Default Value: 0 (Disabled)
+    - Possible Values:
+      - 0: Disable firmware slot updates.
+      - 1: Enable firmware slot updates.
 
+- Debug Logging Configuration
+  - The **DISABLE_AB_DEBUG_LOGS** macro controls whether debug logs are enabled or disabled in the A/B Firmware Fallback module and by default, debug logs are disabled.
 
+    ```c
+    #define DISABLE_AB_DEBUG_LOGS 1 
+    ```
+    - The macro is defined in the following file:
+      - Path: `\components\device\silabs\si91x\mcu\drivers\service\firmware_fallback\src\sl_si91x_fw_fallback.c`
+
+- After completing the OTA update process, it is recommended to perform a system reset using the `sl_si91x_soc_nvic_reset()` function. This ensures that the updated firmware is properly loaded and the system is initialized with the new firmware.
+
+- The `sl_si91x_soc_nvic_reset()` function is available in the `app.c` file but is commented out by default. Uncomment the following line in the `app.c` file to enable the reset:
+
+  ```c
+  sl_si91x_soc_nvic_reset();
+  ```
+      
 **TCP Configuration**
 
 - In the Project Explorer pane, open the **app.c** file. 

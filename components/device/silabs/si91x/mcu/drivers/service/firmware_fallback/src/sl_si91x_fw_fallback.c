@@ -40,6 +40,12 @@
 #include "sl_si91x_types.h"
 #endif
 
+#define DISABLE_AB_DEBUG_LOGS 1 // Set to 1 to disable debug logs
+#if (DISABLE_AB_DEBUG_LOGS == 1)
+#undef DEBUGOUT
+#define DEBUGOUT(...) ((void)0) // Disable logs
+#endif
+
 #ifdef SL_SI91X_FW_FALLBACK
 static uint32_t ota_image_address = 0; ///<        This variable holds the address of the OTA image.
 static uint32_t ota_image_type    = 0; ///<        This variable holds the type of the OTA image.
@@ -63,11 +69,12 @@ static void sli_si91x_update_crc(sl_si91x_fw_ab_slot_management_t *slot_info);
 sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota_image_info_t *ota_st)
 {
   if ((image_buffer == NULL) || (ota_st == NULL)) {
+    DEBUGOUT("\r\n[get_rps_cfgs] Error: NULL pointer passed!\r\n");
     return SL_STATUS_NULL_POINTER;
   }
 
   const sl_si91x_firmware_header_t *rps_config_t = (const sl_si91x_firmware_header_t *)image_buffer;
-  DEBUGOUT("\r\n\r\n magic_no:%lx\r\n", rps_config_t->magic_no);
+  DEBUGOUT("\r\n[get_rps_cfgs] Magic number: %lx\r\n", rps_config_t->magic_no);
 
   if (rps_config_t->magic_no == SLI_SI91X_RPS_MAGIC_NO) {
 
@@ -81,7 +88,7 @@ sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota
     } else if ((ota_st->ota_image_type & BIT(0)) == SL_SI91X_NWP_RPS_BIT) {
       ota_st->ota_image_offset += SLI_SI91X_NWP_FLASH_BASE_ADDR;
     } else {
-      DEBUGOUT("\r\nError: Unknown image type!\n");
+      DEBUGOUT("\r\n[get_rps_cfgs] Error: Unknown image type!\r\n");
       return SL_SI91X_AB_ERR_UNKNOWN_IMG;
     }
 
@@ -91,7 +98,7 @@ sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota
     ota_image_type    = ota_st->ota_image_type;
     return SL_STATUS_OK;
   } else {
-    DEBUGOUT("\r\nError: Magic number mismatch!\n");
+    DEBUGOUT("\r\n[get_rps_cfgs] Error: Magic number mismatch!\r\n");
     return SL_SI91X_AB_ERR_MAGIC_NUMBER;
   }
 }
@@ -173,6 +180,76 @@ sl_status_t sl_si91x_verify_image(uint32_t flash_address)
                                         NULL);
   return status;
 }
+/***************************************************************************/ /**
+ *  @fn          static sl_status_t sli_si91x_validate_ab_info(uint32_t address,
+ *                                                               sl_si91x_fw_ab_slot_management_t *slot_info)
+ *  @pre         None
+ *  @brief       Validates the slot information and checks if the given address
+ *               falls within any active slot, preventing erase operations.
+ *  @param[in]   address            The flash memory address to be checked.
+ *  @param[out]  slot_info          Pointer to the structure holding slot details.
+ *  @return      sl_status_t        SL_STATUS_OK if the address is safe for erase,
+ *                                  SL_SI91X_AB_ERR_ERASE_ACTIVE_SLOT if the address
+ *                                  overlaps with an active slot, or an error code otherwise.
+ ******************************************************************************/
+static sl_status_t sli_si91x_validate_ab_info(uint32_t address, sl_si91x_fw_ab_slot_management_t *slot_info)
+{
+
+  // **Validate Inputs: NULL Pointer & Zero Address**
+  if (slot_info == NULL || address == 0) {
+    DEBUGOUT("\r\n[validate_ab_info] Error: %s. Aborting operation.\r\n",
+             (slot_info == NULL) ? "Slot info pointer is NULL" : "Invalid address (0x00000000)");
+    return (slot_info == NULL) ? SL_STATUS_NULL_POINTER : SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sl_status_t status = sl_si91x_ab_get_slot_info(slot_info);
+
+  // Check if retrieving slot information was successful
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("\r\n[validate_ab_info] Error: Failed to retrieve slot information. Status: %lX\r\n", status);
+
+    // If the error is due to invalid slot info (0xFFFFFFFF), allow the erase to proceed
+    if (status == SL_SI91X_AB_ERR_INVALID_SLOT_INFO) {
+      DEBUGOUT(
+        "\r\n[validate_ab_info] Warning: Slot info is invalid (0xFFFFFFFF). Proceeding with the operation...\r\n");
+      return SL_STATUS_OK;
+    }
+    DEBUGOUT("\r\n [validate_ab_info] Error: Slot info is invalid \n");
+    // Otherwise, return the error as erase cannot proceed
+    return status;
+  }
+
+  DEBUGOUT("\r\n[validate_ab_info] Validating slot info. Address: %lX, Active M4 Slot: %u\r\n",
+           address,
+           slot_info->m4_slot_info.current_active_M4_slot);
+
+  // **Check if the address falls within an active M4 Slot A range**
+  if (slot_info->m4_slot_info.current_active_M4_slot == SLOT_A
+      && address >= slot_info->m4_slot_info.m4_slot_A.slot_image_offset
+      && address
+           < (slot_info->m4_slot_info.m4_slot_A.slot_image_offset + slot_info->m4_slot_info.m4_slot_A.image_size)) {
+    DEBUGOUT("\r\n [validate_ab_info] Error: Erase operation overlaps with active M4 Slot A "
+             "(Offset: %lX, Size: %lu bytes). Erase aborted.\n",
+             slot_info->m4_slot_info.m4_slot_A.slot_image_offset,
+             slot_info->m4_slot_info.m4_slot_A.image_size);
+    return SL_SI91X_AB_ERR_ERASE_ACTIVE_SLOT;
+  }
+
+  // **Check if the address falls within an active M4 Slot B range**
+  if (slot_info->m4_slot_info.current_active_M4_slot == SLOT_B
+      && address >= slot_info->m4_slot_info.m4_slot_B.slot_image_offset
+      && address
+           < (slot_info->m4_slot_info.m4_slot_B.slot_image_offset + slot_info->m4_slot_info.m4_slot_B.image_size)) {
+    DEBUGOUT("\r\n [validate_ab_info] Error: Erase operation overlaps with active M4 Slot B "
+             "(Offset: %lX, Size: %lu bytes). Erase aborted.\n",
+             slot_info->m4_slot_info.m4_slot_B.slot_image_offset,
+             slot_info->m4_slot_info.m4_slot_B.image_size);
+    return SL_SI91X_AB_ERR_ERASE_ACTIVE_SLOT;
+  }
+
+  // If the address does not overlap with any active slot, return OK
+  return SL_STATUS_OK;
+}
 
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_flash_erase(uint32_t address, uint32_t length)
@@ -191,24 +268,11 @@ sl_status_t sl_si91x_flash_erase(uint32_t address, uint32_t length)
   sl_si91x_fw_ab_slot_management_t slot_info;
   uint32_t erase_size = 0;
 
-  // Get slot information
-  status = sl_si91x_ab_get_slot_info(&slot_info);
+  // Validate slot information and check if the address is within an active slot
+  status = sli_si91x_validate_ab_info(address, &slot_info);
   if (status != SL_STATUS_OK) {
-    DEBUGOUT("\r\nError: Failed to retrieve slot information.\n");
+    DEBUGOUT("\r\n [flash_erase] Error: Failed to validate the slot information: %lX\n", status);
     return status;
-  }
-
-  // Check if the address matches the active slot for M4 or NWP
-  if ((address == slot_info.m4_slot_info.m4_slot_A.slot_image_offset
-       && slot_info.m4_slot_info.current_active_M4_slot == SLOT_A)
-      || (address == slot_info.m4_slot_info.m4_slot_B.slot_image_offset
-          && slot_info.m4_slot_info.current_active_M4_slot == SLOT_B)
-      || (address == slot_info.nwp_slot_info.nwp_slot_A.slot_image_offset
-          && slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_A)
-      || (address == slot_info.nwp_slot_info.nwp_slot_B.slot_image_offset
-          && slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_B)) {
-    DEBUGOUT("\r\nError: Attempted to erase active slot. Erase operation aborted.\n");
-    return SL_SI91X_AB_ERR_ERASE_ACTIVE_SLOT;
   }
 
   erase_size = (length + 4095) & ~4095; // Round up to the nearest 4KB boundary
@@ -228,7 +292,7 @@ sl_status_t sl_si91x_flash_erase(uint32_t address, uint32_t length)
                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                         NULL,
                                         NULL);
-
+  DEBUGOUT("\r\n [flash_erase] Erase Success %lX\n", status);
   return status;
 }
 
@@ -255,6 +319,8 @@ sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
   // Error check for new_image_offset(for M4: 0x8xxxxxx and for NWP: 0x4xxxxxx)
   if (((new_image_offset & 0xF0000000) != (SLI_SI91X_M4_FLASH_BASE_ADDR & 0xF0000000))
       && ((new_image_offset & 0xF0000000) != (SLI_SI91X_NWP_FLASH_BASE_ADDR & 0xF0000000))) {
+    DEBUGOUT(
+      "\r\n [upgrade_ab_info]Error: Invalid new_image_offset parameter. Status: SL_STATUS_INVALID_PARAMETER\r\n");
     return SL_STATUS_INVALID_PARAMETER; // Invalid offset
   }
 
@@ -263,6 +329,7 @@ sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
                                (uint8_t *)&fw_slot_info,
                                sizeof(sl_si91x_fw_ab_slot_management_t));
   if (status != SL_STATUS_OK) {
+    DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to read slot info from flash. Status: %lX\r\n", status);
     return SL_SI91X_AB_ERR_FLASH_READ;
   }
 
@@ -272,29 +339,33 @@ sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
   if (need_flash_update) {
     // Handle OTA update for M4
     if (image_type == SL_SI91X_AB_OTA_IMAGE_TYPE_M4) {
-      DEBUGOUT("\r\nProcessing Slot-Info update for M4\r\n");
+      DEBUGOUT("\r\nProcessing Slot-Info update for M4 :%lX \r\n", new_image_offset);
       if (fw_slot_info.m4_slot_info.current_active_M4_slot == SLOT_A) {
         fw_slot_info.m4_slot_info.current_active_M4_slot      = SLOT_B;
         fw_slot_info.m4_slot_info.m4_slot_B.slot_image_offset = new_image_offset;
         fw_slot_info.m4_slot_info.m4_slot_B.image_size        = new_image_size;
+        fw_slot_info.m4_slot_info.m4_slot_B.slot_id           = SLOT_B;
       } else {
         fw_slot_info.m4_slot_info.current_active_M4_slot      = SLOT_A;
         fw_slot_info.m4_slot_info.m4_slot_A.slot_image_offset = new_image_offset;
         fw_slot_info.m4_slot_info.m4_slot_A.image_size        = new_image_size;
+        fw_slot_info.m4_slot_info.m4_slot_A.slot_id           = SLOT_A;
       }
     }
 
     // Handle OTA update for NWP
     if (image_type == SL_SI91X_AB_OTA_IMAGE_TYPE_NWP) {
-      DEBUGOUT("\r\nProcessing SLot_Info update for NWP\r\n");
+      DEBUGOUT("\r\nProcessing Slot-Info update for NWP\r\n");
       if (fw_slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_A) {
         fw_slot_info.nwp_slot_info.current_active_nwp_slot      = SLOT_B;
         fw_slot_info.nwp_slot_info.nwp_slot_B.slot_image_offset = new_image_offset;
         fw_slot_info.nwp_slot_info.nwp_slot_B.image_size        = new_image_size;
+        fw_slot_info.nwp_slot_info.nwp_slot_B.slot_id           = SLOT_B;
       } else {
         fw_slot_info.nwp_slot_info.current_active_nwp_slot      = SLOT_A;
         fw_slot_info.nwp_slot_info.nwp_slot_A.slot_image_offset = new_image_offset;
         fw_slot_info.nwp_slot_info.nwp_slot_A.image_size        = new_image_size;
+        fw_slot_info.nwp_slot_info.nwp_slot_A.slot_id           = SLOT_A;
       }
     }
 
@@ -304,57 +375,75 @@ sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
 
     // Erase and write backup slot info
     status = sli_si91x_erase_slot_info(SLI_SI91X_BACKUP_SLOT_INFO_FLASH_OFFSET);
-    if (status != SL_STATUS_OK)
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to erase backup slot info. Status: %lX\r\n", status);
       return status;
+    }
 
     status = sl_si91x_flash_write(SLI_SI91X_BACKUP_SLOT_INFO_FLASH_OFFSET,
                                   (uint8_t *)&fw_slot_info,
                                   sizeof(sl_si91x_fw_ab_slot_management_t));
-    if (status != SL_STATUS_OK)
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to write backup slot info. Status: %lX\r\n", status);
       return status;
+    }
 
     // Verify backup slot info
     status = sl_si91x_flash_read(SLI_SI91X_BACKUP_SLOT_INFO_FLASH_OFFSET,
                                  (uint8_t *)&verify_fw_slot_info,
                                  sizeof(sl_si91x_fw_ab_slot_management_t));
-    if (status != SL_STATUS_OK)
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to read backup slot info. Status: %lX\r\n", status);
       return SL_SI91X_AB_ERR_FLASH_READ;
+    }
 
     if ((sli_si91x_calculate_firmware_slot_crc(&verify_fw_slot_info) != verify_fw_slot_info.slot_struct_crc)
         || (verify_fw_slot_info.slot_magic_word != SLI_SI91X_AB_FW_SLOT_MAGIC_WORD)) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Backup slot info verification failed. Status: "
+               "SL_SI91X_AB_ERR_BACKUP_VERIFY\r\n");
       return SL_SI91X_AB_ERR_BACKUP_VERIFY;
     }
 
     // Erase and write actual slot info
     status = sli_si91x_erase_slot_info(SLI_SI91X_SLOT_INFO_FLASH_OFFSET);
-    if (status != SL_STATUS_OK)
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to erase slot info. Status: %lX\r\n", status);
       return status;
+    }
 
     status = sl_si91x_flash_write(SLI_SI91X_SLOT_INFO_FLASH_OFFSET,
                                   (uint8_t *)&fw_slot_info,
                                   sizeof(sl_si91x_fw_ab_slot_management_t));
-    if (status != SL_STATUS_OK)
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to write slot info. Status: %lX\r\n", status);
       return status;
+    }
 
     // Verify written slot info
     status = sl_si91x_flash_read(SLI_SI91X_SLOT_INFO_FLASH_OFFSET,
                                  (uint8_t *)&verify_fw_slot_info,
                                  sizeof(sl_si91x_fw_ab_slot_management_t));
-    if (status != SL_STATUS_OK)
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Failed to read written slot info. Status: %lX\r\n", status);
       return SL_SI91X_AB_ERR_FLASH_READ;
+    }
 
     if ((sli_si91x_calculate_firmware_slot_crc(&verify_fw_slot_info) != verify_fw_slot_info.slot_struct_crc)
         || (verify_fw_slot_info.slot_magic_word != SLI_SI91X_AB_FW_SLOT_MAGIC_WORD)) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Written slot info verification failed. Status: "
+               "SL_SI91X_AB_ERR_FLASH_VERIFY\r\n");
       return SL_SI91X_AB_ERR_FLASH_VERIFY;
     }
 
     if ((fw_slot_info.m4_slot_info.current_active_M4_slot != verify_fw_slot_info.m4_slot_info.current_active_M4_slot)
         || (fw_slot_info.nwp_slot_info.current_active_nwp_slot
             != verify_fw_slot_info.nwp_slot_info.current_active_nwp_slot)) {
+      DEBUGOUT("\r\n [upgrade_ab_info] Error: Active slot mismatch after verification. Status: "
+               "SL_SI91X_AB_ERR_FLASH_VERIFY\r\n");
       return SL_SI91X_AB_ERR_FLASH_VERIFY;
     }
   }
-  DEBUGOUT("\r\nSlot update successful\n");
+  DEBUGOUT("\r\n [upgrade_ab_info] Slot update successful\n");
   return status;
 }
 
@@ -367,60 +456,69 @@ sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
  *  @param[out]  slot_info_t        Pointer to the sl_si91x_fw_ab_slot_management_t structure to store the slot information.
  *  @return      sl_status_t        SL_STATUS_OK if successful, error code otherwise.
  ******************************************************************************/
-sl_status_t sl_si91x_ab_get_slot_info(sl_si91x_fw_ab_slot_management_t *slot_info_t)
+sl_status_t sl_si91x_ab_get_slot_info(sl_si91x_fw_ab_slot_management_t *ab_slot_info_t)
 {
-  if (slot_info_t == NULL) {
-    DEBUGOUT("\r\nError: NULL pointer passed for slot_info!\n");
+  if (ab_slot_info_t == NULL) {
+    DEBUGOUT("\r\n [get_ab_info]Error: NULL pointer passed for slot_info!\n");
     return SL_STATUS_NULL_POINTER;
   }
 
-  memset(slot_info_t, 0, sizeof(sl_si91x_fw_ab_slot_management_t));
+  memset(ab_slot_info_t, 0, sizeof(sl_si91x_fw_ab_slot_management_t));
 
   // Read slot information from primary flash location
   sl_status_t status = sl_si91x_flash_read(SLI_SI91X_SLOT_INFO_FLASH_OFFSET,
-                                           (uint8_t *)slot_info_t,
+                                           (uint8_t *)ab_slot_info_t,
                                            sizeof(sl_si91x_fw_ab_slot_management_t));
 
   if (status != SL_STATUS_OK) {
+    DEBUGOUT("\r\n [get_ab_info]Error: Failed to read slot info from flash. Status: %lX\r\n", status);
     return SL_SI91X_AB_ERR_FLASH_READ;
   }
 
   // Check if the magic number is 0xFF (invalid slot information)
-  if (slot_info_t->slot_magic_word == 0xFFFFFFFF) {
-    DEBUGOUT("\r\nError: Slot info magic number is 0xFFFFFFFF, indicating invalid slot info.\n");
+  if (ab_slot_info_t->slot_magic_word == 0xFFFFFFFF) {
+    DEBUGOUT("\r\n [get_ab_info]Error: Slot info magic number is 0xFFFFFFFF, indicating invalid slot info.\n");
     return SL_SI91X_AB_ERR_INVALID_SLOT_INFO;
   }
 
   // Verify CRC and Magic Word of the read-back structure
-  if ((sli_si91x_calculate_firmware_slot_crc(slot_info_t) != slot_info_t->slot_struct_crc)
-      || (slot_info_t->slot_magic_word != SLI_SI91X_AB_FW_SLOT_MAGIC_WORD)) {
-    DEBUGOUT("\r\nError: CRC verification failed for primary slot info. Reading from backup...\n");
+  if ((sli_si91x_calculate_firmware_slot_crc(ab_slot_info_t) != ab_slot_info_t->slot_struct_crc)
+      || (ab_slot_info_t->slot_magic_word != SLI_SI91X_AB_FW_SLOT_MAGIC_WORD)) {
+    DEBUGOUT("\r\n [get_ab_info]Error: CRC verification failed for primary slot info. Reading from backup...\n");
 
     // Clear the slot_info_t structure before reading from backup
-    memset(slot_info_t, 0, sizeof(sl_si91x_fw_ab_slot_management_t));
+    memset(ab_slot_info_t, 0, sizeof(sl_si91x_fw_ab_slot_management_t));
 
     // Read slot information from backup flash location
     status = sl_si91x_flash_read(SLI_SI91X_BACKUP_SLOT_INFO_FLASH_OFFSET,
-                                 (uint8_t *)slot_info_t,
+                                 (uint8_t *)ab_slot_info_t,
                                  sizeof(sl_si91x_fw_ab_slot_management_t));
 
     if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n [get_ab_info]Error: Failed to read backup slot info. Status: %lX\r\n", status);
       return SL_SI91X_AB_ERR_FLASH_READ;
     }
 
     // Check again if magic number is 0xFFFFFFFF in backup slot
-    if (slot_info_t->slot_magic_word == 0xFFFFFFFF) {
-      DEBUGOUT("\r\nError: Backup slot info magic number is 0xFFFFFFFF, indicating invalid slot info.\n");
+    if (ab_slot_info_t->slot_magic_word == 0xFFFFFFFF) {
+      DEBUGOUT("\r\n [get_ab_info]Error: Backup slot info magic number is 0xFFFFFFFF, indicating invalid slot info.\n");
       return SL_SI91X_AB_ERR_INVALID_SLOT_INFO;
     }
 
     // Verify CRC and Magic Word of the read-back structure from backup
-    if ((sli_si91x_calculate_firmware_slot_crc(slot_info_t) != slot_info_t->slot_struct_crc)
-        || (slot_info_t->slot_magic_word != SLI_SI91X_AB_FW_SLOT_MAGIC_WORD)) {
-      DEBUGOUT("\r\nError: CRC verification failed for backup slot info\n");
+    if ((sli_si91x_calculate_firmware_slot_crc(ab_slot_info_t) != ab_slot_info_t->slot_struct_crc)
+        || (ab_slot_info_t->slot_magic_word != SLI_SI91X_AB_FW_SLOT_MAGIC_WORD)) {
+      DEBUGOUT("\r\n [get_ab_info]Error: CRC verification failed for backup slot info\n");
       return SL_SI91X_AB_ERR_FLASH_VERIFY;
     }
   }
+
+  DEBUGOUT("\r\n  [get_ab_info] Slot info successfully retrieved. Active M4 Slot: %X %lX, Active NWP Slot: %X \r\n",
+           ab_slot_info_t->m4_slot_info.current_active_M4_slot,
+           ((ab_slot_info_t->m4_slot_info.current_active_M4_slot == SLOT_A)
+              ? ab_slot_info_t->m4_slot_info.m4_slot_A.slot_image_offset
+              : ab_slot_info_t->m4_slot_info.m4_slot_B.slot_image_offset),
+           ab_slot_info_t->nwp_slot_info.current_active_nwp_slot);
 
   return SL_STATUS_OK;
 }
@@ -445,7 +543,7 @@ sl_status_t sl_si91x_toggle_slot_info(bool toggle_m4_image, bool toggle_nwp_imag
   // Get the current slot information
   status = sl_si91x_ab_get_slot_info(&slot_info);
   if (status != SL_STATUS_OK) {
-    DEBUGOUT("\r\nFailed to get slot information: %lX\r\n", status);
+    DEBUGOUT("\r\n [toggle_ab_info] Failed to get slot information: %lX\r\n", status);
     return status;
   }
 
@@ -458,11 +556,12 @@ sl_status_t sl_si91x_toggle_slot_info(bool toggle_m4_image, bool toggle_nwp_imag
                                   ? slot_info.m4_slot_info.m4_slot_B.image_size
                                   : slot_info.m4_slot_info.m4_slot_A.image_size;
 
-    DEBUGOUT("\r\nSwitching M4 slot to %s\r\n", (slot_info.m4_slot_info.current_active_M4_slot == SLOT_A) ? "B" : "A");
+    DEBUGOUT("\r\n  [toggle_ab_info] Switching M4 slot to %s\r\n",
+             (slot_info.m4_slot_info.current_active_M4_slot == SLOT_A) ? "B" : "A");
 
     status = sl_si91x_ab_upgrade_set_slot_info(new_image_offset, new_image_size, SL_SI91X_AB_OTA_IMAGE_TYPE_M4);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("\r\nFailed to set M4 slot information: %lX\r\n", status);
+      DEBUGOUT("\r\n  [toggle_ab_info] Failed to set M4 slot information: %lX\r\n", status);
       return status;
     }
   }
@@ -476,12 +575,12 @@ sl_status_t sl_si91x_toggle_slot_info(bool toggle_m4_image, bool toggle_nwp_imag
                                   ? slot_info.nwp_slot_info.nwp_slot_B.image_size
                                   : slot_info.nwp_slot_info.nwp_slot_A.image_size;
 
-    DEBUGOUT("\r\nSwitching NWP slot to %s\r\n",
+    DEBUGOUT("\r\n  [toggle_ab_info] Switching NWP slot to %s\r\n",
              (slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_A) ? "B" : "A");
 
     status = sl_si91x_ab_upgrade_set_slot_info(new_image_offset, new_image_size, SL_SI91X_AB_OTA_IMAGE_TYPE_NWP);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("\r\nFailed to set NWP slot information: %lX\r\n", status);
+      DEBUGOUT("\r\n  [toggle_ab_info] Failed to set NWP slot information: %lX\r\n", status);
       return status;
     }
   }
@@ -501,7 +600,8 @@ static sl_status_t sli_si91x_erase_slot_info(uint32_t flash_offset)
 {
   sl_status_t status  = SL_STATUS_FAIL;
   uint32_t erase_size = sizeof(sl_si91x_fw_ab_slot_management_t);
-  status              = sl_si91x_flash_erase(flash_offset, erase_size);
+  DEBUGOUT("\r\n [erase_slot_info]  erase slot info offset: %lX\r\n", flash_offset);
+  status = sl_si91x_flash_erase(flash_offset, erase_size);
   return status;
 }
 /***************************************************************************/ /**
@@ -573,6 +673,9 @@ static sl_status_t sli_si91x_calculate_firmware_slot_crc(sl_si91x_fw_ab_slot_man
 sl_status_t sl_si91x_flash_read(uint32_t address, uint8_t *buffer, uint32_t length)
 {
   if (buffer == NULL || length == 0) {
+    DEBUGOUT("\r\nError: Invalid parameters passed to sl_si91x_flash_read. Address: %lX, Length: %lu\r\n",
+             address,
+             length);
     return SL_STATUS_INVALID_PARAMETER; // Prevent invalid buffer usage
   }
   // Directly copy from the fixed address (assuming it's always readable)

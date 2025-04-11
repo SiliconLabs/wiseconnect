@@ -27,6 +27,14 @@
 *
 ******************************************************************************/
 #include "rsi_ccp_common.h"
+
+#define RS485_SW_CTRL_HALF_DUPLEX_MODE 1 // Software controlled Half duplex mode
+#define RS485_HW_CTRL_HALF_DUPLEX_MODE 2 // Hardware controlled Half duplex mode
+#define RS485_TX_MODE_0 \
+  0 // THR is 8-bit wide.The user needs to program the address into TAR and data into the THR register.SEND_ADDR bit is used as a control knob to send the address.
+#define RS485_TX_MODE_1 \
+  1 // THR is 9-bit wide.User must ensure THR register is written correctly for address/data. Address: 9th bit is set to 1, Data: 9th bit is set to 0.
+
 /**
  * @brief Structure to hold the rs485 multidrop configuration for USART RS485.
  *

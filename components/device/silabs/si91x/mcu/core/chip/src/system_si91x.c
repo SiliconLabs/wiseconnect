@@ -121,6 +121,9 @@ uint32_t package_type;
  */
 void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
 {
+  // Enables interrupts by clearing the PRIMASK register, allowing the processor to handle IRQs
+  __asm volatile("cpsie i" ::: "memory");
+
   const retention_boot_status_word_t *retention_reg = (const retention_boot_status_word_t *)MCURET_BOOTSTATUS;
 
   /*Updated the default SOC clock frequency*/

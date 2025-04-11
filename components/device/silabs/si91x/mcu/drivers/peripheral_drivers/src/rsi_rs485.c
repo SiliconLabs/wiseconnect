@@ -72,8 +72,14 @@ void rsi_usart_rs485_configure(USART0_Type *usart, usart_rs485_config_t usart_rs
     usart->LCR_EXT_b.DLS_E = 1;
     // Set the Addr match mode while receiving
     usart->LCR_EXT_b.ADDR_MATCH = usart_rs485.multidrop.addr_match;
-    // Set the multidrop transmit mode
-    usart->LCR_EXT_b.TRANSMIT_MODE = usart_rs485.multidrop.transmit_mode;
+    // Check whether transfer mode is hardware/ software controlled mode
+    if (usart->TCR_b.XFER_MODE == RS485_HW_CTRL_HALF_DUPLEX_MODE) {
+      // Set the multidrop transmit mode
+      usart->LCR_EXT_b.TRANSMIT_MODE = RS485_TX_MODE_0;
+    } else if (usart->TCR_b.XFER_MODE == RS485_SW_CTRL_HALF_DUPLEX_MODE) {
+      // Set the multidrop transmit mode
+      usart->LCR_EXT_b.TRANSMIT_MODE = RS485_TX_MODE_1;
+    }
   }
 }
 

@@ -44,5 +44,6 @@ void sl_si91x_m4_updater_app(void)
     while (1)
       ;
   }
+  DEBUGOUT("\r\n M4 Updater Branching to :%lX ...\n", app_addr);
   sl_si91x_jump_to_m4_application(app_addr);
 }

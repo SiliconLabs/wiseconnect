@@ -96,15 +96,10 @@ extern "C" {
 // </h>  UART0 Configuration
 // </e>
 
-//  <e>UART0_RS485 UC Configuration
-//  <i> Enable: Enable UART0_RS485 UC.
-//  <i> Disable: Disable UART0_RS485 UC.
-//  <i> Default: 1
+//  <h>UART0_RS485 UC Configuration
 #define SL_UART0_RS485_MULTIDROP_ENABLE 1
 #define RS485_USART_UC                  1
-// <h>UART0_RS485 Configuration
-
-#if (SL_UART0_RS485_MULTIDROP_ENABLE)
+#define SL_UART0_RS485_TRANSMIT_MODE    0
 
 // <o SL_UART0_RS485_TRANSFER_MODE> Transfer Mode
 // <SL_UART_SW_CTRL_HALF_DUPLEX_MODE=> SW_CTRL_HALF_DUPLEX
@@ -147,19 +142,7 @@ extern "C" {
 // <q SL_UART0_RS485_SEND_ADDR> SEND Addr Enable
 // <i> Default: 1
 #define SL_UART0_RS485_SEND_ADDR 1
-
-// <o SL_UART0_RS485_TRANSMIT_MODE> Transmit Mode
-// <SL_UART_RS485_TX_MODE_0=> Mode 0
-// <SL_UART_RS485_TX_MODE_1=> Mode 1
-// <i> Default: Mode 2
-#define SL_UART0_RS485_TRANSMIT_MODE SL_UART_RS485_TX_MODE_0
-
-// <o SL_UART0_RS485_SLAVE_ADDRESS> Slave Address <1 - 255>
-// <i> Default: 11
-#define SL_UART0_RS485_SLAVE_ADDRESS 11
-#endif
-// </h>  UART0_RS485 Configuration
-// </e>
+// </h>  UART0_RS485 UC Configuration
 
 #ifdef __cplusplus
 }
@@ -175,7 +158,6 @@ sl_si91x_usart_control_config_t usart_configuration = { .baudrate     = SL_USART
                                                         .usart_module = USART0_MODULE };
 #endif
 
-#if (SL_UART0_RS485_MULTIDROP_ENABLE)
 usart_rs485_config_t uart0_rs485_configuration = { .transfer_mode           = SL_UART0_RS485_TRANSFER_MODE,
                                                    .de_pol                  = SL_UART0_RS485_DE_POL,
                                                    .re_pol                  = SL_UART0_RS485_RE_POL,
@@ -187,8 +169,6 @@ usart_rs485_config_t uart0_rs485_configuration = { .transfer_mode           = SL
                                                    .multidrop.addr_match    = SL_UART0_RS485_ADDR_MATCH,
                                                    .multidrop.send_addr     = SL_UART0_RS485_SEND_ADDR,
                                                    .multidrop.transmit_mode = SL_UART0_RS485_TRANSMIT_MODE };
-
-#endif //UART0_RS485_UC
 
 #define SL_USART0_RS485_RE_PIN  SL_RS485_UART0_RE_PIN
 #define SL_USART0_RS485_RE_PORT SL_RS485_UART0_RE_PORT
