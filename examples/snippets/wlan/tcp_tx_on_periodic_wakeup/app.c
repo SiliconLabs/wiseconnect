@@ -246,10 +246,10 @@ void send_data_to_tcp_server(void)
 
   printf("\r\nTCP_TX Throughput test start\r\n");
 
-  sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                        .listen_interval = 1000 };
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                           .listen_interval = 1000 };
 #if ENABLE_NWP_POWER_SAVE
-  rc = sl_wifi_set_performance_profile(&performance_profile);
+  rc = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (rc != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
   } else {

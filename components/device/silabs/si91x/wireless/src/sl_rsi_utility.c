@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -45,7 +45,7 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket_utility.h"
 #endif
-#include "em_core.h"
+#include "sl_core.h"
 #include <string.h>
 #include "assert.h"
 
@@ -91,6 +91,7 @@
 
 /// Task register ID to save firmware status
 #define SLI_FW_STATUS_STORAGE_INVALID_INDEX 0xFF // Invalid index for firmware status storage
+#define DEFAULT_BEACON_MISS_IGNORE_LIMIT    1
 
 /******************************************************
  *               Local Type Declarations
@@ -576,19 +577,19 @@ void sli_wifi_flush_scan_results_database(void)
 /******************************************************
  *               Function Declarations
  ******************************************************/
-void save_wifi_current_performance_profile(const sl_wifi_performance_profile_t *profile)
+void save_wifi_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile)
 {
   SL_ASSERT(profile != NULL);
-  memcpy(&performance_profile.wifi_performance_profile, profile, sizeof(sl_wifi_performance_profile_t));
+  memcpy(&performance_profile.wifi_performance_profile, profile, sizeof(sl_wifi_performance_profile_v2_t));
 
   performance_profile.coex_mode = get_coex_mode();
 }
 
 // Get the current Wi-Fi performance profile
-void get_wifi_current_performance_profile(sl_wifi_performance_profile_t *profile)
+void get_wifi_current_performance_profile(sl_wifi_performance_profile_v2_t *profile)
 {
   SL_ASSERT(profile != NULL);
-  memcpy(profile, &performance_profile.wifi_performance_profile, sizeof(sl_wifi_performance_profile_t));
+  memcpy(profile, &performance_profile.wifi_performance_profile, sizeof(sl_wifi_performance_profile_v2_t));
 }
 
 // Get the coexistence performance profile based on the current coexistence mode
@@ -955,6 +956,12 @@ void convert_performance_profile_to_power_save_command(sl_si91x_performance_prof
   power_save_request->num_of_dtim_skip  = performance_profile.wifi_performance_profile.num_of_dtim_skip;
   power_save_request->listen_interval   = performance_profile.wifi_performance_profile.listen_interval;
   power_save_request->psp_type          = SL_MAX_PSP;
+  if (performance_profile.wifi_performance_profile.beacon_miss_ignore_limit) {
+    power_save_request->beacon_miss_ignore_limit =
+      performance_profile.wifi_performance_profile.beacon_miss_ignore_limit;
+  } else {
+    power_save_request->beacon_miss_ignore_limit = DEFAULT_BEACON_MISS_IGNORE_LIMIT;
+  }
 
   // Depending on the specified performance profile, configure the power_save_request structure
   switch (profile) {
@@ -1752,7 +1759,7 @@ uint32_t sli_si91x_clear_event(uint32_t event_mask)
   return result;
 }
 
-sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_t *wifi_profile,
+sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_v2_t *wifi_profile,
                                               const sl_bt_performance_profile_t *bt_profile)
 {
   sl_status_t status;

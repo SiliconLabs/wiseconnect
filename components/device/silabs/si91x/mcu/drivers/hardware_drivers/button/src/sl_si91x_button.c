@@ -31,7 +31,7 @@
 #if defined(DEBUG_UART)
 #include "rsi_debug.h"
 #endif // DEBUG_UART
-
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
@@ -183,8 +183,7 @@ uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
 *
 * @brief DEBOUNCE operation is based upon the theory that when multiple reads in a row
 * return the same value, we have passed any debounce created by the mechanical
-* action of a button. The define "DEBOUNCE" specifies how many reads in a row
-* should return the same value.
+* action of a button.
 *
 * Typically, software debounce is disabled by defaulting to a value of '0',
 * which will cause the preprocessor to strip out the debounce code and save
@@ -193,10 +192,6 @@ uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
 * @note This is how you can configure the debounce functionality.
 *
  ******************************************************************************/
-#ifndef DEBOUNCE
-#define DEBOUNCE 500
-#endif //DEBOUNCE
-
 #if (SL_SI91x_BUTTON_COUNT > 0)
 /**
  * @brief Internal ISR for button handling with optional debounce.
@@ -210,23 +205,35 @@ uint8_t sl_si91x_button_state(uint8_t pin, uint8_t port)
  */
 void sl_si91x_button_internal_isr(const sl_button_t *handle)
 {
-  int8_t buttonStateNow;
+  int8_t buttonStateNow = 0;
+  buttonStateNow        = sl_si91x_button_state(handle->pin, handle->port);
 
-#if (DEBOUNCE > 0)
-  uint8_t buttonStatePrev;
-  uint32_t debounce;
-#endif //(DEBOUNCE > 0)
-
-  buttonStateNow = sl_si91x_button_state(handle->pin, handle->port);
-
-#if (DEBOUNCE > 0)
-  // Read button until we get "DEBOUNCE" number of consistent readings
-  for (debounce = 0; debounce < DEBOUNCE; debounce = (buttonStateNow == buttonStatePrev) ? debounce + 1 : 0) {
-    buttonStatePrev = buttonStateNow;
-    buttonStateNow  = sl_si91x_button_state(handle->pin, handle->port);
+#if defined(SL_SI91X_BUTTON_DEBOUNCE)
+  sl_si91x_delay_ms(2); // Introduces a 2ms delay to mitigate button debounce effects.
+  if (handle->interrupt_config == SL_GPIO_INTERRUPT_FALLING_EDGE) {
+    if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
+      if (buttonStateNow == LOW) {
+        //state changed, notify app
+        sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
+      }
+    }
+  } else if (handle->interrupt_config == SL_GPIO_INTERRUPT_RISE_EDGE) {
+    if (buttonStateNow == sl_si91x_button_get_state(handle->button_number)) {
+      if (buttonStateNow == HIGH) {
+        //state changed, notify app
+        sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
+      }
+    }
+  } else {
+    if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
+      //state changed, notify app
+      sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
+    } else {
+      //state changed, notify app
+      sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
+    }
   }
-#endif //(DEBOUNCE > 0)
-
+#else
   if (buttonStateNow != sl_si91x_button_get_state(handle->button_number)) {
     //state changed, notify app
     sl_si91x_button_isr(handle->pin, BUTTON_PRESSED);
@@ -234,6 +241,7 @@ void sl_si91x_button_internal_isr(const sl_button_t *handle)
     //state changed, notify app
     sl_si91x_button_isr(handle->pin, BUTTON_RELEASED);
   }
+#endif
 }
 
 SL_WEAK void sl_si91x_button_isr(uint8_t pin, int8_t state)

@@ -85,7 +85,7 @@ bool rsi_ble_running, rsi_wlan_running;
 bool powersave_cmd_given;
 #if ENABLE_NWP_POWER_SAVE
 osMutexId_t power_cmd_mutex;
-sl_wifi_performance_profile_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
 #endif
 
 const osThreadAttr_t thread_attributes = {
@@ -218,7 +218,7 @@ int32_t rsi_initiate_power_save(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return status;

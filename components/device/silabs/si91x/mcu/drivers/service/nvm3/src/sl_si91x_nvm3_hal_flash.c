@@ -61,7 +61,7 @@
 #define MEMORY_NOT_MAPPED 0
 /* Device family or part number info */
 #define DEVICE_NUMBER 19
-/* Enable delay for flash (Qspi) operations.*/
+/* Enable delay for flash (QSPI) operations.*/
 #define CCP_FLASH_DELAY 100000
 
 /******************************************************************************
@@ -107,15 +107,14 @@ static bool isErased(void *adr, size_t len)
  *   are called. It is used to call necessary startup routines before the
  *   hardware can be accessed.
  ******************************************************************************/
-static Ecode_t nvm3_halFlashOpen(nvm3_HalPtr_t nvmAdr, size_t flashSize)
+static sl_status_t nvm3_halFlashOpen(nvm3_HalPtr_t nvmAdr, size_t flashSize)
 {
   (void)nvmAdr;
   (void)flashSize;
-  Ecode_t halSta = ECODE_NVM3_ERR_NOT_OPENED;
 
 #if CCP_FLASH_DELAY
-  /* Delay is added for flash (Qspi) operations.
-   * It is added to resolve target connection lost (mcu reset) issue in SiWx917
+  /* Delay is added for flash (QSPI) operations.
+   * It is added to resolve target connection lost (MCU reset) issue in SiWx917
    * SOC Device.
    */
   for (int i = 0; i < CCP_FLASH_DELAY; i++) {
@@ -124,10 +123,8 @@ static Ecode_t nvm3_halFlashOpen(nvm3_HalPtr_t nvmAdr, size_t flashSize)
 #endif /* CCP_FLASH_DELAY */
 
   /* Calling this function for flash Initialize */
-  if (!(rsi_flash_init())) {
-    halSta = ECODE_NVM3_OK;
-  }
-  return halSta;
+  rsi_flash_init();
+  return SL_STATUS_OK;
 }
 
 /***************************************************************************/ /**
@@ -145,7 +142,7 @@ static void nvm3_halFlashClose(void)
  *   such as the device family, write size, whether the NVM is memory mapped or
  *   not, and finally the NVM page size.
  ******************************************************************************/
-static Ecode_t nvm3_halFlashGetInfo(nvm3_HalInfo_t *halInfo)
+static sl_status_t nvm3_halFlashGetInfo(nvm3_HalInfo_t *halInfo)
 {
   /* Hardcode with si91x */
   /* Device family or part number info */
@@ -158,7 +155,7 @@ static Ecode_t nvm3_halFlashGetInfo(nvm3_HalInfo_t *halInfo)
   halInfo->pageSize     = PAGE_SIZE;
   halInfo->systemUnique = 0;
 
-  return ECODE_NVM3_OK;
+  return SL_STATUS_OK;
 }
 
 /***************************************************************************/ /**
@@ -175,11 +172,12 @@ static void nvm3_halFlashAccess(nvm3_HalNvmAccessCode_t access)
  *   blocking call, since the thread asking for data to be read cannot continue
  *   without the data.
  ******************************************************************************/
-static Ecode_t nvm3_halFlashReadWords(nvm3_HalPtr_t nvmAdr, void *dst, size_t wordCnt)
+static sl_status_t nvm3_halFlashReadWords(nvm3_HalPtr_t nvmAdr, void *dst, size_t wordCnt)
 {
   uint32_t *pSrc      = (uint32_t *)nvmAdr;
   unsigned char *pDst = dst;
-  Ecode_t halSta      = ECODE_NVM3_OK;
+  sl_status_t halSta;
+
   /* Calling this function for flash read */
   halSta = rsi_flash_read(pSrc, pDst, wordCnt, 0);
   return halSta;
@@ -189,30 +187,28 @@ static Ecode_t nvm3_halFlashReadWords(nvm3_HalPtr_t nvmAdr, void *dst, size_t wo
  *   This function is used to write data to the NVM. This is a blocking
  *   function.
  ******************************************************************************/
-static Ecode_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, size_t wordCnt)
+static sl_status_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, size_t wordCnt)
 {
   const uint32_t *pSrc = src;
   uint32_t *pDst       = (uint32_t *)nvmAdr;
-  Ecode_t halSta       = ECODE_NVM3_ERR_WRITE_FAILED;
+  sl_status_t halSta;
   size_t byteCnt;
 
   byteCnt = wordCnt * sizeof(uint32_t);
   //check for pDst and pSrc address is valid or NULL
   if ((pDst == NULL) || (pSrc == NULL)) {
-    halSta = ECODE_NVM3_ERR_WRITE_FAILED;
+    halSta = SL_STATUS_NVM3_INVALID_ADDR;
   } else {
     /* Calling this function for flash write */
-    if (!(rsi_flash_write(pDst, (unsigned char *)pSrc, byteCnt))) {
-      halSta = ECODE_NVM3_OK;
-    }
+    halSta = rsi_flash_write(pDst, (unsigned char *)pSrc, byteCnt);
   }
 
   /* Check if the data  written */
 #if CHECK_DATA
   uint32_t data = (uint32_t)nvmAdr;
-  if (halSta == ECODE_NVM3_OK) {
+  if (halSta == SL_STATUS_OK) {
     if (memcmp((uint32_t *)data, pSrc, byteCnt) != 0) {
-      halSta = ECODE_NVM3_ERR_WRITE_FAILED;
+      halSta = SL_STATUS_FLASH_PROGRAM_FAILED;
     }
   }
 #endif
@@ -222,25 +218,23 @@ static Ecode_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, si
 /***************************************************************************/ /**
  *   This function is used to erase an NVM page.
  ******************************************************************************/
-static Ecode_t nvm3_halFlashPageErase(nvm3_HalPtr_t nvmAdr)
+static sl_status_t nvm3_halFlashPageErase(nvm3_HalPtr_t nvmAdr)
 {
-  Ecode_t halSta = ECODE_NVM3_ERR_ERASE_FAILED;
+  sl_status_t halSta;
 
   //check for NVM3 address is valid or NULL
   if (nvmAdr == NULL) {
-    halSta = ECODE_NVM3_ERR_ERASE_FAILED;
+    halSta = SL_STATUS_NVM3_INVALID_ADDR;
   } else {
     /* Calling this function for flash erase */
-    if (!(rsi_flash_erase_sector((uint32_t *)nvmAdr))) {
-      halSta = ECODE_NVM3_OK;
-    }
+    halSta = rsi_flash_erase_sector((uint32_t *)nvmAdr);
   }
 
   /* Check if the page is erased */
 #if CHECK_DATA
-  if (halSta == ECODE_NVM3_OK) {
+  if (halSta == SL_STATUS_OK) {
     if (!isErased((nvmAdr), PAGE_SIZE)) {
-      halSta = ECODE_NVM3_ERR_ERASE_FAILED;
+      halSta = SL_STATUS_FLASH_ERASE_FAILED;
     }
   }
 #endif

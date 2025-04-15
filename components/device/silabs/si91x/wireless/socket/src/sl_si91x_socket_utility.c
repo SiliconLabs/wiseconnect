@@ -2,7 +2,7 @@
  * @file  sl_si91x_socket_utility.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -38,7 +38,7 @@
 #include "sl_si91x_host_interface.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_rsi_utility.h"
-#include "em_core.h"
+#include "sl_core.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -101,8 +101,8 @@ extern volatile uint32_t tx_socket_command_queues_status;
 
 extern volatile uint32_t tx_socket_data_queues_status;
 
-uint32_t sl_si91x_socket_selected_ciphers          = SSL_ALL_CIPHERS;
-uint32_t sl_si91x_socket_selected_extended_ciphers = SSL_EXT_CIPHERS;
+uint32_t sl_si91x_socket_selected_ciphers          = SL_SI91X_TLS_DEFAULT_CIPHERS;
+uint32_t sl_si91x_socket_selected_extended_ciphers = SL_SI91X_TLS_EXT_CIPHERS;
 
 /******************************************************
  *               Function Definitions
@@ -123,9 +123,15 @@ void handle_accept_response(sli_si91x_socket_t *si91x_client_socket, const sl_si
                                                                                                           : AF_INET;
 
   if (si91x_client_socket->remote_address.sin6_family == AF_INET6) {
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+    memcpy(si91x_client_socket->remote_address.sin6_addr.un.u8_addr,
+           accept_response->dest_ip_addr.ipv6_address,
+           SL_IPV6_ADDRESS_LENGTH);
+#else
     memcpy(si91x_client_socket->remote_address.sin6_addr.__u6_addr.__u6_addr8,
            accept_response->dest_ip_addr.ipv6_address,
            SL_IPV6_ADDRESS_LENGTH);
+#endif
 
   } else {
     memcpy(&((struct sockaddr_in *)&si91x_client_socket->remote_address)->sin_addr,
@@ -481,10 +487,15 @@ void sli_si91x_create_socket_request(sli_si91x_socket_t *si91x_bsd_socket,
 {
   if (si91x_bsd_socket->local_address.sin6_family == AF_INET6) {
     socket_create_request->ip_version = SL_IPV6_VERSION;
-
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+    memcpy(socket_create_request->dest_ip_addr.ipv6_address,
+           si91x_bsd_socket->remote_address.sin6_addr.un.u8_addr,
+           SL_IPV6_ADDRESS_LENGTH);
+#else
     memcpy(socket_create_request->dest_ip_addr.ipv6_address,
            si91x_bsd_socket->remote_address.sin6_addr.__u6_addr.__u6_addr8,
            SL_IPV6_ADDRESS_LENGTH);
+#endif
   } else {
     socket_create_request->ip_version = SL_IPV4_ADDRESS_LENGTH;
     memcpy(socket_create_request->dest_ip_addr.ipv4_address,
@@ -637,9 +648,15 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const in
            socket_create_response->module_ip_addr.ipv4_addr,
            SL_IPV4_ADDRESS_LENGTH);
   } else {
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+    memcpy(si91x_bsd_socket->local_address.sin6_addr.un.u8_addr,
+           socket_create_response->module_ip_addr.ipv6_addr,
+           SL_IPV6_ADDRESS_LENGTH);
+#else
     memcpy(si91x_bsd_socket->local_address.sin6_addr.__u6_addr.__u6_addr8,
            socket_create_response->module_ip_addr.ipv6_addr,
            SL_IPV6_ADDRESS_LENGTH);
+#endif
   }
 
   // Free the buffer

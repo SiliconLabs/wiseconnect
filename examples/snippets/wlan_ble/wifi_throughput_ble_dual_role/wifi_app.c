@@ -57,7 +57,7 @@
 //   ! MACROS
 /*=======================================================================*/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        18000
+#define TIMEOUT_MS        25000
 #define WIFI_SCAN_TIMEOUT 10000
 
 /*=======================================================================*/
@@ -77,7 +77,6 @@ sl_net_ip_configuration_t ip_address        = { 0 };
 /*=======================================================================*/
 //   ! EXTERN VARIABLES
 /*=======================================================================*/
-// extern osSemaphoreId_t ble_main_task_sem, ble_slave_conn_sem, ble_scan_sem;
 #if WLAN_SYNC_REQ
 extern bool other_protocol_activity_enabled;
 extern osSemaphoreId_t sync_coex_ble_sem;

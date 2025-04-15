@@ -833,13 +833,7 @@ int aes_decrypt(void *ctx, const u8 *crypt, u8 *plain)
     SL_DEBUG_LOG("Failed to update cypher decryption: %d\n", status);
     return -1;
   }
-  status = psa_cipher_finish(((struct multi_part_aes_ctx *)ctx)->operation, plain, 0, &output_length);
-  if (status != PSA_SUCCESS) {
-    aes_operation_cleanup(((struct multi_part_aes_ctx *)ctx)->key_id, ((struct multi_part_aes_ctx *)ctx)->operation);
-    SL_DEBUG_LOG("Failed to finish decryption: %d\n", status);
-    return -1;
-  }
-  aes_operation_cleanup(((struct multi_part_aes_ctx *)ctx)->key_id, ((struct multi_part_aes_ctx *)ctx)->operation);
+  // psa_cipher_finish() will be called in aes_decrypt_deinit() as block size input do not need cipher finish to complete the operation.
   return 0;
 }
 
@@ -853,6 +847,15 @@ int aes_decrypt(void *ctx, const u8 *crypt, u8 *plain)
  */
 void aes_decrypt_deinit(void *ctx)
 {
+  size_t output_length          = 0;
+  uint8_t plain[AES_BLOCK_SIZE] = { 0 };
+
+  if (ctx == NULL) {
+    return;
+  }
+
+  psa_cipher_finish(((struct multi_part_aes_ctx *)ctx)->operation, &plain, 0, &output_length);
+  aes_operation_cleanup(((struct multi_part_aes_ctx *)ctx)->key_id, ((struct multi_part_aes_ctx *)ctx)->operation);
   AES_CLEANUP_OP(ctx);
 }
 

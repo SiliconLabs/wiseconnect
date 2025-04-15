@@ -295,6 +295,15 @@ typedef struct {
   uint16_t trigger_sel_val;
 } adc_extr_config_t;
 
+typedef struct {
+  uint32_t ping_addr;
+  uint32_t pong_addr;
+  uint16_t ping_length;
+  uint16_t pong_length;
+  uint8_t ping_enable;
+  uint8_t pong_enable;
+} adc_ping_pong_memory_adr_config_t;
+
 // Function Declarations
 rsi_error_t ADC_Init(adc_ch_config_t adcChnfig, adc_config_t adcConfig, adccallbacFunc event);
 
@@ -346,12 +355,7 @@ rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num);
 // Internal APIs
 rsi_error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
                                             uint32_t channel,
-                                            uint32_t ping_addr,
-                                            uint32_t pong_addr,
-                                            uint16_t ping_length,
-                                            uint16_t pong_length,
-                                            uint8_t ping_enable,
-                                            uint8_t pong_enable);
+                                            adc_ping_pong_memory_adr_config_t PingPongMemoryAdrConfig);
 
 void RSI_ADC_Calibration(void);
 

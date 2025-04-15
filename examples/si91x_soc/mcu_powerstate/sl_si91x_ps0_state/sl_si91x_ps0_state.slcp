@@ -33,6 +33,8 @@ component:
     from: wiseconnect3_sdk
   - id: debug_ulp_component
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk    
 template_contribution:
   - name: user_files_ps2
     value: ps0_state.o

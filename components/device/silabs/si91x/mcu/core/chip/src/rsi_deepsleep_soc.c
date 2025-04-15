@@ -329,6 +329,40 @@ void RSI_Set_Cntrls_To_TA(void)
 }
 #endif
 
+#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
+/*===================================================*/
+/**
+ * @fn          void request_nwp_to_program_flash(uint8_t in_ps2_state)
+ * @brief       to request NWP to program flash
+ * @return      none
+ */
+STATIC INLINE void request_nwp_to_program_flash(uint8_t in_ps2_state)
+{
+  if (!in_ps2_state && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
+    //! check NWP wokeup or not
+    if (!(P2P_STATUS_REG & TA_IS_ACTIVE)) {
+      //! wakeup NWP
+      P2P_STATUS_REG |= M4_WAKEUP_TA;
+
+      //! wait for NWP active
+      while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
+        ;
+    }
+    //! Check for TA_USING flash bit
+    if (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH)) {
+      //! Request NWP to program flash
+      //! raise an interrupt to NWP register
+      M4SS_P2P_INTR_SET_REG = PROGRAM_COMMON_FLASH;
+
+      //! Wait for NWP using flash bit
+      while (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH))
+        ;
+    }
+    M4SS_P2P_INTR_SET_REG = M4_USING_FLASH;
+  }
+}
+#endif
+
 /**
  * @fn          rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType , uint8_t lf_clk_mode)
  * @brief	    This is the common API to keep the system in sleep state. from all possible active states.
@@ -418,32 +452,28 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     RSI_IPMU_RetnLdoVoltsel();
   }
 
-  if (!in_ps2_state && MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b
-#if (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
-      && (lf_clk_mode & BIT(4))
-#endif
-  ) {
-#if (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
-    RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUTS);
-    /*configure the slope,nominal temperature and f2_nominal*/
-    RSI_TS_Config(MCU_TEMP, 25);
-    /*disable the bjt based temp sensor*/
-    RSI_TS_RoBjtEnable(MCU_TEMP, 0);
-    /*Enable the RO based temp sensor*/
-    RSI_TS_Enable(MCU_TEMP, 1);
-    /*update the temperature periodically*/
-    RSI_Periodic_TempUpdate(TIME_PERIOD, 1, 0);
-    /*read the temperature*/
-    Temp = (int)RSI_TS_ReadTemp(MCU_TEMP);
-    if (Temp > 45) {
-      // disable the XTAL CAP mode
-      RSI_IPMU_ProgramConfigData(lp_scdc_extcapmode);
-    }
-#endif
-
+  if (!in_ps2_state && MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b) {
 #if (XTAL_CAP_MODE == POWER_TARN_ALWAYS_USE)
     // disable the XTAL CAP mode
     RSI_IPMU_ProgramConfigData(lp_scdc_extcapmode);
+#elif (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
+    if (lf_clk_mode & BIT(4)) {
+      RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUTS);
+      /*configure the slope,nominal temperature and f2_nominal*/
+      RSI_TS_Config(MCU_TEMP, 25);
+      /*disable the bjt based temp sensor*/
+      RSI_TS_RoBjtEnable(MCU_TEMP, 0);
+      /*Enable the RO based temp sensor*/
+      RSI_TS_Enable(MCU_TEMP, 1);
+      /*update the temperature periodically*/
+      RSI_Periodic_TempUpdate(TIME_PERIOD, 1, 0);
+      /*read the temperature*/
+      Temp = (int)RSI_TS_ReadTemp(MCU_TEMP);
+      if (Temp > 45) {
+        // disable the XTAL CAP mode
+        RSI_IPMU_ProgramConfigData(lp_scdc_extcapmode);
+      }
+    }
 #endif
   }
 
@@ -542,29 +572,8 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   __asm volatile("dsb");
   __asm volatile("isb");
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-  /* if flash is not initialised ,then raise a request to NWP */
-  if (!in_ps2_state && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
-    //!check NWP wokeup or not
-    if (!(P2P_STATUS_REG & TA_IS_ACTIVE)) {
-      //!wakeup NWP
-      P2P_STATUS_REG |= M4_WAKEUP_TA;
-
-      //!wait for NWP active
-      while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
-        ;
-    }
-    //!Check for TA_USING flash bit
-    if (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH)) {
-      //! Request NWP to program flash
-      //! raise an interrupt to NWP register
-      M4SS_P2P_INTR_SET_REG = PROGRAM_COMMON_FLASH;
-
-      //!Wait for NWP using flash bit
-      while (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH))
-        ;
-    }
-    M4SS_P2P_INTR_SET_REG = M4_USING_FLASH;
-  }
+  /* if flash is not initialised, then raise a request to NWP */
+  request_nwp_to_program_flash(in_ps2_state);
 #endif
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
 #if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
@@ -671,12 +680,10 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 
   if (enable_sdcss_based_wakeup) {
     RSI_PS_ClrWkpSources(SDCSS_BASED_WAKEUP);
-    enable_sdcss_based_wakeup = 0;
   }
   if (enable_m4ulp_retention) {
     RSI_PS_M4ssRamBanksPowerUp(m4ulp_ram_core_status);
     RSI_PS_M4ssRamBanksPeriPowerUp(m4ulp_ram_peri_status);
-    enable_m4ulp_retention = 0;
   }
   if (disable_pads_ctrl) {
     ULP_SPI_MEM_MAP(0x141) |= (BIT(11)); // ULP PADS PDO ON

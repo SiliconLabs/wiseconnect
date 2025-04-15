@@ -470,17 +470,17 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
 {
   sl_status_t status;
   uint16_t temp;
-  sl_wifi_performance_profile_t current_power_profile_mode = { 0 };
-  sli_si91x_queue_packet_t *node                           = NULL;
-  sl_wifi_buffer_t *packet                                 = NULL;
-  sl_wifi_buffer_t *buffer                                 = NULL;
-  sl_wifi_buffer_t *error_packet                           = NULL;
-  sli_si91x_queue_packet_t *error_node                     = NULL;
-  uint8_t *data                                            = NULL;
-  uint16_t length                                          = 0;
-  uint8_t queue_id                                         = 0;
-  uint16_t frame_type                                      = 0;
-  uint16_t frame_status                                    = 0;
+  sl_wifi_performance_profile_v2_t current_power_profile_mode = { 0 };
+  sli_si91x_queue_packet_t *node                              = NULL;
+  sl_wifi_buffer_t *packet                                    = NULL;
+  sl_wifi_buffer_t *buffer                                    = NULL;
+  sl_wifi_buffer_t *error_packet                              = NULL;
+  sli_si91x_queue_packet_t *error_node                        = NULL;
+  uint8_t *data                                               = NULL;
+  uint16_t length                                             = 0;
+  uint8_t queue_id                                            = 0;
+  uint16_t frame_type                                         = 0;
+  uint16_t frame_status                                       = 0;
 
   // Check if there is an RX packet pending or bus RX event is set
   if ((*event & SL_SI91X_NCP_HOST_BUS_RX_EVENT)
@@ -1327,7 +1327,6 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           sl_si91x_host_free_buffer(buffer);
 #endif
         } else if (frame_type == RSI_NET_DUAL_STACK_RX_RAW_DATA_FRAME) {
-
           // If network dual stack mode is enabled, process the received data frame of type 0x1 and free the buffer.
           sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
           sl_si91x_host_free_buffer(buffer);

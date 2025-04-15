@@ -253,12 +253,18 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
 
     if ((clk_src_val * 2) >= sampl_rate) {
       clk_div_fac = (uint16_t)(ceil((2 * clk_src_val) / sampl_rate));
+      if (clk_div_fac > 0x03FF) {
+        clk_div_fac = 0x03FF;
+      }
       // Configure the DAC division factor for required sampling rate
       RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
     }
     return clk_src_val;
   } else {
     clk_div_fac = (uint16_t)ceil((2 * system_clocks.ulpss_ref_clk) / sampl_rate);
+    if (clk_div_fac > 0x03FF) {
+      clk_div_fac = 0x03FF;
+    }
     // Configure the DAC division factor for required sampling rate
     RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
     return ((clk_div_fac * sampl_rate) / 2);
@@ -591,6 +597,9 @@ void RSI_DAC_PowerControl(POWER_STATE_DAC state)
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_AUX);
       if (analog_get_power_state() == 0) {
         // Select ULP Ref clock for ADC
+        if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+          RSI_ULPSS_RefClkConfig(ULPSS_40MHZ_CLK);
+        }
         RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
       }
       analog_set_power_state(DAC_BIT_POS, ANALOG_POWERED_ON);
@@ -798,6 +807,10 @@ void UDMA_DAC_Ping_Write(uint16_t num_of_samples, int16_t *input_buff, uint8_t p
                                 control,
                                 (uint32_t *)input_buff,
                                 (uint32_t *)(DAC_INPUT_REG_ADDR));
+
+  if (RSI_UDMA_ChannelIsEnabled(udmaHandle1, config.dmaCh) != RSI_OK) {
+    RSI_UDMA_ChannelEnable(udmaHandle1, config.dmaCh);
+  }
 }
 
 /*==============================================*/
@@ -844,6 +857,10 @@ void UDMA_DAC_Pong_Write(uint16_t num_of_samples, int16_t *input_buff, uint8_t p
                                 control,
                                 (uint32_t *)input_buff,
                                 (uint32_t *)(DAC_INPUT_REG_ADDR));
+
+  if (RSI_UDMA_ChannelIsEnabled(udmaHandle1, config.dmaCh) != RSI_OK) {
+    RSI_UDMA_ChannelEnable(udmaHandle1, config.dmaCh);
+  }
 }
 
 /*==============================================*/
@@ -887,8 +904,6 @@ void dac_udma_stop(void)
  */
 void dac_udma_start(void)
 {
-  RSI_UDMA_ChannelEnable(udmaHandle1, 10);
-
   RSI_UDMA_UDMAEnable(udmaHandle1);
 
   // uDMA NVIC enable

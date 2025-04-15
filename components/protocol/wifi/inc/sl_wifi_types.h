@@ -130,7 +130,7 @@ typedef struct {
  *   Pointer to a Wi-Fi buffer contains information related to the event, of type @ref sl_wifi_buffer_t
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
- *   and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * @note
  *   In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in the event.
  *   The data would be of type sl_status_t, and data_length can be ignored.
@@ -625,10 +625,25 @@ typedef struct {
  *
  * Specifies the Wi-Fi Listen interval in milliseconds.
  * The listen interval is the time interval between two consecutive Target Beacon Transmission (TBTT) events.
+ * Moving forward, this structure will be deprecated. Instead, use the [sl_wifi_listen_interval_v2_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-listen-interval-v2-t) structure. This is retained for backward compatibility.
  */
 typedef struct {
   uint32_t listen_interval; ///< Wi-Fi Listen interval in millisecs
 } sl_wifi_listen_interval_t;
+
+/**
+ * @struct sl_wifi_listen_interval_v2_t
+ * @brief Wi-Fi Listen interval structure.
+ *
+ * Specifies the Wi-Fi Listen interval in milliseconds and listen interval multiplier.
+ * The listen interval is the time interval between two consecutive Target Beacon Transmission (TBTT) events.
+ * The listen interval is multiplied with listen interval multiplier and advertised in the assoc request.
+ */
+typedef struct {
+  uint32_t listen_interval; ///< Wi-Fi Listen interval in millisecs
+  uint32_t
+    listen_interval_multiplier; ///< Multiply listen interval by configured value in assoc req. Default value is 1. Recommended max value is 10. Higher value may cause interop issues.
+} sl_wifi_listen_interval_v2_t;
 
 /**
  * @struct sl_wifi_client_info_t
@@ -676,6 +691,209 @@ typedef struct {
   uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1 to 31 dBm
   uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1 to 31 dBm
 } sl_wifi_max_tx_power_t;
+
+/**
+ * @struct sl_wifi_async_stats_response_t
+ * @brief Structure representing asynchronous Wi-Fi statistics response.
+ *
+ * This structure contains various statistics related to Wi-Fi operations,
+ * such as transmitted packets, retries, CRC checks, and more.
+ */
+typedef struct {
+  uint16_t tx_pkts;                           ///< Number of transmitted packets
+  uint8_t reserved_1[2];                      ///< Reserved fields
+  uint16_t tx_retries;                        ///< Number of transmission retries
+  uint16_t crc_pass;                          ///< Number of packets that passed CRC check
+  uint16_t crc_fail;                          ///< Number of packets that failed CRC check
+  uint16_t cca_stk;                           ///< Number of times CCA got stuck
+  uint16_t cca_not_stk;                       ///< Number of times CCA didn't get stuck
+  uint16_t pkt_abort;                         ///< Number of packet aborts
+  uint16_t fls_rx_start;                      ///< Number of false RX starts
+  uint16_t cca_idle;                          ///< CCA idle time
+  uint8_t reserved_2[26];                     ///< Reserved fields
+  uint16_t rx_retries;                        ///< Number of reception retries
+  uint8_t reserved_3[2];                      ///< Reserved fields
+  uint16_t cal_rssi;                          ///< Calibrated RSSI
+  uint8_t reserved_4[4];                      ///< Reserved fields
+  uint16_t xretries;                          ///< Number of transmitted packets dropped after maximum retries
+  uint16_t max_cons_pkts_dropped;             ///< Maximum consecutive packets dropped
+  uint8_t reserved_5[2];                      ///< Reserved fields
+  uint16_t bss_broadcast_pkts;                ///< BSSID matched broadcast packets count
+  uint16_t bss_multicast_pkts;                ///< BSSID matched multicast packets count
+  uint16_t bss_filter_matched_multicast_pkts; ///< BSSID & multicast filter matched packets count
+} sl_wifi_async_stats_response_t;
+
+/**
+ * @struct sl_wifi_rx_stats_request_t
+ * @brief Structure representing the request for RX statistics in Wi-Fi.
+ *
+ * This structure contains parameters to start or stop the collection of RX statistics
+ * and the channel number on which the statistics are to be collected.
+ */
+typedef struct {
+  /// 0 - start, 1 - stop
+  uint8_t start[2];
+
+  /// channel number
+  uint8_t channel[2];
+} sl_wifi_rx_stats_request_t;
+
+/**
+ * @struct sl_wifi_transmitter_test_info_t
+ * @brief Structure representing the configuration for a Wi-Fi TX test.
+ *
+ * This structure contains various parameters for configuring a Wi-Fi TX test,
+ * such as enabling the test, setting the power, rate, length, mode, and other
+ * related settings.
+ */
+typedef struct {
+  uint16_t enable; ///< Enable/disable TX test mode
+  uint16_t power;  ///< TX power in dBm.  Range : 2 - 18 dBm.
+                   ///<
+  ///< @note 1. User can configure the maximum power level allowed for the given frequncey in the configured region by providing 127 as power level.
+  ///< @note 2. User should configure a minimum delay (approx. 10 milliseconds) before and after \ref sl_wifi_transmit_test_start API to observe a stable output at requested dBm level.
+  uint32_t rate;   ///< Transmit data rate
+                   ///<     ### Data Rates ###
+                   ///<          Data rate(Mbps) |   Value of rate
+                   ///<          :--------------:|:-------------------:
+                   ///<          1                   |   0
+                   ///<          2                   |   2
+                   ///<          5.5               | 4
+                   ///<          11                | 6
+                   ///<          6                   |   139
+                   ///<          9                   |   143
+                   ///<          12                | 138
+                   ///<          18                | 142
+                   ///<          24                | 137
+                   ///<          36                | 141
+                   ///<          48                | 136
+                   ///<          54                | 140
+                   ///<          MCS0                |   256
+                   ///<          MCS1                |   257
+                   ///<          MCS2                |   258
+                   ///<          MCS3                |   259
+                   ///<          MCS4                |   260
+                   ///<          MCS5                |   261
+                   ///<          MCS6                |   262
+                   ///<          MCS7                |   263
+  uint16_t length; ///< TX packet length. Range: [24 - 1500] bytes in Burst mode and [24 - 260] bytes in Continuous mode
+  uint16_t mode;   ///< TX test mode mode.
+                   ///<
+                   ///< 0 - Burst Mode.
+                   ///<
+                   ///< 1 - Continuous Mode.
+                   ///<
+                   ///< 2 - Continuous wave Mode (non modulation) in DC mode.
+                   ///<
+                   ///< 3 - Continuous wave Mode (non modulation) in single tone mode (center frequency -2.5 MHz).
+                   ///<
+                   ///< 4 - Continuous wave Mode (non modulation) in single tone mode (center frequency +5 MHz).
+                   ///<
+  ///< `Burst mode`: DUT transmits a burst of packets with the given power, rate, length in the channel configured.
+  ///<               The burst size will be determined by the number of packets and if its zero, then DUT keeps transmitting till a @ref sl_wifi_transmit_test_stop API is called.
+  ///<
+  ///< `Continuous Mode`: The DUT transmits a unmodulated waveform continuously
+  ///<
+  ///< `Continuous Wave Mode (Non-Modulation) in DC Mode`: The DUT transmits a spectrum only at the center frequency of the channel.
+  ///<                                                   A basic signal with no modulation is that of a sine wave and is usually referred to as a continuous wave (CW) signal.
+  ///<                                                   A basic signal source produces sine waves. Ideally, the sine wave is perfect. In the frequency domain, it is viewed as a single line at some specified frequency.
+  ///<
+  ///<  `Continuous Wave Mode (Non-Modulation) in single tone Mode (Center frequency -2.5 MHz)`: The DUT transmits a spectrum that is generated at -2.5MHz from the center frequency of the channel selected.
+  ///<                                                                                        Some amount of carrier leakage will be seen at Center Frequency. For example, for 2412 MHz, the output would be seen at 2409.5 MHz.
+  ///<
+  ///<  `Continuous Wave Mode (Non-Modulation) in single tone Mode (Center frequency +5 MHz)`: The DUT transmits a spectrum that is generated at 5MHz from the center frequency of the channel selected.
+  ///<                                                                                      Some amount of carrier leakage will be seen at Center Frequency. For example, for 2412MHz, the output would be seen at 2417 MHz.
+  uint16_t channel; ///< Channel number in 2.4 GHZ / 5 GHZ.
+    ///<         ###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
+    ///<         Channel numbers (2.4GHz)|   Center frequencies for 20 MHz channel width
+    ///<         :----------------------:|:-----------------------------------------------:
+    ///<         1           |   2412
+    ///<         2           |   2417
+    ///<         3           |   2422
+    ///<         4           |   2427
+    ///<         5           |   2432
+    ///<         6           |   2437
+    ///<         7           |   2442
+    ///<         8           |   2447
+    ///<         9           |   2452
+    ///<         10          |   2457
+    ///<         11          |   2462
+    ///<         12          |   2467
+    ///<         13          |   2472
+    ///< @note   To start transmit test in 12,13 channels, configure set region parameters in  sl_si91x_set_device_region
+    ///<    ###  The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
+    ///<         Channel Numbers(5GHz) | Center frequencies for 20MHz channel width
+    ///<         :--------------------:|:------------------------------------------:
+    ///<     36            |5180
+    ///<     40            |5200
+    ///<     44            |5220
+    ///<     48            |5240
+    ///<     52            |5260
+    ///<     56          |5280
+    ///<     60            |5300
+    ///<     64            |5320
+    ///<     149           |5745
+    ///<     153           |5765
+    ///<     157           |5785
+    ///<     161           |5805
+    ///<     165           |5825
+  uint16_t rate_flags; ///< Rate flags
+    ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
+  uint16_t channel_bw;  ///< Channel Bandwidth
+  uint16_t aggr_enable; ///< tx test mode aggr_enable
+  uint16_t reserved;    ///< Reserved
+  uint16_t no_of_pkts;  ///< Number of packets
+  uint32_t delay;       ///< Delay
+#if defined(SLI_SI917) || defined(DOXYGEN) || defined(SLI_SI915)
+  uint8_t enable_11ax; ///< 11AX_ENABLE 0-disable, 1-enable
+  uint8_t coding_type; ///< Coding_type 0-BCC 1-LDPC
+  uint8_t nominal_pe;  ///< Indicates Nominal T-PE value. 0-0Us 1-8Us 2-16Us
+  uint8_t
+    ul_dl; ///< Indicates whether the PPDU is UL/DL. Set it to 1 if PPDU is to be sent by station to AP; 0 if PPDU is to be sent by AP to station.
+  uint8_t he_ppdu_type; ///< he_ppdu_type 0-HE SU PPDU, 1-HE ER SU PPDU, 2-HE TB PPDU, 3-HE MU PPDU
+  uint8_t
+    beam_change; ///< Indicates the spatial mapping of pre-HE and HE fields. Enter 0 for pre-HE and HE fields are spatially mapped in the same way and 1 for pre-HE and HE fields are spatially mapped differently.
+  uint8_t bw;    ///< Indicates the BW for the PPDU: 0 for 242-tone RU, 1 for upper 106-tone RU.
+  uint8_t
+    stbc; ///< Indicates whether STBC is used for PPDU transmission. Set to 0 for no STBC and 1 for STBC (only if DCM field is set to 0).
+  uint8_t
+    tx_bf; ///< Indicates whether beamforming matrix is applied to the transmission. 0 - no beamforming matrix, 1 - beamforming matrix.
+  uint8_t gi_ltf;        ///< Indicates the GI and LTF size. GI_LTF shall be in the range 0-3
+  uint8_t dcm;           ///< Indicates whether DCM is applied to Data Symbols. 0 - No DCM, 1 - DCM.
+  uint8_t nsts_midamble; ///< Indicates the NSTS and Midamble Periodicity. NSTS_MIDAMBLE shall be in the range 0-7
+  uint8_t
+    spatial_reuse; ///< spatial_reuse shall be in the range 0-15. 4 indicates that spatial reuse is allowed during the transmission of PPDU.
+  uint8_t bss_color;              ///< Color value of BSS. Must be in the range 0 to 63
+  uint16_t he_siga2_reserved;     ///< HE_SIGA2_RESERVED shall be in the range 0-511
+  uint8_t ru_allocation;          ///< Indicates the RU Allocation Subfield for 20MHz BW. Must be in the range 0-255.
+  uint8_t n_heltf_tot;            ///< Indicates the number of HE-LTF to be transmitted. Can be in the range 0-7.
+  uint8_t sigb_dcm;               ///< Indicates whether DCM is applied to SIG-B Symbols. 0-disable, 1-enable
+  uint8_t sigb_mcs;               ///< Indicates the MCS for SIG-B Symbols. Allowed range is 0-5.
+  uint16_t user_sta_id;           ///< Indicates the Station ID of the intended user. Allowed range is 0-2047.
+  uint8_t user_idx;               ///< USER_IDX shall be in the range 0-8
+  uint8_t sigb_compression_field; ///< SIGB_COMPRESSION_FIELD shall be 0/1
+#endif
+} sl_wifi_transmitter_test_info_t;
+
+/**
+ * @struct sl_wifi_freq_offset_t
+ * @brief Structure representing the frequency offset for Wi-Fi.
+ *
+ * This structure contains the frequency offset value in kHz.
+ */
+typedef struct {
+  int32_t frequency_offset_in_khz; ///< Frequency offset in KHZ
+} sl_wifi_freq_offset_t;
+
+/**
+ * @struct sl_wifi_dpd_calib_data_t
+ * @brief Structure representing the DPD (Digital Pre-Distortion) calibration data for Wi-Fi.
+ *
+ * This structure contains the DPD power index provided by the user.
+ */
+typedef struct {
+  int8_t dpd_power_index; ///< Dpd power index given by the user
+} sl_wifi_dpd_calib_data_t;
 
 /**
  * @struct sl_wifi_multicast_filter_info_t

@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="ASCII"?>
 
 <model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
+<descriptors name="at_commands_soc" label="AT Commands (SoC)" description="The AT commands application is a command-line interface (CLI) application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/at_commands/at_commands_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/at_commands/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
 <descriptors name="attestation" label="Crypto - Attestation" description="Demonstrates device attestation">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -449,6 +464,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/ble/ble_ibeacon/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="ble_iop_test_soc" label="BLE - Interoperability Testing Application (SoC)" description="BLE Interoperability Test">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/ble_iop_test/ble_iop_test_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q brd2708a brd2911a brd4344a brd4344b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/ble/ble_iop_test/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="ble_longrange_2mbps_ncp" label="BLE - Long Range (NCP)" description="This application demonstrates how to configure/connects BLE device as Central and can be used to update the PHY rates.">
@@ -1576,6 +1606,21 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_calendar/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
+<descriptors name="sl_si91x_code_classifier_demo" label="SL Si91x - Code Classifier Demo" description="Demonstrates how to to use Code Classifiers">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_code_classifier_demo/sl_si91x_code_classifier_demo.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4339a brd4340a brd4342a brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_code_classifier_demo/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
 <descriptors name="sl_si91x_combo_app" label="SL Si91x - Combo Application" description="Demonstrates how to use RTOS based combo application.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1926,7 +1971,7 @@
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_i2s_loopback/sl_si91x_i2s_loopback.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="quality" value="production"/>
@@ -2114,6 +2159,51 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_nvm3_common_flash/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_pcm_loopback" label="SL Si91x - PCM Loopback" description="Demonstrates how to use the I2S PCM loopback on the Si91x SoC device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_pcm_loopback/sl_si91x_pcm_loopback.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_pcm_loopback/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_pcm_primary" label="SL Si91x - PCM Primary" description="Demonstrates how to use the I2S PCM Primary on the Si91x SoC device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_pcm_primary/sl_si91x_pcm_primary.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_pcm_primary/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_pcm_secondary" label="SL Si91x - PCM Secondary" description="Demonstrates how to use the I2S PCM Secondary on the Si91x SoC device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_pcm_secondary/sl_si91x_pcm_secondary.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y111xgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y111xgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_pcm_secondary/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_power_manager_m4_wireless" label="SL Si91x - Power Manager M4 Wireless" description="Demonstrates how to Power Manager Service.">
@@ -3060,6 +3150,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/calibration_app/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_commander_soc" label="Wi-Fi - Commander (SoC)" description="Wi-Fi Commander application">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/demos/wifi_commander/wifi_commander_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/demos/wifi_commander/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_concurrent_firmware_update_from_host_uart_fg25_ncp" label="Wi-Fi - Concurrent Firmware Update From Host UART (NCP)" description="Updating firmware on the Si91x Device from the Host MCU UART Peripheral">
     <properties key="namespace" value="template.uc"/>
@@ -4680,6 +4785,96 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wireless_test/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wlan_ble_unified_ae_coex_app_ncp" label="Wi-Fi Coex - Unified AE Coex App with Wifi (NCP)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral) with coex.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wlan_ble_unified_ae_coex_app/wlan_ble_unified_ae_coex_app_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wlan_ble_unified_ae_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="wlan_ble_unified_ae_coex_app_psram" label="Wi-Fi Coex - Unified AE Coex App with Wifi (PSRAM)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral) with coex.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wlan_ble_unified_ae_coex_app/wlan_ble_unified_ae_coex_app_psram.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wlan_ble_unified_ae_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="wlan_ble_unified_ae_coex_app_soc" label="Wi-Fi Coex - Unified AE Coex App with Wifi (SoC)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral) with coex.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wlan_ble_unified_ae_coex_app/wlan_ble_unified_ae_coex_app_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4338a brd4342a brd4340a brd4339b brd4343a brd4343b brd4343q brd2708a brd2911a brd4344a brd4344b"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wlan_ble_unified_ae_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\  Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="wlan_ble_unified_coex_app_ncp" label="Wi-Fi Coex - Unified Coex App with Wifi (NCP)" description="Bluetooth Low energy supporting 8Central/2Peripheral connections with Coex.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wlan_ble_unified_coex_app/wlan_ble_unified_coex_app_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wlan_ble_unified_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="wlan_ble_unified_coex_app_psram" label="Wi-Fi Coex - Unified Coex App with Wifi (PSRAM)" description="Bluetooth Low energy supporting 8Central/2Peripheral connections with Coex.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wlan_ble_unified_coex_app/wlan_ble_unified_coex_app_psram.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4340a brd4342a brd4339a brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wlan_ble_unified_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="wlan_ble_unified_coex_app_soc" label="Wi-Fi Coex - Unified Coex App with Wifi (SoC)" description="Bluetooth Low energy supporting 8Central/2Peripheral connections with Coex.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wlan_ble_unified_coex_app/wlan_ble_unified_coex_app_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4338a brd4342a brd4340a brd4339b brd4343a brd4343b brd4343q brd2708a brd2911a brd4344a brd4344b"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan_ble/wlan_ble_unified_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\  Difficulty|Advanced"/>
   </descriptors>
 <descriptors name="wlan_rf_test_ncp" label="Wi-Fi - Wlan RF Test (NCP)" description="Configure the SiWx91x to transmit Wi-Fi packets at varying data rates and power levels">
     <properties key="namespace" value="template.uc"/>

@@ -77,7 +77,7 @@
 typedef bool (*sli_si91x_wifi_buffer_comparator)(const sl_wifi_buffer_t *buffer, const void *userdata);
 
 typedef struct {
-  sl_wifi_performance_profile_t wifi_performance_profile;
+  sl_wifi_performance_profile_v2_t wifi_performance_profile;
   sl_bt_performance_profile_t bt_performance_profile;
   sl_si91x_coex_mode_t coex_mode;
 } sli_si91x_performance_profile_t;
@@ -163,10 +163,10 @@ sl_wifi_max_tx_power_t get_max_tx_power();
 void reset_max_tx_power();
 
 /* Function used to set the current performance profile */
-void save_wifi_current_performance_profile(const sl_wifi_performance_profile_t *profile);
+void save_wifi_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile);
 
 /* Function used to get current wifi performance profile */
-void get_wifi_current_performance_profile(sl_wifi_performance_profile_t *profile);
+void get_wifi_current_performance_profile(sl_wifi_performance_profile_v2_t *profile);
 
 /* Function used to set the bluetooth performance profile */
 void save_bt_current_performance_profile(const sl_bt_performance_profile_t *profile);
@@ -204,7 +204,7 @@ sl_status_t convert_sl_wifi_to_sl_si91x_encryption(sl_wifi_encryption_t encrypti
  *   For all the threads at this index of the thread local array firmware status will be stored.
  *
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  ******************************************************************************/
 sl_status_t sli_fw_status_storage_index_init(void);
 
@@ -283,7 +283,7 @@ uint32_t sli_si91x_wait_for_event(uint32_t event_mask, uint32_t timeout);
 uint32_t sli_si91x_clear_event(uint32_t event_mask);
 
 /* Function to send the requested Wi-Fi and BT/BLE performance profile to firmware */
-sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_t *wifi_profile,
+sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_v2_t *wifi_profile,
                                               const sl_bt_performance_profile_t *bt_profile);
 
 sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration_t *config);

@@ -102,8 +102,8 @@ typedef enum {
  *          is currently not supported in the driver.
  ******************************************************************************/
 typedef enum {
-  SL_I2S_PROTOCOL = ARM_SAI_PROTOCOL_I2S, ///< I2S protocol.
-  SL_PCM_PROTOCOL = 0                     ///< PCM protocol, currently not supported in the driver.
+  SL_I2S_PROTOCOL = ARM_SAI_PROTOCOL_I2S,      ///< I2S protocol.
+  SL_PCM_PROTOCOL = ARM_SAI_PROTOCOL_PCM_SHORT ///< PCM protocol.
 } sl_sai_protocol_t;
 
 /***************************************************************************/

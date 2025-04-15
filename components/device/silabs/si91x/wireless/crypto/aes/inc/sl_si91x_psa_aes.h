@@ -25,8 +25,8 @@
 #include "sl_si91x_aes.h"
 
 typedef struct {
-  psa_algorithm_t alg;                        //!< Algorithm to be used for the operation
-  sl_si91x_psa_aes_multipart_config_t config; //!< Configuration for the operation
+  psa_algorithm_t alg;                         //!< Algorithm to be used for the operation
+  sli_si91x_psa_aes_multipart_config_t config; //!< Configuration for the operation
 } sli_si91x_crypto_cipher_operation_t;
 
 /** Encrypt a message using a AES cipher.

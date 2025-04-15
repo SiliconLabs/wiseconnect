@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 #include <sl_si91x_si70xx.h>
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************   Defines / Macros   ******************************
@@ -46,16 +47,6 @@ static float si70xx_get_celcius_temperature(int32_t temp_data);
 static float si70xx_get_percent_relative_humidity(uint32_t rh_data);
 static void wait_till_i2c_gets_idle(sl_i2c_instance_t i2c_instance);
 static void *si70xx_get_i2c_base_address(sl_i2c_instance_t i2c_instance);
-
-/*******************************************************************************
- * Delay function for 1ms
- ******************************************************************************/
-static void delay(uint32_t idelay)
-{
-  for (uint32_t x = 0; x < 4600 * idelay; x++) {
-    __NOP();
-  }
-}
 
 /*******************************************************************************
  * Initializes the Si70xx - RHT sensor by reading electronic ID 1st byte (or)
@@ -145,7 +136,7 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
   }
   wait_till_i2c_gets_idle(i2c_instance);
   // Adding delay as No-Hold sensor command requires some time to respond to the command sent.
-  delay(20);
+  sl_si91x_delay_ms(20);
   // Receive no hold master mode response from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, RX_LEN);
   if (status != SL_STATUS_OK) {

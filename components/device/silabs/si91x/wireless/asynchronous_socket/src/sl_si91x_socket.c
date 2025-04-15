@@ -423,10 +423,17 @@ int sl_si91x_sendto_async(int socket,
     const struct sockaddr_in6 *socket_address = (const struct sockaddr_in6 *)to_addr;
     request.ip_version                        = SL_IPV6_ADDRESS_LENGTH;
     request.data_offset = (si91x_socket->type == SOCK_STREAM) ? TCP_V6_HEADER_LENGTH : UDP_V6_HEADER_LENGTH;
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+    const uint8_t *destination_ip =
+      (si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len >= sizeof(struct sockaddr_in6))
+        ? socket_address->sin6_addr.un.u8_addr
+        : si91x_socket->remote_address.sin6_addr.un.u8_addr;
+#else
     const uint8_t *destination_ip =
       (si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len >= sizeof(struct sockaddr_in6))
         ? socket_address->sin6_addr.__u6_addr.__u6_addr8
         : si91x_socket->remote_address.sin6_addr.__u6_addr.__u6_addr8;
+#endif
 
     memcpy(&request.dest_ip_addr.ipv6_address[0], destination_ip, SL_IPV6_ADDRESS_LENGTH);
   } else {
@@ -566,9 +573,13 @@ int sl_si91x_recvfrom(int socket,
 
       ipv6_socket_address->sin6_port   = response->dest_port;
       ipv6_socket_address->sin6_family = AF_INET;
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+      memcpy(&ipv6_socket_address->sin6_addr.un.u8_addr, response->dest_ip_addr.ipv6_address, SL_IPV6_ADDRESS_LENGTH);
+#else
       memcpy(&ipv6_socket_address->sin6_addr.__u6_addr.__u6_addr8,
              response->dest_ip_addr.ipv6_address,
              SL_IPV6_ADDRESS_LENGTH);
+#endif
 
       *addr_len = sizeof(struct sockaddr_in6);
     } else {

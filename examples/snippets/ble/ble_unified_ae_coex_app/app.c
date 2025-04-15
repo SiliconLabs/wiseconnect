@@ -96,7 +96,7 @@ int32_t rsi_ble_dual_role(void);
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 #endif
 
 static const sl_wifi_device_configuration_t
@@ -1393,7 +1393,7 @@ void rsi_ble_main_app_task(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return;

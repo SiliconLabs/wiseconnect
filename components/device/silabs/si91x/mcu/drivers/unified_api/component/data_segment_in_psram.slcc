@@ -9,7 +9,7 @@ metadata:
   sbom:
     license: MSLA
 define:
-  - name: NO_DATA_SEGMENT_IN_PSRAM
+  - name: DATA_SEGMENT_IN_PSRAM
 provides:
   - name: data_segment_in_psram
 requires:

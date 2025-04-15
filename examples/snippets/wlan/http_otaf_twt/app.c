@@ -349,7 +349,7 @@ sl_status_t http_otaf_app()
   sl_status_t status = SL_STATUS_OK;
   uint8_t flags      = FLAGS;
   char server_ip[16];
-  sl_wifi_performance_profile_t performance_profile;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
 
 #if (FW_UPDATE_TYPE == TA_FW_UPDATE)
   sl_wifi_firmware_version_t version = { 0 };
@@ -418,7 +418,7 @@ sl_status_t http_otaf_app()
 
   if (power_save_enabled == 1) {
     performance_profile.profile = HIGH_PERFORMANCE;
-    status                      = sl_wifi_set_performance_profile(&performance_profile);
+    status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
     if (status != SL_STATUS_OK) {
       printf("\r\nPowersave Disabling Failed, Error Code : 0x%lX\r\n", status);
       return status;
@@ -501,8 +501,8 @@ sl_status_t http_otaf_app()
 
 sl_status_t set_twt(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  sl_status_t status                                = SL_STATUS_OK;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  sl_status_t status                                   = SL_STATUS_OK;
 
   //! Set TWT Config
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
@@ -524,7 +524,7 @@ sl_status_t set_twt(void)
 
   //! Apply power save profile
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-  status                      = sl_wifi_set_performance_profile(&performance_profile);
+  status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
     return status;

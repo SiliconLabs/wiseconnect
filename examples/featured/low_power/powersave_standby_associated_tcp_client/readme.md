@@ -117,9 +117,9 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
       ```
 - To send the TCP data, change the `SEND_TCP_DATA` to `1`.
 
- - The user can configure the monitor interval through sl_wifi_set_performance_profile() API. The default interval is set to 50 
+ - The user can configure the monitor interval through sl_wifi_set_performance_profile_v2() API. The default interval is set to 50 
    millisecs if the montior_interval is set to 0. This is only valid when the performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
- - The user can configure the listen interval through sl_wifi_set_listen_interval() API. The default interval is set to 1 
+ - The user can configure the listen interval through sl_wifi_set_listen_interval_v2() API. The default interval is set to 1 
    millisec.
 
 ## Test the Application

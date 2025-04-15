@@ -63,6 +63,11 @@ void console_print_command_args(const console_descriptive_command_t *command);
 char *console_get_command_buffer(void);
 uint32_t console_read_data_from_cache(char *buffer, uint32_t buffer_size);
 
+#ifdef SLI_AT_COMMAND_SUPPORT
+sl_status_t console_process_at_command_buffer(const console_database_t *command_database,
+                                              console_args_t *args,
+                                              const console_descriptive_command_t **command);
+#endif
 #ifdef __cplusplus
 } /*extern "C" */
 #endif

@@ -104,3 +104,21 @@ Increased gain values as per mentioned above.
   | **Module**| **v3.4.2**                                       | **v3.5.0**                                           |
   |-----------|--------------------------------------------------|------------------------------------------------------|
   | Wi-Fi     | `SL_SI91X_TCP_IP_FEAT_POP3_CLIENT`               | `SL_SI91X_TCP_IP_FEAT_DTLS_THREE_SOCKETS`            |
+
+
+### Deprecated Structures/API's
+
+**Note:** The following elements are applicable to both NCP and SoC modes.
+
+- Deprecated few APIs and Structures.
+  > **Note**: Starting from WC-3.5.0, It is recommended to use the v2 versions of APIs/Structures to ensure compatibility with future releases.
+
+  | **Module**| **v3.4.2**                                       | **v3.5.0**                                           |
+  |-----------|--------------------------------------------------|------------------------------------------------------|
+  | Wi-Fi     | `sl_wifi_performance_profile_t`                  | `sl_wifi_performance_profile_v2_t`                   |
+  | Wi-Fi     | `sl_wifi_listen_interval_t`                      | `sl_wifi_listen_interval_v2_t`                       |
+  | Wi-Fi     | `sl_wifi_set_performance_profile`                | `sl_wifi_set_performance_profile_v2`                 |
+  | Wi-Fi     | `sl_wifi_get_performance_profile`                | `sl_wifi_get_performance_profile_v2`                 |
+  | Wi-Fi     | `sl_wifi_set_listen_interval`                    | `sl_wifi_set_listen_interval_v2`                     |
+  | Wi-Fi     | `sl_wifi_get_listen_interval`                    | `sl_wifi_get_listen_interval_v2`                     |
+  | Wi-Fi     | `sl_si91x_set_listen_interval`                   | `sl_wifi_set_listen_interval_v2`                     |

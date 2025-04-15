@@ -41,10 +41,9 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 After M4 processor wakes up via any of the above processes, the application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic.
 
-If macro **SL_SI91X_TICKLESS_MODE** is disabled, then M4 processor does not go to sleep. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic in the following cases:
+If the **SL_SI91X_TICKLESS_MODE** macro is disabled, for alarm-based wakeup, the PM (Power Manager) wakeup source uses the calendar wakeup to trigger the alarm. By default, the alarm is set to trigger after 30 seconds. Users can modify this setting as needed by adjusting the calendar wakeup configuration in the PM (Power Manager) wakeup source.
 
-1. Once in every **PUBLISH_PERIODICITY** time period.
-2. When an incoming publish is received by the application.
+![PM Wakeup Source Configuration](resources/readme/pm_wakeup_configuration.png)
 
 **NCP Mode**:
 

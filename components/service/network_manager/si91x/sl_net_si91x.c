@@ -113,7 +113,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   }
 
   // Connect to the Wi-Fi network
-  status = sl_wifi_connect(client_interface, &profile.config, 18000);
+  status = sl_wifi_connect(client_interface, &profile.config, 25000);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Configure the IP address settings

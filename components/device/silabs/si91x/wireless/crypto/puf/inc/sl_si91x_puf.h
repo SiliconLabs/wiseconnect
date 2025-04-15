@@ -99,7 +99,7 @@ typedef enum {
  *   ```
  *
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *  This function needs to be called after every power-up and reset.
@@ -119,7 +119,7 @@ sl_status_t sl_si91x_puf_start_req(void);
  * @param[out] key_code_ptr Pointer to key code with size of 52 bytes.
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *  This operation needs to be done only once for each user key.
@@ -133,7 +133,7 @@ sl_status_t sl_si91x_puf_set_key_req(uint8_t key_index,
  * @brief Blocks further set key operation on PUF.
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  */
 sl_status_t sl_si91x_puf_set_key_disable_req(void);
 
@@ -151,7 +151,7 @@ sl_status_t sl_si91x_puf_set_key_disable_req(void);
  *  To retrieve the `key_ptr` (UK), user must set the `key_index` in @ref sl_si91x_puf_set_key_req to a value between 1 and 15 (inclusive).
  *  
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *  This operation needs to be done every time a key is needed.
@@ -162,7 +162,7 @@ sl_status_t sl_si91x_puf_get_key_req(const uint8_t *key_code_ptr, uint8_t *key_p
  * @brief Disables further key retrieval operations on PUF.
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  */
 sl_status_t sl_si91x_puf_get_key_disable_req(void);
 
@@ -179,7 +179,7 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void);
  *  indicating that only the Master Key can be loaded into the AES engine.
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *  This operation needs to be done for different keys to be loaded into AES engine.
@@ -198,7 +198,7 @@ sl_status_t sl_si91x_puf_load_key_req(const uint8_t *key_code_ptr);
  * @param[out] intr_key_resp Pointer to response
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note 
  *  Intrinsic keys are randomly generated. They cannot be used for cryptographic algorithms that require specific keys, which is typical for public key schemes like RSA. In such cases, user keys should be used.
@@ -222,7 +222,7 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
  * @param[out] aes_encry_resp Pointer to response
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  */
 sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
                                          uint8_t key_source,
@@ -251,7 +251,7 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
  * @param[out] aes_decry_resp Pointer to response
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  */
 sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
                                          uint8_t key_source,
@@ -280,7 +280,7 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
  * @param[out] aes_mac_resp Pointer to response
  * 
  * @return 
- *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *  sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  */
 sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
                                      uint16_t key_size,

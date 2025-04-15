@@ -113,7 +113,9 @@ sl_status_t sl_si91x_bod_set_threshold(float vbatt_threshold)
   if (vbatt_threshold < SL_BOD_MIN_THRESHOLD || vbatt_threshold > SL_BOD_MAX_THRESHOLD) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-
+  // Enable the BOD comparator
+  BOD->BOD_COMP_SEL_REG |= SL_BOD_ENABLE_SIGNAL; // A Dummy write is required,it's due to write buffer latency
+  BOD->BOD_COMP_SEL_REG_b.CMP_5_EN = ENABLE;
   // Check if BOD is enabled
   if (BOD->BOD_COMP_SEL_REG_b.CMP_5_EN == ENABLE) {
     // Calculate the threshold value
@@ -139,8 +141,8 @@ sl_status_t sl_si91x_bod_set_threshold(float vbatt_threshold)
     }
 
     // Set the BOD threshold value
-    BOD->BOD_COMP_SEL_REG_b.BATT_SCALE_FACTOR = threshold_i;
-    BOD->BOD_TEST_PG_VBATT_STATUS_REG_b.BROWN_OUT_INTERRUPT_THRESHOLD &= ~(0x3E00);
+    BOD->BOD_COMP_SEL_REG &= (uint32_t)(~0x7E);
+    BOD->BOD_COMP_SEL_REG |= (threshold_i << 1);
   } else {
     return SL_STATUS_BOD_THRESHOLD_CONFIG_FAIL;
   }
@@ -156,10 +158,14 @@ sl_status_t sl_si91x_bod_config_slot_value(uint16_t slot_value)
   if (BOD->BOD_COMP_SEL_REG_b.CMP_5_EN == DISABLE) {
     return SL_STATUS_NOT_INITIALIZED; // Return not initialized status
   }
+  // Enable the BOD comparator
+  BOD->BOD_COMP_SEL_REG_b.CMP_5_EN = ENABLE;
   // Validate slot value range
-  if ((slot_value < SL_BOD_SLOT_MIN_VALUE) || (slot_value >= SL_BOD_SLOT_MAX_VALUE)) {
+  if (slot_value < SL_BOD_SLOT_MIN_VALUE) {
     return SL_STATUS_INVALID_PARAMETER; // Return invalid parameter status
   }
+  // Configure the BOD Slot value
+  BOD->BOD_COMP_MODE_REG_b.CMP_SLOT_VALUE = SL_ZERO_VAL;
   // Configure the BOD Slot value
   BOD->BOD_COMP_MODE_REG_b.CMP_SLOT_VALUE = slot_value;
   // Check if the slot value is configured correctly
@@ -466,7 +472,8 @@ sl_status_t sl_si91x_bod_set_mode(sl_bod_mode_t mode)
   if (mode >= SL_BOD_MAX_MODE_VALUE) {
     return SL_STATUS_INVALID_PARAMETER; // Return invalid parameter status
   }
-
+  // Enable the BOD comparator
+  BOD->BOD_COMP_SEL_REG_b.CMP_5_EN = ENABLE;
   // Wait for the synchronization reset to complete
   while (!(BOD->BOD_BUTTON_REG_b.SYNC_RESET_READ)) {
   }
@@ -560,7 +567,7 @@ void NPSS_TO_MCU_BUTTON_IRQHandler(void)
 void sl_si91x_bod_enable_blackout_in_sleep_mode(void)
 {
   // Enable low power mode for SCDCDC in sleep mode
-  MCU_FSM->MCU_FSM_PMU_STATUS_REG |= BIT(0);
+  MCU_FSM->MCU_FSM_PMU_STATUS_REG |= SL_SCDC_IN_LP_MODE_EN;
   // Enable background PMU sleep mode
   MCU_FSM->MCU_FSM_PMU_STATUS_REG_b.BGPMU_SLEEP_EN_R_b = DISABLE;
 }
@@ -571,7 +578,7 @@ void sl_si91x_bod_enable_blackout_in_sleep_mode(void)
 void sl_si91x_bod_disable_blackout_in_sleep_mode(void)
 {
   // Disable low power mode for SCDCDC in sleep mode
-  MCU_FSM->MCU_FSM_PMU_STATUS_REG &= ~BIT(0);
+  MCU_FSM->MCU_FSM_PMU_STATUS_REG &= ~(SL_SCDC_IN_LP_MODE_EN);
   // Disable background PMU sleep mode
   MCU_FSM->MCU_FSM_PMU_STATUS_REG_b.BGPMU_SLEEP_EN_R_b = DISABLE;
 }

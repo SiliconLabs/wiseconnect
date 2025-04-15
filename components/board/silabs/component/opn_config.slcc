@@ -351,3 +351,21 @@
       instance: ulp_i2s
     path: common_config_opn/sl_si91x_i2s_init_ulp_i2s_config.h
     unless: [rsilib_board]
+  - override:
+      component: "%extension-wiseconnect3_sdk%pcm_instance"
+      file_id: pcm_config
+      instance: pcm0
+    path: common_config_opn/sl_si91x_pcm_init_pcm0_config.h
+    unless: [si917_dev_board, sl_si91x_mic, rsilib_board]
+  - override:
+      component: "%extension-wiseconnect3_sdk%pcm_instance"
+      file_id: pcm_config
+      instance: pcm0
+    path: common_config_opn/sl_mic_config/sl_si91x_pcm_init_pcm0_config.h
+    unless: [sl_si91x_mic, rsilib_board]
+  - override:
+      component: "%extension-wiseconnect3_sdk%pcm_instance"
+      file_id: pcm_config
+      instance: ulp_pcm
+    path: common_config_opn/sl_si91x_pcm_init_ulp_pcm_config.h
+    unless: [rsilib_board]

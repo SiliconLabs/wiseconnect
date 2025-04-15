@@ -103,7 +103,7 @@ void sl_fw_log_task(void);
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #define MAX_UART_RX_QUEUE_SIZE 30

@@ -40,6 +40,7 @@
 #include "select.h"
 #include "string.h"
 #include "sl_net_wifi_types.h"
+#include "sl_si91x_core_utilities.h"
 
 /******************************************************
  *                    Constants
@@ -120,6 +121,17 @@ static void application_start(void *argument)
   socket_select();
 }
 
+void close_sockets(int client_socket, int server_socket)
+{
+  if (client_socket > 0)
+    close(client_socket);
+
+  if (server_socket > 0)
+    close(server_socket);
+
+  return;
+}
+
 void socket_select()
 {
   int server_socket = -1;
@@ -187,9 +199,22 @@ void socket_select()
 
   total_set_fds_count = select(highest_socket_number + 1, &read_fds, NULL, NULL, &timeout);
 
-  if (total_set_fds_count == 0 || total_set_fds_count == -1) {
-    printf("\r\nSocket select failed with bsd error: %d\r\n", errno);
-    close(client_socket);
+  if (total_set_fds_count == -1) {
+    if (errno == 0) {
+      // get the error code returned by the firmware
+      sl_status_t status = sl_si91x_get_saved_firmware_status();
+      printf("\r\nSocket select failed with bsd error: %d and status = 0x%lx\r\n", errno, status);
+    } else {
+      printf("\r\nSocket select failed with bsd error: %d\r\n", errno);
+    }
+
+    close_sockets(client_socket, server_socket);
+    return;
+  }
+
+  if (total_set_fds_count == 0) {
+    printf("\r\n No data available on any file descriptor \r\n");
+    close_sockets(client_socket, server_socket);
     return;
   }
 
@@ -201,12 +226,6 @@ void socket_select()
   }
 
   printf("\r\n Data received successfully \r\n");
-
-  if (client_socket > 0)
-    close(client_socket);
-
-  if (server_socket > 0)
-    close(server_socket);
-
+  close_sockets(client_socket, server_socket);
   printf("\r\n Socket close success\r\n");
 }

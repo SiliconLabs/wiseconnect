@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
  * @file
- * @brief SL SI91X Common Config.
+ * @brief SL SI91X PWM Common Config.
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -35,10 +35,10 @@
 // <h>PWM Common Configuration
 
 // <o SL_PWM_COMMON_TIMER_SELECTION> Base Timer Selection
-//   <SL_BASE_TIMER_EACH_CHANNEL=> Timer (Each Channel)
-//   <SL_BASE_TIMER_ALL_CHANNEL=> Timer (All Channels)
-// <i> Default: SL_BASE_TIMER_ALL_CHANNEL
-#define SL_PWM_COMMON_TIMER_SELECTION SL_BASE_TIMER_ALL_CHANNEL
+//   <SL_BASE_TIMER_EACH_CHANNEL_VAL=> One for Each Channel
+//   <SL_BASE_TIMER_ALL_CHANNEL_VAL=> Only one (0th) for All Channels
+// <i> Default: SL_BASE_TIMER_ALL_CHANNEL_VAL
+#define SL_PWM_COMMON_TIMER_SELECTION SL_BASE_TIMER_ALL_CHANNEL_VAL
 
 // </h>
 // <<< end of configuration section >>>

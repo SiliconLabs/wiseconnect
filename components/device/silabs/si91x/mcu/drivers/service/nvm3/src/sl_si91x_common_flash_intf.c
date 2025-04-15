@@ -34,8 +34,8 @@
 #define FLASH_WRITE 0    //flash_sector_erase_enable value for write operation
 
 /******************************************************
- *               Variable Definitions
- ******************************************************/
+*               Variable Definitions
+******************************************************/
 #ifndef NVM3_LOCK_OVERRIDE
 static osSemaphoreId_t nvm3_Sem;
 #endif // NVM3_LOCK_OVERRIDE
@@ -53,26 +53,24 @@ extern CORE_irqState_t irqState;
 * address should be word aligned
 
 * @note:
-* These APIs should be only used by NVM3 and should be called after device_init and wireless_init 
+* These APIs should be only used by NVM3 and should be called after device_init and wireless_init
 * functions
- *******************************************************************************/
+*******************************************************************************/
 
 /***************************************************************************/ /**
  *  Uninitialize Flash module
  ******************************************************************************/
-bool rsi_flash_uninitialize(void)
+void rsi_flash_uninitialize(void)
 {
-  /* This function not supported so always returns zero */
-  return RSI_SUCCESS;
+  /* This function not supported */
 }
 
 /***************************************************************************/ /**
  * This function initializes flash
  ******************************************************************************/
-bool rsi_flash_init(void)
+void rsi_flash_init(void)
 {
-  /* This function not supported so always returns zero */
-  return RSI_SUCCESS;
+  /* This function not supported */
 }
 
 /***************************************************************************/ /**
@@ -80,10 +78,9 @@ bool rsi_flash_init(void)
  * Note: Do not use this function independently. This function should only be used
  * by NVM3
  ******************************************************************************/
-bool rsi_flash_erase_sector(uint32_t *sector_address)
+sl_status_t rsi_flash_erase_sector(uint32_t *sector_address)
 {
-
-  int status             = 0;
+  sl_status_t status     = SL_STATUS_OK;
   uint8_t dummy_buff[10] = { 0 };
 
 #if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
@@ -91,7 +88,7 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 #endif
 
   //Erase sector
-  status = (int)sl_si91x_command_to_write_common_flash((uint32_t)sector_address, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
+  status = sl_si91x_command_to_write_common_flash((uint32_t)sector_address, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
 
 #if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
   sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
@@ -102,17 +99,16 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 /***************************************************************************/ /**
  * This function writes to destination flash address location
  ******************************************************************************/
-bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
+sl_status_t rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
-
-  int status = 0;
+  sl_status_t status = SL_STATUS_OK;
 
 #if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
   sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
 #endif
 
   //Write to flash
-  status = (int)sl_si91x_command_to_write_common_flash((uint32_t)address, data, (uint16_t)length, FLASH_WRITE);
+  status = sl_si91x_command_to_write_common_flash((uint32_t)address, data, (uint16_t)length, FLASH_WRITE);
 
 #if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
   sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
@@ -125,12 +121,12 @@ bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
  * Note: Do not use this function independently. This function should only be used
  * by NVM3
  ******************************************************************************/
-bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
+sl_status_t rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
 {
   (void)auto_mode;
   //Read data from flash
   memcpy((uint8_t *)data, (uint8_t *)address, length * 4);
-  return 1;
+  return SL_STATUS_OK;
 }
 
 #ifndef NVM3_LOCK_OVERRIDE
@@ -144,7 +140,6 @@ bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uin
  ******************************************************************************/
 void nvm3_lockBegin(void)
 {
-
   if (nvm3_Sem == NULL) {
     nvm3_Sem = osSemaphoreNew(1, 0, NULL);
     osSemaphoreRelease(nvm3_Sem);

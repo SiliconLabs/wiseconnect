@@ -39,6 +39,8 @@ component:
     from: wiseconnect3_sdk 
   - id: sllib_wireless_shutdown
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 template_contribution:
   - name: user_files_ps2
     value: ulp_dma_example.o

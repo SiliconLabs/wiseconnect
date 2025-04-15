@@ -46,6 +46,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_power_manager
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk  
   - id: debug_ulp_component
     from: wiseconnect3_sdk
   - id: adc_ulp_component

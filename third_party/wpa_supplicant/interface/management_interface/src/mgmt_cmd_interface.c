@@ -334,6 +334,9 @@ static int16 check_state(uint16 cmd, uint8 operating_mode)
       ret_val = ((curr_state < WISE_STATE_INIT_DONE) || (operating_mode != WISE_MODE_PER));
     } break;
 
+    case SLI_WLAN_REQ_WLAN_EXT_STATS:
+    case SLI_WLAN_REQ_GET_WLAN_STATS:
+    // The above cases ment to fall through
     case SLI_WLAN_REQ_PER_STATS: {
       // This command is allowed after Opermode is set.
       ret_val = (curr_state == WISE_STATE_INIT);
@@ -812,6 +815,8 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
           status->command = SLI_WLAN_RSP_GET_WLAN_STATS;
           status->status  = NOT_SUPPORTED;
           SL_PRINTF(WLAN_CMD_PARSE_GET_WLAN_STATS_NOT_SUPPORTED, WLAN_UMAC, LOG_ERROR);
+          cmd_status = MGMT_IF_FREE_CMD_PKT;
+        } else {
           cmd_status = MGMT_IF_FWD_CMD_TO_UMAC;
         }
         break;
@@ -823,6 +828,8 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
           status->command = SLI_WLAN_RSP_WLAN_EXT_STATS;
           status->status  = NOT_SUPPORTED;
           SL_PRINTF(WLAN_CMD_PARSE_WLAN_EXT_STATS_NOT_SUPPORTED, WLAN_UMAC, LOG_ERROR);
+          cmd_status = MGMT_IF_FREE_CMD_PKT;
+        } else {
           cmd_status = MGMT_IF_FWD_CMD_TO_UMAC;
         }
         break;

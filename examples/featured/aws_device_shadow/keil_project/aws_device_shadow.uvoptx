@@ -1089,8 +1089,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\components\device\stm32\silabs_utility\common\src\m4_core.c</PathWithFileName>
-      <FilenameWithoutPath>m4_core.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\..\components\device\stm32\silabs_utility\common\src\sl_host_core.c</PathWithFileName>
+      <FilenameWithoutPath>sl_host_core.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1130,7 +1130,7 @@
 
   <Group>
     <GroupName>third_party/aws_sdk</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

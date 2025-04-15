@@ -874,25 +874,27 @@ void send_supplicant_command(uint8 *txPkt)
 #ifdef PS_DEPENDENT_VARIABLES
     set_roam_ind(0);
 #endif /* PS_DEPENDENT_VARIABLES */
-    mgmt_if_adapter.rejoin_going_on = SL_FALSE;
-    mgmt_if_adapter.roam_ind        = 0;
-    mgmt_if_adapter.okc             = 0;
-    status                          = free_tx_host_q();
+    status = free_tx_host_q();
     if (status != SL_STATUS_OK) {
       SL_DEBUG_LOG("[ERROR] Failed to free tx queue: 0x%lX\r\n", status);
       SL_MGMT_ASSERT(0);
     }
 #ifdef ENABLE_DRAEGER_CUSTOMIZATION
-    /* This is the case where host sends disconnect */
-    mgmt_if_adapter.async_state_code  = RSI_MODULE_STATE_UNASSOCIATED;
-    mgmt_if_adapter.async_reason_code = RSI_MODULE_STATE_DEAUTH_FRM_HOST;
-    wise_module_state(RSI_MODULE_STATE_FINAL_CONNECTON);
-    /*Clean up the updated value*/
-    mgmt_if_adapter.async_state_code  = RSI_MODULE_STATE_START_UP_OR_NOT_AVAVILABLE;
-    mgmt_if_adapter.async_reason_code = RSI_MODULE_STATE_START_UP_OR_NOT_AVAVILABLE;
-    mgmt_if_adapter.async_rssi        = RSI_MODULE_STATE_RSSI_NOT_AVAILABLE;
-    mgmt_if_adapter.async_channel     = RSI_MODULE_STATE_START_UP_OR_NOT_AVAVILABLE;
-    sl_memzero(mgmt_if_adapter.async_bssid, MAC_ADDR_LEN);
+    if (!tmp_disassoc->remove_client) {
+      // This is the case where host issue diconnect in station mode
+      mgmt_if_adapter.rejoin_going_on   = SL_FALSE;
+      mgmt_if_adapter.roam_ind          = 0;
+      mgmt_if_adapter.okc               = 0;
+      mgmt_if_adapter.async_state_code  = RSI_MODULE_STATE_UNASSOCIATED;
+      mgmt_if_adapter.async_reason_code = RSI_MODULE_STATE_DEAUTH_FRM_HOST;
+      wise_module_state(RSI_MODULE_STATE_FINAL_CONNECTON);
+      // Clean up the updated value
+      mgmt_if_adapter.async_state_code  = RSI_MODULE_STATE_START_UP_OR_NOT_AVAVILABLE;
+      mgmt_if_adapter.async_reason_code = RSI_MODULE_STATE_START_UP_OR_NOT_AVAVILABLE;
+      mgmt_if_adapter.async_rssi        = RSI_MODULE_STATE_RSSI_NOT_AVAILABLE;
+      mgmt_if_adapter.async_channel     = RSI_MODULE_STATE_START_UP_OR_NOT_AVAVILABLE;
+      sl_memzero(mgmt_if_adapter.async_bssid, MAC_ADDR_LEN);
+    }
 #endif
     mgmt_if_adapter.host_cmd = SL_PKT_TX_HDESC_GET_DW0_FRAME_TYPE(txPkt);
     /* If it is AP mode remove client should be 1 */
@@ -901,7 +903,7 @@ void send_supplicant_command(uint8 *txPkt)
       rsi_client_disassoc(NULL, tmp_disassoc->mac_addr, 0);
     } else {
       //! Setting 1 to differentiate disconnect is from host or from supplicant
-      SL_PKT_TX_HDESC_SET_DW2_B0(txPkt, 0);
+      SL_PKT_TX_HDESC_SET_DW2_B0(txPkt, 1);
       if (!mgmt_if_adapter.dyn_sta_ap_switch_enable) {
 #ifdef DATA_PATH_UMAC_ENABLE
         //! memsetting the ip address
@@ -1822,6 +1824,7 @@ void wise_reset_to_band(uint8 vap_id)
       set_wpa_disconnected(wpa_s, 0);
     }
   } else if (mgmt_if_adapter.operating_mode != WISE_CONCURRENT_MODE) {
+    wpa_supplicant_deinit_wrapper(wpa_s);
     if (mgmt_if_adapter.supplicant_thread_started) {
       eloop_terminate_wrapper();
       // Call supplicant event loop thread deinit
@@ -1832,7 +1835,6 @@ void wise_reset_to_band(uint8 vap_id)
       }
       mgmt_if_adapter.supplicant_thread_started = SL_FALSE;
     }
-    wpa_supplicant_deinit_wrapper(wpa_s);
     mgmt_if_adapter.supplicant_priv = NULL;
   }
 
@@ -2049,6 +2051,7 @@ int16 mgmtif_process_init_rsp(uint8 *rxPkt, uint8 *send_to_host)
       || mgmt_if_adapter.operating_mode == WISE_MODE_EAP || mgmt_if_adapter.operating_mode == WISE_CONCURRENT_MODE) {
     if (!(mgmt_if_adapter.operating_mode == WISE_CONCURRENT_MODE) && mgmt_if_adapter.supplicant_priv) {
       if (wpa_s) {
+        wpa_supplicant_deinit_wrapper(wpa_s);
         if (mgmt_if_adapter.supplicant_thread_started == SL_TRUE) {
           eloop_terminate_wrapper();
           // Call supplicant event loop thread deinit
@@ -2059,7 +2062,6 @@ int16 mgmtif_process_init_rsp(uint8 *rxPkt, uint8 *send_to_host)
           }
           mgmt_if_adapter.supplicant_thread_started = SL_FALSE;
         }
-        wpa_supplicant_deinit_wrapper(wpa_s);
         mgmt_if_adapter.supplicant_priv = NULL;
       }
     }

@@ -1123,7 +1123,7 @@
 
   <Group>
     <GroupName>common/silabs_utility</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1158,8 +1158,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\..\components\device\stm32\silabs_utility\common\src\m4_core.c</PathWithFileName>
-      <FilenameWithoutPath>m4_core.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\..\..\components\device\stm32\silabs_utility\common\src\sl_host_core.c</PathWithFileName>
+      <FilenameWithoutPath>sl_host_core.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

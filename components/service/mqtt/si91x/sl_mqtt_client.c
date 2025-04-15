@@ -184,6 +184,10 @@ static void sli_si91x_get_subscription(const sl_mqtt_client_t *client,
 
 static void sli_si91x_remove_and_free_all_subscriptions(sl_mqtt_client_t *client)
 {
+  if (client == NULL) {
+    SL_DEBUG_LOG("MQTT client instance not initialized yet\n");
+    return;
+  }
   // Free subscription list.
   sl_mqtt_client_topic_subscription_info_t *node_to_be_freed;
   while ((node_to_be_freed = (sl_mqtt_client_topic_subscription_info_t *)(sl_slist_pop(

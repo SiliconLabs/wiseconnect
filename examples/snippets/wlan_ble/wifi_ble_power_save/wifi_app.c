@@ -69,7 +69,7 @@
 #define SSL_CLIENT 1
 
 #define DHCP_HOST_NAME NULL
-#define TIMEOUT_MS     18000
+#define TIMEOUT_MS     25000
 #define LOW            0
 
 //! application control block

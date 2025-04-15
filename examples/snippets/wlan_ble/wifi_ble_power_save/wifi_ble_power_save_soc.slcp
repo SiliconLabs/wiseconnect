@@ -76,17 +76,24 @@ configuration:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/ble_remote_device_output.png
+  - path: resources/readme/openssl_command.png
+  - path: resources/readme/power_save_log.png
+  - path: resources/readme/ble_scan.png
+  - path: resources/readme/SI_Connect_notify1.png
+  - path: resources/readme/SI_Connect_notify2.png
+  - path: resources/readme/send_hello_from_ssl_log.png
+  - path: resources/readme/SI_Connect_activity_log.png
+  - path: resources/readme/SI_Connect_ble_message.png
+  - path: resources/readme/SSL_server_log.png
+  - path: resources/readme/output12.png
+  - path: resources/readme/serial_prints.png
+  - path: resources/readme/wlan_connection1.png
   - path: resources/readme/build_example.png
   - path: resources/readme/create_project1.png
   - path: resources/readme/create_project2.png
   - path: resources/readme/efr32.png
   - path: resources/readme/load_image1.png
   - path: resources/readme/load_image2.png
-  - path: resources/readme/output1.png
-  - path: resources/readme/output2.png
-  - path: resources/readme/output3.png
-  - path: resources/readme/output4.png
   - path: resources/readme/port_selection_soc.png
   - path: resources/readme/port_selection.png
   - path: resources/readme/serial_port_setup.png

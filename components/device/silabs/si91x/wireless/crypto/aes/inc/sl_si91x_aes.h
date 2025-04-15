@@ -162,7 +162,7 @@ typedef struct {
   uint8_t iv_flag;                      ///< Flag to indicate whether iv is set or not
   sl_si91x_aes_key_config_t key_config; ///< Key configuration
   uint8_t chunk_flag;                   ///< Flag to indicate chunk number
-} sl_si91x_psa_aes_multipart_config_t;
+} sli_si91x_psa_aes_multipart_config_t;
 
 /** @} */
 

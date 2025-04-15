@@ -1503,6 +1503,10 @@ uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x
           payload_size = sizeof(rsi_ble_req_acceptlist_using_payload_t);
           memcpy(pkt->data, cmd_struct, payload_size);
           break;
+        case BLE_VENDOR_SET_COEX_ROLE_PRIORITY:
+          payload_size = sizeof(rsi_ble_set_coex_roles_priority_t);
+          memcpy(pkt->data, cmd_struct, payload_size);
+          break;
         default:
           break;
       }

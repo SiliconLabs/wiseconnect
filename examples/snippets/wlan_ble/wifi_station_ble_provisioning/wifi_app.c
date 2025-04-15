@@ -52,7 +52,7 @@
 extern osSemaphoreId_t wlan_thread_sem;
 
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        18000
+#define TIMEOUT_MS        25000
 #define WIFI_SCAN_TIMEOUT 10000
 
 /*

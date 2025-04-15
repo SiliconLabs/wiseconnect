@@ -52,10 +52,10 @@ extern "C" {
 #define SL_BOD_UC_CONFIG_EN 1
 
 // <h> BOD UC Configuration
-// <o SLOT_VALUE> Slot Value <2-131070>
-// <i> Range: <2-131070>
+// <o SLOT_VALUE> Slot Value <2-65535>
+// <i> Range: <2-65535>
 // <i> Default: 10
-#define SLOT_VALUE 2
+#define SLOT_VALUE 10
 
 // </h>
 

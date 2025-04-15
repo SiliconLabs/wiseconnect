@@ -80,7 +80,7 @@ sl_status_t sl_mgmt_if_thread_init()
     .cb_mem     = NULL,
     .cb_size    = 0,
     .stack_mem  = NULL,
-    .stack_size = 3072,
+    .stack_size = 5120,
     .priority   = osPriorityNormal,
     .tz_module  = 0,
     .reserved   = 0,

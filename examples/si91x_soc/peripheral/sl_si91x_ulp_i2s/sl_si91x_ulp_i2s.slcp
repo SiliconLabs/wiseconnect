@@ -40,6 +40,8 @@ component:
     from: wiseconnect3_sdk
   - id: i2s_ulp_component
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 template_contribution:
   - name: user_files_ps2
     value: ulp_i2s_example.o

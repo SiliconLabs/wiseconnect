@@ -56,7 +56,7 @@
 //!    Application powersave configurations
 /*=======================================================================*/
 #if ENABLE_NWP_POWER_SAVE
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 void fpuInit(void);
@@ -363,7 +363,7 @@ int32_t rsi_initiate_power_save(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return status;
@@ -586,7 +586,7 @@ void ble_app_task(void *argument)
 
         //! initiating power save in wlan mode
         wifi_profile.profile = HIGH_PERFORMANCE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to keep module in HIGH_PERFORMANCE mode \r\n");
           return;
@@ -626,7 +626,7 @@ scan:
 
         //! initiating power save in wlan mode
         wifi_profile.profile = ASSOCIATED_POWER_SAVE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to keep module in power save \r\n");
           return;

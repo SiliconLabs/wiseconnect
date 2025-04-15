@@ -149,8 +149,8 @@ The application can be configured to suit user requirements and development envi
       #define NUMBER_OF_PACKETS   1000
       ```
 
-    - The user can configure monitor interval through `sl_wifi_set_performance_profile()` API. The default interval is set to 50 millisecs if montior_interval is set to 0. This is only valid when the performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
-    - The user can configure listen interval through `sl_wifi_set_listen_interval()` API. The default interval is set to 1 millisec.
+    - The user can configure monitor interval through `sl_wifi_set_performance_profile_v2()` API. The default interval is set to 50 millisecs if montior_interval is set to 0. This is only valid when the performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
+    - The user can configure listen interval through `sl_wifi_set_listen_interval_v2()` API. The default interval is set to 1 millisec.
 
 ## Test the Application
 

@@ -21,6 +21,8 @@
 #ifndef SL_SI91x_DUAL_FLASH_INTF_H_
 #define SL_SI91x_DUAL_FLASH_INTF_H_
 
+#include "sl_status.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,8 +64,8 @@ extern "C" {
 #define VAL_6  6
 
 /******************************************
- *              FLASH CMDS
- ******************************************/
+*              FLASH CMDS
+******************************************/
 //! Write enable cmd
 #define WREN  0x06
 #define WREN2 0xF9
@@ -109,55 +111,55 @@ extern "C" {
 #define GPIO_DDR_PADS  13
 
 /***************************************************************************/ /**
- *  @fn          bool rsi_flash_init(void)
+ *  @fn          void rsi_flash_init(void)
  *  @pre         None
  *  @brief       This function initializes GPIO, QSPI and flash
- *  @param       none
- *  @return      return is zero then successfully initialized if non-zero then fail.
+ *  @param       None
+ *  @return      None
  ******************************************************************************/
-bool rsi_flash_init(void);
+void rsi_flash_init(void);
 
 /***************************************************************************/ /**
- *  @fn          bool rsi_flash_erase_sector(uint32_t sector_address)
- *  @pre         This function should be called after rsi_flash_init()
- *  @brief       This function erases the flash.Erase each sector from the given 
- *               sector address to the configured page size.
- *               it will wait for to complete sector erase
- *  @param[in]   sector_address     start address of the flash sector
- *  @return      return is zero then successfully erased if non-zero then fail.
+ *  @fn          sl_status_t rsi_flash_erase_sector(uint32_t *sector_address)
+ *  @pre         None
+ *  @brief       This function erases the flash. Erase each sector from the given
+ *               sector address to the configured page size. It will wait until
+ *               sector erase is complete.
+ *  @param[in]   sector_address     Start address of the flash sector
+ *  @return      SL_STATUS_OK on success or SL_STATUS_NULL_POINTER on failure
  ******************************************************************************/
-bool rsi_flash_erase_sector(uint32_t *sector_address);
+sl_status_t rsi_flash_erase_sector(uint32_t *sector_address);
 
 /***************************************************************************/ /**
- *  @fn          bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
- *  @pre         This function should be called after rsi_flash_init()
+ *  @fn          sl_status_t rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
+ *  @pre         None
  *  @brief       This function writes to destination flash address location
- *  @param[in]   address     destination address of NVM3 write
+ *  @param[in]   address     Destination address of NVM3 write
  *  @param[in]   data        A pointer to the object data to write
  *  @param[in]   length      The size of the object data in number of bytes
- *  @return      return is zero then successfully data write if non-zero then fail.
+ *  @return      SL_STATUS_OK on success or SL_STATUS_NULL_POINTER on failure
  ******************************************************************************/
-bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length);
+sl_status_t rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length);
 
 /***************************************************************************/ /**
- *  @fn          bool rsi_flash_read(uint32_t address, unsigned char *data, uint32_t length,uint8_t auto_mode);
+ *  @fn          sl_status_t rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode);
  *  @pre         None
  *  @brief       Reads data from the address in selected mode
- *  @param[in]   address     source address to read the data
+ *  @param[in]   address     Source address to read the data
  *  @param[in]   length      The size of the object data in number of bytes
- *  @param[in]   auto_mode   mode of read operation from flash
- *  @param[out]  data        destination address of NVM3 read to write data
- *  @return      return is zero then successfully data read if non-zero then fail.
+ *  @param[in]   auto_mode   Mode of read operation from flash
+ *  @param[out]  data        Destination address of NVM3 read to write data
+ *  @return      SL_STATUS_OK on success or SL_STATUS_NULL_POINTER on failure
  ******************************************************************************/
-bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode);
+sl_status_t rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode);
 
 /***************************************************************************/ /**
- *  @fn          bool rsi_flash_uninitialize(void)
- *  @pre         This function should be called after rsi_flash_init()
+ *  @fn          void rsi_flash_uninitialize(void)
+ *  @pre         None
  *  @brief       Uninitialize QSPI module
- *  @return      return is zero then successfully Uninitialized if non-zero then fail.
+ *  @return      None
  ******************************************************************************/
-bool rsi_flash_uninitialize(void);
+void rsi_flash_uninitialize(void);
 
 /***************************************************************************/ /**
  *  @fn          void get_qspi_config(spi_config_t *spi_config)

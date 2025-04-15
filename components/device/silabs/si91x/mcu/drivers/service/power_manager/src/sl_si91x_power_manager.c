@@ -385,8 +385,8 @@ void sl_si91x_power_manager_deinit(void)
 sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add)
 {
 #if (configUSE_TICKLESS_IDLE == 1)
-  sl_wifi_performance_profile_t pm_ta_performance_profile;
-  sl_wifi_get_performance_profile(&pm_ta_performance_profile);
+  sl_wifi_performance_profile_v2_t pm_ta_performance_profile;
+  sl_wifi_get_performance_profile_v2(&pm_ta_performance_profile);
 #endif
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
@@ -532,8 +532,8 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
 {
   boolean_t is_sleep_ready = false;
 #if (configUSE_TICKLESS_IDLE == 1)
-  sl_wifi_performance_profile_t pm_ta_performance_profile;
-  sl_wifi_get_performance_profile(&pm_ta_performance_profile);
+  sl_wifi_performance_profile_v2_t pm_ta_performance_profile;
+  sl_wifi_get_performance_profile_v2(&pm_ta_performance_profile);
   if (pm_ta_performance_profile.profile != DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
     if ((SL_SI91X_POWER_MANAGER_SLEEP == sl_si91x_get_lowest_ps()) && (sli_si91x_is_sdk_ok_to_sleep())
         && (sli_si91x_ta_packet_initiated_to_m4())) {

@@ -237,11 +237,7 @@ int32_t I2S_Control(uint32_t control,
 
   // Protocol
   val = (control & ARM_SAI_PROTOCOL_Msk);
-  if ((val != ARM_SAI_PROTOCOL_I2S) && (val != ARM_SAI_PROTOCOL_PCM_SHORT)) {
-    // Only I2S protocol is supported
-    return ARM_SAI_ERROR_PROTOCOL;
-  }
-  if (val == ARM_SAI_PROTOCOL_PCM_SHORT) {
+  if (val == ARM_SAI_PROTOCOL_PCM_SHORT || val == ARM_SAI_PROTOCOL_PCM_LONG) {
     i2s->protocol = PCM_PROTOCOL;
     if (i2s->reg == I2S0) {
       MISC_SOFT_SET_REG_2 |= PCM_ENA; //|PCM_FSYNCSTART ;
@@ -302,26 +298,35 @@ int32_t I2S_Control(uint32_t control,
     case 12 - 1:
       data_bits = 12;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= (RES_12_BIT << 2);
+        MISC_SOFT_SET_REG_2 |= (PCM_RES_12_BIT << 2);
+        i2s->reg->I2S_CCR_b.SCLKG = RES_12_BIT;
+        // no of sclk cycles
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_12_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_12_BIT;
       } else {
         // Gate after 12 clock cycles
         i2s->reg->I2S_CCR_b.SCLKG = RES_12_BIT;
         // no of sclk cycles
-        i2s->reg->I2S_CCR_b.WSS = 0x0;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_12_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_12_BIT;
       }
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_12_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_12_BIT;
       break;
     case 16 - 1:
       data_bits = 16;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= (RES_16_BIT << 2);
+        MISC_SOFT_SET_REG_2 |= (PCM_RES_16_BIT << 2);
+        i2s->reg->I2S_CCR_b.SCLKG                               = PCM_RES_16_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_16_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_16_BIT;
       } else {
-        i2s->reg->I2S_CCR_b.SCLKG = RES_16_BIT;
-        i2s->reg->I2S_CCR_b.WSS   = 0x0;
+        i2s->reg->I2S_CCR_b.SCLKG                               = RES_16_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_16_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_16_BIT;
       }
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_16_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_16_BIT;
       break;
     case 20 - 1:
       data_bits                                               = 20;
@@ -333,23 +338,33 @@ int32_t I2S_Control(uint32_t control,
     case 24 - 1:
       data_bits = 24;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= ((RES_24_BIT - 1) << 2);
+        MISC_SOFT_SET_REG_2 |= (PCM_RES_24_BIT << 2);
+        i2s->reg->I2S_CCR_b.SCLKG                               = PCM_RES_24_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x1;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_24_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_24_BIT;
       } else {
-        i2s->reg->I2S_CCR_b.SCLKG = RES_24_BIT;
-        i2s->reg->I2S_CCR_b.WSS   = 0x1;
+        i2s->reg->I2S_CCR_b.SCLKG                               = RES_24_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x1;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_24_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_24_BIT;
       }
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_24_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_24_BIT;
       break;
     case 32 - 1:
       data_bits = 32;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= ((RES_32_BIT) << 2);
+        MISC_SOFT_SET_REG_2 |= ((PCM_RES_32_BIT) << 2);
+        i2s->reg->I2S_CCR_b.SCLKG                               = PCM_RES_32_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x2;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_32_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_32_BIT;
+      } else {
+        i2s->reg->I2S_CCR_b.SCLKG                               = RES_32_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x2;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_32_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_32_BIT;
       }
-      i2s->reg->I2S_CCR_b.SCLKG                               = 0x0;
-      i2s->reg->I2S_CCR_b.WSS                                 = 0x2;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_32_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_32_BIT;
+
       break;
     default:
       return ARM_SAI_ERROR_DATA_SIZE;

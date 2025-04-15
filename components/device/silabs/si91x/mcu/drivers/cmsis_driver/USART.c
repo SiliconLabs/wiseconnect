@@ -535,7 +535,7 @@ static int32_t ARM_USART0_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_USART0_Transfer (const void *data_out, void *data_in, uint32_t num)
+static int32_t ARM_USART0_Transfer (const void *data_out, const void *data_in, uint32_t num)
 {
   if((num < RTE_USART0_DMA_TX_LEN_PER_DES) && (num < RTE_USART0_DMA_RX_LEN_PER_DES)) {
 
@@ -740,7 +740,7 @@ static int32_t ARM_UART1_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_UART1_Transfer (const void *data_out, void *data_in, uint32_t num)
+static int32_t ARM_UART1_Transfer (const void *data_out, const void *data_in, uint32_t num)
 {
   if((num < RTE_UART1_DMA_TX_LEN_PER_DES) && (num < RTE_UART1_DMA_RX_LEN_PER_DES)) {
       UART1_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -939,7 +939,7 @@ static int32_t ARM_ULP_UART_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_ULP_UART_Transfer (const void *data_out, void *data_in, uint32_t num)
+static int32_t ARM_ULP_UART_Transfer (const void *data_out, const void *data_in, uint32_t num)
 {
   if((num < RTE_ULP_UART_DMA_TX_LEN_PER_DES) && (num < RTE_ULP_UART_DMA_RX_LEN_PER_DES)) {
       ULP_UART_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -1073,6 +1073,7 @@ void ULP_UART_IRQ_HANDLER (void)
 uint32_t USART_GetParity_StopBit(uint8_t usart_peripheral)
 {
   uint32_t reg_value = false;
+
 	switch (usart_peripheral) {
 		case USART_0:
 			reg_value = USART0_Resources.pREGS->LCR;
@@ -1089,12 +1090,11 @@ uint32_t USART_GetParity_StopBit(uint8_t usart_peripheral)
 		default:
 			break;
 	}
-
   return reg_value;
 }
 uint32_t USART_GetBaudrate(uint8_t usart_peripheral)
 {
-  uint32_t baud_rate = false;
+  uint32_t baud_rate = 0;
 
 	switch (usart_peripheral) {
 		case USART_0:
@@ -1112,7 +1112,6 @@ uint32_t USART_GetBaudrate(uint8_t usart_peripheral)
 		default:
 			break;
 	}
-
   return baud_rate;
 }
 uint8_t USART_GetInitState(uint8_t usart_peripheral)
@@ -1135,7 +1134,7 @@ uint8_t USART_GetInitState(uint8_t usart_peripheral)
 		default:
 			break;
 	}
-
+	
   return init_state;
 }
 

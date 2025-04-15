@@ -19,6 +19,8 @@ provides:
 template_contribution:
   - name: power_manager_ps2
     value: 1
+    condition:
+      - pm_ps2_component  
   - name: i2c_ps2
     value: sl_si91x_peripheral_i2c.o
   - name: i2c_ps2

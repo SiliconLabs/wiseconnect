@@ -18,5 +18,7 @@ provides:
 template_contribution:
   - name: power_manager_ps2
     value: 1
+    condition:
+      - pm_ps2_component  
   - name: comparator_ps2
     value: rsi_comparator.o

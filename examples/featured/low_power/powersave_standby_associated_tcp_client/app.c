@@ -139,9 +139,9 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
-  sl_wifi_firmware_version_t version                = { 0 };
-  sl_mac_address_t mac_addr                         = { 0 };
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+  sl_wifi_firmware_version_t version                   = { 0 };
+  sl_mac_address_t mac_addr                            = { 0 };
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
@@ -168,7 +168,8 @@ static void application_start(void *argument)
   }
 
   sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE, 0);
-  sl_si91x_set_listen_interval(0);
+  sl_wifi_listen_interval_v2_t profile2 = { 0 };
+  status                                = sl_wifi_set_listen_interval_v2(SL_WIFI_CLIENT_INTERFACE, profile2);
 
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
@@ -183,7 +184,7 @@ static void application_start(void *argument)
     return;
   }
   // set performance profile
-  status = sl_wifi_set_performance_profile(&performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\n Power save configuration Failed, Error Code : 0x%lX\r\n", status);
     return;

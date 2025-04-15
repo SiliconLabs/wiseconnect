@@ -1,0 +1,155 @@
+project_name: wifi_commander_soc
+package: wifi
+quality: production
+label: wifi_commander_soc
+category: Example|Wi-Fi
+description: >
+  Demonstrates to run all commands individually
+filter:
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+- name: Project Difficulty
+  value:
+  - Beginner
+sdk:
+  id: simplicity_sdk
+  version: "2025.6.0"
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.5.0
+source:
+- path: demo.c
+- path: main.c
+- path: xapi/xapi/bgapi.c
+- path: xapi/autogen/sl_wifi_commander.c
+- path: xapi/autogen/sl_wifi_system_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_ap_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_net_intf_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_net_cred_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_net_profile_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_common_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_scan_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_ping_bgapi_cmd_lut_handler.c
+- path: xapi/autogen/sl_wifi_client_bgapi_cmd_lut_handler.c
+- path: xapi/bgcommon/src/bg_bit.c
+- path: xapi/bgcommon/src/bg_compat.c
+- path: xapi/ncp/sl_ncp_freertos.c
+- path: xapi/ncp/sl_ncp.c
+- path: xapi/ncp/sl_simple_com_freertos.c
+- path: xapi/ncp/sl_simple_com_si91x.c
+- path: xapi/app_xapi/app_xapi_system.c
+- path: xapi/app_xapi/app_xapi_ap.c
+- path: xapi/app_xapi/app_xapi_net_intf.c
+- path: xapi/app_xapi/app_xapi_net_cred.c
+- path: xapi/app_xapi/app_xapi_net_profile.c
+- path: xapi/app_xapi/app_xapi_cmd_event.c
+- path: xapi/app_xapi/app_xapi_global.c
+- path: xapi/app_xapi/app_xapi_common.c
+- path: xapi/app_xapi/app_xapi_scan.c
+- path: xapi/app_xapi/app_xapi_ping.c
+- path: xapi/app_xapi/app_xapi_client.c
+
+include:
+- path: .
+  file_list:
+  - path: app.h
+- path: xapi/autogen
+  file_list:
+  - path: sl_wifi_class.h
+  - path: sl_wifi_api.h
+  - path: sl_wifi_bgapi_cmd_rx_handler.h
+  - path: sli_wifi_api.h
+- path: xapi/xapi
+  file_list:
+  - path: bgapi.h
+  - path: bgapi_rtos_adaptation.h
+  - path: sl_bgapi.h
+  - path: sli_bgapi_trace.h
+- path: xapi/bgcommon/include
+  file_list:
+  - path: bg_bit.h
+  - path: bg_compat.h
+  - path: bg_config.h
+  - path: bg_types.h
+- path: xapi/ncp
+  file_list:
+  - path: sl_ncp.h
+  - path: sl_simple_com.h
+  - path: sl_simple_com_config.h
+  - path: sl_simple_com_freertos_config.h
+- path: xapi/ncp/config
+  file_list:
+  - path: sl_ncp_config.h
+  - path: sl_ncp_freertos_config.h
+- path:  xapi/app_xapi
+  file_list:
+  - path: app_xapi_global.h
+  - path: app_xapi_cmd_event.h
+  - path: app_xapi_ap.h
+define:
+- name: SLI_SI91X_OFFLOAD_NETWORK_STACK
+  value: 1
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: SLI_SI91X_DBG_MIDDLEWARE_EN
+- name: SLI_SI91X_MCU_INTR_BASED_RX_ON_UART
+- name: APP_WIFI_API_FULL
+component:
+- id: sl_system
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+  from: wiseconnect3_sdk
+- id: si91x_memory_default_config
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: device_needs_ram_execution
+  from: wiseconnect3_sdk
+- id: iot_socket
+  from: wiseconnect3_sdk
+- id: sl_si91x_basic_buffers
+  from: wiseconnect3_sdk
+- id: sl_usart
+  from: wiseconnect3_sdk
+- id: app_timer
+- id: sl_ulp_uart
+  from: wiseconnect3_sdk
+- id: sl_si91x_soc_soft_reset
+  from: wiseconnect3_sdk
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: readme.md
+other_file:
+
+- path: resources/readme/wifi_commander_demo.png
+- path: resources/readme/wifi_commander_launcher.png
+- path: resources/readme/wifi_commander_connection_interface.png
+- path: resources/readme/wifi_commander_serial_port.png
+- path: resources/readme/wifi_commander_access_point.png
+- path: resources/readme/wifi_commander_ap_settings.png
+- path: resources/readme/wifi_commander_ap_outcome.png
+- path: resources/readme/wifi_commander_smart_console.png
+- path: resources/readme/wifi_commander_hello_command.png
+
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

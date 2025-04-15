@@ -155,11 +155,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Send Addr Enable: This configures the Send Address feature, for the user to determine when to send the address during transmit mode.
     - 0 - 9-bit character will be transmitted with 9-th bit set to 0 and the remaining 8-bits will be taken from the TxFIFO which is programmed through 8-bit wide THR register.
     - 1 - 9-bit character will be transmitted with 9-th bit set to 1 and the remaining 8-bits will match to what is being programmed in "Transmit Address Register".   
-  - Transmit Mode: This configures the Transmit mode.This bit is used to control the type of transmit mode during 9-bit data transfers.
-    - Mode 0 : In this mode of operation, Transmit Holding Register (THR) are 8-bit wide. The user needs to program  the address  using \ref sl_si91x_uart_rs485_transfer_hardware_address() and data using \ref sl_si91x_usart_send_data() API's .
-    - Mode 1 : In this mode of operation, Transmit Holding Register (THR) are 9-bit wide.
-      The user must ensure that the  9 bit data is written correctly using \ref sl_si91x_usart_send_data() for address/data. Address: 9th bit is set to 1, Data: 9th bit is set to 0.
-  - Slave Address: Set slave address of the module to which data wants to transfer in case of transfer and Slave Address to the module in case of receive.
 
 ## Pin Configuration
 
@@ -167,12 +162,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ------------------------------------------------------------------------------
 
-  | SI91X Interface       | Default SI91X Pin     |  External RS485 Driver Pin |
-  | ----------------------|-----------------------|----------------------------|
-  | Transmit Data (TxD)   | GPIO7                 |  DI                        |
-  | Receive Data (RxD)    | GPIO6                 |  RO                        |
-  | Driver Enable (DE)    | GPIO9                 |  DE                        |
-  | Receiver Enable (RE)  | GPIO8                 | ~RE                        |
+  | SI91X Interface       | Default SI91X Pin | External RS485 Driver Pin |
+  | ----------------------|-------------------|---------------------------|
+  | Transmit Data (TxD)   | GPIO7[P20]        |           DI              |
+  | Receive Data (RxD)    | GPIO6[P19]        |           RO              |
+  | Driver Enable (DE)    | GPIO9[F9]         |           DE              |
+  | Receiver Enable (RE)  | GPIO8[F8]         |          ~RE              |
 
   ------------------------------------------------------------------------------
 
@@ -180,12 +175,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ------------------------------------------------------------------------------
 
-  | SI91X Interface       | Default SI91X Pin     |  External RS485 Driver Pin |
-  | ----------------------|-----------------------|----------------------------|
-  | Transmit Data (TxD)   | GPIO30                |  DI                        |
-  | Receive Data (RxD)    | GPIO29                |  RO                        |
-  | Driver Enable (DE)    | GPIO51                |  DE                        |
-  | Receiver Enable (RE)  | GPIO28                | ~RE                        |
+  | SI91X Interface       | Default SI91X Pin    | External RS485 Driver Pin |
+  | ----------------------|----------------------|---------------------------|
+  | Transmit Data (TxD)   | GPIO30[P35]          |           DI              |
+  | Receive Data (RxD)    | GPIO29[P33]          |           RO              |
+  | Driver Enable (DE)    | GPIO51[P34]          |           DE              |
+  | Receiver Enable (RE)  | GPIO28[P31]          |          ~RE              |
 
   ------------------------------------------------------------------------------
 

@@ -126,9 +126,9 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  sl_ip_address_t ip_address                        = { 0 };
-  sl_net_wifi_client_profile_t profile              = { 0 };
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+  sl_ip_address_t ip_address                           = { 0 };
+  sl_net_wifi_client_profile_t profile                 = { 0 };
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &client_configuration, &wifi_client_context, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
@@ -172,7 +172,7 @@ static void application_start(void *argument)
   print_sl_ip_address(&ip_address);
 
   // set performance profile
-  status = sl_wifi_set_performance_profile(&performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
     return;

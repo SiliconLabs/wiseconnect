@@ -54,7 +54,7 @@
  *   Virtual AP ID. One of the values from @ref sl_si91x_wifi_vap_id_t.
  * 
  * @return
- *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  * 
  * @note
  *   The function's wait time depends on the number of retries and intervals specified in the DHCP configuration contained in the `address` parameter. 

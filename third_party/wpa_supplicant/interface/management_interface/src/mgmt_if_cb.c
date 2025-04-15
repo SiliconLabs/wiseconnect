@@ -1744,6 +1744,7 @@ int16 start_enterprise_security(void *wpa_s, uint8 *bssid, uint8 *tmp_ssid, uint
   uint32 write_addr;
   uint8 key_passwd[30] = { 0 };
   ssid                 = (struct wpa_ssid *)wpa_config_add_network_wrapper(wpa_s);
+  uint8_t phase1[100]  = { 0 };
   if (ssid == NULL)
     return MEM_ALLOC_FAILED;
   wpas_notify_network_added_wrapper(wpa_s, ssid);
@@ -1765,6 +1766,19 @@ int16 start_enterprise_security(void *wpa_s, uint8 *bssid, uint8 *tmp_ssid, uint
     }
   }
 #endif
+  sl_memcpy(phase1,
+            "\"tls_disable_time_checks=1\" \"fast_provisioning=1\"",
+            sizeof("\"tls_disable_time_checks=1\" \"fast_provisioning=1\""));
+  if (sl_strcmp((int8_t *)mgmt_if_adapter.eap_method, "PEAPSAFE1") == 0) {
+    sl_strcat((int8_t *)phase1, " \"phase2_auth=1\"");
+    sl_memcpy((int8_t *)mgmt_if_adapter.eap_method, "PEAP", sizeof("PEAP"));
+  } else if (sl_strcmp((int8_t *)mgmt_if_adapter.eap_method, "PEAPSAFE2") == 0) {
+    sl_strcat((int8_t *)phase1, " \"phase2_auth=2\"");
+    sl_memcpy((int8_t *)mgmt_if_adapter.eap_method, "PEAP", sizeof("PEAP"));
+  } else if (sl_strcmp((int8_t *)mgmt_if_adapter.eap_method, "PEAP") == 0) {
+    sl_strcat((int8_t *)phase1, " \"phase2_auth=0\"");
+  }
+
   if (
 #ifdef RSI_ENABLE_CCX
     wpa_config_set_wrapper(ssid, "key_mgmt", (const char *)key_mgmt, 0) < 0 ||
@@ -1774,7 +1788,7 @@ int16 start_enterprise_security(void *wpa_s, uint8 *bssid, uint8 *tmp_ssid, uint
     wpa_config_set_wrapper(ssid, "ssid", (char *)tmp_ssid, 0) < 0
     || wpa_config_set_wrapper(ssid, "eap", (char *)mgmt_if_adapter.eap_method, 0) < 0
     || wpa_config_set_wrapper(ssid, "pac_file", "\"testuser.pac\"", 0) < 0
-    || wpa_config_set_wrapper(ssid, "phase1", "\"tls_disable_time_checks=1\" \"fast_provisioning=1\"", 0)
+    || wpa_config_set_wrapper(ssid, "phase1", (const int8_t *)phase1, 0)
     || wpa_config_set_wrapper(ssid, "phase2", (char *)mgmt_if_adapter.inner_method, 0)
     || wpa_config_set_wrapper(ssid, "password", (char *)mgmt_if_adapter.passwd, 0) < 0
     || wpa_config_set_wrapper(ssid, "identity", (char *)mgmt_if_adapter.user_identity, 0) < 0) {

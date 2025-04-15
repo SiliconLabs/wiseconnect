@@ -239,10 +239,10 @@ void app_init(const void *unused)
 void application_start()
 {
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  sl_wifi_firmware_version_t version                = { 0 };
-  sl_mac_address_t mac_addr                         = { 0 };
-  data_semaphore                                    = osSemaphoreNew(1, 0, NULL);
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  sl_wifi_firmware_version_t version                   = { 0 };
+  sl_mac_address_t mac_addr                            = { 0 };
+  data_semaphore                                       = osSemaphoreNew(1, 0, NULL);
 
   sl_si91x_set_timeout(&timeout_configuration);
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &twt_client_configuration, NULL, NULL);
@@ -341,7 +341,7 @@ void application_start()
 
 #if ENABLE_NWP_POWER_SAVE
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-  status                      = sl_wifi_set_performance_profile(&performance_profile);
+  status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
     return;

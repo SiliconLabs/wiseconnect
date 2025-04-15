@@ -886,10 +886,10 @@ void wifi_app_mqtt_task(void)
           LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
         }
 
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                              .listen_interval = 1000 };
+        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                                 .listen_interval = 1000 };
 
-        sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
+        sl_status_t status = sl_wifi_set_performance_profile_v2(&performance_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
         }

@@ -40,6 +40,7 @@ extern char *itoa(int value, char *str, int base);
 #define sl_itoa(val, str)                 (uint8 *)itoa((val), (char *)(str), 10)
 #define sl_strcpy(dst, src)               strcpy((char *)(dst), (const char *)(src))
 #define sli_mgmt_realloc(x, y)            realloc(x, y)
+#define sl_strcat(dst, src)               strcat((int8_t *)(dst), (const int8_t *)(src))
 
 #define SL_READ_6(b0, b1, b2, b3, b4, b5) \
   ((((uint64_t)((b4) | ((b5) << 8))) << 32) | ((uint32_t)((b0) | ((b1) << 8) | ((b2) << 16) | ((b3) << 24))))

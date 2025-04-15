@@ -43,7 +43,7 @@
 #define SL_WIFI_MAX_CLIENT_COUNT 16
 
 /// Maximum length of the Wi-Fi Pre-Shared Key (PSK) credential.
-#define SL_WIFI_MAX_PSK_LENGTH 32
+#define SL_WIFI_MAX_PSK_LENGTH 64
 
 /// Maximum length of the Wi-Fi Pairwise Master Key (PMK) credential.
 #define SL_WIFI_MAX_PMK_LENGTH 64
@@ -313,9 +313,10 @@ typedef enum {
  */
 typedef enum {
   SL_WIFI_BSS_TYPE_INFRASTRUCTURE =
-    0,                            ///< Infrastructure BSS: Standard Wi-Fi Infrastructure network with an access point
-  SL_WIFI_BSS_TYPE_ADHOC   = 1,   ///< Ad-hoc BSS: Peer-to-peer Wi-Fi network without an access point
-  SL_WIFI_BSS_TYPE_ANY     = 2,   ///< Any Wi-Fi BSS type
+    0, ///< Infrastructure BSS: Standard Wi-Fi Infrastructure network with an access point
+  SL_WIFI_BSS_TYPE_ADHOC =
+    1, ///< Ad-hoc BSS: Peer-to-peer Wi-Fi network without an access point. (Currently not supported)
+  SL_WIFI_BSS_TYPE_ANY     = 2,   ///< Any Wi-Fi BSS type. (Currently not supported)
   SL_WIFI_BSS_TYPE_UNKNOWN = 0xFF ///< Unknown Wi-Fi BSS type
 } sl_wifi_bss_type_t;
 
@@ -623,6 +624,17 @@ typedef enum {
   SL_WIFI_EAP_DES_CBC3_SHA  = (1 << 11), ///< Wi-Fi EAP Client flag to use DES-CBC3-SHA Cipher for EAP connection
   SL_WIFI_EAP_RC4_MD5       = (1 << 12)  ///< Wi-Fi EAP Client flag to use RC4-MD5 Cipher for EAP connection
 } sl_wifi_eap_client_flag_t;
+
+/**
+ * @enum sl_wifi_statistics_report_t
+ * @brief Enumeration for Wi-Fi statistics report commands.
+ *
+ * This enumeration defines the commands to start or stop the collection of Wi-Fi statistics.
+ */
+typedef enum {
+  SL_WIFI_START_STATISTICS_REPORT, ///< Start statistics report
+  SL_WIFI_STOP_STATISTICS_REPORT,  ///< Stop statistics report
+} sl_wifi_statistics_report_t;
 
 /**
  * @def SL_WIFI_AUTO_CHANNEL

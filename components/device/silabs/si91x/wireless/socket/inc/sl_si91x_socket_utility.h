@@ -33,7 +33,11 @@
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_socket_constants.h"
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+#include "lwip/errno.h"
+#else
 #include "errno.h"
+#endif
 #include <stdbool.h>
 
 #define SET_ERROR_AND_RETURN(error)         \
@@ -259,14 +263,27 @@ sl_status_t sli_si91x_udp_connect_if_unconnected(sli_si91x_socket_t *si91x_socke
                                                  socklen_t to_addr_len,
                                                  int socket_id);
 
+/** 
+ * @addtogroup SOCKET_CONFIGURATION_FUNCTION
+ * @{
+ */
+
 /**
- * Sets the list of ciphers used when creating sockets
- * @param cipher_list  Bitmap of selected ciphers
+ * @brief Sets the list of ciphers to be used when creating sockets.
+ *
+ * This function allows you to specify the ciphers that should be used when creating sockets for secure communication.
+ *
+ * @param[in] cipher_list A bitmap of the selected ciphers from @ref SI91X_SOCKET_CIPHERS.
  */
 void sl_si91x_set_socket_cipherlist(uint32_t cipher_list);
 
 /**
- * Sets the list of extended ciphers used when creating sockets
- * @param extended_cipher_list  Bitmap of selected extended ciphers
+ * @brief Sets the list of extended ciphers to be used when creating sockets.
+ *
+ * This function allows you to specify the extended ciphers that should be used when creating sockets for secure communication.
+ *
+ * @param[in] extended_cipher_list A bitmap of the selected extended ciphers from @ref SI91X_EXTENDED_CIPHERS.
  */
 void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list);
+
+/** @} */

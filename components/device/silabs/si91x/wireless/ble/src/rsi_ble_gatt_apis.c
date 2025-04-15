@@ -52,7 +52,7 @@
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -95,7 +95,7 @@ int32_t rsi_ble_get_profiles_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 int32_t rsi_ble_get_profile_async(uint8_t *dev_addr, uuid_t profile_uuid, profile_descriptors_t *p_profile)
@@ -135,7 +135,7 @@ int32_t rsi_ble_get_profile_async(uint8_t *dev_addr, uuid_t profile_uuid, profil
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -181,7 +181,7 @@ int32_t rsi_ble_get_char_services_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -230,7 +230,7 @@ int32_t rsi_ble_get_inc_services_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -278,7 +278,7 @@ int32_t rsi_ble_get_char_value_by_uuid_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -320,7 +320,7 @@ int32_t rsi_ble_get_att_descriptors_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -360,7 +360,7 @@ int32_t rsi_ble_get_att_value_async(uint8_t *dev_addr, uint16_t handle, rsi_ble_
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -406,7 +406,7 @@ int32_t rsi_ble_get_multiple_att_values_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -447,7 +447,7 @@ int32_t rsi_ble_get_long_att_value_async(uint8_t *dev_addr,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -510,7 +510,7 @@ void ble_prepare_write_request(rsi_ble_req_prepare_write_t *req_prepare_write,
  *             0x4E62  -  Invalid Parameters \n
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -547,7 +547,7 @@ int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
  *             0x4D05  -  BLE Socket not available \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -590,7 +590,7 @@ int32_t rsi_ble_execute_write_async(uint8_t *dev_addr, uint8_t exe_flag)
 				  please refer rsi_ble_resp_profiles_list_s structure for more info.\n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -630,7 +630,7 @@ int32_t rsi_ble_get_profiles(uint8_t *dev_addr,
 				  please refer profile_descriptor_s structure for more info. \n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -667,7 +667,7 @@ int32_t rsi_ble_get_profile(uint8_t *dev_addr, uuid_t profile_uuid, profile_desc
  * @param[out] p_char_services_list - service characteristics details are filled in this structure, please refer rsi_ble_resp_char_serv_s structure for more info. \n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -709,7 +709,7 @@ int32_t rsi_ble_get_char_services(uint8_t *dev_addr,
  * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, please refer rsi_ble_resp_inc_serv structure for more info.\n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -753,7 +753,7 @@ int32_t rsi_ble_get_inc_services(uint8_t *dev_addr,
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
  *             If the return value is less than 0 \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -798,7 +798,7 @@ int32_t rsi_ble_get_char_value_by_uuid(uint8_t *dev_addr,
  * @param[out] p_att_desc - pointer to characteristic descriptor structure, Please refer rsi_ble_resp_att_descs_s strcuture for more info.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -836,7 +836,7 @@ int32_t rsi_ble_get_att_descriptors(uint8_t *dev_addr,
  * @param[out] p_att_val - attribute value is filled in this structure, Please refer rsi_ble_resp_att_value_s structure for more info.\n
  * @return     0  		-  Success \n
  *             Non-Zero Value - Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -873,7 +873,7 @@ int32_t rsi_ble_get_att_value(uint8_t *dev_addr, uint16_t handle, rsi_ble_resp_a
  * @param[out] p_att_vals 	- attribute values filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -915,7 +915,7 @@ int32_t rsi_ble_get_multiple_att_values(uint8_t *dev_addr,
  * @param[out] p_att_vals - attribute value filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -953,7 +953,7 @@ int32_t rsi_ble_get_long_att_value(uint8_t *dev_addr,
  * @param[in]  p_data 	- attribute value
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -992,7 +992,7 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
  *             0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1032,7 +1032,7 @@ int32_t rsi_ble_set_att_cmd_async(uint8_t *dev_addr, uint16_t handle, uint8_t da
  *             0x4D04  -  BLE not connected \n
  *             0x4D05  -  BLE Socket not available \n
  *             0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1072,7 +1072,7 @@ int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len
  * @param[in]  p_data 	- attribute value
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1121,7 +1121,7 @@ int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
  * @param[in]  p_data 	- attribute value
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1158,7 +1158,7 @@ int32_t rsi_ble_prepare_write(uint8_t *dev_addr,
 		 	1 - BLE_ATT_EXECUTE_PENDING_WRITES_IMMEDIATELY \n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1195,7 +1195,7 @@ int32_t rsi_ble_execute_write(uint8_t *dev_addr, uint8_t exe_flag)
  *             Non-Zero Value	-	Failure \n
  *             0x4046  -  Invalid Arguments \n
  *             0x4D08  -  Profile record full \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1221,7 +1221,7 @@ int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp
  *             Non-Zero Value	-	Failure \n
  *             0x4046  -  Invalid Arguments \n
  *             0x4D09  -  Attribute record full  \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 
@@ -1246,7 +1246,7 @@ int32_t rsi_ble_add_attribute(rsi_ble_req_add_att_t *p_attribute)
  *             0x4046  -  Invalid Arguments \n
  *             0x4D06  -  Attribute record not found \n
  *             0x4E60  -  Invalid Handle Range \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  * @note      This API can only be used if the service is maintained inside the firmware. \n
  *            The services which are maintained by firmware must follow the below rules. \n
@@ -1296,7 +1296,7 @@ int32_t rsi_ble_set_local_att_value(uint16_t handle, uint16_t data_len, const ui
  *             0x4E60  -  Invalid Handle Range \n
  *             0x4E63  -  BLE Buffer Count Exceeded \n
  *             0x4E64  -  BLE Buffer already in use  \n 
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) .
  *
  */
 int32_t rsi_ble_set_wo_resp_notify_buf_info(const uint8_t *dev_addr, uint8_t buf_mode, uint8_t buf_cnt)
@@ -1334,7 +1334,7 @@ int32_t rsi_ble_set_wo_resp_notify_buf_info(const uint8_t *dev_addr, uint8_t buf
  *             0x4D06  -  Attribute record not found \n
  *             0x4E60  -  Invalid Handle Range \n
  *             0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured  \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  *
  * @note	If the services are maintained in the Application/Host,\n
  * 			then need to use \ref rsi_ble_notify_value() API instead of using \ref rsi_ble_set_local_att_value() API\n
@@ -1374,7 +1374,7 @@ int32_t rsi_ble_notify_value(const uint8_t *dev_addr, uint16_t handle, uint16_t 
  *             Non-Zero Value	-	Failure \n
  *             0x4D05  -  BLE socket not available \n 
  *             0x4E60  -  Invalid Handle Range \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  *
  */
 
@@ -1415,7 +1415,7 @@ int32_t rsi_ble_indicate_value(const uint8_t *dev_addr, uint16_t handle, uint16_
  *             Non-Zero Value	-	Failure \n
  *             0x4D05  -  BLE socket not available \n 
  *             0x4E60  -  Invalid Handle Range \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  *
  */
 
@@ -1451,7 +1451,7 @@ int32_t rsi_ble_indicate_value_sync(const uint8_t *dev_addr, uint16_t handle, ui
  * @return    0			-	Success \n
  *            Non-Zero Value	-	Failure
  *            0x4D05  -  BLE socket not available \n 
- * @note      Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note      Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  *
  */
 int32_t rsi_ble_indicate_confirm(const uint8_t *dev_addr)
@@ -1485,7 +1485,7 @@ int32_t rsi_ble_indicate_confirm(const uint8_t *dev_addr)
  *             Non-Zero Value	-	Failure \n
  *             0x4046  -  Invalid Arguments \n 
  *             0x4D06  -  Attribute record not found \n 
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  * @note      This API can only be used if the service is maintained inside the firmware. The services which are maintained by firmware must
  * follow the below rules.\n
  * Rule 1: The attribute_data_size is less than 20 bytes during the service_creation \n
@@ -1524,7 +1524,7 @@ int32_t rsi_ble_get_local_att_value(uint16_t handle, rsi_ble_resp_local_att_valu
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
  *             0x4D04  -  BLE not connected \n 
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_gatt_read_response(uint8_t *dev_addr,
                                    uint8_t read_type,
@@ -1561,7 +1561,7 @@ int32_t rsi_ble_gatt_read_response(uint8_t *dev_addr,
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
  *             0x4D0A  -  BLE profile not found (profile handler invalid) \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_remove_gatt_service(uint32_t service_handler)
 {
@@ -1584,7 +1584,7 @@ int32_t rsi_ble_remove_gatt_service(uint32_t service_handler)
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure \n
  *             0x4D06  -  Attribute record not found  \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_remove_gatt_attibute(uint32_t service_handler, uint16_t att_hndl)
 {
@@ -1616,7 +1616,7 @@ int32_t rsi_ble_remove_gatt_attibute(uint32_t service_handler, uint16_t att_hndl
  *             Non-Zero Value	-	Failure
  *             0x4D04  -  BLE not Connected  \n
  *             0x4E62  -  Invalid Parameters \n 
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_att_error_response(uint8_t *dev_addr, uint16_t handle, uint8_t opcode, uint8_t err)
 {
@@ -1653,7 +1653,7 @@ int32_t rsi_ble_att_error_response(uint8_t *dev_addr, uint16_t handle, uint8_t o
  *             Non-Zero Value	-	Failure
  *             0x4D04  -  BLE not Connected  \n
  *             0x4E62  -  Invalid Parameters \n 
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_mtu_exchange_event(uint8_t *dev_addr, uint8_t mtu_size)
 {
@@ -1680,7 +1680,7 @@ int32_t rsi_ble_mtu_exchange_event(uint8_t *dev_addr, uint8_t mtu_size)
  *             0x4D0C   -   When RSI_BLE_MTU_EXCHANGE_FROM_HOST BIT is not SET.
  *             0x4D05   -   BLE Socket Not Available.
  *             Non-Zero Value	-	Failure
- *             Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors)
+ *             Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes)
  *
  */
 int32_t rsi_ble_mtu_exchange_resp(uint8_t *dev_addr, uint8_t mtu_size)
@@ -1715,7 +1715,7 @@ int32_t rsi_ble_mtu_exchange_resp(uint8_t *dev_addr, uint8_t mtu_size)
  *             Non-Zero Value	-	Failure
  *             0x4046  -  Invalid Arguments  \n 
  *             0x4D04  -  BLE not Connected  \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_gatt_write_response(uint8_t *dev_addr, uint8_t type)
 {
@@ -1751,7 +1751,7 @@ int32_t rsi_ble_gatt_write_response(uint8_t *dev_addr, uint8_t type)
  *             Non-Zero Value	-	Failure
  *             0x4046  -  Invalid Arguments  \n 
  *             0x4D04  -  BLE not Connected  \n
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
+ * @note       Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) \n 
  */
 int32_t rsi_ble_gatt_prepare_write_response(uint8_t *dev_addr,
                                             uint16_t handle,

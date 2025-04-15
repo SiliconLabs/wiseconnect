@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -41,7 +41,7 @@
 #include <string.h>
 #include <assert.h>
 #include "sl_si91x_core_utilities.h"
-#include "em_core.h"
+#include "sl_core.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "sli_siwx917_soc.h"
 #include "rsi_rom_clks.h"
@@ -183,6 +183,7 @@ static uint32_t feature_bit_map                   = 0;
 static uint8_t ap_join_feature_bitmap             = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
 static uint8_t client_join_feature_bitmap         = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
 static uint32_t client_listen_interval            = 1000;
+static uint32_t client_listen_interval_multiplier = 1;
 static sl_si91x_efuse_data_t si91x_efuse_data     = { 0 };
 //! Currently, initialized_opermode is used only to handle concurrent mode using sl_net_init()
 static uint16_t initialized_opermode = SL_SI91X_INVALID_MODE;
@@ -2317,11 +2318,6 @@ void sl_si91x_set_listen_interval(uint32_t listen_interval)
   return;
 }
 
-uint32_t sl_si91x_get_listen_interval(void)
-{
-  return client_listen_interval;
-}
-
 void sl_si91x_set_timeout(const sl_si91x_timeout_t *timeout_config)
 {
   memcpy(&timeout_glbl, timeout_config, sizeof(sl_si91x_timeout_t));
@@ -2737,4 +2733,18 @@ sl_status_t sl_si91x_debug_log(const sl_si91x_assertion_t *assertion)
 
   VERIFY_STATUS_AND_RETURN(status);
   return status;
+}
+
+void sli_si91x_set_listen_interval(sl_wifi_listen_interval_v2_t listen_interval)
+{
+  client_listen_interval            = listen_interval.listen_interval;
+  client_listen_interval_multiplier = listen_interval.listen_interval_multiplier;
+  return;
+}
+
+void sli_si91x_get_listen_interval(sl_wifi_listen_interval_v2_t *listen_interval)
+{
+  listen_interval->listen_interval            = client_listen_interval;
+  listen_interval->listen_interval_multiplier = client_listen_interval_multiplier;
+  return;
 }

@@ -15,9 +15,13 @@ source:
 - path: src/sl_net_basic_certificate_store.c
 - path: src/sl_net.c
 - path: si91x/sl_net_si91x.c
-  condition: ["sl_si91x_internal_stack"]
+  unless:
+    - sl_si91x_network_dual_stack
+    - sl_si91x_lwip_stack
 - path: src/sl_net_for_lwip.c
   condition: ["sl_si91x_lwip_stack"]
+- path: src/sl_net_for_dual_stack.c
+  condition: ["sl_si91x_network_dual_stack"]
 include:
 - path: inc
 - path: inc
@@ -33,6 +37,11 @@ include:
     - path: sl_net_for_lwip.h
   condition:
     - sl_si91x_lwip_stack
+- path: inc
+  file_list:
+    - path: sl_net_for_lwip.h
+  condition:
+    - sl_si91x_network_dual_stack
 
 define:
 - name: SL_NET_COMPONENT_INCLUDED

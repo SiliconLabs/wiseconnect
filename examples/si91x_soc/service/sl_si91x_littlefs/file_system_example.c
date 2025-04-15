@@ -33,20 +33,23 @@ lfs_file_t file;
 // lfs structure cfg variable
 const struct lfs_config cfg = {
   // block device operations
-  .read  = si91x_block_device_read,
-  .prog  = si91x_block_device_prog,
-  .erase = si91x_block_device_erase,
-  .sync  = si91x_block_device_sync,
+  .read  = si91x_block_device_read,  // Function to read data from the block device
+  .prog  = si91x_block_device_prog,  // Function to program data to the block device
+  .erase = si91x_block_device_erase, // Function to erase a block on the block device
+  .sync  = si91x_block_device_sync,  // Function to synchronize the block device
 
   // block device configuration
-  .read_size      = 16,
-  .prog_size      = 16,
-  .block_size     = 4096,
-  .block_count    = 64,
-  .cache_size     = 16,
-  .lookahead_size = 16,
-  .block_cycles   = 500,
+  .read_size      = 16,   // Minimum size of a read operation in bytes
+  .prog_size      = 16,   // Minimum size of a program operation in bytes
+  .block_size     = 4096, // Size of an erasable block in bytes
+  .block_count    = 64,   // Number of blocks in the block device
+  .cache_size     = 16,   // Size of the cache in bytes
+  .lookahead_size = 16,   // Size of the lookahead buffer in bytes
+  .block_cycles   = 500,  // Number of erase cycles before the block is considered worn out
 };
+
+// Total size allocated for LittleFS in flash = block_size * block_count
+// Total Size = 4096 * 64 = 262144 bytes (or 256 KB)
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************

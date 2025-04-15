@@ -264,8 +264,8 @@ void application_start()
 
 sl_status_t set_twt(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  sl_status_t status                                = SL_STATUS_OK;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  sl_status_t status                                   = SL_STATUS_OK;
 
   //! Set TWT Config
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
@@ -287,7 +287,7 @@ sl_status_t set_twt(void)
 
   //! Apply power save profile
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-  status                      = sl_wifi_set_performance_profile(&performance_profile);
+  status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
     return status;

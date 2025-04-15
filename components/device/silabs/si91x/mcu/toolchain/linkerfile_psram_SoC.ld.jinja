@@ -281,9 +281,33 @@ SECTIONS
 	    	_last_ram_location = .;
 	  	{%- if text_segment_in_psram %}
 		} > ram AT> psram
+
+		. = _last_ram_location;
+		_classified_text_ = __etext + (__sleep_code_end__ - __sleep_code_start__);
+
+		.classified_text :
+		{
+		    _classified_text_section_start_ = .;
+		    . = ALIGN(4);
+		    *(text_*)
+		    _classified_text_section_end_ = .;
+		    _last_ram_location = .;
+		} > ram AT> psram
+		
+        . = _last_ram_location;
+        _classified_data_ = __etext + (_classified_text_section_end_ - __sleep_code_start__);
+	
+		.classified_data :
+		{
+		    _classified_data_section_start_ = .;
+		    . = ALIGN(4);
+		    *(data_*)
+		    _classified_data_section_end_ = .;
+		    _last_ram_location = .;
+		} > ram AT> psram
     
-	  	/* _sidata is used in code startup code */
-		_sidata = __etext + (__sleep_code_end__ - __sleep_code_start__);
+	    /* _sidata is used in code startup code */
+		_sidata = __etext + (_classified_data_section_end_ - __sleep_code_start__);
 		_last_psram_location = _sidata;
 		  {%- elif data_segment_in_psram %}
 		  } > ram AT> rom
@@ -430,6 +454,23 @@ SECTIONS
 	{%- else %} 
 	} > ram
 	{% endif %}
+
+
+  {%- if psram_present and psram_linker_config_enabled and not bss_segment_in_psram %}
+	. = _last_psram_location;
+	_classified_bss_ = _last_ram_location;
+	
+	.classified_bss :
+	{
+		_classified_bss_section_start_ = .;
+		
+		. = ALIGN(4);
+		*(bss_to_psram*)
+		
+		_classified_bss_section_end_ = .;
+		_last_psram_location = .;
+	} > psram
+	{%- endif %}
 
 	{%- if psram_present and psram_linker_config_enabled %}
 			{%- if bss_segment_in_psram %}

@@ -54,6 +54,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 #define SL_BOD_DEFAULT_SLOT_VALUE 2  ///< Default BOD Slot value
 #define SL_BOD_DEFAULT_THRESHOLD 2.7f ///< Default BOD threshold value
 ```
+  - Battery voltage ranges can be customized for improved battery status monitoring by modifying the configurations in `sl_si91x_bod.h`.
+
+  ```
+  #define SL_BOD_MAX_BATTERY_VOLTAGE 3.3f ///< Maximum battery voltage for Brown-Out Detector (BOD)
+  #define SL_BOD_MIN_BATTERY_VOLTAGE 1.6f ///< Minimum battery voltage for Brown-Out Detector (BOD)
+  ```
+
 - Configure UC from the slcp component.
 
   ![Figure: Introduction](resources/uc_screen/bod_uc_screen.png)
@@ -78,5 +85,15 @@ The console will as below.(Interrupt operations are not there in the Console Out
   - Console Output:
 
     ![Figure: Introduction](resources/readme/bod_result_console.png)
+
+  - When an interrupt occurs, the following behavior can be observed based on the configured threshold value:
+
+    - When Blackout is enabled:
+
+      ![Figure: Introduction](resources/readme/bod_interrupt_result_console.png)
+    
+    - When Blackout is Disabled:
+
+      ![Figure: Introduction](resources/readme/bod_interrupt_result_console_DisableBlkot.png)
 
 > **Note:** Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

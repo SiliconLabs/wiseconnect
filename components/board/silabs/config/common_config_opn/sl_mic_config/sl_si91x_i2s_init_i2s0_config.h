@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
-* @file sl_si91x_i2c_12c0_config.h
-* @brief I2c driver configuration file.
+* @file sl_si91x_i2s_i2s0_config.h
+* @brief I2S driver configuration file.
 *******************************************************************************
 * # License
 * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>

@@ -265,17 +265,17 @@ typedef void (*ARM_SAI_SignalEvent_t) (uint32_t event);  ///< Pointer to \ref AR
 \brief SAI Driver Capabilities.
 */
 typedef struct _ARM_SAI_CAPABILITIES {
-  uint32_t asynchronous          : 1;   ///< supports asynchronous Transmit/Receive
-  uint32_t synchronous           : 1;   ///< supports synchronous Transmit/Receive
-  uint32_t protocol_user         : 1;   ///< supports user defined Protocol
-  uint32_t protocol_i2s          : 1;   ///< supports I2S Protocol
-  uint32_t protocol_justified    : 1;   ///< supports MSB/LSB justified Protocol
-  uint32_t protocol_pcm          : 1;   ///< supports PCM short/long frame Protocol
-  uint32_t protocol_ac97         : 1;   ///< supports AC'97 Protocol
-  uint32_t mono_mode             : 1;   ///< supports Mono mode
-  uint32_t companding            : 1;   ///< supports Companding
-  uint32_t mclk_pin              : 1;   ///< supports MCLK (Master Clock) pin
-  uint32_t event_frame_error     : 1;   ///< supports Frame error event: \ref ARM_SAI_EVENT_FRAME_ERROR
+  uint8_t asynchronous          : 1;   ///< supports asynchronous Transmit/Receive
+  uint8_t synchronous           : 1;   ///< supports synchronous Transmit/Receive
+  uint8_t protocol_user         : 1;   ///< supports user defined Protocol
+  uint8_t protocol_i2s          : 1;   ///< supports I2S Protocol
+  uint8_t protocol_justified    : 1;   ///< supports MSB/LSB justified Protocol
+  uint8_t protocol_pcm          : 1;   ///< supports PCM short/long frame Protocol
+  uint8_t protocol_ac97         : 1;   ///< supports AC'97 Protocol
+  uint8_t mono_mode             : 1;   ///< supports Mono mode
+  uint8_t companding            : 1;   ///< supports Companding
+  uint8_t mclk_pin              : 1;   ///< supports MCLK (Master Clock) pin
+  uint8_t event_frame_error     : 1;   ///< supports Frame error event: \ref ARM_SAI_EVENT_FRAME_ERROR
 } ARM_SAI_CAPABILITIES;
 
 

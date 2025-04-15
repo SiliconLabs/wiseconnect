@@ -47,6 +47,14 @@ sl_dma_init_t dma_init;
 #define ULP_UART_DMA_INSTANCE 1
 #endif
 
+#define USART_CONFIGURE_CLOCK_GPIO_PIN (uint8_t)1
+#define USART_CONFIGURE_TX_GPIO_PIN    (uint8_t)2
+#define USART_CONFIGURE_RX_GPIO_PIN    (uint8_t)3
+#define USART_CONFIGURE_CTS_GPIO_PIN   (uint8_t)4
+#define USART_CONFIGURE_RTS_GPIO_PIN   (uint8_t)5
+#define USART_CONFIGURE_IR_TX_GPIO_PIN (uint8_t)6
+#define USART_CONFIGURE_IR_RX_GPIO_PIN (uint8_t)7
+
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -1057,6 +1065,81 @@ uint32_t USART_GetRxCount(const USART_RESOURCES *usart)
   return cnt;
 }
 
+/*===================================================*/
+/**
+ * @fn          void configure_usart_gpio_pin(const USART_RESOURCES *usart, uint8_t usart_pin_flag)
+ * @brief       to configure usart flow control gpio pins
+ * @return      none
+ */
+STATIC INLINE void configure_usart_gpio_pin(const USART_RESOURCES *usart, uint8_t usart_pin_flag)
+{
+  USART_PIN *usart_gpio_pin;
+
+  // assign selected usart gpio pin
+  switch (usart_pin_flag) {
+    case USART_CONFIGURE_CLOCK_GPIO_PIN:
+      // clock pin is valid for USART0 instance only
+      usart_gpio_pin = usart->io.clock;
+      break;
+
+    case USART_CONFIGURE_TX_GPIO_PIN:
+      usart_gpio_pin = usart->io.tx;
+      break;
+
+    case USART_CONFIGURE_RX_GPIO_PIN:
+      usart_gpio_pin = usart->io.rx;
+      break;
+
+    case USART_CONFIGURE_CTS_GPIO_PIN:
+      usart_gpio_pin = usart->io.cts;
+      break;
+
+    case USART_CONFIGURE_RTS_GPIO_PIN:
+      usart_gpio_pin = usart->io.rts;
+      break;
+
+    case USART_CONFIGURE_IR_TX_GPIO_PIN:
+      // ir pins are valid for UART0 & USART0 instances only
+      usart_gpio_pin = usart->io.ir_tx;
+      break;
+
+    case USART_CONFIGURE_IR_RX_GPIO_PIN:
+      // ir pins are valid for UART0 & USART0 instances only
+      usart_gpio_pin = usart->io.ir_rx;
+      break;
+
+    default: // Invalid selection
+      return;
+  }
+
+  if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
+    if (usart_gpio_pin->pin > 63) {
+      if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+        RSI_EGPIO_UlpPadDriverDisableState((uint8_t)(usart_gpio_pin->pin - 64), ulp_Pullup);
+      }
+      RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart_gpio_pin->pin - 64));
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart_gpio_pin->pin - 64), 6);
+    }
+    if (usart_gpio_pin->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(usart_gpio_pin->pad_sel);
+    }
+    if (usart_gpio_pin->pin >= 25 && usart_gpio_pin->pin <= 30) {
+      RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rts->pin);
+    }
+    if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+      RSI_EGPIO_PadDriverDisableState(usart_gpio_pin->pin, Pullup);
+    }
+    RSI_EGPIO_PadReceiverEnable(usart_gpio_pin->pin);
+    RSI_EGPIO_SetPinMux(EGPIO, usart_gpio_pin->port, usart_gpio_pin->pin, usart_gpio_pin->mode);
+  } else if (usart->pREGS == ULP_UART) {
+    if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+      RSI_EGPIO_UlpPadDriverDisableState(usart_gpio_pin->pin, ulp_Pullup);
+    }
+    RSI_EGPIO_UlpPadReceiverEnable(usart_gpio_pin->pin);
+    RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, usart_gpio_pin->pin, usart_gpio_pin->mode);
+  }
+}
+
 /**
  * @fn          int32_t USART_Control (uint32_t  control, uint32_t  arg,uint32_t baseClk, USART_RESOURCES  *usart, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
  * @brief       Control USART Interface.
@@ -1091,26 +1174,7 @@ int32_t USART_Control(uint32_t control,
   switch (control & ARM_USART_CONTROL_Msk) {
     case ARM_USART_CONTROL_TX:
       if (arg) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          if (usart->io.tx->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.tx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.tx->pin - 64), 6);
-          }
-          if (usart->io.tx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.tx->pad_sel);
-          }
-          if (usart->io.tx->pin >= 25 && usart->io.tx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.tx->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.tx->pin);
-          //configure TX pin
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.tx->port, usart->io.tx->pin, usart->io.tx->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          //configure TX pin
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.tx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.tx->port, usart->io.tx->pin, usart->io.tx->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_TX_GPIO_PIN);
         usart->info->flags |= USART_FLAG_TX_ENABLED;
       } else {
         usart->info->flags &= (uint8_t)(~USART_FLAG_TX_ENABLED);
@@ -1119,28 +1183,7 @@ int32_t USART_Control(uint32_t control,
 
     case ARM_USART_CONTROL_RX:
       if (arg) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          if (usart->io.rx->pin > 63) {
-            RSI_EGPIO_UlpPadDriverDisableState((uint8_t)(usart->io.rx->pin - 64), ulp_Pullup);
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.rx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.rx->pin - 64), 6);
-          }
-          if (usart->io.rx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.rx->pad_sel);
-          }
-          if (usart->io.rx->pin >= 25 && usart->io.rx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rx->pin);
-          }
-          RSI_EGPIO_PadDriverDisableState(usart->io.rx->pin, Pullup);
-          RSI_EGPIO_PadReceiverEnable(usart->io.rx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.rx->port, usart->io.rx->pin, usart->io.rx->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          RSI_EGPIO_UlpPadDriverDisableState(usart->io.rx->pin, ulp_Pullup);
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.rx->pin);
-          //configure RX pin
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.rx->port, usart->io.rx->pin, usart->io.rx->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_RX_GPIO_PIN);
         usart->info->flags |= USART_FLAG_RX_ENABLED;
       } else {
         usart->info->flags &= (uint8_t)(~USART_FLAG_RX_ENABLED);
@@ -1281,20 +1324,7 @@ int32_t USART_Control(uint32_t control,
       if (usart->sync_mode.en_usart_mode) {
         if (usart->pREGS == USART0) {
           if (usart->capabilities.synchronous_master) {
-
-            if (usart->io.clock->pin > 63) {
-              RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.clock->pin - 64));
-              RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.clock->pin - 64), 6);
-            }
-            if (usart->io.clock->pad_sel != 0) {
-              RSI_EGPIO_PadSelectionEnable(usart->io.clock->pad_sel);
-            }
-            if (usart->io.clock->pin >= 25 && usart->io.clock->pin <= 30) {
-              RSI_EGPIO_HostPadsGpioModeEnable(usart->io.clock->pin);
-            }
-            RSI_EGPIO_PadReceiverEnable(usart->io.clock->pin);
-            //configure clock pin
-            RSI_EGPIO_SetPinMux(EGPIO, usart->io.clock->port, usart->io.clock->pin, usart->io.clock->mode);
+            configure_usart_gpio_pin(usart, USART_CONFIGURE_CLOCK_GPIO_PIN);
 
             //enable Sync mode
             usart->pREGS->SMCR_b.SYNC_MODE = 1;
@@ -1321,19 +1351,7 @@ int32_t USART_Control(uint32_t control,
       break;
     case ARM_USART_MODE_SYNCHRONOUS_SLAVE:
       if (usart->pREGS == USART0 && usart->capabilities.synchronous_slave) {
-        if (usart->io.clock->pin > 63) {
-          RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.clock->pin - 64));
-          RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.clock->pin - 64), 6);
-        }
-        if (usart->io.clock->pad_sel != 0) {
-          RSI_EGPIO_PadSelectionEnable(usart->io.clock->pad_sel);
-        }
-        if (usart->io.clock->pin >= 25 && usart->io.clock->pin <= 30) {
-          RSI_EGPIO_HostPadsGpioModeEnable(usart->io.clock->pin);
-        }
-        RSI_EGPIO_PadReceiverEnable(usart->io.clock->pin);
-        // Configure clock pin
-        RSI_EGPIO_SetPinMux(EGPIO, usart->io.clock->port, usart->io.clock->pin, usart->io.clock->mode);
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_CLOCK_GPIO_PIN);
 
         // Enable sync mode
         usart->pREGS->SMCR_b.SYNC_MODE = 1;
@@ -1372,32 +1390,10 @@ int32_t USART_Control(uint32_t control,
       if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
         if (usart->capabilities.irda) {
           //IR TX PIN
-          if (usart->io.ir_tx->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.ir_tx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.ir_tx->pin - 64), 6);
-          }
-          if (usart->io.ir_tx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.ir_tx->pad_sel);
-          }
-          if (usart->io.ir_tx->pin >= 25 && usart->io.ir_tx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.ir_tx->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.ir_tx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.ir_tx->port, usart->io.ir_tx->pin, usart->io.ir_tx->mode);
+          configure_usart_gpio_pin(usart, USART_CONFIGURE_IR_TX_GPIO_PIN);
 
           //IR RX PIN
-          if (usart->io.ir_rx->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.ir_rx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.ir_rx->pin - 64), 6);
-          }
-          if (usart->io.ir_rx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.ir_rx->pad_sel);
-          }
-          if (usart->io.ir_rx->pin >= 25 && usart->io.ir_rx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.ir_rx->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.ir_rx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.ir_rx->port, usart->io.ir_rx->pin, usart->io.ir_rx->mode);
+          configure_usart_gpio_pin(usart, USART_CONFIGURE_IR_RX_GPIO_PIN);
         }
         if (usart->capabilities.irda == 1) {
           //Enable SIR mode
@@ -1537,25 +1533,7 @@ int32_t USART_Control(uint32_t control,
       break;
     case ARM_USART_FLOW_CONTROL_RTS:
       if (usart->capabilities.rts) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-
-          if (usart->io.rts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.rts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.rts->pin - 64), 6);
-          }
-          if (usart->io.rts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.rts->pad_sel);
-          }
-          if (usart->io.rts->pin >= 25 && usart->io.rts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_RTS_GPIO_PIN);
       }
       if (usart->capabilities.flow_control_rts) {
         usart->pREGS->MCR |= (USART_MODEM_AFCE_ENABLE | USART_MODEM_RTS_SET);
@@ -1564,26 +1542,8 @@ int32_t USART_Control(uint32_t control,
       }
       break;
     case ARM_USART_FLOW_CONTROL_CTS:
-
       if (usart->capabilities.cts) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          if (usart->io.cts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.cts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.cts->pin - 64), 6);
-          }
-          if (usart->io.cts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.cts->pad_sel);
-          }
-          if (usart->io.cts->pin >= 25 && usart->io.cts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.cts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_CTS_GPIO_PIN);
       }
       if (usart->capabilities.flow_control_cts) {
         usart->pREGS->MCR |= (USART_MODEM_AFCE_ENABLE);
@@ -1592,45 +1552,9 @@ int32_t USART_Control(uint32_t control,
       }
       break;
     case ARM_USART_FLOW_CONTROL_RTS_CTS:
-
       if (usart->capabilities.cts && usart->capabilities.rts) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          //CTS
-          if (usart->io.cts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.cts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.cts->pin - 64), 6);
-          }
-          if (usart->io.cts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.cts->pad_sel);
-          }
-          if (usart->io.cts->pin >= 25 && usart->io.cts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.cts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-          //RTS
-          if (usart->io.rts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.rts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.rts->pin - 64), 6);
-          }
-          if (usart->io.rts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.rts->pad_sel);
-          }
-          if (usart->io.rts->pin >= 25 && usart->io.rts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          //RTS
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-
-          //CTS
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_CTS_GPIO_PIN);
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_RTS_GPIO_PIN);
       }
       if (usart->capabilities.flow_control_rts && usart->capabilities.flow_control_cts) {
         usart->pREGS->MCR |= (USART_MODEM_AFCE_ENABLE | USART_MODEM_RTS_SET);

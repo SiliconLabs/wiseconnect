@@ -20,6 +20,7 @@
 #include "rsi_debug.h"
 #include "sl_si91x_bod.h"
 #include "sl_system_init.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
 ***************************  Defines / Macros  ********************************
@@ -28,10 +29,10 @@
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static float vbatt                  = 0;
-static float vbat_percentage        = 0;
-static boolean_t sl_bod_inter_flag  = 0;
-sl_bod_uc_param_t usr_config_params = { .slot_value = SL_BOD_DEFAULT_SLOT_VALUE, .blackout_en = DISABLE };
+static float vbatt                          = 0;
+static float vbat_percentage                = 0;
+static volatile boolean_t sl_bod_inter_flag = 0;
+sl_bod_uc_param_t usr_config_params         = { .slot_value = SL_BOD_DEFAULT_SLOT_VALUE, .blackout_en = DISABLE };
 /******************************************************************************
 **************************   GLOBAL VARIABLES   *******************************
 ******************************************************************************/
@@ -76,6 +77,7 @@ void bod_example_init(void)
     // Set the BOD threshold
     status = sl_si91x_bod_set_threshold(SL_BOD_DEFAULT_THRESHOLD);
     if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n BOD Threshold Configuration Failed\r\n");
       break; // Return if setting threshold fails
     } else
       DEBUGOUT("\r\n BOD Threshold Configuration Successful\r\n");
@@ -109,50 +111,38 @@ void bod_example_init(void)
  *****************************************************************************/
 void bod_example_process_action(void)
 {
-  sl_status_t status                = SL_STATUS_FAIL; // Variable to store the status of BOD operations
-  static uint32_t counter_for_delay = 0;              // Counter for adding delay to slow-down repetitive operation
-
+  sl_status_t status = SL_STATUS_FAIL; // Variable to store the status of BOD operations
   do {
-    // Get the battery status (voltage level)
-    status = sl_si91x_bod_get_battery_status(&vbatt);
-    if (status == SL_STATUS_OK) {
-      // Get the battery percentage based on the voltage level
-      status = sl_si91x_bod_battery_percentage(vbatt, &vbat_percentage);
+    if (sl_bod_inter_flag) {
+      // Get the battery status (voltage level)
+      status = sl_si91x_bod_get_battery_status(&vbatt);
       if (status == SL_STATUS_OK) {
-        // Check if the BOD interrupt flag is set
-        if (sl_bod_inter_flag) {
+        // Get the battery percentage based on the voltage level
+        status = sl_si91x_bod_battery_percentage(vbatt, &vbat_percentage);
+        if (status == SL_STATUS_OK) {
+          // Check if the BOD interrupt flag is set
           if (sl_si91x_bod_get_blackout_status()) {
-            // Check if the battery percentage is below 15%
-            if (vbat_percentage < SL_BOD_VBAT_THRESHOD_VALUE) {
-              // Enable blackout reset mode
-              DEBUGOUT(" Your Vbatt status is below 15%%, Blackout mode is "
-                       "enabled. It may pull down the RESET pin, and the current "
-                       "battery level is %.2f%%\n\n",
-                       vbat_percentage);
-            }
+            // Enable blackout reset mode
+            DEBUGOUT("Blackout mode is enabled. It may pull down the RESET pin, and the current "
+                     "battery level is %.2f%% \r\n\n",
+                     vbat_percentage);
           } else {
             DEBUGOUT(" Your Vbatt status is less than the threshold voltage i.e "
-                     "%.2fV battery Percentage is -- %.3f%%\n\n",
+                     "%.2fV battery Percentage is -- %.3f%% \r\n\n",
                      vbatt,
                      vbat_percentage);
           }
           // Clear the BOD interrupt flag
           sl_bod_inter_flag = 0;
         } else {
-          DEBUGOUT(" Battery Voltage is %.3fV -- Percentage -- %.3f%%\n\n", vbatt, vbat_percentage);
+          DEBUGOUT(" Battery Percentage read failed \r\n");
+          break;
         }
       } else {
-        DEBUGOUT(" Battery Percentage read failed\n");
-        break;
+        DEBUGOUT(" \r\nBattery read fail\r\n");
+        break; // Battery Status read failed
       }
-
-    } else
-      break; // Battery Status read failed
-    // Increment the counter for adding delay
-    counter_for_delay++;
-    // Check if the counter has reached the delay threshold
-    if (counter_for_delay % SL_BOD_DELAY_VALUE) {
-      break;
+      sl_si91x_delay_ms(SL_BOD_500MS_DELAY);
     }
   } while (false);
 }

@@ -465,11 +465,11 @@ sl_status_t create_tls_client(void)
   } else {
     printf("\r\nSocket : %d connected to TLS server \r\n", client_socket);
 #if ENABLE_NWP_POWER_SAVE
-    sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                          .listen_interval = 1000 };
+    sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                             .listen_interval = 1000 };
 
     sl_status_t status = SL_STATUS_OK;
-    status             = sl_wifi_set_performance_profile(&performance_profile);
+    status             = sl_wifi_set_performance_profile_v2(&performance_profile);
     if (status != SL_STATUS_OK) {
       printf("\r\nPower save configuration Failed, Error Code : 0x%ld\r\n", status);
     }
@@ -799,7 +799,6 @@ static void azure_iot_mqtt_demo()
         sl_status_t status = create_tls_client();
         if (status != SL_STATUS_OK) {
           printf("\r\n Error while creating TLS client: 0x%lx\r\n", status);
-          return;
         }
         application_state = AZURE_MQTT_INIT_STATE;
       } break;

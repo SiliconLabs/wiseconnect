@@ -62,6 +62,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 configuration:
   - name: SL_BUTTON_CONFIG_BTN0_INTR
     value: "RISE_EDGE_INTERRUPT"

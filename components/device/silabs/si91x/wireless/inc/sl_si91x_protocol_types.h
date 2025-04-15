@@ -92,10 +92,7 @@
 #define SLI_MAX_GAIN_TABLE_SIZE_WITH_SU_TB 160
 
 /** NOTE: For power save related info
- * https://confluence.silabs.com/pages/viewpage.action?spaceKey=RPD&title=Master+++Power+Save+modes
- * https://confluence.silabs.com/display/RPD/Master+WLAN+APIs#MasterWLANAPIs-rsi_wlan_power_save_profile
  * https://docs.silabs.com/rs9116/wiseconnect/rs9116w-wifi-at-command-prm/latest/wlan-commands#rsi-pwmode----power-mode
- * NOTE: Wake up procedure provided in Confluence is outdated, Please refer AT PRM for it.
  * ****************************** POWER RELATED DEFINES START *******************************/
 #define SL_POWER_MODE_DISABLE      0
 #define SL_CONNECTED_SLEEP_PS      1
@@ -400,7 +397,10 @@ typedef struct {
   uint8_t join_feature_bitmap;
 
   /// reserved bytes
-  uint8_t reserved2[2];
+  uint8_t reserved2[1];
+
+  /// Multiply the listen interval by the configured value in the association request. Default is 1, max recommended is 10. Higher values may cause interoperability issues.
+  uint8_t listen_interval_multiplier;
 
   /// length of ssid given
   uint8_t ssid_len;
@@ -560,6 +560,8 @@ typedef struct {
   uint8_t ipv6_address[16]; ///< Module IPv6 Address
 
   uint8_t bssid[6]; ///< BSSID address of connected AP
+
+  uint8_t wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B)
 
 } sl_si91x_rsp_wireless_info_t;
 /** @} */
@@ -831,6 +833,9 @@ typedef struct {
 
   /// BSSID address of connected AP
   uint8_t bssid[6];
+
+  /// Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B)
+  uint8_t wireless_mode;
 } sli_si91x_network_params_response_t;
 #pragma pack()
 
@@ -873,12 +878,6 @@ typedef struct {
   sl_si91x_station_info_t sta_info[SI91X_MAX_STATIONS];
 } sl_si91x_client_info_response;
 #pragma pack()
-
-/// Wi-Fi statistics report
-typedef enum {
-  START_STATISTICS_REPORT, ///< Start statistics report
-  STOP_STATISTICS_REPORT,  ///< Stop statistics report
-} sl_wifi_statistics_report_t;
 
 /// per stats command request structure
 typedef struct {
@@ -978,6 +977,8 @@ typedef struct {
   uint8_t num_of_dtim_skip;
   /// Listen interval
   uint16_t listen_interval;
+  /// Wake up for the next beacon if the number of missed beacons exceeds the limit. The default value is 1, with a recommended maximum value of 10. Higher values may cause interoperability issues.
+  uint8_t beacon_miss_ignore_limit;
 } sl_si91x_power_save_request_t;
 
 /// DNS query request structure
@@ -1318,7 +1319,7 @@ typedef enum {
   SL_SI91X_GET_IPMU_PROGRAMMING_VALUES = 2,
   SL_SI91X_READ_TA_REGISTER            = 3,
   SL_SI91X_WRITE_TA_REGISTER           = 4,
-  // This enum varibale added for M4 has to give indication to NWP, for configuring the clock switching between 1.3 to 3.3 V .For more details, check Jira Ticket RSC-3802.
+  // This enum varibale added for M4 has to give indication to NWP, for configuring the clock switching between 1.3 to 3.3 V .
   SL_SI91X_ENABLE_XTAL           = 5,
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -1394,7 +1395,7 @@ typedef struct {
   uint8_t twt_flow_id;        ///< TWT flow ID
 } sl_si91x_twt_response_t;
 
-/// Si91x specific TX test info
+/// Wi-Fi TX test info
 typedef struct {
   uint16_t enable; ///< Enable/disable TX test mode
   uint16_t power;  ///< TX power in dBm.  Range : 2 - 18 dBm.
@@ -1469,7 +1470,7 @@ typedef struct {
     ///<			11			|	2462
     ///<			12			|	2467
     ///<			13			|	2472
-    ///< @note	To start transmit test in 12,13 channels, configure set region parameters in @ref sl_si91x_set_device_region
+    ///< @note	To start transmit test in channels 12 and 13, configure region parameters in @ref sl_si91x_set_device_region API
     ///<    ###	The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
     ///< 		Channel Numbers(5GHz) |	Center frequencies for 20MHz channel width
     ///< 		:--------------------:|:------------------------------------------:

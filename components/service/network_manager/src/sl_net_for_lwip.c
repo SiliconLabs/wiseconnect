@@ -421,7 +421,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 18000);
+  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 25000);
   VERIFY_STATUS_AND_RETURN(status);
 
   set_sta_link_up(&profile);

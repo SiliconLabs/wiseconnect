@@ -135,13 +135,10 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   }
 
   // Verify the user given sample length is proper or not
-  if (adcConfig.num_of_channel_enable == 1) {
-    if (adcConfig.operation_mode && (adcChConfig.num_of_samples[0] > MINIMUM_ADC_SAMPLE_LEN)) {
-      return INVALID_SAMPLE_LENGTH;
-    }
-    if (adcChConfig.num_of_samples[0] > MAXIMUM_ADC_SAMPLE_LEN) {
-      return INVALID_SAMPLE_LENGTH;
-    }
+  if ((adcConfig.num_of_channel_enable == 1)
+      && ((adcConfig.operation_mode && (adcChConfig.num_of_samples[0] > MINIMUM_ADC_SAMPLE_LEN))
+          || (adcChConfig.num_of_samples[0] > MAXIMUM_ADC_SAMPLE_LEN))) {
+    return INVALID_SAMPLE_LENGTH;
   }
 
   if ((adcConfig.num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNEL)
@@ -201,6 +198,10 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   float frac           = 0;
 #endif
 
+  if (adcChConfig.channel > MAX_CHNL_NO) {
+    return INVALID_PARAMETERS;
+  }
+
   adc_channel = adcChConfig.channel;
 
   // Register callback event
@@ -216,13 +217,10 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   }
 
   // Verify the user given sample length is proper or not
-  if (adcConfig.num_of_channel_enable == 1) {
-    if (adcConfig.operation_mode && (adcChConfig.num_of_samples[adc_channel] > MINIMUM_ADC_SAMPLE_LEN)) {
-      return INVALID_SAMPLE_LENGTH;
-    }
-    if (adcChConfig.num_of_samples[adc_channel] > MAXIMUM_ADC_SAMPLE_LEN) {
-      return INVALID_SAMPLE_LENGTH;
-    }
+  if ((adcConfig.num_of_channel_enable == 1)
+      && ((adcConfig.operation_mode && (adcChConfig.num_of_samples[adc_channel] > MINIMUM_ADC_SAMPLE_LEN))
+          || (adcChConfig.num_of_samples[adc_channel] > MAXIMUM_ADC_SAMPLE_LEN))) {
+    return INVALID_SAMPLE_LENGTH;
   }
 
   if ((adcConfig.num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNEL)
@@ -273,6 +271,76 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   return RSI_OK;
 }
 
+/*===================================================*/
+/**
+ * @fn          void config_ch_freq(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
+ * @brief       configure channel frequency value for channel1 to number of channel enable
+ * @param[in]   adcChConfig  :  ADC channels configuration structure variable
+ * @param[in]   adcConfig    :  ADC operation configuration structure variable
+ * @return      none   
+ */
+STATIC INLINE void config_ch_freq(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
+{
+  bool per_ch_config                        = false;
+  float inverse_sampl_val                   = 0;
+  uint32_t fs_adc                           = 0;
+  uint16_t loop_index                       = 0;
+  const volatile uint16_t *sampl_rate_index = (const volatile uint16_t *)&loop_index;
+
+  // find out initial sampling rate
+  fs_adc = (adc_commn_config.adc_clk_src / adc_commn_config.total_clk);
+
+  // to find out if it is triggered by single channel or multiple channel
+  if ((adcConfig.operation_mode != ADC_FIFOMODE_ENABLE)
+      || (adcConfig.num_of_channel_enable == MINIMUM_NUMBER_OF_CHANNEL)) {
+    per_ch_config    = true;
+    sampl_rate_index = (const volatile uint16_t *)&adc_channel;
+  }
+
+  // Configure channel frequency value for channel0
+  adcInterConfig.ch_sampling_factor[*sampl_rate_index] =
+    (uint16_t)ceil(fs_adc / adcChConfig.sampling_rate[*sampl_rate_index]);
+
+  if (adcInterConfig.ch_sampling_factor[*sampl_rate_index] < 2) {
+    adcInterConfig.ch_sampling_factor[*sampl_rate_index] = 2;
+  }
+
+  // Configure channel frequency value for channel1 to number of channel enable
+  for (uint8_t ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
+    inverse_sampl_val = 0;
+
+    if (ch_num > 0) {
+      // Get channel frequency value
+      // Configure channel frequency value
+      adcInterConfig.ch_sampling_factor[ch_num] =
+        adcInterConfig.ch_sampling_factor[ch_num - 1]
+        * (uint16_t)ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num]);
+    }
+
+    /* Check configured channel frequency value is power of 2 or not,
+      If configured channel frequency value is not power of 2 then round of value with nearest power of 2 value */
+    if ((!(adcConfig.num_of_channel_enable == 1)) && (!(check_power_two(adcInterConfig.ch_sampling_factor[ch_num])))) {
+      adcInterConfig.ch_sampling_factor[ch_num] = (uint16_t)(roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]));
+    }
+
+    // if number of sample length is '1' it should divide by 4 for swallow factor
+    if ((per_ch_config == true) && (adcChConfig.num_of_samples[*sampl_rate_index] == 1)) {
+      adcInterConfig.ch_sampling_factor[*sampl_rate_index] /= 4;
+    }
+    // Sum of enabled channels channel frequency inverse
+    for (loop_index = 0; loop_index <= ch_num; loop_index++) {
+      inverse_sampl_val += (1 / (float)adcInterConfig.ch_sampling_factor[*sampl_rate_index]);
+    }
+
+    // Check sum of enabled channels channel frequency inverse is greater than 1
+    if (inverse_sampl_val > 1) {
+      for (loop_index = 0; loop_index <= ch_num; loop_index++) {
+        adcInterConfig.ch_sampling_factor[*sampl_rate_index] *= 2;
+      }
+    }
+  }
+}
+
 /*==============================================*/
 /**
  * @fn         rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig,adc_config_t adcConfig)
@@ -284,17 +352,14 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
  */
 rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
 {
-  uint8_t ch_num                = 0;
-  uint32_t fs_adc               = 0;
   uint32_t f_sample_rate_achive = 0;
   uint16_t total_clk            = 0;
   uint16_t on_clk               = 0;
-  uint16_t i                    = 0;
   sl_status_t status;
   uint32_t dma_channel      = DMA_CHANNEL;
   uint32_t channel_priority = 0;
-  float inverse_sampl_val   = 0;
   float min_sampl_time      = 0;
+  adc_ping_pong_memory_adr_config_t PingPongMemoryAdrConfig;
 
   sl_dma_callback_t adc_dma_callback;
 
@@ -319,52 +384,13 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
     total_clk = (uint16_t)ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[0]);
   }
 
-  adc_commn_config.on_clk = on_clk;
-
+  adc_commn_config.on_clk    = on_clk;
   adc_commn_config.total_clk = total_clk;
 
   if (!(adcConfig.operation_mode)) {
-    // find out initial sampling rate
-    fs_adc = (adc_commn_config.adc_clk_src / total_clk);
-
     // Configure channel frequency value for channel1 to number of channel enable
-    for (ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
-      inverse_sampl_val = 0;
+    config_ch_freq(adcChConfig, adcConfig);
 
-      if (ch_num == 0) {
-        // Configure channel frequency value for channel0
-        adcInterConfig.ch_sampling_factor[0] = (uint16_t)ceil(fs_adc / adcChConfig.sampling_rate[0]);
-
-        if (adcInterConfig.ch_sampling_factor[0] < 2) {
-          adcInterConfig.ch_sampling_factor[0] = 2;
-        }
-      } else {
-        // Get channel frequency value
-        // Configure channel frequency value
-        adcInterConfig.ch_sampling_factor[ch_num] =
-          adcInterConfig.ch_sampling_factor[ch_num - 1]
-          * (uint16_t)ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num]);
-      }
-
-      /* Check configured channel frequency value is power of 2 or not,
-         If configured channel frequency value is not power of 2 then round of value with nearest power of 2 value */
-      if ((!(adcConfig.num_of_channel_enable == 1))
-          && (!(check_power_two(adcInterConfig.ch_sampling_factor[ch_num])))) {
-        adcInterConfig.ch_sampling_factor[ch_num] = (uint16_t)roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]);
-      }
-
-      // Sum of enabled channels channel frequency inverse
-      for (i = 0; i <= ch_num; i++) {
-        inverse_sampl_val += (1 / (float)adcInterConfig.ch_sampling_factor[i]);
-      }
-
-      // Check sum of enabled channels channel frequency inverse is grater than 1
-      if (inverse_sampl_val > 1) {
-        for (i = 0; i <= ch_num; i++) {
-          adcInterConfig.ch_sampling_factor[i] *= 2;
-        }
-      }
-    }
     cal_adc_channel_offset();
 
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
@@ -406,7 +432,7 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
   } else {
 #ifdef CHIP_9118
     // Configure ADC in FIFO mode operation
-    if ((adcConfig.num_of_channel_enable) != 1) {
+    if (adcConfig.num_of_channel_enable != 1) {
       RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_EN, ADC_FIFOMODE_ENABLE, ADC_FIFO_THR, EXTERNAL_DMA_EN);
     } else {
       RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_EN, ADC_FIFOMODE_ENABLE, ADC_FIFO_THR, INTERNAL_DMA_EN);
@@ -430,7 +456,7 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
 #endif
 #endif
 
-    for (ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
+    for (uint8_t ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
       RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP,
                             ch_num,
                             adcChConfig.pos_inp_sel[ch_num],
@@ -450,14 +476,13 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
 
 #ifndef ADC_MULTICHANNEL_WITH_EXT_DMA
       RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP, ch_num);
-      RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP,
-                                      ch_num,
-                                      adcChConfig.chnl_ping_address[ch_num],
-                                      (adcChConfig.chnl_pong_address[ch_num]),
-                                      adcChConfig.num_of_samples[ch_num],
-                                      adcChConfig.num_of_samples[ch_num],
-                                      ADC_PING_EN,
-                                      ADC_PONG_EN);
+      PingPongMemoryAdrConfig.ping_addr   = adcChConfig.chnl_ping_address[ch_num];
+      PingPongMemoryAdrConfig.pong_addr   = adcChConfig.chnl_pong_address[ch_num];
+      PingPongMemoryAdrConfig.ping_length = adcChConfig.num_of_samples[ch_num];
+      PingPongMemoryAdrConfig.pong_length = adcChConfig.num_of_samples[ch_num];
+      PingPongMemoryAdrConfig.ping_enable = ADC_PING_EN;
+      PingPongMemoryAdrConfig.pong_enable = ADC_PONG_EN;
+      RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP, ch_num, PingPongMemoryAdrConfig);
       RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP, ch_num);
 #ifdef CHIP_9118
       RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, ch_num);
@@ -494,19 +519,20 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
 // Revisit for optimization
 rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
 {
-  uint8_t ch_num                = 0;
-  uint32_t fs_adc               = 0;
   uint32_t f_sample_rate_achive = 0;
   uint16_t total_clk            = 0;
   uint16_t on_clk               = 0;
-  uint16_t i                    = 0;
   sl_status_t status;
   uint32_t dma_channel      = DMA_CHANNEL;
   uint32_t channel_priority = 0;
-  float inverse_sampl_val   = 0;
   float min_sampl_time      = 0;
-  adc_channel               = adcChConfig.channel;
+  adc_ping_pong_memory_adr_config_t PingPongMemoryAdrConfig;
 
+  if (adcChConfig.channel > MAX_CHNL_NO) {
+    return INVALID_PARAMETERS;
+  }
+
+  adc_channel = adcChConfig.channel;
   sl_dma_callback_t adc_dma_callback;
 
   // Get minimum sampling time form given configuration
@@ -531,56 +557,13 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
     total_clk = (uint16_t)ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[adc_channel]);
   }
 
-  adc_commn_config.on_clk = on_clk;
-
+  adc_commn_config.on_clk    = on_clk;
   adc_commn_config.total_clk = total_clk;
 
   if (!(adcConfig.operation_mode)) {
-    // find out initial sampling rate
-    fs_adc = (adc_commn_config.adc_clk_src / total_clk);
-
     // Configure channel frequency value for channel1 to number of channel enable
-    for (ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
-      inverse_sampl_val = 0;
+    config_ch_freq(adcChConfig, adcConfig);
 
-      if (ch_num == 0) {
-        // Configure channel frequency value for channel0
-        adcInterConfig.ch_sampling_factor[adc_channel] =
-          (uint16_t)ceil(fs_adc / adcChConfig.sampling_rate[adc_channel]);
-
-        if (adcInterConfig.ch_sampling_factor[adc_channel] < 2) {
-          adcInterConfig.ch_sampling_factor[adc_channel] = 2;
-        }
-      } else {
-        // Get channel frequency value
-        // Configure channel frequency value
-        adcInterConfig.ch_sampling_factor[ch_num] =
-          (adcInterConfig.ch_sampling_factor[ch_num - 1]
-           * (uint16_t)ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num]));
-      }
-
-      /* Check configured channel frequency value is power of 2 or not,
-         If configured channel frequency value is not power of 2 then round of value with nearest power of 2 value */
-      if ((!(adcConfig.num_of_channel_enable == 1))
-          && (!(check_power_two(adcInterConfig.ch_sampling_factor[ch_num])))) {
-        adcInterConfig.ch_sampling_factor[ch_num] = (uint16_t)roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]);
-      }
-      // if number of sample length is '1' it should divide by 4 for swallow factor.
-      if (adcChConfig.num_of_samples[adc_channel] == 1) {
-        adcInterConfig.ch_sampling_factor[adc_channel] /= 4;
-      }
-      // Sum of enabled channels channel frequency inverse
-      for (i = 0; i <= ch_num; i++) {
-        inverse_sampl_val += (1 / (float)adcInterConfig.ch_sampling_factor[adc_channel]);
-      }
-
-      // Check sum of enabled channels channel frequency inverse is grater than 1
-      if (inverse_sampl_val > 1) {
-        for (i = 0; i <= ch_num; i++) {
-          adcInterConfig.ch_sampling_factor[adc_channel] *= 2;
-        }
-      }
-    }
     cal_adc_channel_offset();
 
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
@@ -648,7 +631,7 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
 #endif
 #endif
 
-    for (ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
+    for (uint8_t ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
       RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP,
                             adc_channel,
                             adcChConfig.pos_inp_sel[adc_channel],
@@ -670,14 +653,13 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
 
 #ifndef ADC_MULTICHANNEL_WITH_EXT_DMA
       RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP, adc_channel);
-      RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP,
-                                      adc_channel,
-                                      adcChConfig.chnl_ping_address[adc_channel],
-                                      (adcChConfig.chnl_pong_address[adc_channel]),
-                                      adcChConfig.num_of_samples[adc_channel],
-                                      adcChConfig.num_of_samples[adc_channel],
-                                      ADC_PING_EN,
-                                      ADC_PONG_EN);
+      PingPongMemoryAdrConfig.ping_addr   = adcChConfig.chnl_ping_address[adc_channel];
+      PingPongMemoryAdrConfig.pong_addr   = adcChConfig.chnl_pong_address[adc_channel];
+      PingPongMemoryAdrConfig.ping_length = adcChConfig.num_of_samples[adc_channel];
+      PingPongMemoryAdrConfig.pong_length = adcChConfig.num_of_samples[adc_channel];
+      PingPongMemoryAdrConfig.ping_enable = ADC_PING_EN;
+      PingPongMemoryAdrConfig.pong_enable = ADC_PONG_EN;
+      RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP, adc_channel, PingPongMemoryAdrConfig);
       RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP, adc_channel);
 #ifdef CHIP_9118
       RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, ch_num);
@@ -763,25 +745,20 @@ rsi_error_t ADC_Start(void)
     while (AUX_ADC_DAC_COMP->FIFO_STATUS_REG_b.ADC_FIFO_EMPTY) {
     };
     dummy_read = RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, 0, 0);
+    (void)dummy_read;
     UDMA_ADC_Start();
-#else
-    NVIC_EnableIRQ(ADC_IRQn);
-#ifdef CHIP_9118
-    RSI_ADC_Start(AUX_ADC_DAC_COMP);
-#endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    RSI_ADC_Start(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
-#endif
-#endif
-  } else {
-    NVIC_EnableIRQ(ADC_IRQn);
-#ifdef CHIP_9118
-    RSI_ADC_Start(AUX_ADC_DAC_COMP);
-#endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    RSI_ADC_Start(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
+    return RSI_OK;
 #endif
   }
+  // if not multi channel or single channel with internal DMA
+  NVIC_EnableIRQ(ADC_IRQn);
+#ifdef CHIP_9118
+  RSI_ADC_Start(AUX_ADC_DAC_COMP);
+#endif
+#if defined(SLI_SI917) || defined(SLI_SI915)
+  RSI_ADC_Start(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
+#endif
+
   return RSI_OK;
 }
 
@@ -1065,9 +1042,9 @@ rsi_error_t ADC_ChannelsDataSort(uint8_t data_select)
  */
 rsi_error_t cal_adc_channel_offset(void)
 {
-  uint8_t ch_num               = 0;
+  uint8_t ch_num;
   uint16_t max_chan_swallo_fac = 0;
-  uint16_t cnt                 = 0;
+  uint16_t cnt;
 
   // Find out max number of channel frequency value
   for (ch_num = 0; ch_num < adc_commn_config.num_of_channel_enable; ch_num++) {
@@ -1261,7 +1238,7 @@ float get_min_sampling_time(uint8_t number_of_channel, adc_ch_config_t adcChConf
  */
 rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type)
 {
-  if (pos_input_pinsel == 0) {
+  if (pos_input_pinsel == POS0) {
     RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO0);
     RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO0, ANALOG_MODE);
   }
@@ -1281,7 +1258,7 @@ rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8
     RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO8);
     RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO8, ANALOG_MODE);
   }
-  if (pos_input_pinsel == 5) {
+  if (pos_input_pinsel == POS5) {
     RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO10);
     RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO10, ANALOG_MODE);
   }
@@ -1382,13 +1359,15 @@ rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8
  */
 rsi_error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
                                             uint32_t channel,
-                                            uint32_t ping_addr,
-                                            uint32_t pong_addr,
-                                            uint16_t ping_length,
-                                            uint16_t pong_length,
-                                            uint8_t ping_enable,
-                                            uint8_t pong_enable)
+                                            adc_ping_pong_memory_adr_config_t PingPongMemoryAdrConfig)
 {
+  uint32_t ping_addr   = PingPongMemoryAdrConfig.ping_addr;
+  uint32_t pong_addr   = PingPongMemoryAdrConfig.pong_addr;
+  uint16_t ping_length = PingPongMemoryAdrConfig.ping_length;
+  uint16_t pong_length = PingPongMemoryAdrConfig.pong_length;
+  uint8_t ping_enable  = PingPongMemoryAdrConfig.ping_enable;
+  uint8_t pong_enable  = PingPongMemoryAdrConfig.pong_enable;
+
   if ((channel > MAX_CHNL_NO) || (ping_length > PING_LEN_MAX) || (pong_length > PONG_LEN_MAX)
       || (ping_addr > ((uint32_t)PING_ADDR_MAX)) || (pong_addr > ((uint32_t)PONG_ADDR_MAX))) {
     return INVALID_PARAMETERS;
@@ -1993,7 +1972,7 @@ rsi_error_t RSI_ADC_ReadData(int16_t *data,
   dma_transfer_tx.src_inc        = SRC_INC_16;
   dma_transfer_tx.dst_inc        = DST_INC_16;
   dma_transfer_tx.xfer_size      = DST_SIZE_16;
-  dma_transfer_tx.transfer_count = sample_len * sizeof(*data);
+  dma_transfer_tx.transfer_count = sample_len;
   dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_MEMORY;
   dma_transfer_tx.dma_mode       = UDMA_MODE_PINGPONG;
   dma_transfer_tx.signal         = 0;
@@ -2096,8 +2075,10 @@ rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t chan
     pstcADC->INTR_MASK_REG_b.THRESHOLD_DETECTION_INTR_EN = 0;
     pstcADC->INTR_MASK_REG_b.ADC_FIFO_AFULL_INTR_MASK    = 0;
     pstcADC->INTR_MASK_REG_b.ADC_FIFO_FULL_INTR_MASK     = 0;
-  } else if (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE) {
-    pstcADC->INTR_MASK_REG_b.FIRST_MEM_SWITCH_INTR_MASK &= (uint16_t)(~(1 << channel));
+  } else {
+    if (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE) {
+      pstcADC->INTR_MASK_REG_b.FIRST_MEM_SWITCH_INTR_MASK &= (uint16_t)(~(1 << channel));
+    }
   }
 #endif
   return RSI_OK;
@@ -2239,7 +2220,7 @@ void RSI_ADC_PowerControl(POWER_STATE state)
 rsi_error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable)
 {
   pstcADC->AUXADC_CTRL_1_b.BYPASS_NOISE_AVG = en_disable;
-  ULP_SPI_MEM_MAP(0x110) |= en_disable << POS17;
+  ULP_SPI_MEM_MAP(0x110) |= (uint32_t)en_disable << POS17;
   return RSI_OK;
 }
 
@@ -2380,25 +2361,20 @@ rsi_error_t RSI_ADC_InterruptHandler(const AUX_ADC_DAC_COMP_Type *pstcADC)
     dac_callback_fun.callback_event(DAC_STATIC_MODE_CALLBACK);
   }
 #endif
-  else {
-    if ((AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE)
-        || (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
-      for (uint8_t ch_num = 0; ch_num <= MAX_CHNL_NO; ch_num++) {
-        if (intr_status & BIT(ch_num + FIRST_MEM_SWITCH_INTR_BIT)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ch_num);
-          RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP, ch_num, !pong_enable_sel[ch_num], pong_enable_sel[ch_num]);
-          if (adc_commn_config.call_back_event != NULL) {
-            adc_commn_config.call_back_event(ch_num, INTERNAL_DMA);
-          }
-          pong_enable_sel[ch_num] = !pong_enable_sel[ch_num];
-        }
+  else if ((AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE)
+           || (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
+    for (uint8_t ch_num = 0; ch_num <= MAX_CHNL_NO; ch_num++) {
+      if (intr_status & BIT(ch_num + FIRST_MEM_SWITCH_INTR_BIT)) {
+        RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ch_num);
+        RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP, ch_num, !pong_enable_sel[ch_num], pong_enable_sel[ch_num]);
+        adc_commn_config.call_back_event(ch_num, INTERNAL_DMA);
+        pong_enable_sel[ch_num] = !pong_enable_sel[ch_num];
       }
     }
-    if ((!(AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_STATIC_MODE))
-        && (!(AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE))) {
-      AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_FIFO_FLUSH = 1;
-      adc_commn_config.call_back_event((uint8_t)intr_status, FIFO_MODE_EVENT);
-    }
+  } else if ((!(AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_STATIC_MODE))
+             && (!(AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE))) {
+    AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_FIFO_FLUSH = 1;
+    adc_commn_config.call_back_event((uint8_t)intr_status, FIFO_MODE_EVENT);
   }
   return RSI_OK;
 }

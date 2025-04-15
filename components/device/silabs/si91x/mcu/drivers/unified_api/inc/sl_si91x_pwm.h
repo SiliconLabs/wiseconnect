@@ -55,6 +55,10 @@ typedef RSI_MCPWM_SVT_CONFIG_T
   sl_si91x_pwm_svt_config_t; ///< PWM Special Event trigger configuration parameters structure
 typedef RSI_MCPWM_DT_CONFIG_T sl_si91x_pwm_dt_config_t; ///< PWM DeadTime configuration parameters structure
 typedef RSI_MCPWM_CALLBACK_T sl_si91x_pwm_callback_t;   ///< PWM Callback structure
+
+// macros to validate pre-processing conditions
+#define SL_BASE_TIMER_EACH_CHANNEL_VAL 0 ///< PWM each Base timer for each channel
+#define SL_BASE_TIMER_ALL_CHANNEL_VAL  1 ///< PWM only one Base timer (0th) for all channels
 /*******************************************************************************
  ********************************   Local Variables   **************************
  ******************************************************************************/
@@ -167,9 +171,9 @@ typedef enum {
  *          It includes options for using a separate timer for each channel or a single timer for all channels.
  */
 typedef enum {
-  SL_BASE_TIMER_EACH_CHANNEL, ///< PWM timer for each channel
-  SL_BASE_TIMER_ALL_CHANNEL,  ///< PWM timer for all channels
-  SL_BASE_TIMER_LAST,         ///< Last member of the enum for validation
+  SL_BASE_TIMER_EACH_CHANNEL = SL_BASE_TIMER_EACH_CHANNEL_VAL, ///< PWM timer for each channel
+  SL_BASE_TIMER_ALL_CHANNEL  = SL_BASE_TIMER_ALL_CHANNEL_VAL,  ///< PWM timer for all channels
+  SL_BASE_TIMER_LAST,                                          ///< Last member of the enum for validation
 } sl_pwm_timer_t;
 
 /***************************************************************************/

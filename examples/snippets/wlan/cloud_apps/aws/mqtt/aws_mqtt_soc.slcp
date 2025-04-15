@@ -109,6 +109,7 @@ other_file:
 -  path: resources/readme/setup_soc_ncp.png
 -  path: resources/readme/energy_profiler_step_6.png
 -  path: resources/readme/energy_profiler_step_7.png
+-  path: resources/readme/pm_wakeup_configuration.png
 ui_hints:
    highlight:
    -  path: readme.md

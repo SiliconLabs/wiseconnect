@@ -109,3 +109,4 @@ component_path:
   - path: third_party/qcbor/component
   - path: third_party/tcose/component
   - path: third_party/littlefs/component
+  - path: components/at_commands_auto_gen

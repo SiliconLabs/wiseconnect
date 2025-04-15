@@ -23,6 +23,7 @@
 #define SL_BOD_DEFAULT_THRESHOLD   2.7f   ///< Default BOD threshold value
 #define SL_BOD_DELAY_VALUE         100000 ///< Delay value for process action
 #define SL_BOD_VBAT_THRESHOD_VALUE 15.0f  ///< Vbat threshold value
+#define SL_BOD_500MS_DELAY         500    ///< 500ms application Delay
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/

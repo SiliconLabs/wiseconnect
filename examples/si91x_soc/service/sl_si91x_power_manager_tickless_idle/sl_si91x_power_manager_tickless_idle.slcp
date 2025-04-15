@@ -62,6 +62,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 requires:
   - name: device_needs_ram_execution
 configuration:

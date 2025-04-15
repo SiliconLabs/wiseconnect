@@ -48,7 +48,9 @@
 #endif
 #include "rsi_debug.h"
 #include "sli_si91x_clock_manager.h"
-
+#if defined(SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED)
+#include "sli_si91x_32khz_rc_calibration.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -269,6 +271,12 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   if (status != SL_STATUS_OK) {
     return status;
   }
+
+#if defined(SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED)
+  // set the wakeup overhead flag.
+  sli_si91x_set_wakeup_overhead_flag();
+#endif
+
 // After waking up, setting the mcu status as active in P2P registers
 #if (configUSE_TICKLESS_IDLE == 0)
   RSI_PS_SetMCUActiveStatus();

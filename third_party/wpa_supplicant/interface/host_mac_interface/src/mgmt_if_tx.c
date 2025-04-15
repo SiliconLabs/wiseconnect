@@ -203,7 +203,7 @@ sl_status_t rsi_send_eapol_cmd(uint8 *data, size_t data_len, uint8 *msg, uint8 c
   extended_desc_size = SL_PKT_TX_HDESC_GET_DW1_EXT_DESC_SIZE(txPkt);
   SL_PKT_TX_HDESC_SET_DW0_LENGTH(txPkt, (SL_PKT_GET_TXPKT_SCATTER_BUFF_LEN(txPkt, 0) - HOST_DESC_LENGTH));
   SL_PKT_TX_HDESC_SET_DW0_QNUM(txPkt, SL_WLAN_MGMT_Q);
-  SL_PKT_TX_HDESC_SET_DW0_FRAME_TYPE(txPkt, 1);
+  SL_PKT_TX_HDESC_SET_DW0_FRAME_TYPE(txPkt, TX_DOT11_MGMT_FRAME);
 
   if ((data_len == SL_EAPOL_4_OF_4_PKT_SIZE) && client_mode) {
     SL_PKT_TX_HDESC_SET_DW0_MISC_FLAGS(txPkt, SL_PKT_TX_HDESC_GET_DW0_MISC_FLAGS(txPkt) | SL_CONFIRM_REQUIRED_TO_HOST);

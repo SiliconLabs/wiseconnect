@@ -234,7 +234,6 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
       /* Loop to get full conversion specification. */
       while ((*c) && (!(flag & kSCANF_DestMask))) {
         switch (*c) {
-
           case '0':
           case '1':
           case '2':
@@ -281,7 +280,6 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
             flag |= kSCANF_DestInt;
             c++;
             break;
-
           case 'c':
             flag |= kSCANF_DestChar;
             if (!field_width) {
@@ -438,25 +436,22 @@ int _read(char *fmt_ptr, ...)
 
   for (i = 0; i < (uint32_t)IO_MAXLINE; i++) {
 #ifdef DEBUG_SERIAL
-    temp_buf[i] = result = Serial_receive();
+    result = Serial_receive();
 #elif defined(SL_UART)
     sl_uart_rx_byte(NULL, (uint8_t *)&result);
-    temp_buf[i] = result;
 #else
-    temp_buf[i] = result = (char)Board_UARTGetChar();
+    result = (char)Board_UARTGetChar();
 #endif
+    temp_buf[i] = result;
     if ((result == '\r') || (result == '\n')) {
       /* End of Line. */
-      if (i == 0) {
-        temp_buf[i] = '\0';
-      }
       break;
     }
   }
 
-  if (i == IO_MAXLINE) {
+  if ((i == 0) || (i == IO_MAXLINE)) {
     temp_buf[i] = '\0';
-  } else if (i != 0) { // NULL char in 0th position of temp_buff is already written in for-loop
+  } else {
     temp_buf[i + 1] = '\0';
   }
   result = (char)scanf_data_format(temp_buf, fmt_ptr, ap);

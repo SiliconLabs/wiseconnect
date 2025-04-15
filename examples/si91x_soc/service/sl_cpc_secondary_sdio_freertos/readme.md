@@ -50,8 +50,6 @@
 
 ### Software Requirements
   - Simplicity Studio
-  - SiSDK version 2025.6.0 
-  - Wiseconnect Version 3.4.0
   - CPC Daemon version 4.6.0 , follow github [link](https://github.com/SiliconLabs/cpc-daemon)
   - linux_sdio_driver , link to download is [here](https://github.com/SiliconLabs/linux-sdio-driver)
 

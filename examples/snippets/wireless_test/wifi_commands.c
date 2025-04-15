@@ -839,9 +839,7 @@ sl_status_t wifi_connect_command_handler(console_args_t *arguments)
     if (encryption_type == SL_WIFI_EAP_TLS_ENCRYPTION) {
       status =
         sl_net_set_credential(SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID, SL_NET_CERTIFICATE, wifiuser, sizeof(wifiuser) - 1);
-      if (status != SL_STATUS_OK) {
-        return status;
-      }
+      VERIFY_STATUS_AND_RETURN(status);
 
       SL_DEBUG_LOG("Certificate set\n");
     }
@@ -853,15 +851,15 @@ sl_status_t wifi_connect_command_handler(console_args_t *arguments)
                                    SL_NET_EAP_CLIENT_CREDENTIAL,
                                    &(wifi_client_enterprise_eap_credential.data),
                                    sizeof(sl_wifi_eap_credential_t));
+    VERIFY_STATUS_AND_RETURN(status);
   } else {
-    status = sl_net_set_credential(id, SL_NET_WIFI_PSK, password, strlen(password));
+    if (security_type != SL_WIFI_OPEN) {
+      status = sl_net_set_credential(id, SL_NET_WIFI_PSK, password, strlen(password));
+      VERIFY_STATUS_AND_RETURN(status);
+      SL_DEBUG_LOG("Credentials set\n");
+    }
   }
 
-  if (SL_STATUS_OK != status) {
-    return status;
-  }
-
-  SL_DEBUG_LOG("Credentials set\n");
   memcpy(ap.ssid.value, ssid, ap.ssid.length);
   ap.security      = security_type;
   ap.encryption    = encryption_type;
@@ -1116,20 +1114,20 @@ sl_status_t wifi_get_ap_client_info_command_handler(console_args_t *argument)
 
 sl_status_t wifi_set_performance_profile_command_handler(console_args_t *argument)
 {
-  sl_si91x_performance_profile_t profile            = GET_COMMAND_ARG(argument, 0);
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  performance_profile.profile                       = profile;
+  sl_si91x_performance_profile_t profile               = GET_COMMAND_ARG(argument, 0);
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  performance_profile.profile                          = profile;
 
-  return sl_wifi_set_performance_profile(&performance_profile);
+  return sl_wifi_set_performance_profile_v2(&performance_profile);
 }
 
 sl_status_t wifi_get_performance_profile_command_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
 
-  status = sl_wifi_get_performance_profile(&performance_profile);
+  status = sl_wifi_get_performance_profile_v2(&performance_profile);
   VERIFY_STATUS_AND_RETURN(status);
 
   printf("%s", get_performance_profile_name(performance_profile.profile));
@@ -1650,9 +1648,9 @@ sl_status_t sl_wifi_enable_twt(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
-  sl_wifi_performance_profile_t performance_profile = { .twt_request = default_twt_setup_configuration };
-  sl_status_t status                                = SL_STATUS_OK;
-  status                                            = sl_wifi_enable_target_wake_time(&performance_profile.twt_request);
+  sl_wifi_performance_profile_v2_t performance_profile = { .twt_request = default_twt_setup_configuration };
+  sl_status_t status                                   = SL_STATUS_OK;
+  status = sl_wifi_enable_target_wake_time(&performance_profile.twt_request);
   // A small delay is added so that the asynchronous response from TWT is printed in correct format.
   osDelay(100);
   return status;
@@ -1662,8 +1660,8 @@ sl_status_t sl_wifi_disable_twt(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
-  sl_wifi_performance_profile_t performance_profile = { .twt_request = default_twt_teardown_configuration };
-  sl_status_t status                                = SL_STATUS_OK;
+  sl_wifi_performance_profile_v2_t performance_profile = { .twt_request = default_twt_teardown_configuration };
+  sl_status_t status                                   = SL_STATUS_OK;
   status = sl_wifi_disable_target_wake_time(&performance_profile.twt_request);
   // A small delay is added so that the asynchronous response from TWT is printed in correct format.
   osDelay(100);
@@ -1774,29 +1772,26 @@ sl_status_t sl_wifi_update_gain_table_command_handler(console_args_t *arguments)
   uint8_t su_gain_table_payload[]  = {
     4,//NUM_OF_REGIONS
         0, 0xB,//NUM_OF_CHANNELS
-    //   rate,  11b, 11g, 11n, 11ax(SU) 11ax(TB)
-            1,  32,  22,  22,  20,      14,
-            2,  32,  26,  26,  24,      20,
-            3,  34,  28,  28,  26,      30,
-            4,  36,  34,  32,  30,      32,
-            5,  36,  34,  34,  32,      32,
-            6,  36,  36,  36,  34,      34,
-            7,  36,  34,  34,  32,      28,
-            8,  36,  32,  32,  30,      28,
-            9,  36,  30,  30,  28,      28,
-           10,  32,  28,  28,  24,      14,
-           11,  32,  22,  22,  20,      14,
-        1,0x11,
-           255, 34,  36,  36,  36,      24,
-        2,0x22,
-           13,  34,  38,  36,  36,      24,
-           14,  38,   0,   0,   0,       0,
-        3, 0x25,
-           1,   32,  22,  22,  20,      14,
-           2,   32,  26,  26,  24,      20,
-           11,  32,  22,  22,  20,      14,
-           13,  34,  36,  36,  36,      24,
-           14,  38,  0,   0,    0,      0,
+    //   rate,  11b, 11g, 11n, 11ax   
+            1,  34,  26,  24,  22,   
+            2,  36,  30,  30,  28,   
+            3,  40,  34,  34,  32,   
+            4,  40,  36,  36,  34,   
+            5,  40,  38,  38,  38,   
+            6,  40,  38,  38,  38,   
+            7,  40,  38,  38,  38,   
+            8,  40,  38,  38,  38,   
+            9,  40,  36,  36,  32,   
+           10,  36,  34,  34,  28,   
+           11,  36,  28,  26,  24,   
+        1,0x11,   
+           255, 36,  36,  36,  36,   
+        2,0x23,   
+            12, 36,  36,  36,  36,   
+            13, 34,  34,  34,  34,   
+            14, 34,  34,  34,  34,   
+        4,0x11,
+           255, 36,  36,  36,  36, 
     };
   /* clang-format on */
 

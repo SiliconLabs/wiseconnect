@@ -36,6 +36,9 @@ source:
 - path: src/aws_iot_shadow.c
 - path: src/jsmn.c
 - path: platform/silabs/src/network_sl_api_wrapper.c
+  condition: ["sl_si91x_internal_stack"]
+- path: platform/silabs/src/sli_aws_iot_lwip_api_wrapper.c
+  condition: ["sl_si91x_lwip_stack"]
 - path: platform/silabs/src/timer.c
 include:
 - path: include
@@ -65,7 +68,16 @@ include:
     - path: timer_platform.h
     - path: timer_interface.h
     - path: network_interface.h
+    - path: sli_aws_iot_mbedtls_config.h
+      condition: ["sl_si91x_lwip_stack"]
 
 requires:
 - name: bsd_socket
+  condition: ["sl_si91x_internal_stack"]
+- name: mbedtls
+  condition: ["sl_si91x_lwip_stack"]
 
+define:
+  - name: MBEDTLS_CONFIG_FILE
+    value: <sli_aws_iot_mbedtls_config.h>
+    condition: ["sl_si91x_lwip_stack"]

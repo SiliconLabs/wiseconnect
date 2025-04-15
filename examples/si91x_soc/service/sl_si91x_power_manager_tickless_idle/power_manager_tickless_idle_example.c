@@ -202,9 +202,9 @@ static void wireless_sleep(boolean_t sleep_with_retention)
 {
   sl_status_t status;
   // Wifi Profile (NWP Mode) is set to High Performance.
-  sl_wifi_performance_profile_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
+  sl_wifi_performance_profile_v2_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
 
-  status = sl_wifi_set_performance_profile(&ta_performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, display the error info.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
@@ -217,7 +217,7 @@ static void wireless_sleep(boolean_t sleep_with_retention)
     ta_performance_profile.profile = DEEP_SLEEP_WITHOUT_RAM_RETENTION;
   }
   // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
-  status = sl_wifi_set_performance_profile(&ta_performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, display the error info.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);

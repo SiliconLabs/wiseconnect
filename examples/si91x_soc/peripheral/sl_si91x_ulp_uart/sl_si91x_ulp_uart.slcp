@@ -44,6 +44,8 @@ component:
     from: wiseconnect3_sdk
   - id: dma_ulp_component
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/ulp_uart_gpio_toggle.png

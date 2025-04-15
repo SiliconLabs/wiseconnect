@@ -117,7 +117,7 @@
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #define MITM_REQ 0x01
@@ -1473,7 +1473,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
     return;
@@ -1547,7 +1547,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
 
         //! initiating Active mode in WLAN mode
         wifi_profile.profile = HIGH_PERFORMANCE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
           return;
@@ -1588,7 +1588,7 @@ scan:
 
         //! initiating power save in wlan mode
         wifi_profile.profile = ASSOCIATED_POWER_SAVE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
           return;

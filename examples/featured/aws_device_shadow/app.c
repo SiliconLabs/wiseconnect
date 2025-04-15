@@ -181,8 +181,8 @@ static void application_start(void *argument)
   printf("\r\nCertificate loading success\r\n");
 
 #if ENABLE_NWP_POWER_SAVE
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
-  status                                            = sl_wifi_set_performance_profile(&performance_profile);
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+  status                                               = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
     return;

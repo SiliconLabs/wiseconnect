@@ -51,7 +51,7 @@
 * These APIs are used for flash erase, flash write and flash read operations
 * For erase operation supplied address should be 4k aligned. For write operation
 * address should be word aligned
- *******************************************************************************/
+*******************************************************************************/
 
 /*******************************************************************************
  ***********************  Global function Definitions *************************
@@ -60,10 +60,9 @@
 /***************************************************************************/ /**
  *  Uninitialize QSPI module
  ******************************************************************************/
-bool rsi_flash_uninitialize(void)
+void rsi_flash_uninitialize(void)
 {
-  /* This function not supported so always returns zero */
-  return ECODE_QSPI_OK;
+  /* This function not supported */
 }
 
 /***************************************************************************/ /**
@@ -107,7 +106,7 @@ static void rsi_qspi_pin_mux_init(void)
  * This function initializes GPIO, QSPI and flash
  ******************************************************************************/
 /* QSPI HAL wrapper for NVM3 */
-bool rsi_flash_init(void)
+void rsi_flash_init(void)
 {
   /*Init the QSPI configurations structure */
   spi_config_t spi_configs_init;
@@ -120,22 +119,20 @@ bool rsi_flash_init(void)
 
   /* initializes QSPI  */
   RSI_QSPI_SpiInit((qspi_reg_t *)QSPI_BASE, &spi_configs_init, 1, 0, 0);
-
-  return ECODE_QSPI_OK;
 }
 
 /***************************************************************************/ /**
  * This function erases the flash
  ******************************************************************************/
-bool rsi_flash_erase_sector(uint32_t *sector_address)
+sl_status_t rsi_flash_erase_sector(uint32_t *sector_address)
 {
   spi_config_t spi_configs_erase;
-  uint32_t status = ECODE_QSPI_OK;
+  uint32_t status = SL_STATUS_OK;
   get_qspi_config(&spi_configs_erase);
 
   /* Erases the SECTOR   */
   if (sector_address == NULL) {
-    status = ECODE_QSPI_ERROR;
+    status = SL_STATUS_NULL_POINTER;
   } else {
     RSI_QSPI_SpiErase((qspi_reg_t *)QSPI_BASE, &spi_configs_erase, SECTOR_ERASE, (uint32_t)sector_address, 1, 0);
   }
@@ -148,15 +145,15 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 /***************************************************************************/ /**
  * This function writes to destination flash address location
  ******************************************************************************/
-bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
+sl_status_t rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
   spi_config_t spi_configs_program;
-  uint32_t status = ECODE_QSPI_OK;
+  sl_status_t status = SL_STATUS_OK;
   get_qspi_config(&spi_configs_program);
 
   /* writes the data to required address using qspi */
   if (address == NULL) {
-    status = ECODE_QSPI_ERROR;
+    status = SL_STATUS_NULL_POINTER;
   } else {
     RSI_QSPI_SpiWrite((qspi_reg_t *)QSPI_BASE,
                       &spi_configs_program,
@@ -179,15 +176,15 @@ bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 /***************************************************************************/ /**
  * Reads data from the address in selected mode
  ******************************************************************************/
-bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
+sl_status_t rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
 {
   spi_config_t spi_configs_program;
-  uint32_t status = ECODE_QSPI_OK;
+  sl_status_t status = SL_STATUS_OK;
   get_qspi_config(&spi_configs_program);
 
   /* IO_READ - Manual Mode */
   if (address == NULL) {
-    status = ECODE_QSPI_ERROR;
+    status = SL_STATUS_NULL_POINTER;
   } else {
     if (!auto_mode) {
       /* IO Read config */
@@ -199,11 +196,11 @@ bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uin
     } else { /* DMA_READ - Auto mode */
              /* Read the data by using UDMA */
 #if 0        // Need to Implement
-     DEBUGOUT("\r\n Read Data From Flash Memory Using DMA \r\n");
-     UDMA_Read();
-     /* Wait till dma done */
-     while (!done)
-       ;
+      DEBUGOUT("\r\n Read Data From Flash Memory Using DMA \r\n");
+      UDMA_Read();
+      /* Wait till dma done */
+      while (!done)
+        ;
 #endif
     }
   }

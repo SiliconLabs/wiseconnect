@@ -22,11 +22,23 @@ Ping is used diagnostically to ensure that the host computer the user is trying 
 - A Windows PC.
 - A Wi-Fi Access Point.
 - SoC Mode:
-  - Silicon Labs [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
+      - BRD4342A [SiWx917-RB4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview)
+  	  - BRD4343A [SiWx917-RB4343A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 - NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/wireless/zigbee/efr32mg21-series-2-socs/device.efr32mg21a020f1024im32)
+  - Silicon Labs [BRD4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
   - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - Silicon Labs [WSTK](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview)
+  - NCP Expansion Kit with NCP Radio Boards
+    - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
 
 ### Software Requirements
 

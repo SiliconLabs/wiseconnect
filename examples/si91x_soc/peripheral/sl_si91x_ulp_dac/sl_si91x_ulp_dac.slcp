@@ -40,6 +40,8 @@ component:
     from: wiseconnect3_sdk  
   - id: sllib_wireless_shutdown
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
   - name: SL_SI91X_ULP_STATE_ENABLE

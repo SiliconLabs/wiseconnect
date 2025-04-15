@@ -169,6 +169,7 @@ static sl_status_t validate_bjt_channel_parameters(const adc_ch_config_t *sl_bjt
              || (sl_bjt_temperature_sensor_channel_config->num_of_samples[0] > CHANNEL_SAMPLE_LENGTH)) {
     status = SL_STATUS_INVALID_COUNT;
   }
+
   return status;
 }
 
@@ -178,7 +179,7 @@ static sl_status_t validate_bjt_channel_parameters(const adc_ch_config_t *sl_bjt
 sl_status_t sl_si91x_bjt_temperature_sensor_init(adc_ch_config_t sl_bjt_temperature_sensor_channel_config,
                                                  adc_config_t sl_bjt_temperature_sensor_config)
 {
-  sl_status_t status = SL_STATUS_OK;
+  sl_status_t status;
   // Validate BJT parameters, if the parameters incorrect
   // If the status is not equal to SL_STATUS_OK, returns error code.
   status = validate_bjt_parameters(&sl_bjt_temperature_sensor_config);
@@ -258,7 +259,6 @@ sl_status_t sl_si91x_bjt_temperature_sensor_read_data(double *temp_data)
 
   float adc_off = 0;
   float Vbg     = 0;
-
   if (temp_data == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
@@ -302,6 +302,7 @@ sl_status_t sl_si91x_bjt_temperature_sensor_read_data(double *temp_data)
                + (310
                   * ((((adc_output_bjt[i] - adc_off) / (adc_output_bg[i] - adc_off)) * (Vbg / (float)1000))
                      + ((float)(Voffset) / (float)1000)));
+
   return status;
 }
 

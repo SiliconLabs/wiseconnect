@@ -20,6 +20,8 @@ provides:
 template_contribution:
   - name: power_manager_ps2
     value: 1
+    condition:
+      - pm_ps2_component  
   - name: ulp_timer_ps2
     value: sl_si91x_ulp_timer.o
   - name: ulp_timer_ps2

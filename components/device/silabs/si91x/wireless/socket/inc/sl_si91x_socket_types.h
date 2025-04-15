@@ -32,8 +32,12 @@
 #include <stdint.h>
 #include "sl_si91x_types.h"
 #include "cmsis_os2.h" // CMSIS RTOS2
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+#include "lwip/sockets.h"
+#else
 #include "socket.h"
 #include "select.h"
+#endif
 #include "sl_si91x_protocol_types.h"
 
 /**
@@ -210,6 +214,19 @@ typedef enum {
 } sli_si91x_bsd_disconnect_reason_t;
 
 #define SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
+
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+#if !LWIP_IPV6
+struct sockaddr_in6 {
+  u8_t sin6_len;             /* length of this structure    */
+  sa_family_t sin6_family;   /* AF_INET6                    */
+  in_port_t sin6_port;       /* Transport layer port #      */
+  u32_t sin6_flowinfo;       /* IPv6 flow information       */
+  struct in6_addr sin6_addr; /* IPv6 address                */
+  u32_t sin6_scope_id;       /* Set of interfaces for scope */
+};
+#endif
+#endif
 
 #pragma pack()
 /// Internal  si91x TLS extensions

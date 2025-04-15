@@ -126,6 +126,10 @@ typedef	struct fd_set {
  * The select function modifies the sets passed to it, so if the function
  * is to be called again, the sets must be reinitialized.
  * The exceptfds parameter is not currently supported.
+ * @note 
+ * If the number of select requests is not configured, the select() API will fail and return -1, with the errno being set to EPERM (Operation not permitted).
+ * @note 
+ * The number of select operations the device can handle can be configured using the [SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-tcp-ip-feature-bitmap#sl-si91-x-ext-tcp-ip-total-selects).
  */
 
 int select(int __n, fd_set *__readfds, fd_set *__writefds,

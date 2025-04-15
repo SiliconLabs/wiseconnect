@@ -95,7 +95,7 @@ extern rsi_ble_event_conn_status_t conn_event_to_app;
  *                    Constants
  ******************************************************/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        18000
+#define TIMEOUT_MS        25000
 #define WIFI_SCAN_TIMEOUT 10000
 
 #define MQTT_TOPIC1               "aws_status"   //! Subscribe Topic to receive the message from cloud
@@ -119,7 +119,7 @@ static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 osSemaphoreId_t data_received_semaphore;
 extern osSemaphoreId_t select_sem;
 
@@ -821,10 +821,10 @@ void wifi_app_mqtt_task(void)
           LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
         }
 
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                              .listen_interval = 1000 };
+        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                                 .listen_interval = 1000 };
 
-        sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
+        sl_status_t status = sl_wifi_set_performance_profile_v2(&performance_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
         }

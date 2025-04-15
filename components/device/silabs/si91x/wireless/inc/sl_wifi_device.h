@@ -1056,15 +1056,15 @@
 /**
  * @def SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
  * @brief To select UART for debug prints pin selection.
- * @details If BIT(27) is enabled, debug prints are supported on UART1. If BIT(27) is disabled, debug prints are supported on UART2. 
+ * @details If BIT(27) is enabled, debug prints are supported on UART1. If BIT(27) is disabled, debug prints are not available on UART2 unless SL_SI91X_ULP_GPIO9_FOR_UART2_TX is enabled.
  * 
  * @note Bit 26 is reserved.
- * @note By default, all debug prints from the device network processor would be sent to UART2 if this bit is not enabled. UART1 pins are mapped as follows:
+ * @note The baud rate for capturing UART debug prints is 460800.
+ * @note UART1 and UART2 pins are mapped as follows:
  * - UART1-TX: GPIO_9
  * - UART1-RX: GPIO_8
- * - UART2-TX: GPIO_6
- * - UART2-RX: GPIO_10
- * 
+ * - UART2-TX: ULP_GPIO_9
+ *
  * Ensure these pins are not used in MCU applications in SoC mode to avoid pin usage conflicts. This bit is valid only if BIT[28] in the ext_custom_feature_bit_map is set to 0. There is no functionality on RX pins for debug prints.
  */
 #define SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS BIT(27)
@@ -1788,9 +1788,11 @@
 /**
  * @def SL_SI91X_ULP_GPIO9_FOR_UART2_TX
  * @brief Selects ULP_GPIO_9 to enable firmware debug prints.
- * @details If this bit is not set, the default UART2-TX pin GPIO_6 is used.
+ * @details If BIT(18) is enabled, debug prints are supported on UART2. 
  * 
- * @note SiWx91x supports prints only on ULP_GPIO_9.
+ * @note The baud rate for capturing UART2 debug prints is 460800.
+ * @note UART2 pin is mapped as follows:
+ * - UART2-TX: ULP_GPIO_9
  */
 #define SL_SI91X_ULP_GPIO9_FOR_UART2_TX BIT(18)
 
@@ -2066,7 +2068,11 @@ typedef struct {
   sl_si91x_performance_profile_t profile; ///< Performance profile of type @ref sl_si91x_performance_profile_t.
 } sl_bt_performance_profile_t;
 
-/// Wi-Fi performance profile
+/**
+* Wi-Fi performance profile
+* 
+* Moving forward, this structure will be deprecated. Instead, use the [sl_wifi_performance_profile_v2_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-performance-profile-v2-t) structure. This is retained for backward compatibility.
+*/
 typedef struct {
   sl_si91x_performance_profile_t profile; ///< Performance profile of type @ref sl_si91x_performance_profile_t.
   uint8_t dtim_aligned_type; ///< Set DTIM alignment required. One of the values from @ref SI91X_DTIM_ALIGNMENT_TYPES.
@@ -2077,6 +2083,21 @@ typedef struct {
   sl_wifi_twt_request_t twt_request;     ///< Target Wake Time (TWT) request settings.
   sl_wifi_twt_selection_t twt_selection; ///< Target Wake Time (TWT) selection request settings.
 } sl_wifi_performance_profile_t;
+
+/// Wi-Fi performance profile v2
+typedef struct {
+  sl_si91x_performance_profile_t profile; ///< Performance profile of type @ref sl_si91x_performance_profile_t.
+  uint8_t dtim_aligned_type; ///< Set DTIM alignment required. One of the values from @ref SI91X_DTIM_ALIGNMENT_TYPES.
+  uint8_t num_of_dtim_skip;  ///< Number of DTIM intervals to skip. Default value is 0.
+  uint32_t listen_interval;  ///< Listen interval in beacon intervals.
+  uint16_t
+    monitor_interval; ///< Monitor interval in milliseconds. Default interval 50 milliseconds is used if monitor_interval is set to 0. This is only valid when performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
+  sl_wifi_twt_request_t twt_request;     ///< Target Wake Time (TWT) request settings.
+  sl_wifi_twt_selection_t twt_selection; ///< Target Wake Time (TWT) selection request settings.
+  uint8_t
+    beacon_miss_ignore_limit; ///< Wake up for the next beacon if the number of missed beacons exceeds the limit. The default value is 1, with a recommended maximum value of 10. Higher values may cause interoperability issues.
+} sl_wifi_performance_profile_v2_t;
+
 /** @} */
 
 /** \addtogroup SL_SI91X_DEFAULT_DEVICE_CONFIGURATION 

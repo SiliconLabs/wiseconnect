@@ -45,6 +45,8 @@ component:
     from: wiseconnect3_sdk
     instance:
       - i2c2
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 define:
   - name: SL_SI91X_ULP_STATE_ENABLE
 template_contribution:

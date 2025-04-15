@@ -39,6 +39,8 @@ provides:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/bod_result_console.png
+  - path: resources/readme/bod_interrupt_result_console.png
+  - path: resources/readme/bod_interrupt_result_console_DisableBlkot.png
   - path: resources/uc_screen/bod_uc_screen.png
 readme:
   - path: readme.md

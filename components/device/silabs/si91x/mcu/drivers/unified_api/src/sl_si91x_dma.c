@@ -56,7 +56,7 @@
 #define DMA_COUNT_MAX              0x03FF
 
 /*******************************************************************************
- ***************************  EXTERN VARIABLES  ********************************
+ ***************************  EXTERN VARIABLES  ********************************
  ******************************************************************************/
 extern RSI_UDMA_DESC_T __attribute__((section(".udma_addr0")))
 UDMA0_Table[CONTROL_STRUCT0]; // UDMA0 DMA descriptors SRAM base address
@@ -124,7 +124,7 @@ __STATIC_INLINE void process_dma_irq(uint32_t dma_number, uint32_t channel, uint
 #endif // SL_DMA_IRQ_HANDLER
 
 /*******************************************************************************
- **********************  Local Function Definition****************************
+ **********************  Local Function Definition****************************
  ******************************************************************************/
 
 /*******************************************************************************
@@ -238,7 +238,7 @@ __STATIC_INLINE void process_dma_irq(uint32_t dma_number, uint32_t channel, uint
 }
 #endif //SL_DMA_IRQ_HANDLER
 /*******************************************************************************
-***********************  Global function Definitions *************************
+***********************  Global function Definitions *************************
  ******************************************************************************/
 
 /*******************************************************************************
@@ -326,6 +326,54 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
   return status;
 }
 
+/*===================================================*/
+/**
+ * @fn          sl_status_t scan_available_dma_channel(uint32_t dma_number, uint32_t **channel_no, uint32_t priority)
+ * @brief       scans and allocates dma channel
+ * @return      status and if status is ok, channel number is stored in **channel_no
+ */
+STATIC INLINE sl_status_t scan_available_dma_channel(uint32_t dma_number, uint32_t **channel_no, uint32_t priority)
+{
+  sl_status_t status = SL_STATUS_OK;
+  uint32_t channel_count;
+
+  if (dma_number == DMA_INSTANCE0) {
+    channel_count = SL_DMA0_CHANNEL_COUNT;
+  } else {
+    channel_count = SL_ULP_DMA_CHANNEL_COUNT;
+  }
+
+  // Scan for available channels
+  for (uint32_t ch = 0; ch < channel_count; ch++) {
+    if ((dma_number == DMA_INSTANCE0) && (sl_dma0_channel_allocation_data_t[ch].allocated == false)) {
+      // Channel available
+      **channel_no = ch + 1;
+      // Allocate the channel using channel allocator
+      sl_dma0_channel_allocation_data_t[ch].priority                            = priority;
+      sl_dma0_channel_allocation_data_t[ch].allocated                           = true;
+      sl_dma0_channel_allocation_data_t[ch].dma_callback_t.transfer_complete_cb = NULL;
+      sl_dma0_channel_allocation_data_t[ch].dma_callback_t.error_cb             = NULL;
+    } else if ((dma_number == ULP_DMA_INSTANCE) && (sl_ulp_dma_channel_allocation_data_t[ch].allocated == false)) {
+      // Channel availablesl_si91x_adc
+      **channel_no = ch + 1;
+      // Allocate the channel using channel allocator
+      sl_ulp_dma_channel_allocation_data_t[ch].priority                            = priority;
+      sl_ulp_dma_channel_allocation_data_t[ch].allocated                           = true;
+      sl_ulp_dma_channel_allocation_data_t[ch].dma_callback_t.transfer_complete_cb = NULL;
+      sl_ulp_dma_channel_allocation_data_t[ch].dma_callback_t.error_cb             = NULL;
+    }
+    if (**channel_no != 0) {
+      break;
+    }
+  }
+  if (**channel_no == 0) {
+    // No DMA channel is available
+    status = SL_STATUS_DMA_NO_CHANNEL_AVAILABLE;
+  }
+
+  return status;
+}
+
 /*******************************************************************************
 * This Allocates channel for DMA transfer
 * If channel no is 0, available channel is allocated
@@ -335,7 +383,6 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
 sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel_no, uint32_t priority)
 {
   sl_status_t status = SL_STATUS_OK;
-  uint32_t channel_count;
 
   if ((channel_no == NULL) || (dma_number > ULP_DMA_INSTANCE)) {
     // Invalid channel number
@@ -356,38 +403,9 @@ sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  if (dma_number == DMA_INSTANCE0) {
-    channel_count = SL_DMA0_CHANNEL_COUNT;
-  } else {
-    channel_count = SL_ULP_DMA_CHANNEL_COUNT;
-  }
   if (*channel_no == 0) {
     // Scan for available channels
-    for (uint32_t ch = 0; ch < channel_count; ch++) {
-      if ((dma_number == DMA_INSTANCE0) && (sl_dma0_channel_allocation_data_t[ch].allocated == false)) {
-        // Channel available
-        *channel_no = ch + 1;
-        // Allocate the channel using channel allocator
-        sl_dma0_channel_allocation_data_t[ch].allocated                           = true;
-        sl_dma0_channel_allocation_data_t[ch].priority                            = priority;
-        sl_dma0_channel_allocation_data_t[ch].dma_callback_t.transfer_complete_cb = NULL;
-        sl_dma0_channel_allocation_data_t[ch].dma_callback_t.error_cb             = NULL;
-        break;
-      } else if ((dma_number == ULP_DMA_INSTANCE) && (sl_ulp_dma_channel_allocation_data_t[ch].allocated == false)) {
-        // Channel available
-        *channel_no = ch + 1;
-        // Allocate the channel using channel allocator
-        sl_ulp_dma_channel_allocation_data_t[ch].allocated                           = true;
-        sl_ulp_dma_channel_allocation_data_t[ch].priority                            = priority;
-        sl_ulp_dma_channel_allocation_data_t[ch].dma_callback_t.transfer_complete_cb = NULL;
-        sl_ulp_dma_channel_allocation_data_t[ch].dma_callback_t.error_cb             = NULL;
-        break;
-      }
-    }
-    if (*channel_no == 0) {
-      // No DMA channel is available
-      status = SL_STATUS_DMA_NO_CHANNEL_AVAILABLE;
-    }
+    status = scan_available_dma_channel(dma_number, &channel_no, priority);
   } else {
     if ((dma_number == DMA_INSTANCE0) && (sl_dma0_channel_allocation_data_t[*channel_no - 1].allocated == false)) {
       // Allocate desired DMA channel, if it is available

@@ -533,34 +533,34 @@ static int sli_validate_setsockopt_params(const sli_si91x_socket_t *si91x_socket
   return SI91X_NO_ERROR;
 }
 
-// Handle SO_RCVTIMEO option
-static void sli_handle_so_rcvtimeo(sli_si91x_socket_t *si91x_socket, const void *option_value, socklen_t option_length)
+static int sli_handle_so_rcvtimeo(sli_si91x_socket_t *si91x_socket, const void *option_value, socklen_t option_length)
 {
-  sl_si91x_time_value timeout = *(const sl_si91x_time_value *)option_value;
+  sl_si91x_time_value *timeout = NULL;
+  timeout                      = (sl_si91x_time_value *)option_value;
   uint16_t timeout_val;
 
   // Configure receive timeout
-  if ((timeout.tv_sec == 0) && (timeout.tv_usec != 0) && (timeout.tv_usec < 1000)) {
-    timeout.tv_usec = 1000;
+  if ((timeout->tv_sec == 0) && (timeout->tv_usec != 0) && (timeout->tv_usec < 1000)) {
+    timeout->tv_usec = 1000;
   }
-  timeout_val = (uint16_t)((timeout.tv_usec / 1000) + (timeout.tv_sec * 1000));
+  timeout_val = (uint16_t)((timeout->tv_usec / 1000) + (timeout->tv_sec * 1000));
 
   // Need to add check here if Synchronous bit map is set (after async socket_id implementation)
   memcpy(&si91x_socket->read_timeout,
          &timeout_val,
          GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->read_timeout), option_length));
+  return SI91X_NO_ERROR;
 }
 
-//  Handle SO_KEEPALIVE option
-static void sli_handle_so_keepalive(sli_si91x_socket_t *si91x_socket, const void *option_value, socklen_t option_length)
+static int sli_handle_so_keepalive(sli_si91x_socket_t *si91x_socket, const void *option_value, socklen_t option_length)
 {
   // Set TCP keep-alive initial time
   memcpy(&si91x_socket->tcp_keepalive_initial_time,
          (const uint16_t *)option_value,
          GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->tcp_keepalive_initial_time), option_length));
+  return SI91X_NO_ERROR;
 }
 
-// Handle TCP_ULP option
 static int sli_handle_tcp_ulp(sli_si91x_socket_t *si91x_socket, const void *option_value, socklen_t option_length)
 {
   // Set TLS version based on the provided option_value
@@ -584,13 +584,13 @@ static int sli_handle_tcp_ulp(sli_si91x_socket_t *si91x_socket, const void *opti
   return SI91X_NO_ERROR;
 }
 
-// Handle SO_MAX_RETRANSMISSION_TIMEOUT_VALUE option
-static int sli_handle_max_retransmission_timeout_value(sli_si91x_socket_t *si91x_socket,
-                                                       const void *option_value,
-                                                       socklen_t option_length)
+static int sli_handle_so_max_retransmission_timeout_value(sli_si91x_socket_t *si91x_socket,
+                                                          const void *option_value,
+                                                          socklen_t option_length)
 {
   // Set max retransmission timeout value with bounds check
-  if (IS_POWER_OF_TWO(*(uint8_t *)option_value) && ((*(const uint8_t *)option_value) < MAX_RETRANSMISSION_TIME_VALUE)) {
+  if (IS_POWER_OF_TWO(*(const uint8_t *)option_value)
+      && ((*(const uint8_t *)option_value) < MAX_RETRANSMISSION_TIME_VALUE)) {
     memcpy(&si91x_socket->max_retransmission_timeout_value,
            (const uint8_t *)option_value,
            GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->max_retransmission_timeout_value), option_length));
@@ -602,9 +602,96 @@ static int sli_handle_max_retransmission_timeout_value(sli_si91x_socket_t *si91x
   return SI91X_NO_ERROR;
 }
 
+static int sli_handle_ip_tos(sli_si91x_socket_t *si91x_socket, const void *option_value)
+{
+  int32_t converted_tos_value = sli_map_tos_to_nwp(option_value);
+  if (converted_tos_value < 0) {
+    SET_ERROR_AND_RETURN(EINVAL);
+  }
+
+  si91x_socket->tos = (uint32_t)converted_tos_value;
+  return SI91X_NO_ERROR;
+}
+
+static int sli_handle_sl_so_cert_index(sli_si91x_socket_t *si91x_socket, const void *option_value)
+{
+  // Check if the provided certificate index is within a valid range
+  SET_ERRNO_AND_RETURN_IF_TRUE(
+    ((*(const uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(const uint8_t *)option_value > SI91X_CERT_INDEX_2)),
+    EINVAL);
+
+  // Set the certificate index
+  si91x_socket->certificate_index = *(const uint8_t *)option_value;
+  return SI91X_NO_ERROR;
+}
+
+static int sli_handle_sl_so_high_performance_socket(sli_si91x_socket_t *si91x_socket, const void *option_value)
+{
+  // Check if the provided value is SI91X_HIGH_PERFORMANCE_SOCKET
+  SET_ERRNO_AND_RETURN_IF_TRUE(*(const uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
+
+  // Set the SI91X_HIGH_PERFORMANCE_SOCKET flag in the ssl_bitmap of si91x_socket
+  si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
+  return SI91X_NO_ERROR;
+}
+
+static int sli_handle_sl_so_tls_sni_alpn(sli_si91x_socket_t *si91x_socket, const void *option_value)
+{
+  // Call a function to add a TLS extension to si91x_socket
+  sl_status_t status = sli_si91x_add_tls_extension(&si91x_socket->tls_extensions,
+                                                   (const sl_si91x_socket_type_length_value_t *)option_value);
+  // Check if the operation was successful
+  if (status != SL_STATUS_OK) {
+    SET_ERROR_AND_RETURN(ENOMEM);
+  }
+  return SI91X_NO_ERROR;
+}
+
+static int sli_handle_sl_so_mss(sli_si91x_socket_t *si91x_socket, const void *option_value, socklen_t option_length)
+{
+  // Set the Maximum Segment Size (MSS) for the socket
+  if (option_length == sizeof(uint16_t)) {
+    const uint16_t mss = *(const uint16_t *)option_value;
+    si91x_socket->mss  = mss;
+  } else {
+    errno = EINVAL;
+    return -1;
+  }
+  return SI91X_NO_ERROR;
+}
+
+static int sli_handle_sl_so_sock_vap_id(sli_si91x_socket_t *si91x_socket,
+                                        const void *option_value,
+                                        socklen_t option_length)
+{
+  // Set the VAP ID for the socket
+  if (option_length == sizeof(uint8_t)) {
+    const uint8_t vap_id = *(const uint8_t *)option_value;
+    si91x_socket->vap_id = vap_id;
+  } else {
+    errno = EINVAL;
+    return -1;
+  }
+  return SI91X_NO_ERROR;
+}
+
+static int sli_handle_sl_so_maxretry(sli_si91x_socket_t *si91x_socket,
+                                     const void *option_value,
+                                     socklen_t option_length)
+{
+  // Set the maximum number of retries for the socket
+  if (option_length == sizeof(uint8_t)) {
+    const uint8_t max_tcp_retries = *(const uint8_t *)option_value;
+    si91x_socket->max_tcp_retries = max_tcp_retries;
+  } else {
+    errno = EINVAL;
+    return -1;
+  }
+  return SI91X_NO_ERROR;
+}
+
 int setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length)
 {
-  int32_t converted_tos_value      = 0;
   sli_si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
   int status                       = sli_validate_setsockopt_params(si91x_socket, option_value, option_level);
   if (status != SI91X_NO_ERROR) {
@@ -613,72 +700,40 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
 
   switch (option_name) {
     case SO_RCVTIMEO:
-      sli_handle_so_rcvtimeo(si91x_socket, option_value, option_length);
-      break;
+      return sli_handle_so_rcvtimeo(si91x_socket, option_value, option_length);
 
     case SO_KEEPALIVE:
-      sli_handle_so_keepalive(si91x_socket, option_value, option_length);
-      break;
+      return sli_handle_so_keepalive(si91x_socket, option_value, option_length);
 
     case TCP_ULP:
-      status = sli_handle_tcp_ulp(si91x_socket, option_value, option_length);
-      if (status != SI91X_NO_ERROR) {
-        return status;
-      }
-      break;
+      return sli_handle_tcp_ulp(si91x_socket, option_value, option_length);
 
 #if defined(SLI_SI917) || defined(SLI_SI915)
-    case SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
-      status = sli_handle_max_retransmission_timeout_value(si91x_socket, option_value, option_length);
-      if (status != SI91X_NO_ERROR) {
-        return status;
-      }
-      break;
-    }
+    case SO_MAX_RETRANSMISSION_TIMEOUT_VALUE:
+      return sli_handle_so_max_retransmission_timeout_value(si91x_socket, option_value, option_length);
 
-    case IP_TOS: {
-      // Set IP TOS (Type of Service)
-      converted_tos_value = sli_map_tos_to_nwp(option_value);
-      if (converted_tos_value < 0) {
-        SET_ERROR_AND_RETURN(EINVAL);
-      }
-
-      si91x_socket->tos = (uint32_t)converted_tos_value;
-      break;
-    }
+    case IP_TOS:
+      return sli_handle_ip_tos(si91x_socket, option_value);
 #endif
 
-    case SL_SO_CERT_INDEX: {
-      // Check if the provided certificate index is within a valid range
-      SET_ERRNO_AND_RETURN_IF_TRUE(
-        ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
-        EINVAL);
+    case SL_SO_CERT_INDEX:
+      return sli_handle_sl_so_cert_index(si91x_socket, option_value);
 
-      // Set the certificate index
-      si91x_socket->certificate_index = *(const uint8_t *)option_value;
-      break;
-    }
-    case SL_SO_HIGH_PERFORMANCE_SOCKET: {
-      // Check if the provided value is SI91X_HIGH_PERFORMANCE_SOCKET
-      SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
+    case SL_SO_HIGH_PERFORMANCE_SOCKET:
+      return sli_handle_sl_so_high_performance_socket(si91x_socket, option_value);
 
-      // Set the SI91X_HIGH_PERFORMANCE_SOCKET flag in the ssl_bitmap of si91x_socket
-      si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
-      break;
-    }
     case SL_SO_TLS_SNI:
-    case SL_SO_TLS_ALPN: {
-      // Call a function to add a TLS extension to si91x_socket
-      sl_status_t tls_extension_status =
-        sli_si91x_add_tls_extension(&si91x_socket->tls_extensions,
-                                    (const sl_si91x_socket_type_length_value_t *)option_value);
+    case SL_SO_TLS_ALPN:
+      return sli_handle_sl_so_tls_sni_alpn(si91x_socket, option_value);
 
-      // Check if the operation was successful
-      if (tls_extension_status != SL_STATUS_OK) {
-        SET_ERROR_AND_RETURN(ENOMEM);
-      }
-      break;
-    }
+    case SL_SO_MSS:
+      return sli_handle_sl_so_mss(si91x_socket, option_value, option_length);
+
+    case SL_SO_SOCK_VAP_ID:
+      return sli_handle_sl_so_sock_vap_id(si91x_socket, option_value, option_length);
+
+    case SL_SO_MAXRETRY:
+      return sli_handle_sl_so_maxretry(si91x_socket, option_value, option_length);
 
     default: {
       // Unsupported option

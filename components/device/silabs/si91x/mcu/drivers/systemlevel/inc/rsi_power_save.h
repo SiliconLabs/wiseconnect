@@ -582,9 +582,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps4tops2(ULP_MODE_T enCtxSel,
   if (socLdoEnable == 1) {
     MCU_FSM->MCU_FSM_POWER_CTRL_AND_DELAY_b.FSM_PERI_DCDC_EN = 1;
     MCU_FSM->MCU_FSM_PERI_CONFIG_REG_b.BGPMU_SAMPLING_EN_R   = 0;
-  }
-
-  else {
+  } else {
     MCU_FSM->MCU_FSM_POWER_CTRL_AND_DELAY_b.FSM_PERI_DCDC_EN = (unsigned int)(socLdoEnable & 0x1);
   }
 

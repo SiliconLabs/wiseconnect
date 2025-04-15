@@ -61,7 +61,7 @@ static void sli_si91x_set_input_config(const psa_key_attributes_t *attributes,
 }
 
 static void sli_si91x_psa_multipart_set_input_config(const psa_key_attributes_t *attributes,
-                                                     sl_si91x_psa_aes_multipart_config_t *config,
+                                                     sli_si91x_psa_aes_multipart_config_t *config,
                                                      const uint8_t *key_buffer,
                                                      size_t key_buffer_size)
 {
@@ -401,7 +401,7 @@ psa_status_t sli_si91x_crypto_cipher_update(sli_si91x_crypto_cipher_operation_t 
 
   operation->config.msg = input;
 
-  // Populating sl_si91x_aes_config_t structure with sl_si91x_psa_aes_multipart_config_t structure
+  // Populating sl_si91x_aes_config_t structure with sli_si91x_psa_aes_multipart_config_t structure
   sl_si91x_aes_config_t config;
   memset(&config, 0, sizeof(sl_si91x_aes_config_t));
 

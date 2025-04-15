@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -33,7 +33,7 @@
 #include "sl_si91x_host_interface.h"
 #include "sl_constants.h"
 #include "cmsis_os2.h"
-#include "em_core.h"
+#include "sl_core.h"
 #include <string.h>
 #include "sl_rsi_utility.h"
 

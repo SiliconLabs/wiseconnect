@@ -60,11 +60,33 @@ extern unsigned long _edata;        /*!< End address for the .data section      
 extern unsigned long __bss_start__; /*!< Start address for the .bss section     */
 extern unsigned long __bss_end__;   /*!< End address for the .bss section         */
 
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(DATA_SEGMENT_IN_PSRAM)
 extern unsigned long _slpcode; /*!< Start address for the initialization
                                       values of the .sleep_psram_driver section.            */
 extern unsigned long _scode;   /*!< Start address for the .sleep_psram_driver section     */
 extern unsigned long _ecode;   /*!< End address for the .sleep_psram_driver section       */
+#endif
+
+// Enable only if code classification component is intalled, PSRAM is present, and data segment is in PSRAM
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(SL_SI91X_CODE_CLASSIFIER_ENABLE) \
+  && defined(DATA_SEGMENT_IN_PSRAM)
+extern unsigned long _classified_text_;               /*!< Start address for the initialization
+                                       values of the .classified_text section.            */
+extern unsigned long _classified_text_section_start_; /*!< Start address for the .classified_text section     */
+extern unsigned long _classified_text_section_end_;   /*!< End address for the .classified_text section       */
+
+extern unsigned long _classified_data_;               /*!< Start address for the initialization
+                                       values of the .classified_data section.            */
+extern unsigned long _classified_data_section_start_; /*!< Start address for the .classified_data section     */
+extern unsigned long _classified_data_section_end_;   /*!< End address for the .classified_data section       */
+#endif
+
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(SL_SI91X_CODE_CLASSIFIER_ENABLE) \
+  && !defined(BSS_SEGMENT_IN_PSRAM)
+extern unsigned long _classified_bss_;               /*!< Start address for the initialization
+                                       values of the .classified_data section.            */
+extern unsigned long _classified_bss_section_start_; /*!< Start address for the .classified_data section     */
+extern unsigned long _classified_bss_section_end_;   /*!< End address for the .classified_data section   */
 #endif
 
 /*---------------------------------------------------------------------------
@@ -210,10 +232,33 @@ void Copy_Table(void)
   for (pulDest = &_sdata; pulDest < &_edata;) {
     *(pulDest++) = *(pulSrc++);
   }
-#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE)
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(DATA_SEGMENT_IN_PSRAM)
   /* Copy the sleep PSRAM driver segment to SRAM */
   pulSrc = &_slpcode;
   for (pulDest = &_scode; pulDest < &_ecode;) {
+    *(pulDest++) = *(pulSrc++);
+  }
+#endif
+
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(SL_SI91X_CODE_CLASSIFIER_ENABLE) \
+  && defined(DATA_SEGMENT_IN_PSRAM)
+  /* Copy the classified text segment to SRAM */
+  pulSrc = &_classified_text_;
+  for (pulDest = &_classified_text_section_start_; pulDest < &_classified_text_section_end_;) {
+    *(pulDest++) = *(pulSrc++);
+  }
+
+  pulSrc = &_classified_data_;
+  for (pulDest = &_classified_data_section_start_; pulDest < &_classified_data_section_end_;) {
+    *(pulDest++) = *(pulSrc++);
+  }
+#endif
+
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(SL_SI91X_CODE_CLASSIFIER_ENABLE) \
+  && !defined(BSS_SEGMENT_IN_PSRAM)
+  /* Copy the classified BSS segment from RAM to PSRAM */
+  pulSrc = &_classified_bss_;
+  for (pulDest = &_classified_bss_section_start_; pulDest < &_classified_bss_section_end_;) {
     *(pulDest++) = *(pulSrc++);
   }
 #endif
@@ -227,6 +272,13 @@ void Zero_Table(void)
   while (pulDest < &__bss_end__) {
     *pulDest++ = 0UL;
   }
+#if (SLI_SI91X_MCU_PSRAM_PRESENT == ENABLE) && defined(SL_SI91X_CODE_CLASSIFIER_ENABLE) \
+  && !defined(BSS_SEGMENT_IN_PSRAM)
+  pulDest = &_classified_bss_section_start_;
+  for (; pulDest < &_classified_bss_section_end_;) {
+    *pulDest++ = 0UL;
+  }
+#endif
 }
 
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)

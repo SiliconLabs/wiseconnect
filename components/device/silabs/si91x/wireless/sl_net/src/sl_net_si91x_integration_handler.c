@@ -37,9 +37,13 @@
 #if defined(SL_WIFI_COMPONENT_INCLUDED)
 #include "sl_wifi.h"
 #endif
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+#ifndef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
+#ifndef SLI_SI91X_NETWORK_DUAL_STACK // These headers are included only when neither LWIP nor dual stack is used.
 #include "netinet_in.h"
 #include "netinet6_in6.h"
+#endif
+#endif
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket_utility.h"
 #include "sl_ip_types.h"
@@ -228,6 +232,12 @@ void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_si91
        || packet->command == RSI_WLAN_RSP_IPCONFV4 || packet->command == RSI_WLAN_RSP_IPCONFV6
        || (packet->command == RSI_WLAN_RSP_DISCONNECT
            && (current_operation_mode == SL_SI91X_CLIENT_MODE
+               || current_operation_mode
+                    == SL_SI91X_ENTERPRISE_CLIENT_MODE // Check if the device is in Wi-Fi Enterprise Client mode
+               || current_operation_mode
+                    == SL_SI91X_TRANSCEIVER_MODE // Check if the device is in Wi-Fi Transceiver mode
+               || current_operation_mode
+                    == SL_SI91X_TRANSMIT_TEST_MODE // Check if the device is in Wi-Fi transmit test mode
                || (current_operation_mode == SL_SI91X_CONCURRENT_MODE
                    && packet->desc[7] == SL_SI91X_WIFI_CLIENT_VAP_ID))));
 
@@ -299,9 +309,13 @@ sl_status_t sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(uint16
         is_same = memcmp(dest_ip_add->ip.v4.bytes, &socket_address->sin_addr.s_addr, SL_IPV4_ADDRESS_LENGTH);
       } else {
         const struct sockaddr_in6 *ipv6_socket_address = &sli_si91x_sockets[index]->remote_address;
-        is_same                                        = memcmp(dest_ip_add->ip.v6.bytes,
+#ifdef SLI_SI91X_NETWORK_DUAL_STACK
+        is_same = memcmp(dest_ip_add->ip.v6.bytes, &ipv6_socket_address->sin6_addr.un.u8_addr, SL_IPV6_ADDRESS_LENGTH);
+#else
+        is_same = memcmp(dest_ip_add->ip.v6.bytes,
                          &ipv6_socket_address->sin6_addr.__u6_addr.__u6_addr8,
                          SL_IPV6_ADDRESS_LENGTH);
+#endif
       }
       if (!is_same) {
         // Flush the command queues for the current socket based on queue type

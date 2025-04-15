@@ -552,10 +552,10 @@ sl_status_t start_aws_mqtt(void)
         }
 
 #if ENABLE_NWP_POWER_SAVE
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
-                                                              .listen_interval = 1000 };
+        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
+                                                                 .listen_interval = 1000 };
         if (!powersave_given) {
-          rc = sl_wifi_set_performance_profile(&performance_profile);
+          rc = sl_wifi_set_performance_profile_v2(&performance_profile);
           if (rc != SL_STATUS_OK) {
             printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
           }

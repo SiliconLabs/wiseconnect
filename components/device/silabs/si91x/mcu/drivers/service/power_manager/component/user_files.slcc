@@ -16,6 +16,8 @@ provides:
 template_contribution:
   - name: power_manager_ps2
     value: 1
+    condition:
+      - pm_ps2_component  
   - name: user_files_ps2
     value: power_manager_example.o
 

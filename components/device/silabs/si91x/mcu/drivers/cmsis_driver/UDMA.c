@@ -192,10 +192,10 @@ void IRQ033_Handler(void)
     }
   }
   //Check if the transfer type is memory-memory
-  if ((UDMA0_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) && \
-      (UDMA0_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE) && \
+  if ((UDMA0_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) &&
+      (UDMA0_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE) &&
       (udma0_chnl_info[channel].Size != udma0_chnl_info[channel].Cnt)) {
-    soft_trig_flag = 1;
+          soft_trig_flag = 1;
   }
  ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA0_Resources,UDMA0_Table,udma0_chnl_info);
  if(soft_trig_flag) {
@@ -247,10 +247,10 @@ void IRQ010_Handler (void)
     }
   }
   //Check if the transfer type is memory-memory
-  if (((UDMA1_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) && \
-      (UDMA1_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE)) && \
+  if ((UDMA1_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) &&
+      (UDMA1_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE) &&
       (udma1_chnl_info[channel].Size != udma1_chnl_info[channel].Cnt)) {
-      soft_trig_flag = 1;
+          soft_trig_flag = 1;
   }
   ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
   if(soft_trig_flag) {

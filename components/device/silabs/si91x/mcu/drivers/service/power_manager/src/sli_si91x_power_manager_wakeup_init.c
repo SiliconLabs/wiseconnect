@@ -31,7 +31,9 @@
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_power_manager_wakeup_handler.h"
 #include "rsi_rom_power_save.h"
-
+#if defined(SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+#include "sli_si91x_32khz_rc_calibration.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -75,6 +77,11 @@
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 #if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+// In the current design, if calibration is initialized, the alarm wakeup source should only be initialized once.
+// Flag to indicate whether the calendar alarm wakeup source has been initialized for the first time.
+static bool sli_si91x_calibration_calendar_single_execution = false;
+#endif
 static sl_status_t sli_si91x_power_manager_calendar_deinit(void);
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
 __attribute__((weak)) void calendar_alarm_callback_function(void);
@@ -120,87 +127,110 @@ sl_status_t sli_si91x_power_manager_calendar_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 #if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
-  // Calendar is de-initialized.
-  status = sli_si91x_power_manager_calendar_deinit();
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
-  // Calendar is initialized.
-  sl_si91x_calendar_init();
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+  // In the current design, if calibration is initialized, the alarm wakeup source should only be initialized once.
+  if (sli_si91x_calibration_calendar_single_execution == false) {
+#endif
+    // Calendar is de-initialized.
+    status = sli_si91x_power_manager_calendar_deinit();
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
+    // Calendar is initialized.
+    sl_si91x_calendar_init();
 #if defined(ENABLE_SECOND) && (ENABLE_SECOND == ENABLE)
-  // Second based callback is configured.
-  status = sl_si91x_calendar_register_sec_trigger_callback(calendar_second_callback_function);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
-  // Second based wakeup source is configured
-  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
+    // Second based callback is configured.
+    status = sl_si91x_calendar_register_sec_trigger_callback(calendar_second_callback_function);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
+    // Second based wakeup source is configured
+    status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
 #endif // ENABLE_SECOND
 
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
-  sl_calendar_datetime_config_t datetime_config;
-  // Current date time is fetched
-  status = sl_si91x_calendar_get_date_time(&datetime_config);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // If the date time is not configured, then only it is configured. Evaluated by the default values
-  if ((!datetime_config.Year) && !(datetime_config.Century) && !(datetime_config.Hour)) {
-    // Setting datetime for Calendar
-    status = sl_si91x_calendar_build_datetime_struct(&datetime_config,
-                                                     CENTURY,
-                                                     YEAR,
-                                                     February,
-                                                     Friday,
-                                                     DAY,
-                                                     HOUR,
-                                                     MINUTE,
-                                                     SECONDS,
-                                                     MILLI_SECONDS);
+    sl_calendar_datetime_config_t datetime_config;
+    // Current date time is fetched
+    status = sl_si91x_calendar_get_date_time(&datetime_config);
     if (status != SL_STATUS_OK) {
       return status;
     }
-    status = sl_si91x_calendar_set_date_time(&datetime_config);
-    if (status != SL_STATUS_OK) {
-      return status;
+    // If the date time is not configured, then only it is configured. Evaluated by the default values
+    if ((!datetime_config.Year) && !(datetime_config.Century) && !(datetime_config.Hour)) {
+      // Setting datetime for Calendar
+      status = sl_si91x_calendar_build_datetime_struct(&datetime_config,
+                                                       CENTURY,
+                                                       YEAR,
+                                                       February,
+                                                       Friday,
+                                                       DAY,
+                                                       HOUR,
+                                                       MINUTE,
+                                                       SECONDS,
+                                                       MILLI_SECONDS);
+      if (status != SL_STATUS_OK) {
+        return status;
+      }
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+      // Apply the calibration for the first time.
+      sli_si91x_lf_fsm_rc_calibration();
+#endif
+      status = sl_si91x_calendar_set_date_time(&datetime_config);
+      if (status != SL_STATUS_OK) {
+        return status;
+      }
     }
-  }
-  // Periodic alarm setting API is called.
-  set_periodic_alarm(ALARM_TIME_MSEC);
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+    // For the event handler to provide the next event, we need to set the alarm time to variable of the event handler.
+    // This value will be utilized by the calibration event handler to decide the next event.
+    sli_si91x_set_remaining_time(ALARM_TIME_MSEC);
+    // Set the wakeup flag to indicate that the wakeup source has been configured.
+    // If this flag is set, the event handler will return the next event, considering the alarm interrupt (wakeup interrupt) as a periodically event. Otherwise, the alarm interrupt will be configured as a one-time event.
+    sli_si91x_set_calendar_wakeup_peripheral_flag();
+    // Invokes the calibration event handler to determine the next event.
+    // Configures the calendar alarm based on the return value of the event handler.
+    set_periodic_alarm(sli_si91x_get_calib_next_event_time_handler(DISABLE));
+#else
+    set_periodic_alarm(ALARM_TIME_MSEC);
+#endif
 
-  // Alarm based callback is registered
-  status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_alarm_callback_function);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // Alarm based wakeup source is configured
-  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ALARM_WAKEUP, true);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+    // Alarm based callback is registered
+    status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_alarm_callback_function);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Alarm based wakeup source is configured
+    status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ALARM_WAKEUP, true);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
 #endif // ENABLE_ALARM
 
 #if defined(ENABLE_MSEC) && (ENABLE_MSEC == ENABLE)
-  // Milli Second based callback is configured.
-  status = sl_si91x_calendar_register_msec_trigger_callback(calendar_alarm_callback_function);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
-  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_MSEC_WAKEUP, true);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
+    // Milli Second based callback is configured.
+    status = sl_si91x_calendar_register_msec_trigger_callback(calendar_alarm_callback_function);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
+    status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_MSEC_WAKEUP, true);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
 #endif // ENABLE_MSEC
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+    // Set the flag. So that calendar alarm wakeup source through UC will be initialized for the first time only.
+    sli_si91x_calibration_calendar_single_execution = true;
+  }
+#endif
 #endif // SL_ENABLE_CALENDAR_WAKEUP_SOURCE
-
   return status;
 }
 
@@ -486,8 +516,17 @@ static void set_periodic_alarm(uint32_t alarm_time)
     set_alarm_config.Month = RESET_MONTH;
     set_alarm_config.Year += NEXT_OCCURENECE;
   }
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+  // The flag is cleared indicating execution is happening through driver files.
+  sli_si91x_clear_calibration_application_flag();
+#endif
 
   sl_si91x_calendar_set_alarm(&set_alarm_config);
+
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+  // The flag is cleared indicating execution is happening through driver files.
+  sli_si91x_set_calibration_application_flag();
+#endif
 }
 #endif // ENABLE_ALARM
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
@@ -496,7 +535,7 @@ static void set_periodic_alarm(uint32_t alarm_time)
  ******************************************************************************/
 __attribute__((weak)) void calendar_alarm_callback_function(void)
 {
-#if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
+#if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == DISABLE)
   set_periodic_alarm(ALARM_TIME_MSEC);
 #endif // ENABLE_ALARM
 }
