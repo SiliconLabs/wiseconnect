@@ -34,8 +34,8 @@ components/console_auto_gen/
 components/protocol/wifi/
 components/service/
 
-# Ignore all device folders except si91x asynchronous_socket, icmp, and fimrware_upgrade
-components/device/silabs/si91x/mcu/
+# Ignore all device folders except si91x mcu, asynchronous_socket, icmp, and fimrware_upgrade
+# components/device/silabs/si91x/mcu/
 components/device/silabs/si91x/wireless/ahb_interface/
 # components/device/silabs/si91x/wireless/asynchronous_socket/
 components/device/silabs/si91x/wireless/ble/
