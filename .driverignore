@@ -31,7 +31,7 @@ components/board/silabs/
 # components/console/
 components/console_auto_gen/
 # components/device/
-components/protocol/wifi/
+# components/protocol/wifi/
 components/service/
 
 # Ignore all device folders except si91x mcu, asynchronous_socket, icmp, ble, and firmware_upgrade
