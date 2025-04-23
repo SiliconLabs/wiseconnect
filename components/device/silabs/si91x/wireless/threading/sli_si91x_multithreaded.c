@@ -1000,8 +1000,6 @@ void si91x_bus_thread(const void *args)
                 current_performance_profile = HIGH_PERFORMANCE;
                 // check for command in flight and create dummy packets for respective queues to be cleared
                 sli_handle_dhcp_and_rejoin_failure(cmd_queues[SI91X_NETWORK_CMD].sdk_context, buffer, frame_status);
-                sli_si91x_add_to_queue(&cmd_queues[SI91X_NETWORK_CMD].event_queue, packet);
-                set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
               }
               break;
             }

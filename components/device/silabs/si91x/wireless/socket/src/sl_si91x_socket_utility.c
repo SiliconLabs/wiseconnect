@@ -864,6 +864,7 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
 
       socket->state         = DISCONNECTED;
       uint16_t frame_status = get_si91x_frame_status(rx_packet);
+      frame_status = (frame_status == SL_STATUS_OK) ? SL_STATUS_SI91X_REMOTE_USER_TERMINATED_CONNECTION : frame_status;
       sli_si91x_flush_socket_command_queues_based_on_queue_type(index, frame_status);
       sli_si91x_flush_socket_data_queues_based_on_queue_type(index);
 
