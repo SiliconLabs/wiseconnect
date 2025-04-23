@@ -154,9 +154,7 @@ typedef enum {
  *          It specifies the number of bits per audio sample that can be used.
  ******************************************************************************/
 typedef enum {
-  SL_I2S_RESOLUTION_12 = 12, ///< 12-bit resolution.
   SL_I2S_RESOLUTION_16 = 16, ///< 16-bit resolution.
-  SL_I2S_RESOLUTION_20 = 20, ///< 20-bit resolution.
   SL_I2S_RESOLUTION_24 = 24, ///< 24-bit resolution.
   SL_I2S_RESOLUTION_32 = 32  ///< 32-bit resolution.
 } sl_i2s_data_resolution_t;
@@ -540,7 +538,7 @@ sl_status_t sl_si91x_i2s_end_transfer(sl_i2s_handle_t i2s_handle, sl_i2s_xfer_ty
 * @section I2S_Config Configuration
 * 
 * I2S can be configured using several parameters:
-*  1. The I2S module supports 5 programmable audio resolutions @ref sl_i2s_data_resolution_t  
+*  1. The I2S module supports 3 programmable audio resolutions @ref sl_i2s_data_resolution_t  
 *  2. I2S also supports 11 audio sampling rates @ref sl_i2s_sampling_rate_t 
 * 
 * @li For more information on configuring available parameters, see the respective peripheral example readme document.

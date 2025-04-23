@@ -1456,7 +1456,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/siwx917_dev_kit/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="sl_cpc_sec_secondary_sdio_freertos" label="SI91x - SoC Peripheral CPC with Security Secondary SDIO - FreeRTOS" description="Demonstrates the CPC Secondary loopback application with SDIO interface support.">
+<descriptors name="sl_cpc_sec_secondary_sdio_freertos" label="Si91x - CPC SDIO Secondary FreeRTOS with Security" description="Demonstrates the CPC Secondary loopback application with SDIO interface support.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_cpc_sec_secondary_sdio_freertos/sl_cpc_sec_secondary_sdio_freertos.slcp"/>
@@ -1516,7 +1516,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_adc_static_mode/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_analog_comparator" label="SL Si91x - Analog Comparator" description="Demonstrates how to use analog comparator.'">
+<descriptors name="sl_si91x_analog_comparator" label="SL Si91x - Analog Comparator" description="Demonstrates how to use analog comparator.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_analog_comparator/sl_si91x_analog_comparator.slcp"/>
@@ -1576,7 +1576,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_bod/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_button_baremetal" label="SL Si91x - Button Baremetal" description="Demonstrates how to to use button.">
+<descriptors name="sl_si91x_button_baremetal" label="SL Si91x - Button Baremetal" description="Demonstrates how to use the button.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_button_baremetal/sl_si91x_button_baremetal.slcp"/>
@@ -1801,7 +1801,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_littlefs_common_flash/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_gpio_detailed_example" label="SL Si91x - GPIO Detailed Example" description="Demonstrates how to use GPIO driver and  using of supporting APIs.">
+<descriptors name="sl_si91x_gpio_detailed_example" label="SL Si91x - GPIO Detailed Example" description="Demonstrates how to toggle a GPIO pin with detailed configuration.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_gpio_detailed_example/sl_si91x_gpio_detailed_example.slcp"/>
@@ -1816,7 +1816,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_gpio_detailed_example/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_gpio_example" label="SL Si91x - GPIO Example" description="Demonstrates pin interrupt for HP GPIO instance.">
+<descriptors name="sl_si91x_gpio_example" label="SL Si91x - GPIO HP Example" description="Demonstrates toggling a HP GPIO pin and handling pin interrupts using the HP GPIO instance.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_gpio_example/sl_si91x_gpio_example.slcp"/>
@@ -1846,7 +1846,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_gpio_group_example/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_gpio_ulp_example" label="SL Si91x - GPIO ULP Example" description="Demonstrates toggling of GPIO pin and pin interrupts for ULP instance.">
+<descriptors name="sl_si91x_gpio_ulp_example" label="SL Si91x - GPIO ULP Example" description="Demonstrates toggling a ULP GPIO pin and handling pin interrupts using the ULP GPIO instance.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_gpio_ulp_example/sl_si91x_gpio_ulp_example.slcp"/>
@@ -1861,7 +1861,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_gpio_ulp_example/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_gpio_uulp_example" label="SL Si91x - GPIO UULP Example" description="Demonstrates pin interrupts for GPIO UULP instance.">
+<descriptors name="sl_si91x_gpio_uulp_example" label="SL Si91x - GPIO UULP Example" description="Demonstrates pin interrupt handling using the GPIO UULP instance.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_gpio_uulp_example/sl_si91x_gpio_uulp_example.slcp"/>
@@ -2159,6 +2159,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_nvm3_common_flash/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_opamp" label="SL Si91x - OPAMP" description="Demonstrates how to use OPAMP features.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_opamp/sl_si91x_opamp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a brd4343q brd4344a brd4344b brd4344c"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.* .*siwg915m000xgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_opamp/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_pcm_loopback" label="SL Si91x - PCM Loopback" description="Demonstrates how to use the I2S PCM loopback on the Si91x SoC device.">
@@ -2536,7 +2551,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_adc/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_ulp_calendar" label="SL Si91x - ULP Calendar" description="Demonstrates how to to use ULP Calendar.">
+<descriptors name="sl_si91x_ulp_calendar" label="SL Si91x - ULP Calendar" description="Demonstrates how to use ULP Calendar.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_calendar/sl_si91x_ulp_calendar.slcp"/>
@@ -2566,7 +2581,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_dac/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_ulp_dma" label="SL Si91x - ULP DMA" description="Demonstrates how to to use ULP Dma.">
+<descriptors name="sl_si91x_ulp_dma" label="SL Si91x - ULP DMA" description="Demonstrates how to use ULP Dma.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_dma/sl_si91x_ulp_dma.slcp"/>
@@ -2581,7 +2596,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_dma/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_ulp_gpio" label="SL Si91x - ULP GPIO" description="Demonstrates how to to use ULP GPIO.">
+<descriptors name="sl_si91x_ulp_gpio" label="SL Si91x - ULP GPIO State Transition Example" description="Demonstrates ULP state transitions along with GPIO usage.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_gpio/sl_si91x_ulp_gpio.slcp"/>
@@ -2626,7 +2641,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_i2s/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_ulp_ssi_master" label="SL Si91x - ULP SSI MASTER" description="Demonstrates how to to use ULP SSI Master.">
+<descriptors name="sl_si91x_ulp_ssi_master" label="SL Si91x - ULP SSI MASTER" description="Demonstrates how to use ULP SSI Master.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_ssi_master/sl_si91x_ulp_ssi_master.slcp"/>
@@ -2656,7 +2671,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_timer/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_ulp_uart" label="SL Si91x - ULP UART" description="Demonstrates how to to use ULP Uart.">
+<descriptors name="sl_si91x_ulp_uart" label="SL Si91x - ULP UART" description="Demonstrates how to use ULP Uart.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_uart/sl_si91x_ulp_uart.slcp"/>
@@ -2716,7 +2731,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_usart_sync_slave/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
-<descriptors name="sl_si91x_veml6035" label="SL Si91x - VEML6035" description="Demonstrates how to to use VEML6035 Ambient Light Sensor.">
+<descriptors name="sl_si91x_veml6035" label="SL Si91x - VEML6035" description="Demonstrates how to use VEML6035 Ambient Light Sensor.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_veml6035/sl_si91x_veml6035.slcp"/>
@@ -3900,6 +3915,36 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/m4_firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="wifi_mqtt_over_tcp_ncp" label="Wi-Fi - MQTT_OVER_TCP (NCP)" description="Demonstrates how SiWx91x device is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic using the Paho MQTT library">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/paho_mqtt_client/mqtt_over_tcp/mqtt_over_tcp_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/paho_mqtt_client/mqtt_over_tcp/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_mqtt_over_tcp_soc" label="Wi-Fi - MQTT_OVER_TCP (SoC)" description="Demonstrates how SiWx91x device is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic using the Paho MQTT library">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/paho_mqtt_client/mqtt_over_tcp/mqtt_over_tcp_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q brd4344a brd4344b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y121mgnb.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.* .*siwg915m000mgtba.* .*siwg915m000lgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/paho_mqtt_client/mqtt_over_tcp/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_multithread_sockets_ncp" label="Wi-Fi - Multithread Sockets (NCP)" description="Start a Wi-Fi client and transmits/receives data to measure Wi-Fi UDP/TCP/TLS throughput performance on multiple threads using a remote iPerf client/server">
     <properties key="namespace" value="template.uc"/>

@@ -101,8 +101,7 @@ sl_status_t sl_si91x_pcm_set_configuration(sl_i2s_handle_t pcm_handle,
     }
 
     // Validate the provided resolution
-    if (pcm_resolution != SL_I2S_RESOLUTION_12 && pcm_resolution != SL_I2S_RESOLUTION_16
-        && pcm_resolution != SL_I2S_RESOLUTION_20 && pcm_resolution != SL_I2S_RESOLUTION_24
+    if (pcm_resolution != SL_I2S_RESOLUTION_16 && pcm_resolution != SL_I2S_RESOLUTION_24
         && pcm_resolution != SL_I2S_RESOLUTION_32) {
       status = SL_STATUS_INVALID_PARAMETER; // Set error status for invalid frequency
       break;                                // Exit the loop
@@ -112,10 +111,9 @@ sl_status_t sl_si91x_pcm_set_configuration(sl_i2s_handle_t pcm_handle,
     pcm_xfer_config.resolution    = pcm_resolution;
     pcm_xfer_config.sampling_rate = pcm_sampling_frequency;
 
-    if (pcm_resolution == SL_I2S_RESOLUTION_12 || pcm_resolution == SL_I2S_RESOLUTION_16) {
+    if (pcm_resolution == SL_I2S_RESOLUTION_16) {
       pcm_xfer_config.data_size = SL_I2S_DATA_SIZE16; /* Set data size to 16 bits */
-    } else if (pcm_resolution == SL_I2S_RESOLUTION_20 || pcm_resolution == SL_I2S_RESOLUTION_24
-               || pcm_resolution == SL_I2S_RESOLUTION_32) {
+    } else if (pcm_resolution == SL_I2S_RESOLUTION_24 || pcm_resolution == SL_I2S_RESOLUTION_32) {
       pcm_xfer_config.data_size = SL_I2S_DATA_SIZE32; /* Set data size to 32 bits */
     }
 

@@ -21,7 +21,7 @@
 
 ## Prerequisites/Setup Requirements
 
-- This application will work when security is enabled and keys are programmed in the device.
+- This application works when security is enabled and keys are programmed in the device.
 
 ### Hardware Requirements
 

@@ -195,3 +195,4 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+> - In a project utilizing both RS485-capable UART0 and UART1 (or) vice-versa, the application must use uint16_t data buffers for both UARTs to ensure proper handling of the 9-bit data inherent in RS485.

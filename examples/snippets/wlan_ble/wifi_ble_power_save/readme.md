@@ -16,8 +16,10 @@
 
 ## Purpose / Scope
 
-The coex application demonstrates the procedure about how to configure the device in WisConnect coex mode with wlan standby and BLE connected power save.
-In this coex application, Silicon Labs BLE device connects with remote BLE device (ex:Smart phone with Simplicity Connect App) and issue connected power save command to module.In parallel Silicon Labs WiFi interface connects with an Access Point in station mode and issue connected power save command.
+The coex application demonstrates the procedure for configuring a device in WiSeConnect coex mode with WLAN standby and BLE connected power save.
+
+In this coex application, Silicon Labs BLE device connects with remote BLE device (for example, Smart phone with Simplicity Connect App) and issues a connected power save command to the module. 
+In parallel, the Silicon Labs WiFi interface connects with an Access Point in station mode and issues a connected power save command.
 
 ## Prerequisites / Setup Requirements
 
@@ -95,35 +97,35 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 1. Ensure the SiWx91x setup is connected to your PC.
 
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
+   - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-   ![Soc Board detection](resources/readme/socboarddetection111.png)
+     ![Soc Board detection](resources/readme/socboarddetection111.png)
 
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
+   - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
-- Filter for Bluetooth examples from the Simplicity SDK (formerly Gecko SDK) added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save* application.
+   - Filter for Bluetooth examples from the Simplicity SDK (formerly Gecko SDK) added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save* application.
 
-   ![](resources/readme/create_project1.png)
+     ![](resources/readme/create_project1.png)
 
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+   - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  ![](resources/readme/create_project2.png)
+     ![](resources/readme/create_project2.png)
 
 #### NCP Mode
 
 1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
 
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
+   - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-   ![](resources/readme/efr32.png)
+     ![](resources/readme/efr32.png)
 
-- Ensure the latest Simplicity SDK (formerly Gecko SDK) along with the WiSeConnect 3 extension is added to Simplicity Studio.
+   - Ensure the latest Simplicity SDK (formerly Gecko SDK) along with the WiSeConnect 3 extension is added to Simplicity Studio.
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save* application.
+   - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save* application.
 
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
+   - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
 
-  ![creation_final](resources/readme/create_project2.png)
+    ![creation_final](resources/readme/create_project2.png)
 
 ### Setup for application prints
 
@@ -165,145 +167,145 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**Configuring the WLAN task**
+### Configuring the WLAN task
 
 1. Open `wifi_app.c` file and update/modify the following macros:
 
-SSID refers to the name of the Access point.
+   - SSID refers to the name of the Access point.
 
-```c
-#define SSID          "ACCESSPOINT SSID"
- ```
+     ```c
+     #define SSID          "ACCESSPOINT SSID"
+     ```
 
-PSK refers to the secret key if the Access point configured in WPA-PSK/WPA2-PSK security modes.
+   - PSK refers to the secret key if the Access point configured in WPA-PSK/WPA2-PSK security modes.
 
-```c
-#define PSK           "<psk>"
-```
+     ```c
+     #define PSK           "<psk>"
+     ```
 
-To run as SSL client :
+   - To run as SSL client :
 
-```c
-#define SSL_CLIENT     1
-```
+     ```c
+     #define SSL_CLIENT     1
+     ```
 
-If SSL_CLIENT set to 1, application will load the necessary SSL certificates from default global resources/ folder.
-By default, application loading "cacert.pem" certificate if it is enabled.
+     If SSL_CLIENT set to 1, the application will load the necessary SSL certificates from default global resources/ folder.
+     By default, application loading "cacert.pem" certificate if it is enabled.
 
-if SSL_CLIENT set to 0, will use the normal TCP sockets for communication.
+     If SSL_CLIENT set to 0, will use the normal TCP sockets for communication.
 
-SERVER_PORT port refers remote SSL server port number
+   - SERVER_PORT port refers remote SSL server port number
 
-```c
-#define SERVER_PORT         5001
-```
+     ```c
+     #define SERVER_PORT         5001
+     ```
 
-SERVER_IP_ADDRESS refers remote peer IP address to connect with SSL server socket.
+   - SERVER_IP_ADDRESS refers remote peer IP address to connect with SSL server socket.
 
-```c
-#define SERVER_IP_ADDRESS      "192.168.43.99"
-```
+     ```c
+     #define SERVER_IP_ADDRESS      "192.168.43.99"
+     ```
 
 > Note:
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
 
- **Configuring the BLE task**
+### Configuring the BLE task
 
-> ble_config.h files are already set with the above desired configuration for this example.
+ble_config.h files are already set with the above desired configuration for this example.
 
-Configuring the BLE Application
+### Configuring the BLE Application
 
-Open `ble_app.c` file and update/modify following macros
+1. Open `ble_app.c` file and update/modify following macros: 
 
-default power save mode configuration is set to low power mode 2 (ASSOCIATED_POWER_SAVE) with maximum power save (RSI_MAX_PSP) with message based hand shake.
+   - Default power save mode configuration is set to low power mode 2 (ASSOCIATED_POWER_SAVE) with maximum power save (RSI_MAX_PSP) with message based hand shake.
 
-```c
-#define   PSP_TYPE                RSI_MAX_PSP
-```
+     ```c
+     #define   PSP_TYPE                RSI_MAX_PSP
+     ```
 
-RSI_BLE_NEW_SERVICE_UUID refers to the attribute value of the newly created service.
+   - RSI_BLE_NEW_SERVICE_UUID refers to the attribute value of the newly created service.
 
-```c
-#define RSI_BLE_NEW_SERVICE_UUID                     0xAABB
-```
+     ```c
+     #define RSI_BLE_NEW_SERVICE_UUID                     0xAABB
+     ```
 
-RSI_BLE_ATTRIBUTE_1_UUID refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+   - RSI_BLE_ATTRIBUTE_1_UUID refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
 
-```c
-#define RSI_BLE_ATTRIBUTE_1_UUID                      0x1AA1
-```
+     ```c
+     #define RSI_BLE_ATTRIBUTE_1_UUID                      0x1AA1
+     ```
 
-RSI_BLE_ATTRIBUTE_2_UUID refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+   - RSI_BLE_ATTRIBUTE_2_UUID refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
 
-```c
-#define RSI_BLE_ATTRIBUTE_2_UUID                      0x1BB1
-```
+     ```c
+     #define RSI_BLE_ATTRIBUTE_2_UUID                      0x1BB1
+     ```
 
-RSI_BLE_MAX_DATA_LEN refers to the Maximum length of the attribute data.
+   - RSI_BLE_MAX_DATA_LEN refers to the maximum length of the attribute data.
 
-```c
-#define RSI_BLE_MAX_ DATA_LEN                         20
-```
+     ```c
+     #define RSI_BLE_MAX_ DATA_LEN                         20
+     ```
 
-RSI_BLE_APP_DEVICE_NAME refers name of the Silicon Labs device to appear during scanning by remote devices.
+   - RSI_BLE_APP_DEVICE_NAME refers name of the Silicon Labs device to appear during scanning by remote devices.
 
-```c
-#define RSI_BLE_APP_DEVICE_NAME                       "WLAN_BLE_SIMPLE_CHAT"
-```
+     ```c
+     #define RSI_BLE_APP_DEVICE_NAME                       "WLAN_BLE_SIMPLE_CHAT"
+     ```
 
-Following are the non-configurable macros in the application.
-RSI_BLE_CHAR_SERV_UUID refers to the attribute type of the characteristics to be added in a service.
+   - Following are the non-configurable macros in the application.
+   
+      - RSI_BLE_CHAR_SERV_UUID refers to the attribute type of the characteristics to be added in a service.
 
-```c
-#define RSI_BLE_CHAR_SERV_UUID                         0x2803
-```
+        ```c
+        #define RSI_BLE_CHAR_SERV_UUID                         0x2803
+        ```
 
-RSI_BLE_CLIENT_CHAR_UUID refers to the attribute type of the client characteristics descriptor to be added in a service.
+      - RSI_BLE_CLIENT_CHAR_UUID refers to the attribute type of the client characteristics descriptor to be added in a service.
 
-```c
-#define RSI_BLE_CLIENT_CHAR _UUID                     0x2902
-```
+        ```c
+        #define RSI_BLE_CLIENT_CHAR _UUID                     0x2902
+        ```
 
-RSI_BLE_ATT_PROPERTY_READ is used to set the READ property to an attribute value.
+      - RSI_BLE_ATT_PROPERTY_READ is used to set the READ property to an attribute value.
 
-```c
-#define RSI_BLE_ATT_PROPERTY_READ                     0x02
-```
+        ```c
+        #define RSI_BLE_ATT_PROPERTY_READ                     0x02
+        ```
 
-RSI_BLE_ATT_PROPERTY_WRITE is used to set the WRITE property to an attribute value.
+      - RSI_BLE_ATT_PROPERTY_WRITE is used to set the WRITE property to an attribute value.
 
-```c
-#define RSI_BLE_ATT_PROPERTY_WRITE                    0x08
-```
+        ```c
+        #define RSI_BLE_ATT_PROPERTY_WRITE                    0x08
+        ```
+     - RSI_BLE_ATT_PROPERTY_NOTIFY is used to set the NOTIFY property to an attribute value.
 
-RSI_BLE_ATT_PROPERTY_NOTIFY is used to set the NOTIFY property to an attribute value.
+       ```c
+       #define RSI_BLE_ATT_PROPERTY_NOTIFY                   0x10
+       ```
 
-```c
-#define RSI_BLE_ATT_PROPERTY_NOTIFY                   0x10
-```
+2. Open the ble_config.h file and update/modify following macros:
 
-2.Open ble_config.h file and update/modify following macros,
+   ```c
+   #define RSI_BLE_PWR_INX                               30
+   ```
 
-```c
-#define RSI_BLE_PWR_INX                               30
-```
+   ```c
+   #define RSI_BLE_PWR_SAVE_OPTIONS                      0
+   ```
 
-```c
-#define RSI_BLE_PWR_SAVE_OPTIONS                      0
-```
-
-```c
-#define BLE_ADVERTISE_ONLY                            0
-```
+   ```c
+   #define BLE_ADVERTISE_ONLY                            0
+   ```
 
 ## Build and Test the Application
 
-- Follow the below steps for the successful execution of the application.
+Follow the below steps for the successful execution of the application.
 
 #### SoC Mode
 ### Tickless Mode
 
-In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by these methods: SysRTC, a wireless signal, Button press-based (GPIO) and Alarm based wakeup.
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by these methods: SysRTC, a wireless signal, Button press-based (GPIO), and Alarm-based wakeup.
 
 - **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
 
@@ -333,10 +335,10 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 2. Load the firmware image
 
-- Select the board.
-- Browse the application image (.hex) and click on Flash button.
+   - Select the board.
+   - Browse the application image (.hex) and click on Flash button.
 
-   ![](resources/readme/load_image2.png)
+     ![](resources/readme/load_image2.png)
    
 ### Steps to verify the WLAN Station BLE Power Save Example
 
@@ -344,14 +346,14 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK mode to connect the SiWx91x in STA mode.
 
-2. In Windows PC2 (Remote PC) which is connected to AP, run the Openssl server by giving the following command:
+2. In Windows PC2 (Remote PC) which is connected to AP, run the Openssl server by entering the following command:
 
-  ```sh
+   ```sh
       > Openssl.exe s_server -accept<SERVER_PORT> –cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
 
       Example:
       > openssl.exe s_server –accept 5001 –cert server-cert.pem -key server-key.pem –tls1_2
-  ```
+   ```
 
    ![](resources/readme/openssl_command.png)
 
@@ -363,7 +365,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
    ![](resources/readme/power_save_log.png)
 
-5. Open a Simplicity Connect App in the Smartphone and do the scan.
+5. Open a Simplicity Connect App in the Smartphone and perform the scan.
 
 6. The Siwx917 device advertises as the "WLAN_BLE_SIMPLE_CHAT" and can be configured using the "RSI_BLE_APP_DEVICE_NAME" macro and Initiate connection from the Simplicity Connect App.
 
@@ -371,30 +373,30 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 7. After a successful connection, the Simplicity Connect App displays the supported services of the Silicon Labs SiWx91x module.
 
-8. Select the attribute service (RSI_BLE_NEW_SERVICE_UUID, e.g., 0xAABB) and enable notifications for the attribute UUID (RSI_BLE_ATTRIBUTE_2_UUID, e.g., 0x1BB1) to receive Wi-Fi STA data.
+8. Select the attribute service RSI_BLE_NEW_SERVICE_UUID (for example, 0xAABB) and enable notifications for the attribute UUID RSI_BLE_ATTRIBUTE_2_UUID (for example, 0x1BB1) to receive Wi-Fi STA data.
 
    ![](resources/readme/SI_Connect_notify1.png)
 
-9. Send a message from the SSL server on Windows PC1 (e.g., 'Hello from WLAN'). The SiWx91x module forwards this to the BLE device.
+9. Send a message from the SSL server on Windows PC1 (for example, 'Hello from WLAN'). The SiWx91x module forwards this to the BLE device.
 
    ![](resources/readme/send_hello_from_ssl_log.png)
 
-10. The user can observe the message notification on the attribute UUID RSI_BLE_ATTRIBUTE_2_UUID (e.g., 0x1BB1) in the Simplicity Connect App.
+10. The user can observe the message notification on the attribute UUID RSI_BLE_ATTRIBUTE_2_UUID (for example, 0x1BB1) in the Simplicity Connect App.
 
-   ![](resources/readme/SI_Connect_notify2.png)
+    ![](resources/readme/SI_Connect_notify2.png)
 
-   ![](resources/readme/SI_Connect_activity_log.png)
+    ![](resources/readme/SI_Connect_activity_log.png)
 
-11. From the Simplicity Connect App, send a message (e.g., 'Hello from BLE') using attribute UUID (RSI_BLE_ATTRIBUTE_1_UUID, e.g., 0x1AA1). The user can observe the message in the Openssl server.
+11. From the Simplicity Connect App, send a message (for example, 'Hello from BLE') using attribute UUID RSI_BLE_ATTRIBUTE_1_UUID (for example, 0x1AA1). The user can observe the message in the Openssl server.
 
-   ![](resources/readme/SI_Connect_ble_message.png)
+    ![](resources/readme/SI_Connect_ble_message.png)
 
-   ![](resources/readme/SSL_server_log.png)
+    ![](resources/readme/SSL_server_log.png)
 
-12. Note down power measurement by connecting Module to Energy Profiler
+12. Note the down power measurement by connecting the Module to the Energy Profiler.
 
-   ![](resources/readme/output12.png)
+    ![](resources/readme/output12.png)
 
 13. The following are the serial prints:
 
-   ![](resources/readme/serial_prints.png)
+    ![](resources/readme/serial_prints.png)

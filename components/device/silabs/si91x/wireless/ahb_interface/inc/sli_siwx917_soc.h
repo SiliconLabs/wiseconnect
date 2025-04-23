@@ -81,4 +81,4 @@ int16_t rsi_select_option(uint8_t cmd, uint8_t fw_image_number);
 int16_t rsi_bl_select_option(uint8_t cmd);
 int16_t rsi_boot_insn(uint8_t type, uint16_t *data);
 int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf);
-void sl_si91x_ulp_wakeup_init(void);
+void sli_si91x_ulp_wakeup_init(void);

@@ -21,25 +21,25 @@
 
 //Note: Please go through http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 
-#define SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH      202 // This size is including the NULL terminating character.
-#define SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH 202 // This size is including the NULL terminating character.
-#define SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH    100
+#define SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH       202 // This size is including the NULL terminating character.
+#define SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH  202 // This size is including the NULL terminating character.
+#define SLI_SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH 100
 
-#define SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH       62  // This size is including the NULL terminating character.
+#define SLI_SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH   62  // This size is including the NULL terminating character.
 #define SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH 122 // This size is including the NULL terminating character.
 #define SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH 62  // This size is including the NULL terminating character.
 
-#define SI91X_MQTT_CLIENT_INIT_COMMAND        1
-#define SI91X_MQTT_CLIENT_CONNECT_COMMAND     2
-#define SI91X_MQTT_CLIENT_SUBSCRIBE_COMMAND   3
-#define SI91X_MQTT_CLIENT_PUBLISH_COMMAND     4
-#define SI91X_MQTT_CLIENT_UNSUBSCRIBE_COMMAND 5
-#define SI91X_MQTT_CLIENT_DISCONNECT_COMMAND  8
-#define SI91X_MQTT_CLIENT_DEINIT_COMMAND      9
+#define SLI_SI91X_MQTT_CLIENT_INIT_COMMAND        1
+#define SLI_SI91X_MQTT_CLIENT_CONNECT_COMMAND     2
+#define SLI_SI91X_MQTT_CLIENT_SUBSCRIBE_COMMAND   3
+#define SLI_SI91X_MQTT_CLIENT_PUBLISH_COMMAND     4
+#define SLI_SI91X_MQTT_CLIENT_UNSUBSCRIBE_COMMAND 5
+#define SLI_SI91X_MQTT_CLIENT_DISCONNECT_COMMAND  8
+#define SLI_SI91X_MQTT_CLIENT_DEINIT_COMMAND      9
 
-#define SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER        "/"
-#define SL_SI91X_MQTT_CLIENT_SINGLE_LEVEL_WILD_CARD "+"
-#define SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD  "#"
+#define SLI_SI91X_MQTT_CLIENT_TOPIC_DELIMITER        "/"
+#define SLI_SI91X_MQTT_CLIENT_SINGLE_LEVEL_WILD_CARD "+"
+#define SLI_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD  "#"
 
 typedef struct {
   // IP version
@@ -48,18 +48,18 @@ typedef struct {
     uint8_t ipv4_address[4];
     uint8_t ipv6_address[16];
   } server_ip_address;
-} si91x_mqtt_client_ip_address_t;
+} sli_si91x_mqtt_client_ip_address_t;
 
 typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
   // MQTT server IP address
-  si91x_mqtt_client_ip_address_t server_ip;
+  sli_si91x_mqtt_client_ip_address_t server_ip;
   // MQTT server port
   uint32_t server_port;
   // Client ID Length
   uint8_t client_id_len;
   // client ID, should be unique
-  int8_t client_id[SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH];
+  int8_t client_id[SLI_SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH];
   // keep alive interval (s)
   uint16_t keep_alive_interval;
   // username Length
@@ -103,9 +103,9 @@ typedef struct SL_ATTRIBUTE_PACKED {
   // Length of Will message
   uint8_t will_message_len;
   //  message of will
-  uint8_t will_msg[SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH];
+  uint8_t will_msg[SLI_SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH];
 
-} si91x_mqtt_client_connect_request_t;
+} sli_si91x_mqtt_client_connect_request_t;
 
 typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
@@ -116,7 +116,7 @@ typedef struct SL_ATTRIBUTE_PACKED {
   // message Qos, can be 0, 1, or 2
   int8_t qos;
 
-} si91x_mqtt_client_subscribe_t;
+} sli_si91x_mqtt_client_subscribe_t;
 
 typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
@@ -137,7 +137,7 @@ typedef struct SL_ATTRIBUTE_PACKED {
   // publish message
   int8_t *msg;
 
-} si91x_mqtt_client_publish_request_t;
+} sli_si91x_mqtt_client_publish_request_t;
 
 typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
@@ -146,16 +146,16 @@ typedef struct SL_ATTRIBUTE_PACKED {
   // topic of unsubscribe message
   uint8_t topic[SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH];
 
-} si91x_mqtt_client_unsubscribe_request_t;
+} sli_si91x_mqtt_client_unsubscribe_request_t;
 
 typedef struct {
   uint32_t command_type;
 
-} si91x_mqtt_client_command_request_t;
+} sli_si91x_mqtt_client_command_request_t;
 
 typedef struct SL_ATTRIBUTE_PACKED {
   uint16_t mqtt_flags;
   uint16_t current_chunk_length;
   uint16_t topic_length;
   uint8_t data[];
-} si91x_mqtt_client_received_message;
+} sli_si91x_mqtt_client_received_message_t;

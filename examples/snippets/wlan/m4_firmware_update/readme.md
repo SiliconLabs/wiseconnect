@@ -20,7 +20,7 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 - **Download**: The server sends the firmware file to the device.
 - **Update**: The device writes the new firmware to its memory and then restarts to complete the update.
 
-This process allows the device to update its software over the air (OTA) without needing a physical connection.
+This process allows the device to update its software Over-the-air (OTA) without needing a physical connection.
 
 
 ## Prerequisites/Setup Requirements
@@ -44,7 +44,7 @@ This process allows the device to update its software over the air (OTA) without
   - For Ubuntu, use the following command for installation: `user@ubuntu:~$ sudo apt install build-essential`
   - If you don't have Linux, [Cygwin for Windows](https://www.cygwin.com/) may be used instead
 - VCOM Setup
-  - The Docklight tool's setup instructions are provided below.
+  - Following are the instructions to setup the Docklight tool.
 
     ![Figure: VCOM_setup](resources/readme/vcom.png)
 

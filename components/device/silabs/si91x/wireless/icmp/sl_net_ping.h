@@ -57,7 +57,7 @@
  * @note 
  * 1. This API is asynchronous. The ping response is delivered through the registered [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) callback, 
  * using the event type [SL_NET_PING_RESPONSE_EVENT](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t). 
- * To receive this event, the sl_net_event_handler_t must be registered via [sl_net_init()](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) API. 
+ * To receive this event, the sl_net_event_handler_t must be registered via the [sl_net_init()](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) API. 
  ******************************************************************************/
 sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_packet_size);
 

@@ -1,10 +1,31 @@
-/*
- * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
- * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
- * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
- * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
- * (c) Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
- */
+/********************************************************************************
+ * @file  demo.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 /** @file
  *
@@ -19,10 +40,10 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "sl_wifi_api.h"
-#include "sl_ncp.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
-#include "sl_simple_com.h"
+#include "app_wifi_api.h"
+#include "app_ncp.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
+#include "app_simple_com.h"
 #include "app_xapi_cmd_event.h"
 #include "app_xapi_ap.h"
 #include "sl_wifi_callback_framework.h"
@@ -122,9 +143,9 @@ void application_start(const void *unused)
 {
   UNUSED_PARAMETER(unused);
   app_wifi_init_device();
-  sl_simple_com_os_task_init();
-  sl_simple_com_init();
-  sl_ncp_init();
+  app_simple_com_os_task_init();
+  app_simple_com_init();
+  app_ncp_init();
   wifi_cmd_event_init();
   wifi_set_all_event_group_cb();
   app_wifi_evt_system_boot(APP_MAJOR_VERSION,

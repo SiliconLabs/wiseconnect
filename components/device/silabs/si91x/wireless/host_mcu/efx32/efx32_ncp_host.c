@@ -32,9 +32,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define LDMA_MAX_TRANSFER_LENGTH     4096
-#define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
-#define PACKET_PENDING_INT_PRI       3
+#define SLI_LDMA_MAX_TRANSFER_LENGTH      4096
+#define SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH  (SLI_LDMA_MAX_TRANSFER_LENGTH / 2048)
+#define PACKET_PENDING_INT_PRI            3
+#define SLI_SPI_ASYNC_TRANSFER_TIMEOUT_MS 1000
+#define SLI_SPI_SYNC_TRANSFER_MAX_BYTES   16
 
 #ifdef SL_NCP_UART_INTERFACE
 #define NCP_RX_IRQ USART0_RX_IRQn
@@ -70,12 +72,12 @@
 #ifndef SL_NCP_UART_INTERFACE
 // use SPI handle for EXP header (configured in project settings)
 extern SPIDRV_Handle_t sl_spidrv_exp_handle;
-#define SPI_HANDLE sl_spidrv_exp_handle
+#define SLI_SPI_HANDLE sl_spidrv_exp_handle
 static uint8_t dummy_buffer[1800] = { 0 };
 
 #else
 
-#define UART_HANDLE SL_UARTDRV_USART_EXP_PERIPHERAL
+#define SLI_UART_HANDLE SL_UARTDRV_USART_EXP_PERIPHERAL
 static UARTDRV_Handle_t uartdrv_handle = NULL;
 static bool ncp_initialized            = false;
 
@@ -85,19 +87,19 @@ unsigned int rx_ldma_channel;
 unsigned int tx_ldma_channel;
 
 // LDMA descriptor and transfer configuration structures for USART TX channel
-LDMA_Descriptor_t ldmaTXDescriptor[LDMA_DESCRIPTOR_ARRAY_LENGTH];
+LDMA_Descriptor_t ldmaTXDescriptor[SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH];
 LDMA_TransferCfg_t ldmaTXConfig;
 
 // LDMA descriptor and transfer configuration structures for USART RX channel
-LDMA_Descriptor_t ldmaRXDescriptor[LDMA_DESCRIPTOR_ARRAY_LENGTH];
+LDMA_Descriptor_t ldmaRXDescriptor[SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH];
 LDMA_TransferCfg_t ldmaRXConfig;
 
-static osSemaphoreId_t transfer_done_semaphore      = NULL;
-osMutexId_t ncp_transfer_mutex                      = 0;
-static sl_si91x_host_init_configuration init_config = { 0 };
+static osSemaphoreId_t transfer_done_semaphore        = NULL;
+osMutexId_t ncp_transfer_mutex                        = 0;
+static sl_si91x_host_init_configuration_t init_config = { 0 };
 
 #ifdef SL_NCP_UART_INTERFACE
-static bool rx_dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam)
+static bool sli_rx_dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam)
 {
   UNUSED_PARAMETER(channel);
   UNUSED_PARAMETER(sequenceNo);
@@ -110,7 +112,7 @@ static bool rx_dma_callback(unsigned int channel, unsigned int sequenceNo, void 
   return false;
 }
 
-static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam)
+static bool sli_dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam)
 {
   UNUSED_PARAMETER(channel);
   UNUSED_PARAMETER(sequenceNo);
@@ -119,7 +121,7 @@ static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *us
   return false;
 }
 
-void NCP_UART_RX_IRQ_HANDLER(void)
+void SLI_NCP_UART_RX_IRQ_HANDLER(void)
 {
   NVIC_DisableIRQ(NCP_RX_IRQ);
 
@@ -135,7 +137,7 @@ void NCP_UART_RX_IRQ_HANDLER(void)
   return;
 }
 
-static void efx32_ncp_uart_init(uint32_t baudrate, bool hfc)
+static void sli_efx32_ncp_uart_init(uint32_t baudrate, bool hfc)
 {
   USART_InitAsync_TypeDef init = USART_INITASYNC_DEFAULT;
   init.baudrate                = baudrate;
@@ -169,7 +171,7 @@ static void efx32_ncp_uart_init(uint32_t baudrate, bool hfc)
   }
 
   // Initialize UART asynchronous mode and route pins
-  USART_InitAsync(UART_HANDLE, &init);
+  USART_InitAsync(SLI_UART_HANDLE, &init);
 
   GPIO->USARTROUTE[NCP_USART_ROUTE_INDEX].RXROUTE = (SL_UARTDRV_USART_EXP_RX_PORT << _GPIO_USART_RXROUTE_PORT_SHIFT)
                                                     | (SL_UARTDRV_USART_EXP_RX_PIN << _GPIO_USART_RXROUTE_PIN_SHIFT);
@@ -201,7 +203,7 @@ static void efx32_ncp_uart_init(uint32_t baudrate, bool hfc)
   NVIC_ClearPendingIRQ(NCP_RX_IRQ);
 
   // Enable receive data valid interrupt
-  USART_IntEnable(UART_HANDLE, USART_IEN_RXDATAV);
+  USART_IntEnable(SLI_UART_HANDLE, USART_IEN_RXDATAV);
 }
 
 #else
@@ -216,7 +218,7 @@ static void gpio_interrupt(uint8_t interrupt_number)
   return;
 }
 
-static void spi_dma_callback(struct SPIDRV_HandleData *handle, Ecode_t transferStatus, int itemsTransferred)
+static void sli_spi_dma_callback(struct SPIDRV_HandleData *handle, Ecode_t transferStatus, int itemsTransferred)
 {
   UNUSED_PARAMETER(handle);
   UNUSED_PARAMETER(transferStatus);
@@ -225,9 +227,9 @@ static void spi_dma_callback(struct SPIDRV_HandleData *handle, Ecode_t transferS
   return;
 }
 
-static void efx32_spi_init(void)
+static void sli_efx32_spi_init(void)
 {
-  SPIDRV_SetBitrate(SPI_HANDLE, 12500000);
+  SPIDRV_SetBitrate(SLI_SPI_HANDLE, 12500000);
 
   // Configure SPI bus pins
   GPIO_PinModeSet(SL_SPIDRV_EXP_RX_PORT, SL_SPIDRV_EXP_RX_PIN, gpioModeInput, 0);
@@ -251,39 +253,80 @@ static void efx32_spi_init(void)
   return;
 }
 
-Ecode_t si91x_SPIDRV_MTransfer(SPIDRV_Handle_t handle,
-                               const void *txBuffer,
-                               void *rxBuffer,
-                               int count,
-                               SPIDRV_Callback_t callback)
+/**
+ * @brief Perform a synchronous SPI transfer.
+ *
+ * This function performs a synchronous SPI transfer using the specified SPI driver handle.
+ * It transfers data from the transmit buffer (`tx_buffer`) to the SPI bus and simultaneously
+ * receives data into the receive buffer (`rx_buffer`). If either buffer is `NULL`, a dummy
+ * buffer is used instead.
+ *
+ * @param[in] handle
+ *   The SPI driver handle to use for the transfer.
+ * @param[in] tx_buffer
+ *   Pointer to the transmit buffer. If `NULL`, a dummy buffer is used for transmission.
+ * @param[out] rx_buffer
+ *   Pointer to the receive buffer. If `NULL`, a dummy buffer is used for reception.
+ * @param[in] count
+ *   The number of bytes to transfer.
+ *
+ * @return
+ *   Returns `ECODE_EMDRV_SPIDRV_OK` on success.
+ */
+Ecode_t sli_si91x_spidrv_mtransfer_sync(SPIDRV_Handle_t handle, const void *tx_buffer, void *rx_buffer, int count)
 {
-  USART_TypeDef *usart = handle->initData.port;
-  uint8_t *tx          = (txBuffer != NULL) ? (uint8_t *)txBuffer : dummy_buffer;
-  uint8_t *rx          = (rxBuffer != NULL) ? (uint8_t *)rxBuffer : dummy_buffer;
+  uint8_t *tx = (tx_buffer != NULL) ? (uint8_t *)tx_buffer : dummy_buffer;
+  uint8_t *rx = (rx_buffer != NULL) ? (uint8_t *)rx_buffer : dummy_buffer;
 
-  if (count < 16) {
-    while (count > 0) {
-      while (!(usart->STATUS & USART_STATUS_TXBL)) {
-      }
-      usart->TXDATA = (uint32_t)*tx;
-      while (!(usart->STATUS & USART_STATUS_TXC)) {
-      }
-      *rx = (uint8_t)usart->RXDATA;
-      if (txBuffer != NULL) {
-        tx++;
-      }
-      if (rxBuffer != NULL) {
-        rx++;
-      }
-      count--;
+  while (count > 0) {
+    *rx = USART_SpiTransfer(handle->initData.port, *tx);
+    if (tx_buffer != NULL) {
+      tx++;
     }
-    //callback(handle, ECODE_EMDRV_SPIDRV_OK, 0);
-    return ECODE_EMDRV_SPIDRV_OK;
-  } else {
-    SPIDRV_MTransfer(handle, tx, rx, count, callback);
+    if (rx_buffer != NULL) {
+      rx++;
+    }
+    count--;
   }
+  return ECODE_EMDRV_SPIDRV_OK;
+}
 
-  return ECODE_EMDRV_SPIDRV_BUSY;
+/**
+ * @brief Performs an asynchronous SPI transfer using the SPIDRV driver.
+ *
+ * This function initiates an SPI transfer where data is transmitted from the 
+ * provided transmit buffer and received into the provided receive buffer. If 
+ * either buffer is NULL, a dummy buffer is used instead. The transfer is 
+ * performed asynchronously, and a callback function is invoked upon completion.
+ *
+ * @param[in] handle 
+ *   The SPIDRV handle representing the SPI driver instance to use for the transfer.
+ * @param[in] tx_buffer 
+ *   Pointer to the transmit buffer containing the data to be sent. If NULL, a 
+ *   dummy buffer is used.
+ * @param[out] rx_buffer 
+ *   Pointer to the receive buffer where the received data will be stored. If NULL, 
+ *   a dummy buffer is used.
+ * @param[in] count 
+ *   The number of bytes to transfer.
+ * @param[in] callback 
+ *   The callback function to be called upon completion of the transfer.
+ *
+ * @return 
+ *   Returns an @ref Ecode_t value indicating the result of the operation.
+ *   - ECODE_EMDRV_SPIDRV_OK: Transfer was successfully initiated.
+ *   - Other error codes indicate failure.
+ */
+Ecode_t sli_si91x_spidrv_mtransfer_async(SPIDRV_Handle_t handle,
+                                         const void *tx_buffer,
+                                         void *rx_buffer,
+                                         int count,
+                                         SPIDRV_Callback_t callback)
+{
+  uint8_t *tx = (tx_buffer != NULL) ? (uint8_t *)tx_buffer : dummy_buffer;
+  uint8_t *rx = (rx_buffer != NULL) ? (uint8_t *)rx_buffer : dummy_buffer;
+
+  return SPIDRV_MTransfer(handle, tx, rx, count, callback);
 }
 #endif
 
@@ -302,7 +345,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
   return GPIO_PinInGet(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN);
 }
 
-sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
 {
   init_config.rx_irq      = config->rx_irq;
   init_config.rx_done     = config->rx_done;
@@ -320,9 +363,9 @@ sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
   }
 
 #ifdef SL_NCP_UART_INTERFACE
-  efx32_ncp_uart_init(115200, false);
+  sli_efx32_ncp_uart_init(115200, false);
 #else
-  efx32_spi_init();
+  sli_efx32_spi_init();
 #endif
 
   // Start reset line low
@@ -346,7 +389,7 @@ sl_status_t sl_si91x_host_deinit(void)
 void sl_si91x_host_enable_high_speed_bus()
 {
 #ifdef SL_NCP_UART_INTERFACE
-  efx32_ncp_uart_init(SL_SI91X_NCP_UART_BAUDRATE, false);
+  sli_efx32_ncp_uart_init(SL_SI91X_NCP_UART_BAUDRATE, false);
 #else
   //SPI_USART->CTRL_SET |= USART_CTRL_SMSDELAY | USART_CTRL_SSSEARLY;
 #endif
@@ -370,11 +413,20 @@ void sl_si91x_host_enable_high_speed_bus()
 
 sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length)
 {
-  osMutexAcquire(ncp_transfer_mutex, 0xFFFFFFFFUL);
+  osMutexAcquire(ncp_transfer_mutex, osWaitForever);
 
-  if (ECODE_EMDRV_SPIDRV_BUSY
-      == si91x_SPIDRV_MTransfer(SPI_HANDLE, tx_buffer, rx_buffer, buffer_length, spi_dma_callback)) {
-    if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {
+  if (buffer_length < SLI_SPI_SYNC_TRANSFER_MAX_BYTES) {
+    if (ECODE_EMDRV_SPIDRV_OK == sli_si91x_spidrv_mtransfer_sync(SLI_SPI_HANDLE, tx_buffer, rx_buffer, buffer_length)) {
+      osMutexRelease(ncp_transfer_mutex);
+      return SL_STATUS_OK;
+    }
+  }
+
+  // If the buffer length is greater than the high speed transfer threshold, use DMA transfer
+  if (ECODE_EMDRV_SPIDRV_OK
+      == sli_si91x_spidrv_mtransfer_async(SLI_SPI_HANDLE, tx_buffer, rx_buffer, buffer_length, sli_spi_dma_callback)) {
+    // Wait for the transfer to complete
+    if (osSemaphoreAcquire(transfer_done_semaphore, SLI_SPI_ASYNC_TRANSFER_TIMEOUT_MS) != osOK) {
       BREAKPOINT();
     }
   }
@@ -401,18 +453,18 @@ sl_status_t sl_si91x_host_uart_transfer(const void *tx_buffer, void *rx_buffer, 
     if ((buffer_length <= 16) || (false == ncp_initialized)) {
       buffer = (uint8_t *)tx_buffer;
       for (i = 0; i < buffer_length; i++) {
-        USART_Tx(UART_HANDLE, buffer[i]);
+        USART_Tx(SLI_UART_HANDLE, buffer[i]);
       }
     } else {
       ldmaTXDescriptor[0] =
-        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(tx_buffer, &(UART_HANDLE->TXDATA), buffer_length);
+        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(tx_buffer, &(SLI_UART_HANDLE->TXDATA), buffer_length);
       // Transfer a byte on free space in the USART buffer
       ldmaTXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(NCP_USART_LDMA_TX);
       // Start TX channel
       DMADRV_LdmaStartTransfer(tx_ldma_channel,
                                &ldmaTXConfig,
                                (LDMA_Descriptor_t *)&ldmaTXDescriptor,
-                               dma_callback,
+                               sli_dma_callback,
                                NULL);
 
       if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {
@@ -425,18 +477,18 @@ sl_status_t sl_si91x_host_uart_transfer(const void *tx_buffer, void *rx_buffer, 
     if ((buffer_length <= 16) || (false == ncp_initialized)) {
       buffer = (uint8_t *)rx_buffer;
       for (i = 0; i < buffer_length; i++) {
-        buffer[i] = USART_Rx(UART_HANDLE);
+        buffer[i] = USART_Rx(SLI_UART_HANDLE);
       }
     } else {
       ldmaRXDescriptor[0] =
-        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(UART_HANDLE->RXDATA), rx_buffer, buffer_length);
+        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(SLI_UART_HANDLE->RXDATA), rx_buffer, buffer_length);
       // Transfer a byte on receive data valid
       ldmaRXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(NCP_USART_LDMA_RX);
       // Start RX channel
       DMADRV_LdmaStartTransfer(rx_ldma_channel,
                                &ldmaRXConfig,
                                (LDMA_Descriptor_t *)&ldmaRXDescriptor,
-                               rx_dma_callback,
+                               sli_rx_dma_callback,
                                NULL);
 
       status = SL_STATUS_IN_PROGRESS;
@@ -456,12 +508,12 @@ void sl_si91x_host_flush_uart_rx(void)
 
   while (1) {
     timestamp = osKernelGetTickCount();
-    while (!(UART_HANDLE->STATUS & USART_STATUS_RXDATAV)) {
+    while (!(SLI_UART_HANDLE->STATUS & USART_STATUS_RXDATAV)) {
       if ((osKernelGetTickCount() - timestamp) > 2000) {
         return;
       }
     }
-    data = (uint8_t)UART_HANDLE->RXDATA;
+    data = (uint8_t)SLI_UART_HANDLE->RXDATA;
     data ^= data;
   }
 #endif
@@ -472,7 +524,7 @@ void sl_si91x_host_flush_uart_rx(void)
 void sl_si91x_host_uart_enable_hardware_flow_control(void)
 {
 #ifdef SL_NCP_UART_INTERFACE
-  efx32_ncp_uart_init(SL_SI91X_NCP_UART_BAUDRATE, true);
+  sli_efx32_ncp_uart_init(SL_SI91X_NCP_UART_BAUDRATE, true);
 #endif
 
   return;

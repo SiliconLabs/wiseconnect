@@ -234,12 +234,12 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
   do {
 #ifdef SLI_SI91X_ENABLE_IPV6
 	  status = sl_net_dns_resolve_hostname(pNetwork->tlsConnectParams.pDestinationURL,
-	                                        SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
+	                                        SLI_SI91X_WAIT_FOR_DNS_RESOLUTION,
 	  									                    SL_NET_DNS_TYPE_IPV6, 
 	                                        &dns_query_response);
 #else
     status = sl_net_dns_resolve_hostname(pNetwork->tlsConnectParams.pDestinationURL,
-                                       SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
+                                       SLI_SI91X_WAIT_FOR_DNS_RESOLUTION,
                                        SL_NET_DNS_TYPE_IPV4, 
                                        &dns_query_response);
 #endif

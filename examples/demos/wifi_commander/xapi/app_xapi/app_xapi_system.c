@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
@@ -43,25 +43,25 @@
 #define ENABLE_POWERSAVE_CLI 1
 
 #define FIRST_PARAM(sc, ...) sc
-#define SET_RSP_AND_RETURN(gecko_rsp_func, ...) \
-  do {                                          \
-    gecko_rsp_func(__VA_ARGS__);                \
-    return;                                     \
+#define SET_RSP_AND_RETURN(commander_rsp_func, ...) \
+  do {                                              \
+    commander_rsp_func(__VA_ARGS__);                \
+    return;                                         \
   } while (0)
 
-#define SET_RSP_AND_RETURN_ON_FAILURE(gecko_rsp_func, ...) \
-  do {                                                     \
-    if ((FIRST_PARAM(__VA_ARGS__)) != SL_STATUS_OK) {      \
-      SET_RSP_AND_RETURN(gecko_rsp_func, __VA_ARGS__);     \
-    }                                                      \
+#define SET_RSP_AND_RETURN_ON_FAILURE(commander_rsp_func, ...) \
+  do {                                                         \
+    if ((FIRST_PARAM(__VA_ARGS__)) != SL_STATUS_OK) {          \
+      SET_RSP_AND_RETURN(commander_rsp_func, __VA_ARGS__);     \
+    }                                                          \
   } while (0)
 
 #define SYSTEM_INITIALIZE_SET_RSP_AND_RETURN_ON_FAILURE(sc) \
-  SET_RSP_AND_RETURN_ON_FAILURE(gecko_rsp_system_initialize, sc)
+  SET_RSP_AND_RETURN_ON_FAILURE(commander_rsp_system_initialize, sc)
 #define SYSTEM_START_SCAN_SET_RSP_AND_RETURN_ON_FAILURE(sc) \
-  SET_RSP_AND_RETURN_ON_FAILURE(gecko_rsp_system_start_scan, sc)
+  SET_RSP_AND_RETURN_ON_FAILURE(commander_rsp_system_start_scan, sc)
 
-DEFINE_BGAPI_CLASS(wifi, system, WIFI, SYSTEM, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, system, WIFI, SYSTEM, NULL, NULL);
 
 void app_wifi_cmd_system_hello(const void *nil)
 {

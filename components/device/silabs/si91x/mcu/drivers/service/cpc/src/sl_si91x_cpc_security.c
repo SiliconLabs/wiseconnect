@@ -53,13 +53,13 @@ const osThreadAttr_t cpc_crypto_init_thread_attributes = {
 static const sl_wifi_device_configuration_t client_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
-  .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .region_code = US,
+  .band        = SL_WIFI_BAND_MODE_2_4GHZ,
+  .region_code = SL_WIFI_REGION_US,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION
 #ifdef SLI_SI91X_MCU_INTERFACE
-                                       | SL_SI91X_FEAT_WPS_DISABLE
+                                       | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),

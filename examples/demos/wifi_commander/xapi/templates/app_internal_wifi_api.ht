@@ -1,0 +1,149 @@
+ /********************************************************************************
+ * @file  app_internal_wifi_api.h
+ * @brief APP_WIFI_API library at application layer provided as source code
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
+
+#ifndef APP_INTERNAL_WIFI_API_H
+#define APP_INTERNAL_WIFI_API_H
+#define VERSION no_link_tables
+
+#include "app_{{data.device_name}}_api.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+{%- import 'templates/common.ht' as common %}
+
+enum app_{{data.device_name}}_class_id
+{
+{%- for cls in classes %}
+    APP_INTERNAL_{{data.device_name.upper()}}_{{cls.name.upper()}}_CLASS_ID = {{cls.index}},
+{%- endfor %}
+};
+
+enum app_{{data.device_name}}_command_id
+{
+{%- for cls in classes %}
+{%- for cmd in cls.command %}
+    APP_{{data.device_name.upper()}}_{{cls.name.upper()}}_{{cmd.name.upper()}}_COMMAND_ID = {{cmd.index}},
+{%- endfor %}
+{%- endfor %}
+};
+
+enum app_{{data.device_name}}_response_id
+{
+{%- for cls in classes %}
+{%- for cmd in cls.command %}
+    APP_{{data.device_name.upper()}}_{{cls.name.upper()}}_{{cmd.name.upper()}}_RESPONSE_ID = {{cmd.index}},
+{%- endfor %}
+{%- endfor %}
+};
+
+enum app_{{data.device_name}}_event_id
+{
+{%- for cls in classes %}
+{%- for evt in cls.event %}
+    APP_{{data.device_name.upper()}}_{{cls.name.upper()}}_{{evt.name.upper()}}_EVENT_ID = {{evt.index}},
+{%- endfor %}
+{%- endfor %}
+};
+
+PACKSTRUCT( struct app_wifi_rsp_error_s
+{
+    uint16_t            result;
+});
+
+typedef struct app_wifi_rsp_error_s app_wifi_rsp_error_t;
+{% for cls in classes %}
+{%- for cmd in cls.command %}
+{%- if cmd.params.param|length > 0 %}
+PACKSTRUCT( struct app_{{data.device_name}}_cmd_{{cls.name}}_{{cmd.name}}_s
+{
+{%- for p in cmd.params.param %}
+    {{p.type.c_datatype}} {{p.name}};
+{%- endfor %}
+});
+
+typedef struct app_{{data.device_name}}_cmd_{{cls.name}}_{{cmd.name}}_s app_{{data.device_name}}_cmd_{{cls.name}}_{{cmd.name}}_t;
+
+{% endif -%}
+{% endfor -%}
+{%- endfor %}
+
+{% for cls in classes -%}
+{% for cmd in cls.command -%}
+{%- if cmd.returns.param|length > 0 %}
+PACKSTRUCT( struct app_{{data.device_name}}_rsp_{{cls.name}}_{{cmd.name}}_s
+{
+{%- for p in cmd.returns.param %}
+    {{p.type.c_datatype}} {{p.name}};
+{%- endfor %}
+});
+
+typedef struct app_{{data.device_name}}_rsp_{{cls.name}}_{{cmd.name}}_s app_{{data.device_name}}_rsp_{{cls.name}}_{{cmd.name}}_t;
+
+{% endif -%}
+{% endfor -%}
+{%- endfor %}
+
+PACKSTRUCT( struct app_{{data.device_name}}_packet {
+  uint32_t   header;
+  union {
+    uint8_t handle;
+    app_wifi_rsp_error_t rsp_error;
+{%- for cls in classes %}
+{%- for cmd in cls.command %}
+{%- if cmd.params.param|length > 0 %}
+    {{("app_"+data.device_name+"_cmd_"+cls.name+"_"+cmd.name+"_t").ljust(60)}} cmd_{{cls.name}}_{{cmd.name}};
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+{%- for cls in classes %}
+{%- for cmd in cls.command %}
+{%- if cmd.returns.param|length > 0 %}
+    {{("app_"+data.device_name+"_rsp_"+cls.name+"_"+cmd.name+"_t").ljust(60)}} rsp_{{cls.name}}_{{cmd.name}};
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+{%- for cls in classes %}
+{%- for evt in cls.event %}
+{%- if evt.params.param|length > 0 %}
+    {{("app_"+data.device_name+"_evt_"+cls.name+"_"+evt.name+"_t").ljust(60)}} evt_{{cls.name}}_{{evt.name}};
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+    uint8_t payload[APP_XAPI_MAX_PAYLOAD_SIZE];
+  } data;
+});
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

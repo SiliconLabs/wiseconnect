@@ -135,13 +135,13 @@ sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32
   request_size = offsetof(sl_si91x_fw_fallback_request_t, data) + length;
 
   // Send firmware update command
-  status = sl_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                        SI91X_COMMON_CMD,
-                                        &fw_request,
-                                        request_size,
-                                        SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         NULL,
+                                         NULL);
 
   return status;
 }
@@ -168,16 +168,14 @@ sl_status_t sl_si91x_verify_image(uint32_t flash_address)
 
   size_t request_size = offsetof(sl_si91x_fw_fallback_request_t, data);
 
-  // DEBUGOUT("\r\n integratiy+request_size:%u %u \r\n", sizeof(sl_si91x_fw_fallback_request_t), request_size);
-
   // Send firmware update command
-  status = sl_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                        SI91X_COMMON_CMD,
-                                        &fw_request,
-                                        request_size,
-                                        SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         NULL,
+                                         NULL);
   return status;
 }
 /***************************************************************************/ /**
@@ -285,13 +283,13 @@ sl_status_t sl_si91x_flash_erase(uint32_t address, uint32_t length)
   size_t request_size = offsetof(sl_si91x_fw_fallback_request_t, data);
 
   // Send firmware update command
-  status = sl_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                        SI91X_COMMON_CMD,
-                                        &fw_request,
-                                        request_size,
-                                        SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         NULL,
+                                         NULL);
   DEBUGOUT("\r\n [flash_erase] Erase Success %lX\n", status);
   return status;
 }
@@ -751,10 +749,12 @@ sl_status_t sl_si91x_get_m4_app_addr(uint32_t *app_addr)
 
   // Convert offset to actual address
   (*app_addr) += SLI_SI91X_CHUNK_LENGTH;
-  DEBUGOUT("\r\n app_addr:%lX M4_Slot:%X %lX\r\n",
+  DEBUGOUT("\r\n [m4_app_addr] app_addr:%lX Current_M4_Slot:%X Current Slot Offset:%lX\r\n",
            *app_addr,
            fw_slot_info_t.m4_slot_info.current_active_M4_slot,
-           fw_slot_info_t.m4_slot_info.m4_slot_A.slot_image_offset);
+           (fw_slot_info_t.m4_slot_info.current_active_M4_slot == SLOT_A)
+             ? fw_slot_info_t.m4_slot_info.m4_slot_A.slot_image_offset
+             : fw_slot_info_t.m4_slot_info.m4_slot_B.slot_image_offset);
 
   // This point is unreachable, but we add a return to satisfy the compiler
   return SL_STATUS_OK;

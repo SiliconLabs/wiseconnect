@@ -67,18 +67,18 @@ Refer to the datasheet for current consumption values without RAM retention.
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio).
+- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension).
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer).
+- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware).
+- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project).
   
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
-  - Install the [Keil IDE](https://www.keil.com/)
-  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Install the [Keil IDE](https://www.keil.com/).
+  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect).
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to the STM32F411RE Nucleo Board by following these steps:
    	- Connect the male Arduino compatible header on the carrier board to the female Arduino compatible header on the STM32F411RE Nucleo board.
@@ -163,7 +163,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > - The reference images which are captured were measured in an isolated chamber and might vary in an open environment.
 > - To achieve the lowest power numbers in unconnected sleep, in SoC mode, configure both NWP and M4 to sleep without RAM retention.
 > - To achieve the datasheet number for the deepsleep with 352 k RAM retained, configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to sleep without RAM retention.
-> - This can be configured by navigating to `WiseConnect 3 SDK v3.4.2 -> Device -> Si91x -> Memory Configuration`, as shown below
-![set_ram_level_1](resources/readme/set_ram_level_1.png)
-![set_ram_level_2](resources/readme/set_ram_level_2.png)
+> - This can be configured by navigating to `WiseConnect 3 SDK v3.4.2 -> Device -> Si91x -> Memory Configuration`, as shown below:
+>   ![set_ram_level_1](resources/readme/set_ram_level_1.png)
+>   ![set_ram_level_2](resources/readme/set_ram_level_2.png)
 > - A flash erase is required to flash any other application after the user runs the powersave application(s). If not, the module will not allow any application to be flashed.

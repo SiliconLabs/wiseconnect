@@ -49,6 +49,8 @@ static sl_status_t save_credential_table(void)
 {
   Ecode_t ecode =
     nvm3_writeData(nvm3_defaultHandle, SL_NET_CREDENTIAL_TABLE_KEY, credential_table, credential_table_size);
+  VERIFY_ECODE_AND_RETURN(ecode);
+  return SL_STATUS_OK;
 }
 
 static sl_status_t load_credential_table(void)
@@ -60,7 +62,7 @@ static sl_status_t load_credential_table(void)
   uint32_t type = 0xFFFFFFFFU;
 
   if (nvm3_getObjectInfo(nvm3_defaultHandle, SL_NET_CREDENTIAL_TABLE_KEY, &type, &credential_table_size) != 0) {
-    credential_table_size = SL_WIFI_MAX_CREDENTIAL_COUNT;
+    credential_table_size = SL_WIFI_MAX_CREDENTIAL_COUNT * sizeof(sl_wifi_nvm_credential_entry_t);
   }
   credential_table = malloc(credential_table_size);
   if (credential_table == NULL) {
@@ -70,6 +72,7 @@ static sl_status_t load_credential_table(void)
   if (type != 0xFFFFFFFFU) {
     Ecode_t ecode =
       nvm3_readData(nvm3_defaultHandle, SL_NET_CREDENTIAL_TABLE_KEY, credential_table, credential_table_size);
+    VERIFY_ECODE_AND_RETURN(ecode);
   } else {
     memset(credential_table, 0, credential_table_size);
   }
@@ -85,7 +88,7 @@ static sl_status_t find_entry(sl_wifi_credential_id_t id, sl_wifi_nvm_credential
     load_credential_table();
   }
 
-  for (int a = 0; a < credential_table_size / sizeof(sl_wifi_nvm_credential_entry_t); ++a) {
+  for (size_t a = 0; a < credential_table_size / sizeof(sl_wifi_nvm_credential_entry_t); ++a) {
     if (credential_table[a].id == id) {
       *entry = &credential_table[a];
       return SL_STATUS_OK;

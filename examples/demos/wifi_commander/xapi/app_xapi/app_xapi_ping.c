@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
@@ -38,7 +38,7 @@
 #include "sl_net_wifi_types.h"
 #include "sl_net_ping.h"
 
-DEFINE_BGAPI_CLASS(wifi, ping, WIFI, PING, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, ping, WIFI, PING, NULL, NULL);
 
 /******************************************************
 *               Function Definitions
@@ -54,10 +54,10 @@ void app_wifi_cmd_ping_ipv4(app_wifi_cmd_ping_ipv4_t *msg)
   ip_address.type = SL_IPV4;
 
   // The message is received with the byte order reversed, so it is being aligned to the correct byte order.
-  ip_address.ip.v4.bytes[0] = msg->ipv4_address.addr[3];
-  ip_address.ip.v4.bytes[1] = msg->ipv4_address.addr[2];
-  ip_address.ip.v4.bytes[2] = msg->ipv4_address.addr[1];
-  ip_address.ip.v4.bytes[3] = msg->ipv4_address.addr[0];
+  ip_address.ip.v4.bytes[0] = msg->ipv4_address.addr[0];
+  ip_address.ip.v4.bytes[1] = msg->ipv4_address.addr[1];
+  ip_address.ip.v4.bytes[2] = msg->ipv4_address.addr[2];
+  ip_address.ip.v4.bytes[3] = msg->ipv4_address.addr[3];
 
   // Send a ping request to the specified IP address with the given ping size
   status = sl_si91x_send_ping(ip_address, msg->ping_size);

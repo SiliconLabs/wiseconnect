@@ -26,7 +26,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "ble_config.h"
+#include "rsi_bt_common_config.h"
 
 #include "rsi_common.h"
 #include "cmsis_os2.h"
@@ -62,12 +62,12 @@ void rsi_add_remote_ble_dev_info(const rsi_ble_event_enhance_conn_status_t *remo
 void rsi_remove_remote_ble_dev_info(const rsi_ble_event_disconnect_t *remote_dev_info);
 int32_t rsi_driver_process_bt_resp(
   rsi_bt_cb_t *bt_cb,
-  sl_si91x_packet_t *pkt,
+  sl_wifi_packet_t *pkt,
   void (*rsi_bt_async_callback_handler)(rsi_bt_cb_t *cb, uint16_t type, uint8_t *data, uint16_t length),
   uint16_t protocol_type);
 void rsi_ble_on_chip_memory_status_callbacks_register(chip_ble_buffers_stats_handler_t ble_on_chip_memory_status_event);
-uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x_packet_t *pkt);
-uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x_packet_t *pkt);
+uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_packet_t *pkt);
+uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_packet_t *pkt);
 
 /*
  Global Variables
@@ -208,7 +208,7 @@ uint32_t rsi_bt_get_timeout(uint16_t cmd_type, uint16_t protocol_type)
  * @return      void
  */
 
-void rsi_bt_common_tx_done(sl_si91x_packet_t *pkt)
+void rsi_bt_common_tx_done(sl_wifi_packet_t *pkt)
 {
 
   SL_PRINTF(SL_RSI_BT_COMMON_TX_DONE, BLUETOOTH, LOG_INFO);
@@ -388,7 +388,7 @@ void rsi_remove_remote_ble_dev_info(const rsi_ble_event_disconnect_t *remote_dev
 
 int32_t rsi_driver_process_bt_resp(
   rsi_bt_cb_t *bt_cb,
-  sl_si91x_packet_t *pkt,
+  sl_wifi_packet_t *pkt,
   void (*rsi_bt_async_callback_handler)(rsi_bt_cb_t *cb, uint16_t type, uint8_t *data, uint16_t length),
   uint16_t protocol_type)
 {
@@ -494,7 +494,7 @@ uint16_t rsi_driver_process_bt_resp_handler(void *rx_pkt)
 {
 
   SL_PRINTF(SL_RSI_DRIVER_PROCESS_BT_RESP_HANDLER_TRIGGER, BLUETOOTH, LOG_INFO);
-  sl_si91x_packet_t *pkt                      = (sl_si91x_packet_t *)rx_pkt;
+  sl_wifi_packet_t *pkt                       = (sl_wifi_packet_t *)rx_pkt;
   const uint8_t *host_desc                    = NULL;
   uint8_t protocol_type                       = 0;
   uint16_t rsp_type                           = 0;
@@ -1418,7 +1418,7 @@ void rsi_ble_on_chip_memory_status_callbacks_register(chip_ble_buffers_stats_han
  *
  */
 
-uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x_packet_t *pkt)
+uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_packet_t *pkt)
 {
 
   SL_PRINTF(SL_RSI_BT_PREPARE_COMMON_PACKET_TRIGGER, BLUETOOTH, LOG_INFO, "COMMAND_TYPE: %2x", cmd_type);
@@ -1534,7 +1534,7 @@ uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x
  *              Non-Zero Value - Failure
  */
 
-uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x_packet_t *pkt)
+uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_packet_t *pkt)
 {
 
   SL_PRINTF(SL_RSI_BT_PREPARE_LE_PKT_TRIGGER, BLUETOOTH, LOG_INFO, "COMMAND_TYPE: %2x", cmd_type);
@@ -2104,7 +2104,7 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   uint16_t payload_size         = 0;
   uint16_t protocol_type        = 0;
   int32_t status                = RSI_SUCCESS;
-  sl_si91x_packet_t *pkt        = NULL;
+  sl_wifi_packet_t *pkt         = NULL;
   uint8_t *host_desc            = NULL;
   rsi_bt_cb_t *bt_cb            = NULL;
   uint32_t calculate_timeout_ms = 0;
@@ -2148,7 +2148,7 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   // Allocate command buffer from ble pool
   status = sli_si91x_allocate_command_buffer(&buffer,
                                              (void **)&pkt,
-                                             sizeof(sl_si91x_packet_t) + RSI_BT_COMMON_CMD_LEN,
+                                             sizeof(sl_wifi_packet_t) + RSI_BT_COMMON_CMD_LEN,
                                              calculate_timeout_ms);
   // If allocation of packet fails
   if (pkt == NULL) {
@@ -2171,11 +2171,11 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
 
   if (protocol_type == RSI_PROTO_BT_COMMON) {
     // Memset data
-    memset(pkt->data, 0, (RSI_BT_COMMON_CMD_LEN - sizeof(sl_si91x_packet_t)));
+    memset(pkt->data, 0, (RSI_BT_COMMON_CMD_LEN - sizeof(sl_wifi_packet_t)));
     payload_size = rsi_bt_prepare_common_pkt(cmd, cmd_struct, pkt);
   } else if (protocol_type == RSI_PROTO_BLE) {
     // Memset data
-    memset(pkt->data, 0, (RSI_BLE_CMD_LEN - sizeof(sl_si91x_packet_t)));
+    memset(pkt->data, 0, (RSI_BLE_CMD_LEN - sizeof(sl_wifi_packet_t)));
     payload_size = rsi_bt_prepare_le_pkt(cmd, cmd_struct, pkt);
     if (cmd == RSI_BLE_REQ_CONN_ENHANCE) {
       cmd = RSI_BLE_REQ_CONN;
@@ -2183,7 +2183,7 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   }
 
   if (bt_cb->buf_status || bt_cb->cmd_status || (bt_cb->state & RSI_BLE_CHECK_CMD)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
 
     if (bt_cb->buf_status == SI_LE_BUFFER_IN_PROGRESS) {
       status = RSI_ERROR_BLE_DEV_BUF_IS_IN_PROGRESS;
@@ -2227,7 +2227,7 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
     bt_cb->sync_rsp               = 1;
   }
 
-  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD, buffer, bt_cb->sync_rsp);
+  sli_si91x_driver_send_bt_command(cmd, SLI_SI91X_BT_CMD, buffer, bt_cb->sync_rsp);
 
   if (bt_cb->bt_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_sem, calculate_timeout_ms) != osOK)) {
     rsi_bt_set_status(bt_cb, RSI_ERROR_RESPONSE_TIMEOUT);

@@ -67,9 +67,10 @@ typedef struct {
 #define DAC_INPUT_REG_ADDR        0x24043810
 
 // Define bit positions for ADC and DAC
-#define ADC_BIT_POS  0
-#define DAC_BIT_POS  1
-#define COMP_BIT_POS 2
+#define ADC_BIT_POS   0
+#define DAC_BIT_POS   1
+#define COMP_BIT_POS  2
+#define OPAMP_BIT_POS 3
 
 typedef union {
   uint8_t analog_power;
@@ -78,6 +79,7 @@ typedef union {
     uint8_t power_en_adc : 1;
     uint8_t power_en_dac : 1;
     uint8_t power_en_comp : 1;
+    uint8_t power_en_opamp : 1;
   } ap;
 } analog_power_control_t;
 
@@ -99,6 +101,9 @@ __STATIC_INLINE void analog_set_power_state(uint8_t bit_pos, bool power_en_state
       break;
     case COMP_BIT_POS:
       analog_power_ctrl.ap.power_en_comp = power_en_state;
+      break;
+    case OPAMP_BIT_POS:
+      analog_power_ctrl.ap.power_en_opamp = power_en_state;
       break;
     default:
       // Handle invalid bit position

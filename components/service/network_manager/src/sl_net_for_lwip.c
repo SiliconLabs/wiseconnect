@@ -21,6 +21,7 @@
 #include "sl_utility.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_wifi_types.h"
+#include "sli_net_common_utility.h"
 #include "sl_net.h"
 #include <string.h>
 #include "sl_rsi_utility.h"
@@ -418,6 +419,11 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   // Load profile and connect here
   sl_net_wifi_client_profile_t profile = { 0 };
 
+  // Connect to the Wi-Fi network
+  if (profile_id == SL_NET_AUTO_JOIN) {
+    return sli_handle_auto_join(interface, &profile);
+  }
+
   status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -487,9 +493,9 @@ sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_w
 {
   void *packet;
   struct netif *ifp;
-  sl_si91x_packet_t *rsi_pkt;
+  sl_wifi_packet_t *rsi_pkt;
   packet  = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  rsi_pkt = (sl_si91x_packet_t *)packet;
+  rsi_pkt = (sl_wifi_packet_t *)packet;
   SL_DEBUG_LOG("\nRX len : %d\n", rsi_pkt->length);
 
   /* get the network interface for STATION interface,

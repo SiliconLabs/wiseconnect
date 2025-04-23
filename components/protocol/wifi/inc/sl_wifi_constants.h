@@ -39,6 +39,18 @@
 /// @note This is not a configurable value.
 #define SL_WIFI_MAX_SCANNED_AP 11
 
+/**
+ * @def SL_WIFI_MAX_SSID_LENGTH
+ * @brief Defines the maximum length of a Wi-Fi SSID.
+ *
+ * @details This macro specifies the maximum number of characters (including the null terminator) 
+ *          that a Wi-Fi SSID can have. It is used to ensure proper memory allocation and validation 
+ *          of SSID strings in Wi-Fi operations.
+ *
+ * @note The maximum SSID length is 34 characters, which includes the null terminator.
+ */
+#define SL_WIFI_MAX_SSID_LENGTH 34
+
 /// Maximum number of clients supported when module is running in Access Point mode.
 #define SL_WIFI_MAX_CLIENT_COUNT 16
 
@@ -80,7 +92,7 @@
  * @brief Enumeration for Wi-Fi security types.
  *
  * @note WPA3 Transition security type is not currently supported while running as an Access Point (AP).
- * @note To enable any WPA3 mode, the bit represented by the macro [SL_SI91X_EXT_FEAT_IEEE_80211W](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-custom-feature-bitmap#sl-si91-x-ext-feat-ieee-80211-w) must be set in the [ext_custom_feature_bit_map](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-boot-configuration-t#ext-custom-feature-bit-map).
+ * @note To enable any WPA3 mode, the bit represented by the macro [SL_WIFI_EXT_FEAT_IEEE_80211W](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-custom-feature-bitmap#sl-si91-x-ext-feat-ieee-80211-w) must be set in the [ext_custom_feature_bit_map](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-boot-configuration-t#ext-custom-feature-bit-map).
  */
 typedef enum {
   SL_WIFI_OPEN                       = 0,  ///< Wi-Fi Open security type
@@ -446,59 +458,59 @@ typedef enum {
   SL_WIFI_TWT_UNSOLICITED_SESSION_SUCCESS_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (1
-       << 16), ///< Event for TWT unsolicited session success. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT unsolicited session success. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_AP_REJECTED_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (4
-       << 16), ///< Event for TWT AP rejection. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT AP rejection. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_OUT_OF_TOLERANCE_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (5
-       << 16), ///< Event for TWT out of tolerance. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT out of tolerance. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_RESPONSE_NOT_MATCHED_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (6
-       << 16), ///<  Event for TWT response not matched. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///<  Event for TWT response not matched. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_UNSUPPORTED_RESPONSE_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (10
-       << 16), ///< Event for TWT unsupported response. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT unsupported response. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_TEARDOWN_SUCCESS_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (11
-       << 16), ///< Event for TWT teardown success. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT teardown success. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_AP_TEARDOWN_SUCCESS_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (12
-       << 16), ///< Event for TWT AP teardown success. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT AP teardown success. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_FAIL_MAX_RETRIES_REACHED_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (15
-       << 16), ///< Event for TWT maximum retries reached. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT maximum retries reached. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_INACTIVE_DUE_TO_ROAMING_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (16
-       << 16), ///< Event for TWT inactive due to roaming. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT inactive due to roaming. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_INACTIVE_DUE_TO_DISCONNECT_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (17
-       << 16), ///< Event for TWT inactive due to disconnect. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT inactive due to disconnect. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_INACTIVE_NO_AP_SUPPORT_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (18
-       << 16), ///< Event for TWT inactive due to no AP support. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT inactive due to no AP support. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_RESCHEDULE_TWT_SUCCESS_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (19
-       << 16), ///<  Event for TWT suspend resume success. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///<  Event for TWT suspend resume success. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_INFO_FRAME_EXCHANGE_FAILED_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (20
-       << 16), ///< Event for TWT info frame exchange failure. Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT info frame exchange failure. Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
   SL_WIFI_TWT_EVENTS_END =
     SL_WIFI_TWT_RESPONSE_EVENTS
     | (21
-       << 16), ///< Event for TWT event end.  Data would be of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+       << 16), ///< Event for TWT event end.  Data would be of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
 
   // Stats specific events
   SL_WIFI_STATS_EVENT = SL_WIFI_STATS_RESPONSE_EVENTS
@@ -506,18 +518,18 @@ typedef enum {
   SL_WIFI_STATS_ASYNC_EVENT =
     SL_WIFI_STATS_RESPONSE_EVENTS
     | (2
-       << 16), ///< Event for Wi-Fi asynchronous statistics. Data would be of type [sl_si91x_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)
+       << 16), ///< Event for Wi-Fi asynchronous statistics. Data would be of type [sl_wifi_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)
   SL_WIFI_STATS_ADVANCE_EVENT =
     SL_WIFI_STATS_RESPONSE_EVENTS
     | (3
-       << 16), ///< Event for Wi-Fi advance statistics. Data would be of type [sl_si91x_advance_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-advance-stats-response-t)
+       << 16), ///< Event for Wi-Fi advance statistics. Data would be of type [sl_wifi_advanced_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-advance-stats-response-t)
   SL_WIFI_STATS_TEST_MODE_EVENT =
     SL_WIFI_STATS_RESPONSE_EVENTS
     | (4 << 16), ///< Event for Wi-Fi test mode statistics. This feature is not supported in current release
   SL_WIFI_STATS_MODULE_STATE_EVENT =
     SL_WIFI_STATS_RESPONSE_EVENTS
     | (5
-       << 16), ///< Event for Wi-Fi module state statistics. Data would be of type [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t)
+       << 16), ///< Event for Wi-Fi module state statistics. Data would be of type [sl_wifi_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t)
 
   SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB = SL_WIFI_TRANSCEIVER_EVENTS | (1 << 16),
   SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB  = SL_WIFI_TRANSCEIVER_EVENTS | (2 << 16),
@@ -625,16 +637,85 @@ typedef enum {
   SL_WIFI_EAP_RC4_MD5       = (1 << 12)  ///< Wi-Fi EAP Client flag to use RC4-MD5 Cipher for EAP connection
 } sl_wifi_eap_client_flag_t;
 
+//! @cond Doxygen_Suppress
 /**
- * @enum sl_wifi_statistics_report_t
+ * @enum sli_wifi_statistics_report_t
  * @brief Enumeration for Wi-Fi statistics report commands.
  *
  * This enumeration defines the commands to start or stop the collection of Wi-Fi statistics.
  */
 typedef enum {
-  SL_WIFI_START_STATISTICS_REPORT, ///< Start statistics report
-  SL_WIFI_STOP_STATISTICS_REPORT,  ///< Stop statistics report
-} sl_wifi_statistics_report_t;
+  SLI_WIFI_START_STATISTICS_REPORT, ///< Start statistics report
+  SLI_WIFI_STOP_STATISTICS_REPORT,  ///< Stop statistics report
+} sli_wifi_statistics_report_t;
+//! @endcond
+
+/**
+ * @enum sl_wifi_band_mode_t
+ * @brief Band mode.
+ * @note Only 2.4 GHz is currently supported.
+ */
+typedef enum {
+  SL_WIFI_BAND_MODE_2_4GHZ = 0, ///< 2.4 GHz Wi-Fi band
+  SL_WIFI_BAND_MODE_5GHZ   = 1, ///< 5 GHz Wi-Fi band (not currently supported)
+  SL_WIFI_DUAL_BAND_MODE   = 2  ///< Both 2.4 GHz and 5 GHZ WiFi band (not currently supported)
+} sl_wifi_band_mode_t;
+
+/**
+ * @enum sl_wifi_region_code_t
+ * @brief
+ * Guidance for Region code Mapping for Different Countries
+ * | Country         | Country Code  |  Max power (Based on Regulatory domain)   | Frequency Range (Based on Regulatory Domain) | Suggested Region Code Mapping |
+ * |:----------------|:--------------|:------------------------------------------|:---------------------------------------------|:------------------------------|
+ * | Korea           | KR            | 23 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_KR             |                         |
+ * | Hong Kong       | HK            | 36 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
+ * | Singapore       | SG            | 200 mW (23 dBm)                           | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
+ * | Malaysia        | MY            | 500 mW (27 dBm)                           | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
+ * | Australia       | AU            | 4000 mW (36 dBm)                          | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
+ * | Taiwan          | TW            | 30 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
+ * | Thailand        | TH            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
+ * | Mexico          | MX            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
+ * | Vietnam         | VN            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
+ * | Indonesia       | ID            | 500mW (27 dBm)                            | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
+ * | China           | CN            | 20 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_CN             |
+ *
+ **/
+typedef enum {
+  SL_WIFI_DEFAULT_REGION,      ///< Factory default region
+  SL_WIFI_REGION_US,           ///< United States
+  SL_WIFI_REGION_EU,           ///< European Union
+  SL_WIFI_REGION_JP,           ///< Japan
+  SL_WIFI_REGION_WORLD_DOMAIN, ///< Worldwide domain
+  SL_WIFI_REGION_KR,           ///< Korea
+  SL_WIFI_REGION_SG,           ///< Singapore (not currently supported)
+  SL_WIFI_REGION_CN,           ///< China
+  SL_WIFI_IGNORE_REGION        ///< Do not update region code during initialization
+} sl_wifi_region_code_t;
+
+/**
+ * @enum sl_wifi_vap_id_t
+ * @brief Wi-Fi VAP ID
+ */
+typedef enum {
+  SL_WIFI_CLIENT_VAP_ID,   ///< Wi-Fi Client VAP ID
+  SL_WIFI_AP_VAP_ID,       ///< Wi-Fi Access point VAP ID
+  SL_WIFI_CLIENT_VAP_ID_1, ///< Wi-Fi Client 1 VAP ID
+  SL_WIFI_AP_VAP_ID_1,     ///< Wi-Fi Access point 1 VAP ID
+} sl_wifi_vap_id_t;
+
+/**
+ * @enum sl_wifi_ap_keepalive_type_t
+ * @brief Keepalive types
+ */
+typedef enum {
+  SL_WIFI_AP_KEEP_ALIVE_DISABLE = 0, ///< Disable keepalive functionality.
+  SL_WIFI_AP_DEAUTH_BASED_KEEP_ALIVE =
+    1, ///< AP performs keepalive functionality based on the RX packets received from its stations.
+  ///< If no packet is received from the station within the AP keep alive timeout period, the AP disconnects the station.
+  SL_WIFI_AP_NULL_BASED_KEEP_ALIVE =
+    3 ///< AP performs keepalive functionality by sending a NULL DATA packet to the station.
+      ///< If no ACK is received from the station after a specific number of retries, the AP discards the station.
+} sl_wifi_ap_keepalive_type_t;
 
 /**
  * @def SL_WIFI_AUTO_CHANNEL
@@ -680,6 +761,6 @@ typedef enum {
       return SL_STATUS_WIFI_UNKNOWN_INTERFACE;                                                            \
     }                                                                                                     \
   }
-
 /** @} */
+
 #endif // _SL_WIFI_CONSTANTS_H_

@@ -787,10 +787,14 @@ The sl_si91x_delay_ms function halts the processor for a specified duration, mea
   sl_si91x_delay_ms(100); // Pause execution for 100 milliseconds.
 ```
 
-### Appendix F: Exception Handlers
+### Appendix F: RS485 with UART Combination
+
+When a project includes both RS485-enabled UART0 and UART1 (or vice-versa), the application's data buffers for both UARTs should be defined as uint16_t to properly manage the 9-bit data associated with RS485 communication.
+
+### Appendix G: Exception Handlers
 Exception handlers are critical for managing unexpected events and ensuring system stability. Implementing custom exception handlers allows developers to handle specific exceptions and perform necessary actions to maintain system reliability. 
 
-### Appendix G: Acronyms and Abbreviations
+### Appendix H: Acronyms and Abbreviations
 
 | **Term** | **Description** |
 |----------|-----------------|
@@ -823,7 +827,7 @@ Exception handlers are critical for managing unexpected events and ensuring syst
 | VCOM (Virtual COM Port) | A software interface that emulates a physical COM port. |
 | XTAL (Crystal Oscillator) | An electronic oscillator circuit that uses the mechanical resonance of a vibrating crystal to create an electrical signal with a precise frequency. |
 
-### Appendix H: Contact Information
+### Appendix I: Contact Information
 For further assistance and support, please contact:
 
 * Silicon Labs Support: [Silicon Labs Support] (https://www.silabs.com/support)

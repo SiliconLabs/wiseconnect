@@ -307,12 +307,9 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
   if (status == SL_STATUS_OK) {
     //Unregister callbacks for all DMA channels
     for (channel = 0; channel < channel_count; channel++) {
-      if (dma_number == DMA_INSTANCE0) {
-        sl_dma0_channel_allocation_data_t[channel].dma_callback_t.error_cb             = NULL;
-        sl_dma0_channel_allocation_data_t[channel].dma_callback_t.transfer_complete_cb = NULL;
-      } else {
-        sl_ulp_dma_channel_allocation_data_t[channel].dma_callback_t.error_cb             = NULL;
-        sl_ulp_dma_channel_allocation_data_t[channel].dma_callback_t.transfer_complete_cb = NULL;
+      if (((dma_number == DMA_INSTANCE0) && (sl_dma0_channel_allocation_data_t[channel].allocated == true))
+          || ((dma_number == ULP_DMA_INSTANCE) && (sl_ulp_dma_channel_allocation_data_t[channel].allocated == true))) {
+        sl_si91x_dma_deallocate_channel(dma_number, channel + 1);
       }
     }
     // Uninitialize DMA

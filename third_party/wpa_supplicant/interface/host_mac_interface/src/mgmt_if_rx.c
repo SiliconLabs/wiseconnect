@@ -486,6 +486,7 @@ static int16 decode_mgmt_cmd_response(uint8 *rx_pkt)
     case SLI_WLAN_RSP_RSSI:
     case SLI_WLAN_RSP_WLAN_EXT_STATS:
     case SLI_WLAN_RSP_GET_WLAN_STATS:
+    case SLI_WLAN_RSP_FILTER_BROADCAST:
     // The above case are ment to fall through
     default: {
       send_to_host = 1;

@@ -18,14 +18,20 @@ provides:
   name: efx_ncp_custom_host_mcu
 source:
 - path: src/sl_si91x_driver.c
+- path: sl_net/src/sl_net_si91x.c
+  unless:
+    - sl_si91x_network_dual_stack
+    - sl_si91x_lwip_stack
+- path: sl_net/src/sli_net_si91x_utility.c
+  condition: ["sl_si91x_internal_stack"]
+- path: sl_net/src/sli_net_si91x_utility.c
+  condition: ["sl_si91x_lwip_stack"]
 - path: src/sl_rsi_utility.c
 - path: sl_net/src/sl_net_si91x_callback_framework.c
   condition: ["network_manager"]
 - path: sl_net/src/sl_net_rsi_utility.c
   condition: ["network_manager"]
 - path: sl_net/src/sl_net_si91x_integration_handler.c
-  condition: ["network_manager"]
-- path: sl_net/src/sl_si91x_net_credentials.c
   condition: ["network_manager"]
 - path: host_mcu/si91x/siwx917_soc_ncp_host.c
   condition: ["device_si91x"]
@@ -70,7 +76,7 @@ include:
     - path: sl_wifi_device.h
 - path: sl_net/inc
   file_list:
-    - path: sl_net_rsi_utility.h
+    - path: sli_net_utility.h
     - path: sl_net_si91x_integration_handler.h
     - path: sl_net_si91x.h
   condition:
@@ -169,12 +175,12 @@ template_contribution:
       transmit_test: 6
     region_code:
       default: 'DEFAULT_REGION'
-      us: 'US'
-      europe: 'EU'
-      japan: 'JP'
-      worldwide: 'WORLD_DOMAIN'
-      korea: 'KR'
-      singapore: 'SG'
+      us: 'SL_WIFI_REGION_US'
+      europe: 'SL_WIFI_REGION_EU'
+      japan: 'SL_WIFI_REGION_JP'
+      worldwide: 'SL_WIFI_REGION_WORLD_DOMAIN'
+      korea: 'SL_WIFI_REGION_KR'
+      singapore: 'SL_WIFI_REGION_SG'
     operating_band:
       2.4g: 0
       5g: 1

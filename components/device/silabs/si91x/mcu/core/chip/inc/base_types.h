@@ -56,7 +56,7 @@ extern "C" {
 
 #ifndef MIN
 /** Returns the minimum value out of two values */
-#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 #ifndef MAX
 /** Returns the maximum value out of two values */

@@ -2922,7 +2922,6 @@ void ble_iop_test_app(void *argument)
   rsi_ble_dev_ltk_list_t *ble_dev_ltk = NULL;
   int32_t event_id;
   uint8_t adv[31]                                            = { 2, 1, 6 };
-  sl_wifi_firmware_version_t version                         = { 0 };
   static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
   uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
 

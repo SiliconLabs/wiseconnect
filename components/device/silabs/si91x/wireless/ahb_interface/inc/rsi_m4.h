@@ -131,7 +131,7 @@
 #endif
 #define NWP_DEINIT_IN_COMM_FLASH BIT(7)
 
-//! This interrupt is received from TA when RSI_BUFFER_FULL is clear in TA
+//! This interrupt is received from TA when SLI_BUFFER_FULL is clear in TA
 #define TA_RSI_BUFFER_FULL_CLEAR_EVENT BIT(8)
 
 #if defined(SLI_SI917) || defined(SLI_SI915)
@@ -233,13 +233,13 @@ void clear_m4_to_ta_interrupt(uint32_t interrupt_no);
 void clear_ta_interrupt_mask(void);
 void set_ta_interrupt_mask(void);
 void clear_ta_to_m4_interrupt(uint32_t interrupt_no);
-void sl_mv_m4_app_from_flash_to_ram(int option);
+void sli_mv_m4_app_from_flash_to_ram(int option);
 uint32_t NVIC_GetIRQEnable(IRQn_Type IRQn);
 void sli_si91x_config_m4_dma_desc_on_reset(void);
 void rsi_update_tx_dma_desc(uint8_t skip_dma_valid);
 void rsi_update_rx_dma_desc(void);
-sl_status_t si91x_req_wakeup(void);
-void sl_si91x_ta_events_init(void); /*Function used to create and initialize event mechanism for NWP related events */
+sl_status_t sli_si91x_req_wakeup(void);
+void sli_si91x_ta_events_init(void); /*Function used to create and initialize event mechanism for NWP related events */
 bool sli_si91x_is_m4_using_xtal(void);
 bool sli_si91x_is_xtal_in_use_by_m4(void);
 void sli_si91x_set_m4_is_using_xtal(void);

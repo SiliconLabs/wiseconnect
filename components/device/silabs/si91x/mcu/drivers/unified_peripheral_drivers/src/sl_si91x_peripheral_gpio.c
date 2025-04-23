@@ -334,6 +334,8 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum)
 void sl_si91x_gpio_enable_host_pad_selection(uint8_t gpio_num)
 {
   if (gpio_num >= HOST_PAD_MIN && gpio_num <= HOST_PAD_MAX) {
+    // writing 1 to this enables MCUHP to configure GPIO 25 to 30
+    NWP_MCUHP_GPIO_CTRL2 = (0x1 << 5);
     // (tass_m4ss_gpio_sel)PAD selection (25 to 30)
     // A value of 1 on this gives control to M4SS(by default it is 0)
     HOST_PADS_GPIO_MODE |= BIT(gpio_num - HOST_PAD_SELECT);

@@ -1,9 +1,9 @@
 # Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_cpc_sec_secondary_sdio_freertos
-label: SI91x - SoC Peripheral CPC with Security Secondary SDIO - FreeRTOS
+label: Si91x - CPC SDIO Secondary FreeRTOS with Security
 description: |
   Start a CPC with Security over SDIO interface
-category: Example|peripheral
+category: Example|Service
 package: platform
 quality: experimental
 source:
@@ -66,7 +66,7 @@ component:
     from: wiseconnect3_sdk
   - id: network_manager  # required for sl_net_types.h file
     from: wiseconnect3_sdk
-  - id: basic_network_config_manager # required by network manager
+  - id: nvm3_network_config_manager # required by network manager
     from: wiseconnect3_sdk
 
 requires:

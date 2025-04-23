@@ -72,7 +72,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
  >
 > **Note**:
 >
->- When we run the littlefs example first time, after flash erase we will see the error **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. So ignore the error when run first time.
+>- When we run the littlefs example first time, after flash erase we see the errors **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. So ignore the error when run first time.
 
 
 

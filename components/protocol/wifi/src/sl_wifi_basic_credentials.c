@@ -33,7 +33,7 @@
 #include "sl_common.h"
 
 #ifndef SL_WIFI_MAX_CREDENTIAL_COUNT
-#define SL_WIFI_MAX_CREDENTIAL_COUNT 12
+#define SL_WIFI_MAX_CREDENTIAL_COUNT 14
 #endif
 
 typedef struct {

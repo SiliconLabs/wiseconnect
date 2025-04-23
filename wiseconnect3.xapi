@@ -55,12 +55,22 @@
                 Bluetooth address
             </description>
         </type>
-        <type name="ipv6_address" datatype="uuid_128" length="16">
+        <type name="ipv6_address" datatype="ipv6_addr" length="16">
             <description>
                 Description
             </description>
         </type>
         <type name="api_ssid" datatype="uint8array" length="32">
+            <description>
+                Description
+            </description>
+        </type>
+        <type name="mqtt_topic" datatype="uint8array" length="32">
+            <description>
+                Description
+            </description>
+        </type>
+        <type name="mqtt_message" datatype="uint8array" length="32">
             <description>
                 Description
             </description>
@@ -1024,19 +1034,19 @@
             </enum>
         </enums>
         <enums name="credential_id" title="Network Credential IDs">
-            <enum name="credential_id_invalid" value="0x00" title="Invalid Credential ID">
+            <enum name="credential_id_no_credential" value="0x00" title="Invalid Credential ID">
                 <description>
                     Invalid Credential ID.
                 </description>
             </enum>
             <enum name="credential_id_default_wifi_client" value="0x01" title="Wi-Fi Client Credential ID">
                 <description>
-                    Default Wi-Fi Client Credential ID. By default, uses default_wifi_client_credential from sl_net_default_values.h, which can be overridden using sl_net_set_credential.
+                    Default Wi-Fi Client Credential ID.
                 </description>
             </enum>
             <enum name="credential_id_default_wifi_ap" value="0x02" title="Wi-Fi Access Point Credential ID">
                 <description>
-                    Default Wi-Fi Access Point Credential ID. By default, uses default_wifi_ap_credential from sl_net_default_values.h, which can be overridden using sl_net_set_credential.
+                    Default Wi-Fi Access Point Credential ID.
                 </description>
             </enum>
             <enum name="credential_id_wifi_eap_client" value="0x03" title="Wi-Fi EAP Client Credential ID">
@@ -1479,244 +1489,19 @@
                 Note: Please ensure that sl_wifi_net_intf_up should be called before this command.
             </description>
             <params>
-                <param name="link_local_address_octet_1" type="uint8">
+                <param name="link_local_address" type="ipv6_address">
                     <description>
-                        First octet of the link-local IPv6 address.
+                        link-local IPv6 address.
                     </description>
                 </param>
-                <param name="link_local_address_octet_2" type="uint8">
+                <param name="global_address" type="ipv6_address">
                     <description>
-                        Second octet of the link-local IPv6 address.
+                        global IPv6 address.
                     </description>
                 </param>
-                <param name="link_local_address_octet_3" type="uint8">
+                <param name="gateway_address" type="ipv6_address">
                     <description>
-                        Third octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_5" type="uint8">
-                    <description>
-                        Fifth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_6" type="uint8">
-                    <description>
-                        Sixth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_7" type="uint8">
-                    <description>
-                        Seventh octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_8" type="uint8">
-                    <description>
-                        Eighth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_9" type="uint8">
-                    <description>
-                        Ninth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_10" type="uint8">
-                    <description>
-                        Tenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_11" type="uint8">
-                    <description>
-                        Eleventh octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_12" type="uint8">
-                    <description>
-                        Twelfth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_13" type="uint8">
-                    <description>
-                        The thirteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_14" type="uint8">
-                    <description>
-                        The fourteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_15" type="uint8">
-                    <description>
-                        The fifteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_16" type="uint8">
-                    <description>
-                        The sixteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_1" type="uint8">
-                    <description>
-                        First octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_2" type="uint8">
-                    <description>
-                        Second octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_3" type="uint8">
-                    <description>
-                        Third octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_5" type="uint8">
-                    <description>
-                        Fifth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_6" type="uint8">
-                    <description>
-                        Sixth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_7" type="uint8">
-                    <description>
-                        Seventh octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_8" type="uint8">
-                    <description>
-                        Eighth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_9" type="uint8">
-                    <description>
-                        Ninth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_10" type="uint8">
-                    <description>
-                        Tenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_11" type="uint8">
-                    <description>
-                        Eleventh octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_12" type="uint8">
-                    <description>
-                        Twelfth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_13" type="uint8">
-                    <description>
-                        Thirteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_14" type="uint8">
-                    <description>
-                        Fourteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_15" type="uint8">
-                    <description>
-                        Fifteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_16" type="uint8">
-                    <description>
-                        Sixteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_octet_1" type="uint8">
-                    <description>
-                        First octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_2" type="uint8">
-                    <description>
-                        Second octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_3" type="uint8">
-                    <description>
-                        Third octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_5" type="uint8">
-                    <description>
-                        Fifth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_6" type="uint8">
-                    <description>
-                        Sixth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_7" type="uint8">
-                    <description>
-                        Seventh octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_8" type="uint8">
-                    <description>
-                        Eighth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_9" type="uint8">
-                    <description>
-                        Ninth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_10" type="uint8">
-                    <description>
-                        Tenth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_11" type="uint8">
-                    <description>
-                        Eleventh octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_12" type="uint8">
-                    <description>
-                        Twelfth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_13" type="uint8">
-                    <description>
-                        Thirteenth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_14" type="uint8">
-                    <description>
-                        Fourteenth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_15" type="uint8">
-                    <description>
-                        Fifteenth octet of the gateway address.
-                    </description>
-                </param>
-                <param name="gateway_octet_16" type="uint8">
-                    <description>
-                        Sixteenth octet of the gateway address.
+                        gateway IPv6 address.
                     </description>
                 </param>
             </params>
@@ -1920,244 +1705,19 @@
                         Result of the command.
                     </description>
                 </param>
-                <param name="link_local_address_octet_1" type="uint8">
+                <param name="link_local_address" type="ipv6_address">
                     <description>
-                        First octet of the link-local IPv6 address.
+                        link local IPv6 address.
                     </description>
                 </param>
-                <param name="link_local_address_octet_2" type="uint8">
+                <param name="global_address" type="ipv6_address">
                     <description>
-                        Second octet of the link-local IPv6 address.
+                        global IPv6 address.
                     </description>
                 </param>
-                <param name="link_local_address_octet_3" type="uint8">
+                <param name="gateway_address" type="ipv6_address">
                     <description>
-                        Third octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_5" type="uint8">
-                    <description>
-                        Fifth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_6" type="uint8">
-                    <description>
-                        Sixth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_7" type="uint8">
-                    <description>
-                        Seventh octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_8" type="uint8">
-                    <description>
-                        Eighth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_9" type="uint8">
-                    <description>
-                        Ninth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_10" type="uint8">
-                    <description>
-                        Tenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_11" type="uint8">
-                    <description>
-                        Eleventh octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_12" type="uint8">
-                    <description>
-                        Twelfth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_13" type="uint8">
-                    <description>
-                        Thirteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_14" type="uint8">
-                    <description>
-                        Fourteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_15" type="uint8">
-                    <description>
-                        Fifteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="link_local_address_octet_16" type="uint8">
-                    <description>
-                        Sixteenth octet of the link-local IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_1" type="uint8">
-                    <description>
-                        First octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_2" type="uint8">
-                    <description>
-                        Second octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_3" type="uint8">
-                    <description>
-                        Third octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_5" type="uint8">
-                    <description>
-                        Fifth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_6" type="uint8">
-                    <description>
-                        Sixth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_7" type="uint8">
-                    <description>
-                        Seventh octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_8" type="uint8">
-                    <description>
-                        Eighth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_9" type="uint8">
-                    <description>
-                        Ninth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_10" type="uint8">
-                    <description>
-                        Tenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_11" type="uint8">
-                    <description>
-                        Eleventh octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_12" type="uint8">
-                    <description>
-                        Twelfth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_13" type="uint8">
-                    <description>
-                        Thirteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_14" type="uint8">
-                    <description>
-                        Fourteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_15" type="uint8">
-                    <description>
-                        Fifteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="global_address_octet_16" type="uint8">
-                    <description>
-                        Sixteenth octet of the global IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_1" type="uint8">
-                    <description>
-                        First octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_2" type="uint8">
-                    <description>
-                        Second octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_3" type="uint8">
-                    <description>
-                        Third octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_4" type="uint8">
-                    <description>
-                        Fourth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_5" type="uint8">
-                    <description>
-                        Fifth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_6" type="uint8">
-                    <description>
-                        Sixth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_7" type="uint8">
-                    <description>
-                        Seventh octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_8" type="uint8">
-                    <description>
-                        Eighth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_9" type="uint8">
-                    <description>
-                        Ninth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_10" type="uint8">
-                    <description>
-                        Tenth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_11" type="uint8">
-                    <description>
-                        Eleventh octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_12" type="uint8">
-                    <description>
-                        Twelfth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_13" type="uint8">
-                    <description>
-                        Thirteenth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_14" type="uint8">
-                    <description>
-                        Fourteenth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_15" type="uint8">
-                    <description>
-                        Fifteenth octet of the gateway IPv6 address.
-                    </description>
-                </param>
-                <param name="gateway_address_octet_16" type="uint8">
-                    <description>
-                        Sixteenth octet of the gateway IPv6 address.
+                        gateway IPv6 address.
                     </description>
                 </param>
             </returns>
@@ -2547,91 +2107,91 @@
             <description>
                 Defines various credential IDs used for different network configurations.
             </description>
-            <!-- <enum name="INVALID_CREDENTIAL_ID" value="0x00" title="Invalid Credential ID">
+            <enum name="credential_id_invalid" value="0x00" title="Invalid Credential ID">
                 <description>Invalid Credential ID.</description>
-            </enum> -->
-            <enum name="credential_id_default_wifi_client_credential_id" value="0x01" title="Default Wi-Fi Client Credential ID">
-                <description>
-                    Default Wi-Fi Client Credential ID.
-                </description>
             </enum>
-            <enum name="credential_id_default_wifi_ap" value="0x02" title="Default Wi-Fi AP Credential ID">
-                <description>
-                    Default Wi-Fi Access Point Credential ID.
-                </description>
+            <enum name="credential_id_default_wifi_client" value="0x01" title="Wi-Fi Client Credential ID">
+                <description>Default Wi-Fi Client Credential ID. By default, uses default_wifi_client_credential from sl_net_default_values.h, which can be overridden using sl_net_set_credential.</description>
             </enum>
-            <!-- <enum name="USER_CREDENTIAL_ID" value="0x03" title="User Credential ID">
-                <description>
-                    User Credential ID. Allows user-defined credentials.
-                </description>
+            <enum name="credential_id_default_wifi_ap" value="0x02" title="Wi-Fi Access Point Credential ID">
+                <description>Default Wi-Fi Access Point Credential ID. By default, uses default_wifi_ap_credential from sl_net_default_values.h, which can be overridden using sl_net_set_credential.</description>
             </enum>
-            <enum name="WIFI_EAP_CLIENT_CREDENTIAL_ID" value="0x03" title="Wi-Fi EAP Client Credential ID">
-                <description>Wi-Fi EAP Client Credential ID for EAP authentication.</description>
+            <enum name="credential_id_wifi_eap_client" value="0x03" title="Wi-Fi EAP Client Credential ID">
+                <description>Wi-Fi EAP Client Credential ID.</description>
             </enum>
-            <enum name="WIFI_EAP_SERVER_CREDENTIAL_ID" value="0x04" title="Wi-Fi EAP Server Credential ID">
-                <description>Wi-Fi EAP Server Credential ID for EAP server authentication.</description>
+            <enum name="credential_id_wifi_eap_server" value="0x04" title="Wi-Fi EAP Server Credential ID">
+                <description>Wi-Fi EAP Server Credential ID.</description>
             </enum>
-            <enum name="TLS_CLIENT_CREDENTIAL_START" value="0x0100" title="TLS Client Credential Start">
-                <description>Starting point for TLS Client Credential IDs.</description>
+            <enum name="credential_id_user" value="0x05" title="User Credential ID">
+                <description>User Credential ID.</description>
             </enum>
-            <enum name="TLS_SERVER_CREDENTIAL_START" value="0x0200" title="TLS Server Credential Start">
+            <enum name="credential_id_tls_client" value="0x100" title="TLS Client Credential ID">
+                <description>TLS Client Credential ID.</description>
+            </enum>
+            <enum name="credential_id_tls_server" value="0x200" title="TLS Server Credential ID">
                 <description>TLS Server Credential ID.</description>
             </enum>
-            <enum name="MQTT_SERVER_CREDENTIAL_START" value="0x0300" title="MQTT Server Credential Start">
+            <enum name="credential_id_mqtt_server" value="0x300" title="MQTT Server Credential ID">
                 <description>MQTT Server Credential ID.</description>
             </enum>
-            <enum name="MQTT_CLIENT_CREDENTIAL_START" value="0x0400" title="MQTT Client Credential Start">
+            <enum name="credential_id_mqtt_client" value="0x400" title="MQTT Client Credential ID">
                 <description>MQTT Client Credential ID.</description>
             </enum>
-            <enum name="HTTP_SERVER_CREDENTIAL_START" value="0x0500" title="HTTP Server Credential Start">
+            <enum name="credential_id_http_server" value="0x500" title="HTTP Server Credential ID">
                 <description>HTTP Server Credential ID.</description>
             </enum>
-            <enum name="HTTP_CLIENT_CREDENTIAL_START" value="0x0600" title="HTTP Client Credential Start">
+            <enum name="credential_id_http_client" value="0x600" title="HTTP Client Credential ID">
                 <description>HTTP Client Credential ID.</description>
-            </enum> -->
+            </enum>
         </enums>
         <enums name="credential_type" title="Credential Type">
             <description>
                 Defines various types of credentials used for network authentication and encryption.
             </description>
-            <!-- <enum name="INVALID_CREDENTIAL_TYPE" value="0x00" title="Invalid Credential Type">
+            <enum name="credential_type_invalid" value="0x00" title="Invalid Credential Type">
                 <description>Invalid Credential Type.</description>
-            </enum> -->
+            </enum>
             <enum name="credential_type_psk" value="0x01" title="Wi-Fi PSK Credential">
                 <description>
                     Wi-Fi Pre-Shared Key (PSK) Credential.
                 </description>
             </enum>
-            <!-- <enum name="PMK" value="0x02" title="Wi-Fi PMK Credential">
+            <enum name="credential_type_pmk" value="0x02" title="Wi-Fi PMK Credential">
                 <description>Wi-Fi Pairwise Master Key (PMK) Credential.</description>
             </enum>
-            <enum name="WEP" value="0x03" title="Wi-Fi WEP Credential">
+            <enum name="credential_type_wep" value="0x03" title="Wi-Fi WEP Credential">
                 <description>Wi-Fi Wired Equivalent Privacy (WEP) Credential.</description>
             </enum>
-            <enum name="CERTIFICATE" value="0x04" title="TLS Client Certificate">
+            <enum name="credential_type_certificate" value="0x04" title="TLS Client Certificate">
                 <description>TLS Client Certificate Credential.</description>
             </enum>
-            <enum name="PUBLIC_KEY" value="0x05" title="TLS Certificate Public Key">
+            <enum name="credential_type_public_key" value="0x05" title="TLS Certificate Public Key">
                 <description>TLS Certificate Public Key Credential.</description>
             </enum>
-            <enum name="PRIVATE_KEY" value="0x06" title="TLS Certificate Private Key">
+            <enum name="credential_type_private_key" value="0x06" title="TLS Certificate Private Key">
                 <description>TLS Certificate Private Key Credential.</description>
             </enum>
-            <enum name="PACK_FILE" value="0x07" title="EAP Fast Pack File">
+            <enum name="credential_type_pack_file" value="0x07" title="EAP Fast Pack File">
                 <description>EAP Fast Pack File Credential for EAP authentication.</description>
             </enum>
-            <enum name="SIGNING_CERTIFICATE" value="0x08" title="TLS CA Certificate">
+            <enum name="credential_type_signing_certificate" value="0x08" title="TLS CA Certificate">
                 <description>TLS Certificate Authority (CA) Certificate Credential for signing.</description>
             </enum>
-            <enum name="HTTP_CLIENT_CREDENTIAL" value="0x09" title="HTTP Client Credential">
+            <enum name="credential_type_http_client_credential" value="0x09" title="HTTP Client Credential">
                 <description>HTTP Client Credential for authentication.</description>
             </enum>
-            <enum name="EAP_CLIENT_CREDENTIAL" value="0x0A" title="Wi-Fi EAP Client Credential">
+            <enum name="credential_type_eap_client_credential" value="0x0A" title="Wi-Fi EAP Client Credential">
                 <description>Wi-Fi EAP (Extensible Authentication Protocol) Client Credential for secure authentication.</description>
             </enum>
-            <enum name="MQTT_CLIENT_CREDENTIAL" value="0x0B" title="MQTT Client Credential">
+            <enum name="credential_type_mqtt_client_credential" value="0x0B" title="MQTT Client Credential">
                 <description>MQTT Client Credential for secure communication in MQTT protocol.</description>
-            </enum> -->
+            </enum>
+            <enum name="credential_type_tls_private_key_cbc_wrap" value="0x0C" title="TLS Private Key (CBC Wrapped)">
+                <description>CBC Wrapped TLS Private Certificate Key.</description>
+            </enum>
+            <enum name="credential_type_tls_private_key_ecb_wrap" value="0x0D" title="TLS Private Key (ECB Wrapped)">
+                <description>ECB Wrapped TLS Private Certificate Key.</description>
+            </enum>
         </enums>
         <command name="set" index="0x00">
             <description>
@@ -3311,5 +2871,546 @@
                 </param>
             </returns>
         </command>
+    </class>
+    <class name="mqtt_client" index="0x10" title="mqtt_client">
+        <command name="init" index="0x00">
+            <description>
+                Initialize the MQTT Client.
+
+                Ensure that SL_SI91X_EXT_EMB_MQTT_ENABLE is enabled in the ext_tcp_ip_feature_bit_map
+                by calling sl_wifi_net_intf_set_si91x_boot_config(). Make sure this command is called
+                before invoking the sl_wifi_net_intf_init() command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="set_broker" index="0x02">
+            <description>
+                Sets the MQTT broker connection parameters.
+            </description>
+            <params>
+                <param name="ip_address" type="ipv4_address">
+                    <description>
+                        IPv4 address of the MQTT broker.
+                    </description>
+                </param>
+                <param name="port" type="uint16">
+                    <description>
+                        Port number on which the MQTT broker is listening.
+                    </description>
+                </param>
+                <param name="connect_timeout" type="uint16">
+                    <description>
+                        Connection timeout duration in milliseconds.
+                    </description>
+                </param>
+                <param name="keep_alive_interval" type="uint16">
+                    <description>
+                        Interval (in seconds) for keep-alive ping messages.
+                    </description>
+                </param>
+                <param name="keep_alive_retries" type="uint16">
+                    <description>
+                        Number of retry attempts for MQTT ping messages before declaring a connection failure.
+                    </description>
+                </param>
+                <param name="is_connection_encrypted" type="uint8">
+                    <description>
+                        Indicates if the connection to the broker is encrypted (1 = encrypted, 0 = not encrypted).
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="set_last_will_topic" index="0x03">
+            <description>
+                Configures the Last Will message parameters for the MQTT client.
+                Maximum topic length: 43 bytes
+            </description>
+            <params>
+                <param name="qos_level" type="uint32" enum="mqtt_client_qos">
+                    <description>
+                        Quality of Service level for the Last Will message.
+                    </description>
+                </param>
+                <param name="is_retained" type="uint8">
+                    <description>
+                        Flag indicating whether to retain the Last Will message (1 = retained, 0 = not retained).
+                    </description>
+                </param>
+                <param name="topic" type="mqtt_topic">
+                    <description>
+                        Topic to which the Last Will message will be published.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="set_last_will_message" index="0x0D">
+            <description>
+                Sets the message content for the MQTT Client Last Will message.
+                Maximum message length: 48 bytes
+            </description>
+            <params>
+                <param name="message" type="mqtt_topic">
+                    <description>
+                        Message content to be published as the Last Will message.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="set_client_config" index="0x04">
+            <description>
+                Sets MQTT client configuration parameters.
+            </description>
+            <params>
+                <param name="is_auto_connect" type="uint8">
+                    <description>
+                        Enables or disables automatic reconnection on disconnect.
+                    </description>
+                </param>
+                <param name="retry_count" type="uint8">
+                    <description>
+                        Maximum number of reconnection attempts.
+                    </description>
+                </param>
+                <param name="min_back_off_time" type="uint16">
+                    <description>
+                        Minimum wait time (in seconds) before retrying a connection.
+                    </description>
+                </param>
+                <param name="max_back_off_time" type="uint16">
+                    <description>
+                        Maximum wait time (in seconds) between reconnection attempts.
+                    </description>
+                </param>
+                <param name="is_clean_session" type="uint8">
+                    <description>
+                        Indicates whether to start a clean session on connect.
+                    </description>
+                </param>
+                <param name="version" type="uint32" enum="mqtt_client_mqtt_version">
+                    <description>
+                        MQTT protocol version used by the client.
+                    </description>
+                </param>
+                <param name="client_port" type="uint16">
+                    <description>
+                        Port number used by the client for the connection.
+                    </description>
+                </param>
+                <param name="credential_id" type="uint32" enum="net_cred_credential_id">
+                    <description>
+                        Credential ID for the username and password used in the MQTT connect request.
+                    </description>
+                </param>
+                <param name="tls_flag" type="uint32" enum="mqtt_client_tls_flag">
+                    <description>
+                        TLS configuration flags.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <enums name="tls_flag" title="tls_flag">
+            <enum name="tls_flag_enable" value="0x00">
+                <description>
+                    Enable TLS for the connection.
+                </description>
+            </enum>
+            <enum name="tls_flag_tlsv_1_0" value="0x01">
+                <description>
+                    TLS version 1.0.
+                </description>
+            </enum>
+            <enum name="tls_flag_tlsv_1_1" value="0x02">
+                <description>
+                    TLS version 1.1.
+                </description>
+            </enum>
+            <enum name="tls_flag_tlsv_1_2" value="0x03">
+                <description>
+                    TLS version 1.2.
+                </description>
+            </enum>
+            <enum name="tls_flag_tlsv_1_3" value="0x04">
+                <description>
+                    TLS version 1.3.
+                </description>
+            </enum>
+            <enum name="tls_flag_cert_index_1" value="0x05">
+                <description>
+                    Certificate index 1 for TLS connection.
+                </description>
+            </enum>
+            <enum name="tls_flag_cert_index_2" value="0x06">
+                <description>
+                    Certificate index 2 for TLS connection.
+                </description>
+            </enum>
+        </enums>
+        <enums name="mqtt_version" title="mqtt_version">
+            <enum name="mqtt_version_v3" value="0x00">
+                <description>
+                    MQTT protocol version 3.0.
+                </description>
+            </enum>
+            <enum name="mqtt_version_v3_1" value="0x01">
+                <description>
+                    PMQTT protocol version 3.1.
+                </description>
+            </enum>
+        </enums>
+        <enums name="qos" title="qos">
+            <enum name="qos_level_0" value="0x00">
+                <description>
+                    At most once delivery. The message is delivered according to the best efforts of the operating environment. Message loss can occur.
+                </description>
+            </enum>
+            <enum name="qos_level_1" value="0x01">
+                <description>
+                    At least once delivery. The message is assured to arrive but duplicates can occur.
+                </description>
+            </enum>
+            <enum name="qos_level_2" value="0x02">
+                <description>
+                    Exactly once delivery. The message is assured to arrive exactly once (Not currently supported).
+                </description>
+            </enum>
+        </enums>
+        <command name="deinit" index="0x01">
+            <description>
+                Deinitialize the MQTT client.
+                Note: Please ensure that sl_wifi_mqtt_client_init is called before using this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="get_broker" index="0x05">
+            <description>
+                Gets the MQTT broker connection parameters.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="ip_address" type="ipv4_address"/>
+                <param name="port" type="uint16"/>
+                <param name="is_connection_encrypted" type="uint8"/>
+                <param name="connect_timeout" type="uint16"/>
+                <param name="keep_alive_interval" type="uint16"/>
+                <param name="keep_alive_retires" type="uint16"/>
+            </returns>
+        </command>
+        <command name="get_last_will_topic" index="0x06">
+            <description>
+                Gets the Last Will message parameters for the MQTT client.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="is_retained" type="uint8"/>
+                <param name="qos_level" type="uint32" enum="mqtt_client_qos"/>
+                <param name="topic" type="mqtt_topic"/>
+            </returns>
+        </command>
+        <command name="get_last_will_message" index="0x0E">
+            <description>
+                Gets the message content for the MQTT Client Last Will message.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="message" type="mqtt_topic"/>
+            </returns>
+        </command>
+        <command name="get_client_config" index="0x07">
+            <description>
+                Gets MQTT client configuration parameters.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="is_auto_connect" type="uint8"/>
+                <param name="retry_count" type="uint8"/>
+                <param name="min_back_off_time" type="uint16"/>
+                <param name="max_back_off_time" type="uint16"/>
+                <param name="is_clean_session" type="uint8"/>
+                <param name="version" type="uint32" enum="mqtt_client_mqtt_version"/>
+                <param name="client_port" type="uint16"/>
+                <param name="credential_id" type="uint32" enum="net_cred_credential_id"/>
+                <param name="tls_flag" type="uint32" enum="mqtt_client_tls_flag"/>
+            </returns>
+        </command>
+        <event name="connected_event" index="0x00">
+            <params>
+                <param name="status" type="uint32"/>
+            </params>
+        </event>
+        <event name="error_event" index="0x01">
+            <params>
+                <param name="status" type="errorcode"/>
+            </params>
+        </event>
+        <event name="topic_received_event" index="0x02">
+            <params>
+                <param name="topic" type="mqtt_topic"/>
+            </params>
+        </event>
+        <event name="message_received_event" index="0x0F">
+            <params>
+                <param name="content" type="mqtt_message"/>
+            </params>
+        </event>
+        <command name="connect" index="0x08">
+            <description>
+                Connect the client to an MQTT broker.
+                Note: Please ensure that sl_wifi_mqtt_client_init is called before using this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="disconnect" index="0x09">
+            <description>
+                Disconnect the client from the MQTT broker.
+                Note: Please ensure that sl_wifi_mqtt_client_connect is called before using this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="subscribe" index="0x0A">
+            <description>
+                Subscribe a client to a specific topic on the MQTT broker.
+                Maximum topic length: 44 bytes
+                Note: Please ensure that sl_wifi_mqtt_client_connect is called before using this command.
+            </description>
+            <params>
+                <param name="qos_level" type="uint32" enum="mqtt_client_qos">
+                    <description>
+                        Quality of Service level for the subscription.
+                    </description>
+                </param>
+                <param name="topic" type="mqtt_topic">
+                    <description>
+                        The topic to which the client wants to subscribe.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="unsubscribe" index="0x0B">
+            <description>
+                Unsubscribe a client from a specific topic on the MQTT broker.
+                Maximum topic length: 48 bytes
+                Note: Please ensure that sl_wifi_mqtt_client_connect and sl_wifi_mqtt_client_subscribe is called before using this command.
+            </description>
+            <params>
+                <param name="topic" type="mqtt_topic">
+                    <description>
+                        The topic from which the client wants to unsubscribe.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <event name="message_received_on_topic" index="0x03">
+            <params>
+                <param name="message_topic" type="mqtt_topic"/>
+            </params>
+        </event>
+        <event name="message_received_content" index="0x04">
+            <params>
+                <param name="message_content" type="mqtt_message"/>
+            </params>
+        </event>
+        <command name="publish_topic" index="0x0C">
+            <description>
+                Publishes a message to the MQTT broker on the specified topic.
+                Maximum topic length: 42 bytes
+                Note: Please ensure that sl_wifi_mqtt_client_connect is called before using this command.
+            </description>
+            <params>
+                <param name="qos_level" type="errorcode" enum="mqtt_client_qos">
+                    <description>
+                        Quality of Service (QoS) level for message delivery.
+                    </description>
+                </param>
+                <param name="packet_id" type="uint16">
+                    <description>
+                        The unique packet identifier for the message. This value must be unique for each message published within the same session.
+                    </description>
+                </param>
+                <param name="is_retained" type="uint8">
+                    <description>
+                        Flag indicating if the message should be retained by the broker. A retained message will be sent to new subscribers immediately upon subscription to the topic.
+                        - 0: Message is not retained.
+                        - 1: Message is retained by the broker.
+                    </description>
+                </param>
+                <param name="is_duplicate_message" type="uint8">
+                    <description>
+                        Flag indicating if the message is a duplicate. A duplicate message may be sent by the broker in certain scenarios (e.g., due to network issues or reconnection).
+                        - 0: Message is not a duplicate.
+                        - 1: Message is a duplicate.
+                    </description>
+                </param>
+                <param name="topic" type="mqtt_topic">
+                    <description>
+                        The topic to which the message is being published.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="publish_message" index="0x10">
+            <description>
+                Publishes the content of a message to the MQTT broker.
+                Maximum message length: 48 bytes
+                Note: Please ensure that sl_wifi_mqtt_client_connect is called before using this command.
+            </description>
+            <params>
+                <param name="content" type="mqtt_message">
+                    <description>
+                        The message content to be published.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <command name="publish" index="0x12">
+            <description>
+                Publishes a message to the MQTT broker.
+                Note: Please ensure that sl_wifi_mqtt_client_publish_topic and sl_wifi_mqtt_client_publish_message is called before using this command.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
+            </returns>
+        </command>
+        <event name="subscribe_state_event" index="0x05">
+            <params>
+                <param name="status" type="errorcode"/>
+                <param name="topic" type="mqtt_topic"/>
+            </params>
+        </event>
+        <event name="unsubscribe_state_event" index="0x06">
+            <params>
+                <param name="status" type="errorcode"/>
+                <param name="topic" type="mqtt_topic"/>
+            </params>
+        </event>
+        <event name="publish_state_event" index="0x07">
+            <params>
+                <param name="status" type="errorcode"/>
+                <param name="topic" type="mqtt_topic"/>
+            </params>
+        </event>
+        <command name="set_client_id" index="0x16">
+            <description>
+                Configures the MQTT client ID.
+                Maximum client ID length: 48 bytes
+            </description>
+            <params>
+                <param name="client_id" type="mqtt_topic">
+                    <description>
+                        MQTT client Identifier.
+                    </description>
+                </param>
+            </params>
+            <returns>
+                <param name="result" type="errorcode"/>
+            </returns>
+        </command>
+        <command name="get_client_id" index="0x15">
+            <description>
+                Gets MQTT client ID.
+            </description>
+            <params/>
+            <returns>
+                <param name="result" type="errorcode"/>
+                <param name="client_id" type="mqtt_topic"/>
+            </returns>
+        </command>
+        <event name="disconnected_event" index="0x08">
+            <params>
+                <param name="status" type="uint32"/>
+            </params>
+        </event>
     </class>
 </api>

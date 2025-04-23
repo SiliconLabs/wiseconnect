@@ -66,17 +66,17 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
   }
 
   // Start processing the event
-  sl_si91x_packet_t *packet = (sl_si91x_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_packet_t *packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    sl_status_t status = convert_and_save_firmware_status(get_si91x_frame_status(packet));
-    if (packet->command == RSI_WLAN_RSP_JOIN) {
-      sl_status_t temp_status = sl_si91x_driver_send_command(RSI_WLAN_REQ_INIT,
-                                                             SI91X_WLAN_CMD,
-                                                             NULL,
-                                                             0,
-                                                             SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                                             NULL,
-                                                             NULL);
+    sl_status_t status = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
+    if (packet->command == SLI_WLAN_RSP_JOIN) {
+      sl_status_t temp_status = sli_si91x_driver_send_command(SLI_WLAN_REQ_INIT,
+                                                              SLI_SI91X_WLAN_CMD,
+                                                              NULL,
+                                                              0,
+                                                              SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                                              NULL,
+                                                              NULL);
       VERIFY_STATUS_AND_RETURN(temp_status);
     }
 
@@ -103,7 +103,7 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
     rx_cb_data.rate   = *(uint16_t *)(&packet->data[2]); //Extended descriptor in data[] for rate
 
     /*
-     * SL_STATUS_UNKNOWN_PEER - If SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT is enabled but
+     * SL_STATUS_UNKNOWN_PEER - If SL_WIFI_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT is enabled but
      * data packet is received from a peer not present in MAC layer.
      */
     if ((status & TRANSCEIVER_RX_PKT_TA_MATCH_BIT) || IS_BCAST_MCAST_MAC(rx_cb_data.buffer[4]))

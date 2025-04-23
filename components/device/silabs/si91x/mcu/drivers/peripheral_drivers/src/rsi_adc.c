@@ -535,7 +535,7 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
   adc_channel = adcChConfig.channel;
   sl_dma_callback_t adc_dma_callback;
 
-  // Get minimum sampling time form given configuration
+  // Get minimum sampling time from given configuration
   min_sampl_time = get_min_sampling_time(adcConfig.num_of_channel_enable, adcChConfig);
 
   // Find out the maximum sampling rate of ADC can achieved from given configuration
@@ -1124,7 +1124,7 @@ uint32_t roundupto_pwr2(uint16_t num)
 /**
  * @fn     uint32_t max_sample_rate_achive(float min_sampling_time)
  * @brief  This API find-out maximum ADC sampling rate can achieve from required channels configuration. 
- * @param[in]  number_of_channel : Number of channel enable for ADC operation.
+ * @param[in]  min_sampling_time : Minimum sampling time from given configuration
  * @return ADC effective sampling rate. 
  */
 uint32_t max_sample_rate_achive(float min_sampling_time)

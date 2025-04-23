@@ -101,7 +101,7 @@
 
 static sl_wifi_buffer_t *resp_buffer = NULL;
 static sl_status_t resp_status       = SL_STATUS_OK;
-sl_si91x_buffer_queue_t sli_uart_bus_rx_queue;
+sli_si91x_buffer_queue_t sli_uart_bus_rx_queue;
 
 /************************************************************************************
  ******************************** Static Functions *********************************
@@ -145,8 +145,8 @@ sl_status_t sl_si91x_bus_init(void)
   sli_uart_bus_rx_queue.head = NULL;
   sli_uart_bus_rx_queue.tail = NULL;
 
-  // Allocate a buffer for the frame using sl_si91x_host_allocate_buffer
-  status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
+  // Allocate a buffer for the frame using sli_si91x_host_allocate_buffer
+  status = sli_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
     BREAKPOINT();
@@ -202,7 +202,7 @@ sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *bu
   return SL_STATUS_WIFI_UNSUPPORTED;
 }
 
-sl_status_t sl_si91x_bus_write_register(uint8_t address, uint8_t register_size, uint16_t data)
+sl_status_t sli_si91x_bus_write_register(uint8_t address, uint8_t register_size, uint16_t data)
 {
   UNUSED_PARAMETER(address);
   UNUSED_PARAMETER(register_size);
@@ -210,7 +210,7 @@ sl_status_t sl_si91x_bus_write_register(uint8_t address, uint8_t register_size, 
   return SL_STATUS_WIFI_UNSUPPORTED;
 }
 
-sl_status_t sl_si91x_bus_read_register(uint8_t address, uint8_t register_size, uint16_t *output)
+sl_status_t sli_si91x_bus_read_register(uint8_t address, uint8_t register_size, uint16_t *output)
 {
   UNUSED_PARAMETER(address);
   UNUSED_PARAMETER(register_size);
@@ -218,25 +218,25 @@ sl_status_t sl_si91x_bus_read_register(uint8_t address, uint8_t register_size, u
   return SL_STATUS_WIFI_UNSUPPORTED;
 }
 
-sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
+sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
 {
   UNUSED_PARAMETER(payloadparam);
   sl_status_t status;
 
   // Write host descriptor
-  status = sl_si91x_host_uart_transfer((const void *)&packet->desc, NULL, RSI_FRAME_DESC_LEN);
-  VERIFY_STATUS(status);
+  status = sl_si91x_host_uart_transfer((const void *)&packet->desc, NULL, SLI_FRAME_DESC_LEN);
+  SLI_VERIFY_STATUS(status);
 
   // Write payload if present
   if (size_param) {
     status = sl_si91x_host_uart_transfer((const void *)&packet->data, NULL, size_param);
-    VERIFY_STATUS(status);
+    SLI_VERIFY_STATUS(status);
   }
 
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
+sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 {
   sl_status_t status;
 
@@ -247,20 +247,21 @@ sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 }
 
 // Function for reading the interrupt status
-sl_status_t sl_si91x_bus_read_interrupt_status(uint16_t *interrupt_status)
+sl_status_t sli_si91x_bus_read_interrupt_status(uint16_t *interrupt_status)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  if (0 != sl_si91x_host_queue_status(&sli_uart_bus_rx_queue)) {
-    *interrupt_status = RSI_RX_PKT_PENDING;
+  if (0 != sli_si91x_host_queue_status(&sli_uart_bus_rx_queue)) {
+    *interrupt_status = SLI_RX_PKT_PENDING;
   }
 
   return status;
 }
 
-sl_status_t si91x_bootup_firmware(const uint8_t select_option)
+sl_status_t sli_si91x_bootup_firmware(const uint8_t select_option, uint8_t image_number)
 {
-  UNUSED_PARAMETER(select_option);
+  UNUSED_PARAMETER(select_option); // Unused parameter(to suppress compiler warnings)
+  UNUSED_PARAMETER(image_number);  // Unused parameter(to suppress compiler warnings)
   sl_status_t status     = SL_STATUS_OK;
   uint8_t load_binary[2] = { 'H', '1' };
 #if SLI_SI91X_HFC_MODE
@@ -303,7 +304,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_bus_rx_irq_handler(void)
+sl_status_t sli_si91x_bus_rx_irq_handler(void)
 {
   sl_status_t status;
   uint16_t data_desc[2] = { 0 };
@@ -334,7 +335,7 @@ sl_status_t sl_si91x_bus_rx_irq_handler(void)
   status = sli_si91x_add_to_queue(&sli_uart_bus_rx_queue, resp_buffer);
 
   // Allocate a buffer for the next frame
-  status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
+  status = sli_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
     BREAKPOINT();
@@ -344,7 +345,7 @@ sl_status_t sl_si91x_bus_rx_irq_handler(void)
   return SL_STATUS_OK;
 }
 
-void sl_si91x_bus_rx_done_handler(void)
+void sli_si91x_bus_rx_done_handler(void)
 {
   sl_status_t status;
 
@@ -352,7 +353,7 @@ void sl_si91x_bus_rx_done_handler(void)
     status = sli_si91x_add_to_queue(&sli_uart_bus_rx_queue, resp_buffer);
 
     // Allocate a buffer for the next frame
-    status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
+    status = sli_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
     if (status != SL_STATUS_OK) {
       SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
       BREAKPOINT();
@@ -365,7 +366,7 @@ void sl_si91x_bus_rx_done_handler(void)
 }
 
 //! Initialize with modules UART interface on ulp wakeup.
-void sl_si91x_ulp_wakeup_init(void)
+void sli_si91x_ulp_wakeup_init(void)
 {
   return;
 }

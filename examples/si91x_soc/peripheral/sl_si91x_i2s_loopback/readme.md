@@ -20,7 +20,7 @@ This application demonstrates the I2S transfer using loopback mechanism.
 ## Overview
 
 - The I2S_2CH supports two stereo channels, while the ULP_I2S and the NWP/Security subsystem I2S support one stereo channel.
-- Supported programmable audio data resolutions are 12-, 16-, 20-, 24- and 32-bits.
+- Supported programmable audio data resolutions are 16-, 24- and 32-bits.
 - Supported audio sampling rates are 8, 11.025, 16, 22.05, 24, 32, 44.1, 48, 88.2, 96 and 192 kHz
 - Support for Master and Slave modes.
 - Full-duplex communication due to the independence of transmitter and receiver.
@@ -49,16 +49,16 @@ This application demonstrates the I2S transfer using loopback mechanism.
    (b) sync - I2S synchronous mode (4-pin mode: SCK and WS signals are shared between I2S transmit and receive blocks)
    and asynchronous mode (requires SCK and WS pins). Currently, the driver only supports ASYNC mode.
    (c) protocol - I2S/PCM protocol. Currently, the driver only supports I2S protocol.
-   (d) resolution - Audio data resolutions (12-bit, 16-bit, 20-bit, 24-bit and 32-bit)
+   (d) resolution - Audio data resolutions (16-bit, 24-bit and 32-bit)
    (e) data_size - Transfer buffer data type (8-bit, 16-bit and 32-bit)
    (f) sampling_rate - Audio sampling rate
    (g) transfer_type - Transfer type (Transmit, Receive, Transmit abort, and Receive abort)
 
-2. Transfers with 12-bit and 16-bit resolutions must use `uint16_t` data type buffer and pass SL_I2S_DATA_SIZE16 to data_size parameter in sl_i2s_xfer_config_t while configuring the transfer.
-3. Transfers with 20-bit, 24-bit and 32-bit resolutions must use `uint32_t` data type buffer and pass SL_I2S_DATA_SIZE32 to data_size parameter in sl_i2s_xfer_config_t while configuring the transfer.
+2. Transfers with 16-bit resolution must use `uint16_t` data type buffer and pass SL_I2S_DATA_SIZE16 to data_size parameter in sl_i2s_xfer_config_t while configuring the transfer.
+3. Transfers with 24-bit and 32-bit resolutions must use `uint32_t` data type buffer and pass SL_I2S_DATA_SIZE32 to data_size parameter in sl_i2s_xfer_config_t while configuring the transfer.
 4. Since 8-bit resolution is not supported, `uint8_t` data type buffer can use 16-bit resolution for transfer and pass SL_I2S_DATA_SIZE8 to data_size parameter in sl_i2s_xfer_config_t while configuring the transfer. While performing this operation, the data buffer should be typecast to (`uint16_t *`) and the transfer size should be half of the 8-bit data type buffer. (Refer to the I2S loopback application for more details). For 8-bit transfers, transfer size should be multiples of 4 (8,12,16,20...).
-5. Any I2S transfers with 16-bit, 20-bit and 32-bit resolutions should only have an even transfer size (8,10,12,14...).
-6. Any I2S transfers with 12-bit and 24-bit resolutions should only have transfer size as multiples of 4 (8,12,16,20...).
+5. Any I2S transfers with 16-bit and 32-bit resolutions should only have an even transfer size (8,10,12,14...).
+6. Any I2S transfers with 24-bit resolutions should only have transfer size as multiples of 4 (8,12,16,20...).
 7. I2S_LOOP_BACK macro is only used for I2S loopback applications to avoid clock generation from the receiver block during transfer.
 8. SCK frequency is calculated using `SCK = 2 * bit_width * sampling_frequency`. By default, I2S0 uses I2S_PLL_CLK as a clock source. This can generate any frequency range mentioned in section 6.11.7 of Si91x HRM.
 9. By default ULP_I2S/I2S1 uses ULP_MHZ_RC_CLK to support I2S operation in low-power states. This limits the maximum supported sampling frequency of ULP_I2S to 48kHz (32 MHz RC trims to 20MHz in sleep).
@@ -108,7 +108,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   - **General Configuration**
 
-    - **SL_I2S0_RESOLUTION**: I2S0 resolution can be configured through this macro. Valid resolution values are 12, 16, 20, 24 and 32 bit.
+    - **SL_I2S0_RESOLUTION**: I2S0 resolution can be configured through this macro. Valid resolution values are 16, 24 and 32 bit.
     - **SL_I2S0_SAMPLING_RATE**: I2S0 sampling rates can be configured through this macro. Valid sampling rate values are 8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz, 32kHz, 44.1kHz, 48kHz, 88.2kHz, 96kHz and 192kHz.
     - **SL_I2S0_CHANNEL**: I2S0 channel number (0-channel no 0, 1-channel no 1)
     - Configuration files are generated in **config folder**. If not changed, the code will run on default UC values.

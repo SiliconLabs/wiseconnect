@@ -11,6 +11,7 @@
   - [Updated Structures](#updated-structures)
   - [Deprecated APIs](#deprecated-APIs)
   - [Deprecated Macros](#deprecated-macros)
+  - [Deprecated Enumerators](#deprecated-enumerators)
 
 ## Overview
 
@@ -104,6 +105,18 @@ Increased gain values as per mentioned above.
   | **Module**| **v3.4.2**                                       | **v3.5.0**                                           |
   |-----------|--------------------------------------------------|------------------------------------------------------|
   | Wi-Fi     | `SL_SI91X_TCP_IP_FEAT_POP3_CLIENT`               | `SL_SI91X_TCP_IP_FEAT_DTLS_THREE_SOCKETS`            |
+
+### Deprecated Enumerators
+
+**Note:** The following elements are applicable to both NCP and SoC modes.
+
+- Deprecated **SL_NET_INVALID_CREDENTIAL_ID** enumerator.
+  > **Note**: Starting from WC-3.5.0, the enumerator SL_NET_INVALID_CREDENTIAL_ID is deprecated. It is recommended to use the updated enumerator to ensure compatibility with future releases.
+
+  | **Module**| **v3.4.2**                                       | **v3.5.0**                                           |
+  |-----------|--------------------------------------------------|------------------------------------------------------|
+  | Network Manager     | `SL_NET_INVALID_CREDENTIAL_ID`                   | `SL_NET_NO_CREDENTIAL_ID`            |
+
 
 
 ### Deprecated Structures/API's

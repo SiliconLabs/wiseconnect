@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
@@ -37,6 +37,7 @@
 #include "queue.h"
 #include "task.h"
 #include "app_xapi_cmd_event.h"
+#include "app_xapi_global.h"
 
 osThreadId_t cmd_event_id = NULL;
 QueueHandle_t queue_fd;
@@ -88,16 +89,17 @@ void cmd_event_thread(void *args)
 
       // Process the event based on the event_id
       switch (event_id) {
-        case SL_NET_UP_EVENT: {
+        case APP_NET_UP_EVENT: {
           app_wifi_cmd_net_intf_up_t *cmd = (app_wifi_cmd_net_intf_up_t *)(data->data);
 
           // Call the sl_net_up function
           status = sl_net_up(cmd->net_interface, cmd->profile_id);
 
           if (status != SL_STATUS_OK) {
-            app_wifi_evt_net_intf_network_up_completed(cmd->net_interface, (status != SL_STATUS_OK));
+            app_wifi_evt_net_intf_network_up_completed(cmd->net_interface, (status == SL_STATUS_OK));
           } else {
             app_wifi_evt_net_intf_network_up_completed(cmd->net_interface, (status == SL_STATUS_OK));
+            set_default_net_interface(cmd->net_interface);
           }
           break;
         }

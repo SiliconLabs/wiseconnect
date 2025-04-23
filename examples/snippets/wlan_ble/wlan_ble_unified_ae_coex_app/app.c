@@ -90,6 +90,8 @@ uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
 #define RSI_BLE_CLIENT_CHAR_UUID 0x2902
 
 osSemaphoreId_t ble_wait_on_connect;
+osSemaphoreId_t ble_wait_on_connect_and_discovery;
+uint8_t ble_connect_procedure_on = 0;
 int32_t rsi_ble_dual_role(void);
 
 /*=======================================================================*/
@@ -1505,7 +1507,8 @@ int32_t rsi_ble_dual_role(void)
                             0x1f, 0x85, 0x56, 0xee, 0xa5, 0xc8, 0xe6, 0x93 };
   rsi_ble_set_smp_pairing_capabilty_data_t smp_capabilities;
 
-  ble_wait_on_connect = osSemaphoreNew(1, 0, NULL);
+  ble_wait_on_connect               = osSemaphoreNew(1, 0, NULL);
+  ble_wait_on_connect_and_discovery = osSemaphoreNew(1, 0, NULL);
 
   rsi_ble_add_simple_chat_serv();
   rsi_ble_add_simple_chat_serv2();

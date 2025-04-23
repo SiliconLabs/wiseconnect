@@ -165,6 +165,7 @@ other_file:
 - path: resources/readme/cli_wifi_ble_setup_ncp.png
 - path: resources/readme/sta_ncp.png
 - path: resources/readme/cli_ble_ncp.png
+- path: resources/readme/configure_static_ip_address.png
 
 ui_hints:
   highlight:

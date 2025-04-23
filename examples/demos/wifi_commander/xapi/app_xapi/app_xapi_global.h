@@ -30,7 +30,7 @@
 #define APP_XAPI_GLOBAL_H
 
 #include "sl_net_default_values.h"
-#include "sli_wifi_api.h"
+#include "app_internal_wifi_api.h"
 
 sl_net_wifi_ap_profile_t *get_default_ap_profile(void);
 

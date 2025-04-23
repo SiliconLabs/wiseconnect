@@ -45,7 +45,7 @@ typedef struct {
 typedef struct {
   sl_status_t (*init)(const sl_wifi_device_configuration_t *configuration,
                       sl_net_wifi_lwip_context_t *workspace,
-                      sl_event_handler_t event_handler);        ///< Interface init  handler
+                      sli_event_handler_t event_handler);       ///< Interface init  handler
   sl_status_t (*deinit)(sl_net_wifi_lwip_context_t *workspace); ///< Interface de-init  handler
   sl_status_t (*up)(sl_net_profile_id_t profile_id);            ///< Interface up handler
   sl_status_t (*down)(void);                                    ///< Interface down handler

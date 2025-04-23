@@ -185,8 +185,6 @@
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
             <RvdsMve>0</RvdsMve>
-            <RvdsCdeCp>0</RvdsCdeCp>
-            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -353,7 +351,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>4</ClangAsOpt>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -589,6 +587,21 @@
               <FileType>1</FileType>
               <FilePath>../../../../../components/service/network_manager/src/sl_net_credentials.c</FilePath>
             </File>
+            <File>
+              <FileName>sl_net_basic_profiles.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\../../../../components/service/network_manager/src/sl_net_basic_profiles.c</FilePath>
+            </File>
+            <File>
+              <FileName>sli_net_common_utility.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\service\network_manager\src\sli_net_common_utility.c</FilePath>
+            </File>
+            <File>
+              <FileName>sl_net.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\service\network_manager\src\sl_net.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -634,6 +647,16 @@
         <Group>
           <GroupName>components/device</GroupName>
           <Files>
+            <File>
+              <FileName>sl_net_si91x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_net_si91x.c</FilePath>
+            </File>
+            <File>
+              <FileName>sl_si91x_net_internal_stack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_si91x_net_internal_stack.c</FilePath>
+            </File>
             <File>
               <FileName>sl_wifi_callback_framework.c</FileName>
               <FileType>1</FileType>
@@ -685,11 +708,6 @@
               <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_net_si91x_integration_handler.c</FilePath>
             </File>
             <File>
-              <FileName>sl_si91x_net_credentials.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_si91x_net_credentials.c</FilePath>
-            </File>
-            <File>
               <FileName>sl_rsi_utility.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/device/silabs/si91x/wireless/src/sl_rsi_utility.c</FilePath>
@@ -698,6 +716,11 @@
               <FileName>sl_wifi_basic_credentials.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\components\protocol\wifi\src\sl_wifi_basic_credentials.c</FilePath>
+            </File>
+            <File>
+              <FileName>sli_net_si91x_utility.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\device\silabs\si91x\wireless\sl_net\src\sli_net_si91x_utility.c</FilePath>
             </File>
           </Files>
         </Group>

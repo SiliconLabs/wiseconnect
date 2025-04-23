@@ -223,7 +223,6 @@ void send_data_to_tcp_server(void)
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   sl_status_t rc                    = SL_STATUS_FAIL;
-  sl_status_t status                = SL_STATUS_OK;
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;

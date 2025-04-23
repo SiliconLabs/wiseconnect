@@ -52,9 +52,7 @@ extern "C" {
 #define INSTANCE_UC 0
 
 // <o SL_INSTANCE_RESOLUTION> INSTANCE Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16

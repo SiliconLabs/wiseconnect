@@ -29,13 +29,14 @@
 /*
   Include files
  */
-
+#define _GNU_SOURCE /* pull in string library() on Linux */
 #include "rsi_common.h"
-#include <sl_string.h>
-
+#include <string.h>
+#ifndef __ZEPHYR__
+#include "sl_string.h"
+#endif
 #define MAX_MAC_ADDRESS_STRING_LENGTH  17
 #define MAX_IPV4_ADDRESS_STRING_LENGTH 15
-
 /*
   Global defines
  */
@@ -171,7 +172,8 @@ int8_t rsi_ascii_hex2num(int8_t ascii_hex_in)
 int8_t rsi_char_hex2dec(int8_t *cBuf)
 {
   int8_t k       = 0;
-  size_t buf_len = sl_strlen((char *)cBuf);
+  size_t buf_len = 0;
+  buf_len        = strlen((char *)cBuf);
   for (uint8_t i = 0; i < buf_len; i++) {
     k = ((k * 16) + rsi_ascii_hex2num(cBuf[i]));
   }
@@ -195,7 +197,12 @@ uint8_t *rsi_ascii_dev_address_to_6bytes_rev(uint8_t *hex_addr, int8_t *ascii_ma
 
   byteNum        = 5;
   cBufPos        = 0;
-  size_t buf_len = sl_strnlen((char *)ascii_mac_address, MAX_MAC_ADDRESS_STRING_LENGTH);
+  size_t buf_len = 0;
+#ifndef __ZEPHYR__
+  buf_len = sl_strnlen((char *)ascii_mac_address, MAX_MAC_ADDRESS_STRING_LENGTH);
+#else
+  buf_len = strnlen((char *)ascii_mac_address, MAX_MAC_ADDRESS_STRING_LENGTH);
+#endif
   for (uint8_t i = 0; i < buf_len; i++) {
     // this will take care of the first 5 octets
     if (ascii_mac_address[i] == ':') {                                 // we are at the end of the address octet
@@ -403,7 +410,8 @@ int8_t asciihex_2_num(int8_t ascii_hex_in)
 int8_t rsi_charhex_2_dec(int8_t *cBuf)
 {
   int8_t k       = 0;
-  size_t buf_len = sl_strlen((char *)cBuf);
+  size_t buf_len = 0;
+  buf_len        = strlen((char *)cBuf);
   for (uint8_t i = 0; i < buf_len; i++) {
     k = ((k * 16) + asciihex_2_num(cBuf[i]));
   }
@@ -426,7 +434,12 @@ void rsi_ascii_mac_address_to_6bytes(uint8_t *hexAddr, int8_t *asciiMacAddress)
 
   byteNum        = 0;
   cBufPos        = 0;
-  size_t buf_len = sl_strnlen((char *)asciiMacAddress, MAX_MAC_ADDRESS_STRING_LENGTH);
+  size_t buf_len = 0;
+#ifndef __ZEPHYR__
+  buf_len = sl_strnlen((char *)asciiMacAddress, MAX_MAC_ADDRESS_STRING_LENGTH);
+#else
+  buf_len = strnlen((char *)asciiMacAddress, MAX_MAC_ADDRESS_STRING_LENGTH);
+#endif
   for (uint8_t i = 0; i < buf_len; i++) {
     // this will take care of the first 5 octets
     if (asciiMacAddress[i] == ':') {                                   // we are at the end of the address octet
@@ -461,7 +474,12 @@ void rsi_ascii_dot_address_to_4bytes(uint8_t *hexAddr, int8_t *asciiDotAddress)
 
   byteNum        = 0;
   cBufPos        = 0;
-  size_t buf_len = sl_strnlen((char *)asciiDotAddress, MAX_IPV4_ADDRESS_STRING_LENGTH);
+  size_t buf_len = 0;
+#ifndef __ZEPHYR__
+  buf_len = sl_strnlen((char *)asciiDotAddress, MAX_MAC_ADDRESS_STRING_LENGTH);
+#else
+  buf_len = strnlen((char *)asciiDotAddress, MAX_MAC_ADDRESS_STRING_LENGTH);
+#endif
   for (uint8_t i = 0; i < buf_len; i++) {
     // this will take care of the first 3 octets
     if (asciiDotAddress[i] == '.') {
@@ -483,32 +501,49 @@ void rsi_ascii_dot_address_to_4bytes(uint8_t *hexAddr, int8_t *asciiDotAddress)
   // convert the strint to an integer
   hexAddr[byteNum] = (uint8_t)rsi_atoi(cBuf);
 }
-/*=============================================================================*/
 /**
- * @fn         uint64_t ip_to_reverse_hex(char *ip)
- * @brief      Convert IP address to reverse Hex format.  
+ * @fn         uint64_t ip_to_reverse_hex(const char *ip)
+ * @brief      Convert IP address to reverse Hex format.
  * @param[in]  ip - IP address to convert. 
- * @return     IP address in reverse Hex format 
+ * @return     IP address in reverse Hex format.
  */
 uint64_t ip_to_reverse_hex(const char *ip)
 {
-  uint32_t ip1;
-  uint32_t ip2;
-  uint32_t ip3;
-  uint32_t ip4;
-  uint64_t ip_hex;
-  uint32_t status;
-
-  status = sscanf(ip, "%lu.%lu.%lu.%lu", &ip1, &ip2, &ip3, &ip4);
-  if (status != 4) {
-    return 0x00000000; // Problem if we actually pass 0.0.0.0
+  uint64_t ip_hex  = 0;
+  char ip_copy[16] = { '\0' }; // To hold a copy of the IP string (assuming IPv4)
+  const char *token;
+  char *saveptr; //Pointer required by strtok_r
+  int octet;
+  int octet_count = 0;
+  int ip_len      = 0;
+  if (ip == NULL) {
+    return 0x00000000;
+  }
+  ip_len = strlen(ip);
+  if (ip_len >= (int)sizeof(ip_copy)) {
+    return 0x00000000;
+  }
+  ip_copy[ip_len] = '\0'; // Ensure null termination
+  strncpy(ip_copy, ip, ip_len);
+  if (ip_copy[ip_len] != '\0') {
+    ip_copy[ip_len] = '\0'; // Ensure null termination
   }
 
-  ip_hex = (uint64_t)ip1;
-  ip_hex |= (uint64_t)(ip2 << 8);
-  ip_hex |= (uint64_t)(ip3 << 16);
-  ip_hex |= (uint64_t)(ip4 << 24);
+  token = strtok_r(ip_copy, ".", &saveptr);
 
+  while (token != NULL) {
+    octet = strtol(token, NULL, 10);
+    if (octet < 0 || octet > 255) {
+      return 0x00000000; // Return 0 on invalid IP
+    }
+
+    ip_hex |= (uint64_t)octet << (octet_count * 8);
+    octet_count++;
+    token = strtok_r(NULL, ".", &saveptr);
+  }
+  if (octet_count != 4) {
+    return 0x00000000;
+  }
   return ip_hex;
 }
 /*=============================================================================*/

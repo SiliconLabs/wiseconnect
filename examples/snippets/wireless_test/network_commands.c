@@ -382,15 +382,35 @@ sl_status_t start_dhcp_command_handler(console_args_t *arguments)
 
   ip_address.mode = (ip_mode == SL_IP_MANAGEMENT_DHCP) ? SL_IP_MANAGEMENT_DHCP : SL_IP_MANAGEMENT_STATIC_IP;
 
+  if (ip_address.mode == SL_IP_MANAGEMENT_STATIC_IP) {
+    ip_address.host_name              = NULL;
+    ip_address.ip.v4.ip_address.value = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint32_t);
+    ip_address.ip.v4.gateway.value    = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
+    ip_address.ip.v4.netmask.value    = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t);
+  }
+
   status = sl_si91x_configure_ip_address(&ip_address, SL_SI91X_WIFI_CLIENT_VAP_ID);
   VERIFY_STATUS_AND_RETURN(status);
   if (ip_address.type == SL_IPV4) {
-    {
-      sl_ip_address_t temp;
-      temp.type  = ip_address.type;
-      temp.ip.v4 = ip_address.ip.v4.ip_address;
-      print_sl_ip_address(&temp);
-    }
+
+    sl_ip_address_t address = { 0 };
+    address.type            = ip_address.type;
+    memcpy(&address.ip.v4, &ip_address.ip.v4.ip_address, SL_IPV4_ADDRESS_LENGTH);
+    printf("IP Address: ");
+    print_sl_ip_address(&address);
+
+    sl_ip_address_t gateway = { 0 };
+    gateway.type            = ip_address.type;
+    memcpy(&gateway.ip.v4, &ip_address.ip.v4.gateway, SL_IPV4_ADDRESS_LENGTH);
+    printf(" Gateway: ");
+    print_sl_ip_address(&gateway);
+
+    sl_ip_address_t netmask = { 0 };
+    netmask.type            = ip_address.type;
+    memcpy(&netmask.ip.v4, &ip_address.ip.v4.netmask, SL_IPV4_ADDRESS_LENGTH);
+    printf(" Netmask: ");
+    print_sl_ip_address(&netmask);
+
   } else if (ip_address.type == SL_IPV6) {
     sl_ip_address_t link_local_address;
     memcpy(&link_local_address.ip.v6, &ip_address.ip.v6.link_local_address, SL_IPV6_ADDRESS_LENGTH);

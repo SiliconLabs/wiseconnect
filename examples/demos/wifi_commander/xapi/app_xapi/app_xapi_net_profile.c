@@ -27,12 +27,12 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net_constants.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
-#include "sl_wifi_api.h"
+#include "app_wifi_api.h"
 #include "sl_net_default_values.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_si91x_driver.h"
@@ -40,7 +40,7 @@
 #include "task.h"
 #include "app_xapi_global.h"
 
-DEFINE_BGAPI_CLASS(wifi, net_profile, WIFI, NET_PROFILE, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, net_profile, WIFI, NET_PROFILE, NULL, NULL);
 
 void app_wifi_cmd_net_profile_set(app_wifi_cmd_net_profile_set_t *cmd_input)
 {
@@ -166,7 +166,7 @@ void app_wifi_cmd_net_profile_set_client_config(app_wifi_cmd_net_profile_set_cli
 
   default_client_config->security   = cmd_input->client_security;
   default_client_config->encryption = cmd_input->client_encryption;
-  memcpy(&default_client_config->bssid, &cmd_input->bssid, sizeof(sl_wifi_bssid_t));
+  memcpy(&default_client_config->bssid, &cmd_input->bssid, sizeof(app_wifi_bssid_t));
   default_client_config->client_options                    = cmd_input->client_options;
   default_client_config->credential_id                     = cmd_input->credential_id;
   default_client_config->channel_bitmap.channel_bitmap_2_4 = cmd_input->channel_bitmap_2_4g;
@@ -242,22 +242,22 @@ void app_wifi_cmd_net_profile_set_ap_ipv4_config(app_wifi_cmd_net_profile_set_ap
 
   // The message is received with the byte order reversed, so it is being aligned to the correct byte order.
   // Set the IP address
-  default_ap_ip_config->ip.v4.ip_address.bytes[0] = cmd_input->ipv4_address.addr[3];
-  default_ap_ip_config->ip.v4.ip_address.bytes[1] = cmd_input->ipv4_address.addr[2];
-  default_ap_ip_config->ip.v4.ip_address.bytes[2] = cmd_input->ipv4_address.addr[1];
-  default_ap_ip_config->ip.v4.ip_address.bytes[3] = cmd_input->ipv4_address.addr[0];
+  default_ap_ip_config->ip.v4.ip_address.bytes[0] = cmd_input->ipv4_address.addr[0];
+  default_ap_ip_config->ip.v4.ip_address.bytes[1] = cmd_input->ipv4_address.addr[1];
+  default_ap_ip_config->ip.v4.ip_address.bytes[2] = cmd_input->ipv4_address.addr[2];
+  default_ap_ip_config->ip.v4.ip_address.bytes[3] = cmd_input->ipv4_address.addr[3];
 
   // Set the gateway IP address
-  default_ap_ip_config->ip.v4.gateway.bytes[0] = cmd_input->gateway.addr[3];
-  default_ap_ip_config->ip.v4.gateway.bytes[1] = cmd_input->gateway.addr[2];
-  default_ap_ip_config->ip.v4.gateway.bytes[2] = cmd_input->gateway.addr[1];
-  default_ap_ip_config->ip.v4.gateway.bytes[3] = cmd_input->gateway.addr[0];
+  default_ap_ip_config->ip.v4.gateway.bytes[0] = cmd_input->gateway.addr[0];
+  default_ap_ip_config->ip.v4.gateway.bytes[1] = cmd_input->gateway.addr[1];
+  default_ap_ip_config->ip.v4.gateway.bytes[2] = cmd_input->gateway.addr[2];
+  default_ap_ip_config->ip.v4.gateway.bytes[3] = cmd_input->gateway.addr[3];
 
   // Set the subnet mask
-  default_ap_ip_config->ip.v4.netmask.bytes[0] = cmd_input->netmask.addr[3];
-  default_ap_ip_config->ip.v4.netmask.bytes[1] = cmd_input->netmask.addr[2];
-  default_ap_ip_config->ip.v4.netmask.bytes[2] = cmd_input->netmask.addr[1];
-  default_ap_ip_config->ip.v4.netmask.bytes[3] = cmd_input->netmask.addr[0];
+  default_ap_ip_config->ip.v4.netmask.bytes[0] = cmd_input->netmask.addr[0];
+  default_ap_ip_config->ip.v4.netmask.bytes[1] = cmd_input->netmask.addr[1];
+  default_ap_ip_config->ip.v4.netmask.bytes[2] = cmd_input->netmask.addr[2];
+  default_ap_ip_config->ip.v4.netmask.bytes[3] = cmd_input->netmask.addr[3];
 
   app_wifi_rsp_net_profile_set_ap_ipv4_config(SL_STATUS_OK);
   return;
@@ -273,56 +273,56 @@ void app_wifi_cmd_net_profile_set_ap_ipv6_config(app_wifi_cmd_net_profile_set_ap
   sl_net_wifi_ap_profile_t *default_ap_profile    = get_default_ap_profile();
   sl_net_ip_configuration_t *default_ap_ip_config = (sl_net_ip_configuration_t *)&default_ap_profile->ip;
 
-  default_ap_ip_config->ip.v6.link_local_address.bytes[0]  = cmd_input->link_local_address_octet_1;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[1]  = cmd_input->link_local_address_octet_2;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[2]  = cmd_input->link_local_address_octet_3;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[3]  = cmd_input->link_local_address_octet_4;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[4]  = cmd_input->link_local_address_octet_5;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[5]  = cmd_input->link_local_address_octet_6;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[6]  = cmd_input->link_local_address_octet_7;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[7]  = cmd_input->link_local_address_octet_8;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[8]  = cmd_input->link_local_address_octet_9;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[9]  = cmd_input->link_local_address_octet_10;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[10] = cmd_input->link_local_address_octet_11;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[11] = cmd_input->link_local_address_octet_12;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[12] = cmd_input->link_local_address_octet_13;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[13] = cmd_input->link_local_address_octet_14;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[14] = cmd_input->link_local_address_octet_15;
-  default_ap_ip_config->ip.v6.link_local_address.bytes[15] = cmd_input->link_local_address_octet_16;
+  default_ap_ip_config->ip.v6.link_local_address.bytes[0]  = cmd_input->link_local_address.addr[0];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[1]  = cmd_input->link_local_address.addr[1];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[2]  = cmd_input->link_local_address.addr[2];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[3]  = cmd_input->link_local_address.addr[3];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[4]  = cmd_input->link_local_address.addr[4];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[5]  = cmd_input->link_local_address.addr[5];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[6]  = cmd_input->link_local_address.addr[6];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[7]  = cmd_input->link_local_address.addr[7];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[8]  = cmd_input->link_local_address.addr[8];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[9]  = cmd_input->link_local_address.addr[9];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[10] = cmd_input->link_local_address.addr[10];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[11] = cmd_input->link_local_address.addr[11];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[12] = cmd_input->link_local_address.addr[12];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[13] = cmd_input->link_local_address.addr[13];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[14] = cmd_input->link_local_address.addr[14];
+  default_ap_ip_config->ip.v6.link_local_address.bytes[15] = cmd_input->link_local_address.addr[15];
 
-  default_ap_ip_config->ip.v6.global_address.bytes[0]  = cmd_input->global_address_octet_1;
-  default_ap_ip_config->ip.v6.global_address.bytes[1]  = cmd_input->global_address_octet_2;
-  default_ap_ip_config->ip.v6.global_address.bytes[2]  = cmd_input->global_address_octet_3;
-  default_ap_ip_config->ip.v6.global_address.bytes[3]  = cmd_input->global_address_octet_4;
-  default_ap_ip_config->ip.v6.global_address.bytes[4]  = cmd_input->global_address_octet_5;
-  default_ap_ip_config->ip.v6.global_address.bytes[5]  = cmd_input->global_address_octet_6;
-  default_ap_ip_config->ip.v6.global_address.bytes[6]  = cmd_input->global_address_octet_7;
-  default_ap_ip_config->ip.v6.global_address.bytes[7]  = cmd_input->global_address_octet_8;
-  default_ap_ip_config->ip.v6.global_address.bytes[8]  = cmd_input->global_address_octet_9;
-  default_ap_ip_config->ip.v6.global_address.bytes[9]  = cmd_input->global_address_octet_10;
-  default_ap_ip_config->ip.v6.global_address.bytes[10] = cmd_input->global_address_octet_11;
-  default_ap_ip_config->ip.v6.global_address.bytes[11] = cmd_input->global_address_octet_12;
-  default_ap_ip_config->ip.v6.global_address.bytes[12] = cmd_input->global_address_octet_13;
-  default_ap_ip_config->ip.v6.global_address.bytes[13] = cmd_input->global_address_octet_14;
-  default_ap_ip_config->ip.v6.global_address.bytes[14] = cmd_input->global_address_octet_15;
-  default_ap_ip_config->ip.v6.global_address.bytes[15] = cmd_input->global_address_octet_16;
+  default_ap_ip_config->ip.v6.global_address.bytes[0]  = cmd_input->global_address.addr[0];
+  default_ap_ip_config->ip.v6.global_address.bytes[1]  = cmd_input->global_address.addr[1];
+  default_ap_ip_config->ip.v6.global_address.bytes[2]  = cmd_input->global_address.addr[2];
+  default_ap_ip_config->ip.v6.global_address.bytes[3]  = cmd_input->global_address.addr[3];
+  default_ap_ip_config->ip.v6.global_address.bytes[4]  = cmd_input->global_address.addr[4];
+  default_ap_ip_config->ip.v6.global_address.bytes[5]  = cmd_input->global_address.addr[5];
+  default_ap_ip_config->ip.v6.global_address.bytes[6]  = cmd_input->global_address.addr[6];
+  default_ap_ip_config->ip.v6.global_address.bytes[7]  = cmd_input->global_address.addr[7];
+  default_ap_ip_config->ip.v6.global_address.bytes[8]  = cmd_input->global_address.addr[8];
+  default_ap_ip_config->ip.v6.global_address.bytes[9]  = cmd_input->global_address.addr[9];
+  default_ap_ip_config->ip.v6.global_address.bytes[10] = cmd_input->global_address.addr[10];
+  default_ap_ip_config->ip.v6.global_address.bytes[11] = cmd_input->global_address.addr[11];
+  default_ap_ip_config->ip.v6.global_address.bytes[12] = cmd_input->global_address.addr[12];
+  default_ap_ip_config->ip.v6.global_address.bytes[13] = cmd_input->global_address.addr[13];
+  default_ap_ip_config->ip.v6.global_address.bytes[14] = cmd_input->global_address.addr[14];
+  default_ap_ip_config->ip.v6.global_address.bytes[15] = cmd_input->global_address.addr[15];
 
-  default_ap_ip_config->ip.v6.gateway.bytes[0]  = cmd_input->gateway_octet_1;
-  default_ap_ip_config->ip.v6.gateway.bytes[1]  = cmd_input->gateway_octet_2;
-  default_ap_ip_config->ip.v6.gateway.bytes[2]  = cmd_input->gateway_octet_3;
-  default_ap_ip_config->ip.v6.gateway.bytes[3]  = cmd_input->gateway_octet_4;
-  default_ap_ip_config->ip.v6.gateway.bytes[4]  = cmd_input->gateway_octet_5;
-  default_ap_ip_config->ip.v6.gateway.bytes[5]  = cmd_input->gateway_octet_6;
-  default_ap_ip_config->ip.v6.gateway.bytes[6]  = cmd_input->gateway_octet_7;
-  default_ap_ip_config->ip.v6.gateway.bytes[7]  = cmd_input->gateway_octet_8;
-  default_ap_ip_config->ip.v6.gateway.bytes[8]  = cmd_input->gateway_octet_9;
-  default_ap_ip_config->ip.v6.gateway.bytes[9]  = cmd_input->gateway_octet_10;
-  default_ap_ip_config->ip.v6.gateway.bytes[10] = cmd_input->gateway_octet_11;
-  default_ap_ip_config->ip.v6.gateway.bytes[11] = cmd_input->gateway_octet_12;
-  default_ap_ip_config->ip.v6.gateway.bytes[12] = cmd_input->gateway_octet_13;
-  default_ap_ip_config->ip.v6.gateway.bytes[13] = cmd_input->gateway_octet_14;
-  default_ap_ip_config->ip.v6.gateway.bytes[14] = cmd_input->gateway_octet_15;
-  default_ap_ip_config->ip.v6.gateway.bytes[15] = cmd_input->gateway_octet_16;
+  default_ap_ip_config->ip.v6.gateway.bytes[0]  = cmd_input->gateway_address.addr[0];
+  default_ap_ip_config->ip.v6.gateway.bytes[1]  = cmd_input->gateway_address.addr[1];
+  default_ap_ip_config->ip.v6.gateway.bytes[2]  = cmd_input->gateway_address.addr[2];
+  default_ap_ip_config->ip.v6.gateway.bytes[3]  = cmd_input->gateway_address.addr[3];
+  default_ap_ip_config->ip.v6.gateway.bytes[4]  = cmd_input->gateway_address.addr[4];
+  default_ap_ip_config->ip.v6.gateway.bytes[5]  = cmd_input->gateway_address.addr[5];
+  default_ap_ip_config->ip.v6.gateway.bytes[6]  = cmd_input->gateway_address.addr[6];
+  default_ap_ip_config->ip.v6.gateway.bytes[7]  = cmd_input->gateway_address.addr[7];
+  default_ap_ip_config->ip.v6.gateway.bytes[8]  = cmd_input->gateway_address.addr[8];
+  default_ap_ip_config->ip.v6.gateway.bytes[9]  = cmd_input->gateway_address.addr[9];
+  default_ap_ip_config->ip.v6.gateway.bytes[10] = cmd_input->gateway_address.addr[10];
+  default_ap_ip_config->ip.v6.gateway.bytes[11] = cmd_input->gateway_address.addr[11];
+  default_ap_ip_config->ip.v6.gateway.bytes[12] = cmd_input->gateway_address.addr[12];
+  default_ap_ip_config->ip.v6.gateway.bytes[13] = cmd_input->gateway_address.addr[13];
+  default_ap_ip_config->ip.v6.gateway.bytes[14] = cmd_input->gateway_address.addr[14];
+  default_ap_ip_config->ip.v6.gateway.bytes[15] = cmd_input->gateway_address.addr[15];
 
   app_wifi_rsp_net_profile_set_ap_ipv6_config(SL_STATUS_OK);
   return;
@@ -449,53 +449,8 @@ void app_wifi_cmd_net_profile_get_ap_ipv6_config(const void *nil)
   sl_net_ip_configuration_t *default_ap_ip_config = (sl_net_ip_configuration_t *)&default_ap_profile->ip;
 
   app_wifi_rsp_net_profile_get_ap_ipv6_config(SL_STATUS_OK,
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[0],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[1],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[2],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[3],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[4],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[5],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[6],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[7],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[8],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[9],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[10],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[11],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[12],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[13],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[14],
-                                              default_ap_ip_config->ip.v6.link_local_address.bytes[15],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[0],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[1],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[2],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[3],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[4],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[5],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[6],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[7],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[8],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[9],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[10],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[11],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[12],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[13],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[14],
-                                              default_ap_ip_config->ip.v6.global_address.bytes[15],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[0],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[1],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[2],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[3],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[4],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[5],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[6],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[7],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[8],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[9],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[10],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[11],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[12],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[13],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[14],
-                                              default_ap_ip_config->ip.v6.gateway.bytes[15]);
+                                              &default_ap_ip_config->ip.v6.link_local_address.bytes,
+                                              &default_ap_ip_config->ip.v6.global_address.bytes,
+                                              &default_ap_ip_config->ip.v6.gateway.bytes);
   return;
 }

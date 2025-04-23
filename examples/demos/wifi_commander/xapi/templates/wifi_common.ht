@@ -71,7 +71,7 @@ used by the templates:
 {%- endmacro -%}
 
 {%- macro declare_cmd(component, cls, command) -%}
-{% if command.deprecated != None %}SL_BGAPI_DEPRECATED {% endif -%}
+{% if command.deprecated != None %}APP_XAPI_DEPRECATED {% endif -%}
 {%- set ret_type = "void" if command.no_return else "sl_status_t" -%}
 {%- set decl_start = ret_type + " app_" + component + "_" + cls.name + "_" + command.name + "(" -%}
 {%- set decl_params = cmd_params(cls, command) + ")" -%}
@@ -102,7 +102,7 @@ used by the templates:
 {%- endmacro -%}
 
 {%- macro declare_expectation_func(component, cls, command) -%}
-{%- set decl_start = "sli_bt_mock_expectation_t * expect_sl_" + component + "_" + cls.name + "_" + command.name + "(" -%}
+{%- set decl_start = "app_internal_bt_mock_expectation_t * expect_app_" + component + "_" + cls.name + "_" + command.name + "(" -%}
 {%- set decl_params = expectation_params(cls, command) + ")" -%}
 {%- if (decl_start+decl_params)|length < wrap_width -%}
 {{decl_start}}{{decl_params}}

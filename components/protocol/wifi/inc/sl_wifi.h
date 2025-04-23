@@ -117,11 +117,11 @@ sl_status_t sl_wifi_get_firmware_version(sl_wifi_firmware_version_t *version);
  * -
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] info
- *   [sl_si91x_rsp_wireless_info_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-rsp-wireless-info-t) object that contains the wlan info.
+ *   [sl_wifi_wireless_info_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-rsp-wireless-info-t) object that contains the wlan info.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info);
+sl_status_t sl_wifi_get_wireless_info(sl_wifi_wireless_info_t *info);
 
 /***************************************************************************/ /**
  * @brief
@@ -745,7 +745,7 @@ sl_status_t sl_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Stops an ongoing advanced Wi-Fi scan operation on the specified interface.
- *   Advanced scan allows the user to perform a scan while the SiWx91x device is in a connected state.
+ *   An advanced scan allows the user to perform a scan while the SiWx91x device is in a connected state.
  * @pre Pre-conditions:
  *   This API is applicable only for client interface.
  *   @ref sl_wifi_init should be called before this API.
@@ -1171,7 +1171,7 @@ sl_status_t sl_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  *   For AP mode with WPA3 security, only SAE-H2E method is supported. SAE hunting and pecking method is not supported.
- *   TKIP encryption mode is not supported. Encryption mode is automatically configured to RSI_CCMP.
+ *   TKIP encryption mode is not supported. Encryption mode is automatically configured to CCMP.
  *   PMKSA is not supported in WPA3 AP mode.
  * @note   
  *   In FCC-certified modules, 
@@ -1189,13 +1189,13 @@ sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_con
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] config
- *   Wi-Fi AP dynamic configuration. See @ref sl_si91x_ap_reconfiguration_t
+ *   Wi-Fi AP dynamic configuration. See @ref sl_wifi_ap_reconfiguration_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  *   The access point continues to transmit beacons when a client is connected, regardless of the beacon_stop configuration.
  ******************************************************************************/
-sl_status_t sl_wifi_reconfigure_ap(sl_wifi_interface_t interface, sl_si91x_ap_reconfiguration_t config);
+sl_status_t sl_wifi_reconfigure_ap(sl_wifi_interface_t interface, sl_wifi_ap_reconfiguration_t config);
 
 /***************************************************************************/ /**
  * @brief
@@ -1753,7 +1753,7 @@ sl_status_t sl_wifi_set_transceiver_parameters(sl_wifi_interface_t interface, sl
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note This is a blocking API.
  * @note MAC layer supports storing up to 100 peers.
- * @note To add peers in MAC layer, it is mandatory to enable SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT/BIT(13) in [sl_wifi_device_configuration_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-device-configuration-t) feature_bit_map passed in @ref sl_wifi_init.
+ * @note To add peers in MAC layer, it is mandatory to enable SL_WIFI_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT/BIT(13) in [sl_wifi_device_configuration_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-device-configuration-t) feature_bit_map passed in @ref sl_wifi_init.
  *
  * Sample command usage:
  * @code

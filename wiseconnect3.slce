@@ -15,6 +15,7 @@ component_path:
   - path: components/common
   - path: components/logger
   - path: components/device/silabs/si91x/wireless
+  - path: components/device/silabs/si91x/wireless/wc_device_configuration
   - path: components/device/silabs/si91x/wireless/ble
   - path: components/device/silabs/si91x/wireless/asynchronous_socket
   - path: components/device/silabs/si91x/wireless/ncp_interface
@@ -96,7 +97,9 @@ component_path:
   - path: components/device/silabs/si91x/mcu/hal/component
   - path: components/segger_sysview
   - path: third_party/aws_sdk
+  - path: third_party/paho_mqtt_embedded
   - path: third_party/json_parser
+  - path: third_party/mbedtls
   - path: third_party/azure_freertos_middleware
   - path: third_party/azure_freertos_middleware/libraries/coreMQTT
   - path: third_party/iot_socket

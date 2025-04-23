@@ -17,7 +17,7 @@
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *****************************************************************************/
-static inline sl_status_t convert_cmsis_os_status(osStatus_t status)
+static inline sl_status_t sli_convert_cmsis_os_status(osStatus_t status)
 {
   switch (status) {
     case osOK:

@@ -29,7 +29,7 @@ template_file:
 template_contribution:
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_iostream_init_si91x_uart.h
       handler: sl_iostream_uart_si91x_init_instances
   - name: iostream_instance_info

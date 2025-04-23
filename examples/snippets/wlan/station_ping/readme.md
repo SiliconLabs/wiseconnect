@@ -96,7 +96,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 > Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
+> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 - Configure the following parameters in ``app.c`` to test Station Ping application.
 

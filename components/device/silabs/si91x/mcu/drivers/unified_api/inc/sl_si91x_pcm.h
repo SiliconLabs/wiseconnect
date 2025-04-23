@@ -313,7 +313,7 @@ uint32_t sl_si91x_pcm_get_receive_data_count(sl_i2s_handle_t pcm_handle);
  ******************************************************************************/
 sl_i2s_status_t sl_si91x_pcm_get_status(sl_i2s_handle_t pcm_handle);
 
-/// @} end group PCM ********************************************************/
+/// @} end of group PCM ****************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /** @addtogroup PCM PCM
@@ -361,11 +361,11 @@ sl_i2s_status_t sl_si91x_pcm_get_status(sl_i2s_handle_t pcm_handle);
 * 5. Abort PCM transfer: @ref sl_si91x_pcm_end_transfer
 * 6. Get PCM status: @ref sl_si91x_pcm_get_status
 * 
-* @} (end addtogroup PCM)
+* (end addtogroup PCM)
 */
-
+/** @} */
 #ifdef __cplusplus
-}
+
 #endif
 
 #endif

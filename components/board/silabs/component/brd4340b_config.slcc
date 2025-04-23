@@ -114,6 +114,21 @@
       instance: channel_0
     path: common_config/sl_si91x_pwm_init_channel_0_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%opamp_instance"
+      file_id: opamp_config
+      instance: opamp1
+    path: common_config/sl_si91x_opamp_opamp1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%opamp_instance"
+      file_id: opamp_config
+      instance: opamp2
+    path: common_config/sl_si91x_opamp_opamp2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%opamp_instance"
+      file_id: opamp_config
+      instance: opamp3
+    path: common_config/sl_si91x_opamp_opamp3_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: channel_1

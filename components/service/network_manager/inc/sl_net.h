@@ -339,6 +339,7 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
  * - Text outside the prefix and postfix lines is ignored and can be used for metadata.
  * - The above mentioned Headers and Footers might vary 
  * - This API does not support the OPEN Security type for Wi-Fi client credentials.
+ * - When configuring AP or client interfaces in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
  ******************************************************************************/
 sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
                                   sl_net_credential_type_t type,

@@ -31,6 +31,9 @@
 #include "sl_net_constants.h"
 #include "sl_wifi_device.h"
 #include "sl_net_default_values.h"
+#ifdef SL_SI91X_NVM3_CONFIG_MANAGER
+#include "nvm3_default.h"
+#endif
 
 #ifndef NETWORK_INTERFACE_VALID
 #error Need to define NETWORK_INTERFACE_VALID in sl_board_configuration.h
@@ -46,62 +49,92 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
                         void *network_context,
                         sl_net_event_handler_t event_handler)
 {
+  sl_status_t status = SL_STATUS_OK;
   switch (SL_NET_INTERFACE_TYPE(interface)) {
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_CLIENT_1_INTERFACE)
     case SL_NET_WIFI_CLIENT_1_INTERFACE:
       if (configuration == NULL) {
         configuration = (const void *)&sl_wifi_default_client_configuration;
       }
-      sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                            default_wifi_client_credential.type,
-                            (const void *)default_wifi_client_credential.data,
-                            default_wifi_client_credential.data_length);
-      sl_net_set_profile(SL_NET_WIFI_CLIENT_1_INTERFACE,
-                         SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
-                         &DEFAULT_WIFI_CLIENT_PROFILE);
-      return sl_net_wifi_client_init(interface, configuration, network_context, event_handler);
+      status = sl_net_wifi_client_init(interface, configuration, network_context, event_handler);
+      VERIFY_STATUS_AND_RETURN(status);
+
+#ifdef SL_SI91X_NVM3_CONFIG_MANAGER
+      status = nvm3_initDefault();
+      VERIFY_STATUS_AND_RETURN(status);
+#endif
+      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
+                                     default_wifi_client_credential.type,
+                                     (const void *)default_wifi_client_credential.data,
+                                     default_wifi_client_credential.data_length);
+      VERIFY_STATUS_AND_RETURN(status);
+      status = sl_net_set_profile(SL_NET_WIFI_CLIENT_1_INTERFACE,
+                                  SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
+                                  &DEFAULT_WIFI_CLIENT_PROFILE);
+      return status;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_CLIENT_2_INTERFACE)
     case SL_NET_WIFI_CLIENT_2_INTERFACE:
       if (configuration == NULL) {
         configuration = (const void *)&sl_wifi_default_client_configuration;
       }
-      sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                            default_wifi_client_credential.type,
-                            (const void *)default_wifi_client_credential.data,
-                            default_wifi_client_credential.data_length);
-      sl_net_set_profile(SL_NET_WIFI_CLIENT_2_INTERFACE,
-                         SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
-                         &DEFAULT_WIFI_CLIENT_PROFILE);
-      return sl_net_wifi_client_init(interface, configuration, network_context, event_handler);
+      status = sl_net_wifi_client_init(interface, configuration, network_context, event_handler);
+      VERIFY_STATUS_AND_RETURN(status);
+#ifdef SL_SI91X_NVM3_CONFIG_MANAGER
+      status = nvm3_initDefault();
+      VERIFY_STATUS_AND_RETURN(status);
+#endif
+      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
+                                     default_wifi_client_credential.type,
+                                     (const void *)default_wifi_client_credential.data,
+                                     default_wifi_client_credential.data_length);
+      VERIFY_STATUS_AND_RETURN(status);
+      status = sl_net_set_profile(SL_NET_WIFI_CLIENT_2_INTERFACE,
+                                  SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
+                                  &DEFAULT_WIFI_CLIENT_PROFILE);
+      return status;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_1_INTERFACE)
     case SL_NET_WIFI_AP_1_INTERFACE:
       if (configuration == NULL) {
         configuration = (const void *)&sl_wifi_default_ap_configuration;
       }
-      sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-                            default_wifi_ap_credential.type,
-                            (const void *)default_wifi_ap_credential.data,
-                            default_wifi_ap_credential.data_length);
-      sl_net_set_profile(SL_NET_WIFI_AP_1_INTERFACE,
-                         SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
-                         &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
-      return sl_net_wifi_ap_init(interface, configuration, network_context, event_handler);
+      status = sl_net_wifi_ap_init(interface, configuration, network_context, event_handler);
+      VERIFY_STATUS_AND_RETURN(status);
+#ifdef SL_SI91X_NVM3_CONFIG_MANAGER
+      status = nvm3_initDefault();
+      VERIFY_STATUS_AND_RETURN(status);
+#endif
+      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
+                                     default_wifi_ap_credential.type,
+                                     (const void *)default_wifi_ap_credential.data,
+                                     default_wifi_ap_credential.data_length);
+      VERIFY_STATUS_AND_RETURN(status);
+      status = sl_net_set_profile(SL_NET_WIFI_AP_1_INTERFACE,
+                                  SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
+                                  &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
+      return status;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_2_INTERFACE)
     case SL_NET_WIFI_AP_2_INTERFACE:
       if (configuration == NULL) {
         configuration = (const void *)&sl_wifi_default_ap_configuration;
       }
-      sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-                            default_wifi_ap_credential.type,
-                            (const void *)default_wifi_ap_credential.data,
-                            default_wifi_ap_credential.data_length);
-      sl_net_set_profile(SL_NET_WIFI_AP_2_INTERFACE,
-                         SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
-                         &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
-      return sl_net_wifi_ap_init(interface, configuration, network_context, event_handler);
+      status = sl_net_wifi_ap_init(interface, configuration, network_context, event_handler);
+      VERIFY_STATUS_AND_RETURN(status);
+#ifdef SL_SI91X_NVM3_CONFIG_MANAGER
+      status = nvm3_initDefault();
+      VERIFY_STATUS_AND_RETURN(status);
+#endif
+      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
+                                     default_wifi_ap_credential.type,
+                                     (const void *)default_wifi_ap_credential.data,
+                                     default_wifi_ap_credential.data_length);
+      VERIFY_STATUS_AND_RETURN(status);
+      status = sl_net_set_profile(SL_NET_WIFI_AP_2_INTERFACE,
+                                  SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
+                                  &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
+      return status;
 #endif
     default:
       return SL_STATUS_NOT_SUPPORTED;

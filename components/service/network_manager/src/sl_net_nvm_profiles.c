@@ -38,6 +38,8 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
                                sl_net_profile_id_t profile_id,
                                const sl_net_profile_t *profile)
 {
+  if (profile_id == SL_NET_AUTO_JOIN)
+    return SL_STATUS_NOT_SUPPORTED;
   sl_status_t status;
   if (profile_id >= SL_NET_MAXIMUM_NVM_PROFILES_PER_INTERFACE) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -68,6 +70,8 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
 
 sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id, sl_net_profile_t *profile)
 {
+  if (profile_id == SL_NET_AUTO_JOIN)
+    return SL_STATUS_NOT_SUPPORTED;
   sl_status_t status;
   SL_WIFI_ARGS_CHECK_NULL_POINTER(profile);
   if (profile_id >= SL_NET_MAXIMUM_NVM_PROFILES_PER_INTERFACE) {
@@ -101,6 +105,8 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
 
 sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
 {
+  if (profile_id == SL_NET_AUTO_JOIN)
+    return SL_STATUS_NOT_SUPPORTED;
   if (profile_id >= SL_NET_MAXIMUM_NVM_PROFILES_PER_INTERFACE) {
     return SL_STATUS_INVALID_PARAMETER;
   }

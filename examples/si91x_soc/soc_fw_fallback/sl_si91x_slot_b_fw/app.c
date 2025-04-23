@@ -156,8 +156,8 @@ const osThreadAttr_t thread_attributes = {
 };
 
 static sl_wifi_device_configuration_t sl_wifi_firmware_update_configuration = {
-  .boot_option         = NWP_FW_LOAD_CMD,
-  .nwp_fw_image_number = NWP_FW_IMAGE_NUMBER_1,
+  .boot_option         = SL_SI91X_LOAD_NWP_FW_WITH_IMAGE_NUMBER,
+  .nwp_fw_image_number = SL_SI91X_NWP_FW_IMAGE_NUMBER_1,
   .mac_address         = NULL,
   .band                = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code         = US,

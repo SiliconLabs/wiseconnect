@@ -29,7 +29,7 @@ template_contribution:
     value: iostream_rtt_si91x
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_si91x_iostream_rtt.h
       handler: sl_si91x_iostream_rtt_init
   - name: iostream_instance_info

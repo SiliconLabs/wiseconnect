@@ -624,7 +624,7 @@ rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, ui
   FCW   = (float)Fdco / (float)fref;
   M     = (uint16_t)FCW;
   frac  = (FCW - M);
-  FCW_F = (uint16_t)(frac * pow(2, 14));
+  FCW_F = (uint16_t)(frac * (1 << 14));
   if (Fdco == I2S_DCO_FREQ1) {
     FCW_F = (FCW_F + 1);
   }

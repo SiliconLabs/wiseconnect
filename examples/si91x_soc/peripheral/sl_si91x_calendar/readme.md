@@ -19,8 +19,8 @@
 This example demonstrates the clock configuration, one millisecond trigger, one second trigger, alarm configuration, and time conversion.
 
   > **Note** 
-  1. Before enabling any trigger, it is recommended to calibrate the clock.
-  2. RTC time is a free-flowing counter which can count up to 4 Centuries. Conversion to any other format such as Unix/NTP timestamps, are subject to its own range limitation.
+  > 1. Before enabling any trigger, it is recommended to calibrate the clock.
+  > 2. RTC time is a free-flowing counter which can count up to 4 centuries. Conversion to any other format, such as Unix/NTP timestamps, are subject to its own range limitation.
 
 ## Overview
 

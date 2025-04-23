@@ -630,11 +630,6 @@
           <GroupName>components/service</GroupName>
           <Files>
             <File>
-              <FileName>sl_net_si91x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../components/service/network_manager/si91x/sl_net_si91x.c</FilePath>
-            </File>
-            <File>
               <FileName>sl_net.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/service/network_manager/src/sl_net.c</FilePath>
@@ -658,6 +653,11 @@
               <FileName>sl_si91x_bsd_socket.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/service/bsd_socket/si91x_socket/sl_si91x_bsd_socket.c</FilePath>
+            </File>
+            <File>
+              <FileName>sli_net_common_utility.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\service\network_manager\src\sli_net_common_utility.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -730,11 +730,6 @@
               <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_net_si91x_integration_handler.c</FilePath>
             </File>
             <File>
-              <FileName>sl_si91x_net_credentials.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_si91x_net_credentials.c</FilePath>
-            </File>
-            <File>
               <FileName>sl_si91x_net_internal_stack.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_si91x_net_internal_stack.c</FilePath>
@@ -753,6 +748,16 @@
               <FileName>sl_si91x_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../components/device/silabs/si91x/wireless/ncp_interface/spi/sl_si91x_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>sli_net_si91x_utility.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\device\silabs\si91x\wireless\sl_net\src\sli_net_si91x_utility.c</FilePath>
+            </File>
+            <File>
+              <FileName>sl_net_si91x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\components\device\silabs\si91x\wireless\sl_net\src\sl_net_si91x.c</FilePath>
             </File>
           </Files>
         </Group>

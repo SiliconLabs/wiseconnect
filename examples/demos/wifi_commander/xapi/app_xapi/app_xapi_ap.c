@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
@@ -36,7 +36,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-DEFINE_BGAPI_CLASS(wifi, ap, WIFI, AP, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, ap, WIFI, AP, NULL, NULL);
 
 /******************************************************
 *               Function Declarations

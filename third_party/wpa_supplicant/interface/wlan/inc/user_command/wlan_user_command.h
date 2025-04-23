@@ -1022,13 +1022,11 @@ typedef struct WiFi_FEATURE_FRAME {
 
 /*********** SLI_WLAN_REQ_FILTER_BROADCAST = 0xC9 *************/
 
-#ifdef FILTER_BROADCAST_DATA_FRAME
 typedef struct wlan_9116_filter_bcast_s {
   uint16 full_beacon_timeout;
   uint8 filter_broadcast_data_pending;
   uint8 filter_broadcast_forever;
 } wlan_9116_filter_bcast_t;
-#endif
 
 /*********** SLI_REQ_MEMRD = 0xDF *************/
 

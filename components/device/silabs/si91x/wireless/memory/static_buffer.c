@@ -31,14 +31,14 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-uint8_t giant_static_buffer[0x6000];
+uint8_t sli_giant_static_buffer[0x6000];
 
-sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
-                                          sl_si91x_buffer_type_t type,
-                                          uint32_t buffer_size,
-                                          uint32_t wait_duration_ms)
+sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
+                                           sl_si91x_buffer_type_t type,
+                                           uint32_t buffer_size,
+                                           uint32_t wait_duration_ms)
 {
-  *buffer = giant_static_buffer;
+  *buffer = sli_giant_static_buffer;
   return SL_STATUS_OK;
 }
 
@@ -46,7 +46,7 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
 {
 }
 
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
+void sli_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
   pbuf_free((struct pbuf *)buffer);
 }

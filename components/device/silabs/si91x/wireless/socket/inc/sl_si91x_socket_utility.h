@@ -40,7 +40,7 @@
 #endif
 #include <stdbool.h>
 
-#define SET_ERROR_AND_RETURN(error)         \
+#define SLI_SET_ERROR_AND_RETURN(error)     \
   do {                                      \
     if (PRINT_ERROR_LOGS) {                 \
       PRINT_ERROR_STATUS(ERROR_TAG, error); \
@@ -49,41 +49,56 @@
     return -1;                              \
   } while (0)
 
-#define SET_ERRNO_AND_RETURN_IF_TRUE(condition, errno_value) \
-  do {                                                       \
-    if (condition) {                                         \
-      if (PRINT_ERROR_LOGS) {                                \
-        PRINT_ERROR_STATUS(ERROR_TAG, errno_value);          \
-      }                                                      \
-      errno = errno_value;                                   \
-      return -1;                                             \
-    }                                                        \
+#define SLI_SET_ERRNO_AND_RETURN_IF_TRUE(condition, errno_value) \
+  do {                                                           \
+    if (condition) {                                             \
+      if (PRINT_ERROR_LOGS) {                                    \
+        PRINT_ERROR_STATUS(ERROR_TAG, errno_value);              \
+      }                                                          \
+      errno = errno_value;                                       \
+      return -1;                                                 \
+    }                                                            \
   } while (0)
 
-#define SOCKET_VERIFY_STATUS_AND_RETURN(status, expected_status, errno_value) \
-  do {                                                                        \
-    if (status != expected_status) {                                          \
-      if (PRINT_ERROR_LOGS) {                                                 \
-        PRINT_ERROR_STATUS(ERROR_TAG, errno_value);                           \
-      }                                                                       \
-      errno = errno_value;                                                    \
-      return -1;                                                              \
-    }                                                                         \
+#define SLI_SOCKET_VERIFY_STATUS_AND_RETURN(status, expected_status, errno_value) \
+  do {                                                                            \
+    if (status != expected_status) {                                              \
+      if (PRINT_ERROR_LOGS) {                                                     \
+        PRINT_ERROR_STATUS(ERROR_TAG, errno_value);                               \
+      }                                                                           \
+      errno = errno_value;                                                        \
+      return -1;                                                                  \
+    }                                                                             \
   } while (0)
 
+#ifndef __ZEPHYR__
 #define SLI_SI91X_NULL_SAFE_FD_ZERO(fd_set) \
   do {                                      \
     if (NULL != fd_set) {                   \
       FD_ZERO(fd_set);                      \
     }                                       \
   } while (0)
+#else
+#define SLI_SI91X_NULL_SAFE_FD_ZERO(fd_set) \
+  do {                                      \
+    if (NULL != fd_set) {                   \
+      SL_SI91X_FD_ZERO(fd_set);             \
+    }                                       \
+  } while (0)
+#endif
 
-#define GET_SAFE_MEMCPY_LENGTH(destination_size, source_size) \
+#define SLI_GET_SAFE_MEMCPY_LENGTH(destination_size, source_size) \
   source_size > destination_size ? destination_size : source_size
 
+#ifndef IS_POWER_OF_TWO
 #define IS_POWER_OF_TWO(x) (x < 0) ? 0 : (x && (!(x & (x - 1))))
+#endif
 
-extern sli_si91x_socket_t *sli_si91x_sockets[NUMBER_OF_SOCKETS];
+#ifndef ROUND_UP
+#define ROUND_UP(x, y) ((x) % (y) ? (x) + (y) - ((x) % (y)) : (x))
+#endif /* ifndef ROUND_UP */
+
+extern sli_si91x_socket_t *sli_si91x_sockets[SLI_NUMBER_OF_SOCKETS];
 
 sl_status_t sli_si91x_socket_init(uint8_t max_select_count);
 
@@ -179,19 +194,19 @@ void sli_si91x_free_socket(int socket);
  * @return 
  * sl_si91x_socket or NULL in case of invalid FD.
  */
-void get_free_socket(sli_si91x_socket_t **socket, int *index);
+void sli_get_free_socket(sli_si91x_socket_t **socket, int *index);
 
 /**
  * A internal function to get free socket.
  * @param socket_id 
  * Socket ID.
  */
-sli_si91x_socket_t *get_si91x_socket(int32_t socket_id);
+sli_si91x_socket_t *sli_get_si91x_socket(int32_t socket_id);
 
 sl_status_t sli_si91x_add_tls_extension(sli_si91x_tls_extensions_t *socket_tls_extensions,
                                         const sl_si91x_socket_type_length_value_t *tls_extension);
 
-sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const int *backlog);
+sl_status_t sli_create_and_send_socket_request(int socketIdIndex, int type, const int *backlog);
 
 int sli_si91x_socket(int family, int type, int protocol, sl_si91x_socket_receive_data_callback_t callback);
 
@@ -205,24 +220,40 @@ int sli_si91x_accept(int socket,
                      struct sockaddr *addr,
                      socklen_t *addr_len,
                      sl_si91x_socket_accept_callback_t callback);
-
+#ifndef __ZEPHYR__
 int sli_si91x_select(int nfds,
                      fd_set *readfds,
                      fd_set *writefds,
                      fd_set *exceptfds,
                      const struct timeval *timeout,
                      sl_si91x_socket_select_callback_t callback);
+#else
+int sli_si91x_select(int nfds,
+                     sl_si91x_fdset_t *readfds,
+                     sl_si91x_fdset_t *writefds,
+                     sl_si91x_fdset_t *exceptfds,
+                     const struct timeval *timeout,
+                     sl_si91x_socket_select_callback_t callback);
+#endif
 
-void handle_accept_response(sli_si91x_socket_t *si91x_client_socket, const sl_si91x_rsp_ltcp_est_t *accept_response);
+void sli_handle_accept_response(sli_si91x_socket_t *si91x_client_socket,
+                                const sli_si91x_rsp_ltcp_est_t *accept_response);
 
-int handle_select_response(const sl_si91x_socket_select_rsp_t *response,
-                           fd_set *readfds,
-                           fd_set *writefds,
-                           fd_set *exception_fd);
+#ifndef __ZEPHYR__
+int sli_handle_select_response(const sli_si91x_socket_select_rsp_t *response,
+                               fd_set *readfds,
+                               fd_set *writefds,
+                               fd_set *exception_fd);
+#else
+int handle_select_response(const sli_si91x_socket_select_rsp_t *response,
+                           sl_si91x_fdset_t *readfds,
+                           sl_si91x_fdset_t *writefds,
+                           sl_si91x_fdset_t *exception_fd);
+#endif
 
 uint8_t sli_si91x_socket_identification_function_based_on_socketid(sl_wifi_buffer_t *buffer, void *user_data);
 
-void set_select_callback(sl_si91x_socket_select_callback_t callback);
+void sli_set_select_callback(sl_si91x_socket_select_callback_t callback);
 
 void sli_si91x_set_accept_callback(sli_si91x_socket_t *server_socket,
                                    sl_si91x_socket_accept_callback_t callback,
@@ -237,7 +268,7 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
                                           uint32_t wait_period,
                                           sl_wifi_buffer_t **response_buffer);
 
-int sli_si91x_get_socket_id(sl_si91x_packet_t *packet);
+int sli_si91x_get_socket_id(sl_wifi_packet_t *packet);
 
 /**
  * A internal function to find a socket with the matching ID and not in the exlcuded_state
@@ -287,3 +318,25 @@ void sl_si91x_set_socket_cipherlist(uint32_t cipher_list);
 void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list);
 
 /** @} */
+
+#ifdef __ZEPHYR__
+static inline void SL_SI91X_FD_CLR(unsigned int n, sl_si91x_fdset_t *p)
+{
+  p->__fds_bits &= ~(1U << n);
+}
+
+static inline void SL_SI91X_FD_SET(unsigned int n, sl_si91x_fdset_t *p)
+{
+  p->__fds_bits |= 1U << n;
+}
+
+static inline bool SL_SI91X_FD_ISSET(unsigned int n, sl_si91x_fdset_t *p)
+{
+  return p->__fds_bits & (1U << n);
+}
+
+static inline void SL_SI91X_FD_ZERO(sl_si91x_fdset_t *p)
+{
+  p->__fds_bits = 0;
+}
+#endif

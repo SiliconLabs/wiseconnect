@@ -61,6 +61,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
+#ifndef SL_SI91X_WC_DEVICE_CONFIGURATION
 static const sl_wifi_device_configuration_t station_init_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
@@ -88,6 +89,39 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
+#else
+#include "sl_si91x_wc_device_configuration.h"
+
+sl_mac_address_t mac = { .octet = SL_SI91X_WC_MAC_ADDRESS };
+static const sl_wifi_device_configuration_t station_init_configuration = {
+  .boot_option = SL_SI91X_WC_BOOT_OPTION,
+#if SL_SI91X_WC_SET_MAC_ADDRESS
+  .mac_address = &mac,
+#else
+  .mac_address = NULL,
+#endif
+  .band        = SL_SI91X_WC_WIFI_BAND,
+  .region_code = SL_SI91X_WC_REGION,
+  .boot_config = {
+                .oper_mode                  = SL_SI91X_WC_OPERMODE,
+                .coex_mode                  = SL_SI91X_WC_COEXMODE,
+                .feature_bit_map            = SL_SI91X_WC_FEATURE_BITMAP,
+                .tcp_ip_feature_bit_map     = SL_SI91X_WC_TCP_IP_FEATURE_BITMAP,
+                .custom_feature_bit_map     = SL_SI91X_WC_CUSTOM_FEATURE_BITMAP,
+                .ext_custom_feature_bit_map = SL_SI91X_WC_EXTENDED_CUSTOM_FEATURE_BITMAP,
+                .bt_feature_bit_map         = SL_SI91X_WC_BT_FEATURE_BITMAP,
+                .ext_tcp_ip_feature_bit_map = SL_SI91X_WC_EXTENDED_TCPIP_FEATURE_BITMAP,
+                .ble_feature_bit_map        = SL_SI91X_WC_BLE_FEATURE_BITMAP,
+                .ble_ext_feature_bit_map    = SL_SI91X_WC_EXTENDED_BLE_CUSTOM_FEATURE_BITMAP,
+                .config_feature_bit_map     = SL_SI91X_WC_CONFIG_FEATURE_BITMAP,
+              },
+  .ta_pool = { .tx_ratio_in_buffer_pool     = SL_SI91X_WC_TX_POOL_RATIO,
+                .rx_ratio_in_buffer_pool     = SL_SI91X_WC_RX_POOL_RATIO,
+                .global_ratio_in_buffer_pool = SL_SI91X_WC_GLOBAL_POOL_RATIO },
+  .efuse_data_type = SL_SI91X_WC_EFUSE_DATA_TYPE,
+  .nwp_fw_image_number = SL_SI91X_WC_NWP_FW_IMAGE_NUMBER
+};
+#endif
 
 /******************************************************
  *               Function Declarations

@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
@@ -37,7 +37,7 @@
 #include "task.h"
 #include "sl_net_wifi_types.h"
 
-DEFINE_BGAPI_CLASS(wifi, net_cred, WIFI, NET_CRED, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, net_cred, WIFI, NET_CRED, NULL, NULL);
 
 /******************************************************
 *               Function Definitions
@@ -47,77 +47,46 @@ void app_wifi_cmd_net_cred_set(app_wifi_cmd_net_cred_set_t *cmd_input)
 {
   sl_status_t status = SL_STATUS_FAIL;
 
-  // Check if the input command is NULL or has an invalid credential ID
+  // Validate input parameter
   if (cmd_input == NULL) {
     app_wifi_rsp_net_cred_set(SL_STATUS_INVALID_PARAMETER);
+    return;
   }
 
-  // Check if the credential ID is the default WiFi AP credential ID and the type is PSK
-  if ((cmd_input->id == SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID) && (cmd_input->type == SL_NET_WIFI_PSK)) {
-    // Set the network credential using the provided ID, type, and credential data
-    status = sl_net_set_credential(cmd_input->id,
-                                   cmd_input->type,
-                                   (const void *)(cmd_input->credential.data),
-                                   cmd_input->credential.len);
-  } else if ((cmd_input->id == SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID) && (cmd_input->type == SL_NET_WIFI_PSK)) {
-    // Set the network credential using the provided ID, type, and credential data
-    status = sl_net_set_credential(cmd_input->id,
-                                   cmd_input->type,
-                                   (const void *)(cmd_input->credential.data),
-                                   cmd_input->credential.len);
-  } else {
-    // If the provided ID or type is not supported, return a 'Not Supported' status
-    status = SL_STATUS_NOT_SUPPORTED;
-  }
+  // Store the credential using ID, type, and provided data
+  status = sl_net_set_credential(cmd_input->id,
+                                 cmd_input->type,
+                                 (const void *)(cmd_input->credential.data),
+                                 cmd_input->credential.len);
 
-  // Send the response with the status of the operation
+  // Send response with operation status
   app_wifi_rsp_net_cred_set(status);
+  return;
 }
 
 void app_wifi_cmd_net_cred_get(app_wifi_cmd_net_cred_get_t *cmd_input)
 {
-  uint8_t credential[256];                                       // Buffer to store the network credential.
-  uint32_t credential_length               = sizeof(credential); // Set the initial length of the credential buffer.
-  sl_status_t status                       = SL_STATUS_FAIL;     // Initialize the status to a failure state.
-  sl_net_credential_type_t credential_type = cmd_input->type;    // Get the credential type from the command input.
+  uint8_t credential[256];                                       // Buffer to hold retrieved credential data
+  uint32_t credential_length               = sizeof(credential); // Initial length of credential buffer
+  sl_net_credential_type_t credential_type = cmd_input->type;    // Credential type to retrieve
+  sl_status_t status                       = SL_STATUS_FAIL;
 
-  // Check if the credential ID is the default WiFi AP credential ID and the credential type is PSK
-  if ((cmd_input->id == SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID) && (cmd_input->type == SL_NET_WIFI_PSK)) {
-    // Get the network credential using the provided credential ID and type
-    status = sl_net_get_credential(cmd_input->id, &credential_type, &credential, &credential_length);
-  } else if ((cmd_input->id == SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID) && (cmd_input->type == SL_NET_WIFI_PSK)) {
-    // Get the network credential using the provided credential ID and type
-    status = sl_net_get_credential(cmd_input->id, &credential_type, &credential, &credential_length);
-  } else {
-    status = SL_STATUS_NOT_SUPPORTED;
-    // If the provided ID or type is not supported, return a 'Not Supported' status
-    app_wifi_rsp_net_cred_get(status, 0, 0, NULL);
-    return;
-  }
+  // Retrieve credential data based on ID and type
+  status = sl_net_get_credential(cmd_input->id, &credential_type, &credential, &credential_length);
 
-  // Send the response back with the status, length of the credential, and the credential data
+  // Send response with credential data and status
   app_wifi_rsp_net_cred_get(status, credential_length, credential_length, credential);
+  return;
 }
 
 void app_wifi_cmd_net_cred_delete(app_wifi_cmd_net_cred_delete_t *cmd_input)
 {
   sl_status_t status = SL_STATUS_FAIL;
 
-  // Check if the credential ID is the default Wi-Fi AP credential ID
-  // and if the type is Wi-Fi PSK (Pre-Shared Key)
-  if ((cmd_input->id == SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID) && (cmd_input->type == SL_NET_WIFI_PSK)) {
+  // Delete credential using provided ID and type
+  status = sl_net_delete_credential(cmd_input->id, cmd_input->type);
 
-    // If the condition is met, delete the Wi-Fi credential using the provided ID and type
-    status = sl_net_delete_credential(cmd_input->id, cmd_input->type);
-  } else if ((cmd_input->id == SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID) && (cmd_input->type == SL_NET_WIFI_PSK)) {
-
-    // If the condition is met, delete the Wi-Fi credential using the provided ID and type
-    status = sl_net_delete_credential(cmd_input->id, cmd_input->type);
-  } else {
-    // If the provided ID or type is not supported, return a 'Not Supported' status
-    status = SL_STATUS_NOT_SUPPORTED;
-  }
-
-  // Send a response to indicate whether the credential deletion was successful or not
+  // Send response with operation status
   app_wifi_rsp_net_cred_delete(status);
+  return;
 }

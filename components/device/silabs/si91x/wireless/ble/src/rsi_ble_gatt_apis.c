@@ -979,7 +979,7 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
  * @fn         int32_t rsi_ble_set_att_cmd_async(uint8_t *dev_addr, uint16_t handle,
  *                                         uint8_t data_len, uint8_t *p_data)
  * @brief      Set the attribute value without waiting for an ACK from the remote device. This is a Blocking API.
- *             If the API returns RSI_ERROR_BLE_DEV_BUF_FULL  (-31) error then wait untill the \ref rsi_ble_on_le_more_data_req_t event gets received from the module.
+ *             If the API returns an RSI_ERROR_BLE_DEV_BUF_FULL (-31) error, wait until the \ref rsi_ble_on_le_more_data_req_t event is received from the module.
  * @pre        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute value handle

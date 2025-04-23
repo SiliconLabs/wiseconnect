@@ -41,7 +41,7 @@ define:
 template_contribution:
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_si91x_iostream_vuart.h
       handler: sl_si91x_iostream_vuart_init
   - name: iostream_instance_info

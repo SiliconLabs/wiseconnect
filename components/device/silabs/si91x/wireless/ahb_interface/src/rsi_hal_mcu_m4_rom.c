@@ -285,19 +285,19 @@ sl_status_t sli_m4_interrupt_isr(void)
 #if defined(SLI_SI917) || defined(SLI_SI915)
   else if (TASS_P2P_INTR_CLEAR & TA_WRITING_ON_COMM_FLASH) {
     //! moves m4 app to RAM and polls for NWP done
-    sl_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
+    sli_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(TA_WRITING_ON_COMM_FLASH);
   } else if (TASS_P2P_INTR_CLEAR & NWP_DEINIT_IN_COMM_FLASH) {
     //! moves m4 app to RAM and polls for NWP done
-    sl_mv_m4_app_from_flash_to_ram(M4_WAIT_FOR_NWP_DEINIT);
+    sli_mv_m4_app_from_flash_to_ram(M4_WAIT_FOR_NWP_DEINIT);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(NWP_DEINIT_IN_COMM_FLASH);
   }
   //! Below changes are requried for M4 Image upgration in dual flash config
   else if (TASS_P2P_INTR_CLEAR & M4_IMAGE_UPGRADATION_PENDING_INTERRUPT) {
     //! moves m4 app to RAM and polls for NWP done
-    sl_mv_m4_app_from_flash_to_ram(UPGRADE_M4_IMAGE_OTA);
+    sli_mv_m4_app_from_flash_to_ram(UPGRADE_M4_IMAGE_OTA);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(M4_IMAGE_UPGRADATION_PENDING_INTERRUPT);
   }
@@ -327,7 +327,7 @@ sl_status_t sli_receive_from_ta_done_isr(void)
 {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
   extern sl_wifi_buffer_t *rx_pkt_buffer;
-  extern sl_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
+  extern sli_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
   // Add to rx packet to CCP queue
   sl_status_t status = sli_si91x_add_to_queue(&sli_ahb_bus_rx_queue, rx_pkt_buffer);
   VERIFY_STATUS_AND_RETURN(status);
@@ -341,7 +341,7 @@ sl_status_t sli_receive_from_ta_done_isr(void)
 
 /*==================================================*/
 /**
- * @fn          sl_status_t sl_si91x_bus_read_interrupt_status(uint8_t *int_status)
+ * @fn          sl_status_t sli_si91x_bus_read_interrupt_status(uint8_t *int_status)
  * @brief       Returns the value of the Interrupt register
  * @param[in]   status
  * @param[out]  buffer full status reg value
@@ -349,14 +349,14 @@ sl_status_t sli_receive_from_ta_done_isr(void)
  *               0 = Success
  *              -2 = Reg read failure
  */
-sl_status_t sl_si91x_bus_read_interrupt_status(uint16_t *int_status)
+sl_status_t sli_si91x_bus_read_interrupt_status(uint16_t *int_status)
 {
   *int_status = (uint8_t)HOST_INTR_STATUS_REG;
 
   return RSI_SUCCESS;
 }
 
-sl_status_t si91x_req_wakeup(void)
+sl_status_t sli_si91x_req_wakeup(void)
 {
   P2P_STATUS_REG |= M4_wakeup_TA;
   if (!(P2P_STATUS_REG & TA_is_active)) {
@@ -377,7 +377,7 @@ void IRQ074_Handler(void)
   sli_m4_interrupt_isr();
 }
 
-void sl_si91x_ta_events_init(void)
+void sli_si91x_ta_events_init(void)
 {
   if (ta_events == NULL) {
     ta_events = osEventFlagsNew(NULL);

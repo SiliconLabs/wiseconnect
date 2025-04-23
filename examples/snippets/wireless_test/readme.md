@@ -58,33 +58,33 @@ Note : The user can also use the Simplicity studio’s console window for sendin
 
 ### Setup Diagram
 
-### SoC
+#### SoC
 
-- The figure below shows the setup and the connections for the WLAN RF testing.
+- The following figure shows the setup and the connections for the WLAN RF testing.
 
-![Figure: Setup Diagram SoC Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup.png)
+  ![Figure: Setup Diagram SoC Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup.png)
 
-- The figure below shows the setup and the connections for SiWG917 in Station mode.
+- The following figure shows the setup and the connections for SiWG917 in Station mode.
 
-![Figure: Setup Diagram SoC Mode for wireless_test Example for Station Mode](resources/readme/sta.png)
+  ![Figure: Setup Diagram SoC Mode for wireless_test Example for Station Mode](resources/readme/sta.png)
 
-- The figure below shows the setup and the connections for SiWG917 in BLE Advertising mode.
+- The following figure shows the setup and the connections for SiWG917 in BLE Advertising mode.
 
-![Figure: Setup Diagram SoC Mode for wireless_test Example for Advertising](resources/readme/cli_ble.png)
+  ![Figure: Setup Diagram SoC Mode for wireless_test Example for Advertising](resources/readme/cli_ble.png)
 
-### NCP
+#### NCP
 
-- The figure below shows the setup and the connections for the WLAN RF testing.
+- The following figure shows the setup and the connections for the WLAN RF testing.
 
-![Figure: Setup Diagram NCP Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup_ncp.png)
+  ![Figure: Setup Diagram NCP Mode for wireless_test Example for WLAN RF test](resources/readme/cli_wifi_ble_setup_ncp.png)
 
-- The figure below shows the setup and the connections for SiWG917 (NCP) in Station mode.
+- The following figure shows the setup and the connections for SiWG917 (NCP) in Station mode.
 
-![Figure: Setup Diagram NCP Mode for wireless_test Example for Station Mode](resources/readme/sta_ncp.png)
+  ![Figure: Setup Diagram NCP Mode for wireless_test Example for Station Mode](resources/readme/sta_ncp.png)
 
-- The figure below shows the setup and the connections for SiWG917 (NCP) in BLE Advertising mode.
+- The following figure shows the setup and the connections for SiWG917 (NCP) in BLE Advertising mode.
 
-![Figure: Setup Diagram NCP Mode for wireless_test Example for Advertising](resources/readme/cli_ble_ncp.png)
+  ![Figure: Setup Diagram NCP Mode for wireless_test Example for Advertising](resources/readme/cli_ble_ncp.png)
 
 ## Getting Started
 
@@ -481,6 +481,14 @@ scan all the access points available in the vicinity respectively.
 5. sl_net_ping 8.8.8.8 ipv4 64   or sl_net_ping 192.168.1.1 ipv4 64
 
 
+### **Below are the CLI commands used to connect to an access point/router and configure a static IP address**
+
+**![Prints](resources/readme/configure_static_ip_address.png)**
+
+1. wifi_init -i client
+2. wifi_scan
+3. wifi_connect SILABS_AP -p 12345678  
+4. start_dhcp -i ipv4 -m static -a 192.168.31.108 -g 192.168.31.1 -n 255.255.255.0 
 
 ## Steps to create a CLI command based on the application available in the release. 
 

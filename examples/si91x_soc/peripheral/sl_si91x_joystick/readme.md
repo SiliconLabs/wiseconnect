@@ -54,7 +54,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Open **sl_si91x_joystick.slcp** project file select **software component** tab and search for **joystick** in search bar.
 - Configure the UC as mentioned below.
 
-  ![Figure: Introduction](resources/uc_screen/sl_joystick_uc_screen.png)
+Refer to   ![Figure: Introduction](resources/uc_screen/sl_joystick_uc_screen.png)
 
 - Using configuration wizard one can configure different parameters like:
   - **Channel selection**
@@ -74,7 +74,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 #### Pin Configuration of the WPK[BRD4002A] Base Board, and with radio board
 
-The following table lists the mentioned pin numbers for the Si917 radio board. If you want to use a different radio board, see the board-specific user guide.
+The following table lists the mentioned pin numbers for the Si917 radio board. If you want to use a different radio board, refer to the board-specific user guide.
 
   | CHANNEL | PIN TO ADCP | 
   | --- | --- | 
@@ -116,4 +116,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
-> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Further, copy the necessary code from the driver handler to your custom interrupt handler.

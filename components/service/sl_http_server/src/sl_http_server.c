@@ -25,7 +25,7 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket.h"
 #include "socket.h"
-#include "sl_net_rsi_utility.h"
+#include "sli_net_utility.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -353,7 +353,7 @@ static void sli_http_server(const void *arg)
 
   while (1) {
     socket_return_value = sl_si91x_accept_async(server_socket, client_accept_callback);
-    if (socket_return_value != SI91X_NO_ERROR) {
+    if (socket_return_value != SLI_SI91X_NO_ERROR) {
       SL_DEBUG_LOG("\r\nSocket accept failed with bsd error: %d\r\n", errno);
     }
 
@@ -419,71 +419,92 @@ static int sli_process_socket_buffered_data(int fd, char *data, size_t data_leng
   return 0;
 }
 
-static int sli_send_response_headers(sl_http_server_t *server, sl_http_server_response_t *response, int window_size)
+static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_response_t *response, int window_size)
 {
-  char response_code[16]           = { 0 };
-  char content_length[32]          = { 0 };
-  char *http_version               = NULL;
-  static char http_status_line[16] = { 0 };
+  char response_code[16]     = { 0 };
+  char content_length[32]    = { 0 };
+  char *http_version         = NULL;
+  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->expected_data_length;
+  size_t buffer_length       = 0;
+  char *response_buffer      = (char *)malloc(max_response_length);
 
-  // Convert the response code to a string
+  // Check if memory allocation was successful
+  if (response_buffer == NULL) {
+    SL_DEBUG_LOG("\r\nMemory allocation failed for response buffer\r\n");
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  // Prepare response code
   sprintf(response_code, "%d", response->response_code);
 
+  // Prepare content length if available
   if (response->expected_data_length > 0) {
     sprintf(content_length, "%lu", response->expected_data_length);
   }
 
+  // Determine HTTP version
   if (SL_HTTP_VERSION_1_1 == server->request.version) {
     http_version = "HTTP/1.1 ";
   } else {
     http_version = "HTTP/1.0 ";
   }
 
-  strncpy(http_status_line, http_version, strlen(http_version) + 1); // +1 for null terminator
-  strncat(http_status_line, response_code, strlen(response_code));
-  strncat(http_status_line, "\r\n", 3); // +1 for null terminator
+  // Add HTTP status line to buffer
+  buffer_length += snprintf(response_buffer,
+                            strlen(http_version) + strlen(response_code) + 3,
+                            "%s%s\r\n",
+                            http_version,
+                            response_code);
 
-  sli_process_socket_buffered_data(server->client_socket, http_status_line, strlen(http_status_line), window_size);
-
+  // Add content-type if available
   if (NULL != response->content_type) {
-    sli_process_socket_buffered_data(server->client_socket, "Content-Type: ", strlen("Content-Type: "), window_size);
-    sli_process_socket_buffered_data(server->client_socket,
-                                     response->content_type,
-                                     strlen(response->content_type),
-                                     window_size);
-    sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+    buffer_length += snprintf(response_buffer + buffer_length,
+                              strlen("Content-Type: ") + strlen(response->content_type) + 3,
+                              "Content-Type: %s\r\n",
+                              response->content_type);
   }
 
+  // Add content-length if available
   if (response->expected_data_length > 0) {
-    sli_process_socket_buffered_data(server->client_socket,
-                                     "Content-Length: ",
-                                     strlen("Content-Length: "),
-                                     window_size);
-    sli_process_socket_buffered_data(server->client_socket, content_length, strlen(content_length), window_size);
-    sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+    buffer_length += snprintf(response_buffer + buffer_length,
+                              strlen("Content-Length: ") + strlen(content_length) + 3,
+                              "Content-Length: %s\r\n",
+                              content_length);
   }
 
-  // Append the headers to the response
+  // Add custom headers if available
   if ((response->header_count > 0) && (NULL != response->headers)) {
     for (int i = 0; i < response->header_count; i++) {
-      sli_process_socket_buffered_data(server->client_socket,
-                                       response->headers[i].key,
-                                       strlen(response->headers[i].key),
-                                       window_size);
-      sli_process_socket_buffered_data(server->client_socket, ": ", 2, window_size);
-      sli_process_socket_buffered_data(server->client_socket,
-                                       response->headers[i].value,
-                                       strlen(response->headers[i].value),
-                                       window_size);
-
-      sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+      buffer_length += snprintf(response_buffer + buffer_length,
+                                strlen(response->headers[i].key) + strlen(response->headers[i].value) + 5,
+                                "%s: %s\r\n",
+                                response->headers[i].key,
+                                response->headers[i].value);
     }
   }
 
-  sli_process_socket_buffered_data(server->client_socket,
-                                   HTTP_CONNECTION_STATUS_HEADER,
-                                   strlen(HTTP_CONNECTION_STATUS_HEADER),
-                                   window_size);
+  // Add connection status header
+  buffer_length += snprintf(response_buffer + buffer_length,
+                            strlen(HTTP_CONNECTION_STATUS_HEADER) + 1,
+                            "%s",
+                            HTTP_CONNECTION_STATUS_HEADER);
+
+  // Add response data if available
+  if ((NULL != response->data) && (response->current_data_length > 0)) {
+    buffer_length +=
+      snprintf(response_buffer + buffer_length, strlen((const char *)response->data) + 1, "%s", (char *)response->data);
+  }
+
+  // Send all headers in a single call
+  if (sli_process_socket_buffered_data(server->client_socket, (char *)response_buffer, buffer_length, window_size)
+      != 0) {
+    SL_DEBUG_LOG("\r\nResponse buffer send failed.\r\n");
+    free(response_buffer);
+    return -1;
+  }
+
+  // Free the allocated memory
+  free(response_buffer);
 
   return 0;
 }
@@ -748,18 +769,9 @@ sl_status_t sl_http_server_send_response(sl_http_server_t *handle, sl_http_serve
 
   getsockopt(handle->client_socket, SOL_SOCKET, SO_SNDBUF, (char *)&buffersize, &buffersize_length);
 
-  sli_send_response_headers(handle, response, buffersize);
-
-  if ((NULL != response->data) && (response->current_data_length > 0)) {
-    if (sli_process_socket_buffered_data(handle->client_socket,
-                                         (char *)response->data,
-                                         response->current_data_length,
-                                         buffersize)
-        == -1) {
-      SL_DEBUG_LOG("Failed to send buffer");
-      // TODO: Free the response string
-      return SL_STATUS_FAIL;
-    }
+  if (sli_send_response_buffer(handle, response, buffersize) != 0) {
+    SL_DEBUG_LOG("Failed to send buffer");
+    return SL_STATUS_FAIL;
   }
 
   handle->rem_resp_length = response->expected_data_length - response->current_data_length;

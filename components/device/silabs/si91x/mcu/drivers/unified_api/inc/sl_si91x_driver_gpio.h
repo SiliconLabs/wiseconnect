@@ -198,7 +198,7 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
 
 /***************************************************************************/ /**
  * @brief    Select the configuration of pull-up, pull-down, or repeater functionality 
- *            for GPIO pins in the High Power (HP) instance. 
+ *            for GPIO pins in the High-Power (HP) instance. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
  * -   \ref sl_si91x_gpio_driver_enable_clock
@@ -666,7 +666,7 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
 
 /***************************************************************************/ /**
  * @brief  Select the configuration of pull-up, pull-down, or repeater functionality 
- *            for GPIO pins in the Ultra Low Power (ULP) instance. 
+ *            for GPIO pins in the Ultra-Low-Power (ULP) instance. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 

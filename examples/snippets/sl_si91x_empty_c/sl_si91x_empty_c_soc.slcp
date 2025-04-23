@@ -31,6 +31,8 @@ component:
     from: wiseconnect3_sdk
   - id: si91x_memory_default_config
     from: wiseconnect3_sdk
+define:
+  - name: SLI_SI91X_EMPTY_PROJECT
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

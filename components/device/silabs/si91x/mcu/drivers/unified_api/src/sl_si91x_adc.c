@@ -73,7 +73,7 @@
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 static sl_adc_callback_t user_callback = NULL;
-static uint8_t number_of_channel;
+static uint8_t num_of_channels_enabled;
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
@@ -135,13 +135,15 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
   rsi_error_t error_status;
   uint8_t ch_num       = 0;
   float battery_status = 0;
-  number_of_channel    = adc_config.num_of_channel_enable;
 
   // Validate ADC parameters, if the parameters incorrect
   // If the status is not equal to SL_STATUS_OK, returns error code.
   status = validate_adc_parameters(&adc_config);
   if (status != SL_STATUS_OK) {
     return status;
+  } else {
+    // adc_config is valid, so set the number of channel
+    num_of_channels_enabled = adc_config.num_of_channel_enable;
   }
   // Validate ADC channel parameters, if the parameters incorrect
   // If the status is not equal to SL_STATUS_OK, returns error code.
@@ -949,12 +951,37 @@ static sl_status_t validate_adc_parameters(const sl_adc_config_t *adc_config)
  ******************************************************************************/
 static sl_status_t validate_adc_channel_parameters(const sl_adc_channel_config_t *adc_channel_config)
 {
-  sl_status_t status = SL_STATUS_OK;
-  uint8_t channel    = 0;
+  sl_status_t status               = SL_STATUS_OK;
+  uint8_t channel                  = 0;
+  uint8_t num_of_channels_added    = 0;
+  uint8_t biggest_channel_id_added = 0;
 
-  if (number_of_channel == MINIMUM_NUMBER_OF_CHANNEL) {
-    channel = adc_channel_config->channel;
+  // get the number of channels added in UC indirectly from num_of_samples[] array
+  for (uint8_t i = 0; i < MAXIMUM_NUMBER_OF_CHANNEL; i++) {
+    if (adc_channel_config->num_of_samples[i] != 0) {
+      num_of_channels_added++;
+      biggest_channel_id_added = i;
+      if (num_of_channels_added > 1 && (num_of_channels_added != (i + 1))) {
+        // If the number of channels added is more than 1, then it should be in sequential order
+        return SL_STATUS_INVALID_CONFIGURATION;
+      }
+    }
   }
+
+  // number of channels added (installed) should be equal to number of channels configured in the UC
+  if (num_of_channels_added != num_of_channels_enabled) {
+    return SL_STATUS_INVALID_CONFIGURATION;
+  }
+
+  // If the number of channels configured is 1,
+  // then channel added in the UC should be same as selection in the application
+  if (num_of_channels_enabled == MINIMUM_NUMBER_OF_CHANNEL) {
+    channel = adc_channel_config->channel;
+    if (biggest_channel_id_added != channel) {
+      return SL_STATUS_INVALID_CONFIGURATION;
+    }
+  }
+
   // Validate input type
   if (adc_channel_config->input_type[channel] >= SL_ADC_INPUT_TYPE_LAST) {
     status = SL_STATUS_INVALID_PARAMETER;

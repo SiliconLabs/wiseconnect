@@ -28,28 +28,22 @@
  *
  ******************************************************************************/
 #include "sl_net_types.h"
-#include "sl_net_rsi_utility.h"
+#include "sli_net_utility.h"
+#include "sli_net_common_utility.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_driver.h"
 #include "sl_si91x_constants.h"
 
-// SL_NET_EVENT_COUNT is assumed to be a constant representing the number of network events
-static sl_net_event_handler_t net_event_handler = NULL;
-
-sl_status_t sl_si91x_register_event_handler(sl_net_event_handler_t function)
-{
-  net_event_handler = function;
-  return SL_STATUS_OK;
-}
+extern sl_net_event_handler_t net_event_handler;
 
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer)
 {
-  sl_si91x_packet_t *packet                         = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  sl_status_t status                                = convert_and_save_firmware_status(get_si91x_frame_status(packet));
-  sl_ip_address_t ip                                = { 0 };
-  sl_net_ip_configuration_t ip_config               = { 0 };
-  const sl_si91x_rsp_ipv4_params_t *ipv4_parameters = NULL;
-  const sl_si91x_rsp_ipv6_params_t *ipv6_parameters = NULL;
+  sl_wifi_packet_t *packet            = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_status_t status                  = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
+  sl_ip_address_t ip                  = { 0 };
+  sl_net_ip_configuration_t ip_config = { 0 };
+  const sli_si91x_rsp_ipv4_params_t *ipv4_parameters = NULL;
+  const sli_si91x_rsp_ipv6_params_t *ipv6_parameters = NULL;
   void *data;
 
   // Check if there's a valid event handler registered for this event
@@ -63,7 +57,7 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
       data = &ip;
 
       // Convert the SI91x DNS response to an IP address structure
-      convert_si91x_dns_response(&ip, (sl_si91x_dns_response_t *)packet->data);
+      sli_convert_si91x_dns_response(&ip, (sli_si91x_dns_response_t *)packet->data);
       break;
     }
     case SL_NET_OTA_FW_UPDATE_EVENT:
@@ -78,8 +72,8 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
       ip_config.host_name = NULL;
       ip_config.mode      = SL_IP_MANAGEMENT_DHCP;
 
-      if (packet->command == RSI_WLAN_RSP_IPCONFV6) {
-        ipv6_parameters = (sl_si91x_rsp_ipv6_params_t *)packet->data;
+      if (packet->command == SLI_WLAN_RSP_IPCONFV6) {
+        ipv6_parameters = (sli_si91x_rsp_ipv6_params_t *)packet->data;
         ip_config.type  = SL_IPV6;
 
         if (NULL != ipv6_parameters) {
@@ -95,7 +89,7 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
         }
 
       } else {
-        ipv4_parameters = (sl_si91x_rsp_ipv4_params_t *)packet->data;
+        ipv4_parameters = (sli_si91x_rsp_ipv4_params_t *)packet->data;
         ip_config.type  = SL_IPV4;
 
         if (NULL != ipv4_parameters) {

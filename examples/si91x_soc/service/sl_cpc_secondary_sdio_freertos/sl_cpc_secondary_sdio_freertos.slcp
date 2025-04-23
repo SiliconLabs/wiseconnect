@@ -1,9 +1,9 @@
 # Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_cpc_secondary_sdio_freertos
-label: SI91x - SoC Peripheral CPC Secondary SDIO - FreeRTOS
+label: SI91x - SoC CPC Secondary SDIO - FreeRTOS
 description: |
   Start a CPC over SDIO interface
-category: Example|peripheral
+category: Example|Service
 package: platform
 quality: experimental
 source:

@@ -35,8 +35,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#define SL_STATUS_ENUM(prefix, name, value) prefix##_##name = (prefix##_ENUM_OFFSET + value)
-#define SL_STATUS_SHARED_ENUM(prefix, name) prefix##_##name = (SL_##name)
+#define SLI_STATUS_ENUM(prefix, name, value) prefix##_##name = (prefix##_ENUM_OFFSET + value)
+#define SLI_STATUS_SHARED_ENUM(prefix, name) prefix##_##name = (SL_##name)
 
 #ifdef __CC_ARM
 #define BREAKPOINT() __asm__("bkpt #0")
@@ -54,7 +54,7 @@
 #define UNUSED_PARAMETER(x) (void)(x)
 #endif // UNUSED_PARAMETER
 
-#define ARRAY_COUNT(x) (sizeof(x) / sizeof *(x))
+#define SLI_ARRAY_COUNT(x) (sizeof(x) / sizeof *(x))
 
 #ifndef FUZZING
 #define SL_ASSERT(condition, ...) \
@@ -71,10 +71,6 @@
   } while (0)
 #endif
 
-#ifndef ROUND_UP
-#define ROUND_UP(x, y) ((x) % (y) ? (x) + (y) - ((x) % (y)) : (x))
-#endif /* ifndef ROUND_UP */
-
 #define SL_WAIT_FOREVER    0xFFFFFFFF
 #define SL_INVALID_POINTER ((void *)0xEFFFFFFF) // This can point to any location that will trigger an exception
 
@@ -87,7 +83,7 @@
 // Defines for error logging
 #define PRINT_ERROR_LOGS 0
 
-#define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lu \r\n", tag, __FILE__, __LINE__, status);
+#define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lu \r\n", tag, __FILE__, __LINE__, (uint32_t)status);
 
 #define SL_CHECK_STATUS(x)    \
   do {                        \
@@ -175,14 +171,14 @@
     }                                    \
   } while (0)
 
-#define VERIFY_STATUS_AND_GOTO(status, goto_label) \
-  do {                                             \
-    if (status != SL_STATUS_OK) {                  \
-      if (PRINT_ERROR_LOGS) {                      \
-        PRINT_STATUS(ERROR_TAG, status)            \
-      }                                            \
-      goto goto_label;                             \
-    }                                              \
+#define SLI_VERIFY_STATUS_AND_GOTO(status, goto_label) \
+  do {                                                 \
+    if (status != SL_STATUS_OK) {                      \
+      if (PRINT_ERROR_LOGS) {                          \
+        PRINT_STATUS(ERROR_TAG, status)                \
+      }                                                \
+      goto goto_label;                                 \
+    }                                                  \
   } while (0)
 
 #define PRINT_ERROR_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%x \r\n", tag, __FILE__, __LINE__, (unsigned int)status)
@@ -205,4 +201,4 @@ extern void sl_redirect_log(const char *format, ...);
 
 typedef uint32_t sl_duration_t;
 
-typedef void (*sl_event_handler_t)(void);
+typedef void (*sli_event_handler_t)(void);

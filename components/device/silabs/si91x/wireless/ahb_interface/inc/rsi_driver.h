@@ -72,18 +72,18 @@
 #define RSI_BT_HCI_Q      7
 #endif
 // WLAN mgmt queue type
-#define RSI_WLAN_MGMT_Q 4
+#define SLI_WLAN_MGMT_Q 4
 
 // WLAN data queue type
 #define RSI_WLAN_DATA_Q 5
 
 #ifdef FW_LOGGING_ENABLE
 #define RSI_SL_LOG_DATA_Q 8
-#define SL_LOG_DATA       0x01
+#define SLI_LOG_DATA      0x01
 #endif
 
 // frame descriptor length
-#define RSI_FRAME_DESC_LEN 16
+#define SLI_FRAME_DESC_LEN 16
 
 // status offset in frame descriptor
 #define RSI_STATUS_OFFSET 12

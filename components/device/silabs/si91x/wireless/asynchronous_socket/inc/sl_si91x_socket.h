@@ -474,7 +474,7 @@ int sl_si91x_recvfrom(int socket,
  *   The socket ID or file descriptor for the specified socket that is to be closed.
  *
  * @param[in] how
- *   Determines the scope of the shutdown operation:
+ *   Determines the scope of the shutdown operation: (@ref SI91X_SOCKET_SHUTDOWN_OPTION)
  *   - 0: Close the specified socket.
  *   - 1: Close all sockets open on the specified socket's source port number.
  *
@@ -528,12 +528,21 @@ int sl_si91x_shutdown(int socket, int how);
  * @note 
  * The number of select operations the device can handle can be configured using the [SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-tcp-ip-feature-bitmap#sl-si91-x-ext-tcp-ip-total-selects).
  */
+#ifndef __ZEPHYR__
 int sl_si91x_select(int nfds,
                     fd_set *readfds,
                     fd_set *writefds,
                     fd_set *exceptfds,
                     const struct timeval *timeout,
                     sl_si91x_socket_select_callback_t callback);
+#else
+int sl_si91x_select(int nfds,
+                    sl_si91x_fdset_t *readfds,
+                    sl_si91x_fdset_t *writefds,
+                    sl_si91x_fdset_t *exceptfds,
+                    const struct timeval *timeout,
+                    sl_si91x_socket_select_callback_t callback);
+#endif
 
 /**
  * @brief Registers a callback for remote socket termination events.

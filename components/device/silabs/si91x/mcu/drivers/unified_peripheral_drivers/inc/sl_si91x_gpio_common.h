@@ -67,7 +67,8 @@ extern "C" {
   (*(volatile uint32_t *)(0x41300000 + 0x618)) ///< PAD selection (22 to 33) A value of 1 on this gives control to M4SS
 #define HOST_PADS_GPIO_MODE (*(volatile uint32_t *)(0x46008000 + 0x44)) ///< MISC host base address
 #define ULP_PAD_CONFIG_REG  (*(volatile uint32_t *)(0x2404A008))        ///< ULP PAD register
-
+#define NWP_MCUHP_GPIO_CTRL2 \
+  (*(volatile uint32_t *)(0x41300000 + 0x004)) ///<  Writing 1 to this enables NWP to configure the GPIO_25 to GPIO_30
 #define GPIO_NPSS_INTERRUPT_MASK_SET_REG \
   (*(volatile uint32_t *)(NPSS_INT_BASE + 0x00)) ///< NPSS mask set register base address
 #define GPIO_NPSS_INTERRUPT_MASK_CLR_REG \

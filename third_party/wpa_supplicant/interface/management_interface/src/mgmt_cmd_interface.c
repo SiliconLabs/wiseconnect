@@ -350,6 +350,14 @@ static int16 check_state(uint16 cmd, uint8 operating_mode)
       ret_val = !((curr_state == WISE_STATE_OPERMODE_SET) || (curr_state == WISE_STATE_MAC_DONE));
     } break;
 
+    case SLI_WLAN_REQ_MULTICAST_FILTER: {
+      ret_val = (curr_state < WISE_STATE_INIT);
+    } break;
+
+    case SLI_WLAN_REQ_FILTER_BROADCAST: {
+      ret_val = (curr_state < WISE_STATE_OPERMODE_SET);
+    } break;
+
     default: {
       ret_val = 1;
     } break;
@@ -1092,13 +1100,10 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
         cmd_status      = MGMT_IF_FREE_CMD_PKT;
       } break;
 
-#ifdef ENABLE_MULTICAST_FILTER
       case SLI_WLAN_REQ_MULTICAST_FILTER: {
-        cmd_status      = MGMT_IF_FWD_CMD_TO_UMAC;
-        status->command = SLI_WLAN_RSP_MULTICAST_FILTER;
-        status->status  = WLAN_STATUS_SUCCESS;
+        cmd_status = MGMT_IF_FWD_CMD_TO_UMAC;
+        sl_mgmt_indicate_to_host(SLI_WLAN_RSP_MULTICAST_FILTER, 0, WLAN_STATUS_SUCCESS, NULL);
       } break;
-#endif /* ENABLE_MULTICAST_FILTER */
 
       case SLI_WLAN_REQ_GAIN_TABLE: {
         WLAN_USR_GAIN_TABLE_Req *gain_table_info = (WLAN_USR_GAIN_TABLE_Req *)scatter_buf;
@@ -1429,9 +1434,7 @@ void wlan_mgmt_if_cmd_handler(uint8 *txPkt)
         cmd_status               = MGMT_IF_FWD_CMD_TO_UMAC;
       } break;
 
-#ifdef FILTER_BROADCAST_DATA_FRAME
       case SLI_WLAN_REQ_FILTER_BROADCAST:
-#endif /* FILTER_BROADCAST_DATA_FRAME */
 #ifdef ENABLE_11AX
       case SLI_WLAN_REQ_TWT_AUTO_CONFIG:
       case SLI_WLAN_REQ_TWT_PARAMS:

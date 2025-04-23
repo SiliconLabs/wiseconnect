@@ -33,7 +33,7 @@
 #include "task.h"
 #include "queue.h"
 
-#define SL_NET_UP_EVENT 0
+#define APP_NET_UP_EVENT 0
 
 typedef struct {
   uint8_t event_id; // Store the event ID (as a uint8_t)

@@ -62,7 +62,10 @@
 #define RSI_FEATURE_NOT_SUPPORTED 0x00F7
 
 //Load Image types
-#define LOAD_NWP_FW                    '1'
+
+#ifndef LOAD_NWP_FW // Defined in sl_si91x_constants.h to prevent redefinition errors, so it is undefined here.
+#define LOAD_NWP_FW 0x31
+#endif
 #define LOAD_DEFAULT_NWP_FW_ACTIVE_LOW 0x71
 
 // Upgrade images

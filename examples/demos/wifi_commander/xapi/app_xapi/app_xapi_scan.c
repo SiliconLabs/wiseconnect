@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
@@ -37,7 +37,7 @@
 #include "task.h"
 #include "sl_net_wifi_types.h"
 
-DEFINE_BGAPI_CLASS(wifi, scan, WIFI, SCAN, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, scan, WIFI, SCAN, NULL, NULL);
 
 void app_wifi_cmd_scan_start(app_wifi_cmd_scan_start_t *cmd_input)
 {

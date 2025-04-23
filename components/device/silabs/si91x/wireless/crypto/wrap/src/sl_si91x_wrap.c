@@ -46,14 +46,14 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
                                           uint16_t chunk_length,
                                           uint8_t *output)
 {
-  sl_status_t status               = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer         = NULL;
-  const sl_si91x_packet_t *packet  = NULL;
-  size_t output_size               = 0;
-  sl_si91x_wrap_request_t *request = (sl_si91x_wrap_request_t *)malloc(sizeof(sl_si91x_wrap_request_t));
+  sl_status_t status                = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer          = NULL;
+  const sl_wifi_packet_t *packet    = NULL;
+  size_t output_size                = 0;
+  sli_si91x_wrap_request_t *request = (sli_si91x_wrap_request_t *)malloc(sizeof(sli_si91x_wrap_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_wrap_request_t));
+  memset(request, 0, sizeof(sli_si91x_wrap_request_t));
 
   request->algorithm_type         = WRAP;
   request->current_chunk_length   = chunk_length;
@@ -69,18 +69,18 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
     memcpy(request->key_info.wrap_iv, config->wrap_iv, SL_SI91X_IV_SIZE);
   }
 
-  status = sl_si91x_driver_send_command(
-    RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sli_si91x_driver_send_command(
+    SLI_COMMON_REQ_ENCRYPT_CRYPTO,
     SI91X_COMMON_CMD,
     request,
-    (sizeof(sl_si91x_wrap_request_t) - SLI_SI91X_WRAP_KEY_BUFFER_SIZE_PER_REQUEST + chunk_length),
+    (sizeof(sli_si91x_wrap_request_t) - SLI_SI91X_WRAP_KEY_BUFFER_SIZE_PER_REQUEST + chunk_length),
     SL_SI91X_WAIT_FOR_RESPONSE(32000),
     NULL,
     &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -104,7 +104,7 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
   }
 
   memcpy(output, packet->data, packet->length);
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   free(request);
 
   return status;
@@ -115,11 +115,11 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
 static sl_status_t sli_si91x_wrap_side_band(sl_si91x_wrap_config_t *config, uint8_t *output)
 {
 
-  sl_status_t status               = SL_STATUS_FAIL;
-  sl_si91x_wrap_request_t *request = (sl_si91x_wrap_request_t *)malloc(sizeof(sl_si91x_wrap_request_t));
+  sl_status_t status                = SL_STATUS_FAIL;
+  sli_si91x_wrap_request_t *request = (sli_si91x_wrap_request_t *)malloc(sizeof(sli_si91x_wrap_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_wrap_request_t));
+  memset(request, 0, sizeof(sli_si91x_wrap_request_t));
 
   request->algorithm_type         = WRAP;
   request->key_info.key_size      = config->key_size;
@@ -132,9 +132,9 @@ static sl_status_t sli_si91x_wrap_side_band(sl_si91x_wrap_config_t *config, uint
 
   request->output = output;
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_wrap_request_t)),
+                                                 (sizeof(sli_si91x_wrap_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);

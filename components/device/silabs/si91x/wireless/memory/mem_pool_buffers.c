@@ -35,46 +35,46 @@
 //#include <stdlib.h>
 //#include <stddef.h>
 
-#ifndef WIFI_BUFFER_BLOCK_SIZE
+#ifndef SLI_WIFI_BUFFER_BLOCK_SIZE
 #ifdef SPI_EXTENDED_TX_LEN_2K
-#define WIFI_BUFFER_BLOCK_SIZE 2300
+#define SLI_WIFI_BUFFER_BLOCK_SIZE 2300
 #else
-#define WIFI_BUFFER_BLOCK_SIZE 1616
+#define SLI_WIFI_BUFFER_BLOCK_SIZE 1616
 #endif
 #endif
 
-#ifndef WIFI_BUFFER_SIZE
-#define WIFI_BUFFER_SIZE (8 * WIFI_BUFFER_BLOCK_SIZE)
+#ifndef SLI_WIFI_BUFFER_SIZE
+#define SLI_WIFI_BUFFER_SIZE (8 * SLI_WIFI_BUFFER_BLOCK_SIZE)
 #endif
 
 static sli_mem_pool_handle_t mem_pool;
 static void *allocated_wifi_buffer;
-uint32_t allocated_buffers = 0;
-uint32_t freed_buffers     = 0;
-sl_status_t sl_si91x_host_init_buffer_manager(void)
+uint32_t sli_allocated_buffers = 0;
+uint32_t sli_freed_buffers     = 0;
+sl_status_t sli_si91x_host_init_buffer_manager(void)
 {
-  allocated_wifi_buffer = malloc(WIFI_BUFFER_SIZE);
+  allocated_wifi_buffer = malloc(SLI_WIFI_BUFFER_SIZE);
   if (allocated_wifi_buffer == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
   sli_mem_pool_create(&mem_pool,
-                      WIFI_BUFFER_BLOCK_SIZE,
-                      WIFI_BUFFER_SIZE / WIFI_BUFFER_BLOCK_SIZE,
+                      SLI_WIFI_BUFFER_BLOCK_SIZE,
+                      SLI_WIFI_BUFFER_SIZE / SLI_WIFI_BUFFER_BLOCK_SIZE,
                       allocated_wifi_buffer,
-                      WIFI_BUFFER_SIZE);
+                      SLI_WIFI_BUFFER_SIZE);
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_host_deinit_buffer_manager(void)
+sl_status_t sli_si91x_host_deinit_buffer_manager(void)
 {
   free(allocated_wifi_buffer);
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
-                                          sl_wifi_buffer_type_t type,
-                                          uint32_t buffer_size,
-                                          uint32_t wait_duration_ms)
+sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
+                                           sl_wifi_buffer_type_t type,
+                                           uint32_t buffer_size,
+                                           uint32_t wait_duration_ms)
 {
   UNUSED_PARAMETER(type);
   UNUSED_PARAMETER(buffer_size);
@@ -91,9 +91,9 @@ sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
   if (*buffer == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
-  ++allocated_buffers;
+  ++sli_allocated_buffers;
   (*buffer)->node.node = NULL;
-  (*buffer)->length    = WIFI_BUFFER_BLOCK_SIZE - sizeof(sl_wifi_buffer_t);
+  (*buffer)->length    = SLI_WIFI_BUFFER_BLOCK_SIZE - sizeof(sl_wifi_buffer_t);
   return SL_STATUS_OK;
 }
 
@@ -108,11 +108,11 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
   return (void *)&buffer->data[offset];
 }
 
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
+void sli_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
   if (buffer == NULL) {
     return;
   }
-  ++freed_buffers;
+  ++sli_freed_buffers;
   sli_mem_pool_free(&mem_pool, buffer);
 }

@@ -81,8 +81,8 @@ static psa_status_t sli_si91x_check_aead_parameters(const psa_key_attributes_t *
           return PSA_ERROR_INVALID_ARGUMENT;
       }
       // verify nonce and tag lengths
-      if ((tag_length < 4) || (tag_length > 16) || (tag_length % 2 != 0) || (nonce_length < SL_SI91X_CCM_IV_MIN_SIZE)
-          || (nonce_length > SL_SI91X_CCM_IV_MAX_SIZE)) {
+      if ((tag_length < 4) || (tag_length > 16) || (tag_length % 2 != 0) || (nonce_length < SLI_SI91X_CCM_IV_MIN_SIZE)
+          || (nonce_length > SLI_SI91X_CCM_IV_MAX_SIZE)) {
         return PSA_ERROR_INVALID_ARGUMENT;
       }
       break;
@@ -102,7 +102,7 @@ static psa_status_t sli_si91x_check_aead_parameters(const psa_key_attributes_t *
           return PSA_ERROR_INVALID_ARGUMENT;
       }
       // verify nonce and tag lengths
-      if ((tag_length < 4) || (tag_length > 16) || nonce_length != SL_SI91X_GCM_IV_SIZE) {
+      if ((tag_length < 4) || (tag_length > 16) || nonce_length != SLI_SI91X_GCM_IV_SIZE) {
         return PSA_ERROR_INVALID_ARGUMENT;
       }
       break;
@@ -120,7 +120,7 @@ static psa_status_t sli_si91x_check_aead_parameters(const psa_key_attributes_t *
           return PSA_ERROR_INVALID_ARGUMENT;
       }
       // verify nonce and tag lengths
-      if (tag_length != SL_SI91X_TAG_SIZE || nonce_length != SL_SI91X_CHACHAPOLY_IV_SIZE) {
+      if (tag_length != SL_SI91X_TAG_SIZE || nonce_length != SLI_SI91X_CHACHAPOLY_IV_SIZE) {
         return PSA_ERROR_INVALID_ARGUMENT;
       }
       break;

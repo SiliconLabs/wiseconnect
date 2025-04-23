@@ -172,12 +172,12 @@ static sl_status_t test_initialize_wireless(void)
   const sl_wifi_device_configuration_t client_init_configuration = {
     .boot_option = LOAD_NWP_FW,
     .mac_address = NULL,
-    .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-    .region_code = US,
-    .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                     .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                     .feature_bit_map = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE
-                                         | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
+    .band        = SL_WIFI_BAND_MODE_2_4GHZ,
+    .region_code = SL_WIFI_REGION_US,
+    .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
+                     .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
+                     .feature_bit_map =
+                       (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
                      .tcp_ip_feature_bit_map =
                        (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                         | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),

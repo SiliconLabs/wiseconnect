@@ -27,12 +27,12 @@
  *
  ******************************************************************************/
 #include "sl_status.h"
-#include "sl_wifi_bgapi_cmd_rx_handler.h"
+#include "app_wifi_xapi_cmd_rx_handler.h"
 #include "si91x_device.h"
 #include "sl_net_constants.h"
 #include "sl_net.h"
 #include "sl_wifi.h"
-#include "sl_wifi_api.h"
+#include "app_wifi_api.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_si91x_driver.h"
 #include "FreeRTOS.h"
@@ -41,7 +41,7 @@
 #include "app_xapi_cmd_event.h"
 #include "app_xapi_global.h"
 
-DEFINE_BGAPI_CLASS(wifi, net_intf, WIFI, NET_INTF, NULL, NULL);
+DEFINE_XAPI_CLASS(wifi, net_intf, WIFI, NET_INTF, NULL, NULL);
 
 static sl_mac_address_t device_mac_address;
 
@@ -163,7 +163,7 @@ void app_wifi_cmd_net_intf_up(app_wifi_cmd_net_intf_up_t *cmd_input)
   }
 
   // Set the event_id for this event
-  event_data->event_id = SL_NET_UP_EVENT;
+  event_data->event_id = APP_NET_UP_EVENT;
 
   // Copy the cmd_input data into the event_data->data
   memcpy(event_data->data, cmd_input, sizeof(app_wifi_cmd_net_intf_up_t));
@@ -178,8 +178,6 @@ void app_wifi_cmd_net_intf_up(app_wifi_cmd_net_intf_up_t *cmd_input)
 
   // Respond with the status after sending the event
   app_wifi_rsp_net_intf_up(SL_STATUS_OK);
-
-  set_default_net_interface(cmd_input->net_interface);
   return;
 }
 

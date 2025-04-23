@@ -40,7 +40,7 @@
 
 rsi_m4ta_desc_t tx_desc[2];
 rsi_m4ta_desc_t rx_desc[2];
-sl_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
+sli_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
 
 /******************************************************
  * *               Function Declarations
@@ -69,7 +69,7 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
 {
   sl_status_t status;
   uint16_t data_length = 0;
-  sl_si91x_packet_t *packet;
+  sl_wifi_packet_t *packet;
   int8_t *pkt_buffer = NULL;
 
   if (M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID) {
@@ -77,7 +77,7 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
   }
 
   // Allocate packet to receive packet from module
-  status = sl_si91x_host_allocate_buffer(&rx_pkt_buffer, SL_WIFI_RX_FRAME_BUFFER, 1616, 1000);
+  status = sli_si91x_host_allocate_buffer(&rx_pkt_buffer, SL_WIFI_RX_FRAME_BUFFER, 1616, 1000);
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
     BREAKPOINT();
@@ -103,7 +103,7 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
+sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 {
   sl_status_t status = sli_si91x_remove_from_queue(&sli_ahb_bus_rx_queue, buffer);
   VERIFY_STATUS_AND_RETURN(status);
@@ -112,7 +112,7 @@ sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 }
 
 /**
- * @fn          sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet,
+ * @fn          sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet,
  *                  uint8_t *payloadparam, uint16_t size_param)
  * @brief       writing a command to the module.
  * @param[in]   payloadparam - pointer to the command payload parameter structure
@@ -121,7 +121,7 @@ sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
  *              Negative Value - Failure
  */
 
-sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
+sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
 {
 
   // Fill source address in the TX descriptors

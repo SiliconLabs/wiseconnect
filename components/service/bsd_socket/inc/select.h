@@ -131,9 +131,13 @@ typedef	struct fd_set {
  * @note 
  * The number of select operations the device can handle can be configured using the [SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-tcp-ip-feature-bitmap#sl-si91-x-ext-tcp-ip-total-selects).
  */
-
+#ifndef __ZEPHYR__
 int select(int __n, fd_set *__readfds, fd_set *__writefds,
 		 fd_set *__exceptfds, const struct timeval *__timeout);
+#else
+int select(int __n, sl_si91x_fdset_t *__readfds, sl_si91x_fdset_t *__writefds,
+		 sl_si91x_fdset_t *__exceptfds, const struct timeval *__timeout);
+#endif                 
 
 
 #endif /* !__INSIDE_CYGWIN_NET__ */

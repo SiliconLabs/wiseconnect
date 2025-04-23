@@ -1,4 +1,4 @@
-# SL ULP GPIO
+# SL ULP GPIO STATE TRANSITION EXAMPLE
 
 ## Table of Contents
 
@@ -164,4 +164,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 >- Header connection pin references mentioned here are all specific to BRD4338A. If the user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.
->- To use GPIO pins 31-34 in GPIO mode, please refer to [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
+>- To use GPIO pins 31-34 in GPIO mode, see the [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md).

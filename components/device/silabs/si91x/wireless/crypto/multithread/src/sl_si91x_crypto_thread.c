@@ -55,17 +55,11 @@ osSemaphoreId_t sl_si91x_crypto_threadsafety_init(osSemaphoreId_t *mutex)
 osStatus_t sl_si91x_crypto_mutex_acquire(osSemaphoreId_t *mutex)
 {
   mutex_result = osSemaphoreAcquire(mutex, osWaitForever);
-  if (mutex_result != osOK) {
-    printf("Mutex acquire fail : %d \r\n", mutex_result);
-  }
   return mutex_result;
 }
 
 osStatus_t sl_si91x_crypto_mutex_release(osSemaphoreId_t *mutex)
 {
   mutex_result = osSemaphoreRelease(mutex);
-  if (mutex_result != osOK) {
-    printf("Mutex release fail : %d \r\n", mutex_result);
-  }
   return mutex_result;
 }

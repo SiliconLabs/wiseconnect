@@ -336,15 +336,17 @@ sl_status_t http_client_application(void)
                      ? SL_HTTP_CLIENT_MAX_WRITE_BUFFER_LENGTH
                      : (total_put_data_len - offset);
 
-    status = sl_http_client_write_chunked_data(&client_handle, (uint8_t *)(sl_index + offset), chunk_length, 0);
+    if (chunk_length > 0) {
+      status = sl_http_client_write_chunked_data(&client_handle, (uint8_t *)(sl_index + offset), chunk_length, 0);
 
-    if (status == SL_STATUS_IN_PROGRESS) {
-      status = http_response_status(&http_rsp_received);
-      CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_ASYNC_RESPONSE);
+      if (status == SL_STATUS_IN_PROGRESS) {
+        status = http_response_status(&http_rsp_received);
+        CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_ASYNC_RESPONSE);
 
-      offset += chunk_length;
-    } else {
-      CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_SYNC_RESPONSE);
+        offset += chunk_length;
+      } else {
+        CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_SYNC_RESPONSE);
+      }
     }
   }
 

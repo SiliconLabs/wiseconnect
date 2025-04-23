@@ -1124,7 +1124,7 @@ STATIC INLINE void configure_usart_gpio_pin(const USART_RESOURCES *usart, uint8_
       RSI_EGPIO_PadSelectionEnable(usart_gpio_pin->pad_sel);
     }
     if (usart_gpio_pin->pin >= 25 && usart_gpio_pin->pin <= 30) {
-      RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rts->pin);
+      RSI_EGPIO_HostPadsGpioModeEnable(usart_gpio_pin->pin);
     }
     if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
       RSI_EGPIO_PadDriverDisableState(usart_gpio_pin->pin, Pullup);

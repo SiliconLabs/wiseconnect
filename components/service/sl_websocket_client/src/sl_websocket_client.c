@@ -11,8 +11,12 @@
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket.h"
+#ifndef __ZEPHYR__
 #include "socket.h"
-#include "sl_net_rsi_utility.h"
+#else
+#include <sys/socket.h>
+#endif
+#include "sli_net_utility.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -110,9 +114,15 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
   server_address.sin6_family         = AF_INET6;
   server_address.sin6_port           = handle->server_port;
   client_address.sin6_port           = handle->client_port;
+#ifndef __ZEPHYR__
   memcpy(&server_address.sin6_addr.__u6_addr.__u6_addr32,
          &(handle->ip_address.ip.v6.value),
          sizeof(server_address.sin6_addr.__u6_addr.__u6_addr32));
+#else
+  memcpy(&server_address.sin6_addr.s6_addr32,
+         &(handle->ip_address.ip.v6.value),
+         sizeof(server_address.sin6_addr.s6_addr32));
+#endif
   client_socket = sl_si91x_socket_async(AF_INET6, SOCK_STREAM, IPPROTO_TCP, handle->data_cb);
 #else
   struct sockaddr_in server_address = { 0 };
@@ -153,14 +163,14 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
   }
 
   // Retrieve the socket using the socket index
-  sli_si91x_socket_t *si91x_socket = get_si91x_socket(client_socket);
+  sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(client_socket);
   if (!si91x_socket) {
     SL_DEBUG_LOG("\r\nFailed to retrieve si91x socket\r\n");
     close(client_socket);
     handle->state = SL_WEBSOCKET_STATE_DISCONNECTED;
     return SL_WEBSOCKET_ERR_SOCKET_CREATION;
   }
-  si91x_socket->ssl_bitmap |= SI91X_WEBSOCKET_FEAT;
+  si91x_socket->ssl_bitmap |= SLI_SI91X_WEBSOCKET_FEAT;
 
   // Copy the host name and resource name from handle to si91x_socket->websocket_info
   size_t host_length     = strlen(handle->host);
@@ -219,7 +229,7 @@ sl_websocket_error_t sl_websocket_send_frame(sl_websocket_client_t *handle,
   }
 
   // Retrieve the socket using the socket index
-  sli_si91x_socket_t *si91x_socket = get_si91x_socket(handle->socket_fd);
+  sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(handle->socket_fd);
   if (!si91x_socket) {
     SL_DEBUG_LOG("\r\nFailed to retrieve socket\r\n");
     return SL_WEBSOCKET_ERR_SOCKET_CREATION;
@@ -289,7 +299,7 @@ sl_websocket_error_t sl_websocket_deinit(sl_websocket_client_t *handle)
   }
 
   // Free the allocated memory for websocket_info
-  sli_si91x_socket_t *si91x_socket = get_si91x_socket(handle->socket_fd);
+  sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(handle->socket_fd);
   if (si91x_socket && si91x_socket->websocket_info) {
     free(si91x_socket->websocket_info);
     si91x_socket->websocket_info = NULL;

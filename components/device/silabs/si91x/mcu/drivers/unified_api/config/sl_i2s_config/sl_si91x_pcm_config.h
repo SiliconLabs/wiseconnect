@@ -50,9 +50,7 @@ extern "C" {
 #define PCM0_UC                  0
 
 // <o SL_PCM0_RESOLUTION> PCM0 Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16
@@ -88,9 +86,7 @@ extern "C" {
 #define ULP_PCM_UC               0
 
 // <o SL_ULP_PCM_RESOLUTION> ULP_PCM Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16

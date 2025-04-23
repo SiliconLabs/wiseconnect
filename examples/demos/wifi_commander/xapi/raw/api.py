@@ -97,12 +97,13 @@ STD_ANON.byte_array = STD_ANON._CF_enumeration.addEnumeration(unicode_value='byt
 STD_ANON.string = STD_ANON._CF_enumeration.addEnumeration(unicode_value='string', tag='string')
 STD_ANON.bd_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='bd_addr', tag='bd_addr')
 STD_ANON.ipv4_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='ipv4_addr', tag='ipv4_addr')
+STD_ANON.ipv6_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='ipv6_addr', tag='ipv6_addr')
 STD_ANON.ser_name = STD_ANON._CF_enumeration.addEnumeration(unicode_value='ser_name', tag='ser_name')
 STD_ANON.uuid_128 = STD_ANON._CF_enumeration.addEnumeration(unicode_value='uuid_128', tag='uuid_128')
 STD_ANON.aes_key_128 = STD_ANON._CF_enumeration.addEnumeration(unicode_value='aes_key_128', tag='aes_key_128')
-STD_ANON.sl_bt_uuid_16_t = STD_ANON._CF_enumeration.addEnumeration(unicode_value='sl_bt_uuid_16_t', tag='sl_bt_uuid_16_t')
-STD_ANON.sl_bt_uuid_64_t = STD_ANON._CF_enumeration.addEnumeration(unicode_value='sl_bt_uuid_64_t', tag='sl_bt_uuid_64_t')
-STD_ANON.sl_bt_uuid_t = STD_ANON._CF_enumeration.addEnumeration(unicode_value='sl_bt_uuid_t', tag='sl_bt_uuid_t')
+STD_ANON.app_wifi_uuid_16_t = STD_ANON._CF_enumeration.addEnumeration(unicode_value='app_wifi_uuid_16_t', tag='app_wifi_uuid_16_t')
+STD_ANON.app_wifi_uuid_64_t = STD_ANON._CF_enumeration.addEnumeration(unicode_value='app_wifi_uuid_64_t', tag='app_wifi_uuid_64_t')
+STD_ANON.app_bt_uuid_t = STD_ANON._CF_enumeration.addEnumeration(unicode_value='app_bt_uuid_t', tag='app_bt_uuid_t')
 STD_ANON.int64 = STD_ANON._CF_enumeration.addEnumeration(unicode_value='int64', tag='int64')
 STD_ANON.uint64 = STD_ANON._CF_enumeration.addEnumeration(unicode_value='uint64', tag='uint64')
 STD_ANON._InitializeFacetMap(STD_ANON._CF_enumeration)
@@ -1391,7 +1392,7 @@ class type (pyxb.binding.basis.complexTypeDefinition):
     __datatype._DeclarationLocation = pyxb.utils.utility.Location('C:/SiliconLabs/ews/ews-ss/v5_1/st_wifi_ncp_brd4338a/scripts/bgapi_protocol/api/api.xsd', 184, 2)
     __datatype._UseLocation = pyxb.utils.utility.Location('C:/SiliconLabs/ews/ews-ss/v5_1/st_wifi_ncp_brd4338a/scripts/bgapi_protocol/api/api.xsd', 184, 2)
     
-    datatype = property(__datatype.value, __datatype.set, None, 'Must be one of basic types from bg_types.h')
+    datatype = property(__datatype.value, __datatype.set, None, 'Must be one of basic types from x_types.h')
 
     
     # Attribute length uses Python identifier length

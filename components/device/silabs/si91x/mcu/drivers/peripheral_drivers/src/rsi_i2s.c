@@ -295,24 +295,6 @@ int32_t I2S_Control(uint32_t control,
 
   // Data size
   switch ((control & ARM_SAI_DATA_SIZE_Msk) >> ARM_SAI_DATA_SIZE_Pos) {
-    case 12 - 1:
-      data_bits = 12;
-      if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= (PCM_RES_12_BIT << 2);
-        i2s->reg->I2S_CCR_b.SCLKG = RES_12_BIT;
-        // no of sclk cycles
-        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_12_BIT;
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_12_BIT;
-      } else {
-        // Gate after 12 clock cycles
-        i2s->reg->I2S_CCR_b.SCLKG = RES_12_BIT;
-        // no of sclk cycles
-        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_12_BIT;
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_12_BIT;
-      }
-      break;
     case 16 - 1:
       data_bits = 16;
       if (i2s->protocol == PCM_PROTOCOL) {
@@ -327,13 +309,6 @@ int32_t I2S_Control(uint32_t control,
         i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_16_BIT;
         i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_16_BIT;
       }
-      break;
-    case 20 - 1:
-      data_bits                                               = 20;
-      i2s->reg->I2S_CCR_b.SCLKG                               = RES_20_BIT;
-      i2s->reg->I2S_CCR_b.WSS                                 = 0x1;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_20_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_20_BIT;
       break;
     case 24 - 1:
       data_bits = 24;

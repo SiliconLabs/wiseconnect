@@ -62,7 +62,7 @@ static void sli_si91x_clean_service_handle(sl_wifi_buffer_t *service_handle)
   free((char *)service->instance_name);
   free((char *)service->service_type);
   free((char *)service->service_message);
-  sl_si91x_host_free_buffer(service_handle);
+  sli_si91x_host_free_buffer(service_handle);
 
   return;
 }
@@ -97,7 +97,7 @@ static void sli_si91x_clean_mdns_handle(sl_mdns_t *mdns)
     interface = (sl_wifi_buffer_t *)interface->node.node;
     in        = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(block, 0, &buffer_length);
     sli_si91x_clean_service_list(in);
-    sl_si91x_host_free_buffer(block);
+    sli_si91x_host_free_buffer(block);
   }
 
   return;
@@ -133,13 +133,13 @@ sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config,
   memcpy(req.buffer, config->host_name, length_host_name);
   length = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE + length_host_name;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD,
-                                        &req,
-                                        length,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         length,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
 
   return status;
 }
@@ -153,13 +153,13 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns)
   req.command_type = SI91X_MDNSD_DEINIT;
   length           = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD,
-                                        &req,
-                                        length,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         length,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
 
   sli_si91x_clean_mdns_handle(mdns);
   memset(mdns, 0, sizeof(sl_mdns_t));
@@ -173,7 +173,7 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
   sl_mdns_interface_t *in         = NULL;
   uint16_t buffer_length          = 0;
 
-  status = sl_si91x_host_allocate_buffer(&new_interface, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_interface_t), 1000);
+  status = sli_si91x_host_allocate_buffer(&new_interface, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_interface_t), 1000);
   VERIFY_STATUS_AND_RETURN(status);
   in               = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(new_interface, 0, &buffer_length);
   in->interface    = interface;
@@ -248,7 +248,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  status = sl_si91x_host_allocate_buffer(&new_service, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_service_t), 1000);
+  status = sli_si91x_host_allocate_buffer(&new_service, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_service_t), 1000);
   VERIFY_STATUS_AND_RETURN(status);
   srv                = (sl_mdns_service_t *)sl_si91x_host_get_buffer_data(new_service, 0, &buffer_length);
   srv->instance_name = malloc(length_instance_name);
@@ -281,13 +281,13 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
   memcpy((char *)((req.buffer) + length), service->service_message, length_service_message);
   length += length_service_message + (sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE);
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD,
-                                        &req,
-                                        length,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         length,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
   if (SL_STATUS_OK != status) {
     sli_si91x_clean_service_handle(new_service);
     VERIFY_STATUS_AND_RETURN(status);

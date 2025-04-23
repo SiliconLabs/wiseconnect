@@ -29,20 +29,20 @@ DEVICE = "wifi"
 XAPI_FILE_NAME = "wiseconnect3"
 XAPI_PATH = ROOT_PATH /"../../.."/ f"{XAPI_FILE_NAME}.xapi"
 
-DEVICE_CLASSES = ["system", "net_intf", "net_profile", "net_cred", "ap", "common", "scan", "ping", "client"]
+DEVICE_CLASSES = ["system", "net_intf", "net_profile", "net_cred", "ap", "common", "scan", "ping", "client", "mqtt_client"]
 
 TEMPLATE_IO_PAIRS = [
-    ("sl_wifi.ct", f"sl_{DEVICE}_commander.c", None),
-    ("sl_wifi_api.ht", f"sl_{DEVICE}_api.h", None),
-    ("sli_wifi_api.ht", f"sli_{DEVICE}_api.h", None),
-    ("sl_wifi_device_stack_init.ht", f"sl_{DEVICE}_class.h", None),
-    ("gecko_wifi_bgapi.h.jinja", f"sl_{DEVICE}_bgapi_cmd_rx_handler.h", None),
-    ("wifi_api.xmlt", f"sl_{DEVICE}.xapi", None),
+    ("app_wifi_commander.ct", f"app_{DEVICE}_commander.c", None),
+    ("app_wifi_api.ht", f"app_{DEVICE}_api.h", None),
+    ("app_internal_wifi_api.ht", f"app_internal_{DEVICE}_api.h", None),
+    ("app_wifi_device_stack_init.ht", f"app_{DEVICE}_class.h", None),
+    ("commander_wifi_xapi.h.jinja", f"app_{DEVICE}_xapi_cmd_rx_handler.h", None),
+    ("wifi_api.xmlt", f"app_{DEVICE}.xapi", None),
 ]
 
 for cls in DEVICE_CLASSES:
     TEMPLATE_IO_PAIRS.append(
-        ("gecko_wifi_lib_handler.c.jinja", f"sl_{DEVICE}_{cls}_bgapi_cmd_lut_handler.c", cls)
+        ("commander_wifi_lib_handler.c.jinja", f"app_{DEVICE}_{cls}_xapi_cmd_lut_handler.c", cls)
     )
 
 

@@ -80,7 +80,6 @@
 #include "cacert.pem.h"
 #define BUFFER_SIZE TLS_BUFFER_SIZE
 #endif
-
 /*=======================================================================*/
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
@@ -106,6 +105,8 @@ extern bool powersave_cmd_given;
 extern osMutexId_t power_cmd_mutex;
 #endif
 extern osThreadId_t wifi_app_thread_id;
+extern uint8_t ble_connect_procedure_on;
+extern osSemaphoreId_t ble_wait_on_connect_and_discovery;
 /*=======================================================================*/
 //   ! EXTERN FUNCTIONS
 /*=======================================================================*/
@@ -497,6 +498,10 @@ void send_data_to_tcp_server(void)
   printf("\r\nTCP_TX Throughput test start\r\n");
   start = osKernelGetTickCount();
   while (total_bytes_sent < BYTES_TO_SEND) {
+    if (ble_connect_procedure_on) {
+      osSemaphoreAcquire(ble_wait_on_connect_and_discovery, osWaitForever);
+      continue;
+    }
     sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();
     if (sent_bytes < 0) {

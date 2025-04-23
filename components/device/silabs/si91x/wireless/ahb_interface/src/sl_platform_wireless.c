@@ -279,11 +279,11 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
       || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
 #endif
-      || (sl_si91x_host_queue_status(&cmd_queues[SI91X_COMMON_CMD].tx_queue)
-          | sl_si91x_host_queue_status(&cmd_queues[SI91X_WLAN_CMD].tx_queue)
-          | sl_si91x_host_queue_status(&cmd_queues[SI91X_NETWORK_CMD].tx_queue)
-          | sl_si91x_host_queue_status(&cmd_queues[SI91X_SOCKET_CMD].tx_queue)
-          | sl_si91x_host_queue_status(&cmd_queues[SI91X_BT_CMD].tx_queue))) {
+      || (sli_si91x_host_queue_status(&cmd_queues[SI91X_COMMON_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_WLAN_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_NETWORK_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_SOCKET_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_BT_CMD].tx_queue))) {
     return;
   }
   // Disabling the interrupts & clearing m4_is_active as m4 is going to sleep

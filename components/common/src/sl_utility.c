@@ -54,7 +54,7 @@ typedef struct {
 
 extern char *strtok_r(char *, const char *, char **);
 
-void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer)
+void sli_convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer)
 {
   buffer[0] = (uint8_t)(data & 0xFF);
   buffer[1] = (uint8_t)((data >> 8) & 0xFF);
@@ -128,7 +128,7 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
   const unsigned char *src;
   src = (unsigned char *)&ip_big_endian;
 
-  little_to_big_endian((const unsigned int *)input, (unsigned char *)ip_big_endian, SL_IPV6_ADDRESS_LENGTH);
+  sli_little_to_big_endian((const unsigned int *)input, (unsigned char *)ip_big_endian, SL_IPV6_ADDRESS_LENGTH);
 
   memset(words, '\0', sizeof words);
   for (i = 0; i < SL_IPV6_ADDRESS_LENGTH; i += 2) {
@@ -188,7 +188,7 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
   return memcpy(dst, tmp, size);
 }
 
-static int hex_digit_value(char ch)
+static int sli_hex_digit_value(char ch)
 {
   if ('0' <= ch && ch <= '9')
     return ch - '0';
@@ -199,7 +199,7 @@ static int hex_digit_value(char ch)
   return -1;
 }
 
-void little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length)
+void sli_little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length)
 {
   unsigned char *temp;
   unsigned int curr = 0;
@@ -244,7 +244,7 @@ int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, uns
 
   while (src < src_endp) {
     ch        = *src++;
-    int digit = hex_digit_value((char)ch);
+    int digit = sli_hex_digit_value((char)ch);
     //printf(" digit :%d ",digit);
     if (digit >= 0) {
       if (xdigits_seen == 4)
@@ -298,7 +298,7 @@ int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, uns
     return 0;
 
   memcpy(dst, tmp, SL_IPV6_ADDRESS_LENGTH);
-  little_to_big_endian((const unsigned int *)dst, (unsigned char *)ptr_result, SL_IPV6_ADDRESS_LENGTH);
+  sli_little_to_big_endian((const unsigned int *)dst, (unsigned char *)ptr_result, SL_IPV6_ADDRESS_LENGTH);
 
   return 1;
 }
@@ -327,7 +327,7 @@ sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *ma
   return SL_STATUS_OK;
 }
 
-void reverse_digits(unsigned char *xx, int no_digits)
+void sli_reverse_digits(unsigned char *xx, int no_digits)
 {
   uint8_t temp;
   for (int count = 0; count < (no_digits / 2); count++) {

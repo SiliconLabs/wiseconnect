@@ -57,7 +57,7 @@ component:
     from: wiseconnect3_sdk
   - id: network_manager
     from: wiseconnect3_sdk
-  - id: basic_network_config_manager
+  - id: nvm3_network_config_manager
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
