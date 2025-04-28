@@ -226,6 +226,7 @@ reset
 5. [Station ping](#below-are-the-cli-commands-for-connecting-to-the-access-point--router-and-pinging-the-gateway)
 6. [Calibration - Gain offset correction](#steps--commands-to-run-the-gain-offset-correction)
 7. [Calibration - Frequency offset correction](#commands-to-run-the-frequency-offset-correction)
+8. [Gain Table Update](#gain-table-update)
 
 
 ### **Below are the commands to run the RF test example.**
@@ -572,6 +573,33 @@ The above command will decrease the Transmit power to 2 dBm in channel 6.
 si91x_calibration_write 64 0 0 -2 -c 0 -t 1
 
 The above command will increase the Transmit power to 1 dBm in channel 11.
+
+
+
+## **Gain Table Update**
+Update user gain table
+
+**Syntax:**
+```perl
+wifi_update_gain_table <band> <bandwidth>
+```
+
+|Parameter       |Description                                                                                |
+|----------------|-------------------------------------------------------------------------------------------|
+|*band*          |Wi-Fi radio band (1 - 2.4 GHz)                                                             |
+|*bandwidth*     |Channel bandwidth (0 - 20 MHz)                                                             |
+
+**Example:**
+```perl
+wifi_update_gain_table 1 0
+```
+
+### **Steps to update user gain table**
+
+1. Initialize --->  wifi_init -i transmit_test
+2. Antenna command ---> wifi_set_antenna -i client -a 0
+3. Update gain table command ---> wifi_update_gain_table 1 0
+4. Transmit test command ---> wifi_transmit_test_start 18 0 100 0 1
 
 **Note:** To update the gain table, configure the gain_table_payload[] of sl_wifi_update_gain_table_command_handler in wifi_command.c file.
 

@@ -7,14 +7,13 @@ category: Device|Si91x|MCU|Crypto
 quality: production
 metadata:
   sbom:
-   license: MSLA
+   license: Zlib
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/wrap
 provides:
 - name: sl_si91x_psa_wrap
 source:
 - path: src/sl_si91x_psa_wrap.c
 include:
-- path: inc
 - path: inc
   file_list:
     - path: sl_si91x_psa_wrap.h

@@ -33,14 +33,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#if defined(SL_SI91X_FW_FALLBACK) || defined(SL_SI91X_FW_FALLBACK_UPDATER)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/***************************************************************************/
+/**
+ * @addtogroup Firmware_Fallback Firmware Fallback A and B
+ * @ingroup SI91X_SERVICE_APIS
+ * @{
+ * 
+ ******************************************************************************/
+
 /******************************** Macros ********************************/
 
 /** @brief Magic number located in RPS Header. */
-#define SLI_SI91X_RPS_MAGIC_NO 0x900D900D
+#define SLI_SI91X_RPS_MAGIC_NO 0x900D900D ///< Magic number in RPS header
 
 /** @brief Firmware header size in bytes. */
-#define SLI_SI91X_RPS_HEADER_SIZE sizeof(sl_si91x_firmware_header_t)
+#define SLI_SI91X_RPS_HEADER_SIZE sizeof(sl_si91x_firmware_header_t) ///< Firmware RPS header size
 
 /** @brief Flash memory chunk size for erase operations. */
 #define SLI_SI91X_CHUNK_LENGTH 4096 ///< Flash erase chunk length (4KB)
@@ -62,11 +73,12 @@
 #define SL_SI91X_MAX_OTA_IMAGE_CHUNK_SIZE 1024 ///< OTA firmware chunk size
 
 /** @brief Timeout for NWP responses. */
-#define SL_SI91X_NWP_RESPONSE_TIMEOUT 30000
+#define SL_SI91X_NWP_RESPONSE_TIMEOUT 30000 ///< NWP response timeout (30s)
 
 /** @brief Magic word to verify slot information integrity. */
-#define SLI_SI91X_AB_FW_SLOT_MAGIC_WORD 0xA5A5B5B5
+#define SLI_SI91X_AB_FW_SLOT_MAGIC_WORD 0xA5A5B5B5 ///< Slot information magic word
 
+/** @brief CRC polynomial for slot information. */
 #define CRC32_POLYNOMIAL 0x04C11DB7 ///< This macro defines the polynomial used for CRC32 calculation.
 
 // @brief Error codes for SI91x A/B slot and fallback operations.
@@ -82,6 +94,7 @@
 
 // This enumeration is used to specify the type of OTA image being processed
 // during an A/B firmware upgrade and for slot management.
+/** @brief Enum for A/B OTA image types. */
 typedef enum {
   SL_SI91X_AB_OTA_IMAGE_TYPE_M4  = 1, ///< Image for M4 processor
   SL_SI91X_AB_OTA_IMAGE_TYPE_NWP = 2, ///< Image for NWP processor
@@ -95,12 +108,13 @@ typedef enum {
   SLOT_MAX    ///< Maximum number of slots (used for validation)
 } sl_si91x_ab_slot_t;
 
+/** @brief Enum for A/B chunk types(Payload / Header). */
 typedef enum {
   SL_SI91X_DATA_PACKET   = 0, ///< Chunk type for Data packet
   SL_SI91X_HEADER_PACKET = 1  ///< Chunk type for Header packet
 } sl_si91x_chunk_type_t;
 
-/** @brief SI91x-specific fallback command types. */
+/** @brief SI91x-specific A/B fallback command types. */
 typedef enum {
   SL_SI91X_AB_FALLBACK_WRITE_CMD           = 1, ///< Write firmware data for fallback
   SL_SI91X_AB_FALLBACK_READ_CMD            = 2, ///< Read firmware data for verification
@@ -169,19 +183,21 @@ typedef struct {
   *  @param[in]   image_buffer       Pointer to the buffer containing the firmware image.
   *  @param[out]  ota_st             Pointer to the ota_image_info_t structure to be populated.
   *  @return      sl_status_t        SL_STATUS_OK on success, or SL_STATUS_FAIL on failure.
+  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   ******************************************************************************/
 sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota_image_info_t *ota_st);
 
 /***************************************************************************/ /**
-  *  @fn          sl_status_t sl_si91x_flash_write(uint32_t address, uint8_t *buffer, uint32_t length)
+  *  @fn          sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32_t length)
   *  @pre         None
   *  @brief       Write data to flash memory.
   *               This function writes data to the specified flash memory address.
   *               This function will work for A/B firmware only.
   *  @param[in]   address            Flash memory address to write to.
   *  @param[in]   buffer             Pointer to the data buffer.
-  *  @param[in]   length             Number of bytes to write.
+  *  @param[in]   length             Number of bytes to write (min 0 max 4096).
   *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
+  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   ******************************************************************************/
 sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32_t length);
 
@@ -195,6 +211,7 @@ sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32
  *  @param[in]   buffer             Pointer to the buffer to store read data.
  *  @param[in]   length             Number of bytes to read.
  *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_flash_read(uint32_t address, uint8_t *buffer, uint32_t length);
 
@@ -209,6 +226,7 @@ sl_status_t sl_si91x_flash_read(uint32_t address, uint8_t *buffer, uint32_t leng
  *  @param[in]   new_image_size     New image size (used only during OTA update).
  *  @param[in]   image_type         Type of the image (M4 or NWP).
  *  @return      sl_status_t        SL_STATUS_OK if successful, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
                                               uint32_t new_image_size,
@@ -229,8 +247,9 @@ sl_status_t sl_si91x_ab_upgrade_set_slot_info(uint32_t new_image_offset,
  *
  *  @param[in]   address  Starting flash memory address to erase (must be sector-aligned).
  *  @param[in]   length   Number of bytes to erase (will be rounded up to sector size).
-  *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
-  ******************************************************************************/
+ *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status). 
+ *******************************************************************************/
 sl_status_t sl_si91x_flash_erase(uint32_t address, uint32_t length);
 
 /***************************************************************************/ /**
@@ -253,6 +272,7 @@ sl_status_t sl_si91x_ab_get_slot_info(sl_si91x_fw_ab_slot_management_t *slot_inf
  *  @param[in]   toggle_m4_image    Set to 1 to toggle M4 slot, 0 otherwise.
  *  @param[in]   toggle_nwp_image   Set to 1 to toggle NWP slot, 0 otherwise.
  *  @return      sl_status_t        SL_STATUS_OK if successful, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_toggle_slot_info(bool toggle_m4_image, bool toggle_nwp_image);
 
@@ -273,19 +293,18 @@ sl_status_t sl_si91x_toggle_slot_info(bool toggle_m4_image, bool toggle_nwp_imag
  *  @return      SL_SI91X_AB_ERR_MAGIC_NUMBER If the magic word does not match the expected value.
  *  @return      SL_SI91X_AB_ERR_CRC_MISMATCH If the CRC verification fails.
  *  @return      SL_STATUS_INVALID_PARAMETER If the active slot is invalid.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_get_m4_app_addr(uint32_t *app_addr);
 
 /***************************************************************************/ /**
  *  @fn          void sl_si91x_jump_to_m4_application(uint32_t app_addr)
- *  @pre         None
  *  @brief       Jumps to the M4 application.
  *               This function disables interrupts, fetches the stack pointer and reset handler
  *               from the application's vector table, sets the VTOR to point to the new
  *               application vector table, and branches to the reset handler.
  *               This function will work for A/B firmware only.
  *  @param[in]   app_addr           Address of the application to jump to.
- *  @return      None
  ******************************************************************************/
 void sl_si91x_jump_to_m4_application(uint32_t app_addr);
 
@@ -299,8 +318,108 @@ void sl_si91x_jump_to_m4_application(uint32_t app_addr);
   *               This function will work for A/B firmware only.
   *  @param[in]   address            Flash memory address to check integrity.
   *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
+  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   ******************************************************************************/
 sl_status_t sl_si91x_verify_image(uint32_t flash_address);
 
+/// @} (end addtogroup Firmware_Fallback) */
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
+/***************************************************************************/
+/***************************************************************************/
+/**
+ * @addtogroup Firmware_Fallback Firmware Fallback A and B
+ * @{
+ *
+ * @details
+ *
+ * @section Firmware_Fallback_Intro Introduction
+ *
+ * The Firmware Fallback feature provides mechanisms for managing A/B firmware upgrades
+ * and fallback operations in Si91x devices. It ensures system reliability by maintaining
+ * two firmware slots and enabling fallback to a stable firmware version in case of
+ * an upgrade failure Additionally, this functionality requires a specific MBR configuration to work.
+ *
+ * @section Firmware_Fallback_Features Features
+ *
+ * - **A/B Slot Management**: Maintains two firmware slots (Slot A and Slot B) for active and backup firmware.
+ * - **Integrity Checks**: Verifies firmware integrity using CRC and magic word validation.
+ * - **Fallback Mechanism**: Switches to a backup firmware slot in case of failure.
+ * - **OTA Support**: Supports Over-The-Air (OTA) firmware upgrades with slot management.
+ *
+ * @section Firmware_Fallback_Usage Usage
+ *
+ * The following steps outline the typical usage of the Firmware Fallback feature, providing clear guidance on how and when to use each API in the firmware update process:
+ *
+ * 1. **At OTA initiation**:  
+ *    Use @ref sl_si91x_ab_upgrade_get_rps_configs to parse the incoming firmware image header. 
+ *    This step extracts critical metadata, such as image size and type, 
+ *    and is typically performed when the first chunk of OTA data arrives. 
+ *    This information helps determine the type of update being performed 
+ *    and allocate the necessary resources for the update process.
+ *
+ * 2. **Preparing the inactive slot for new firmware**:  
+ *    Before writing the new firmware, use @ref sl_si91x_flash_erase to clear the inactive slot. 
+ *    This ensures the slot is ready to receive the new firmware image 
+ *    and prevents flash corruption. The inactive slot can be identified 
+ *    using @ref sl_si91x_ab_get_slot_info, which retrieves the current slot configuration. 
+ *
+ * 3. **Writing firmware during OTA download**:  
+ *    Use @ref sl_si91x_flash_write to store the received firmware chunks in the inactive 
+ *    slot as they arrive from the OTA source. This function should be called for 
+ *    each chunk of data received during the OTA session, ensuring proper addressing 
+ *    and offset management. This step ensures that the new firmware is written correctly 
+ *    to the designated slot.
+ *
+ * 4. **Validating the downloaded firmware**:  
+ *    After the firmware download is complete, use @ref sl_si91x_verify_image to 
+ *    validate the integrity of the downloaded firmware image. 
+ *    This step ensures that only properly formed and uncorrupted firmware is 
+ *    considered for activation.
+ * 
+ * 5. **Updating slot metadata after successful validation**:  
+ *    Once the new firmware is verified, use @ref sl_si91x_ab_upgrade_set_slot_info to 
+ *    update the slot metadata with information about the new firmware. 
+ *    This prepares the slot for activation and ensures the slot information 
+ *    accurately reflects the valid firmware version. 
+ *    This step is essential to mark the new firmware as ready for execution.
+ *
+ * 6. **Retrieving current slot information**:  
+ *    Use @ref sl_si91x_ab_get_slot_info to determine which slot (A or B) is currently 
+ *    active for both M4 and NWP processors. This function also retrieves information 
+ *    about firmware locations and sizes in flash memory. It is typically called before 
+ *    performing any operation that depends on knowing the current slot configuration. 
+ *    This step is useful for diagnostics and ensuring the correct slot is being used.
+ *
+ * 7. **Switching slots manually or for recovery**:  
+ *    Use @ref sl_si91x_toggle_slot_info only in specific scenarios, such as recovering 
+ *    from a failed firmware update by switching back to the previously working slot or 
+ *    manually switching between existing firmware versions. After calling this function, 
+ *    the system must be reset to load the newly activated firmware. 
+ *    This function should not be part of the regular update process and 
+ *    should only be used when both slots contain valid firmware images.
+ *
+ * 8. **Executing the firmware from the active slot**:  
+ *    Use @ref sl_si91x_jump_to_m4_application to execute the firmware from the currently 
+ *    active slot. This function is primarily used by the M4 Updater to branch 
+ *    to the appropriate application after reading slot information. 
+ *    It transfers control from the updater to the main application, completing the boot process. This step ensures the system boots into the correct firmware version.
+ *
+ * By following these steps, the Firmware Fallback feature ensures a seamless and reliable firmware update process, with mechanisms for recovery and fallback in case of failures. This design minimizes downtime and ensures the device remains operational even in the event of update issues.
+ *
+ * @section Firmware_Fallback_Benefits Benefits
+ *
+ * - Ensures system reliability with robust fallback mechanisms.
+ * - Simplifies OTA firmware upgrades with A/B slot management.
+ * - Eliminates the need to transfer the image from the download region to the execution region, enabling faster updates.
+ * - Provides APIs for seamless integration into application firmware.
+ * - Optimizes flash memory usage for firmware storage.
+ *
+ * @} (end addtogroup Firmware_Fallback)
+ */
+/***************************************************************************/
+
+#ifdef __cplusplus
+}
 #endif
-#endif /* _SLI_SI91X_FW_FALLBACK__ */
+#endif // _SLI_SI91X_FW_FALLBACK__

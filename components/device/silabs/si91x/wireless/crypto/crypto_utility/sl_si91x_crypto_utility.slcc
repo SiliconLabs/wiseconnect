@@ -15,7 +15,6 @@ source:
 - path: src/sl_si91x_crypto_utility.c
 include:
 - path: inc
-- path: inc
   file_list:
     - path: sl_si91x_crypto_utility.h
 

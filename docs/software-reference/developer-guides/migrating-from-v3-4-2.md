@@ -2,16 +2,19 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Migration Steps](#migration-steps)
-  - [Updated default TCP/IP thread priority in LWIP stack](#updated-default-tcpip-thread-priority-in-lwip-stack)
-  - [Updated User Gain Table API](#Updated-user-gain-table-API)
+  - [Updated default TCP/IP thread priority in LWIP stack:](#updated-default-tcpip-thread-priority-in-lwip-stack)
+  - [Updated-user-gain-table-API](#updated-user-gain-table-api)
+  - [Condition Introduced for Keeping Files in .data Section Based on pm\_ps2\_component](#condition-introduced-for-keeping-files-in-data-section-based-on-pm_ps2_component)
   - [API Naming Corrections](#api-naming-corrections)
   - [Changes to Reserved Fields](#changes-to-reserved-fields)
   - [Updated Structures](#updated-structures)
-  - [Deprecated APIs](#deprecated-APIs)
+  - [Deprecated APIs](#deprecated-apis)
   - [Deprecated Macros](#deprecated-macros)
   - [Deprecated Enumerators](#deprecated-enumerators)
+  - [Deprecated Structures/API's](#deprecated-structuresapis)
 
 ## Overview
 
@@ -62,6 +65,24 @@ With current tests:
 **User Impact**
 
 Increased gain values as per mentioned above.
+
+### Condition Introduced for Keeping Files in .data Section Based on pm_ps2_component
+   A condition has been introduced in release **3.5.0** to keep specific files in the `.data` section (RAM) **only if** the `pm_ps2_component` is installed.
+
+- **Component Requirement:**  
+  The `pm_ps2_component` must be installed when the application is designed to switch or manage PS2 power states.
+
+- **Reason for Change:**  
+  In previous releases,when the ULP wakeup sources components were used or installed, files related to PS2 functionality were unnecessarily placed in the `.data` section, causing **increased RAM usage** in applications that did not require PS2 features. This change optimizes RAM usage by including these files only when necessary.
+
+- **Action Required:**  
+  If your application uses PS2 power management:
+  - Install the `pm_ps2_component` in **Simplicity Studio**,  
+    **OR**
+  - Add it to the `components` section of your `.slcp` file manually.
+  
+- **Note:**  
+  Without this component, related files will no longer be moved to `.data` section, helping reduce RAM footprint for applications that do not use PS2 features.
 
 ### API Naming Corrections
 

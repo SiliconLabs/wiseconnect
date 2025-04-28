@@ -3,19 +3,31 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
 
-#include "rsi_driver.h"
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
 #include "sl_constants.h"
@@ -42,7 +54,6 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
                                          uint8_t *digest)
 {
   sl_status_t status = SL_STATUS_OK;
-  SL_PRINTF(SL_SHA_PEN_ENTRY, CRYPTO, LOG_INFO);
   uint16_t send_size = 0;
   sl_wifi_buffer_t *buffer;
   const sl_wifi_packet_t *packet;
@@ -152,7 +163,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, const uint8_t *msg, uint16_t msg_leng
   }
 
   sl_status_t status = SL_STATUS_OK;
-  SL_PRINTF(SL_SHA_ENTRY, CRYPTO, LOG_INFO);
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_sha_mutex == NULL) {
@@ -199,7 +209,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, const uint8_t *msg, uint16_t msg_leng
       status = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
 
       if (status != SL_STATUS_OK) {
-        SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
         mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
 #endif
@@ -217,7 +226,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, const uint8_t *msg, uint16_t msg_leng
     sha_flags = LAST_CHUNK | FIRST_CHUNK;
     status    = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
     if (status != SL_STATUS_OK) {
-      SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
       mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
 #endif
@@ -229,7 +237,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, const uint8_t *msg, uint16_t msg_leng
   mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
 #endif
 
-  SL_PRINTF(SL_SHA_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
   return status;
 #endif
 }

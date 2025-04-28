@@ -463,7 +463,7 @@ sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_han
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_icm40627_enable_sleep_mode(sl_ssi_handle_t ssi_driver_handle, bool enable);
+sl_status_t sl_si91x_icm40627_enable_sleep_mode(sl_ssi_handle_t ssi_driver_handle, bool enable);
 
 /***************************************************************************/ /**
  * @brief

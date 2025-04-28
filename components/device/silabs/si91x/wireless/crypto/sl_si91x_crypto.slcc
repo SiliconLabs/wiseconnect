@@ -13,7 +13,6 @@ provides:
 - name: sl_si91x_crypto
 include:
 - path: inc
-- path: inc
   file_list:
     - path: sl_si91x_crypto.h
 

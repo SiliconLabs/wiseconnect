@@ -83,7 +83,9 @@ configuration:
   - name: SL_SI91X_WC_FEAT_SLEEP_GPIO_SEL_BITMAP
     value: '1'
   - name: SL_SI91X_WC_ENABLE_ENHANCED_MAX_PSP
-    value: '1'      
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_WPS_DISABLE
+    value: '1'
 readme:
   - path: readme.md
 other_file:

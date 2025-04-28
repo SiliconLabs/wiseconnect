@@ -547,7 +547,7 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
     sli_si91x_mqtt_client_command_request_t si91x_disconnect_request = { .command_type =
                                                                            SLI_SI91X_MQTT_CLIENT_DISCONNECT_COMMAND };
 
-    status = sli_si91x_driver_send_command(SLI_ACTIVE_HIGH_INTR,
+    status = sli_si91x_driver_send_command(SLI_WLAN_REQ_EMB_MQTT_CLIENT,
                                            SLI_SI91X_NETWORK_CMD,
                                            &si91x_disconnect_request,
                                            sizeof(si91x_disconnect_request),

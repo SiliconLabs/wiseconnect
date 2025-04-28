@@ -173,7 +173,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    - Differential modeL the positive analog input to ULP_GPIO_1 and the negative input to GPIO_28. For Si915, the positive analog input to GPIO_27 and the negative input to GPIO_30.
 3. When the application runs, the ADC configures the settings as per the user and starts ADC conversion.
 4. After completion of conversion ADC input, it will print all the captured samples data in console by connecting serial console.
-5. After successful program execution, the prints in serial console looks as shown below when the input voltage provided is 3.25v(approx).
+5. After successful program execution, the prints in serial console looks as shown below when the input voltage provided is 3.3v.
 
     ![Figure: Introduction](resources/readme/output.png)
 
@@ -209,4 +209,3 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 >- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, as the wireless shutdown scenario is not supported in the current SDK.
-

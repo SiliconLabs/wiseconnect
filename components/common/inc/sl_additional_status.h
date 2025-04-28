@@ -524,6 +524,7 @@
   ((sl_status_t)0x100CE) ///< Device does not have selected region support.
 #define SL_STATUS_SI91X_SELECTED_REGION_NOT_SUPPORTED \
   SL_STATUS_WIFI_SELECTED_REGION_NOT_SUPPORTED ///< Device does not have selected region support.
+#define SL_STATUS_SI91X_HOST_VOLTAGE_OUT_OF_RANGE       ((sl_status_t)0x100D0) ///< Voltage out of range.
 #define SL_STATUS_SI91X_SSL_TLS_CONTEXT_CREATION_FAILED ((sl_status_t)0x100D1) ///< SSL/TLS context create failed.
 #define SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_FAIL \
   ((sl_status_t)0x100D2) ///< SSL/TLS handshake failed. Socket will be closed.

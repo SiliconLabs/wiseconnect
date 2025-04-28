@@ -13,7 +13,6 @@ provides:
 - name: sl_si91x_psa_hmac
 include:
 - path: inc
-- path: inc
   file_list:
     - path: sl_si91x_psa_hmac.h
 

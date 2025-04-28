@@ -957,6 +957,7 @@ sl_status_t sli_si91x_socket_event_handler(sl_status_t status,
       socket->state             = DISCONNECTED;
       socket->disconnect_reason = SLI_SI91X_BSD_DISCONNECT_REASON_REMOTE_CLOSED;
       uint16_t frame_status     = sli_get_si91x_frame_status(rx_packet);
+      frame_status = (frame_status == SL_STATUS_OK) ? (SL_STATUS_SI91X_SOCKET_CLOSED & 0xFFFF) : frame_status;
       sli_si91x_flush_socket_command_queues_based_on_queue_type(index, frame_status);
       sli_si91x_flush_socket_data_queues_based_on_queue_type(index);
 

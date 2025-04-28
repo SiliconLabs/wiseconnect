@@ -1161,8 +1161,8 @@ extern "C" {
 
 // <h> Performance & Memory Configurations
 
-// <o SLI_SI91X_WC_MEMORY_CONFIG> Memory Configuration
-// <0=> Default
+// <o SL_SI91X_WC_MEMORY_CONFIG> Memory Configuration
+// <0=> Default (Compatible with both SOC Mode and NCP Mode)
 // <1=> Allocates 352K Memory to NWP and 320K to M4 (SOC Mode Only)
 // <2=> Allocates 416K Memory to NWP and 256K to M4 (SOC Mode Only)
 // <3=> Allocates 480K Memory to NWP and 192K to M4 (SOC Mode Only)
@@ -1171,32 +1171,35 @@ extern "C" {
 // <i> Select the appropriate memory configuration based on the mode of operation.
 // <i> Choosing an incorrect configuration may lead to unexpected behavior.
 // <i> Default: Default
-#define SLI_SI91X_WC_MEMORY_CONFIG 0
+#define SL_SI91X_WC_MEMORY_CONFIG 0
 
-#if SLI_SI91X_WC_MEMORY_CONFIG == 0
-#define SLI_SI91X_WC_MEMORY_CONFIG_E = MEMORY_CONFIG
-#elif SLI_SI91X_WC_MEMORY_CONFIG == 1
-#define SLI_SI91X_WC_MEMORY_CONFIG_E \
-  (SLI_SI91X_MCU_INTERFACE           \
-     ? 0                             \
+// If the SL_SI91X_WC_MEMORY_CONFIG macro is set to a value between 0 and 5, but the selected device mode is incompatible
+// (e.g., values 0 to 3 are chosen for NCP mode, or vice versa) then SL_SI91X_WC_MEMORY_CONFIG will default to MEMORY_CONFIG.
+// If the value is outside the range of 0-5, a preprocessor error (#error "Invalid") will be triggered during compilation.
+#if SL_SI91X_WC_MEMORY_CONFIG == 0
+#define SLI_SI91X_WC_MEMORY_CONFIG MEMORY_CONFIG
+#elif SL_SI91X_WC_MEMORY_CONFIG == 1
+#define SLI_SI91X_WC_MEMORY_CONFIG \
+  (SLI_SI91X_MCU_INTERFACE         \
+     ? 0                           \
      : MEMORY_CONFIG) //SLI_SI91X_WC_EXT_FEAT_352K_M4SS_320K Allocates 352K memory to NWP and 320K to M4
-#elif SLI_SI91X_WC_MEMORY_CONFIG == 2
-#define SLI_SI91X_WC_MEMORY_CONFIG_E \
-  (SLI_SI91X_MCU_INTERFACE           \
-     ? BIT(21)                       \
+#elif SL_SI91X_WC_MEMORY_CONFIG == 2
+#define SLI_SI91X_WC_MEMORY_CONFIG \
+  (SLI_SI91X_MCU_INTERFACE         \
+     ? BIT(21)                     \
      : MEMORY_CONFIG) //SLI_SI91X_WC_EXT_FEAT_416K_M4SS_256K Allocates 416K memory to NWP and 256K to M4.
-#elif SLI_SI91X_WC_MEMORY_CONFIG == 3
-#define SLI_SI91X_WC_MEMORY_CONFIG_E \
-  (SLI_SI91X_MCU_INTERFACE           \
-     ? BIT(20)                       \
+#elif SL_SI91X_WC_MEMORY_CONFIG == 3
+#define SLI_SI91X_WC_MEMORY_CONFIG \
+  (SLI_SI91X_MCU_INTERFACE         \
+     ? BIT(20)                     \
      : MEMORY_CONFIG) //SLI_SI91X_WC_EXT_FEAT_480K_M4SS_192K Allocates 480K memory to NWP and 192K to M4
-#elif SLI_SI91X_WC_MEMORY_CONFIG == 4
-#define SLI_SI91X_WC_MEMORY_CONFIG_E \
-  (SLI_SI91X_MCU_INTERFACE ? 0 : MEMORY_CONFIG) //SLI_SI91X_WC_EXT_FEAT_352K Allocates 352K memory to NWP
-#elif SLI_SI91X_WC_MEMORY_CONFIG == 5
-#define SLI_SI91X_WC_MEMORY_CONFIG_E             \
-  (SLI_SI91X_MCU_INTERFACE ? (BIT(20) | BIT(21)) \
-                           : MEMORY_CONFIG) //SLI_SI91X_WC_EXT_FEAT_672K Allocates 672K memory to NWP
+#elif SL_SI91X_WC_MEMORY_CONFIG == 4
+#define SLI_SI91X_WC_MEMORY_CONFIG \
+  (SLI_SI91X_MCU_INTERFACE ? MEMORY_CONFIG : 0) //SLI_SI91X_WC_EXT_FEAT_352K Allocates 352K memory to NWP
+#elif SL_SI91X_WC_MEMORY_CONFIG == 5
+#define SLI_SI91X_WC_MEMORY_CONFIG         \
+  (SLI_SI91X_MCU_INTERFACE ? MEMORY_CONFIG \
+                           : (BIT(20) | BIT(21))) //SLI_SI91X_WC_EXT_FEAT_672K Allocates 672K memory to NWP
 #else
 #error "Invalid"
 #endif
@@ -1520,7 +1523,7 @@ extern "C" {
    | SLI_SI91X_WC_EXT_FEAT_XTAL_CLK | SLI_SI91X_WC_EXT_FEAT_HOMEKIT_WAC_ENABLED | SLI_SI91X_WC_EXT_FEAT_1P8V_SUPPORT \
    | SLI_SI91X_WC_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | SLI_SI91X_WC_EXT_FEAT_DISABLE_DEBUG_PRINTS                    \
    | SLI_SI91X_WC_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SLI_SI91X_WC_EXT_FEAT_FRONT_END_INTERNAL_SWITCH    \
-   | SLI_SI91X_WC_MEMORY_CONFIG_E)
+   | SLI_SI91X_WC_MEMORY_CONFIG)
 
 #define SL_SI91X_WC_BT_FEATURE_BITMAP (SLI_SI91X_WC_BT_RF_TYPE | SLI_SI91X_WC_ENABLE_BLE_PROTOCOL)
 

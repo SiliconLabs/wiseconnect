@@ -2,9 +2,8 @@ id: pm_ps2_component
 label: PM PS2 Component
 package: platform
 description: >
-  PS2 Component for Power Manager. This component makes the required files
-  to run from the RAM and provides PS2-related functionality and dependencies
-  for the power manager in low-power modes.
+ Required component for applications designed to operate in PS2 power mode. 
+  This component loads essential files into RAM.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral  
 quality: production
 metadata:
@@ -12,4 +11,3 @@ metadata:
     license: Zlib
 provides:
   - name: pm_ps2_component
-

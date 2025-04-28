@@ -1583,6 +1583,8 @@ sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t in
       sl_wifi_packet_t *si91x_packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(host_packet, 0, NULL);
       si91x_packet->desc[12]         = (uint8_t)(frame_status & 0x00FF);
       si91x_packet->desc[13]         = (uint8_t)((frame_status & 0xFF00) >> 8);
+      si91x_packet->desc[2]          = (uint8_t)(socket->command_queue.frame_type & 0x00FF);
+      si91x_packet->desc[3]          = (uint8_t)((socket->command_queue.frame_type & 0xFF00) >> 8);
       queue_node->host_packet        = host_packet;
       host_packet->id                = current_packet->id;
       if (socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_CLOSE) {
@@ -1600,6 +1602,7 @@ sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t in
     if (sl_si91x_host_elapsed_time(socket->command_queue.command_tickcount) <= socket->command_queue.command_timeout) {
       if (socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_READ_DATA) {
         sli_si91x_add_to_queue(&socket->rx_data_queue, queue_node->host_packet);
+        sli_si91x_host_free_buffer(current_packet);
       } else {
         sli_si91x_add_to_queue(&socket->command_queue.rx_queue, current_packet);
       }

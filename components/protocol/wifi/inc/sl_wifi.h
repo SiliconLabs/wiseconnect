@@ -878,6 +878,8 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface);
  *   signal strength (RSSI) in dBm.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * @note
+ *   The RSSI value is valid only when the Wi-Fi client is connected to an access point. If the Wi-Fi client is disconnected, the RSSI value will be 0xFF.
  ******************************************************************************/
 sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *rssi);
 
