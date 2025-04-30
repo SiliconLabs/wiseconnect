@@ -17,39 +17,39 @@ wiseconnect3.xapi
 
 # Ignore everything not in components
 # components
-connectivity_firmware/
-demos/
-docs/
-examples/
-resources/
-third_party/
-utilities/
+# connectivity_firmware/
+# demos/
+# docs/
+# examples/
+# resources/
+# third_party/
+# utilities/
 
 # ignore everything except common, device, and console
-components/board/silabs/
+# components/board/silabs/
 # components/common/
 # components/console/
-components/console_auto_gen/
+# components/console_auto_gen/
 # components/device/
 # components/protocol/wifi/
-components/service/
+# components/service/
 
 # Ignore all device folders except si91x mcu, asynchronous_socket, icmp, ble, and firmware_upgrade
 # components/device/silabs/si91x/mcu/
-components/device/silabs/si91x/wireless/ahb_interface/
+# components/device/silabs/si91x/wireless/ahb_interface/
 # components/device/silabs/si91x/wireless/asynchronous_socket/
 # components/device/silabs/si91x/wireless/ble/
-components/device/silabs/si91x/wireless/crypto/
-components/device/silabs/si91x/wireless/errno/
+# components/device/silabs/si91x/wireless/crypto/
+# components/device/silabs/si91x/wireless/errno/
 # components/device/silabs/si91x/wireless/firmware_upgrade/
-components/device/silabs/si91x/wireless/host_mcu/
+# components/device/silabs/si91x/wireless/host_mcu/
 # components/device/silabs/si91x/wireless/icmp/
-components/device/silabs/si91x/wireless/inc/
-components/device/silabs/si91x/wireless/memory/
-components/device/silabs/si91x/wireless/ncp_interface/
-components/device/silabs/si91x/wireless/sl_net/
-components/device/silabs/si91x/wireless/socket/
-components/device/silabs/si91x/wireless/src/
-components/device/silabs/si91x/wireless/threading/
+# components/device/silabs/si91x/wireless/inc/
+# components/device/silabs/si91x/wireless/memory/
+# components/device/silabs/si91x/wireless/ncp_interface/
+# components/device/silabs/si91x/wireless/sl_net/
+# components/device/silabs/si91x/wireless/socket/
+# components/device/silabs/si91x/wireless/src/
+# components/device/silabs/si91x/wireless/threading/
 components/device/silabs/si91x/wireless/*.slcc
 components/device/stm32/
