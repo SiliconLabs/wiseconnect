@@ -1124,9 +1124,9 @@
 #endif
 
 #define M4_SSI_CS0 1
-#define M4_SSI_CS1 0
-#define M4_SSI_CS2 0
-#define M4_SSI_CS3 0
+#define M4_SSI_CS1 1
+#define M4_SSI_CS2 1
+#define M4_SSI_CS3 1
 
 // <o> SSI_MASTER_CS Pin <0=>GPIO_9 <1=>GPIO_28 <2=>GPIO_53 <3=>GPIO_10 <4=>GPIO_15 <5=>GPIO_50 <6=>GPIO_51
 #ifndef SSI_MASTER_CS0_LOC
@@ -1498,9 +1498,9 @@
 #define RTE_SSI_ULP_MASTER 1
 
 // <e> Enable multiple CSN lines
-#define ULP_SSI_CS0 0
+#define ULP_SSI_CS0 1
 #define ULP_SSI_CS1 1
-#define ULP_SSI_CS2 0
+#define ULP_SSI_CS2 1
 
 // <o> SSI_ULP_MASTER_MISO Pin <0=>Not Used <1=>ULP_GPIO_2 <2=>ULP_GPIO_9
 #if !defined(ULP_SPI_MISO_LOC) && !defined(ULP_SSI_MISO_LOC)

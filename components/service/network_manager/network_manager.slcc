@@ -49,7 +49,6 @@ define:
 requires:
 - name: wifi
 - name: network_config_manager
-- name: credential_manager
 
 recommends:
 - id: "%extension-wiseconnect3_sdk%basic_network_config_manager"

@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "rsi_ccp_user_config.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
+#endif /* SL_COMPONENT_CATALOG_PRESENT */
 #ifdef DEBUG_UART_UC
 #ifndef SL_SI91X_ULP_UART
 #include "sl_si91x_debug_uc_1_config.h"

@@ -351,6 +351,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  *   | BIT(6) | Set this bit to use HTTP version 1.1                                   |
  *   | BIT(9) | Set this bit to specify index of SSL cert to be used for HTTPS.        |
  *   | BIT(10)| Set this bit to specify index of SSL cert to be used for HTTPS.        |
+ *   | BIT(11)| Set this bit to enable server name indication (SNI) for HTTPS.         |
  * 
  * @note
  * - Maximum supported length for user_name, password together is 278 bytes.

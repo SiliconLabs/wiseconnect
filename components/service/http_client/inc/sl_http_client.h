@@ -105,10 +105,11 @@ typedef enum {
  *   This enumeration defines the versions of the Transport Layer Security (TLS) protocol that can be used by the HTTPS client. Each version provides different levels of security and compatibility.
  */
 typedef enum {
-  SL_TLS_V_1_0 = 0, ///< Use TLS Version 1.0 for HTTPS Client.
-  SL_TLS_V_1_1 = 1, ///< Use TLS Version 1.1 for HTTPS Client.
-  SL_TLS_V_1_2 = 2, ///< Use TLS Version 1.2 for HTTPS Client.
-  SL_TLS_V_1_3 = 3  ///< Use TLS Version 1.3 for HTTPS Client.
+  SL_TLS_V_1_0           = 0, ///< Use TLS Version 1.0 for HTTPS Client.
+  SL_TLS_V_1_1           = 1, ///< Use TLS Version 1.1 for HTTPS Client.
+  SL_TLS_V_1_2           = 2, ///< Use TLS Version 1.2 for HTTPS Client.
+  SL_TLS_V_1_3           = 3, ///< Use TLS Version 1.3 for HTTPS Client.
+  SL_TLS_DEFAULT_VERSION = -1 ///< Use the default TLS version for HTTPS Client.
 } sl_http_client_tls_version_t;
 
 /**
@@ -495,6 +496,7 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
  *   - The `body_length` header in the request is set internally by default on Si91x specific chipsets.
  *   - HTTP PUT does not support sending the body through this API; it is mandatory to call @ref sl_http_client_write_chunked_data on Si91x specific chipsets.
  *   - HTTP response status and response codes (e.g., 200, 201, 404) would be returned in the corresponding event handler registered during @ref sl_http_client_request_init.
+ *   - If the `sni_extension` field in the `sl_http_client_request_t` structure is NULL, the `host_name` field will be used as the SNI, provided that `host_name` is not equal to `ip_address`.
  ******************************************************************************/
 sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl_http_client_request_t *request);
 

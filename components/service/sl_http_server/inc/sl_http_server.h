@@ -40,6 +40,9 @@
  *   This function initializes an HTTP server using the provided configuration structure and returns a handle to the server. 
  *   It sets up the server's configuration, request buffer, and event flags. All HTTP server APIs must use the server handle returned in the `handle` parameter.
  *
+ * @pre Pre-conditions:
+ * - [sl_net_up](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-up) API needs to be called before this API.
+ *
  * @param[out] handle
  *   Pointer to an @ref sl_http_server_t object that will be initialized with the server handle. Must not be NULL.
  *

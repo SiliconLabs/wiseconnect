@@ -26,7 +26,6 @@ requires:
   - name: status
   - name: sl_si91x_wireless
   - name: network_manager
-  - name: nvm3_network_config_manager
   - name: wiseconnect3_common
   - name: wifi
   - name: sl_si91x_mcu

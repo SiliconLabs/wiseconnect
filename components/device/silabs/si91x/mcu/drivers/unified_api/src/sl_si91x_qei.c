@@ -347,6 +347,10 @@ sl_status_t sl_si91x_qei_init(sl_qei_init_t *qei_init)
  ******************************************************************************/
 void sl_si91x_qei_deinit(void)
 {
+  uint32_t configParms = 0;
+  // Reset the position counter and index counter
+  configParms = (SL_QEI_POS_CNT_RST) | (SL_QEI_INDEX_COUNT_RESET);
+  RSI_QEI_SetConfiguration(QEI, configParms);
   RSI_QEI_Disable(QEI); // Disable the QEI
 }
 

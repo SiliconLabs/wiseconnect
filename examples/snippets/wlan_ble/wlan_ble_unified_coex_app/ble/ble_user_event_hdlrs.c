@@ -1708,6 +1708,7 @@ void rsi_ble_event_disconnect(uint16_t status, void *event_data)
   rsi_ble_conn_info[ble_conn_id].char_for_serv_cnt            = 0;
   rsi_ble_conn_info[ble_conn_id].buff_config_done             = false;
   more_data_state_beta[ble_conn_id].data_transmit             = false;
+  smp_in_progress                                             = 0;
 
   //! clear the profile data
 #if (CONNECT_OPTION == CONN_BY_NAME)
@@ -4429,8 +4430,8 @@ void rsi_ble_event_smp_pending(uint16_t status, void *event_data)
   uint8_t ble_conn_id          = *conn_id;
   uint8_t BD_ADDR[BD_ADDR_LEN] = { 0 };
   for (i = 0; i < TOTAL_CONNECTIONS; i++) {
-    if ((rsi_ble_conn_info[i].mtu_state) && (ble_confgs.ble_conn_configuration[ble_conn_id].smp_enable)
-        && (!smp_in_progress)) {
+    if ((rsi_ble_conn_info[ble_conn_id].mtu_exchange_done)
+        && (ble_confgs.ble_conn_configuration[ble_conn_id].smp_enable) && (!smp_in_progress)) {
       if (!rsi_ble_conn_info[ble_conn_id].smp_pairing_initated) {
         if (rsi_ble_conn_info[i].smp_state == smp_pending) {
           memcpy(BD_ADDR, rsi_ble_conn_info[i].rsi_enhc_conn_status.dev_addr, BD_ADDR_LEN);

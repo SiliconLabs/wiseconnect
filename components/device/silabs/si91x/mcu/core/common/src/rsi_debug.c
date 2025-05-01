@@ -19,7 +19,9 @@
 #include "rsi_debug.h"
 #include "USART.h"
 #include "rsi_ccp_common.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
+#endif /* SL_COMPONENT_CATALOG_PRESENT */
 
 #ifdef SL_CATALOG_KERNEL_PRESENT
 #include "cmsis_os2.h"

@@ -287,7 +287,7 @@ sl_status_t sl_si91x_power_manager_init(void);
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_power_manager_core_entercritical(void)
 {
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   __disable_irq();
 #endif
 }
@@ -299,7 +299,7 @@ __STATIC_INLINE void sl_si91x_power_manager_core_entercritical(void)
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_power_manager_core_exitcritical(void)
 {
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   __enable_irq();
 #endif
 }

@@ -146,6 +146,19 @@ Configure UC from the slcp component.
       #define ULP_SSI_MASTER_RECEIVE  DISABLE   // To use the receive(Click Lock symbol to allow editing and add documentation here) API
       ```
 
+- By default, CS0 is selected in the pintool. To use a different chip select (CS), update the corresponding slave number in the `ulp_ssi_master_example.c` file after configuring the desired CS in the pintool.
+
+    ```C
+    // For CS0
+    static uint32_t ulp_ssi_master_slave_number = SSI_SLAVE_0;
+    // For CS1
+    static uint32_t ulp_ssi_master_slave_number = SSI_SLAVE_1;
+    // For CS2
+    static uint32_t ulp_ssi_master_slave_number = SSI_SLAVE_2;
+    ```
+
+- To unregister a user event callback for a specific instance, use the API \ref sl_si91x_ssi_per_instance_unregister_event_callback. Alternatively, to unregister callbacks for all instances simultaneously, use the API \ref sl_si91x_ssi_unregister_event_callback.
+
 ## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board
 
 | GPIO pin           | Description              |

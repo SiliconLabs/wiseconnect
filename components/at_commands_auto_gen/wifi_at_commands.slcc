@@ -57,7 +57,7 @@ template_contribution:
     value:
       help:
         handler: help_command_handler
-      ready:
+      ready?:
         handler: ready_command_handler
       echo:
         handler: echo_command_handler
@@ -69,7 +69,7 @@ template_contribution:
           - "uint8"
       wifi-deinit:
         handler: wifi_deinit_command_handler
-      wifisys-get-fwver:
+      wifisys-fwver?:
         handler: wifi_get_firmware_version_command_handler
       wifi-get-mac:
         handler: wifi_get_mac_address_command_handler
@@ -133,7 +133,7 @@ template_contribution:
           - "uint8"
       siwx91x-nvic-reset:
         handler: soc_reset_command_handler
-      wifi-set-listen-interval:
+      wifi-listen-interval:
         handler: set_listen_interval_command_handler
         arguments:
           - "uint16"
@@ -143,3 +143,31 @@ template_contribution:
         handler: get_listen_interval_command_handler
         arguments:
           - "uint16"
+      wifi-scan-advconf:
+        handler: set_advanced_scan_configuration_command_handler
+        arguments:
+          - "int32"
+          - "uint32"
+          - "uint16"
+          - "uint16"
+          - "uint8"
+          - "uint8"
+      wifi-scan-rslts:
+        handler: wifi_get_extended_scan_results_command_handler
+        arguments:
+          - "uint16"
+          - "uint8"
+          - "uint8"
+          - "uint8"
+          - "uint8"
+          - "uint8"
+      wifi-perf-prof:
+        handler: wifi_set_performance_profile_command_handler
+        arguments:
+          - "uint16"
+          - "uint8"
+          - "uint8"
+          - "uint32"
+          - "uint16"
+      wifi-perf-prof?:
+        handler: wifi_get_performance_profile_command_handler

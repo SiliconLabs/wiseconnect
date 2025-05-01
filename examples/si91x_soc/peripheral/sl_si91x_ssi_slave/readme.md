@@ -166,6 +166,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   static uint16_t ssi_slave_rx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
   ```
 
+- To unregister a user event callback for a specific instance, use the API \ref sl_si91x_ssi_per_instance_unregister_event_callback. Alternatively, to unregister callbacks for all instances simultaneously, use the API \ref sl_si91x_ssi_unregister_event_callback.
+
 ### Pin Configuration
 
 #### Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board

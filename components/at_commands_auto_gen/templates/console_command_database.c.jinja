@@ -71,7 +71,7 @@ static const console_descriptive_command_t {{prefix}}_command = { .description={
 #include "console_argument_types.h"
 {% set __mapping = {"uint8": "UINT", "uint16": "UINT", "uint32": "UINT", "int": "INT", "int8": "INT", "int16": "INT", "int32": "INT", "string": "STRING", "mac": "MAC_ADDRESS", "ip": "IP_ADDRESS", "hex": "HEX", "*": "REMAINING_COMMAND_LINE"}  %}
 {% for entry in console_commands %}{% for name in entry %}
-{% set modified_name = name | replace('-', '_') %}
+{% set modified_name = name | replace('-', '_') | replace('?', 'q') %}
 {{ process_command(entry[name], modified_name, "") }}
 {% endfor %}{% endfor %}
 
@@ -79,6 +79,6 @@ const console_database_t console_command_database =
 {
     CONSOLE_DATABASE_ENTRIES(
 {% for entry in console_commands -%} {% for name in entry -%}
-{% set modified_name = name | replace('-', '_') -%}
+{% set modified_name = name | replace('-', '_') | replace('?', 'q') -%}
     { "{{name}}",    &_{{modified_name}}_command },
 {% endfor -%}{% endfor -%}   )};

@@ -397,7 +397,7 @@ sl_status_t send_udp_data(void)
 sl_status_t create_tcp_socket(void)
 {
   struct sockaddr_in server_address = { 0 };
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   int socket_return_value = 0;
 

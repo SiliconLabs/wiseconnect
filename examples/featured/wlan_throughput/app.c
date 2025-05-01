@@ -419,7 +419,7 @@ void receive_data_from_tcp_client(void)
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   sl_status_t status = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {
@@ -694,7 +694,7 @@ void receive_data_from_tls_server(void)
 
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   sl_status_t status = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {
@@ -703,7 +703,7 @@ void receive_data_from_tls_server(void)
   printf("Socket config Done\r\n");
 
 #if SOCKET_ASYNC_FEATURE
-  uint8_t enable_tls = SL_SI91X_ENABLE_TLS;
+  uint32_t enable_tls = SL_SI91X_ENABLE_TLS;
 
   client_socket = sl_si91x_socket_async(AF_INET, SOCK_STREAM, IPPROTO_TCP, &data_callback);
   if (client_socket < 0) {

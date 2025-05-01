@@ -1017,7 +1017,7 @@ void sl_si91x_gpio_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_c
  * @param[in]  line - Line number
  * @return     None
  ******************************************************************************/
-void sl_assert_failed(uint8_t *file, uint32_t line);
+void sl_assert_failed(uint8_t *file, unsigned int line);
 
 /***************************************************************************/ /**
  * Toggle the selected UULP pin status.

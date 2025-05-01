@@ -22,18 +22,14 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 #include "firmware_upgradation.h"
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+#include "sl_si91x_socket_utility.h"
+#endif
 #include <sl_string.h>
 
 /******************************************************
  *                      Macros
  ******************************************************/
-// Macro to check if malloc failed
-#define VERIFY_MALLOC_AND_RETURN(ptr)     \
-  do {                                    \
-    if (ptr == NULL) {                    \
-      return SL_STATUS_ALLOCATION_FAILED; \
-    }                                     \
-  } while (0)
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -271,6 +267,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   UNUSED_PARAMETER(type);
   UNUSED_PARAMETER(post_data);
   UNUSED_PARAMETER(post_data_length);
+  SL_VERIFY_POINTER_OR_RETURN(host_name, SL_STATUS_NULL_POINTER);
+
   sl_status_t status                             = SL_STATUS_FAIL;
   sli_si91x_http_client_request_t http_client    = { 0 };
   uint32_t send_size                             = 0;
@@ -302,6 +300,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
 
   https_enable = (flags & SL_SI91X_TLS_V_1_2) ? (https_enable | SL_SI91X_TLS_V_1_2) : https_enable;
 
+  https_enable = (flags & SL_SI91X_TLS_V_1_3) ? (https_enable | SL_SI91X_TLS_V_1_3) : https_enable;
+
   // Set HTTP version 1.1 feature bit
   https_enable = (flags & SL_SI91X_HTTP_V_1_1) ? (https_enable | SL_SI91X_HTTP_V_1_1) : https_enable;
 
@@ -310,6 +310,26 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
 
   https_enable = (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_2) ? (https_enable | SL_SI91X_HTTPS_CERTIFICATE_INDEX_2)
                                                               : https_enable;
+
+  if (flags & SL_SI91X_HTTPS_USE_SNI) {
+    https_enable = (https_enable | SL_SI91X_HTTPS_USE_SNI);
+
+    sl_si91x_socket_type_length_value_t *set_sni = (sl_si91x_socket_type_length_value_t *)malloc(
+      sizeof(sl_si91x_socket_type_length_value_t) + sl_strlen((char *)host_name));
+    if (set_sni == NULL) {
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+
+    // Initialize the SNI structure.
+    set_sni->type   = SL_SI91X_TLS_EXTENSION_SNI_TYPE;
+    set_sni->length = sl_strlen((char *)host_name);
+    memcpy(set_sni->value, host_name, set_sni->length);
+    status = sli_si91x_set_sni_for_embedded_socket(set_sni);
+    free(set_sni);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+  }
 
   // Fill https features parameters
   http_client.https_enable = https_enable;
@@ -396,7 +416,7 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                            NULL);
   } else {
     packet_buffer = malloc(sizeof(sli_si91x_http_client_request_t));
-    VERIFY_MALLOC_AND_RETURN(packet_buffer);
+    SLI_VERIFY_MALLOC_AND_RETURN(packet_buffer);
 
     while (rem_length) {
       if (rem_length > SLI_SI91X_MAX_HTTP_CHUNK_SIZE) {

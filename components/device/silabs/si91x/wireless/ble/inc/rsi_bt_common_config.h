@@ -201,6 +201,7 @@
 #define TA_BASED_ENCODER 0 ///< Encoder type based on TA
 #endif
 
+#ifdef __ZEPHYR__
 #ifndef RSI_BLE_SET_RAND_ADDR
 #define RSI_BLE_SET_RAND_ADDR "00:23:A7:12:34:56"
 #endif
@@ -211,6 +212,7 @@
 
 #ifndef RSI_BLE_MAX_NBR_CENTRALS
 #define RSI_BLE_MAX_NBR_CENTRALS 1
+#endif
 #endif
 
 /** @} */

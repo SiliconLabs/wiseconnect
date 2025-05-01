@@ -34,6 +34,7 @@
 #define SLI_LDMA_MAX_TRANSFER_LENGTH     4096
 #define SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH (SLI_LDMA_MAX_TRANSFER_LENGTH / 2048)
 #define PACKET_PENDING_INT_PRI           3
+#define SLI_SPI_BIT_RATE                 10000000
 
 static bool sli_dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam);
 
@@ -108,8 +109,8 @@ sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
 
     EUSART_SpiInit_TypeDef init = EUSART_SPI_MASTER_INIT_DEFAULT_HF;
 
-    init.bitRate          = 10000000; // 10 MHz shift clock
-    init.advancedSettings = &adv;     // Advanced settings structure
+    init.bitRate          = SLI_SPI_BIT_RATE; // 10 MHz shift clock
+    init.advancedSettings = &adv;             // Advanced settings structure
 
     /*
    * Route EUSART RX, TX, and CLK to the specified pins.  Note that CS is
@@ -182,6 +183,17 @@ sl_status_t sl_si91x_host_deinit(void)
 
 void sl_si91x_host_enable_high_speed_bus()
 {
+}
+
+__WEAK void sl_si91x_host_spi_cs_assert()
+{
+  EUSART_BaudrateSet(SPI_EUSART, 0, SLI_SPI_BIT_RATE);
+  GPIO_PinOutClear(SPI_CS_PIN.port, SPI_CS_PIN.pin);
+}
+
+__WEAK void sl_si91x_host_spi_cs_deassert()
+{
+  GPIO_PinOutSet(SPI_CS_PIN.port, SPI_CS_PIN.pin);
 }
 
 /*==================================================================*/

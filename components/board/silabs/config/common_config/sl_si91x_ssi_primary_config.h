@@ -71,7 +71,7 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <ssi_master signal=MOSI_DATA0,MISO_DATA1,SCK_,CS0_> SL_SSI_MASTER
+// <ssi_master signal=MOSI_DATA0,MISO_DATA1,SCK_,(CS0_),(CS1_),(CS2_),(CS3_)> SL_SSI_MASTER
 // $[SSI_MASTER_SL_SSI_MASTER]
 #ifndef SL_SSI_MASTER_PERIPHERAL
 #define SL_SSI_MASTER_PERIPHERAL SSI_MASTER

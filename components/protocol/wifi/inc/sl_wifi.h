@@ -1014,6 +1014,8 @@ sl_status_t sl_wifi_set_advanced_client_configuration(sl_wifi_interface_t interf
  * @pre Pre-conditions:
  * -
  *   @ref sl_wifi_init should be called before this API.
+ * -
+ *   This API should be invoked only after the module has established a connection in STA or AP mode.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] data

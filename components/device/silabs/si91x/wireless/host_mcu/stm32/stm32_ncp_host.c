@@ -1,5 +1,5 @@
 /*******************************************************************************
-* @file  efx32_ncp_host.c
+* @file  stm32_ncp_host.c
 * @brief 
 *******************************************************************************
 * # License
@@ -186,6 +186,14 @@ sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
 sl_status_t sl_si91x_host_deinit(void)
 {
   return SL_STATUS_OK;
+}
+
+__WEAK void sl_si91x_host_spi_cs_assert()
+{
+}
+
+__WEAK void sl_si91x_host_spi_cs_deassert()
+{
 }
 
 /*==================================================================*/

@@ -169,7 +169,7 @@ sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SA
 
 #define MIN_CONN_INTERVAL 36
 #define MAX_CONN_INTERVAL 36
-#define SLAVE_LATENCY     0
+#define CONN_LATENCY      0
 //! global parameters list
 static volatile uint32_t ble_app_event_map;
 static volatile uint32_t ble_app_event_map1;
@@ -1886,7 +1886,7 @@ scan:
         status = rsi_ble_conn_params_update(conn_event_to_app.dev_addr,
                                             MIN_CONN_INTERVAL,
                                             MAX_CONN_INTERVAL,
-                                            SLAVE_LATENCY,
+                                            CONN_LATENCY,
                                             SUPERVISION_TIMEOUT);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nrsi_ble_conn_params_update Failed, Error Code : 0x%lX\r\n", status);

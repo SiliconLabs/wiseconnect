@@ -81,3 +81,43 @@ template_contribution:
           - "string"
           - "string"
           - "string"
+      net-conf-ip:
+        handler: net_configure_ip_command_handler
+        arguments:
+          - "uint8"
+          - "uint8"
+          - "uint8"
+          - "string"
+          - "string"
+          - "string"
+          - "string"
+          - "string"
+          - "string"
+          - "string"
+          - "uint32"
+      net-dhcp-conf:
+        handler: net_dhcp_config_command_handler
+        arguments:
+          - "uint16"
+          - "uint16"
+          - "uint16"
+          - "uint16"
+          - "uint8"
+          - "uint8"
+      dns-resolve-hostname:
+        handler: dns_hostgetbyname_command_handler
+        arguments:
+          - "string"
+          - "uint32"
+          - "uint8"
+      http-otaf-update:
+        handler: http_otaf_upgrade_command_handler
+        arguments:
+          - "uint16"
+          - "string"
+          - "uint16"
+          - "string"
+          - "string"
+          - "string"
+          - "string"
+          - "string"

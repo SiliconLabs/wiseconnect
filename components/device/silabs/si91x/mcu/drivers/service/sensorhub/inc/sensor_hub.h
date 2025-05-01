@@ -922,8 +922,8 @@ void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
 ///
 ///    * To configure the power states to PS4 sleep or PS2 Sleep, please update the defines in sisdk/util/third_party/freertos/kernel/include/FreeRTOS.h file as below:
 ///    ```C
-///    #ifndef configUSE_TICKLESS_IDLE
-///    #define configUSE_TICKLESS_IDLE 1           // 1 is to Enable the tickless Idle mode
+///    #ifndef SL_SI91X_TICKLESS_MODE
+///    #define SL_SI91X_TICKLESS_MODE  1           // 1 is to Enable the tickless Idle mode
 ///    #endif
 ///
 ///    #ifndef configPRE_SLEEP_PROCESSING

@@ -291,6 +291,8 @@ typedef struct {
  * @brief Wi-Fi Access Point configuration structure.
  *
  * Indicates the configuration parameters for setting up a Wi-Fi Access Point (AP).
+ * 
+ * @note When configuring AP interface in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
  */
 typedef struct {
   sl_wifi_ssid_t ssid;                   ///< SSID (Service Set Identifier) of the Access Point
@@ -343,6 +345,8 @@ typedef struct {
  * @brief Wi-Fi Client interface configuration structure.
  *
  * Defines the configuration parameters for a Wi-Fi client interface.
+ * 
+ * @note When configuring client interface in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
  */
 typedef struct {
   sl_wifi_ssid_t ssid; ///< SSID (Service Set Identifier) of the Wi-Fi network. This is of type @ref sl_wifi_ssid_t

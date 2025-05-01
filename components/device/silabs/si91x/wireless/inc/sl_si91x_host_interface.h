@@ -242,6 +242,26 @@ uint32_t sl_si91x_host_get_wake_indicator(void);
  ******************************************************************************/
 sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length);
 
+/**
+ * @brief
+ * Asserts the SPI bus chip select
+ * 
+ * @note 
+ * This is a weak implementation, and by default, an implementation is provided by the SDK.
+ * Users can choose to overwrite it with their own custom implementation if needed.
+ */
+void sl_si91x_host_spi_cs_assert(void);
+
+/**
+ * @brief
+ * De-asserts the SPI bus chip select
+ * 
+ * @note 
+ * This is a weak implementation provided by default by the SDK.
+ * Users can choose to overwrite it with their own custom implementation if needed.
+ */
+void sl_si91x_host_spi_cs_deassert(void);
+
 /***************************************************************************/ /**
  * @brief
  *   Transfers data over the UART interface.

@@ -193,10 +193,8 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    // Getting the instance number from the input handle
-    uint8_t instance = convert_handle_to_instance(ssi_handle);
-    // NULL is passed to the callback function pointer of instance which is deinitialized
-    user_callback[instance] = NULL;
+    //unregister the callback event on a per-instance basis.
+    sl_si91x_ssi_per_instance_unregister_event_callback(ssi_handle);
 
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
@@ -617,6 +615,19 @@ void sl_si91x_ssi_unregister_event_callback(void)
     // Clearing all the three instance callbacks
     user_callback[i] = NULL;
   }
+}
+
+/*******************************************************************************
+ * To unregister the user event callback on a per-instance basis.
+ * Get the instance, 0,1,2 for master, slave and ulp master respectively
+ * and NULL is passed to the callback function pointer of instance.
+*******************************************************************************/
+void sl_si91x_ssi_per_instance_unregister_event_callback(sl_ssi_handle_t ssi_handle)
+{
+  // Getting the instance number from the input handle
+  uint8_t instance = convert_handle_to_instance(ssi_handle);
+  // NULL is passed to the callback function pointer of instance.
+  user_callback[instance] = NULL;
 }
 
 /*******************************************************************************

@@ -16,3 +16,6 @@ include:
     - path: firmware_upgradation.c
 provides:
     - name: sl_si91x_fwup
+requires:
+- name: sl_si91x_socket
+  condition : ["sl_si91x_internal_stack"]

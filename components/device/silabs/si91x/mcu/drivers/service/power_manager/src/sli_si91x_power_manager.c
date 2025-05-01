@@ -37,7 +37,6 @@
 #include "rsi_rom_power_save.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_ps_ram_func.h"
-#include "FreeRTOSConfig.h"
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
 #include "rsi_m4.h"
 #include "sl_si91x_types.h"
@@ -255,7 +254,7 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   }
 #endif
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   rsi_p2p_intr_status_bkp_t p2p_intr_status_bkp;
   p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
@@ -278,7 +277,7 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
 #endif
 
 // After waking up, setting the mcu status as active in P2P registers
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   RSI_PS_SetMCUActiveStatus();
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   SysTick_Config(SystemCoreClock / 1000);
@@ -584,7 +583,7 @@ static void ps4_to_ps0_state_change(void)
 #endif
   // Configuring the clocks as per the sleep state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_SLEEP, SL_SI91X_POWER_MANAGER_POWERSAVE);
-#if ((configUSE_TICKLESS_IDLE == 1) && (SL_SLEEP_TIMER == 1))
+#if ((SL_SI91X_TICKLESS_MODE == 1) && (SL_SLEEP_TIMER == 1))
   RSI_PS_ClrWkpSources(SYSRTC_BASED_WAKEUP);
 #endif
   // If any error code, it returns it otherwise goes to sleep without retention.
@@ -659,7 +658,7 @@ static void ps3_to_ps0_state_change(void)
 #endif
   // Configuring the clocks as per the sleep state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_SLEEP, SL_SI91X_POWER_MANAGER_POWERSAVE);
-#if ((configUSE_TICKLESS_IDLE == 1) && (SL_SLEEP_TIMER == 1))
+#if ((SL_SI91X_TICKLESS_MODE == 1) && (SL_SLEEP_TIMER == 1))
   RSI_PS_ClrWkpSources(SYSRTC_BASED_WAKEUP);
 #endif
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
@@ -721,7 +720,7 @@ static void ps2_to_ps1_state_change(void)
 
     // If any error code, it returns it otherwise goes to sleep with retention.
     trigger_sleep(&config, SLEEP_WITH_RETENTION);
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
     // Enable the NVIC interrupts.
     __asm volatile("cpsie i" ::: "memory");
 #endif

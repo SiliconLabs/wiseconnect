@@ -145,8 +145,8 @@ typedef enum {
  *          Quadrature Encoder Interface (QEI).
  */
 typedef enum {
-  SL_QEI_POS_CNT_16,  ///< Mode for 16-bit position counting.
   SL_QEI_POS_CNT_32,  ///< Mode for 32-bit position counting.
+  SL_QEI_POS_CNT_16,  ///< Mode for 16-bit position counting.
   SL_QEI_POS_CNT_LAST ///< Last member of the enum for validation purposes.
 } sl_qei_pos_cnt_mode_t;
 

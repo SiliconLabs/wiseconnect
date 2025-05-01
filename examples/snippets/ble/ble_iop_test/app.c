@@ -210,7 +210,7 @@ static uint8_t smp_passkey[BLE_PASSKEY_SIZE];
 
 //! store connection parameter
 uint8_t conn_params[12] = { CONN_INTERVAL_MIN_LSB,   CONN_INTERVAL_MIN_MSB,   CONN_INTERVAL_MAX_LSB,
-                            CONN_INTERVAL_MAX_MSB,   SLAVE_LATENCY_LSB,       SLAVE_LATENCY_MSB,
+                            CONN_INTERVAL_MAX_MSB,   CONN_LATENCY_LSB,        CONN_LATENCY_MSB,
                             SUPERVISION_TIMEOUT_LSB, SUPERVISION_TIMEOUT_MSB, MIN_CE_LENGTH_LSB,
                             MIN_CE_LENGTH_MSB,       MAX_CE_LENGTH_LSB };
 

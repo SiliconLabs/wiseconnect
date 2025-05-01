@@ -75,7 +75,7 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
   // Create the event flag for auto-join
   auto_join_event_flag = osEventFlagsNew(NULL);
   if (auto_join_event_flag == NULL) {
-    printf("Failed to create auto-join event flag.\n");
+    SL_DEBUG_LOG("Failed to create auto-join event flag.\n");
     return SL_STATUS_FAIL;
   }
 
@@ -83,7 +83,7 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
   network_manager_queue =
     osMessageQueueNew(10, sizeof(sl_network_manager_message_t), &network_manager_queue_attributes);
   if (network_manager_queue == NULL) {
-    printf("Failed to create network manager message queue.\n");
+    SL_DEBUG_LOG("Failed to create network manager message queue.\n");
     return SL_STATUS_FAIL;
   }
 
@@ -91,7 +91,7 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
   network_manager_id =
     osThreadNew((osThreadFunc_t)sli_network_manager_event_handler, NULL, &network_manager_attributes);
   if (network_manager_id == NULL) {
-    printf("Failed to create network manager thread.\n");
+    SL_DEBUG_LOG("Failed to create network manager thread.\n");
     return SL_STATUS_FAIL;
   }
 
@@ -112,7 +112,7 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
 
   status = sl_wifi_connect(client_interface, &profile->config, 18000);
   if (status != SL_STATUS_OK) {
-    printf("Failed to connect to Wi-Fi network.\n");
+    SL_DEBUG_LOG("Failed to connect to Wi-Fi network.\n");
     sl_network_manager_message_t message;
     message.interface   = interface;
     message.event_flags = NETWORK_MANAGER_CONNECT_FAILURE_CMD;
@@ -121,10 +121,10 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
     // Wait for the auto-join process to complete
     uint32_t event_result = osEventFlagsWait(auto_join_event_flag, 0x01, osFlagsWaitAny, osWaitForever);
     if (event_result & AUTO_JOIN_SUCCESS_FLAG) {
-      printf("Auto-join process completed.\n");
+      SL_DEBUG_LOG("Auto-join process completed.\n");
       return SL_STATUS_OK;
     } else if (event_result & AUTO_JOIN_FAILURE_FLAG) {
-      printf("Auto-join process failed.\n");
+      SL_DEBUG_LOG("Auto-join process failed.\n");
       return SL_STATUS_FAIL;
     }
   }

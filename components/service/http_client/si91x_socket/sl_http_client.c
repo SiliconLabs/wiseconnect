@@ -28,13 +28,6 @@
 /******************************************************
  *                      Macros
  ******************************************************/
-// Macro to check if malloc failed
-#define VERIFY_MALLOC_AND_RETURN(ptr)     \
-  do {                                    \
-    if (ptr == NULL) {                    \
-      return SL_STATUS_ALLOCATION_FAILED; \
-    }                                     \
-  } while (0)
 
 #define VERIFY_MALLOC_AND_FREE_IF_FAIL(ptr, ptr1, ptr2) \
   do {                                                  \
@@ -105,9 +98,6 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
 // Abort ongoing HTTP client operation
 static sl_status_t sli_si91x_http_client_abort(void);
 
-// Send SNI parameters for the embedded socket
-static sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_type_length_value_t *sni_extension);
-
 /******************************************************
  *               Function Definitions
  ******************************************************/
@@ -137,6 +127,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *client_con
 
   // Check SSL/TLS version
   switch (client_configuration->tls_version) {
+    case SL_TLS_DEFAULT_VERSION:
     case SL_TLS_V_1_0:
     case SL_TLS_V_1_1:
     case SL_TLS_V_1_2: {
@@ -167,7 +158,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *client_con
   uint32_t max_credential_size = sizeof(sl_http_client_credentials_t) + SI91X_MAX_SUPPORTED_HTTP_CREDENTIAL_LENGTH;
 
   http_client_handle.client_credentials = (sl_http_client_credentials_t *)malloc(max_credential_size);
-  VERIFY_MALLOC_AND_RETURN(http_client_handle.client_credentials);
+  SLI_VERIFY_MALLOC_AND_RETURN(http_client_handle.client_credentials);
   memset(http_client_handle.client_credentials, 0, max_credential_size);
   sl_status_t status = sl_net_get_credential(SL_NET_HTTP_CLIENT_CREDENTIAL_ID(0),
                                              &type,
@@ -309,7 +300,7 @@ sl_status_t sl_http_client_add_header(sl_http_client_request_t *request, const c
 
   // Allocate memory for the new header
   sl_http_client_header_t *new_header = (sl_http_client_header_t *)malloc(sizeof(sl_http_client_header_t));
-  VERIFY_MALLOC_AND_RETURN(new_header);
+  SLI_VERIFY_MALLOC_AND_RETURN(new_header);
 
   // Memset the heap chunk
   memset(new_header, 0, sizeof(sl_http_client_header_t));
@@ -402,40 +393,6 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
 
   return SL_STATUS_OK;
 }
-
-static sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_type_length_value_t *sni_extension)
-{
-  sl_status_t status     = SL_STATUS_OK;
-  uint32_t packet_length = 0;
-
-  if (sizeof(sl_si91x_socket_type_length_value_t) + sni_extension->length > SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA) {
-    return SL_STATUS_SI91X_MEMORY_ERROR;
-  }
-
-  sli_si91x_sni_for_embedded_socket_request_t *request = (sli_si91x_sni_for_embedded_socket_request_t *)malloc(
-    sizeof(sli_si91x_sni_for_embedded_socket_request_t) + SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA);
-  VERIFY_MALLOC_AND_RETURN(request);
-
-  memset(request, 0, sizeof(sli_si91x_sni_for_embedded_socket_request_t) + SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA);
-
-  request->protocol = SI91X_SNI_FOR_HTTPS;
-  request->offset   = sizeof(sl_si91x_socket_type_length_value_t);
-  memcpy(&request->tls_extension_data, sni_extension, SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA);
-  request->offset += sni_extension->length;
-  packet_length = sizeof(sli_si91x_sni_for_embedded_socket_request_t) + SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA;
-
-  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_SET_SNI_EMBEDDED,
-                                         SLI_SI91X_NETWORK_CMD,
-                                         request,
-                                         packet_length,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(5000),
-                                         NULL,
-                                         NULL);
-  free(request);
-
-  return status;
-}
-
 static void sli_si91x_load_extended_headers_into_request_buffer(uint8_t *buffer,
                                                                 sl_http_client_header_t *extended_header,
                                                                 uint16_t *http_buffer_offset)
@@ -499,7 +456,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
   // Allocate memory for request structure
   sli_si91x_http_client_request_t *http_client_request =
     (sli_si91x_http_client_request_t *)malloc(sizeof(sli_si91x_http_client_request_t));
-  VERIFY_MALLOC_AND_RETURN(http_client_request);
+  SLI_VERIFY_MALLOC_AND_RETURN(http_client_request);
 
   memset(http_client_request, 0, sizeof(sli_si91x_http_client_request_t));
 
@@ -520,6 +477,9 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
 
     // Fill SSL/TLS version
     switch (client_internal->configuration.tls_version) {
+      case SL_TLS_DEFAULT_VERSION: {
+        break;
+      }
       case SL_TLS_V_1_0: {
         http_client_request->https_enable |= SL_SI91X_TLS_V_1_0;
         break;
@@ -561,9 +521,28 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
     }
   }
 
-  if (client_internal->configuration.https_use_sni && (request->sni_extension != NULL)) {
+  if (client_internal->configuration.https_use_sni) {
     http_client_request->https_enable |= SL_SI91X_HTTPS_USE_SNI;
-    status = sli_si91x_set_sni_for_embedded_socket(request->sni_extension);
+
+    if (request->sni_extension != NULL) {
+      status = sli_si91x_set_sni_for_embedded_socket(request->sni_extension);
+    } else {
+      if (request->host_name != NULL && request->ip_address != request->host_name) {
+
+        sl_si91x_socket_type_length_value_t *tls_sni = (sl_si91x_socket_type_length_value_t *)malloc(
+          sizeof(sl_si91x_socket_type_length_value_t) + sl_strlen((char *)request->host_name));
+        if (tls_sni == NULL) {
+          free(http_client_request);
+          return SL_STATUS_ALLOCATION_FAILED;
+        }
+        tls_sni->type = SL_SI91X_TLS_EXTENSION_SNI_TYPE;
+
+        tls_sni->length = sl_strlen((char *)(request->host_name));
+        memcpy(tls_sni->value, request->host_name, tls_sni->length);
+        status = sli_si91x_set_sni_for_embedded_socket(tls_sni);
+        free(tls_sni);
+      }
+    }
     if (status != SL_STATUS_OK) {
       free(http_client_request);
       return status;
@@ -596,7 +575,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
 
   // Check for HTTP_V_1.1 and Empty host name and fill IP address
   if (client_internal->configuration.http_version == SL_HTTP_V_1_1
-      && (strlen((char *)request->host_name) == 0 || request->host_name == NULL)) {
+      && (request->host_name == NULL || sl_strlen((char *)request->host_name) == 0)) {
     http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
                                    SLI_SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
                                    "%s",
@@ -695,7 +674,7 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
   } else {
     // Allocate memory for a new packet buffer
     packet_buffer = malloc(sizeof(sli_si91x_http_client_request_t));
-    VERIFY_MALLOC_AND_RETURN(packet_buffer);
+    SLI_VERIFY_MALLOC_AND_RETURN(packet_buffer);
 
     // Iterate through the length of the packet
     while (rem_length) {
@@ -815,7 +794,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
       // Allocate memory for request structure
       sl_si91x_http_client_put_request_t *http_put_request =
         (sl_si91x_http_client_put_request_t *)malloc(sizeof(sl_si91x_http_client_put_request_t));
-      VERIFY_MALLOC_AND_RETURN(http_put_request);
+      SLI_VERIFY_MALLOC_AND_RETURN(http_put_request);
 
       memset(http_put_request, 0, sizeof(sl_si91x_http_client_put_request_t));
 
@@ -862,6 +841,9 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
 
         // Fill SSL/TLS version
         switch (http_client_handle.configuration.tls_version) {
+          case SL_TLS_DEFAULT_VERSION: {
+            break;
+          }
           case SL_TLS_V_1_0: {
             http_put_start->https_enable |= SL_SI91X_TLS_V_1_0;
             break;
@@ -1049,7 +1031,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
       // Allocate memory for request structure
       sli_si91x_http_client_post_data_request_t *http_post_data =
         (sli_si91x_http_client_post_data_request_t *)malloc(sizeof(sli_si91x_http_client_post_data_request_t));
-      VERIFY_MALLOC_AND_RETURN(http_post_data);
+      SLI_VERIFY_MALLOC_AND_RETURN(http_post_data);
       memset(http_post_data, 0, sizeof(sli_si91x_http_client_post_data_request_t));
       // Fill HTTP Post data current chunk length
       http_post_data->current_length = (uint16_t)data_length;
@@ -1080,7 +1062,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
       // Allocate memory for request structure
       sl_si91x_http_client_put_request_t *http_put_pkt_request =
         (sl_si91x_http_client_put_request_t *)malloc(sizeof(sl_si91x_http_client_put_request_t));
-      VERIFY_MALLOC_AND_RETURN(http_put_pkt_request);
+      SLI_VERIFY_MALLOC_AND_RETURN(http_put_pkt_request);
       memset(http_put_pkt_request, 0, sizeof(sl_si91x_http_client_put_request_t));
       sli_si91x_http_client_put_data_request_t *http_put_data =
         &http_put_pkt_request->sli_http_client_put_struct.http_client_put_data_req;

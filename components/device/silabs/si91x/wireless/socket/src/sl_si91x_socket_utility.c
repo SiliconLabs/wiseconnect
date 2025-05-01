@@ -1745,3 +1745,36 @@ void sl_si91x_set_extended_socket_cipherlist(uint32_t extended_cipher_list)
 {
   sl_si91x_socket_selected_extended_ciphers = extended_cipher_list;
 }
+
+sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_type_length_value_t *sni_extension)
+{
+  sl_status_t status     = SL_STATUS_OK;
+  uint32_t packet_length = 0;
+
+  if (sizeof(sl_si91x_socket_type_length_value_t) + sni_extension->length > SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA) {
+    return SL_STATUS_SI91X_MEMORY_ERROR;
+  }
+
+  sli_si91x_sni_for_embedded_socket_request_t *request = (sli_si91x_sni_for_embedded_socket_request_t *)malloc(
+    sizeof(sli_si91x_sni_for_embedded_socket_request_t) + SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA);
+  SLI_VERIFY_MALLOC_AND_RETURN(request);
+
+  memset(request, 0, sizeof(sli_si91x_sni_for_embedded_socket_request_t) + SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA);
+
+  request->protocol = SI91X_SNI_FOR_HTTPS;
+  request->offset   = sizeof(sl_si91x_socket_type_length_value_t);
+  memcpy(&request->tls_extension_data, sni_extension, SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA);
+  request->offset += sni_extension->length;
+  packet_length = sizeof(sli_si91x_sni_for_embedded_socket_request_t) + SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA;
+
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_SET_SNI_EMBEDDED,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         request,
+                                         packet_length,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(5000),
+                                         NULL,
+                                         NULL);
+  free(request);
+
+  return status;
+}

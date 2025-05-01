@@ -432,7 +432,7 @@ void receive_data_from_tcp_client(void)
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   sl_status_t status = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {
@@ -734,7 +734,7 @@ void receive_data_from_tls_server(void)
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   sl_status_t status = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {

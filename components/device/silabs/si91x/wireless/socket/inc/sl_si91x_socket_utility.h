@@ -87,11 +87,19 @@
   } while (0)
 #endif
 
+// Macro to check if malloc failed
+#define SLI_VERIFY_MALLOC_AND_RETURN(ptr) \
+  do {                                    \
+    if (ptr == NULL) {                    \
+      return SL_STATUS_ALLOCATION_FAILED; \
+    }                                     \
+  } while (0)
+
 #define SLI_GET_SAFE_MEMCPY_LENGTH(destination_size, source_size) \
   source_size > destination_size ? destination_size : source_size
 
 #ifndef IS_POWER_OF_TWO
-#define IS_POWER_OF_TWO(x) (x < 0) ? 0 : (x && (!(x & (x - 1))))
+#define IS_POWER_OF_TWO(x) (x && (!(x & (x - 1))))
 #endif
 
 #ifndef ROUND_UP
@@ -140,11 +148,29 @@ typedef struct {
   uint8_t tcp_rx_window_div_factor; ///< TCP RX window division factor, increases ACK frequency for asynchronous sockets
 } sl_si91x_socket_config_t;
 
-/// SiWx91x specific socket type length value
+/** @} */
+
+/**
+ * @addtogroup SOCKET_CONFIGURATION_FUNCTION
+ * @{
+ */
+
+/**
+ * @brief SiWx91x-specific socket type length value structure.
+ *
+ * | Type                                    | Value                                                 | Length                                          |
+ * |-----------------------------------------|-------------------------------------------------------|-------------------------------------------------|
+ * | @ref SL_SI91X_TLS_EXTENSION_SNI_TYPE    | The server name or hostname, provided as a string     | Length of the server name or hostname string    |
+ * | @ref SL_SI91X_TLS_EXTENSION_ALPN_TYPE   | The application protocol name, provided as a string   | Length of the application protocol name string  |
+ *
+ * @note For `SNI`, provide the server name or hostname as a string (e.g., `"example.com"`).
+ * @note For `ALPN`, provide the application protocol string (e.g., `"http/1.1"`).
+ * @note Currently, SL_SI91X_TLS_EXTENSION_ALPN_TYPE supports only the HTTP protocol.
+ */
 typedef struct {
-  uint16_t type;   ///< Socket type
-  uint16_t length; ///< Data length
-  uint8_t value[]; ///< Data
+  uint16_t type;   ///< Specifies the TLS extension type.
+  uint16_t length; ///< Length of the value[] field.
+  uint8_t value[]; ///< Data corresponding to the specified extension type.
 } sl_si91x_socket_type_length_value_t;
 
 /** @} */
@@ -293,6 +319,28 @@ sl_status_t sli_si91x_udp_connect_if_unconnected(sli_si91x_socket_t *si91x_socke
                                                  const struct sockaddr *to_addr,
                                                  socklen_t to_addr_len,
                                                  int socket_id);
+
+/**
+ * @brief 
+ *    Configures the Server Name Indication (SNI) extension for a socket.
+ *
+ *  @details
+ *    This function sets up the SNI extension, which is used in TLS communication
+ *    to specify the hostname of the server the client intends to connect to. It prepares
+ *    the necessary request structure and initiates the configuration process for the
+ *    embedded socket.
+ *
+ * @param[in] sni_extension 
+ *    Pointer to the SNI extension data of type `sl_si91x_socket_type_length_value_t`.
+ *    This structure contains the type, length, and value of the SNI extension.
+ *
+ * @return sl_status_t
+ *    - SL_STATUS_OK: Operation completed successfully.
+ *    - SL_STATUS_SI91X_MEMORY_ERROR: The SNI extension size exceeds the allowed limit.
+ *    - Other error codes: Refer to [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) 
+ *      and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details. 
+ */
+sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_type_length_value_t *sni_extension);
 
 /** 
  * @addtogroup SOCKET_CONFIGURATION_FUNCTION

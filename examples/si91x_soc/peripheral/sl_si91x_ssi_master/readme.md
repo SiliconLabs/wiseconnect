@@ -148,7 +148,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure the following macros in the `ssi_master_example.h` file and update/modify following macros, if required.
 
-- `SSI_MASTER_TRANSFER`: This macro is enabled default. It sends and receives data in full=duplex.
+- `SSI_MASTER_TRANSFER`: This macro is enabled default. It sends and receives data in full-duplex.
 
   ```C
     #define SSI_MASTER_TRANSFER ENABLE    // To use the transfer API
@@ -171,6 +171,21 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   static uint16_t ssi_master_tx_buffer[SSI_MASTER_BUFFER_SIZE] = { '\0' }; 
   static uint16_t ssi_master_rx_buffer[SSI_MASTER_BUFFER_SIZE] = { '\0' };
   ```
+
+- By default, CS0 is selected in the pintool. To use a different chip select (CS), update the corresponding slave number in the `ssi_master_example.c` file after configuring the desired CS in the pintool.
+
+  ```C
+  // For CS0_
+  static uint32_t ssi_slave_number = SSI_SLAVE_0;
+  // For CS1_
+  static uint32_t ssi_slave_number = SSI_SLAVE_1;
+  // For CS2_
+  static uint32_t ssi_slave_number = SSI_SLAVE_2;
+  // For CS3_
+  static uint32_t ssi_slave_number = SSI_SLAVE_3;
+  ```
+
+- To unregister a user event callback for a specific instance, use the API \ref sl_si91x_ssi_per_instance_unregister_event_callback. Alternatively, to unregister callbacks for all instances simultaneously, use the API \ref sl_si91x_ssi_unregister_event_callback.
 
 ### Pin Configuration
 

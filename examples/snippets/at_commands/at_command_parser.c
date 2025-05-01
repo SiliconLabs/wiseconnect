@@ -105,19 +105,14 @@ sl_status_t console_find_at_command(char **string,
 
     // Find first token
     status =
-      at_command_tokenize(iter,
-                          string_end,
-                          &token,
-                          &iter,
-                          SL_CONSOLE_TOKENIZE_ON_COMMA | SL_CONSOLE_TOKENIZE_ON_EQUAL | SL_CONSOLE_TOKENIZE_ON_QUERY);
+      at_command_tokenize(iter, string_end, &token, &iter, SL_CONSOLE_TOKENIZE_ON_COMMA | SL_CONSOLE_TOKENIZE_ON_EQUAL);
     if (status != SL_STATUS_OK)
       return SL_STATUS_FAIL;
 
     size_t token_length = strlen(token);
 
     for (uint32_t i = 0; i < db->length; i++) {
-      if (strncasecmp(token, db->entries[i].key, token_length) == 0) {
-
+      if (strncasecmp(token, db->entries[i].key, token_length) == 0 && db->entries[i].key[token_length] == 0) {
         *entry          = &(db->entries[i]);
         *starting_index = i;
 
@@ -243,7 +238,6 @@ static sl_status_t at_command_tokenize(char *start,
 
       // Ordinary splitting
     } else if (((options & SL_CONSOLE_TOKENIZE_ON_EQUAL) && *i == '=')
-               || ((options & SL_CONSOLE_TOKENIZE_ON_QUERY) && *i == '?')
                || ((options & SL_CONSOLE_TOKENIZE_ON_COMMA) && *i == ',')) {
       // Turn space into '\0' to indicate end of string
       *i         = '\0';

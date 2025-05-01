@@ -37,6 +37,7 @@
 #define PACKET_PENDING_INT_PRI            3
 #define SLI_SPI_ASYNC_TRANSFER_TIMEOUT_MS 1000
 #define SLI_SPI_SYNC_TRANSFER_MAX_BYTES   16
+#define SLI_SPI_BIT_RATE                  12500000
 
 #ifdef SL_NCP_UART_INTERFACE
 #define NCP_RX_IRQ USART0_RX_IRQn
@@ -229,7 +230,7 @@ static void sli_spi_dma_callback(struct SPIDRV_HandleData *handle, Ecode_t trans
 
 static void sli_efx32_spi_init(void)
 {
-  SPIDRV_SetBitrate(SLI_SPI_HANDLE, 12500000);
+  SPIDRV_SetBitrate(SLI_SPI_HANDLE, SLI_SPI_BIT_RATE);
 
   // Configure SPI bus pins
   GPIO_PinModeSet(SL_SPIDRV_EXP_RX_PORT, SL_SPIDRV_EXP_RX_PIN, gpioModeInput, 0);
@@ -398,6 +399,18 @@ void sl_si91x_host_enable_high_speed_bus()
 }
 
 #ifndef SL_NCP_UART_INTERFACE
+
+__WEAK void sl_si91x_host_spi_cs_assert()
+{
+  SPIDRV_SetBitrate(SLI_SPI_HANDLE, SLI_SPI_BIT_RATE);
+  GPIO_PinOutClear(SL_SPIDRV_EXP_CS_PORT, SL_SPIDRV_EXP_CS_PIN);
+}
+
+__WEAK void sl_si91x_host_spi_cs_deassert()
+{
+  GPIO_PinOutSet(SL_SPIDRV_EXP_CS_PORT, SL_SPIDRV_EXP_CS_PIN);
+}
+
 /*==================================================================*/
 /**
  * @fn         sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length)

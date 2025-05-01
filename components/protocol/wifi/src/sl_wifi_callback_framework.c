@@ -126,6 +126,9 @@ static sl_wifi_callback_entry_t *get_callback_entry(sl_wifi_event_group_t group)
   if (group > SL_WIFI_EVENT_GROUP_COUNT) {
     group = get_event_group_from_event((sl_wifi_event_t)group);
   }
+  if (group < 0 || group >= SL_WIFI_EVENT_GROUP_COUNT) {
+    return NULL; // Return NULL if the group index is out of bounds
+  }
   return &registered_callbacks[group];
 }
 

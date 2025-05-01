@@ -26,6 +26,7 @@
 #include "sl_si91x_socket.h"
 #include "socket.h"
 #include "sli_net_utility.h"
+#include "sl_wifi.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -298,15 +299,14 @@ static void sli_http_server(const void *arg)
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
-
-  // Indicate to HTTP Server start that http server thread started successfully.
-  osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_SUCCESS);
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
     SL_DEBUG_LOG("\r\nSocket creation failed with bsd error: %d\r\n", errno);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if socket call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
   SL_DEBUG_LOG("\r\nServer Socket ID : %d\r\n", server_socket);
 
@@ -318,7 +318,9 @@ static void sli_http_server(const void *arg)
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if setsockopt call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
 
   uint8_t ap_vap = 1;
@@ -327,7 +329,9 @@ static void sli_http_server(const void *arg)
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if setsockopt call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
 
   server_address.sin_family = AF_INET;
@@ -337,19 +341,26 @@ static void sli_http_server(const void *arg)
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSocket bind failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if bind call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
 
   socket_return_value = listen(server_socket, BACK_LOG);
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSocket listen failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if listen call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
   SL_DEBUG_LOG("\r\nListening on Local Port : %d\r\n", server_address.sin_port);
 
   sl_si91x_time_value timeout = { 0 };
   timeout.tv_sec              = server_handle->config.client_idle_time;
+
+  // Indicate to HTTP server start API that HTTP server has started successfully.
+  osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_SUCCESS);
 
   while (1) {
     socket_return_value = sl_si91x_accept_async(server_socket, client_accept_callback);
@@ -518,6 +529,16 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
     return SL_STATUS_INVALID_PARAMETER;
   }
 
+  // In AP-only mode and concurrent mode, do not initialize HTTP server when AP interface is down
+  if (((sli_get_opermode() == SL_SI91X_ACCESS_POINT_MODE) || (sli_get_opermode() == SL_SI91X_CONCURRENT_MODE))
+      && (!sl_wifi_is_interface_up(SL_WIFI_AP_INTERFACE))) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+  // In STA-only mode, do not initialize HTTP server when STA interface is down
+  else if ((sli_get_opermode() == SL_SI91X_CLIENT_MODE) && (!sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE))) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
   // Initialize the server fields
   handle->config.port = config->port;
   if (NULL != config->default_handler) {
@@ -577,6 +598,12 @@ sl_status_t sl_http_server_start(sl_http_server_t *handle)
                                      osWaitForever);
   if (result == (uint32_t)osErrorTimeout || result == (uint32_t)osErrorResource) {
     // TODO: Handle any required clean up
+    return SL_STATUS_FAIL;
+  }
+  // Check if the flag HTTP_SERVER_START_FAILED is set. If it is, clear the flag, de-initialize the HTTP server, and return a failure status.
+  else if (result & HTTP_SERVER_START_FAILED) {
+    osEventFlagsClear(handle->http_server_id, HTTP_SERVER_START_FAILED);
+    sl_http_server_deinit(handle);
     return SL_STATUS_FAIL;
   }
 

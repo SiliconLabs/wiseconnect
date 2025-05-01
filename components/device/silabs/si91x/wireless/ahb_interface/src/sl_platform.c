@@ -61,7 +61,7 @@ void sli_si91x_platform_init(void)
   CoreDebug->DEMCR |= 0x01000000;
   DWT->CTRL |= 0x1;
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
   // Set P2P Intr priority
   NVIC_SetPriority(SysTick_IRQn, SYSTICK_INTR_PRI);

@@ -47,6 +47,15 @@
 #define htole16(x) (x)
 #define SECONDS    (1000)
 
+//! @cond Doxygen_Suppress
+#define SLI_SPI_VERIFY_STATUS(s)       \
+  do {                                 \
+    if (s != SL_STATUS_OK) {           \
+      sl_si91x_host_spi_cs_deassert(); \
+      return s;                        \
+    }                                  \
+  } while (0)
+
 #ifdef SLI_BIT_32_SUPPORT
 #define SLI_C2_READ_WRITE_SIZE SLI_C2RDWR4BYTE
 #else
@@ -180,14 +189,17 @@ sl_status_t sl_si91x_bus_init(void)
   uint32_t timestamp;
 
   timestamp = sl_si91x_host_get_timestamp();
+  sl_si91x_host_spi_cs_assert();
   do {
     sl_si91x_host_spi_transfer(&temp, rx_buffer, sizeof(uint32_t));
     // Check if the response indicates success
     if (rx_buffer[3] == SLI_SPI_SUCCESS) {
+      sl_si91x_host_spi_cs_deassert();
       return SL_STATUS_OK;
     }
     // Keep looping as long as the time remaining is less than 10 milliseconds.
   } while (sl_si91x_host_elapsed_time(timestamp) < 10);
+  sl_si91x_host_spi_cs_deassert();
 
   // If the initialization did not succeed within the timeout, return SPI busy status
   return SL_STATUS_SPI_BUSY;
@@ -199,22 +211,25 @@ sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint
   uint32_t temp16;
   sl_status_t status;
 
+  sl_si91x_host_spi_cs_assert();
   // Send C1/C2 control information to initiate the memory write operation
   status = sli_send_c1c2(SLI_C1MEMWR16BIT4BYTE | (SLI_C2_READ_WRITE_SIZE << 8));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send C3/C4 control information with the length of data to be written
   temp16 = htole16(length);
   status = sl_si91x_host_spi_transfer(&temp16, NULL, sizeof(uint16_t));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send the 4-byte memory address
   temp32 = htole32(addr);
   status = sl_si91x_host_spi_transfer(&temp32, NULL, sizeof(uint32_t));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send the data
   status = sl_si91x_host_spi_transfer(buffer, NULL, length);
+
+  sl_si91x_host_spi_cs_deassert();
   return status;
 }
 
@@ -224,6 +239,7 @@ sl_status_t sli_si91x_bus_write_slave(uint32_t data_length, const uint8_t *buffe
   uint32_t temp16;
   sl_status_t status;
 
+  sl_si91x_host_spi_cs_assert();
   // Send C1/C2 control information to initiate the memory write operation
   status = sli_send_c1c2(SLI_C1FRMWR16BIT4BYTE | (SLI_C2_READ_WRITE_SIZE << 8));
   SLI_VERIFY_STATUS(status);
@@ -231,29 +247,30 @@ sl_status_t sli_si91x_bus_write_slave(uint32_t data_length, const uint8_t *buffe
   // Send C3/C4 control information with the length of data to be written. 16 extra bytes are expected by SPI.
   temp16 = htole16(data_length + 16);
   status = sl_si91x_host_spi_transfer(&temp16, NULL, sizeof(uint16_t));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send the 4-byte actual data length
   temp32 = htole32(data_length);
   status = sl_si91x_host_spi_transfer(&temp32, NULL, sizeof(uint32_t));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send the data
   // Si917 Bootloader receives the data in DMA mode with descriptor where the first
   // descriptor expects dummy 12 bytes
   status = sl_si91x_host_spi_transfer(buffer, NULL, 12);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
   if (data_length > 1024) {
     // SPI master cannot send more than 1024 bytes. So, the data is split.
     for (unsigned int i = 0; i < (data_length / 1024); i++) {
       status = sl_si91x_host_spi_transfer(&buffer[(i * 1024)], NULL, 1024);
-      SLI_VERIFY_STATUS(status);
+      SLI_SPI_VERIFY_STATUS(status);
     }
   } else {
     status = sl_si91x_host_spi_transfer(buffer, NULL, 1024);
-    SLI_VERIFY_STATUS(status);
+    SLI_SPI_VERIFY_STATUS(status);
   }
 
+  sl_si91x_host_spi_cs_deassert();
   return status;
 }
 
@@ -264,28 +281,29 @@ sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *bu
   uint32_t temp32;
   uint16_t temp16;
 
+  sl_si91x_host_spi_cs_assert();
   // Send C1/C2 control information to initiate the memory read operation
   status = sli_send_c1c2(SLI_C1MEMRD16BIT4BYTE | (SLI_C2_READ_WRITE_SIZE << 8));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send C3/C4 control information with the length of data to be read
   temp16 = htole16(length);
   status = sl_si91x_host_spi_transfer(&temp16, NULL, 2);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send the 4-byte memory address
   temp32 = htole32(addr);
   status = sl_si91x_host_spi_transfer(&temp32, NULL, sizeof(uint32_t));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Wait for the start token
   status = sli_wait_start_token(10 * SECONDS);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Read in the memory data
   status = sl_si91x_host_spi_transfer(NULL, buffer, length);
-  SLI_VERIFY_STATUS(status);
 
+  sl_si91x_host_spi_cs_deassert();
   return status;
 }
 
@@ -294,12 +312,15 @@ sl_status_t sli_si91x_bus_write_register(uint8_t address, uint8_t register_size,
 {
   sl_status_t status;
 
+  sl_si91x_host_spi_cs_assert();
   // Send C1/C2 control information with register address and write operation
   status = sli_send_c1c2(SLI_C1INTWRITE2BYTES | (address << 8));
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Send the data to be written to the register
   status = sl_si91x_host_spi_transfer(&data, NULL, register_size);
+
+  sl_si91x_host_spi_cs_deassert();
   return status;
 }
 
@@ -312,17 +333,19 @@ sl_status_t sli_si91x_bus_read_register(uint8_t address, uint8_t register_size, 
 
   //  SL_ASSERT(register_size == 1 || register_size == 2);
 
+  sl_si91x_host_spi_cs_assert();
   // Send C1C2
   status = sli_send_c1c2(temp16);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Wait for start token
   status = sli_wait_start_token(10 * SECONDS);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Start token found now read the byte/s of data
   status = sl_si91x_host_spi_transfer(NULL, output, register_size);
 
+  sl_si91x_host_spi_cs_deassert();
   return status;
 }
 
@@ -331,6 +354,7 @@ sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *p
   UNUSED_PARAMETER(payloadparam); // Unused parameter(to suppress compiler warnings)
   sl_status_t status;
 
+  sl_si91x_host_spi_cs_assert();
 #ifdef DEBUG_PACKET_EXCHANGE
   // If debugging is enabled, log debugging information about the frame
   memset(debug_output, '\0', sizeof(debug_output));
@@ -352,6 +376,7 @@ sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *p
   // If a specific chip manufacturing feature is enabled, adjust the size_param
   size_param += RSI_HOST_DESC_LENGTH;
   status = sli_basic_data_transfer(c1c2, size_param, uFrameDscFrame, NULL);
+  sl_si91x_host_spi_cs_deassert();
   return status;
 #endif
 
@@ -360,7 +385,7 @@ sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *p
                                    SLI_FRAME_DESC_LEN,
                                    &packet->desc,
                                    NULL);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Write payload if present
   if (size_param) {
@@ -368,8 +393,10 @@ sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *p
     size_param = (size_param + 3) & ~3;
     status =
       sli_basic_data_transfer(SLI_C1FRMWR16BIT4BYTE | (SLI_C2_READ_WRITE_SIZE << 8), size_param, &packet->data, NULL);
-    SLI_VERIFY_STATUS(status);
+    SLI_SPI_VERIFY_STATUS(status);
   }
+
+  sl_si91x_host_spi_cs_deassert();
   return status;
 }
 
@@ -380,10 +407,11 @@ sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
   uint8_t *data;
   uint16_t temp;
 
+  sl_si91x_host_spi_cs_assert();
 #ifndef RSI_CHIP_MFG_EN
   // Read the first 4 bytes to determine the frame size
   status = sli_basic_data_transfer(SLI_C1FRMRD16BIT4BYTE | (SLI_C2_READ_WRITE_SIZE << 8), 4, NULL, &local_buffer);
-  SLI_VERIFY_STATUS(status);
+  SLI_SPI_VERIFY_STATUS(status);
 
   // Round up total size (local_buffer[0]) to 4 bytes
   local_buffer[0] = (htole16(local_buffer[0]) - 4 + 3) & ~3;
@@ -392,6 +420,7 @@ sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
   // Allocate a buffer for the frame using sli_si91x_host_allocate_buffer
   status = sli_si91x_host_allocate_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER, local_buffer[0], 10000);
   if (status != SL_STATUS_OK) {
+    sl_si91x_host_spi_cs_deassert();
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
     BREAKPOINT();
   }
@@ -404,18 +433,22 @@ sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
   } else {
     status = sli_packet_read_with_dummy_data(data, local_buffer[1], local_buffer[0]);
   }
+  sl_si91x_host_spi_cs_deassert();
   return status;
 
 #else
   // Read first 4 bytes
   retval = rsi_spi_pkt_len(&local_buffer[0]);
   if (retval != 0x00) {
+    sl_si91x_host_spi_cs_deassert();
     return retval;
   }
   retval = rsi_nlink_pkt_rd(pkt_buffer, rsi_bytes2R_to_uint16(&local_buffer[0]) & 0xFFF);
   if (retval != 0x00) {
+    sl_si91x_host_spi_cs_deassert();
     return retval;
   }
+  sl_si91x_host_spi_cs_deassert();
 #endif
 }
 
@@ -495,12 +528,14 @@ void sli_si91x_ulp_wakeup_init(void)
   txCmd[1] = ((SLI_SI91X_INIT_CMD >> 8) & 0xFF);
   txCmd[2] = ((SLI_SI91X_INIT_CMD >> 16) & 0xFF);
   txCmd[3] = ((SLI_SI91X_INIT_CMD >> 24) & 0xFF);
+  sl_si91x_host_spi_cs_assert();
 
   while (1) {
     // Transfer the initialization command to the SI91x module and check the response
     sl_si91x_host_spi_transfer(txCmd, rxbuff, 2);
+
     if (rxbuff[1] == SLI_SPI_FAIL) {
-      return; // Initialization failed
+      break; // Initialization failed, exit the loop
     } else if (rxbuff[1] == 0x00) {
       // If the response indicates success, transfer the remaining part of the command
       sl_si91x_host_spi_transfer(&txCmd[2], rxbuff, 2);
@@ -509,4 +544,5 @@ void sli_si91x_ulp_wakeup_init(void)
       }
     }
   }
+  sl_si91x_host_spi_cs_deassert();
 }

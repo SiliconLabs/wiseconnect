@@ -128,9 +128,11 @@ Follow the steps below for successful execution of the application:
 
    ![](resources/readme/Mobile_app_ui_3.png)
 
+   ![](resources/readme/Mobile_app_ui_4.png)
+
 10. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
 
-    ![](resources/readme/Mobile_app_ui_4.png)
+    ![](resources/readme/Mobile_app_ui_5.png)
 
 ### Application Output
 

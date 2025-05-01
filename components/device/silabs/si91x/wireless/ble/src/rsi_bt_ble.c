@@ -26,7 +26,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#ifdef __ZEPHYR__
 #include "rsi_bt_common_config.h"
+#else
+#include "ble_config.h"
+#endif
 
 #include "rsi_common.h"
 #include "cmsis_os2.h"

@@ -453,6 +453,21 @@ void sl_si91x_ssi_unregister_event_callback(void);
 
 /***************************************************************************/
 /**
+ * @brief To unregister the user event callback on a per-instance basis.
+ *
+ * @details This API unregisters the callback on a per-instance basis, that is,
+ *          clears the callback function address and NULL is passed to the callback
+ *          function pointer of instance.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_ssi_register_event_callback
+ *
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
+*******************************************************************************/
+void sl_si91x_ssi_per_instance_unregister_event_callback(sl_ssi_handle_t ssi_handle);
+
+/***************************************************************************/
+/**
  * @brief To fetch the clock division factor.
  * 
  * @details The clock division factor is calculated based on the peripheral clock configured. 

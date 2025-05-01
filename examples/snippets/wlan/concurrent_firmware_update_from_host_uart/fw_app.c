@@ -161,7 +161,8 @@ void sl_debug_log(const char *format, ...)
 void fw_up_configurator_task(void *argument)
 {
   UNUSED_PARAMETER(argument);
-  sl_status_t status = SL_STATUS_OK;
+  sl_status_t status                          = SL_STATUS_OK;
+  sl_wifi_firmware_version_t firmware_version = { 0 };
 
   // Create semaphore for firmware update and handshake completion
   update_semaphore = osSemaphoreNew(1, 0, NULL);
@@ -200,6 +201,36 @@ void fw_up_configurator_task(void *argument)
 
       case STATE_COMPLETED:
         firmware_update_operation_complete();
+
+        status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\nError while wifi deinit: 0x%lX \r\n", status);
+          return;
+        } else {
+          LOG_PRINT("\r\nWi-Fi Deinit is successful\r\n");
+        }
+        status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_default_concurrent_v6_configuration, NULL, NULL);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\nFailed to start Wi-Fi client interface: 0x%lx\r\n", status);
+          return;
+        }
+        LOG_PRINT("\r\nWi-Fi Client interface init\r\n");
+        status = sl_wifi_get_firmware_version(&firmware_version);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\nFailed to fetch firmware version: 0x%lx\r\n", status);
+          return;
+        } else {
+          LOG_PRINT("\r\nFirmware version is: %x%x.%d.%d.%d.%d.%d.%d\r\n",
+                    firmware_version.chip_id,
+                    firmware_version.rom_id,
+                    firmware_version.major,
+                    firmware_version.minor,
+                    firmware_version.security_version,
+                    firmware_version.patch_num,
+                    firmware_version.customer_id,
+                    firmware_version.build_num);
+        }
+
         osThreadTerminate(osThreadGetId());
         break;
 

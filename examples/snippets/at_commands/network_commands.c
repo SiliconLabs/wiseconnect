@@ -114,15 +114,16 @@ static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *da
 #endif
 
 #define MAX_WIFI_PROFILES 2
+#define OTAF_DEFAULT_PORT 80
 
 static sl_net_wifi_client_profile_t *wifi_client_profiles[MAX_WIFI_PROFILES] = { NULL };
+static sl_net_ip_configuration_t ip_config                                   = { 0 };
 
 extern sl_wifi_device_configuration_t si91x_init_configuration;
 void display_wifi_client_profile(const sl_net_wifi_client_profile_t *profile);
 
 void initialize_wifi_profiles(sl_net_profile_id_t profile_id)
 {
-  //for (int i = 0; i < MAX_WIFI_PROFILES; i++)
   if (profile_id <= MAX_WIFI_PROFILES) {
     wifi_client_profiles[profile_id] = (sl_net_wifi_client_profile_t *)malloc(sizeof(sl_net_wifi_client_profile_t));
     if (wifi_client_profiles[profile_id] != NULL) {
@@ -193,8 +194,7 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
       break;
 #endif
     default:
-      printf("Unsupported interface\n");
-      return SL_STATUS_FAIL;
+      return SL_STATUS_INVALID_PARAMETER;
   }
 
   PRINT_AT_CMD_SUCCESS;
@@ -220,8 +220,7 @@ sl_status_t net_deinit_command_handler(console_args_t *arguments)
       break;
 #endif
     default:
-      printf("Unsupported interface\n");
-      return SL_STATUS_FAIL;
+      return SL_STATUS_INVALID_PARAMETER;
   }
   PRINT_AT_CMD_SUCCESS;
   return status;
@@ -236,17 +235,21 @@ sl_status_t net_up_command_handler(console_args_t *arguments)
   switch (SL_NET_INTERFACE_TYPE(interface)) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE: {
-      sl_net_wifi_client_profile_t profile;
 
       // Fetch the profile and print some information about it
-      status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
-      if (status != SL_STATUS_OK) {
-        printf("Failed to load profile with id: %u\r\n", profile_id);
-        return status;
+      sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
+      if (profile == NULL) {
+        return SL_STATUS_INVALID_PARAMETER; // Invalid profile ID
       }
-      printf("Connecting to '%s'\r\n", profile.config.ssid.value);
+      printf("Connecting to '%s'\r\n", profile->config.ssid.value);
       status = sl_net_wifi_client_up(interface, profile_id);
       VERIFY_STATUS_AND_RETURN(status);
+
+      status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
+      if (status == SL_STATUS_OK) {
+        display_wifi_client_profile(profile);
+      }
+
     } break;
 
     case SL_NET_WIFI_AP_INTERFACE: {
@@ -264,8 +267,7 @@ sl_status_t net_up_command_handler(console_args_t *arguments)
     } break;
 #endif
     default:
-      printf("Unsupported interface\n");
-      return SL_STATUS_FAIL;
+      return SL_STATUS_INVALID_PARAMETER;
   }
   PRINT_AT_CMD_SUCCESS;
   return status;
@@ -290,8 +292,7 @@ sl_status_t net_down_command_handler(console_args_t *arguments)
 #endif
 
     default:
-      printf("Unsupported interface\n");
-      return SL_STATUS_FAIL;
+      return SL_STATUS_INVALID_PARAMETER;
   }
 
   PRINT_AT_CMD_SUCCESS;
@@ -316,6 +317,8 @@ sl_status_t net_cred_wifipsk_command_handler(console_args_t *arguments)
 
 void display_wifi_client_profile(const sl_net_wifi_client_profile_t *profile)
 {
+  UNUSED_PARAMETER(profile);
+#ifdef AT_DEBUG_ENABLE
   if (profile == NULL) {
     printf("Wi-Fi client profile is NULL.\n");
     return;
@@ -409,7 +412,17 @@ void display_wifi_client_profile(const sl_net_wifi_client_profile_t *profile)
     printf("\n");
   }
 
+  // Print DHCP configuration
+  printf("DHCP Configuration:\n");
+  printf("  Min Discover Retry Interval: %d ms\n", profile->ip.dhcp_config.min_discover_retry_interval);
+  printf("  Max Discover Retry Interval: %d ms\n", profile->ip.dhcp_config.max_discover_retry_interval);
+  printf("  Min Request Retry Interval: %d ms\n", profile->ip.dhcp_config.min_request_retry_interval);
+  printf("  Max Request Retry Interval: %d ms\n", profile->ip.dhcp_config.max_request_retry_interval);
+  printf("  Max Discover Retries: %d\n", profile->ip.dhcp_config.max_discover_retries);
+  printf("  Max Request Retries: %d\n", profile->ip.dhcp_config.max_request_retries);
+
   printf("---------------------------------\n");
+#endif
 }
 
 sl_status_t net_sta_credential_command_handler(console_args_t *arguments)
@@ -486,6 +499,13 @@ sl_status_t net_sta_bss_command_handler(console_args_t *arguments)
 
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
   VERIFY_STATUS_AND_RETURN(status);
+
+  status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE,
+                                           SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID | SL_SI91X_JOIN_FEAT_BSSID_BASED);
+  if (status != SL_STATUS_OK) {
+    printf("Failed to start set join configuration: 0x%lx\r\n", status);
+    return SL_STATUS_FAIL;
+  }
   PRINT_AT_CMD_SUCCESS;
 
   return SL_STATUS_OK;
@@ -557,6 +577,62 @@ sl_status_t net_sta_ip_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+sl_status_t net_dhcp_config_command_handler(console_args_t *arguments)
+{
+  ip_config.dhcp_config.min_discover_retry_interval = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 5, uint16_t);
+  ip_config.dhcp_config.max_discover_retry_interval = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 100, uint16_t);
+  ip_config.dhcp_config.min_request_retry_interval  = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 5, uint16_t);
+  ip_config.dhcp_config.max_request_retry_interval  = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 10, uint16_t);
+  ip_config.dhcp_config.min_discover_retries        = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 5, uint8_t);
+  ip_config.dhcp_config.max_request_retries         = GET_OPTIONAL_COMMAND_ARG(arguments, 5, 10, uint8_t);
+
+  PRINT_AT_CMD_SUCCESS;
+  return SL_STATUS_OK;
+}
+
+sl_status_t net_configure_ip_command_handler(console_args_t *arguments)
+{
+  sl_net_interface_t interface =
+    (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
+  uint32_t timeout = GET_OPTIONAL_COMMAND_ARG(arguments, 10, SLI_SI91X_WAIT_FOR_EVER, uint32_t);
+
+  ip_config.mode      = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_IP_MANAGEMENT_DHCP, uint8_t);
+  ip_config.type      = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_IPV4, uint8_t);
+  ip_config.host_name = GET_OPTIONAL_COMMAND_ARG(arguments, 3, NULL, char *);
+
+  if (ip_config.mode == SL_IP_MANAGEMENT_STATIC_IP) {
+    if (ip_config.type == SL_IPV4) {
+      char *sta_ip  = GET_OPTIONAL_COMMAND_ARG(arguments, 4, NULL, char *);
+      char *gateway = GET_OPTIONAL_COMMAND_ARG(arguments, 5, NULL, char *);
+      char *netmask = GET_OPTIONAL_COMMAND_ARG(arguments, 6, NULL, char *);
+
+      if ((NULL == sta_ip) && (NULL == gateway) && (NULL == netmask))
+        return SL_STATUS_INVALID_PARAMETER;
+
+      convert_string_to_sl_ipv4_address(sta_ip, &ip_config.ip.v4.ip_address);
+      convert_string_to_sl_ipv4_address(gateway, &ip_config.ip.v4.gateway);
+      convert_string_to_sl_ipv4_address(netmask, &ip_config.ip.v4.netmask);
+    } else if (ip_config.type == SL_IPV6) {
+      char *v6_link_local = GET_OPTIONAL_COMMAND_ARG(arguments, 7, NULL, char *);
+      char *v6_global_ip  = GET_OPTIONAL_COMMAND_ARG(arguments, 8, NULL, char *);
+      char *v6_gateway    = GET_OPTIONAL_COMMAND_ARG(arguments, 9, NULL, char *);
+
+      if ((v6_link_local == NULL) && (v6_global_ip == NULL) && (v6_gateway == NULL)) {
+        return SL_STATUS_INVALID_PARAMETER;
+      }
+      convert_string_to_sl_ipv6_address(v6_link_local, (uint16_t *)ip_config.ip.v6.link_local_address.bytes);
+      convert_string_to_sl_ipv6_address(v6_global_ip, (uint16_t *)ip_config.ip.v6.global_address.bytes);
+      convert_string_to_sl_ipv6_address(v6_gateway, (uint16_t *)ip_config.ip.v6.gateway.bytes);
+    }
+  }
+
+  sl_status_t status = sl_net_configure_ip(interface, &ip_config, timeout);
+  VERIFY_STATUS_AND_RETURN(status);
+  PRINT_AT_CMD_SUCCESS;
+
+  return SL_STATUS_OK;
+}
+
 static sl_status_t convert_string_to_sl_ipv6_address(char *line, uint16_t *ipv6)
 {
   uint8_t double_colon = 0xFF;
@@ -586,6 +662,7 @@ static sl_status_t convert_string_to_sl_ipv6_address(char *line, uint16_t *ipv6)
   }
   return SL_STATUS_OK;
 }
+
 // This is used before calling net_up as NVM3 storage isn't implemented yet to store the profile configuration.
 sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
 {
@@ -682,7 +759,7 @@ sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
   return status;
 }
 
-sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments)
+sl_status_t dns_hostgetbyname_command_handler(console_args_t *arguments)
 {
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
   sl_ip_address_t ip_address = { 0 };
@@ -742,6 +819,28 @@ sl_status_t sl_net_ping_command_handler(console_args_t *arguments)
   if (SL_STATUS_IN_PROGRESS == status) {
     status = SL_STATUS_OK;
   }
+
+  return status;
+}
+
+sl_status_t http_otaf_upgrade_command_handler(const console_args_t *arguments)
+{
+
+  sl_status_t status                      = SL_STATUS_OK;
+  sl_si91x_http_otaf_params_t http_params = {
+    .flags           = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint16_t),
+    .ip_address      = (uint8_t *)GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, char *),
+    .port            = GET_OPTIONAL_COMMAND_ARG(arguments, 2, OTAF_DEFAULT_PORT, uint16_t),
+    .resource        = (uint8_t *)GET_OPTIONAL_COMMAND_ARG(arguments, 3, NULL, char *),
+    .host_name       = (uint8_t *)GET_OPTIONAL_COMMAND_ARG(arguments, 4, NULL, char *),
+    .extended_header = (uint8_t *)GET_OPTIONAL_COMMAND_ARG(arguments, 5, NULL, char *),
+    .user_name       = (uint8_t *)GET_OPTIONAL_COMMAND_ARG(arguments, 6, NULL, char *),
+    .password        = (uint8_t *)GET_OPTIONAL_COMMAND_ARG(arguments, 7, NULL, char *),
+  };
+
+  status = sl_si91x_http_otaf_v2(&http_params);
+  VERIFY_STATUS_AND_RETURN(status);
+  PRINT_AT_CMD_SUCCESS;
 
   return status;
 }

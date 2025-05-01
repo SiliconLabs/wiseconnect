@@ -62,8 +62,14 @@
 #define SLI_SI91X_CERT_INDEX_1 1
 #define SLI_SI91X_CERT_INDEX_2 2
 
+/**
+ * @addtogroup SI91X_SOCKET_TLS_EXTENSION_TYPE SiWx91x Socket TLS Extension Type
+ * @ingroup SI91X_SOCKET_FUNCTIONS
+ * @{
+ */
 #define SL_SI91X_TLS_EXTENSION_SNI_TYPE  1 ///< TLS extension for SNI
 #define SL_SI91X_TLS_EXTENSION_ALPN_TYPE 2 ///< TLS extension for ALPN
+/** @} */
 
 #define SLI_SI91X_SOCKET_TCP_CLIENT 0x0000
 #define SLI_SI91X_SOCKET_UDP_CLIENT 0x0001

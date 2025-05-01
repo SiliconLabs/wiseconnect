@@ -35,7 +35,6 @@
 #include "rsi_debug.h"
 #endif
 #ifdef SLI_SI91X_MCU_INTERFACE
-#include "FreeRTOSConfig.h"
 #include "rsi_rtc.h"
 #include "rsi_m4.h"
 #include "rsi_ds_timer.h"

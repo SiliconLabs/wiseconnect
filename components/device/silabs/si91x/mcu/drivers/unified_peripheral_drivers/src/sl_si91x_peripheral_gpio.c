@@ -1293,10 +1293,10 @@ void sl_si91x_gpio_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_in
 /*******************************************************************************
  * This API is used to verify assumptions and print message if the assumption is false.
  ******************************************************************************/
-void sl_assert_failed(uint8_t *file, uint32_t line)
+void sl_assert_failed(uint8_t *file, unsigned int line)
 {
 #ifdef DEBUG_UART
-  DEBUGOUT("Assert failed: file %s on line %lu \r\n", file, line);
+  DEBUGOUT("Assert failed: file %s on line %u \r\n", file, line);
 #else
   (void)file;
   (void)line;

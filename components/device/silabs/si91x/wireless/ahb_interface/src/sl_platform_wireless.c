@@ -273,7 +273,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
   }
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
 
   if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_async_events))
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -313,7 +313,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   //!Clear RX_BUFFER_VALID
   M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
   M4SS_P2P_INTR_CLR_REG;
-#endif // configUSE_TICKLESS_IDLE == 0
+#endif // SL_SI91X_TICKLESS_MODE  == 0
 
 #ifndef ENABLE_DEBUG_MODULE
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
@@ -355,7 +355,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   }
 #endif
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   //!Indicate M4 is active and rx buffer valid
   P2P_STATUS_REG |= M4_is_active;
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
@@ -363,7 +363,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
   // Systick configuration upon Wake-up
   SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
-#endif // configUSE_TICKLESS_IDLE == 0
+#endif // SL_SI91X_TICKLESS_MODE  == 0
 }
 
 /**

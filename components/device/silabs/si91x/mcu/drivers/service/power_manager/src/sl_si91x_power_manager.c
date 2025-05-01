@@ -29,8 +29,7 @@
  ******************************************************************************/
 
 #include "sli_si91x_power_manager.h"
-#include "FreeRTOSConfig.h"
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
 #include "sl_wifi.h"
 #endif
 #include "sli_si91x_clock_manager.h"
@@ -384,7 +383,7 @@ void sl_si91x_power_manager_deinit(void)
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add)
 {
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
   sl_wifi_performance_profile_v2_t pm_ta_performance_profile;
   sl_wifi_get_performance_profile_v2(&pm_ta_performance_profile);
 #endif
@@ -412,7 +411,7 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
   requirement_ps_table[state] += (uint8_t)((add) ? 1 : -1);
   state = sl_si91x_get_lowest_ps();
   if ((current_state != state) && (state != SL_SI91X_POWER_MANAGER_SLEEP)) {
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
     if ((state == SL_SI91X_POWER_MANAGER_PS2)
         && ((pm_ta_performance_profile.profile != DEEP_SLEEP_WITHOUT_RAM_RETENTION)
             && (pm_ta_performance_profile.profile != DEEP_SLEEP_WITH_RAM_RETENTION))) {
@@ -531,7 +530,7 @@ static void notify_power_state_transition(sl_power_state_t from, sl_power_state_
 boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
 {
   boolean_t is_sleep_ready = false;
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
   sl_wifi_performance_profile_v2_t pm_ta_performance_profile;
   sl_wifi_get_performance_profile_v2(&pm_ta_performance_profile);
   if (pm_ta_performance_profile.profile != DEEP_SLEEP_WITHOUT_RAM_RETENTION) {

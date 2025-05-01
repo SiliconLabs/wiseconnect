@@ -82,8 +82,9 @@
 #define ADV_RSSI_TOLERANCE_THRESHOLD 5
 #define ADV_ACTIVE_SCAN_DURATION     15
 #define ADV_PASSIVE_SCAN_DURATION    20
-#define ADV_MULTIPROBE               0
+#define ADV_MULTIPROBE               1
 #define ADV_SCAN_PERIODICITY         10
+#define ADV_INSTANT_SCAN             1
 
 #define MAX_RECEIVE_STATS_COUNT 5
 
@@ -149,7 +150,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
 #ifdef SLI_SI91X_MCU_INTERFACE
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE),
+                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION),
 #endif
@@ -158,7 +159,8 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
 #ifdef SLI_SI91X_ENABLE_IPV6
                       | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
 #endif
-                      | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                      | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
+                      | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
@@ -172,7 +174,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(10)
-                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                      | SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
                    .config_feature_bit_map  = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
@@ -593,7 +595,7 @@ sl_status_t set_oper_mode_command_handler(console_args_t *arguments)
       si91x_init_configuration = sl_wifi_default_concurrent_configuration;
       break;
     case SL_SI91X_CLIENT_MODE:
-      si91x_init_configuration = sl_wifi_default_client_configuration;
+      si91x_init_configuration = sl_wifi_default_client_configuration_cli;
       break;
     case SL_SI91X_ACCESS_POINT_MODE:
       si91x_init_configuration = sl_wifi_default_ap_configuration;
@@ -693,9 +695,10 @@ static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
   if (scan_result->scan_count)
     for (unsigned int a = 0; a < scan_result->scan_count; ++a) {
       bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
-      printf("%u,%u,%u,%s,",
+      printf("%u,%u,-%u,%u,%s,",
              scan_result->scan_info[a].rf_channel,
              scan_result->scan_info[a].security_mode,
+             scan_result->scan_info[a].rssi_val,
              scan_result->scan_info[a].network_type,
              scan_result->scan_info[a].ssid);
       printf("%02x:%02x:%02x:%02x:%02x:%02x,,", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
@@ -711,16 +714,16 @@ static sl_status_t show_scan_results_extended_scan(uint16_t result_count,
   SL_WIFI_ARGS_CHECK_NULL_POINTER(scan_results_p);
   uint8_t *bssid = NULL;
 
-  printf("at+WIFI_SCAN_RESULTS=%u,,", result_count);
+  printf("%u,", result_count);
   for (uint32_t a = 0; a < result_count; ++a) {
     bssid = (uint8_t *)&scan_results_p[a].bssid;
-    printf("%u,%u,%u,%s,",
+    printf("%u,%u,-%u,%u,%s,",
            scan_results_p[a].rf_channel,
            scan_results_p[a].security_mode,
+           scan_results_p[a].rssi,
            scan_results_p[a].network_type,
            scan_results_p[a].ssid);
     printf("%02x:%02x:%02x:%02x:%02x:%02x,,", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-    printf("-%u,", scan_results_p[a].rssi);
   }
   printf("\r\n>\r\n");
   return SL_STATUS_OK;
@@ -742,21 +745,54 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
 
   if ((scan_type != SL_WIFI_SCAN_TYPE_EXTENDED) && (result_length != 0) && !status) {
     callback_status = show_scan_results(result);
-  } else if ((scan_type == SL_WIFI_SCAN_TYPE_EXTENDED) && (result_length == 0) && !status) {
-    UNUSED_PARAMETER(result);
-    UNUSED_PARAMETER(result_length);
-    sl_wifi_extended_scan_result_parameters_t scan_result_parameters = { 0 };
-    uint16_t result_count                                            = 0;
-    char *scan_results_p                = malloc(sizeof(sl_wifi_extended_scan_result_t) * scan_result_count);
-    scan_result_parameters.scan_results = (sl_wifi_extended_scan_result_t *)scan_results_p;
-    scan_result_parameters.array_length = scan_result_count;
-    scan_result_parameters.result_count = &result_count;
-    status          = sl_wifi_get_stored_scan_results(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &scan_result_parameters);
-    callback_status = show_scan_results_extended_scan(result_count, (sl_wifi_extended_scan_result_t *)scan_results_p);
-    free(scan_results_p);
   }
 
   scan_results_complete = true;
+  return SL_STATUS_OK;
+}
+
+sl_status_t wifi_get_extended_scan_results_command_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+
+  if (scan_type != SL_WIFI_SCAN_TYPE_EXTENDED) {
+    return SL_STATUS_SI91X_COMMAND_GIVEN_IN_INVALID_STATE;
+  }
+  scan_result_count = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SCAN_RESULT_COUNT_EXTENDED_DEFAULT, uint16_t);
+  sl_wifi_extended_scan_result_parameters_t scan_result_parameters = { 0 };
+  uint16_t result_count                                            = 0;
+
+  // Allocate memory for scan results
+  char *scan_results_p = malloc(sizeof(sl_wifi_extended_scan_result_t) * scan_result_count);
+  if (scan_results_p == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+  scan_result_parameters.scan_results = (sl_wifi_extended_scan_result_t *)scan_results_p;
+  scan_result_parameters.array_length = scan_result_count;
+  scan_result_parameters.result_count = &result_count;
+
+  uint8_t channel                       = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint8_t);
+  scan_result_parameters.channel_filter = channel ? &channel : NULL;
+
+  uint8_t security_mode                       = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint8_t);
+  scan_result_parameters.security_mode_filter = security_mode ? &security_mode : NULL;
+
+  uint8_t rssi                       = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint8_t);
+  scan_result_parameters.rssi_filter = rssi ? &rssi : NULL;
+
+  uint8_t network_type                       = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint8_t);
+  scan_result_parameters.network_type_filter = network_type ? &network_type : NULL;
+
+  sl_status_t status = sl_wifi_get_stored_scan_results(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &scan_result_parameters);
+  if (status != SL_STATUS_OK) {
+    free(scan_results_p);
+    return status;
+  }
+
+  PRINT_AT_CMD_SUCCESS;
+  callback_status = show_scan_results_extended_scan(result_count, (sl_wifi_extended_scan_result_t *)scan_results_p);
+  free(scan_results_p);
+
   return SL_STATUS_OK;
 }
 
@@ -1024,8 +1060,6 @@ sl_status_t wifi_get_firmware_version_command_handler(console_args_t *arguments)
   return status;
 }
 
-#include "sl_utility.h"
-
 sl_status_t wifi_get_network_info_handler(const console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
@@ -1267,26 +1301,38 @@ sl_status_t wifi_get_ap_client_info_command_handler(console_args_t *argument)
   return status;
 }
 
-sl_status_t wifi_set_performance_profile_command_handler(console_args_t *argument)
+sl_status_t wifi_set_performance_profile_command_handler(console_args_t *arguments)
 {
-  sl_si91x_performance_profile_t profile            = GET_COMMAND_ARG(argument, 0);
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  performance_profile.profile                       = profile;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  performance_profile.profile                          = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint8_t);
+  performance_profile.dtim_aligned_type                = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint8_t);
+  performance_profile.num_of_dtim_skip                 = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint8_t);
+  performance_profile.listen_interval                  = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
+  performance_profile.monitor_interval                 = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint16_t);
 
-  return sl_wifi_set_performance_profile(&performance_profile);
+  sl_status_t status = sl_wifi_set_performance_profile_v2(&performance_profile);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  PRINT_AT_CMD_SUCCESS;
+  return status;
 }
 
 sl_status_t wifi_get_performance_profile_command_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
 
-  status = sl_wifi_get_performance_profile(&performance_profile);
+  status = sl_wifi_get_performance_profile_v2(&performance_profile);
   VERIFY_STATUS_AND_RETURN(status);
 
-  printf("%s", get_performance_profile_name(performance_profile.profile));
-
+  PRINT_AT_CMD_SUCCESS;
+  printf("%d %d %d %ld %d",
+         performance_profile.profile,
+         performance_profile.dtim_aligned_type,
+         performance_profile.num_of_dtim_skip,
+         performance_profile.listen_interval,
+         performance_profile.monitor_interval);
   return status;
 }
 
@@ -1591,27 +1637,27 @@ sl_status_t wifi_start_wps(console_args_t *arguments)
 
   return sl_wifi_start_wps(interface, wps_mode, wps_pin == NULL ? NULL : &pin);
 }
-sl_status_t sl_wifi_set_advanced_scan_configuration_command_handler(console_args_t *arguments)
+sl_status_t set_advanced_scan_configuration_command_handler(console_args_t *arguments)
 {
   sl_status_t status                                                = SL_STATUS_OK;
-  sl_wifi_advanced_scan_configuration_t advanced_scan_configuration = { 0 };
-
-  // Advance scanning parameters
-  advanced_scan_configuration.active_channel_time =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, ADV_ACTIVE_SCAN_DURATION, uint16_t);
-  advanced_scan_configuration.passive_channel_time =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 1, ADV_PASSIVE_SCAN_DURATION, uint16_t);
-  advanced_scan_configuration.trigger_level = GET_OPTIONAL_COMMAND_ARG(arguments, 2, ADV_SCAN_THRESHOLD, int32_t);
-  advanced_scan_configuration.trigger_level_change =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 3, ADV_RSSI_TOLERANCE_THRESHOLD, uint16_t);
-  advanced_scan_configuration.enable_multi_probe = GET_OPTIONAL_COMMAND_ARG(arguments, 4, ADV_MULTIPROBE, uint8_t);
+  sl_wifi_advanced_scan_configuration_t advanced_scan_configuration = {
+    // Advance scanning parameters
+    .trigger_level        = GET_OPTIONAL_COMMAND_ARG(arguments, 0, ADV_SCAN_THRESHOLD, int32_t),
+    .trigger_level_change = GET_OPTIONAL_COMMAND_ARG(arguments, 1, ADV_RSSI_TOLERANCE_THRESHOLD, uint32_t),
+    .active_channel_time  = GET_OPTIONAL_COMMAND_ARG(arguments, 2, ADV_ACTIVE_SCAN_DURATION, uint16_t),
+    .passive_channel_time = GET_OPTIONAL_COMMAND_ARG(arguments, 3, ADV_PASSIVE_SCAN_DURATION, uint16_t),
+    .enable_instant_scan  = GET_OPTIONAL_COMMAND_ARG(arguments, 4, ADV_INSTANT_SCAN, uint8_t),
+    .enable_multi_probe   = GET_OPTIONAL_COMMAND_ARG(arguments, 5, ADV_MULTIPROBE, uint8_t),
+  };
 
   status = sl_wifi_set_advanced_scan_configuration(&advanced_scan_configuration);
+  VERIFY_STATUS_AND_RETURN(status);
 
+  PRINT_AT_CMD_SUCCESS;
   return status;
 }
 
-sl_status_t sl_wifi_get_advanced_scan_configuration_command_handler(console_args_t *arguments)
+sl_status_t get_advanced_scan_configuration_command_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
   sl_wifi_advanced_scan_configuration_t advanced_scan_configuration = { 0 };
@@ -1619,6 +1665,7 @@ sl_status_t sl_wifi_get_advanced_scan_configuration_command_handler(console_args
   sl_status_t status = sl_wifi_get_advanced_scan_configuration(&advanced_scan_configuration);
 
   if (status == SL_STATUS_OK) {
+    PRINT_AT_CMD_SUCCESS;
     printf("\nAdvanced scan configurations:\n active channel time: %d\n passive channel time: %d\n trigger "
            "level: %d\n trigger level change: %lu\n enable multi probe: %d\n",
            advanced_scan_configuration.active_channel_time,

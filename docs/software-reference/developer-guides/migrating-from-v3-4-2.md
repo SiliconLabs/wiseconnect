@@ -15,6 +15,7 @@
   - [Deprecated Macros](#deprecated-macros)
   - [Deprecated Enumerators](#deprecated-enumerators)
   - [Deprecated Structures/API's](#deprecated-structuresapis)
+  - [Updated Status Codes](#updated-status-codes)
 
 ## Overview
 
@@ -156,3 +157,30 @@ Increased gain values as per mentioned above.
   | Wi-Fi     | `sl_wifi_set_listen_interval`                    | `sl_wifi_set_listen_interval_v2`                     |
   | Wi-Fi     | `sl_wifi_get_listen_interval`                    | `sl_wifi_get_listen_interval_v2`                     |
   | Wi-Fi     | `sl_si91x_set_listen_interval`                   | `sl_wifi_set_listen_interval_v2`                     |
+
+### Updated Status Codes
+
+As part of the migration from WiSeConnect™ SDK v3.4.2 to v3.5.0, the status codes in `sl_additional_status.h` have been updated to avoid overlapping with the status codes in `sl_status.h`. The new status code values now include a prefix (`0x16`) for better categorization and to avoid conflicts.
+
+**Reason for Change**
+
+The status codes in `sl_additional_status.h` previously overlapped with those in `sl_status.h`, which could lead to conflicts and incorrect status handling. To resolve this, the status code values in `sl_additional_status.h` have been updated to use the range `0x16000` to `0x16FFF`.
+
+**User Impact**
+
+Applications using the old status codes will need to update their references to the new status code values. This change ensures compatibility with the v3.5.0 SDK and prevents conflicts between `sl_status.h` and `sl_additional_status.h`.
+
+#### **Status Code Mapping**
+
+| **Status Description**                          | **v3.4.2 Status Code** | **v3.5.0 Status Code** |
+|------------------------------------------------|------------------------|------------------------|
+| SL_STATUS_OS_OPERATION_FAILURE                            | `0x0051`              | `0x16051`             |
+| SL_STATUS_BOOTUP_OPTIONS_NOT_SAVED                  | `0x0052`              | `0x16052`             |
+| SL_STATUS_BOOTUP_OPTIONS_CHECKSUM_FAILURE      | `0x0053`              | `0x16053`             |
+| SL_STATUS_BOOTLOADER_VERSION_MISMATCH     | `0x0054`              | `0x16054`             |
+| SL_STATUS_WAITING_FOR_BOARD_READY              | `0x0055`              | `0x16055`             |
+| SL_STATUS_VALID_FIRMWARE_NOT_PRESENT                      | `0x0056`              | `0x16056`             |
+| SL_STATUS_INVALID_OPTION                     | `0x0057`              | `0x16057`             |
+| SL_STATUS_SPI_BUSY                          | `0x0058`              | `0x16058`             |
+| SL_STATUS_CARD_READY_TIMEOUT           | `0x0059`              | `0x16059`             |
+| SL_STATUS_FW_LOAD_OR_UPGRADE_TIMEOUT   | `0x005A`              | `0x1605A`             |
