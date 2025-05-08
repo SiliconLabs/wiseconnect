@@ -99,7 +99,7 @@ static usart_peripheral_t get_usart_instance(sl_usart_handle_t usart_handle);
  ******************************************************************************/
 static sl_status_t usart_get_handle(usart_peripheral_t usart_instance, sl_usart_handle_t *usart_handle)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_FAIL;
   do {
     // Check for USART instance valid
     if (usart_instance >= UARTLAST) {
