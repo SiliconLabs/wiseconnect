@@ -170,6 +170,9 @@ typedef struct {
  *   Configuration object of type @ref sl_si91x_gcm_config_t
  * @param[out] output 
  *   Buffer to store the output.
+ * @note
+ *   The maximum message length supported is 1400 bytes.
+ *   The M4 receive buffer is limited to 1400 bytes, so both the packet length and expected output must stay within this limit. If the output exceeds 1400 bytes, the NWP will return an error.
  * @return
  *   sl_status_t.
  * For more information on status codes, refer to 

@@ -43,7 +43,7 @@
 
 - This example demonstrates the Config Timer as a normal counter, toggling GPIO on every interrupt and as PWM output generator.
 - Two macros are present: CT_PWM_MODE_USECASE and CT_COUNTER_MODE_USECASE. By default, the normal counter use case is enabled.
-- Enable any one of the follwoing use case macros at a time.
+- Enable only one of the following use case macros at a time..
   - If **CT_PWM_MODE_USECASE** is enabled:
     - The Config Timer is initialized using \ref sl_si91x_ct_init() API.
     - After initialization, the desired counter parameters are configured using \ref sl_si91x_ct_set_configuration() API, the parameters are set through UC.
@@ -131,8 +131,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
 
    **Note:**
-  > Currently, the Config Timer supports only 16-bit mode. You can configure a match value to a maximum of 65535.
-  
+  > The Config Timer supports only 16-bit counter mode, with a maximum match value of 65,535.
+ 
 ### Pin Configuration for pwm-mode use case
 
 |  Discription  | GPIO    | Breakout pin  | Explorer kit Breakout pin|

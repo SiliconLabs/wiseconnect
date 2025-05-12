@@ -81,6 +81,19 @@ See the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconne
 
 ![at_commands_Output](resources/readme/Ready.PNG)
 
+### Powersave Commands
+
+To use the powersave commands, follow the steps below to install the at_power_manager component:
+
+1. Open the `.slcp` file in Simplicity Studio and navigate to the `SOFTWARE COMPONENTS` section.
+2. Search for `at_power_manager`. In the WiseConnect3 SDK, click on `Expand All`.
+3. Select the `at_power_manager` component. In the right-side pane, click on `Install`.
+
+![at_power_save](resources/readme/at_power_save_comp.png)
+
+> **Note:**
+- By default, the `SL_SI91X_TICKLESS_MODE=1` macro is enabled.
+For testing power manager sleep and standby modes, modify the macro to `SL_SI91X_TICKLESS_MODE=0` in the Studio Preprocessor Settings.
 
  **Here is a list of commands:**
 
@@ -88,7 +101,7 @@ See the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconne
 2. at+net-cred-wifipsk=1,Silabs123
 3. at+net-sta-cred=0,SiLabsAP,1
 4. at+net-up=8
-5. at+wifisys-get-fwver
+5. at+wifisys-fwver?
 6. at+wifi-get-mac
 7. at+net-deinit
 8. at+siwx91x-nvic-reset

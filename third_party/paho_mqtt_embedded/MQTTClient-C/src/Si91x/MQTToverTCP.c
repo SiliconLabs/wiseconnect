@@ -76,7 +76,14 @@ static int mqtt_write(Network *n, unsigned char *buffer, int len, int timeout_ms
 
 static void mqtt_disconnect(Network *n)
 {
-  close(n->socket);
+  if (n->socket >= 0) {
+    close(n->socket);
+  }
+}
+
+void NetworkDisconnect(Network *n)
+{
+  mqtt_disconnect(n);
 }
 
 void NewNetwork(Network *n)

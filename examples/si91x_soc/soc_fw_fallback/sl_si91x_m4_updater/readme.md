@@ -1,4 +1,4 @@
-# M4 FW AB UPDATER
+# M4 FW AB UPDATER (A/B Fallback)
 
 ## Table of Contents
 
@@ -14,6 +14,9 @@
 ## Purpose/Scope
 
 This application fetches the M4 application address from flash. If a valid address is obtained from slot information, it jumps to the M4 application; otherwise, it enters an infinite loop in case of failure.
+
+## Note
+A/B firmware update functionality requires a special MBR and Patch to be preloaded on the device. Ensure these components are correctly loaded before running this example.
 
 ## Prerequisites/Setup Requirements
 

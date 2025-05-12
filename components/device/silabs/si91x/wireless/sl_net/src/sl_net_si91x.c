@@ -47,6 +47,7 @@
 #include <string.h>
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_dns.h"
+#include "sli_wifi_constants.h"
 
 typedef enum { SLI_SI91X_CLIENT = 0, SLI_SI91X_AP = 1, SLI_SI91X_MAX_INTERFACES = 2 } sli_si91x_interfaces_t;
 sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
@@ -119,7 +120,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   }
 
   // Connect to the Wi-Fi network
-  status = sl_wifi_connect(client_interface, &profile.config, 18000);
+  status = sl_wifi_connect(client_interface, &profile.config, SLI_WIFI_CONNECT_TIMEOUT);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Configure the IP address settings

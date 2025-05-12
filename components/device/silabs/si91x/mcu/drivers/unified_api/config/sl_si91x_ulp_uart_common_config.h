@@ -42,7 +42,7 @@
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <ulp_uart signal=TX,RX> SL_ULP_UART
+// <ulp_uart signal=TX,RX,(CTS),(RTS)> SL_ULP_UART
 // $[ULP_UART_SL_ULP_UART]
 
 #ifndef SL_ULP_UART_PERIPHERAL

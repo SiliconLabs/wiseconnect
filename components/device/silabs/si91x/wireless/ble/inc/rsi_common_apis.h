@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include "rsi_common.h"
 #endif
+#include <stdint.h>
 /******************************************************
  * *                      Macros
  * ******************************************************/
@@ -116,7 +117,7 @@ typedef enum rsi_power_save_profile_type_e {
 /******************************************************
  * *               Function Declarations
  * ******************************************************/
-#include <stdint.h>
+
 extern int32_t rsi_ble_driver_init(uint8_t *buffer, uint32_t length);
 extern int32_t rsi_ble_driver_deinit(void);
 extern int32_t rsi_get_fw_version(uint8_t *response, uint16_t length);

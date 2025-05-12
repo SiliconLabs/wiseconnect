@@ -31,6 +31,6 @@
 #ifndef AT_UTILITY_H
 #define AT_UTILITY_H
 
-#define PRINT_AT_CMD_SUCCESS printf("\r\nOK ");
+#define PRINT_AT_CMD_SUCCESS printf("OK ");
 
 #endif // AT_UTILITY_H

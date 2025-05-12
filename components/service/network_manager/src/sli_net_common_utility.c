@@ -39,6 +39,7 @@
 #ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
 #include "sl_net_for_lwip.h"
 #endif
+#include "sli_wifi_constants.h"
 
 sl_net_event_handler_t net_event_handler = NULL;
 static osEventFlagsId_t auto_join_event_flag;
@@ -110,7 +111,7 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
   }
 #endif
 
-  status = sl_wifi_connect(client_interface, &profile->config, 18000);
+  status = sl_wifi_connect(client_interface, &profile->config, SLI_WIFI_CONNECT_TIMEOUT);
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("Failed to connect to Wi-Fi network.\n");
     sl_network_manager_message_t message;
@@ -183,7 +184,7 @@ sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_clien
 #endif
 
   // Set the client profile
-  status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, profile);
 
   return status;
 }

@@ -38,10 +38,10 @@
 - Then register's user event callback for send and receive complete notification are set using
   \ref sl_si91x_usart_register_event_callback()
 - After setting the user event callback, 
-For hardware controlled half duplex mode, the address will be sent using \ref sl_si91x_uart_rs485_transfer_hardware_address() in send mode and \ref sl_si91x_uart_rs485_rx_hardware_address_set() used to set the address in receive mode. Data send and receive can happen through \ref sl_si91x_usart_send_data() and \ref sl_si91x_usart_receive_data() respectively
+For hardware controlled half duplex mode, the address will be sent using \ref sl_si91x_uart_rs485_transfer_hardware_address() in send mode, and \ref sl_si91x_uart_rs485_rx_hardware_address_set() used to set the address in receive mode. Data send and receive can happen through \ref sl_si91x_usart_send_data() and \ref sl_si91x_usart_receive_data() respectively
 For software controlled half duplex mode, send address and data is performed using \ref sl_si91x_usart_send_data() and receive address and data is performed using \ref sl_si91x_usart_receive_data(). 
 - Once the receive data event is triggered, both transmit and receive buffer data is compared to confirm if the received data is same.
-- There are 2 UC's each one for UART1, UART0. By default UART1 is installed. If user wants to install UART0, install UART0 UC.
+- There are 2 UC's each one for UART1, UART0. By default UART1 is installed. If user wants to operate on UART0, install UART0 UC.
 
 ## Prerequisites/Setup Requirements
 
@@ -91,12 +91,19 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Create a Two Studio projects, one for  RS485 send and another for RS485 receive
-- In rs485 Receive project, Enable ADDR Match Enable from UC, Disable SEND Addr Enable from UC and add **current_mode = SL_UART_RS485_RECEIVE** in example project when hardware controlled half duplex is selected.
+- To demonstrate RS-485 multi-slave communication, we'll use three Simplicity Studio projects: one master (sending) and two slaves (receiving).
 
-- In rs485 Send project, Disable ADDR Match Enable from UC, Enable SEND Addr Enable from UC and add **current_mode = SL_UART_RS485_SEND** in example project when hardware controlled half duplex is selected.
+  - Master Project: Use the default application code, ensuring current_mode is set to SL_UART_RS485_SEND and current_slave is set to RS485_SLAVE1. This configures the project for transmit mode, sending data to RS485_SLAVE1. The master and SLAVE1 will communicate in half-duplex mode (master sends to SLAVE1 and receives from SLAVE1, and vice-versa). The master will send data to SLAVE2 in one direction only (master sends, SLAVE2 receives).
 
-- In rs485 Send and Receive project, disable ADDR Match Enable from UC, disable SEND Addr Enable from UC in example project when software controlled half duplex is selected. Below are the snaps, referring to different scenarios mentioned above. 
+  - Slave Project 1: For the first slave project, set current_mode to SL_UART_RS485_RECEIVE and current_slave to RS485_SLAVE1. This configures it to listen for and process messages specifically addressed to RS485_HW_SLAVE1_ADDRESS.
+
+  - Slave Project 2: Similarly, for the second slave project, set current_mode to SL_UART_RS485_RECEIVE and current_slave to RS485_SLAVE2. This project will identify and handle messages directed to RS485_HW_SLAVE2_ADDRESS.
+
+- This setup enables the master project to transmit data to two distinct slave projects, using RS-485 addressing. The same steps apply to software-controlled half-duplex mode.
+
+- For hardware-controlled half-duplex communication between two boards, enable both "send address enable" and "address match enable" in the Universal Communications (UC) settings.
+
+- For software-controlled half-duplex mode, when using the RS485 send and receive project, disable "address match enable" and "send address enable" in the UC settings, as shown in the provided snapshots. 
 
 - Configuration of UART0 RS485 configs from UC, when hardware controlled half duplex in receive mode is performed.
 
@@ -136,25 +143,22 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - SW_CTRL_HALF_DUPLEX: The software-controlled half duplex mode supports either transmit or receive transfers at a time but not both simultaneously. The switching between transmit to receive or receive to transmit is through 
     programming the Driver output enable (DE_EN) and Receiver output enable (RE_EN).
     - HW_CTRL_HALF_DUPLEX: The hardware-controlled half duplex mode supports either transmit or receive transfers at a time but not both simultaneously. If both 'DE Enable' and 'RE Enable' enabled, the switching between transmit to receive or receive to transmit is automatically done by the hardware.
-  - DE Assertion Time: Driver enable assertion time. This field controls the amount of time (in terms of number of serial clock periods) between the assertion of rising edge of Driver output enable signal to serial transmit enable. Any data in transmit buffer, will start on serial output (sout) after the transmit enable.
-  - DE De-Assertion Time: Driver enable de-assertion time. This field controls the amount of time (in terms of number of serial clock periods) between the end of stop bit on the serial output (sout) to the falling edge of Driver output enable signal.
-  - DE Polarity: Driver Enable Polarity
-    - 0: DE signal is active low
-    - 1: DE signal is active high
-  - RE Polarity: Receiver Enable Polarity
-    - 0: RE signal is active low
-    - 1: RE signal is active high
-  - DE-RE Turnaround Time: Driver Enable to Receiver Enable Turn Around time in terms of serial clocks.
-  - RE-DE Turnaround Time: Receiver Enable to Driver Enable Turn Around time. Turnaround time (in terms of serial clock) for RE de-assertion to DE assertion.
-  - Data bit 9 set: This is used to enable 9-bit data for transmit and receive.
-    - 1 : 9 bits per character
-    - 0 : Number of data bits set in UART UC config.
-  - Addr Match Enable: This configures address match feature during receive.
-    - 0 - Software Address Match Receive Mode; uart will start to receive the data and 9-bit character will be formed and written into the receive RxFIFO. User is responsible to read the data and differentiate b/n address and data.
-    - 1 - Hardware Address Match Receive Mode; uart will wait until the incoming character with 9-th bit set to 1. And, further checks to see if the address matches with  what is programmed in "Receive Address Match Register". If  match is found, then sub-sequent characters will be treated as valid data and uart starts receiving data.
-  - Send Addr Enable: This configures the Send Address feature, for the user to determine when to send the address during transmit mode.
-    - 0 - 9-bit character will be transmitted with 9-th bit set to 0 and the remaining 8-bits will be taken from the TxFIFO which is programmed through 8-bit wide THR register.
-    - 1 - 9-bit character will be transmitted with 9-th bit set to 1 and the remaining 8-bits will match to what is being programmed in "Transmit Address Register".   
+    - DE Assertion Time: Driver enable assertion time. This field controls the amount of time (in terms of number of serial clock periods) between the assertion of rising edge of Driver output enable signal to serial transmit enable. Any data in transmit buffer, will start on serial output (sout) after the transmit enable.
+    - DE De-Assertion Time: Driver enable de-assertion time. This field controls the amount of time (in terms of number of serial clock periods) between the end of stop bit on the serial output (sout) to the falling edge of Driver output enable signal.
+    - DE Polarity: Driver Enable Polarity
+      - 0: DE signal is active low
+      - 1: DE signal is active high
+    - RE Polarity: Receiver Enable Polarity
+      - 0: RE signal is active low
+      - 1: RE signal is active high
+    - DE-RE Turnaround Time: Driver Enable to Receiver Enable Turn Around time in terms of serial clocks.
+    - RE-DE Turnaround Time: Receiver Enable to Driver Enable Turn Around time. Turnaround time (in terms of serial clock) for RE de-assertion to DE assertion.
+    - Receive Enable(Addr Match Enable): This configures address match feature during receive.
+      - 0: Software Address Match Receive Mode; uart will start to receive the data and 9-bit character will be formed and written into the receive RxFIFO. User is responsible to read the data and differentiate b/n address and data.
+      - 1: Hardware Address Match Receive Mode; uart will wait until the incoming character with 9-th bit set to 1. And, further checks to see if the address matches with what is programmed in "Receive Address Match Register". If match is found, then sub-sequent characters will be treated as valid data and uart starts receiving data.
+    - Send Enable(Send Addr Enable): This configures the Send Address feature, for the user to determine when to send the address during transmit mode.
+      - 0: 9-bit character will be transmitted with 9-th bit set to 0 and the remaining 8-bits will be taken from the TxFIFO which is programmed through 8-bit wide THR register.
+      - 1: 9-bit character will be transmitted with 9-th bit set to 1 and the remaining 8-bits will match to what is being programmed in "Transmit Address Register".
 
 ## Pin Configuration
 
@@ -186,9 +190,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Test the Application
 
-1. Connect Two modules as per connection diagram shown above.
-2. When the application runs, UART sends the data to the second module and compare whether received data is proper.
-3. After running this application below console output can be observed.
+1. Connect 3 modules as per connection diagram shown above.
+2. The steps to be changed before running the application are mentioned above in Application Build Environment section.
+3. When the application runs, UART sends the data to the slave modules and compare whether received data is proper.
+4. After running this application below console output can be observed.
 
     > ![Figure: expected result](resources/readme/uart1_rs485_output_console.png)
 

@@ -1552,7 +1552,6 @@ sl_status_t sl_si91x_uart_rs485_transfer_hardware_address(usart_peripheral_t uar
 #if (RS485_UART_UC == 1)
     uart_rs485_multidrop.send_addr = uart1_rs485_configuration.multidrop.send_addr;
 #endif
-
     if (uart_instance == USART_0) {
       rsi_usart_rs485_transfer_address(UART0, uart_rs485_multidrop, *tx_address);
       status = SL_STATUS_OK;
@@ -1627,6 +1626,257 @@ sl_status_t sl_si91x_uart_rs485_deinit(usart_peripheral_t uart_instance)
       break;
     } else if (uart_instance == UART_1) {
       rsi_usart_rs485_disable(UART1);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief
+ * Enable/Disable send address bit while transferring address
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_control_send_address(usart_peripheral_t uart_instance, bool send_addr_ctrl)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_control_send_address(UART0, send_addr_ctrl);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_control_send_address(UART1, send_addr_ctrl);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+* @brief
+* Enable/Disable address match bit while receiving.
+******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_control_address_match(usart_peripheral_t uart_instance, bool addr_match_ctrl)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_control_address_match(UART0, addr_match_ctrl);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_control_address_match(UART1, addr_match_ctrl);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief 
+ * Enables or disables the Driver Enable assertion time for RS-485.
+ *
+ * This function configures the duration for which the Driver Enable (DE) signal
+ * is asserted before the start of data transmission for the specified UART instance.
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_assert_time(usart_peripheral_t uart_instance, uint8_t assert_time)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_set_de_assert_time(UART0, assert_time);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_set_de_assert_time(UART1, assert_time);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief 
+ * Enables or disables the Driver Enable de-assertion time for RS-485.
+ *
+ * This function configures the duration for which the Driver Enable (DE) signal
+ * remains asserted after the completion of data transmission for the specified
+ * UART instance.
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_deassert_time(usart_peripheral_t uart_instance, uint8_t deassert_time)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_set_de_deassert_time(UART0, deassert_time);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_set_de_deassert_time(UART1, deassert_time);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief 
+ * Sets the Driver Enable to Receiver Enable turnaround time for RS-485.
+ *
+ * This function configures the delay between de-asserting the Driver Enable (DE)
+ * signal and asserting the Receiver Enable (RE) signal when switching from
+ * transmit to receive mode for the specified UART instance.
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_re_turnaround_time(usart_peripheral_t uart_instance, uint16_t de_re_tat)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_set_de_re_turnaround_time(UART0, de_re_tat);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_set_de_re_turnaround_time(UART1, de_re_tat);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief 
+ * Sets the Receiver Enable to Driver Enable turnaround time for RS-485.
+ *
+ * This function configures the delay between de-asserting the Receiver Enable (RE)
+ * signal and asserting the Driver Enable (DE) signal when switching from
+ * receive to transmit mode for the specified UART instance. 
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_re_de_turnaround_time(usart_peripheral_t uart_instance, uint16_t re_de_tat)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_set_re_de_turnaround_time(UART0, re_de_tat);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_set_re_de_turnaround_time(UART1, re_de_tat);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief 
+ * Sets the Driver Enable polarity for RS-485 for the specified UART instance.
+ *
+ * This function configures the active level of the Driver Enable (DE) signal.
+  ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_polarity(usart_peripheral_t uart_instance, uint8_t de_polarity)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_set_de_polarity(UART0, de_polarity);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_set_de_polarity(UART1, de_polarity);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == ULPUART) {
+      status = SL_STATUS_NOT_SUPPORTED;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief 
+ * Sets the Receiver Enable polarity for RS-485 for the specified UART instance.
+ *
+ * This function configures the active level of the Receiver Enable (RE) signal.
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_re_polarity(usart_peripheral_t uart_instance, uint8_t re_polarity)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+  do {
+    // Check for USART instance valid
+    if (uart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    if (uart_instance == USART_0) {
+      rsi_usart_rs485_set_re_polarity(UART0, re_polarity);
+      status = SL_STATUS_OK;
+      break;
+    } else if (uart_instance == UART_1) {
+      rsi_usart_rs485_set_re_polarity(UART1, re_polarity);
       status = SL_STATUS_OK;
       break;
     } else if (uart_instance == ULPUART) {

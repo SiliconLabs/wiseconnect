@@ -3051,6 +3051,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  * @note        Refer to the Status Codes section for the above error codes at 
  *              [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes).
  * @note        The higher power will be backed off based on country region.
+ * @note        This API currently supports controlling the tx power in the configured chain during wireless initialization. However, changing the chain from LP to HP or vice versa is not supported.
  * @note        Use the following setting to indicate tx_power as an index: 
  *              `#define RSI_BLE_PWR_INX 30`
  *              Default value for power index is 31. 
@@ -3062,7 +3063,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  *                - 127      : BLE HP Mode, maximum power supported.
 
  * @note        Use the following setting to indicate tx_power in dBm (-8 to 18 dBm): `#define RSI_BLE_PWR_INX_DBM  1`
- * @note        When switching between HP mode and LP mode, ensure that no protocol activity is running.  
+ *   
  * @note        For the LP Chain - Power index vs output power in dBm in E2E mode:
  *   |       Power Index   |                  Output Power in dBm                              |
  *   ----------------------|-------------------------------------------------------------------|

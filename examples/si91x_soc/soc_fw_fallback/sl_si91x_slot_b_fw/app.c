@@ -220,6 +220,14 @@ static void application_start(void *argument)
              sl_wifi_firmware_update_configuration.nwp_fw_image_number);
   }
 
+  // Select the default NWP firmware image based on the current fw_image_number.
+  status = sl_si91x_select_default_nwp_fw(sl_wifi_firmware_update_configuration.nwp_fw_image_number);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("\r\n Failed to select default NWP firmware: %d\r\n", (int16_t)status);
+    while (1)
+      ; // Halt execution in case of failure
+  }
+
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);

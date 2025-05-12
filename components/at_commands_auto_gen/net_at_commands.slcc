@@ -18,6 +18,8 @@ template_contribution:
         handler: net_init_command_handler
         arguments:
           - "uint8"
+      net-init?:
+        handler: net_init_check_command_handler
       net-deinit:
         handler: net_deinit_command_handler
         arguments:
@@ -70,6 +72,7 @@ template_contribution:
           - "uint8"
           - "uint16"
           - "uint32"
+          - "uint8"
       net-sta-ip:
         handler: net_sta_ip_command_handler
         arguments:
@@ -110,7 +113,7 @@ template_contribution:
           - "string"
           - "uint32"
           - "uint8"
-      http-otaf-update:
+      http-otaf:
         handler: http_otaf_upgrade_command_handler
         arguments:
           - "uint16"

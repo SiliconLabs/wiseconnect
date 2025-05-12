@@ -975,7 +975,10 @@
 #define RTE_ULP_UART_RTS_PORT_ID 0
 #if (RTE_ULP_UART_RTS_PORT_ID == 0)
 #define RTE_ULP_UART_RTS_PORT RTE_ULP_PORT
-#define RTE_ULP_UART_RTS_PIN  10
+#define RTE_ULP_UART_RTS_PIN  0
+#elif (RTE_ULP_UART_RTS_PORT_ID == 1)
+#define RTE_ULP_UART_RTS_PORT RTE_ULP_PORT
+#define RTE_ULP_UART_RTS_PIN  4
 #else
 #error "Invalid ULPSS UART RTE_ULP_UART_RTS_PIN Pin Configuration!"
 #endif
@@ -983,7 +986,7 @@
 #define RTE_ULP_UART_RTS_PORT RTE_ULP_PORT
 #define RTE_ULP_UART_RTS_PIN  ULP_UART_RTS_PIN
 #endif
-#define RTE_ULP_UART_RTS_MUX 8
+#define RTE_ULP_UART_RTS_MUX 3
 
 //   </e>
 

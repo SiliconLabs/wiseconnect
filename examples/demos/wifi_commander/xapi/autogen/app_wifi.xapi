@@ -10,7 +10,8 @@
         <datatype base="uint8array" name="uint8array" length="1"/>
         <datatype base="uint16array" name="uint16array" length="2"/>
         <datatype base="byte_array" name="byte_array" length="0"/>
-        <datatype base="bd_addr" name="mac_address" length="6"/>
+        <datatype base="bd_addr" name="bd_address" length="6"/>
+        <datatype base="mac_addr" name="mac_address" length="6"/>
         <datatype base="ipv6_addr" name="ipv6_address" length="16"/>
         <datatype base="uint8array" name="api_ssid" length="32"/>
         <datatype base="uint8array" name="mqtt_topic" length="32"/>
@@ -98,12 +99,7 @@
         <command index="4" name="set_device_config" >
             <params>
                 <param datatype="uint8" name="boot_option" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_0" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_1" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_2" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_3" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_4" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_5" type="uint8"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
                 <param datatype="uint8" name="band" type="uint8"/>
                 <param datatype="uint8" name="region_code" type="uint8"/>
                 <param datatype="uint8" name="tx_ratio_in_buffer_pool" type="uint8"/>
@@ -138,12 +134,7 @@
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
                 <param datatype="uint8" name="boot_option" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_0" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_1" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_2" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_3" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_4" type="uint8"/>
-                <param datatype="uint8" name="mac_address_octet_5" type="uint8"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
                 <param datatype="uint8" name="band" type="uint8"/>
                 <param datatype="uint8" name="region_code" type="uint8"/>
                 <param datatype="uint8" name="tx_ratio_in_buffer_pool" type="uint8"/>
@@ -562,7 +553,7 @@
         <command index="1" name="disconnect_client" >
             <params>
                 <param datatype="uint8" name="net_interface" type="uint8"/>
-                <param datatype="mac_address" name="mac_address" type="bd_addr"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
                 <param datatype="uint8" name="reason" type="uint8"/>
             </params>
             <returns>
@@ -580,18 +571,18 @@
         </command>
         <event index="0" name="client_connected_event">
             <params>
-                <param datatype="mac_address" name="mac_address" type="bd_addr"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
             </params>
         </event>
         <event index="1" name="client_disconnected_event">
             <params>
-                <param datatype="mac_address" name="mac_address" type="bd_addr"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
             </params>
         </event>
         <event index="2" name="get_client_info_event">
             <params>
                 <param datatype="ipv4_address" name="ipv4_address" type="ipv4_addr"/>
-                <param datatype="mac_address" name="mac_address" type="bd_addr"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
             </params>
         </event>
         <enums name="wifi_event_group">
@@ -634,20 +625,6 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <enums name="credential_id">
-            <enum name="credential_id_invalid" value="0x0"/>
-            <enum name="credential_id_default_wifi_client" value="0x1"/>
-            <enum name="credential_id_default_wifi_ap" value="0x2"/>
-            <enum name="credential_id_wifi_eap_client" value="0x3"/>
-            <enum name="credential_id_wifi_eap_server" value="0x4"/>
-            <enum name="credential_id_user" value="0x5"/>
-            <enum name="credential_id_tls_client" value="0x100"/>
-            <enum name="credential_id_tls_server" value="0x200"/>
-            <enum name="credential_id_mqtt_server" value="0x300"/>
-            <enum name="credential_id_mqtt_client" value="0x400"/>
-            <enum name="credential_id_http_server" value="0x500"/>
-            <enum name="credential_id_http_client" value="0x600"/>
-        </enums>
         <enums name="credential_type">
             <enum name="credential_type_invalid" value="0x0"/>
             <enum name="credential_type_psk" value="0x1"/>
@@ -849,7 +826,7 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="2" name="set_broker" >
+        <command index="1" name="set_broker" >
             <params>
                 <param datatype="ipv4_address" name="ip_address" type="ipv4_addr"/>
                 <param datatype="uint16" name="port" type="uint16"/>
@@ -862,7 +839,7 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="3" name="set_last_will_topic" >
+        <command index="2" name="set_last_will_topic" >
             <params>
                 <param datatype="uint32" name="qos_level" type="uint32"/>
                 <param datatype="uint8" name="is_retained" type="uint8"/>
@@ -872,7 +849,7 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="13" name="set_last_will_message" >
+        <command index="3" name="set_last_will_message" >
             <params>
                 <param datatype="mqtt_topic" name="message" type="uint8array"/>
             </params>
@@ -896,13 +873,13 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="1" name="deinit" >
+        <command index="18" name="deinit" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="5" name="get_broker" >
+        <command index="12" name="get_broker" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
@@ -914,7 +891,7 @@
                 <param datatype="uint16" name="keep_alive_retires" type="uint16"/>
             </returns>
         </command>
-        <command index="6" name="get_last_will_topic" >
+        <command index="13" name="get_last_will_topic" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
@@ -930,7 +907,7 @@
                 <param datatype="mqtt_topic" name="message" type="uint8array"/>
             </returns>
         </command>
-        <command index="7" name="get_client_config" >
+        <command index="15" name="get_client_config" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
@@ -945,19 +922,19 @@
                 <param datatype="uint32" name="tls_flag" type="uint32"/>
             </returns>
         </command>
-        <command index="8" name="connect" >
+        <command index="6" name="connect" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="9" name="disconnect" >
+        <command index="17" name="disconnect" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="10" name="subscribe" >
+        <command index="7" name="subscribe" >
             <params>
                 <param datatype="uint32" name="qos_level" type="uint32"/>
                 <param datatype="mqtt_topic" name="topic" type="uint8array"/>
@@ -974,7 +951,7 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="12" name="publish_topic" >
+        <command index="8" name="publish_topic" >
             <params>
                 <param datatype="errorcode" name="qos_level" type="uint16"/>
                 <param datatype="uint16" name="packet_id" type="uint16"/>
@@ -986,7 +963,7 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="16" name="publish_message" >
+        <command index="9" name="publish_message" >
             <params>
                 <param datatype="mqtt_message" name="content" type="uint8array"/>
             </params>
@@ -994,13 +971,13 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="18" name="publish" >
+        <command index="10" name="publish" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="22" name="set_client_id" >
+        <command index="5" name="set_client_id" >
             <params>
                 <param datatype="mqtt_topic" name="client_id" type="uint8array"/>
             </params>
@@ -1008,7 +985,7 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="21" name="get_client_id" >
+        <command index="16" name="get_client_id" >
             <params/>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
@@ -1025,45 +1002,35 @@
                 <param datatype="errorcode" name="status" type="uint16"/>
             </params>
         </event>
-        <event index="2" name="topic_received_event">
-            <params>
-                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
-            </params>
-        </event>
-        <event index="15" name="message_received_event">
-            <params>
-                <param datatype="mqtt_message" name="content" type="uint8array"/>
-            </params>
-        </event>
-        <event index="3" name="message_received_on_topic">
+        <event index="2" name="message_received_on_topic">
             <params>
                 <param datatype="mqtt_topic" name="message_topic" type="uint8array"/>
             </params>
         </event>
-        <event index="4" name="message_received_content">
+        <event index="3" name="message_received_content">
             <params>
                 <param datatype="mqtt_message" name="message_content" type="uint8array"/>
             </params>
         </event>
-        <event index="5" name="subscribe_state_event">
+        <event index="4" name="subscribe_state_event">
             <params>
                 <param datatype="errorcode" name="status" type="uint16"/>
                 <param datatype="mqtt_topic" name="topic" type="uint8array"/>
             </params>
         </event>
-        <event index="6" name="unsubscribe_state_event">
+        <event index="5" name="unsubscribe_state_event">
             <params>
                 <param datatype="errorcode" name="status" type="uint16"/>
                 <param datatype="mqtt_topic" name="topic" type="uint8array"/>
             </params>
         </event>
-        <event index="7" name="publish_state_event">
+        <event index="6" name="publish_state_event">
             <params>
                 <param datatype="errorcode" name="status" type="uint16"/>
                 <param datatype="mqtt_topic" name="topic" type="uint8array"/>
             </params>
         </event>
-        <event index="8" name="disconnected_event">
+        <event index="7" name="disconnected_event">
             <params>
                 <param datatype="uint32" name="status" type="uint32"/>
             </params>

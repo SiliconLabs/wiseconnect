@@ -49,7 +49,7 @@ component:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/ulp_uart_gpio_toggle.png
-  - path: resources/readme/ulpuart_uc.png
+  - path: resources/readme/ulpuart_uc.PNG
   - path: resources/readme/ulp_uart_continuous_toggling.png
 template_contribution:
   - name: user_files_ps2

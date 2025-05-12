@@ -51,7 +51,7 @@ extern "C" {
 #define SL_SI70XX_CONFIG_SLAVE_ADDR SI7021_ADDR
 // </h>
 
-// <h>I2C Instance for Si70xx Sensor
+// <h>I2C Instance for Si70xx Sensor (make sure to install selected I2C instance)
 // <o SL_SI70XX_CONFIG_I2C_INSTANCE> I2C Instance
 //   <SL_I2C0=>  I2C0
 //   <SL_I2C1=>  I2C1

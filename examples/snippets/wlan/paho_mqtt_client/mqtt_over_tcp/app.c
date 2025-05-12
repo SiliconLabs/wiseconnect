@@ -359,6 +359,7 @@ int paho_mqtt_demo()
   } else {
     printf("\r\nDisconnect to the MQTT broker Success\r\n");
   }
+  NetworkDisconnect(mqtt_client->client.ipstack);
   printf("\r\nExecution completed!\r\n");
 
   return 0;

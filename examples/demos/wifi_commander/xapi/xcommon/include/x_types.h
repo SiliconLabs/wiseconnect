@@ -64,6 +64,13 @@ typedef struct {
 } bd_addr;
 #endif
 
+#ifndef APP_WIFI_TYPE_MACADDR
+#define APP_WIFI_TYPE_MACADDR
+typedef struct {
+  uint8_t addr[6];
+} mac_addr;
+#endif
+
 #ifndef APP_WIFI_TYPE_IPV4ADDR
 #define APP_WIFI_TYPE_IPV4ADDR
 typedef struct {

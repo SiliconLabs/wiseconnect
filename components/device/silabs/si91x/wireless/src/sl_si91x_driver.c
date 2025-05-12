@@ -583,7 +583,11 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   }
 
   // Check and update the frontend switch control based on custom feature bit map
+#ifndef __ZEPHYR__
   if (config->boot_config.custom_feature_bit_map & SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID) {
+#else
+  if (config->boot_config.custom_feature_bit_map & SL_SI91X_CUSTOM_FEAT_EXTENSION_VALID) {
+#endif
     frontend_switch_control = (config->boot_config.ext_custom_feature_bit_map & (BIT(29) | (BIT(30))));
   }
 

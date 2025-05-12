@@ -90,6 +90,9 @@
 // Websocket max host length
 #define SLI_WEBS_MAX_HOST_LENGTH 51
 
+// Websocket max subprotocol length
+#define SLI_WEBS_MAX_SUBPROTOCOL_LENGTH 51
+
 #if defined(SLI_SI917) || defined(SLI_SI915)
 #define SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
 #else
@@ -609,7 +612,8 @@ typedef struct {
 #if defined(SLI_SI917) || defined(SLI_SI915)
   uint16_t recv_buff_len; ///< receive buffer length
 #endif
-
+  uint32_t reserved;                                              ///< reserved
+  uint8_t webs_subprotocol_name[SLI_WEBS_MAX_SUBPROTOCOL_LENGTH]; ///< web socket subprotocol name
 } sli_si91x_socket_create_request_t;
 #pragma pack()
 

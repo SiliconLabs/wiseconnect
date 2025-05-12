@@ -18,6 +18,10 @@
 #ifndef __SL_SI91X_RGB_LED_H__
 #define __SL_SI91X_RGB_LED_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "sl_si91x_rgb_led_config.h"
 #include <stdint.h>
 
@@ -255,5 +259,9 @@ uint8_t sl_si91x_rgb_led_get_current_state(const sl_led_t *handle);
  * @note This function is deprecated and should be replaced with `sl_si91x_simple_rgb_led_toggle`.
  ******************************************************************************/
 void sl_si91x_rgb_led_toggle(const sl_led_t *handle);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SL_SI91X_RGB_LED_H__

@@ -83,7 +83,7 @@
 // Defines for error logging
 #define PRINT_ERROR_LOGS 0
 
-#define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lu \r\n", tag, __FILE__, __LINE__, (uint32_t)status);
+#define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lu \r\n", tag, __FILE__, __LINE__, (unsigned long)status);
 
 #define SL_CHECK_STATUS(x)    \
   do {                        \

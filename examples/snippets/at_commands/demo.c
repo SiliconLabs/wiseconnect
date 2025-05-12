@@ -171,7 +171,6 @@ void application_start(const void *unused)
     if (result == SL_STATUS_OK) {
       SL_DEBUG_LOG("Processing command\n");
       if (command->handler) {
-        printf("\r\n");
         result = command->handler(&args);
         print_status(result);
       }

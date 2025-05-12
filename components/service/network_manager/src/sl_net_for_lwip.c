@@ -22,6 +22,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_wifi_types.h"
 #include "sli_net_common_utility.h"
+#include "sli_wifi_constants.h"
 #include "sl_net.h"
 #include <string.h>
 #include "sl_rsi_utility.h"
@@ -427,7 +428,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 25000);
+  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, SLI_WIFI_CONNECT_TIMEOUT);
   VERIFY_STATUS_AND_RETURN(status);
 
   set_sta_link_up(&profile);

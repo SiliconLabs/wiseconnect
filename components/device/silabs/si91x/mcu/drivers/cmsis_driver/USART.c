@@ -402,12 +402,22 @@ static  USART_RESOURCES ULP_UART_Resources = {
 				0,              // IRDA               (Not supported)
 				0,              // smart_card         (Not supported)
 				0,              // smart_card_clock   (Not supported)
+		 #ifdef  USART_ROMDRIVER_PRESENT		
 				0,              // RTS Flow Control available
 				0,              // CTS Flow Control available
+		 #else	
+		        1,              // RTS Flow Control available
+		        1,              // CTS Flow Control available
+		 #endif			
 				1,              // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
 				1,              // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+		 #ifdef  USART_ROMDRIVER_PRESENT		
 				0,              // RTS Line: 0=not available, 1=available.
 				0,              // CTS Line: 0=not available, 1=available.
+		 #else
+		        1,              // RTS Line: 0=not available, 1=available.
+		        1,              // CTS Line: 0=not available, 1=available.		 
+		 #endif
 				0,              // DTR Line: 0=not available, 1=available.
 				0,              // DSR Line: 0=not available, 1=available.
 				0,              // DCD Line: 0=not available, 1=available.

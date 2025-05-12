@@ -747,7 +747,6 @@ void rsi_ble_event_adv_report(uint16_t status, void *event_data)
     rsi_ble_event_scan_restart_driver_callback();
   } else {
 
-    adv_pkt_processing_pending = 0;
     peripheral_con_req_pending = 1;
 
     osSemaphoreAcquire(ble_wait_on_connect, 10000);
@@ -763,6 +762,7 @@ void rsi_ble_event_adv_report(uint16_t status, void *event_data)
         rsi_ble_event_disconnect(status, (int8_t *)rsi_ble_conn_info[ble_conn_id].rsi_app_adv_reports_to_app.dev_addr);
       }
       peripheral_con_req_pending = 0;
+      adv_pkt_processing_pending = 0;
     }
   }
 }
@@ -775,6 +775,7 @@ void rsi_ble_event_enhance_conn_status_driver_callback(
   remote_device_role = rsi_get_remote_device_role(remote_dev_addr_conn);
   if (remote_device_role == PERIPHERAL_ROLE) {
     peripheral_con_req_pending = 0;
+    adv_pkt_processing_pending = 0;
     osSemaphoreRelease(ble_wait_on_connect);
   }
   LOG_PRINT_D(" \n in rsi_ble_event_enhance_conn_status_driver_callback \n");

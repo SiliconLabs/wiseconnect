@@ -110,6 +110,14 @@ typedef struct {
 } bd_addr;
 #endif
 
+#ifndef APP_WIFI_TYPE_MACADDR
+#define APP_WIFI_TYPE_MACADDR
+/** @brief MAC address */
+typedef struct {
+  uint8_t addr[6]; /**< @brief MAC Address*/
+} mac_addr;
+#endif
+
 #ifndef APP_WIFI_TYPE_IPV4ADDR
 #define APP_WIFI_TYPE_IPV4ADDR
 /** @brief IPv4 address */

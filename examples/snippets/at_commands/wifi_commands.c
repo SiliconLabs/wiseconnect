@@ -655,7 +655,6 @@ sl_status_t soc_reset_command_handler(console_args_t *arguments)
   UNUSED_PARAMETER(arguments);
 
   PRINT_AT_CMD_SUCCESS;
-  printf("\r\nSoC Soft Reset initiated!\r\n");
   sl_si91x_soc_nvic_reset();
   return SL_STATUS_OK;
 }
@@ -723,9 +722,9 @@ static sl_status_t show_scan_results_extended_scan(uint16_t result_count,
            scan_results_p[a].rssi,
            scan_results_p[a].network_type,
            scan_results_p[a].ssid);
-    printf("%02x:%02x:%02x:%02x:%02x:%02x,,", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+    printf("%02x:%02x:%02x:%02x:%02x:%02x,", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
   }
-  printf("\r\n>\r\n");
+  printf("\r\n");
   return SL_STATUS_OK;
 }
 
@@ -740,6 +739,7 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     callback_status       = *(sl_status_t *)result;
     scan_results_complete = true;
+    printf("ERROR 0x%05lX\r\n>\r\n", callback_status);
     return SL_STATUS_FAIL;
   }
 
@@ -874,7 +874,8 @@ sl_status_t wifi_scan_command_handler(console_args_t *arguments)
 
   wifi_scan_configuration.lp_mode = GET_OPTIONAL_COMMAND_ARG(arguments, 7, false, const bool);
 
-  if (channel_bitmap_2g && (interface & SL_WIFI_2_4GHZ_INTERFACE)) {
+  if (channel_bitmap_2g > 0) {
+    interface |= SL_WIFI_2_4GHZ_INTERFACE;
     wifi_scan_configuration.channel_bitmap_2g4 = channel_bitmap_2g;
   }
 
@@ -1486,14 +1487,14 @@ sl_status_t wifi_is_interface_up_command_handler(console_args_t *arguments)
 {
   sl_wifi_interface_t interface = (sl_wifi_interface_t)GET_COMMAND_ARG(arguments, 0);
 
+  PRINT_AT_CMD_SUCCESS;
   if (sl_wifi_is_interface_up(interface)) {
-    PRINT_AT_CMD_SUCCESS;
     printf("1");
-    return SL_STATUS_OK;
   } else {
     printf("0");
-    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
+
+  return SL_STATUS_OK;
 }
 
 sl_status_t wifi_get_default_interface_command_handler(console_args_t *arguments)

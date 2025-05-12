@@ -271,10 +271,10 @@ int sli_handle_select_response(const sli_si91x_socket_select_rsp_t *response,
                                fd_set *writefds,
                                fd_set *exception_fd);
 #else
-int handle_select_response(const sli_si91x_socket_select_rsp_t *response,
-                           sl_si91x_fdset_t *readfds,
-                           sl_si91x_fdset_t *writefds,
-                           sl_si91x_fdset_t *exception_fd);
+int sli_handle_select_response(const sli_si91x_socket_select_rsp_t *response,
+                               sl_si91x_fdset_t *readfds,
+                               sl_si91x_fdset_t *writefds,
+                               sl_si91x_fdset_t *exception_fd);
 #endif
 
 uint8_t sli_si91x_socket_identification_function_based_on_socketid(sl_wifi_buffer_t *buffer, void *user_data);
@@ -378,7 +378,7 @@ static inline void SL_SI91X_FD_SET(unsigned int n, sl_si91x_fdset_t *p)
   p->__fds_bits |= 1U << n;
 }
 
-static inline bool SL_SI91X_FD_ISSET(unsigned int n, sl_si91x_fdset_t *p)
+static inline bool SL_SI91X_FD_ISSET(unsigned int n, const sl_si91x_fdset_t *p)
 {
   return p->__fds_bits & (1U << n);
 }

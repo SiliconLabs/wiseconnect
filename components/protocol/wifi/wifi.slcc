@@ -25,6 +25,7 @@ include:
     - path: sl_wifi_host_interface.h
     - path: sl_wifi_types.h
     - path: sl_wifi.h
+    - path: sli_wifi_constants.h
 
 define:
 - name: SL_WIFI_COMPONENT_INCLUDED

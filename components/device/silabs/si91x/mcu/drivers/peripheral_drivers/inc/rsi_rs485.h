@@ -125,7 +125,9 @@ void rsi_usart_rs485_rx_address_set(USART0_Type *usart, uint8_t rx_addr);
  * This function check the address received or not..
  *
  * @param[in]usart         Pointer to the USART/UART peripheral register block.
- *
+ * @param[in]usart_rs485    usart_rs485      RS485 multidrop config
+ * @param[in]tx_addr    Address of the slave to which data to be transmitted
+ * 
  * @return                 None
 ********************************************************************************************************************/
 void rsi_usart_rs485_transfer_address(USART0_Type *usart, usart_rs485_multidrop_t usart_rs485, uint8_t tx_addr);
@@ -143,6 +145,98 @@ void rsi_usart_rs485_transfer_address(USART0_Type *usart, usart_rs485_multidrop_
  * @return                 None
 ********************************************************************************************************************/
 void rsi_usart_rs485_resume_tx(USART0_Type *usart, bool enable);
+
+/*****************************************************************************************************************/ /**
+ * This function enable/disable send address bit while transferring address.
+ * @param[in] usart        Pointer to the USART/UART peripheral register block.
+ * @param[in]  send_addr_ctrl   send address bit control
+ * @return                 None
+********************************************************************************************************************/
+void rsi_usart_rs485_control_send_address(USART0_Type *usart, bool send_addr_ctrl);
+
+/*****************************************************************************************************************/ /**
+* This function enable/disable address match bit while receiving.
+* @param[in] usart        Pointer to the USART/UART peripheral register block.
+* @param[in] addr_match_ctrl  address match bit control
+* @return                 None
+********************************************************************************************************************/
+void rsi_usart_rs485_control_address_match(USART0_Type *usart, bool addr_match_ctrl);
+
+/*****************************************************************************************************************/ /**
+ * @brief Sets the Driver Enable assertion time for RS-485.
+ *
+ * This function configures the duration for which the Driver Enable (DE) signal
+ * is asserted before the start of data transmission.
+ *
+ * @param[in] usart Pointer to the USART/UART peripheral register block.
+ * @param[in] assert_time The Driver Enable assertion time value (in serial clock periods).
+ * @return None.
+********************************************************************************************************************/
+void rsi_usart_rs485_set_de_assert_time(USART0_Type *usart, uint8_t assert_time);
+
+/*****************************************************************************************************************/ /**
+ * @brief Sets the Driver Enable de-assertion time for RS-485.
+ *
+ * This function configures the duration for which the Driver Enable (DE) signal
+ * remains asserted after the completion of data transmission.
+ *
+ * @param[in] usart Pointer to the USART/UART peripheral register block.
+ * @param[in] deassert_time The Driver Enable de-assertion time value (in serial clock periods).
+ * @return None.
+ ********************************************************************************************************************/
+void rsi_usart_rs485_set_de_deassert_time(USART0_Type *usart, uint8_t deassert_time);
+
+/*****************************************************************************************************************/ /**
+ * @brief Sets the Driver Enable to Receiver Enable turnaround time for RS-485.
+ *
+ * This function configures the delay between de-asserting the Driver Enable (DE)
+ * signal and asserting the Receiver Enable (RE) signal when switching from
+ * transmit to receive mode. 
+ *
+ * @param[in] usart Pointer to the USART/UART peripheral register block.
+ * @param[in] de_re_tat The DE to RE turnaround time value (in serial clock periods).
+ * @return None.
+********************************************************************************************************************/
+void rsi_usart_rs485_set_de_re_turnaround_time(USART0_Type *usart, uint16_t de_re_tat);
+
+/*****************************************************************************************************************/ /**
+ * @brief Sets the Receiver Enable to Driver Enable turnaround time for RS-485.
+ *
+ * This function configures the delay between de-asserting the Receiver Enable (RE)
+ * signal and asserting the Driver Enable (DE) signal when switching from
+ * receive to transmit mode. 
+ *
+ * @param[in] usart Pointer to the USART/UART peripheral register block.
+ * @param[in] re_de_tat The RE to DE turnaround time value (in serial clock periods).
+ * @return None.
+********************************************************************************************************************/
+void rsi_usart_rs485_set_re_de_turnaround_time(USART0_Type *usart, uint16_t re_de_tat);
+
+/*****************************************************************************************************************/ /**
+ * @brief Sets the Driver Enable polarity for RS-485.
+ *
+ * This function configures the active level of the Driver Enable (DE) signal.
+ *
+ * @param[in] usart Pointer to the USART/UART peripheral register block.
+ * @param[in] de_polarity The Driver Enable polarity:
+ * - `0`: DE signal is active low.
+ * - `1`: DE signal is active high.
+ * @return None.
+********************************************************************************************************************/
+void rsi_usart_rs485_set_de_polarity(USART0_Type *usart, uint8_t de_polarity);
+
+/*****************************************************************************************************************/ /**
+ * @brief Sets the Receiver Enable polarity for RS-485.
+ *
+ * This function configures the active level of the Receiver Enable (RE) signal.
+ *
+ * @param[in] usart Pointer to the USART/UART peripheral register block.
+ * @param[in] re_polarity The Receiver Enable polarity:
+ * - `0`: RE signal is active low.
+ * - `1`: RE signal is active high.
+ * @return None.
+********************************************************************************************************************/
+void rsi_usart_rs485_set_re_polarity(USART0_Type *usart, uint8_t re_polarity);
 
 /*****************************************************************************************************************/ /**
  * This function deinitialize the rs485.

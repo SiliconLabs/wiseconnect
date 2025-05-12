@@ -247,11 +247,12 @@ typedef struct {
   uint16_t current_size_of_extensions;                  ///< Current size of extensions
 } sli_si91x_tls_extensions_t;
 
-/// Structure to hold WebSocket host and resource information
+/// Structure to hold WebSocket host, resource and subprotocol information
 typedef struct {
-  uint8_t host_length;      ///< Length of WebSocket host name
-  uint8_t resource_length;  ///< Length of WebSocket resource name
-  uint8_t websocket_data[]; ///< WebSocket resource name and host name
+  uint8_t host_length;        ///< Length of WebSocket host name
+  uint8_t resource_length;    ///< Length of WebSocket resource name
+  uint8_t subprotocol_length; ///< Length of WebSocket subprotocol name
+  uint8_t websocket_data[];   ///< WebSocket host name, resource name and subprotocol name
 } sli_si91x_websocket_info_t;
 
 #pragma pack()

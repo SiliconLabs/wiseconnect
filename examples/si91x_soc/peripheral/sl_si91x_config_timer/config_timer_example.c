@@ -322,7 +322,6 @@ static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq)
   if (freq != 0) {
     sl_si91x_config_timer_get_match_value(freq, &rate);
     ticks = (rate * percent) / HUNDRED;
-    DEBUGOUT("ticks:%ld, rate:%ld, percent:%d\n", ticks, rate, percent);
     return ticks;
   } else {
     return 0;

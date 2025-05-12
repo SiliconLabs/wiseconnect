@@ -845,7 +845,9 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  *      2. STA mode channels 1 to 11 are actively scanned and 12, 13, 14 are passively scanned.
  *      3. Concurrent mode supports only 1 to 11 channels.
  * @note
- *   It is recommended to set the timeout to at least 40,000 milliseconds for any enterprise security mode and at least 25,000 milliseconds for other modes.
+ *   It is recommended to set the timeout to 120000 milliseconds to cover the worst case timeout scenario.
+ * @note
+ *   If this API fails with error SL_STATUS_TIMEOUT, the user is advised to reset the NWP with [sl_net_deinit](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-deinit)
  ******************************************************************************/
 sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                             const sl_wifi_client_configuration_t *access_point,

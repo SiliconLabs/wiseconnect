@@ -49,5 +49,6 @@ void countdown_ms_mqtt(Timer *, unsigned int);
 void countdown(Timer *, unsigned int);
 int left_ms_mqtt(Timer *);
 void InitTimer(Timer *);
+void NetworkDisconnect(Network *n);
 int ConnectNetwork(Network *n, uint8_t flags, char *addr, int dst_port, int src_port, bool ssl);
 #endif

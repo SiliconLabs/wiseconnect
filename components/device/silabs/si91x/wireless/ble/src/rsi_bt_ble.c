@@ -887,9 +887,10 @@ uint32_t rsi_ble_enhanced_gap_extended_register_callbacks(uint16_t callback_id,
     case RSI_BLE_ON_RCP_EVENT: {
       ble_specific_cb->ble_on_rcp_resp_rcvd_event = (rsi_ble_on_rcp_resp_rcvd_t)callback_handler_ptr;
     } break;
-    default:
+    default: {
       LOG_PRINT("\nInvalid Callback ID\n");
       return RSI_ERROR_BLE_INVALID_CALLBACK_CNT;
+    }
   }
   return RSI_SUCCESS;
 }
@@ -1374,7 +1375,7 @@ void rsi_ble_callbacks_handler(rsi_bt_cb_t *ble_cb, uint16_t rsp_type, uint8_t *
       if (ble_specific_cb->ble_on_rcp_resp_rcvd_event != NULL) {
         ble_specific_cb->ble_on_rcp_resp_rcvd_event(status, (rsi_ble_event_rcp_rcvd_info_t *)payload);
       }
-    }
+    } break;
     default:
       break;
   }
@@ -2024,7 +2025,7 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_pack
   }
 
   if (le_buf_check || le_cmd_inuse_check || le_buf_in_use_check) {
-    uint8_t *remote_dev_bd_addr = (uint8_t *)cmd_struct;
+    const uint8_t *remote_dev_bd_addr = (uint8_t *)cmd_struct;
     for (uint8_t inx = 0; inx < (RSI_BLE_MAX_NBR_PERIPHERALS + RSI_BLE_MAX_NBR_CENTRALS); inx++) {
       if (!memcmp(le_cb->remote_ble_info[inx].remote_dev_bd_addr, remote_dev_bd_addr, RSI_DEV_ADDR_LEN)) {
 
@@ -2047,7 +2048,6 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_pack
 
         if (le_buf_in_use_check) {
           le_cb->remote_ble_index = inx;
-          le_buf_in_use_check     = RSI_FALSE;
           break;
         } else if (le_buf_check) {
           if (le_cb->remote_ble_info[inx].ble_buff_mutex) {

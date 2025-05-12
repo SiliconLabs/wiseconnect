@@ -65,16 +65,8 @@
 #define RESET_MONTH             1    // Reset month after incrementing year
 #define LEAP_YEAR_VALIDATION    4    // Value to validate the leap year
 #define DAY_IN_MONTH_VALIDATION 2    // Value to validate the days in month
-#define CENTURY                 2    // Default Century to be configured
-#define YEAR                    1    // Default year to be configured
-#define DAY                     2    // Default day to be configured
-#define HOUR                    18   // Default hour to be configured
-#define MINUTE                  10   // Default minute to be configured
-#define SECONDS                 10   // Default seconds to be configured
-#define MILLI_SECONDS           100  // Default milli seconds to be configured
 
-#define ALARM_TIME_MSEC   5000
-#define CALENDAR_RC_CLOCK 2 // RC clock value for Calendar RTC
+#define ALARM_TIME_MSEC 5000
 
 /******************************************************
 *               Function Declarations
@@ -87,12 +79,12 @@ void set_alarm_interrupt_timer(uint16_t interval);
 /******************************************************
 *               Variable Definitions
 ******************************************************/
-static uint32_t time_ms = 5000;
-
+static uint32_t time_ms                              = ALARM_TIME_MSEC;
+static sl_calendar_datetime_config_t datetime_config = { 0 };
+static bool calender_start                           = false;
 /******************************************************
 *               Function Definitions
 ******************************************************/
-
 #ifdef SLI_SI91X_MCU_INTERFACE
 sl_status_t m4_powersave_command_handler(void)
 {
@@ -159,7 +151,110 @@ sl_status_t m4_power_manager_deep_sleep_handler(console_args_t *arguments)
   PRINT_AT_CMD_SUCCESS;
   return status;
 }
-static sl_calendar_datetime_config_t datetime_config = { 0 };
+
+sl_status_t power_manager_calender_stop_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+  if (calender_start == false) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  sl_status_t status;
+
+  // Calendar clock is stopped as it is not needed.
+  sl_si91x_calendar_rtc_stop();
+  // Second trigger callback is unregistered and disabled.
+  status = sl_si91x_calendar_unregister_sec_trigger_callback();
+  VERIFY_STATUS_AND_RETURN(status);
+
+  calender_start = false;
+  PRINT_AT_CMD_SUCCESS;
+  return status;
+}
+
+sl_status_t power_manager_calender_start_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+
+  if (calender_start == true) {
+    return SL_STATUS_ALREADY_INITIALIZED;
+  }
+
+  sl_status_t status;
+  time_ms = GET_OPTIONAL_COMMAND_ARG(arguments, 0, ALARM_TIME_MSEC, uint32_t);
+
+  // Calendar is initialized.
+  sl_si91x_calendar_init();
+  // Current date time is fetched
+  status = sl_si91x_calendar_get_date_time(&datetime_config);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  calender_start = true;
+  // Periodic alarm setting API is called.
+  set_periodic_alarm_pm(time_ms);
+
+  // Alarm callback is registered
+  status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_callback_function_pm);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  PRINT_AT_CMD_SUCCESS;
+  return status;
+}
+
+sl_status_t power_manager_set_wakeup_source_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+  sl_status_t status;
+  uint32_t source = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint32_t);
+  uint8_t add     = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 1, uint8_t);
+
+  switch (source) {
+    case SL_SI91X_POWER_MANAGER_ALARM_WAKEUP:
+      // Alarm based wakeup source is configured
+      status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ALARM_WAKEUP, add);
+      VERIFY_STATUS_AND_RETURN(status);
+      break;
+    default:
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  PRINT_AT_CMD_SUCCESS;
+  return status;
+}
+
+sl_status_t power_manager_get_ps_requirement_table_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+
+  PRINT_AT_CMD_SUCCESS;
+  uint8_t *get_table = sl_si91x_power_manager_get_requirement_table();
+  for (uint8_t i = SL_SI91X_POWER_MANAGER_PS0; i <= SL_SI91X_POWER_MANAGER_PS4; i++) {
+    printf("%d ", get_table[i]);
+  }
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t power_manager_config_ps_requirement_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+  sl_status_t status;
+
+  uint16_t state = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint16_t);
+  uint8_t add    = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint8_t);
+
+  if (add == 0) {
+    status = sl_si91x_power_manager_remove_ps_requirement(sl_si91x_power_manager_get_current_state());
+    VERIFY_STATUS_AND_RETURN(status);
+  } else {
+    set_periodic_alarm_pm(time_ms);
+    status = sl_si91x_power_manager_add_ps_requirement(state);
+    VERIFY_STATUS_AND_RETURN(status);
+  }
+
+  PRINT_AT_CMD_SUCCESS;
+  return status;
+}
 
 sl_status_t set_wakeup_source_handler(uint32_t period_ms)
 {
@@ -195,6 +290,9 @@ void set_periodic_alarm_pm(uint32_t alarm_time)
   sl_si91x_calendar_get_date_time(&get_datetime_config);
   set_alarm_config = get_datetime_config;
 
+  if (calender_start == false) {
+    return;
+  }
   set_alarm_config.MilliSeconds = set_alarm_config.MilliSeconds + (alarm_time % NO_OF_MSEC_IN_SEC);
   if (set_alarm_config.MilliSeconds >= NO_OF_MSEC_IN_SEC) {
     set_alarm_config.MilliSeconds -= NO_OF_MSEC_IN_SEC;
@@ -265,5 +363,56 @@ void set_periodic_alarm_pm(uint32_t alarm_time)
 void calendar_callback_function_pm(void)
 {
   set_periodic_alarm_pm(time_ms);
+}
+
+sl_status_t power_manager_get_current_state_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+
+  PRINT_AT_CMD_SUCCESS;
+  printf("%d \r\n", sl_si91x_power_manager_get_current_state());
+  return SL_STATUS_OK;
+}
+
+sl_status_t set_power_manager_sleep_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+
+#if (defined(SLI_SI91X_MCU_INTERFACE) && (SL_SI91X_TICKLESS_MODE == 0))
+  // Call the sleep function.
+  sl_status_t status = sl_si91x_power_manager_sleep();
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    SL_DEBUG_LOG("sl_si91x_power_manager_sleep failed, Error Code: 0x%lX \n", status);
+    return status;
+  }
+#else
+  osSemaphoreId_t wait_semaphore;
+  wait_semaphore = osSemaphoreNew(1, 0, NULL);
+  if (wait_semaphore == NULL) {
+    SL_DEBUG_LOG("Failed to create semaphore\r\n");
+    return SL_STATUS_FAIL;
+  }
+
+  SL_DEBUG_LOG("\r\nM4 in sleep\r\n");
+  // Waiting for time_ms using semaphore to put M4 to sleep in tick less mode
+  osSemaphoreAcquire(wait_semaphore, time_ms);
+  SL_DEBUG_LOG("\r\nM4 wake up\r\n");
+#endif
+  PRINT_AT_CMD_SUCCESS;
+  return SL_STATUS_OK;
+}
+
+sl_status_t set_power_manager_standby_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+
+#if (defined(SLI_SI91X_MCU_INTERFACE) && (SL_SI91X_TICKLESS_MODE == 0))
+  // Call the standby function
+  sl_si91x_power_manager_standby();
+#endif
+
+  PRINT_AT_CMD_SUCCESS;
+  return SL_STATUS_OK;
 }
 #endif // AT_M4_POWER_SAVE

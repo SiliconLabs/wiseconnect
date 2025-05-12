@@ -450,8 +450,9 @@ void rsi_app_enqueue_pkt_with_mutex(app_queue_t *queue, rsi_app_pkt_t *pkt, osMu
   osMutexAcquire(*queue_mutex, 0);
 
   //! check queue is empty
-  if (!queue->pkt_cnt) {
+  if (queue->head == NULL) {
     //! if empty then add packet as first packet (head & tail point to first packet)
+    queue->pkt_cnt = 0;
     queue->head = queue->tail = pkt;
   } else {
     //! if not empty append the packet to list at tail
@@ -586,8 +587,8 @@ rsi_app_pkt_t *rsi_app_dequeue_pkt_with_mutex(app_queue_t *queue, osMutexId_t *q
   osMutexAcquire(*queue_mutex, 0);
 
   //! check queue is empty
-  if (!queue->pkt_cnt) {
-
+  if (queue->head == NULL) {
+    queue->pkt_cnt = 0;
     osMutexRelease(*queue_mutex);
     //! return NULL if queue is empty
     return NULL;

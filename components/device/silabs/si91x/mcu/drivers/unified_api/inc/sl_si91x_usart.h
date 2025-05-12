@@ -754,9 +754,9 @@ sl_status_t sl_si91x_uart_rs485_init(usart_peripheral_t uart_instance);
  *         - SL_STATUS_OK  - Success.
  *         - SL_STATUS_INVALID_PARAMETER  - Passed Invalid uart instance.
  *         - SL_STATUS_NOT_SUPPORTED  - UART INstance not supported.
- * @note 
+  * @note 
  * To maintain backward compatibility, SL_UART1_RS485_TRANSMIT_MODE is initially defined as 0 in configuration file. However, the actual transmit mode will be determined and set internally according to the selected transfer mode.
- * 
+ *  
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_uart_rs485_set_configuration(usart_peripheral_t uart_instance);
@@ -891,6 +891,173 @@ sl_status_t sl_si91x_uart_rs485_rx_hardware_address_set(usart_peripheral_t uart_
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_uart_rs485_resume_tx(usart_peripheral_t uart_instance, bool enable);
+
+/***************************************************************************/
+/**
+ * @brief Enable/Disable send address bit while transferring address
+ *
+ * @details This api is used to Enable/Disable send address bit while transferring address
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] send_addr_ctrl  enable/disable send address control bit
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Passed Invalid uart instance.
+ *         - SL_STATUS_NOT_SUPPORTED  - UART INstance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_control_send_address(usart_peripheral_t uart_instance, bool send_addr_ctrl);
+
+/***************************************************************************/
+/**
+* @brief Enable/Disable address match bit while receiving.
+*
+* @details This api is used to Enable/Disable address match bit while receiving.
+*
+* @param[in] uart_instance Uart instance
+* @param[in] addr_match_ctrl  enable/disable address match control bit
+* @return sl_status_t Status code indicating the result:
+*         - SL_STATUS_OK  - Success.
+*         - SL_STATUS_INVALID_PARAMETER  - Passed Invalid uart instance.
+*         - SL_STATUS_NOT_SUPPORTED  - UART INstance not supported.
+*
+* For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_control_address_match(usart_peripheral_t uart_instance, bool addr_match_ctrl);
+
+/***************************************************************************/
+/**
+ * @brief Sets the Driver Enable assertion time for RS-485.
+ *
+ * @details This API configures the duration for which the Driver Enable (DE) signal
+ * is asserted before the start of data transmission for the specified UART instance.
+ *
+ * @pre Pre-condition:
+ * - \ref sl_si91x_usart_init and \ref sl_si91x_uart_rs485_init must be called prior.
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] assert_time The Driver Enable assertion time value (in serial clock periods).
+ * @return sl_status_t Status code indicating the result:
+ * - SL_STATUS_OK              - Success.
+ * - SL_STATUS_INVALID_PARAMETER - Passed Invalid uart instance.
+ * - SL_STATUS_NOT_SUPPORTED   - UART Instance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_assert_time(usart_peripheral_t uart_instance, uint8_t assert_time);
+
+/***************************************************************************/
+/**
+ * @brief Sets the Driver Enable de-assertion time for RS-485.
+ *
+ * @details This API configures the duration for which the Driver Enable (DE) signal
+ * remains asserted after the completion of data transmission for the specified
+ * UART instance.
+ *
+ * @pre Pre-condition:
+ * - \ref sl_si91x_usart_rs485_init must be called prior.
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] deassert_time The Driver Enable de-assertion time value (in serial clock periods).
+ * @return sl_status_t Status code indicating the result:
+ * - SL_STATUS_OK              - Success.
+ * - SL_STATUS_INVALID_PARAMETER - Passed Invalid uart instance.
+ * - SL_STATUS_NOT_SUPPORTED   - UART Instance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_deassert_time(usart_peripheral_t uart_instance, uint8_t deassert_time);
+
+/***************************************************************************/
+/**
+ * @brief Sets the Driver Enable to Receiver Enable turnaround time for RS-485.
+ *
+ * @details This API configures the delay between de-asserting the Driver Enable (DE)
+ * signal and asserting the Receiver Enable (RE) signal when switching from
+ * transmit to receive mode for the specified UART instance. This turnaround
+ * time is crucial to avoid bus contention.
+ *
+ * @pre Pre-condition:
+ * - \ref sl_si91x_usart_rs485_init must be called prior.
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] de_re_tat The DE to RE turnaround time value (in serial clock periods).
+ * @return sl_status_t Status code indicating the result:
+ * - SL_STATUS_OK              - Success.
+ * - SL_STATUS_INVALID_PARAMETER - Passed Invalid uart instance.
+ * - SL_STATUS_NOT_SUPPORTED   - UART Instance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_re_turnaround_time(usart_peripheral_t uart_instance, uint16_t de_re_tat);
+
+/***************************************************************************/
+/**
+ * @brief Sets the Receiver Enable to Driver Enable turnaround time for RS-485.
+ *
+ * @details This API configures the delay between de-asserting the Receiver Enable (RE)
+ * signal and asserting the Driver Enable (DE) signal when switching from
+ * receive to transmit mode for the specified UART instance. This turnaround
+ * time helps prevent bus conflicts.
+ *
+ * @pre Pre-condition:
+ * - \ref sl_si91x_usart_rs485_init must be called prior.
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] re_de_tat The RE to DE turnaround time value (in serial clock periods).
+ * @return sl_status_t Status code indicating the result:
+ * - SL_STATUS_OK              - Success.
+ * - SL_STATUS_INVALID_PARAMETER - Passed Invalid uart instance.
+ * - SL_STATUS_NOT_SUPPORTED   - UART Instance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_re_de_turnaround_time(usart_peripheral_t uart_instance, uint16_t re_de_tat);
+
+/***************************************************************************/
+/**
+ * @brief Sets the Driver Enable polarity for RS-485 for the specified UART instance.
+ *
+ * @details This API configures the active level of the Driver Enable (DE) signal.
+ *
+ * @pre Pre-condition:
+ * - \ref sl_si91x_usart_rs485_init must be called prior.
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] de_polarity The Driver Enable polarity:
+ * - `0`: DE signal is active low.
+ * - `1`: DE signal is active high.
+ * @return sl_status_t Status code indicating the result:
+ * - SL_STATUS_OK              - Success.
+ * - SL_STATUS_INVALID_PARAMETER - Passed Invalid uart instance.
+ * - SL_STATUS_NOT_SUPPORTED   - UART Instance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_de_polarity(usart_peripheral_t uart_instance, uint8_t de_polarity);
+
+/***************************************************************************/
+/**
+ * @brief Sets the Receiver Enable polarity for RS-485 for the specified UART instance.
+ *
+ * @details This API configures the active level of the Receiver Enable (RE) signal.
+ *
+ * @pre Pre-condition:
+ * - \ref sl_si91x_usart_rs485_init must be called prior.
+ *
+ * @param[in] uart_instance Uart instance
+ * @param[in] re_polarity The Receiver Enable polarity:
+ * - `0`: RE signal is active low.
+ * - `1`: RE signal is active high.
+ * @return sl_status_t Status code indicating the result:
+ * - SL_STATUS_OK              - Success.
+ * - SL_STATUS_INVALID_PARAMETER - Passed Invalid uart instance.
+ * - SL_STATUS_NOT_SUPPORTED   - UART Instance not supported.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_uart_rs485_set_re_polarity(usart_peripheral_t uart_instance, uint8_t re_polarity);
 
 /***************************************************************************/
 /**

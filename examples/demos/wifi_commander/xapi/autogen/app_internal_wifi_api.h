@@ -101,24 +101,24 @@ enum app_wifi_command_id {
   APP_WIFI_CLIENT_SET_ROAM_CONFIGURATION_COMMAND_ID       = 0x02,
   APP_WIFI_CLIENT_GET_ROAM_CONFIGURATION_COMMAND_ID       = 0x03,
   APP_WIFI_MQTT_CLIENT_INIT_COMMAND_ID                    = 0x00,
-  APP_WIFI_MQTT_CLIENT_SET_BROKER_COMMAND_ID              = 0x02,
-  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_TOPIC_COMMAND_ID     = 0x03,
-  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_MESSAGE_COMMAND_ID   = 0x0D,
+  APP_WIFI_MQTT_CLIENT_SET_BROKER_COMMAND_ID              = 0x01,
+  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_TOPIC_COMMAND_ID     = 0x02,
+  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_MESSAGE_COMMAND_ID   = 0x03,
   APP_WIFI_MQTT_CLIENT_SET_CLIENT_CONFIG_COMMAND_ID       = 0x04,
-  APP_WIFI_MQTT_CLIENT_DEINIT_COMMAND_ID                  = 0x01,
-  APP_WIFI_MQTT_CLIENT_GET_BROKER_COMMAND_ID              = 0x05,
-  APP_WIFI_MQTT_CLIENT_GET_LAST_WILL_TOPIC_COMMAND_ID     = 0x06,
+  APP_WIFI_MQTT_CLIENT_DEINIT_COMMAND_ID                  = 0x12,
+  APP_WIFI_MQTT_CLIENT_GET_BROKER_COMMAND_ID              = 0x0C,
+  APP_WIFI_MQTT_CLIENT_GET_LAST_WILL_TOPIC_COMMAND_ID     = 0x0D,
   APP_WIFI_MQTT_CLIENT_GET_LAST_WILL_MESSAGE_COMMAND_ID   = 0x0E,
-  APP_WIFI_MQTT_CLIENT_GET_CLIENT_CONFIG_COMMAND_ID       = 0x07,
-  APP_WIFI_MQTT_CLIENT_CONNECT_COMMAND_ID                 = 0x08,
-  APP_WIFI_MQTT_CLIENT_DISCONNECT_COMMAND_ID              = 0x09,
-  APP_WIFI_MQTT_CLIENT_SUBSCRIBE_COMMAND_ID               = 0x0A,
+  APP_WIFI_MQTT_CLIENT_GET_CLIENT_CONFIG_COMMAND_ID       = 0x0F,
+  APP_WIFI_MQTT_CLIENT_CONNECT_COMMAND_ID                 = 0x06,
+  APP_WIFI_MQTT_CLIENT_DISCONNECT_COMMAND_ID              = 0x11,
+  APP_WIFI_MQTT_CLIENT_SUBSCRIBE_COMMAND_ID               = 0x07,
   APP_WIFI_MQTT_CLIENT_UNSUBSCRIBE_COMMAND_ID             = 0x0B,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_TOPIC_COMMAND_ID           = 0x0C,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_MESSAGE_COMMAND_ID         = 0x10,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_COMMAND_ID                 = 0x12,
-  APP_WIFI_MQTT_CLIENT_SET_CLIENT_ID_COMMAND_ID           = 0x16,
-  APP_WIFI_MQTT_CLIENT_GET_CLIENT_ID_COMMAND_ID           = 0x15,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_TOPIC_COMMAND_ID           = 0x08,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_MESSAGE_COMMAND_ID         = 0x09,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_COMMAND_ID                 = 0x0A,
+  APP_WIFI_MQTT_CLIENT_SET_CLIENT_ID_COMMAND_ID           = 0x05,
+  APP_WIFI_MQTT_CLIENT_GET_CLIENT_ID_COMMAND_ID           = 0x10,
 };
 
 enum app_wifi_response_id {
@@ -171,24 +171,24 @@ enum app_wifi_response_id {
   APP_WIFI_CLIENT_SET_ROAM_CONFIGURATION_RESPONSE_ID       = 0x02,
   APP_WIFI_CLIENT_GET_ROAM_CONFIGURATION_RESPONSE_ID       = 0x03,
   APP_WIFI_MQTT_CLIENT_INIT_RESPONSE_ID                    = 0x00,
-  APP_WIFI_MQTT_CLIENT_SET_BROKER_RESPONSE_ID              = 0x02,
-  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_TOPIC_RESPONSE_ID     = 0x03,
-  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_MESSAGE_RESPONSE_ID   = 0x0D,
+  APP_WIFI_MQTT_CLIENT_SET_BROKER_RESPONSE_ID              = 0x01,
+  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_TOPIC_RESPONSE_ID     = 0x02,
+  APP_WIFI_MQTT_CLIENT_SET_LAST_WILL_MESSAGE_RESPONSE_ID   = 0x03,
   APP_WIFI_MQTT_CLIENT_SET_CLIENT_CONFIG_RESPONSE_ID       = 0x04,
-  APP_WIFI_MQTT_CLIENT_DEINIT_RESPONSE_ID                  = 0x01,
-  APP_WIFI_MQTT_CLIENT_GET_BROKER_RESPONSE_ID              = 0x05,
-  APP_WIFI_MQTT_CLIENT_GET_LAST_WILL_TOPIC_RESPONSE_ID     = 0x06,
+  APP_WIFI_MQTT_CLIENT_DEINIT_RESPONSE_ID                  = 0x12,
+  APP_WIFI_MQTT_CLIENT_GET_BROKER_RESPONSE_ID              = 0x0C,
+  APP_WIFI_MQTT_CLIENT_GET_LAST_WILL_TOPIC_RESPONSE_ID     = 0x0D,
   APP_WIFI_MQTT_CLIENT_GET_LAST_WILL_MESSAGE_RESPONSE_ID   = 0x0E,
-  APP_WIFI_MQTT_CLIENT_GET_CLIENT_CONFIG_RESPONSE_ID       = 0x07,
-  APP_WIFI_MQTT_CLIENT_CONNECT_RESPONSE_ID                 = 0x08,
-  APP_WIFI_MQTT_CLIENT_DISCONNECT_RESPONSE_ID              = 0x09,
-  APP_WIFI_MQTT_CLIENT_SUBSCRIBE_RESPONSE_ID               = 0x0A,
+  APP_WIFI_MQTT_CLIENT_GET_CLIENT_CONFIG_RESPONSE_ID       = 0x0F,
+  APP_WIFI_MQTT_CLIENT_CONNECT_RESPONSE_ID                 = 0x06,
+  APP_WIFI_MQTT_CLIENT_DISCONNECT_RESPONSE_ID              = 0x11,
+  APP_WIFI_MQTT_CLIENT_SUBSCRIBE_RESPONSE_ID               = 0x07,
   APP_WIFI_MQTT_CLIENT_UNSUBSCRIBE_RESPONSE_ID             = 0x0B,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_TOPIC_RESPONSE_ID           = 0x0C,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_MESSAGE_RESPONSE_ID         = 0x10,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_RESPONSE_ID                 = 0x12,
-  APP_WIFI_MQTT_CLIENT_SET_CLIENT_ID_RESPONSE_ID           = 0x16,
-  APP_WIFI_MQTT_CLIENT_GET_CLIENT_ID_RESPONSE_ID           = 0x15,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_TOPIC_RESPONSE_ID           = 0x08,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_MESSAGE_RESPONSE_ID         = 0x09,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_RESPONSE_ID                 = 0x0A,
+  APP_WIFI_MQTT_CLIENT_SET_CLIENT_ID_RESPONSE_ID           = 0x05,
+  APP_WIFI_MQTT_CLIENT_GET_CLIENT_ID_RESPONSE_ID           = 0x10,
 };
 
 enum app_wifi_event_id {
@@ -206,14 +206,12 @@ enum app_wifi_event_id {
   APP_WIFI_CLIENT_STATS_RESPONSE_EVENT_EVENT_ID           = 0x01,
   APP_WIFI_MQTT_CLIENT_CONNECTED_EVENT_EVENT_ID           = 0x00,
   APP_WIFI_MQTT_CLIENT_ERROR_EVENT_EVENT_ID               = 0x01,
-  APP_WIFI_MQTT_CLIENT_TOPIC_RECEIVED_EVENT_EVENT_ID      = 0x02,
-  APP_WIFI_MQTT_CLIENT_MESSAGE_RECEIVED_EVENT_EVENT_ID    = 0x0F,
-  APP_WIFI_MQTT_CLIENT_MESSAGE_RECEIVED_ON_TOPIC_EVENT_ID = 0x03,
-  APP_WIFI_MQTT_CLIENT_MESSAGE_RECEIVED_CONTENT_EVENT_ID  = 0x04,
-  APP_WIFI_MQTT_CLIENT_SUBSCRIBE_STATE_EVENT_EVENT_ID     = 0x05,
-  APP_WIFI_MQTT_CLIENT_UNSUBSCRIBE_STATE_EVENT_EVENT_ID   = 0x06,
-  APP_WIFI_MQTT_CLIENT_PUBLISH_STATE_EVENT_EVENT_ID       = 0x07,
-  APP_WIFI_MQTT_CLIENT_DISCONNECTED_EVENT_EVENT_ID        = 0x08,
+  APP_WIFI_MQTT_CLIENT_MESSAGE_RECEIVED_ON_TOPIC_EVENT_ID = 0x02,
+  APP_WIFI_MQTT_CLIENT_MESSAGE_RECEIVED_CONTENT_EVENT_ID  = 0x03,
+  APP_WIFI_MQTT_CLIENT_SUBSCRIBE_STATE_EVENT_EVENT_ID     = 0x04,
+  APP_WIFI_MQTT_CLIENT_UNSUBSCRIBE_STATE_EVENT_EVENT_ID   = 0x05,
+  APP_WIFI_MQTT_CLIENT_PUBLISH_STATE_EVENT_EVENT_ID       = 0x06,
+  APP_WIFI_MQTT_CLIENT_DISCONNECTED_EVENT_EVENT_ID        = 0x07,
 };
 
 PACKSTRUCT(struct app_wifi_rsp_error_s { uint16_t result; });
@@ -245,12 +243,7 @@ typedef struct app_wifi_cmd_net_intf_down_s app_wifi_cmd_net_intf_down_t;
 
 PACKSTRUCT(struct app_wifi_cmd_net_intf_set_device_config_s {
   uint8_t boot_option;
-  uint8_t mac_address_octet_0;
-  uint8_t mac_address_octet_1;
-  uint8_t mac_address_octet_2;
-  uint8_t mac_address_octet_3;
-  uint8_t mac_address_octet_4;
-  uint8_t mac_address_octet_5;
+  mac_addr mac_address;
   uint8_t band;
   uint8_t region_code;
   uint8_t tx_ratio_in_buffer_pool;
@@ -382,7 +375,7 @@ typedef struct app_wifi_cmd_net_profile_set_client_channel_s app_wifi_cmd_net_pr
 
 PACKSTRUCT(struct app_wifi_cmd_ap_disconnect_client_s {
   uint8_t net_interface;
-  bd_addr mac_address;
+  mac_addr mac_address;
   uint8_t reason;
 });
 
@@ -583,12 +576,7 @@ typedef struct app_wifi_rsp_net_intf_get_network_status_s app_wifi_rsp_net_intf_
 PACKSTRUCT(struct app_wifi_rsp_net_intf_get_device_config_s {
   uint16_t result;
   uint8_t boot_option;
-  uint8_t mac_address_octet_0;
-  uint8_t mac_address_octet_1;
-  uint8_t mac_address_octet_2;
-  uint8_t mac_address_octet_3;
-  uint8_t mac_address_octet_4;
-  uint8_t mac_address_octet_5;
+  mac_addr mac_address;
   uint8_t band;
   uint8_t region_code;
   uint8_t tx_ratio_in_buffer_pool;
@@ -1082,8 +1070,6 @@ PACKSTRUCT(struct app_wifi_packet {
     app_wifi_evt_client_stats_response_event_t evt_client_stats_response_event;
     app_wifi_evt_mqtt_client_connected_event_t evt_mqtt_client_connected_event;
     app_wifi_evt_mqtt_client_error_event_t evt_mqtt_client_error_event;
-    app_wifi_evt_mqtt_client_topic_received_event_t evt_mqtt_client_topic_received_event;
-    app_wifi_evt_mqtt_client_message_received_event_t evt_mqtt_client_message_received_event;
     app_wifi_evt_mqtt_client_message_received_on_topic_t evt_mqtt_client_message_received_on_topic;
     app_wifi_evt_mqtt_client_message_received_content_t evt_mqtt_client_message_received_content;
     app_wifi_evt_mqtt_client_subscribe_state_event_t evt_mqtt_client_subscribe_state_event;

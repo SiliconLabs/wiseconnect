@@ -54,6 +54,8 @@ static sl_status_t sli_si91x_calculate_firmware_slot_crc(sl_si91x_fw_ab_slot_man
 static void sli_si91x_update_crc(sl_si91x_fw_ab_slot_management_t *slot_info);
 #endif
 
+#define SL_SI91X_SELECT_DEFAULT_NWP_FW_IMAGE 0x35 // Command value for selecting default NWP firmware image
+
 #ifdef SL_SI91X_FW_FALLBACK
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota_image_info_t *ota_st)
@@ -101,6 +103,66 @@ sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota
     DEBUGOUT("\r\n[get_rps_cfgs] Error: Magic number mismatch!\r\n");
     return SL_SI91X_AB_ERR_MAGIC_NUMBER;
   }
+}
+
+/***************************************************************************/ /**
+ *  @fn          int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number)
+ *  @pre         None
+ *  @brief       Selects the default NWP firmware image to load.
+ *               This function sends the appropriate command to select which
+ *               firmware image (0 for slot A, 1 for slot B) should be loaded on boot.
+ *  @param[in]   fw_image_number    Firmware image number to select (0 for slot A, 1 for slot B)
+ *  @return      int16_t - Error code
+ ******************************************************************************/
+int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number)
+{
+  uint16_t boot_cmd   = 0;
+  int16_t retval      = 0;
+  uint16_t read_value = 0;
+
+  if (fw_image_number != 0 && fw_image_number != 1) {
+    return SL_STATUS_INVALID_PARAMETER; // Error if firmware image number is not 0 or 1
+  }
+
+  // Prepare command with firmware image number
+  boot_cmd = HOST_INTERACT_REG_VALID
+             | SL_SI91X_SELECT_DEFAULT_NWP_FW_IMAGE; // Command to select default NWP firmware image
+  boot_cmd &= 0xF0FF;                                // Clear the lower nibble of the second byte
+  boot_cmd |= (uint16_t)(fw_image_number << 8);      // Add the firmware image number
+
+  // Write the command to the interface register
+  retval = rsi_boot_insn(REG_WRITE, &boot_cmd);
+  if (retval < 0) {
+    return retval;
+  }
+
+  // Wait for a short duration to allow the command to be processed
+  for (uint32_t i = 0; i < SL_SI91X_DEFAULT_FW_SELECT_CMD_TIMEOUT; i++) {
+    __NOP();
+  }
+
+  // Read the response from the interface register
+  retval = rsi_boot_insn(REG_READ, &read_value);
+  if (retval < 0) {
+    return retval;
+  }
+
+  // Check for firmware not present error
+  if ((read_value & 0xFF) == SLI_VALID_FIRMWARE_NOT_PRESENT) {
+#ifdef RSI_DEBUG_PRINT
+    RSI_DPRINT(RSI_PL3, "SLI_VALID_FIRMWARE_NOT_PRESENT\n");
+#endif
+    return RSI_ERROR_VALID_FIRMWARE_NOT_PRESENT;
+  }
+
+  // Check for invalid option error
+  if ((read_value & 0xFF) == SLI_INVALID_OPTION) {
+#ifdef RSI_DEBUG_PRINT
+    RSI_DPRINT(RSI_PL3, "INVALID CMD\n");
+#endif
+    return RSI_ERROR_COMMAND_NOT_SUPPORTED;
+  }
+  return retval;
 }
 
 /***************************************************************************/ /**

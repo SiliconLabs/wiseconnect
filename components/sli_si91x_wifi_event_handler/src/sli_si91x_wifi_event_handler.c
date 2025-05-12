@@ -912,7 +912,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             node->command_type      = SLI_SI91X_NETWORK_CMD;
 
             // Check if the frame type is valid
-            if ((frame_type == cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type)
+            if (frame_type == cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type
                 || (frame_type == SLI_WLAN_RSP_IPCONFV6
                     && cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type == SLI_WLAN_REQ_IPCONFV6)) {
               node->sdk_context = cmd_queues[SLI_SI91X_NETWORK_CMD].sdk_context;
@@ -995,6 +995,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               cmd_queues[SLI_SI91X_NETWORK_CMD].command_tickcount = 0;
               cmd_queues[SLI_SI91X_NETWORK_CMD].command_timeout   = 0;
             } else {
+              // Set the frame status to a non-zero value to allow queue flushing or graceful enqueuing of error packets by the event thread
+              if (frame_type == SLI_WLAN_RSP_IPV4_CHANGE) {
+                node->frame_status = (uint16_t)SL_STATUS_FAIL;
+                data[12]           = (uint8_t)(SL_STATUS_FAIL & 0x00FF);
+                data[13]           = (uint8_t)((SL_STATUS_FAIL & 0xFF00) >> 8);
+              }
               // Add the packet to event queue and set the async network event
               sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue, packet);
               set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
@@ -1008,20 +1014,6 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type        = 0;
             }
 
-            // Check for the following scenarios:
-            // 1. If an IPv4 configuration response (IPCONFV4) fails (frame status not OK).
-            // 2. If there is an IPv4 address change event (IPV4_CHANGE).
-            if (((SLI_WLAN_RSP_IPCONFV4 == frame_type && frame_type != cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type)
-                 && (frame_status != SL_STATUS_OK))
-                || (SLI_WLAN_RSP_IPV4_CHANGE == frame_type)) {
-              // Reset current performance profile and set it to high performance
-              sli_reset_coex_current_performance_profile();
-              current_performance_profile = HIGH_PERFORMANCE;
-              // check for command in flight and create dummy packets for respective queues to be cleared
-              sli_handle_dhcp_and_rejoin_failure(cmd_queues[SLI_SI91X_NETWORK_CMD].sdk_context, buffer, frame_status);
-              sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue, packet);
-              set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
-            }
             break;
           }
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK

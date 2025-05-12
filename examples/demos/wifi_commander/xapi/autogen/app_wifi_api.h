@@ -137,8 +137,8 @@ typedef struct app_wifi_evt_system_error_s app_wifi_evt_system_error_t;
  * Commands and Events in this class performs essential operations for managing
  * and controlling network interfaces. They handle initialization,
  * configuration, starting, and stopping of these interfaces, ensuring efficient
- * utilization within the system. Note: Currently only access point interface is
- * supported.
+ * utilization within the system. Note: Currently, only Access Point and Client
+ * interfaces are supported.
  */
 
 /**
@@ -287,8 +287,8 @@ typedef enum {
  ******************************************************************************/
 PACKSTRUCT(struct app_wifi_evt_net_intf_network_up_completed_s {
   uint8_t net_interface; /**< Enum @ref app_wifi_net_intf_interface_t. Network
-                               interface to be initialized. Currently only
-                               AP_INTERFACE is supported. */
+                               interface to be initialized. Currently, only
+                               AP_INTERFACE and CLIENT_INTERFACE are supported. */
   uint16_t is_completed; /**< Status of the network interface. A value of 1
                                means the network interface is up, and 0 means
                                the network interface is down. */
@@ -492,8 +492,7 @@ typedef enum {
 
  */
 typedef enum {
-  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_NO_CREDENTIAL       = 0x0,   /**< (0x0)
-                                                                       Invalid
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_NO_CREDENTIAL       = 0x0,   /**< (0x0) No
                                                                        Credential
                                                                        ID. */
   APP_WIFI_NET_PROFILE_CREDENTIAL_ID_DEFAULT_WIFI_CLIENT = 0x1,   /**< (0x1)
@@ -791,7 +790,7 @@ typedef enum {
  * @brief Data structure of the client_connected_event event
  ******************************************************************************/
 PACKSTRUCT(struct app_wifi_evt_ap_client_connected_event_s {
-  bd_addr mac_address; /**< Displays the MAC address of the connected client. */
+  mac_addr mac_address; /**< Displays the MAC address of the connected client. */
 });
 
 typedef struct app_wifi_evt_ap_client_connected_event_s app_wifi_evt_ap_client_connected_event_t;
@@ -809,7 +808,8 @@ typedef struct app_wifi_evt_ap_client_connected_event_s app_wifi_evt_ap_client_c
  * @brief Data structure of the client_disconnected_event event
  ******************************************************************************/
 PACKSTRUCT(struct app_wifi_evt_ap_client_disconnected_event_s {
-  bd_addr mac_address; /**< Displays the MAC address of the disconnected client. */
+  mac_addr mac_address; /**< Displays the MAC address of the disconnected
+                             client. */
 });
 
 typedef struct app_wifi_evt_ap_client_disconnected_event_s app_wifi_evt_ap_client_disconnected_event_t;
@@ -828,7 +828,7 @@ typedef struct app_wifi_evt_ap_client_disconnected_event_s app_wifi_evt_ap_clien
  ******************************************************************************/
 PACKSTRUCT(struct app_wifi_evt_ap_get_client_info_event_s {
   ipv4_addr ipv4_address; /**< IPv4 address of the client. */
-  bd_addr mac_address;    /**< MAC address of the client. */
+  mac_addr mac_address;   /**< MAC address of the client. */
 });
 
 typedef struct app_wifi_evt_ap_get_client_info_event_s app_wifi_evt_ap_get_client_info_event_t;
@@ -845,81 +845,6 @@ typedef struct app_wifi_evt_ap_get_client_info_event_s app_wifi_evt_ap_get_clien
  * credentials, including Wi-Fi client credentials, MQTT client credentials, TLS
  * client certificates, and others.
  */
-
-/**
- * @brief Defines various credential IDs used for different network
- * configurations.
- */
-typedef enum {
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_INVALID             = 0x0,   /**< (0x0)
-                                                                    Invalid
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_DEFAULT_WIFI_CLIENT = 0x1,   /**< (0x1)
-                                                                    Default
-                                                                    Wi-Fi Client
-                                                                    Credential
-                                                                    ID. By
-                                                                    default,
-                                                                    uses
-                                                                    default_wifi_client_credential
-                                                                    from
-                                                                    sl_net_default_values.h,
-                                                                    which can be
-                                                                    overridden
-                                                                    using
-                                                                    sl_net_set_credential. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_DEFAULT_WIFI_AP     = 0x2,   /**< (0x2)
-                                                                    Default
-                                                                    Wi-Fi Access
-                                                                    Point
-                                                                    Credential
-                                                                    ID. By
-                                                                    default,
-                                                                    uses
-                                                                    default_wifi_ap_credential
-                                                                    from
-                                                                    sl_net_default_values.h,
-                                                                    which can be
-                                                                    overridden
-                                                                    using
-                                                                    sl_net_set_credential. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_WIFI_EAP_CLIENT     = 0x3,   /**< (0x3) Wi-Fi
-                                                                    EAP Client
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_WIFI_EAP_SERVER     = 0x4,   /**< (0x4) Wi-Fi
-                                                                    EAP Server
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_USER                = 0x5,   /**< (0x5) User
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_TLS_CLIENT          = 0x100, /**< (0x100) TLS
-                                                                    Client
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_TLS_SERVER          = 0x200, /**< (0x200) TLS
-                                                                    Server
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_MQTT_SERVER         = 0x300, /**< (0x300) MQTT
-                                                                    Server
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_MQTT_CLIENT         = 0x400, /**< (0x400) MQTT
-                                                                    Client
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_HTTP_SERVER         = 0x500, /**< (0x500) HTTP
-                                                                    Server
-                                                                    Credential
-                                                                    ID. */
-  APP_WIFI_NET_CRED_CREDENTIAL_ID_HTTP_CLIENT         = 0x600  /**< (0x600) HTTP
-                                                                    Client
-                                                                    Credential
-                                                                    ID. */
-} app_wifi_net_cred_credential_id_t;
 
 /**
  * @brief Defines various types of credentials used for network authentication
@@ -1366,7 +1291,7 @@ typedef enum {
 /**
  * @addtogroup app_wifi_evt_mqtt_client_connected_event app_wifi_evt_mqtt_client_connected_event
  * @{
- * @brief None
+ * @brief Indicates a successful MQTT connection establishment
  */
 
 /***************************************************************************/ /**
@@ -1383,7 +1308,7 @@ typedef struct app_wifi_evt_mqtt_client_connected_event_s app_wifi_evt_mqtt_clie
 /**
  * @addtogroup app_wifi_evt_mqtt_client_error_event app_wifi_evt_mqtt_client_error_event
  * @{
- * @brief None
+ * @brief Reports an error that occurred during an MQTT operation
  */
 
 /***************************************************************************/ /**
@@ -1398,43 +1323,9 @@ typedef struct app_wifi_evt_mqtt_client_error_event_s app_wifi_evt_mqtt_client_e
 /** @} */ // end addtogroup app_wifi_evt_mqtt_client_error_event
 
 /**
- * @addtogroup app_wifi_evt_mqtt_client_topic_received_event app_wifi_evt_mqtt_client_topic_received_event
- * @{
- * @brief None
- */
-
-/***************************************************************************/ /**
- * @brief Data structure of the topic_received_event event
- ******************************************************************************/
-PACKSTRUCT(struct app_wifi_evt_mqtt_client_topic_received_event_s {
-  uint8array topic; /**< Description */
-});
-
-typedef struct app_wifi_evt_mqtt_client_topic_received_event_s app_wifi_evt_mqtt_client_topic_received_event_t;
-
-/** @} */ // end addtogroup app_wifi_evt_mqtt_client_topic_received_event
-
-/**
- * @addtogroup app_wifi_evt_mqtt_client_message_received_event app_wifi_evt_mqtt_client_message_received_event
- * @{
- * @brief None
- */
-
-/***************************************************************************/ /**
- * @brief Data structure of the message_received_event event
- ******************************************************************************/
-PACKSTRUCT(struct app_wifi_evt_mqtt_client_message_received_event_s {
-  uint8array content; /**< Description */
-});
-
-typedef struct app_wifi_evt_mqtt_client_message_received_event_s app_wifi_evt_mqtt_client_message_received_event_t;
-
-/** @} */ // end addtogroup app_wifi_evt_mqtt_client_message_received_event
-
-/**
  * @addtogroup app_wifi_evt_mqtt_client_message_received_on_topic app_wifi_evt_mqtt_client_message_received_on_topic
  * @{
- * @brief None
+ * @brief Triggered when a new MQTT message is received on a subscribed topic
  */
 
 /***************************************************************************/ /**
@@ -1452,7 +1343,7 @@ typedef struct app_wifi_evt_mqtt_client_message_received_on_topic_s
 /**
  * @addtogroup app_wifi_evt_mqtt_client_message_received_content app_wifi_evt_mqtt_client_message_received_content
  * @{
- * @brief None
+ * @brief Provides the content of the received MQTT message
  */
 
 /***************************************************************************/ /**
@@ -1469,7 +1360,7 @@ typedef struct app_wifi_evt_mqtt_client_message_received_content_s app_wifi_evt_
 /**
  * @addtogroup app_wifi_evt_mqtt_client_subscribe_state_event app_wifi_evt_mqtt_client_subscribe_state_event
  * @{
- * @brief None
+ * @brief Indicates the result of an MQTT topic subscribe operation
  */
 
 /***************************************************************************/ /**
@@ -1487,7 +1378,7 @@ typedef struct app_wifi_evt_mqtt_client_subscribe_state_event_s app_wifi_evt_mqt
 /**
  * @addtogroup app_wifi_evt_mqtt_client_unsubscribe_state_event app_wifi_evt_mqtt_client_unsubscribe_state_event
  * @{
- * @brief None
+ * @brief Indicates the result of an MQTT topic unsubscribe operation
  */
 
 /***************************************************************************/ /**
@@ -1505,7 +1396,7 @@ typedef struct app_wifi_evt_mqtt_client_unsubscribe_state_event_s app_wifi_evt_m
 /**
  * @addtogroup app_wifi_evt_mqtt_client_publish_state_event app_wifi_evt_mqtt_client_publish_state_event
  * @{
- * @brief None
+ * @brief Indicates the result of an MQTT message publish operation
  */
 
 /***************************************************************************/ /**
@@ -1523,7 +1414,7 @@ typedef struct app_wifi_evt_mqtt_client_publish_state_event_s app_wifi_evt_mqtt_
 /**
  * @addtogroup app_wifi_evt_mqtt_client_disconnected_event app_wifi_evt_mqtt_client_disconnected_event
  * @{
- * @brief None
+ * @brief Indicates that the MQTT connection has been disconnected
  */
 
 /***************************************************************************/ /**
@@ -1575,10 +1466,6 @@ PACKSTRUCT(struct app_wifi_msg {
       evt_mqtt_client_connected_event; /**< Data field for mqtt_client connected_event event*/
     app_wifi_evt_mqtt_client_error_event_t
       evt_mqtt_client_error_event; /**< Data field for mqtt_client error_event event*/
-    app_wifi_evt_mqtt_client_topic_received_event_t
-      evt_mqtt_client_topic_received_event; /**< Data field for mqtt_client topic_received_event event*/
-    app_wifi_evt_mqtt_client_message_received_event_t
-      evt_mqtt_client_message_received_event; /**< Data field for mqtt_client message_received_event event*/
     app_wifi_evt_mqtt_client_message_received_on_topic_t
       evt_mqtt_client_message_received_on_topic; /**< Data field for mqtt_client message_received_on_topic event*/
     app_wifi_evt_mqtt_client_message_received_content_t

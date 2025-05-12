@@ -186,7 +186,7 @@
 
 #ifndef RSI_BT_MAX_PAYLOAD_SIZE
 #define RSI_BT_MAX_PAYLOAD_SIZE \
-  1040 ///< BT MTU size changes //310 /* Max supported is 200, but 190 gives optimum Tx throughput */
+  1040 ///< BT MTU size changes //310 Max supported is 200, but 190 gives optimum Tx throughput
 #endif
 
 #ifndef BT_BDR_MODE

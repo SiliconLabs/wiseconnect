@@ -28,7 +28,7 @@ xbuf **{{p.name}}
 {%- elif array_style=="len_ptr" -%}
 size_t {{p.name}}_len, const void *{{p.name}}_buf
 {%- endif -%}
-{%- elif p.type.c_datatype == "bd_addr" or p.type.c_datatype == "aes_key_128" or  p.type.c_datatype == "ipv4_addr" or p.type.c_datatype == "ipv6_addr" or p.type.datatype == "byte_array" -%}
+{%- elif p.type.c_datatype == "bd_addr" or p.type.c_datatype == "aes_key_128" or  p.type.c_datatype == "ipv4_addr" or p.type.c_datatype == "ipv6_addr" or p.type.c_datatype == "mac_addr" or p.type.datatype == "byte_array" -%}
 const void* {{p.name}}
 {%- else -%}
 {{p.type.c_datatype}} {{p.name}}
@@ -50,7 +50,7 @@ static inline void app_wifi_set_rsp_{{ msg_name(cls, cmd) }}_msg(struct app_{{da
 {%- for p in cmd.returns() -%}
 {%- if p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array" -%}
 {# Array parameter is handled by the create/queue function #}
-{%- elif p.type.c_datatype=="bd_addr" or p.type.c_datatype=="aes_key_128" or p.type.c_datatype=="ipv4_addr" or p.type.c_datatype=="ipv6_addr" or p.type.datatype=="byte_array" %}
+{%- elif p.type.c_datatype=="bd_addr" or p.type.c_datatype=="aes_key_128" or p.type.c_datatype=="ipv4_addr" or p.type.c_datatype=="ipv6_addr" or p.type.c_datatype == "mac_addr" or p.type.datatype=="byte_array" %}
     memcpy(&xapi_msg->data.rsp_{{ msg_name(cls, cmd) }}.{{p.name}}, {{p.name}}, sizeof({{p.type.c_datatype}}));
 {%- else %}
     xapi_msg->data.rsp_{{ msg_name(cls, cmd) }}.{{p.name}} = {{p.name}};
@@ -71,7 +71,7 @@ static inline void app_wifi_set_evt_{{ msg_name(cls, evt) }}_msg(struct app_{{da
 {%- for p in evt.params() -%}
 {%- if p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array" -%}
 {# Array parameter is handled by the create/queue function #}
-{%- elif p.type.c_datatype=="bd_addr" or p.type.c_datatype=="aes_key_128" or p.type.c_datatype=="ipv4_addr" or p.type.c_datatype=="ipv6_addr" or p.type.datatype=="byte_array" %}
+{%- elif p.type.c_datatype=="bd_addr" or p.type.c_datatype=="aes_key_128" or p.type.c_datatype=="ipv4_addr" or p.type.c_datatype=="ipv6_addr" or p.type.c_datatype == "mac_addr" or p.type.datatype=="byte_array" %}
     memcpy(&xapi_msg->data.evt_{{ msg_name(cls, evt) }}.{{p.name}}, {{p.name}}, sizeof({{p.type.c_datatype}}));
 {%- else %}
     xapi_msg->data.evt_{{ msg_name(cls, evt) }}.{{p.name}} = {{p.name}};

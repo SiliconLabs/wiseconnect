@@ -56,3 +56,27 @@ template_contribution:
         arguments:
           - "uint8"
           - "uint32"
+      cal-start:
+        handler: power_manager_calender_start_handler
+        arguments:
+          - "uint32"
+      cal-stop:
+        handler: power_manager_calender_stop_handler
+      wifisys-wake-src:
+        handler: power_manager_set_wakeup_source_handler
+        arguments:
+          - "uint8"
+          - "uint32"
+      wifisys-psreq:
+        handler: power_manager_config_ps_requirement_handler
+        arguments:
+          - "uint8"
+          - "uint32"
+      wifisys-psreq?:
+        handler: power_manager_get_ps_requirement_table_handler
+      wifisys-ps?:
+        handler: power_manager_get_current_state_handler
+      wifisys-sleep:
+        handler: set_power_manager_sleep_handler
+      wifisys-standby:
+        handler: set_power_manager_standby_handler

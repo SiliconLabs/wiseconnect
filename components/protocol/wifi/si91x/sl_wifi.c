@@ -1664,10 +1664,12 @@ sl_status_t sl_wifi_set_performance_profile(const sl_wifi_performance_profile_t 
   }
   sli_get_coex_performance_profile(&selected_coex_profile_mode);
 
-  // Set device_initialized  as false since RAM of module will be not retained
+  // Deinitialize the driver since the module's RAM will be not retained
   // in ULTRA_POWER_SAVE and module needs to be started from init again
   if (selected_coex_profile_mode == DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
-    device_initialized = false;
+    // Deinitialize the module
+    status = sl_si91x_driver_deinit();
+    VERIFY_STATUS_AND_RETURN(status);
 
 #ifdef SLI_SI91X_MCU_INTERFACE
     // In soc mode m4 does not get the card ready for next init after deinit, but if device in DEEP_SLEEP_WITHOUT_RAM_RETENTION mode, m4 should wait for card ready for next init

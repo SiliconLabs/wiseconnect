@@ -86,6 +86,7 @@ readme:
 other_file:
   - path: resources/readme/Ready.PNG
   - path: resources/readme/sta.png
+  - path: resources/readme/at_power_save_comp.png
 
 ui_hints:
   highlight:

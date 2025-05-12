@@ -3743,9 +3743,11 @@ typedef struct { /*!< (@ 0x44000100) USART0 Structure */
       __OM unsigned int THR; /*!< (@ 0x00000000) Transmit Holding Register */
 
       struct {
-        __OM unsigned int THR : 8;        /*!< [7..0] Data to be transmitted on serial
+        __OM unsigned int THR : 8; /*!< [7..0] Data to be transmitted on serial
                                    output port                       */
-        __OM unsigned int RESERVED1 : 24; /*!< [31..8] reserved1 */
+        __OM unsigned int
+          RESERVED1 : 24; /*!< [8th-bit] Data to be transmitted on the serial output port (sout) in UART mode for the MSB
+        9th bit, [31..9] reserved1 */
       } THR_b;
     };
 
@@ -3753,8 +3755,10 @@ typedef struct { /*!< (@ 0x44000100) USART0 Structure */
       __IM unsigned int RBR; /*!< (@ 0x00000000) Receive Buffer Register */
 
       struct {
-        __IM unsigned int RBR : 8;        /*!< [7..0] Receive Buffer Field        */
-        __IM unsigned int RESERVED1 : 24; /*!< [31..8] reserved1 */
+        __IM unsigned int RBR : 8; /*!< [7..0] Receive Buffer Field        */
+        __IM unsigned int
+          RESERVED1 : 24; /*!< [8th-bit] Data byte received on the serial input port (sin) in UART mode for the MSB
+          9th bit, [31..9] reserved1 */
       } RBR_b;
     };
   };

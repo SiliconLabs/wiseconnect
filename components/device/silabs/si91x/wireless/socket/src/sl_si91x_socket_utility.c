@@ -153,10 +153,10 @@ int sli_handle_select_response(const sli_si91x_socket_select_rsp_t *response,
                                fd_set *writefds,
                                fd_set *exception_fd)
 #else
-int handle_select_response(const sli_si91x_socket_select_rsp_t *response,
-                           sl_si91x_fdset_t *readfds,
-                           sl_si91x_fdset_t *writefds,
-                           sl_si91x_fdset_t *exception_fd)
+int sli_handle_select_response(const sli_si91x_socket_select_rsp_t *response,
+                               sl_si91x_fdset_t *readfds,
+                               sl_si91x_fdset_t *writefds,
+                               sl_si91x_fdset_t *exception_fd)
 #endif
 {
   // To track of the total number of file descriptors set
@@ -320,6 +320,16 @@ void sli_si91x_handle_websocket(sli_si91x_socket_create_request_t *socket_create
            si91x_bsd_socket->websocket_info->websocket_data + si91x_bsd_socket->websocket_info->host_length,
            si91x_bsd_socket->websocket_info->resource_length);
     socket_create_request->webs_resource_name[si91x_bsd_socket->websocket_info->resource_length] =
+      '\0'; // Null-terminate
+  }
+
+  // Copy subprotocol name
+  if (si91x_bsd_socket->websocket_info && si91x_bsd_socket->websocket_info->subprotocol_length > 0) {
+    memcpy(socket_create_request->webs_subprotocol_name,
+           si91x_bsd_socket->websocket_info->websocket_data + si91x_bsd_socket->websocket_info->host_length
+             + si91x_bsd_socket->websocket_info->resource_length,
+           si91x_bsd_socket->websocket_info->subprotocol_length);
+    socket_create_request->webs_subprotocol_name[si91x_bsd_socket->websocket_info->subprotocol_length] =
       '\0'; // Null-terminate
   }
 }

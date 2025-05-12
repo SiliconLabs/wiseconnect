@@ -762,4 +762,12 @@ the number of peripherals has been updated to 1, and the number of connection ev
 #ifndef RSI_BLE_AE_MAX_ADV_SETS
 #define RSI_BLE_AE_MAX_ADV_SETS 2 ///< default number of Advertising sets in extended advertising (Max value = 3)
 #endif
+/*=======================================================================*/
+// Extended features
+/*=======================================================================*/
+
+#ifndef RSI_BT_BLE_STACK_BYPASS_ENABLE
+#define RSI_BT_BLE_STACK_BYPASS_ENABLE \
+  0 // 1 - enable BT stack bypass feature 0 - disable // by default it is 0 - disabled
+#endif
 /** @} */

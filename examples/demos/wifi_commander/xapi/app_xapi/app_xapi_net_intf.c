@@ -203,17 +203,12 @@ void app_wifi_cmd_net_intf_set_device_config(app_wifi_cmd_net_intf_set_device_co
 
   device_config_client->mac_address = &device_mac_address;
 
-  if (cmd_input->mac_address_octet_0 == 0 && cmd_input->mac_address_octet_1 == 0 && cmd_input->mac_address_octet_2 == 0
-      && cmd_input->mac_address_octet_3 == 0 && cmd_input->mac_address_octet_4 == 0
-      && cmd_input->mac_address_octet_5 == 0) {
+  if (cmd_input->mac_address.addr[0] == 0 && cmd_input->mac_address.addr[1] == 0 && cmd_input->mac_address.addr[2] == 0
+      && cmd_input->mac_address.addr[3] == 0 && cmd_input->mac_address.addr[4] == 0
+      && cmd_input->mac_address.addr[5] == 0) {
     device_config_client->mac_address = NULL;
   } else {
-    device_config_client->mac_address->octet[0] = cmd_input->mac_address_octet_0;
-    device_config_client->mac_address->octet[1] = cmd_input->mac_address_octet_1;
-    device_config_client->mac_address->octet[2] = cmd_input->mac_address_octet_2;
-    device_config_client->mac_address->octet[3] = cmd_input->mac_address_octet_3;
-    device_config_client->mac_address->octet[4] = cmd_input->mac_address_octet_4;
-    device_config_client->mac_address->octet[5] = cmd_input->mac_address_octet_5;
+    memcpy(device_config_client->mac_address->octet, cmd_input->mac_address.addr, 6);
   }
 
   device_config_client->boot_option                         = cmd_input->boot_option;
@@ -287,12 +282,7 @@ void app_wifi_cmd_net_intf_get_device_config(const void *nil)
                                                                     : &default_mac_address;
   app_wifi_rsp_net_intf_get_device_config(SL_STATUS_OK,
                                           device_config_client->boot_option,
-                                          mac_address->octet[0],
-                                          mac_address->octet[1],
-                                          mac_address->octet[2],
-                                          mac_address->octet[3],
-                                          mac_address->octet[4],
-                                          mac_address->octet[5],
+                                          mac_address,
                                           device_config_client->band,
                                           device_config_client->region_code,
                                           device_config_client->ta_pool.tx_ratio_in_buffer_pool,

@@ -1997,7 +1997,16 @@
  */
 #define SL_SI91X_BLE_AE_MAX_ADV_SETS(num_adv_sets) (num_adv_sets << 20)
 
-/// @note Bits 24-31 are reserved
+/**
+ * @def SL_SI91X_BT_BLE_STACK_BYPASS_ENABLE
+ * @brief Enable BT and BLE stack Bypass.
+ * @details
+ * Enables or disables the BT and BLE stack bypass mode
+ 
+ * @note Bit 24 enables the BT and BLE stack bypass mode.
+ */
+#define SL_SI91X_BT_BLE_STACK_BYPASS_ENABLE BIT(24)
+/// @note Bits 25-31 are reserved
 /** @} */
 
 /** \addtogroup SI91X_CONFIG_FEATURE_BITMAP
@@ -2613,6 +2622,7 @@ typedef struct {
   uint8_t data[]; ///< Data to be transmitted or received
 } sl_wifi_packet_t;
 
+#ifndef __ZEPHYR__
 /** \addtogroup SL_SI91X_DEFAULT_DEVICE_CONFIGURATION 
   * @{ */
 /// Default Wi-Fi client configuration
@@ -2649,7 +2659,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
                    .ble_ext_feature_bit_map = 0,
                    .config_feature_bit_map  = 0 }
 };
+#endif
 
+#ifndef __ZEPHYR__
 /// Default Wi-Fi enterprise client configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_enterprise_client_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -2675,7 +2687,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_enterprise_client_co
                    .ble_ext_feature_bit_map = 0,
                    .config_feature_bit_map  = 0 }
 };
+#endif
 
+#ifndef __ZEPHYR__
 /// Default Wi-Fi ap configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_ap_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -2699,7 +2713,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_ap_configuration = {
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = 0 }
 };
+#endif
 
+#ifndef __ZEPHYR__
 /// Default Wi-Fi concurrent (AP + STATION) configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -2723,7 +2739,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_configura
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
+#endif
 
+#ifndef __ZEPHYR__
 /// Default Wi-Fi concurrent (AP + STATION) configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_v6_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -2750,7 +2768,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_v6_config
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
+#endif
 
+#ifndef __ZEPHYR__
 /// Default Wi-Fi transmit configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_transmit_test_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -2779,7 +2799,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_transmit_test_config
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
+#endif
 
+#ifndef __ZEPHYR__
 /// Default Wi-Fi transceiver mode configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_transceiver_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -2807,6 +2829,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_transceiver_configur
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = 0 }
 };
+#endif
 
 /// The typdefs in the below header depends on the structs defination in this .h
 #include "sl_si91x_types.h"

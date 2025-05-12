@@ -156,6 +156,98 @@ void rsi_usart_rs485_resume_tx(USART0_Type *usart, bool enable)
 }
 
 /**
+ * @fn           void rsi_usart_rs485_control_send_address(USART0_Type *usart, bool send_addr_ctrl)
+ * @brief        This API used to enable/disable send address bit while transferring address
+ * @param[in]    usart      Pointer to USART/UART register block
+ * @param[in]    send_addr_ctrl   send address bit control
+ * @return       None
+ */
+void rsi_usart_rs485_control_send_address(USART0_Type *usart, bool send_addr_ctrl)
+{
+  // Send Addr bit while transferring address
+  usart->LCR_EXT_b.SEND_ADDR = send_addr_ctrl;
+}
+
+/**
+* @fn           void rsi_usart_rs485_control_address_match(USART0_Type *usart, bool addr_match_ctrl)
+* @brief        This API used to enable/disable address match bit while receiving.
+* @param[in]    usart      Pointer to USART/UART register block
+* @param[in]    send_addr_ctrl   send address bit control
+* @return       None
+*/
+void rsi_usart_rs485_control_address_match(USART0_Type *usart, bool addr_match_ctrl)
+{
+  // Set the Addr match mode while receiving
+  usart->LCR_EXT_b.ADDR_MATCH = addr_match_ctrl;
+}
+
+/**
+ * @brief Sets the Driver Enable assertion time for RS-485.
+ * @param[in] usart Pointer to USART/UART register block.
+ * @param[in] assert_time The Driver Enable assertion time value.
+ * @return None.
+ */
+void rsi_usart_rs485_set_de_assert_time(USART0_Type *usart, uint8_t assert_time)
+{
+  usart->DET_b.DE_ASSERT_TIME = assert_time;
+}
+
+/**
+ * @brief Sets the Driver Enable de-assertion time for RS-485.
+ * @param[in] usart Pointer to USART/UART register block.
+ * @param[in] deassert_time The Driver Enable de-assertion time value.
+ * @return None.
+ */
+void rsi_usart_rs485_set_de_deassert_time(USART0_Type *usart, uint8_t deassert_time)
+{
+  usart->DET_b.DE_DE_ASSERT_TIME = deassert_time;
+}
+
+/**
+ * @brief Sets the Driver Enable to Receiver Enable turnaround time for RS-485.
+ * @param[in] usart Pointer to USART/UART register block.
+ * @param[in] de_re_tat The DE to RE turnaround time value.
+ * @return None.
+ */
+void rsi_usart_rs485_set_de_re_turnaround_time(USART0_Type *usart, uint16_t de_re_tat)
+{
+  usart->TAT_b.DE_RE = de_re_tat;
+}
+
+/**
+ * @brief Sets the Receiver Enable to Driver Enable turnaround time for RS-485.
+ * @param[in] usart Pointer to USART/UART register block.
+ * @param[in] re_de_tat The RE to DE turnaround time value.
+ * @return None.
+ */
+void rsi_usart_rs485_set_re_de_turnaround_time(USART0_Type *usart, uint16_t re_de_tat)
+{
+  usart->TAT_b.RE_DE = re_de_tat;
+}
+
+/**
+ * @brief Sets the Driver Enable polarity for RS-485.
+ * @param[in] usart Pointer to USART/UART register block.
+ * @param[in] de_polarity The Driver Enable polarity (0: active low, 1: active high).
+ * @return None.
+ */
+void rsi_usart_rs485_set_de_polarity(USART0_Type *usart, uint8_t de_polarity)
+{
+  usart->TCR_b.DE_POL = de_polarity;
+}
+
+/**
+ * @brief Sets the Receiver Enable polarity for RS-485.
+ * @param[in] usart Pointer to USART/UART register block.
+ * @param[in] re_polarity The Receiver Enable polarity (0: active low, 1: active high).
+ * @return None.
+ */
+void rsi_usart_rs485_set_re_polarity(USART0_Type *usart, uint8_t re_polarity)
+{
+  usart->TCR_b.RE_POL = re_polarity;
+}
+
+/**
  * @fn           void rsi_usart_rs485_deinit(USART0_Type *usart)
  * @brief        This API used to disable the RS485 module
  * @param[in]    usart      Pointer to USART/UART register block

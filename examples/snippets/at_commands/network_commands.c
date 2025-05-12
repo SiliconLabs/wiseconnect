@@ -113,7 +113,7 @@ static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *da
 
 #endif
 
-#define MAX_WIFI_PROFILES 2
+#define MAX_WIFI_PROFILES MAX_WIFI_CLIENT_PROFILES
 #define OTAF_DEFAULT_PORT 80
 
 static sl_net_wifi_client_profile_t *wifi_client_profiles[MAX_WIFI_PROFILES] = { NULL };
@@ -151,6 +151,14 @@ sl_net_wifi_client_profile_t *get_wifi_profile(sl_net_profile_id_t profile_id)
     initialize_wifi_profiles(profile_id);
   }
   return wifi_client_profiles[profile_id];
+}
+
+sl_status_t net_init_check_command_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+  PRINT_AT_CMD_SUCCESS;
+  printf("%d\r\n", sl_si91x_is_device_initialized());
+  return SL_STATUS_OK;
 }
 
 sl_status_t net_init_command_handler(console_args_t *arguments)
@@ -236,12 +244,17 @@ sl_status_t net_up_command_handler(console_args_t *arguments)
 #ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE: {
 
+      if (profile_id == SL_NET_AUTO_JOIN) {
+        status = sl_net_wifi_client_up(interface, profile_id);
+        VERIFY_STATUS_AND_RETURN(status);
+        break;
+      }
       // Fetch the profile and print some information about it
       sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
       if (profile == NULL) {
         return SL_STATUS_INVALID_PARAMETER; // Invalid profile ID
       }
-      printf("Connecting to '%s'\r\n", profile->config.ssid.value);
+      SL_DEBUG_LOG("Connecting to '%s'\r\n", profile->config.ssid.value);
       status = sl_net_wifi_client_up(interface, profile_id);
       VERIFY_STATUS_AND_RETURN(status);
 
@@ -524,6 +537,8 @@ sl_status_t net_sta_options_command_handler(console_args_t *arguments)
   profile->config.channel_bitmap.channel_bitmap_2_4 =
     GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_DEFAULT_CHANNEL_BITMAP, uint16_t);
   profile->config.channel_bitmap.channel_bitmap_5 = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
+  profile->priority                               = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t);
+
   display_wifi_client_profile(profile);
 
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);

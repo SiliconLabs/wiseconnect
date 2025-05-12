@@ -47,7 +47,7 @@
 #include <string.h>
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_dns.h"
-
+#include "sli_wifi_constants.h"
 #include "sl_net_for_lwip.h"
 #include "lwip/tcpip.h"
 #include "lwip/etharp.h"
@@ -370,7 +370,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   VERIFY_STATUS_AND_RETURN(status);
 
   // Connect to the Wi-Fi network
-  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 18000);
+  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, SLI_WIFI_CONNECT_TIMEOUT);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Configure the IP address settings

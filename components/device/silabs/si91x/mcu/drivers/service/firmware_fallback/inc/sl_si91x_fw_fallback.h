@@ -75,6 +75,9 @@ extern "C" {
 /** @brief Timeout for NWP responses. */
 #define SL_SI91X_NWP_RESPONSE_TIMEOUT 30000 ///< NWP response timeout (30s)
 
+/** @brief Timeout for selecting default firmware. */
+#define SL_SI91X_DEFAULT_FW_SELECT_CMD_TIMEOUT 10000 ///< Timeout for selecting default firmware (10s)
+
 /** @brief Magic word to verify slot information integrity. */
 #define SLI_SI91X_AB_FW_SLOT_MAGIC_WORD 0xA5A5B5B5 ///< Slot information magic word
 
@@ -321,6 +324,22 @@ void sl_si91x_jump_to_m4_application(uint32_t app_addr);
   * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   ******************************************************************************/
 sl_status_t sl_si91x_verify_image(uint32_t flash_address);
+
+/***************************************************************************/ /**
+ *  @fn          int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number)
+ *  @pre         None
+ *  @brief       Selects the default NWP firmware image to load.
+ *               This function sends the appropriate command to select which
+ *               firmware image (0 for slot A, 1 for slot B) should be loaded on boot.
+ *  @param[in]   fw_image_number    Firmware image number to select (0 for slot A, 1 for slot B)
+ *  @return      int16_t - Error code
+ *                    - 0       : SUCCESS
+ *                    - < 0     : Command issue failed
+ *                    - -14     : Valid Firmware not present
+ *                    - -15     : Invalid Option/Command not supported
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number);
 
 /// @} (end addtogroup Firmware_Fallback) */
 

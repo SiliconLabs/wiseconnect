@@ -50,9 +50,14 @@
                 value of param directly.
             </description>
         </type>
-        <type datatype="bd_addr" name="mac_address" length="6">
+        <type datatype="bd_addr" name="bd_address" length="6">
             <description>
                 Bluetooth address
+            </description>
+        </type>
+        <type datatype="mac_addr" name="mac_address" length="6">
+            <description>
+                MAC address
             </description>
         </type>
         <type name="ipv6_address" datatype="ipv6_addr" length="16">
@@ -235,7 +240,7 @@
     <class name="net_intf" index="0x11" title="Network Interface">
         <description>
             Commands and Events in this class performs essential operations for managing and controlling network interfaces. They handle initialization, configuration, starting, and stopping of these interfaces, ensuring efficient utilization within the system.
-            Note: Currently only access point interface is supported.
+            Note: Currently, only Access Point and Client interfaces are supported.
         </description>
         <enums name="interface" title="interface">
             <description>
@@ -294,7 +299,7 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                        Network interface to be initialized. Currently, only AP_INTERFACE and CLIENT_INTERFACE are supported.
                     </description>
                 </param>
             </params>
@@ -314,7 +319,7 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface to be deinitialized. Currently only AP_INTERFACE is supported.
+                        Network interface to be deinitialized. Currently, only AP_INTERFACE and CLIENT_INTERFACE are supported.
                     </description>
                 </param>
             </params>
@@ -382,34 +387,9 @@
                         Boot option, which specifies the type of firmware to be loaded for the si91x devices.
                     </description>
                 </param>
-                <param name="mac_address_octet_0" type="uint8">
+                <param name="mac_address" type="mac_address">
                     <description>
-                        First octet of the mac address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_1" type="uint8">
-                    <description>
-                        Second octet of the mac address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_2" type="uint8">
-                    <description>
-                        Third octet of the mac address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_3" type="uint8">
-                    <description>
-                        Fourth octet of the mac address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_4" type="uint8">
-                    <description>
-                        Fifth octet of the mac address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_5" type="uint8">
-                    <description>
-                        Sixth octet of the mac address.
+                        MAC address of the client.
                     </description>
                 </param>
                 <param name="band" type="uint8" enum="net_intf_band">
@@ -458,7 +438,7 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                        Network interface to be initialized. Currently, only AP_INTERFACE and CLIENT_INTERFACE are supported.
                     </description>
                 </param>
             </params>
@@ -482,7 +462,7 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                        Network interface to be initialized. Currently, only AP_INTERFACE and CLIENT_INTERFACE are supported.
                     </description>
                 </param>
             </params>
@@ -515,34 +495,9 @@
                         Specifies the current boot option for the si91x device, which determines the type of firmware to be loaded.
                     </description>
                 </param>
-                <param name="mac_address_octet_0" type="uint8">
+                <param name="mac_address" type="mac_address">
                     <description>
-                        The first octet of the device's MAC address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_1" type="uint8">
-                    <description>
-                        The second octet of the device's MAC address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_2" type="uint8">
-                    <description>
-                        The third octet of the device's MAC address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_3" type="uint8">
-                    <description>
-                        The fourth octet of the device's MAC address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_4" type="uint8">
-                    <description>
-                        The fifth octet of the device's MAC address.
-                    </description>
-                </param>
-                <param name="mac_address_octet_5" type="uint8">
-                    <description>
-                        The sixth octet of the device's MAC address.
+                        MAC address of the client.
                     </description>
                 </param>
                 <param name="band" type="uint8" enum="net_intf_band">
@@ -623,7 +578,7 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface to be initialized. Currently only AP_INTERFACE is supported.
+                        Network interface to be initialized. Currently, only AP_INTERFACE and CLIENT_INTERFACE are supported.
                     </description>
                 </param>
                 <param name="is_completed" type="errorcode">
@@ -849,6 +804,7 @@
         <command name="load_default_device_config" index="0x0A">
             <description>
                 Loads the default si91x device configuration based on the specified network interface.
+                Note: Currently, only Access Point and Client interfaces are supported.
             </description>
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
@@ -858,7 +814,11 @@
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>    
             </returns>
         </command>
     </class>
@@ -1034,9 +994,9 @@
             </enum>
         </enums>
         <enums name="credential_id" title="Network Credential IDs">
-            <enum name="credential_id_no_credential" value="0x00" title="Invalid Credential ID">
+            <enum name="credential_id_no_credential" value="0x00" title="No Credential ID">
                 <description>
-                    Invalid Credential ID.
+                    No Credential ID.
                 </description>
             </enum>
             <enum name="credential_id_default_wifi_client" value="0x01" title="Wi-Fi Client Credential ID">
@@ -1257,7 +1217,8 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface. Currently only AP_INTERFACE is supported.
+                        Network interface.
+                        Note: Currently, only Access Point and Client interfaces are supported.
                     </description>
                 </param>
                 <param name="profile_id" type="uint8" enum="net_intf_profile_id">
@@ -1283,7 +1244,7 @@
             <params>
                 <param name="net_interface" type="uint8" enum="net_intf_interface">
                     <description>
-                        Network interface. Currently only AP_INTERFACE is supported.
+                        Network interface. Currently, only AP_INTERFACE and CLIENT_INTERFACE are supported.
                     </description>
                 </param>
                 <param name="profile_id" type="uint8" enum="net_intf_profile_id">
@@ -1735,7 +1696,11 @@
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
             </returns>
         </command>
         <enums name="bss_type" title="bss_type">
@@ -1805,7 +1770,11 @@
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
             </returns>
         </command>
         <command name="set_client_channel" index="0x10">
@@ -1830,7 +1799,11 @@
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
             </returns>
         </command>
         <command name="get_client_ssid" index="0x11">
@@ -1839,7 +1812,11 @@
             </description>
             <params/>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
                 <param name="ssid" type="api_ssid">
                     <description>
                         SSID of the current Access Point as a string. This is the name of the Wi-Fi network to which the device is connected or attempting to connect.
@@ -1853,7 +1830,11 @@
             </description>
             <params/>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
                 <param name="bssid" type="bssid">
                     <description>
                         The BSSID (Basic Service Set Identifier) of the access point.
@@ -1897,7 +1878,11 @@
             </description>
             <params/>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
                 <param name="channel" type="uint16">
                     <description>
                         Current channel number set for the access point.
@@ -2053,7 +2038,11 @@
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
             </returns>
         </command>
         <command name="get_client_info" index="0x00">
@@ -2103,47 +2092,6 @@
             This class provides commands and events, which can be used to manage network credentials, including Wi-Fi client credentials,
             MQTT client credentials, TLS client certificates, and others.
         </description>
-        <enums name="credential_id" title="Network Credential ID">
-            <description>
-                Defines various credential IDs used for different network configurations.
-            </description>
-            <enum name="credential_id_invalid" value="0x00" title="Invalid Credential ID">
-                <description>Invalid Credential ID.</description>
-            </enum>
-            <enum name="credential_id_default_wifi_client" value="0x01" title="Wi-Fi Client Credential ID">
-                <description>Default Wi-Fi Client Credential ID. By default, uses default_wifi_client_credential from sl_net_default_values.h, which can be overridden using sl_net_set_credential.</description>
-            </enum>
-            <enum name="credential_id_default_wifi_ap" value="0x02" title="Wi-Fi Access Point Credential ID">
-                <description>Default Wi-Fi Access Point Credential ID. By default, uses default_wifi_ap_credential from sl_net_default_values.h, which can be overridden using sl_net_set_credential.</description>
-            </enum>
-            <enum name="credential_id_wifi_eap_client" value="0x03" title="Wi-Fi EAP Client Credential ID">
-                <description>Wi-Fi EAP Client Credential ID.</description>
-            </enum>
-            <enum name="credential_id_wifi_eap_server" value="0x04" title="Wi-Fi EAP Server Credential ID">
-                <description>Wi-Fi EAP Server Credential ID.</description>
-            </enum>
-            <enum name="credential_id_user" value="0x05" title="User Credential ID">
-                <description>User Credential ID.</description>
-            </enum>
-            <enum name="credential_id_tls_client" value="0x100" title="TLS Client Credential ID">
-                <description>TLS Client Credential ID.</description>
-            </enum>
-            <enum name="credential_id_tls_server" value="0x200" title="TLS Server Credential ID">
-                <description>TLS Server Credential ID.</description>
-            </enum>
-            <enum name="credential_id_mqtt_server" value="0x300" title="MQTT Server Credential ID">
-                <description>MQTT Server Credential ID.</description>
-            </enum>
-            <enum name="credential_id_mqtt_client" value="0x400" title="MQTT Client Credential ID">
-                <description>MQTT Client Credential ID.</description>
-            </enum>
-            <enum name="credential_id_http_server" value="0x500" title="HTTP Server Credential ID">
-                <description>HTTP Server Credential ID.</description>
-            </enum>
-            <enum name="credential_id_http_client" value="0x600" title="HTTP Client Credential ID">
-                <description>HTTP Client Credential ID.</description>
-            </enum>
-        </enums>
         <enums name="credential_type" title="Credential Type">
             <description>
                 Defines various types of credentials used for network authentication and encryption.
@@ -2199,7 +2147,7 @@
                 Note: Please ensure that sl_wifi_net_intf_init is called before using this command. Additionally, remember that the SSID and credentials should be provided in hexadecimal format.
             </description>
             <params>
-                <param name="id" type="uint32" enum="net_cred_credential_id">
+                <param name="id" type="uint32" enum="net_profile_credential_id">
                     <description>
                         Network credential identifier.
                     </description>
@@ -2229,7 +2177,7 @@
                 Note: Please ensure that sl_wifi_net_intf_init is called before using this command.
             </description>
             <params>
-                <param name="id" type="uint32" enum="net_cred_credential_id">
+                <param name="id" type="uint32" enum="net_profile_credential_id">
                     <description>
                         Network credential identifier.
                     </description>
@@ -2264,7 +2212,7 @@
                 Note: Please ensure that sl_wifi_net_intf_init is called before using this command.
             </description>
             <params>
-                <param name="id" type="uint32" enum="net_cred_credential_id">
+                <param name="id" type="uint32" enum="net_profile_credential_id">
                     <description>
                         Network credential identifier.
                     </description>
@@ -2361,6 +2309,9 @@
             </enum>
         </enums>
         <command name="get_firmware_version" index="0x00">
+            <description>
+                Gets the latest firmware version information.
+            </description>
             <params/>
             <returns>
                 <param name="result" type="errorcode">
@@ -2482,7 +2433,7 @@
         <command name="start" index="0x00">
             <description>
                 Configures the Wi-Fi scan settings for the specified network interface.
-                Note: Please ensure that the network interface is brought up (e.g., via `sl_wifi_net_intf_up`) before invoking this command.
+                Note: Please ensure that sl_wifi_net_intf_init is called before using this command.
             </description>
             <params>
                 <param name="wifi_interface" type="uint8" enum="common_wifi_interface">
@@ -2514,7 +2465,7 @@
             <returns>
                 <param name="result" type="errorcode">
                     <description>
-                        Result of the scan command.
+                        Result of the command.
                     </description>
                 </param>
                 <param name="is_in_progress" type="uint8">
@@ -2527,6 +2478,7 @@
         <command name="start_with_ssid" index="0x01">
             <description>
                 Configures a Wi-Fi scan for a specific SSID on the specified network interface.
+                Note: Please ensure that sl_wifi_net_intf_init is called before using this command.
             </description>
             <params>
                 <param name="wifi_interface" type="uint8" enum="common_wifi_interface">
@@ -2563,7 +2515,7 @@
             <returns>
                 <param name="result" type="errorcode">
                     <description>
-                        Result of the scan command.
+                        Result of the command.
                     </description>
                 </param>
                 <param name="is_in_progress" type="uint8">
@@ -2712,6 +2664,7 @@
                 Send an ICMP ping request to a specific IP address. Ensure that SL_SI91X_TCP_IP_FEAT_ICMP is enabled
                 in the TCP/IP feature bitmap by calling sl_wifi_net_intf_set_si91x_boot_config(), and make sure this
                 command is called before invoking sl_wifi_net_intf_init() command.
+                Note: Please ensure that sl_wifi_net_intf_up() is called before using this command.
             </description>
             <params>
                 <param name="ipv4_address" type="ipv4_address">
@@ -2877,9 +2830,8 @@
             <description>
                 Initialize the MQTT Client.
 
-                Ensure that SL_SI91X_EXT_EMB_MQTT_ENABLE is enabled in the ext_tcp_ip_feature_bit_map
-                by calling sl_wifi_net_intf_set_si91x_boot_config(). Make sure this command is called
-                before invoking the sl_wifi_net_intf_init() command.
+                To enable MQTT client functionality, configure the ext_tcp_ip_feature_bit_map using sl_wifi_net_intf_set_si91x_boot_config() before calling sl_wifi_net_intf_init().
+                Ensure SL_SI91X_EXT_EMB_MQTT_ENABLE, SL_SI91X_EXT_TCP_IP_WINDOW_SCALING, and SL_SI91X_EXT_TCP_IP_FEAT_SSL_MEMORY_CLOUD are enabled.
             </description>
             <params/>
             <returns>
@@ -2890,7 +2842,7 @@
                 </param>
             </returns>
         </command>
-        <command name="set_broker" index="0x02">
+        <command name="set_broker" index="0x01">
             <description>
                 Sets the MQTT broker connection parameters.
             </description>
@@ -2934,7 +2886,7 @@
                 </param>
             </returns>
         </command>
-        <command name="set_last_will_topic" index="0x03">
+        <command name="set_last_will_topic" index="0x02">
             <description>
                 Configures the Last Will message parameters for the MQTT client.
                 Maximum topic length: 43 bytes
@@ -2964,7 +2916,7 @@
                 </param>
             </returns>
         </command>
-        <command name="set_last_will_message" index="0x0D">
+        <command name="set_last_will_message" index="0x03">
             <description>
                 Sets the message content for the MQTT Client Last Will message.
                 Maximum message length: 48 bytes
@@ -3024,7 +2976,7 @@
                         Port number used by the client for the connection.
                     </description>
                 </param>
-                <param name="credential_id" type="uint32" enum="net_cred_credential_id">
+                <param name="credential_id" type="uint32" enum="net_profile_credential_id">
                     <description>
                         Credential ID for the username and password used in the MQTT connect request.
                     </description>
@@ -3109,7 +3061,7 @@
                 </description>
             </enum>
         </enums>
-        <command name="deinit" index="0x01">
+        <command name="deinit" index="0x12">
             <description>
                 Deinitialize the MQTT client.
                 Note: Please ensure that sl_wifi_mqtt_client_init is called before using this command.
@@ -3123,7 +3075,7 @@
                 </param>
             </returns>
         </command>
-        <command name="get_broker" index="0x05">
+        <command name="get_broker" index="0x0C">
             <description>
                 Gets the MQTT broker connection parameters.
             </description>
@@ -3138,7 +3090,7 @@
                 <param name="keep_alive_retires" type="uint16"/>
             </returns>
         </command>
-        <command name="get_last_will_topic" index="0x06">
+        <command name="get_last_will_topic" index="0x0D">
             <description>
                 Gets the Last Will message parameters for the MQTT client.
             </description>
@@ -3160,7 +3112,7 @@
                 <param name="message" type="mqtt_topic"/>
             </returns>
         </command>
-        <command name="get_client_config" index="0x07">
+        <command name="get_client_config" index="0x0F">
             <description>
                 Gets MQTT client configuration parameters.
             </description>
@@ -3174,31 +3126,27 @@
                 <param name="is_clean_session" type="uint8"/>
                 <param name="version" type="uint32" enum="mqtt_client_mqtt_version"/>
                 <param name="client_port" type="uint16"/>
-                <param name="credential_id" type="uint32" enum="net_cred_credential_id"/>
+                <param name="credential_id" type="uint32" enum="net_profile_credential_id"/>
                 <param name="tls_flag" type="uint32" enum="mqtt_client_tls_flag"/>
             </returns>
         </command>
         <event name="connected_event" index="0x00">
+            <description>
+                Indicates a successful MQTT connection establishment.
+            </description>
             <params>
                 <param name="status" type="uint32"/>
             </params>
         </event>
         <event name="error_event" index="0x01">
+            <description>
+                Reports an error that occurred during an MQTT operation.
+            </description>
             <params>
                 <param name="status" type="errorcode"/>
             </params>
         </event>
-        <event name="topic_received_event" index="0x02">
-            <params>
-                <param name="topic" type="mqtt_topic"/>
-            </params>
-        </event>
-        <event name="message_received_event" index="0x0F">
-            <params>
-                <param name="content" type="mqtt_message"/>
-            </params>
-        </event>
-        <command name="connect" index="0x08">
+        <command name="connect" index="0x06">
             <description>
                 Connect the client to an MQTT broker.
                 Note: Please ensure that sl_wifi_mqtt_client_init is called before using this command.
@@ -3212,7 +3160,7 @@
                 </param>
             </returns>
         </command>
-        <command name="disconnect" index="0x09">
+        <command name="disconnect" index="0x11">
             <description>
                 Disconnect the client from the MQTT broker.
                 Note: Please ensure that sl_wifi_mqtt_client_connect is called before using this command.
@@ -3226,7 +3174,7 @@
                 </param>
             </returns>
         </command>
-        <command name="subscribe" index="0x0A">
+        <command name="subscribe" index="0x07">
             <description>
                 Subscribe a client to a specific topic on the MQTT broker.
                 Maximum topic length: 44 bytes
@@ -3273,17 +3221,23 @@
                 </param>
             </returns>
         </command>
-        <event name="message_received_on_topic" index="0x03">
+        <event name="message_received_on_topic" index="0x02">
+            <description>
+                Triggered when a new MQTT message is received on a subscribed topic.
+            </description>
             <params>
                 <param name="message_topic" type="mqtt_topic"/>
             </params>
         </event>
-        <event name="message_received_content" index="0x04">
+        <event name="message_received_content" index="0x03">
+            <description>
+                Provides the content of the received MQTT message.
+            </description>
             <params>
                 <param name="message_content" type="mqtt_message"/>
             </params>
         </event>
-        <command name="publish_topic" index="0x0C">
+        <command name="publish_topic" index="0x08">
             <description>
                 Publishes a message to the MQTT broker on the specified topic.
                 Maximum topic length: 42 bytes
@@ -3328,7 +3282,7 @@
                 </param>
             </returns>
         </command>
-        <command name="publish_message" index="0x10">
+        <command name="publish_message" index="0x09">
             <description>
                 Publishes the content of a message to the MQTT broker.
                 Maximum message length: 48 bytes
@@ -3349,7 +3303,7 @@
                 </param>
             </returns>
         </command>
-        <command name="publish" index="0x12">
+        <command name="publish" index="0x0A">
             <description>
                 Publishes a message to the MQTT broker.
                 Note: Please ensure that sl_wifi_mqtt_client_publish_topic and sl_wifi_mqtt_client_publish_message is called before using this command.
@@ -3363,25 +3317,34 @@
                 </param>
             </returns>
         </command>
-        <event name="subscribe_state_event" index="0x05">
+        <event name="subscribe_state_event" index="0x04">
+            <description>
+                Indicates the result of an MQTT topic subscribe operation.
+            </description>
             <params>
                 <param name="status" type="errorcode"/>
                 <param name="topic" type="mqtt_topic"/>
             </params>
         </event>
-        <event name="unsubscribe_state_event" index="0x06">
+        <event name="unsubscribe_state_event" index="0x05">
+            <description>
+                Indicates the result of an MQTT topic unsubscribe operation.
+            </description>
             <params>
                 <param name="status" type="errorcode"/>
                 <param name="topic" type="mqtt_topic"/>
             </params>
         </event>
-        <event name="publish_state_event" index="0x07">
+        <event name="publish_state_event" index="0x06">
+            <description>
+                Indicates the result of an MQTT message publish operation.
+            </description>
             <params>
                 <param name="status" type="errorcode"/>
                 <param name="topic" type="mqtt_topic"/>
             </params>
         </event>
-        <command name="set_client_id" index="0x16">
+        <command name="set_client_id" index="0x05">
             <description>
                 Configures the MQTT client ID.
                 Maximum client ID length: 48 bytes
@@ -3394,10 +3357,14 @@
                 </param>
             </params>
             <returns>
-                <param name="result" type="errorcode"/>
+                <param name="result" type="errorcode">
+                    <description>
+                        Result of the command.
+                    </description>
+                </param>
             </returns>
         </command>
-        <command name="get_client_id" index="0x15">
+        <command name="get_client_id" index="0x10">
             <description>
                 Gets MQTT client ID.
             </description>
@@ -3407,7 +3374,10 @@
                 <param name="client_id" type="mqtt_topic"/>
             </returns>
         </command>
-        <event name="disconnected_event" index="0x08">
+        <event name="disconnected_event" index="0x07">
+            <description>
+                Indicates that the MQTT connection has been disconnected.
+            </description>
             <params>
                 <param name="status" type="uint32"/>
             </params>

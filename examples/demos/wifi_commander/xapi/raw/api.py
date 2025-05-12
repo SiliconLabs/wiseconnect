@@ -98,6 +98,7 @@ STD_ANON.string = STD_ANON._CF_enumeration.addEnumeration(unicode_value='string'
 STD_ANON.bd_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='bd_addr', tag='bd_addr')
 STD_ANON.ipv4_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='ipv4_addr', tag='ipv4_addr')
 STD_ANON.ipv6_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='ipv6_addr', tag='ipv6_addr')
+STD_ANON.mac_addr = STD_ANON._CF_enumeration.addEnumeration(unicode_value='mac_addr', tag='mac_addr')
 STD_ANON.ser_name = STD_ANON._CF_enumeration.addEnumeration(unicode_value='ser_name', tag='ser_name')
 STD_ANON.uuid_128 = STD_ANON._CF_enumeration.addEnumeration(unicode_value='uuid_128', tag='uuid_128')
 STD_ANON.aes_key_128 = STD_ANON._CF_enumeration.addEnumeration(unicode_value='aes_key_128', tag='aes_key_128')

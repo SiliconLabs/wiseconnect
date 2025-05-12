@@ -365,12 +365,7 @@ static inline void app_wifi_rsp_net_intf_get_network_status(uint16_t result, uin
 static inline void app_wifi_set_rsp_net_intf_get_device_config_msg(struct app_wifi_packet *xapi_msg,
                                                                    uint16_t result,
                                                                    uint8_t boot_option,
-                                                                   uint8_t mac_address_octet_0,
-                                                                   uint8_t mac_address_octet_1,
-                                                                   uint8_t mac_address_octet_2,
-                                                                   uint8_t mac_address_octet_3,
-                                                                   uint8_t mac_address_octet_4,
-                                                                   uint8_t mac_address_octet_5,
+                                                                   const void *mac_address,
                                                                    uint8_t band,
                                                                    uint8_t region_code,
                                                                    uint8_t tx_ratio_in_buffer_pool,
@@ -379,14 +374,9 @@ static inline void app_wifi_set_rsp_net_intf_get_device_config_msg(struct app_wi
                                                                    uint8_t efuse_data_type)
 {
   (void)xapi_msg;
-  xapi_msg->data.rsp_net_intf_get_device_config.result                      = result;
-  xapi_msg->data.rsp_net_intf_get_device_config.boot_option                 = boot_option;
-  xapi_msg->data.rsp_net_intf_get_device_config.mac_address_octet_0         = mac_address_octet_0;
-  xapi_msg->data.rsp_net_intf_get_device_config.mac_address_octet_1         = mac_address_octet_1;
-  xapi_msg->data.rsp_net_intf_get_device_config.mac_address_octet_2         = mac_address_octet_2;
-  xapi_msg->data.rsp_net_intf_get_device_config.mac_address_octet_3         = mac_address_octet_3;
-  xapi_msg->data.rsp_net_intf_get_device_config.mac_address_octet_4         = mac_address_octet_4;
-  xapi_msg->data.rsp_net_intf_get_device_config.mac_address_octet_5         = mac_address_octet_5;
+  xapi_msg->data.rsp_net_intf_get_device_config.result      = result;
+  xapi_msg->data.rsp_net_intf_get_device_config.boot_option = boot_option;
+  memcpy(&xapi_msg->data.rsp_net_intf_get_device_config.mac_address, mac_address, sizeof(mac_addr));
   xapi_msg->data.rsp_net_intf_get_device_config.band                        = band;
   xapi_msg->data.rsp_net_intf_get_device_config.region_code                 = region_code;
   xapi_msg->data.rsp_net_intf_get_device_config.tx_ratio_in_buffer_pool     = tx_ratio_in_buffer_pool;
@@ -397,12 +387,7 @@ static inline void app_wifi_set_rsp_net_intf_get_device_config_msg(struct app_wi
 
 static inline void app_wifi_rsp_net_intf_get_device_config(uint16_t result,
                                                            uint8_t boot_option,
-                                                           uint8_t mac_address_octet_0,
-                                                           uint8_t mac_address_octet_1,
-                                                           uint8_t mac_address_octet_2,
-                                                           uint8_t mac_address_octet_3,
-                                                           uint8_t mac_address_octet_4,
-                                                           uint8_t mac_address_octet_5,
+                                                           const void *mac_address,
                                                            uint8_t band,
                                                            uint8_t region_code,
                                                            uint8_t tx_ratio_in_buffer_pool,
@@ -418,12 +403,7 @@ static inline void app_wifi_rsp_net_intf_get_device_config(uint16_t result,
   app_wifi_set_rsp_net_intf_get_device_config_msg((struct app_wifi_packet *)xapi_msg,
                                                   result,
                                                   boot_option,
-                                                  mac_address_octet_0,
-                                                  mac_address_octet_1,
-                                                  mac_address_octet_2,
-                                                  mac_address_octet_3,
-                                                  mac_address_octet_4,
-                                                  mac_address_octet_5,
+                                                  mac_address,
                                                   band,
                                                   region_code,
                                                   tx_ratio_in_buffer_pool,
@@ -1095,7 +1075,7 @@ static inline void app_wifi_set_evt_ap_client_connected_event_msg(struct app_wif
                                                                   const void *mac_address)
 {
   (void)xapi_msg;
-  memcpy(&xapi_msg->data.evt_ap_client_connected_event.mac_address, mac_address, sizeof(bd_addr));
+  memcpy(&xapi_msg->data.evt_ap_client_connected_event.mac_address, mac_address, sizeof(mac_addr));
 }
 
 static const struct xapi_event xapi_event_decl_wifi_ap_client_connected_event = { API_INTERNAL_XAPI_MSG_HEADER(
@@ -1117,7 +1097,7 @@ static inline void app_wifi_set_evt_ap_client_disconnected_event_msg(struct app_
                                                                      const void *mac_address)
 {
   (void)xapi_msg;
-  memcpy(&xapi_msg->data.evt_ap_client_disconnected_event.mac_address, mac_address, sizeof(bd_addr));
+  memcpy(&xapi_msg->data.evt_ap_client_disconnected_event.mac_address, mac_address, sizeof(mac_addr));
 }
 
 static const struct xapi_event xapi_event_decl_wifi_ap_client_disconnected_event = { API_INTERNAL_XAPI_MSG_HEADER(
@@ -1141,7 +1121,7 @@ static inline void app_wifi_set_evt_ap_get_client_info_event_msg(struct app_wifi
 {
   (void)xapi_msg;
   memcpy(&xapi_msg->data.evt_ap_get_client_info_event.ipv4_address, ipv4_address, sizeof(ipv4_addr));
-  memcpy(&xapi_msg->data.evt_ap_get_client_info_event.mac_address, mac_address, sizeof(bd_addr));
+  memcpy(&xapi_msg->data.evt_ap_get_client_info_event.mac_address, mac_address, sizeof(mac_addr));
 }
 
 static const struct xapi_event xapi_event_decl_wifi_ap_get_client_info_event = { API_INTERNAL_XAPI_MSG_HEADER(
@@ -1664,7 +1644,7 @@ static inline void app_wifi_rsp_mqtt_client_set_broker(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x02,
+                                 0x01,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_set_broker_t)));
   app_wifi_set_rsp_mqtt_client_set_broker_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1682,7 +1662,7 @@ static inline void app_wifi_rsp_mqtt_client_set_last_will_topic(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x03,
+                                 0x02,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_set_last_will_topic_t)));
   app_wifi_set_rsp_mqtt_client_set_last_will_topic_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1700,7 +1680,7 @@ static inline void app_wifi_rsp_mqtt_client_set_last_will_message(uint16_t resul
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x0D,
+                                 0x03,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_set_last_will_message_t)));
   app_wifi_set_rsp_mqtt_client_set_last_will_message_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1734,7 +1714,7 @@ static inline void app_wifi_rsp_mqtt_client_deinit(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x01,
+                                 0x12,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_deinit_t)));
   app_wifi_set_rsp_mqtt_client_deinit_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1770,7 +1750,7 @@ static inline void app_wifi_rsp_mqtt_client_get_broker(uint16_t result,
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x05,
+                                 0x0C,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_get_broker_t)));
   app_wifi_set_rsp_mqtt_client_get_broker_msg((struct app_wifi_packet *)xapi_msg,
@@ -1808,7 +1788,7 @@ static inline void app_wifi_rsp_mqtt_client_get_last_will_topic(uint16_t result,
 {
   void *xapi_msg = commander_create_xapi_response_data(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x06,
+                                 0x0D,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_get_last_will_topic_t)),
     topic_len,
@@ -1886,7 +1866,7 @@ static inline void app_wifi_rsp_mqtt_client_get_client_config(uint16_t result,
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x07,
+                                 0x0F,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_get_client_config_t)));
   app_wifi_set_rsp_mqtt_client_get_client_config_msg((struct app_wifi_packet *)xapi_msg,
@@ -1913,7 +1893,7 @@ static inline void app_wifi_rsp_mqtt_client_connect(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x08,
+                                 0x06,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_connect_t)));
   app_wifi_set_rsp_mqtt_client_connect_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1930,7 +1910,7 @@ static inline void app_wifi_rsp_mqtt_client_disconnect(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x09,
+                                 0x11,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_disconnect_t)));
   app_wifi_set_rsp_mqtt_client_disconnect_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1947,7 +1927,7 @@ static inline void app_wifi_rsp_mqtt_client_subscribe(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x0A,
+                                 0x07,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_subscribe_t)));
   app_wifi_set_rsp_mqtt_client_subscribe_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1981,7 +1961,7 @@ static inline void app_wifi_rsp_mqtt_client_publish_topic(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x0C,
+                                 0x08,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_publish_topic_t)));
   app_wifi_set_rsp_mqtt_client_publish_topic_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -1998,7 +1978,7 @@ static inline void app_wifi_rsp_mqtt_client_publish_message(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x10,
+                                 0x09,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_publish_message_t)));
   app_wifi_set_rsp_mqtt_client_publish_message_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -2015,7 +1995,7 @@ static inline void app_wifi_rsp_mqtt_client_publish(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x12,
+                                 0x0A,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_publish_t)));
   app_wifi_set_rsp_mqtt_client_publish_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -2032,7 +2012,7 @@ static inline void app_wifi_rsp_mqtt_client_set_client_id(uint16_t result)
 {
   void *xapi_msg = commander_create_xapi_response(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x16,
+                                 0x05,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_set_client_id_t)));
   app_wifi_set_rsp_mqtt_client_set_client_id_msg((struct app_wifi_packet *)xapi_msg, result);
@@ -2056,7 +2036,7 @@ static inline void app_wifi_rsp_mqtt_client_get_client_id(uint16_t result,
 {
   void *xapi_msg = commander_create_xapi_response_data(
     API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                                 0x15,
+                                 0x10,
                                  (uint8_t)app_xapi_msg_type_rsp | (uint8_t)app_xapi_dev_type_wifi,
                                  sizeof(app_wifi_rsp_mqtt_client_get_client_id_t)),
     client_id_len,
@@ -2106,48 +2086,6 @@ static inline bool app_wifi_evt_mqtt_client_error_event(uint16_t status)
   sl_status_t sc = app_wifi_push_event(&xapi_msg);
   return (sc == SL_STATUS_OK) ? true : false;
 }
-/* Functions for message commander_evt_mqtt_client_topic_received_event */
-static inline void app_wifi_set_evt_mqtt_client_topic_received_event_msg(struct app_wifi_packet *xapi_msg)
-{
-  (void)xapi_msg;
-}
-
-static const struct xapi_event xapi_event_decl_wifi_mqtt_client_topic_received_event = { API_INTERNAL_XAPI_MSG_HEADER(
-  0x10,
-  0x02,
-  (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
-  sizeof(app_wifi_evt_mqtt_client_topic_received_event_t)) };
-
-static inline bool app_wifi_evt_mqtt_client_topic_received_event(size_t topic_len, const void *topic_buf)
-{
-  app_wifi_msg_t xapi_msg;
-  xapi_msg.header = xapi_event_decl_wifi_mqtt_client_topic_received_event.event_header;
-  app_wifi_set_evt_mqtt_client_topic_received_event_msg((struct app_wifi_packet *)&xapi_msg);
-
-  sl_status_t sc = app_wifi_push_event_with_data(&xapi_msg, topic_len, topic_buf);
-  return (sc == SL_STATUS_OK) ? true : false;
-}
-/* Functions for message commander_evt_mqtt_client_message_received_event */
-static inline void app_wifi_set_evt_mqtt_client_message_received_event_msg(struct app_wifi_packet *xapi_msg)
-{
-  (void)xapi_msg;
-}
-
-static const struct xapi_event xapi_event_decl_wifi_mqtt_client_message_received_event = { API_INTERNAL_XAPI_MSG_HEADER(
-  0x10,
-  0x0F,
-  (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
-  sizeof(app_wifi_evt_mqtt_client_message_received_event_t)) };
-
-static inline bool app_wifi_evt_mqtt_client_message_received_event(size_t content_len, const void *content_buf)
-{
-  app_wifi_msg_t xapi_msg;
-  xapi_msg.header = xapi_event_decl_wifi_mqtt_client_message_received_event.event_header;
-  app_wifi_set_evt_mqtt_client_message_received_event_msg((struct app_wifi_packet *)&xapi_msg);
-
-  sl_status_t sc = app_wifi_push_event_with_data(&xapi_msg, content_len, content_buf);
-  return (sc == SL_STATUS_OK) ? true : false;
-}
 /* Functions for message commander_evt_mqtt_client_message_received_on_topic */
 static inline void app_wifi_set_evt_mqtt_client_message_received_on_topic_msg(struct app_wifi_packet *xapi_msg)
 {
@@ -2156,7 +2094,7 @@ static inline void app_wifi_set_evt_mqtt_client_message_received_on_topic_msg(st
 
 static const struct xapi_event xapi_event_decl_wifi_mqtt_client_message_received_on_topic = {
   API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                               0x03,
+                               0x02,
                                (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
                                sizeof(app_wifi_evt_mqtt_client_message_received_on_topic_t))
 };
@@ -2179,7 +2117,7 @@ static inline void app_wifi_set_evt_mqtt_client_message_received_content_msg(str
 
 static const struct xapi_event xapi_event_decl_wifi_mqtt_client_message_received_content = {
   API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                               0x04,
+                               0x03,
                                (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
                                sizeof(app_wifi_evt_mqtt_client_message_received_content_t))
 };
@@ -2204,7 +2142,7 @@ static inline void app_wifi_set_evt_mqtt_client_subscribe_state_event_msg(struct
 
 static const struct xapi_event xapi_event_decl_wifi_mqtt_client_subscribe_state_event = { API_INTERNAL_XAPI_MSG_HEADER(
   0x10,
-  0x05,
+  0x04,
   (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
   sizeof(app_wifi_evt_mqtt_client_subscribe_state_event_t)) };
 
@@ -2229,7 +2167,7 @@ static inline void app_wifi_set_evt_mqtt_client_unsubscribe_state_event_msg(stru
 
 static const struct xapi_event xapi_event_decl_wifi_mqtt_client_unsubscribe_state_event = {
   API_INTERNAL_XAPI_MSG_HEADER(0x10,
-                               0x06,
+                               0x05,
                                (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
                                sizeof(app_wifi_evt_mqtt_client_unsubscribe_state_event_t))
 };
@@ -2255,7 +2193,7 @@ static inline void app_wifi_set_evt_mqtt_client_publish_state_event_msg(struct a
 
 static const struct xapi_event xapi_event_decl_wifi_mqtt_client_publish_state_event = { API_INTERNAL_XAPI_MSG_HEADER(
   0x10,
-  0x07,
+  0x06,
   (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
   sizeof(app_wifi_evt_mqtt_client_publish_state_event_t)) };
 
@@ -2280,7 +2218,7 @@ static inline void app_wifi_set_evt_mqtt_client_disconnected_event_msg(struct ap
 
 static const struct xapi_event xapi_event_decl_wifi_mqtt_client_disconnected_event = { API_INTERNAL_XAPI_MSG_HEADER(
   0x10,
-  0x08,
+  0x07,
   (uint8_t)app_xapi_msg_type_evt | (uint8_t)app_xapi_dev_type_wifi,
   sizeof(app_wifi_evt_mqtt_client_disconnected_event_t)) };
 

@@ -887,7 +887,7 @@
 #define RTE_ULP_UART_RTS_PORT HP
 #define RTE_ULP_UART_RTS_PIN  ULP_UART_RTS_PIN
 #endif
-#define RTE_ULP_UART_RTS_MUX 8
+#define RTE_ULP_UART_RTS_MUX 3
 
 //   </e>
 

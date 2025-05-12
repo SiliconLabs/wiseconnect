@@ -51,16 +51,16 @@
  *                    Constants
  ******************************************************/
 #define APP_MAJOR_VERSION   3
-#define APP_MINOR_VERSION   4
+#define APP_MINOR_VERSION   5
 #define APP_PATCH_VERSION   0
 #define FW_CHIP_ID          23
 #define FW_ROM_ID           17
 #define FW_MAJOR            2
 #define FW_MINOR            14
-#define FW_SECURITY_VERSION 4
+#define FW_SECURITY_VERSION 5
 #define FW_PATCH_NUM        0
 #define FW_CUSTOMER_ID      0
-#define FW_BUILD_NUM        1
+#define FW_BUILD_NUM        6
 
 /******************************************************
  *                   Enumerations

@@ -1769,7 +1769,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  *                     127  	    BLE HP Mode, Max power supported. \n
  *              #define RSI_BLE_PWR_INX_DBM  1  indicate tx_power in dBm \n
  *              tx_power in dBm (-8 dBm to 18 dBm) \n
- * @note: When switching between HP mode and LP mode user need to ensure there should not be any protocol activity running.  
+ * @note: This API currently supports controlling the tx power in the configured chain during wireless initialization. However, changing the chain from LP to HP or vice versa is not supported.  
  * @return      0 - Success \n
  *              Non-Zero Value - Failure \n
  *              0x4E02 	Unknown Connection Identifier \n 

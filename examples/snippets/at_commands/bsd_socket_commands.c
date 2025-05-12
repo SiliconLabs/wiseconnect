@@ -198,9 +198,9 @@ sl_status_t bsd_socket_receive_from_handler(console_args_t *arguments)
 
   PRINT_AT_CMD_SUCCESS;
   memcpy(&ip.value, &address.sin_addr.s_addr, SL_IPV4_ADDRESS_LENGTH);
-  printf("%u.%u.%u.%u:%u", ip.bytes[0], ip.bytes[1], ip.bytes[2], ip.bytes[3], address.sin_port);
+  SL_DEBUG_LOG("%u.%u.%u.%u:%u", ip.bytes[0], ip.bytes[1], ip.bytes[2], ip.bytes[3], address.sin_port);
 
-  printf("Received:%s", buffer);
+  SL_DEBUG_LOG("Received:%s", buffer);
   return SL_STATUS_OK;
 }
 
@@ -235,7 +235,7 @@ sl_status_t bsd_socket_send_handler(console_args_t *arguments)
   VERIFY_BSD_STATUS(status);
 
   PRINT_AT_CMD_SUCCESS;
-  printf("%lu bytes sent", status);
+  SL_DEBUG_LOG("%lu bytes sent", status);
 
   return SL_STATUS_OK;
 }
@@ -273,7 +273,7 @@ sl_status_t bsd_socket_send_to_handler(console_args_t *arguments)
   VERIFY_BSD_STATUS(status);
 
   PRINT_AT_CMD_SUCCESS;
-  printf("%lu bytes sent", status);
+  SL_DEBUG_LOG("%lu bytes sent", status);
 
   return SL_STATUS_OK;
 }
@@ -474,7 +474,7 @@ sl_status_t bsd_socket_setsockopt_handler(console_args_t *arguments)
     socket_status = setsockopt(socket, option_level, option_name, &option_val, sizeof(option_val));
   }
   if (socket_status < 0) {
-    printf("Set socket option failed with bsd error: %d\n", errno);
+    SL_DEBUG_LOG("Set socket option failed with bsd error: %d\n", errno);
     return SL_STATUS_FAIL;
   } else {
     PRINT_AT_CMD_SUCCESS;
@@ -520,7 +520,7 @@ sl_status_t si91x_set_custom_sync_sockopt(console_args_t *arguments)
 
 static inline void print_errno(void)
 {
-  printf("errno %d", errno);
+  SL_DEBUG_LOG("errno %d", errno);
 }
 
 /* Function to get no of set bits in binary

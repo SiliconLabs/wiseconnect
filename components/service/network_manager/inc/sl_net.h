@@ -80,6 +80,9 @@
  *  In this case, \p network_context should refer to a valid @ref sl_net_wifi_lwip_context_t variable.
  * @note
  *  In SoC mode, wireless initialization must be completed before using the NVM3 APIs in the common flash, as flash write and erase operations require communication between the NWP & M4.
+ * @note
+ * It is recommended not to access the interfaces once the @ref sl_net_deinit is performed to avoid unintented behavior.
+ * It is recommended to avoid using other sl_net_interface_t during sl_net_init.
  ******************************************************************************/
 sl_status_t sl_net_init(sl_net_interface_t interface,
                         const void *configuration,
@@ -88,25 +91,27 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   De-initialize a network interface.
+ *   De-initializes network interfaces.
  * 
- * This function de-initializes the specified network interface, releasing any resources that were allocated during initialization.
+ * This function de-initializes any network interfaces that were created, and releases any resources that were allocated during initialization.
  * 
  *  After this, the user will not receive callbacks related to events.
  * 
- *  For the `SL_NET_WIFI_CLIENT_INTERFACE` and `SL_NET_WIFI_AP_INTERFACE` interface, this function ensures proper shutdown of the Wi-Fi driver, soft resets the NWP, and releases resources.
  * 
  * @pre Pre-conditions:
  * - @ref sl_net_init should be called before this API.
  * 
  * @param[in] interface
- *   Interface identified by @ref sl_net_interface_t.
+ *   This function de-initializes both Access Point and Station interfaces, regardless of the specified interface.
+ *   The interface is identified by @ref sl_net_interface_t.
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *
  * @note
  * This function should not be called after an M4 OTA firmware upgrade, as it only resets the TA while the M4 application continues to run, which could cause unexpected issues. Instead, use [sl_si91x_soc_nvic_reset()](../wiseconnect-api-reference-guide-common/soft-reset-functions#sl-si91x-soc-nvic-reset) to perform a complete reset of both the TA and M4.
+ * @note
+ * It is recommended not to access the interfaces once the sl_net_deinit is performed to avoid unintended behavior.
  ******************************************************************************/
 sl_status_t sl_net_deinit(sl_net_interface_t interface);
 
@@ -140,6 +145,8 @@ sl_status_t sl_net_deinit(sl_net_interface_t interface);
  * To enable support for both IPv4 and IPv6, the ip.type in the profile should be set to (SL_IPV4|SL_IPV6).
  * @note
  * The user can define their profile and credential configurations for an interface by calling @ref sl_net_set_profile and @ref sl_net_set_credential APIs before calling @ref sl_net_up API.
+ * @note
+ * The user is advised to reset the NWP with @ref sl_net_deinit() if this API fails with error SL_STATUS_TIMEOUT.
  * ******************************************************************************/
 sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 

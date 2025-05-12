@@ -18,6 +18,10 @@
 #ifndef __SL_SI91X_LED_H__
 #define __SL_SI91X_LED_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "sl_si91x_led_instances.h"
@@ -179,5 +183,9 @@ void sl_si91x_led_StackIndicateActivity(bool turnOn);
 *
 */
 /** @} end group LED */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SL_SI91X_LED_H__

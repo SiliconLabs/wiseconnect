@@ -1,4 +1,4 @@
-# Wi-Fi - NWP-M4 Firmware Update via TCP
+# Wi-Fi - NWP-M4 Firmware Update via TCP (A/B Fallback)
 
 ## Table of Contents
 
@@ -22,6 +22,8 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 
 This process allows the device to update its software over the air (OTA) without needing a physical connection.
 
+## Note
+A/B firmware update functionality requires a special MBR and Patch to be preloaded on the device. Ensure these components are correctly loaded before running this example.
 
 ## Prerequisites/Setup Requirements
 

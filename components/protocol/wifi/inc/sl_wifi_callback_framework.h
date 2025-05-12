@@ -31,10 +31,12 @@
 
 #include "sl_wifi_device.h" // To access the device specific structs
 #include <stdint.h>
+#ifndef __ZEPHYR__
 #include "sli_cmsis_os2_ext_task_register.h"
 
 /// External variable representing the index of the thread local array at which the firmware status will be stored.
 extern sli_task_register_id_t sli_fw_status_storage_index;
+#endif
 
 /** \addtogroup WIFI_CALLBACK_FRAMEWORK Callback Framework
   * \ingroup SL_WIFI
@@ -519,6 +521,7 @@ static inline sl_status_t sl_wifi_set_transceiver_callback(sl_wifi_transceiver_c
   return sl_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
 }
 
+#ifndef __ZEPHYR__
 /***************************************************************************/ /**
  * @brief 
  *   Retrieves the saved thread-specific firmware status value.
@@ -536,4 +539,5 @@ static inline sl_status_t sl_wifi_get_saved_firmware_status(void)
   sli_osTaskRegisterGetValue(NULL, sli_fw_status_storage_index, &status);
   return status;
 }
+#endif
 /** @} */
