@@ -207,7 +207,7 @@ sl_status_t sl_si91x_puf_set_key_req(uint8_t key_index, uint8_t key_size, const 
   sl_status_t status                      = SL_STATUS_OK;
   sli_si91x_req_puf_set_key_t puf_set_key = { 0 };
   sl_wifi_buffer_t *buffer                = NULL;
-  sl_wifi_packet_t *packet                = NULL;
+  sl_wifi_system_packet_t *packet         = NULL;
 
   // Assign key_index
   puf_set_key.key_index = key_index;
@@ -281,7 +281,7 @@ sl_status_t sl_si91x_puf_get_key_req(const uint8_t *key_code_ptr, uint8_t *key_p
   sl_status_t status                      = SL_STATUS_OK;
   sli_si91x_req_puf_get_key_t puf_get_key = { 0 };
   sl_wifi_buffer_t *buffer                = NULL;
-  sl_wifi_packet_t *packet                = NULL;
+  sl_wifi_system_packet_t *packet         = NULL;
 
   // Copy data to be sent
   memcpy(&puf_get_key.key_code[0], key_code_ptr, SLI_SI91X_PUF_KEY_CODE_SIZE_BYTES);
@@ -382,7 +382,7 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
   sl_status_t status                        = SL_STATUS_OK;
   sli_si91x_req_puf_intr_key_t puf_intr_key = { 0 };
   sl_wifi_buffer_t *buffer                  = NULL;
-  sl_wifi_packet_t *packet                  = NULL;
+  sl_wifi_system_packet_t *packet           = NULL;
 
   // Assign key_index
   puf_intr_key.key_index = key_index;
@@ -493,7 +493,7 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
 
   sli_si91x_req_aes_encrypt_t aes_encry = { 0 };
   sl_wifi_buffer_t *buffer              = NULL;
-  sl_wifi_packet_t *packet              = NULL;
+  sl_wifi_system_packet_t *packet       = NULL;
 
   if (mode == SL_SI91X_AES_CBC_MODE) {
     // Copy IV
@@ -558,7 +558,7 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
 
   sli_si91x_req_aes_decrypt_t aes_decry = { 0 };
   sl_wifi_buffer_t *buffer              = NULL;
-  sl_wifi_packet_t *packet              = NULL;
+  sl_wifi_system_packet_t *packet       = NULL;
 
   if (mode == SL_SI91X_AES_CBC_MODE) {
     // Copy IV
@@ -616,7 +616,7 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
 
   sli_si91x_req_aes_mac_t aes_mac = { 0 };
   sl_wifi_buffer_t *buffer        = NULL;
-  sl_wifi_packet_t *packet        = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
 
   //Fill AES Encry Mode
   aes_mac.mode = ((key_size << 1) | (key_source << 2) | (iv_size << 3));

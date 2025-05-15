@@ -47,4 +47,4 @@ typedef struct {
  */
 sl_status_t sli_si91x_socket_event_handler(sl_status_t status,
                                            sli_si91x_socket_context_t *sdk_context,
-                                           sl_wifi_packet_t *rx_packet);
+                                           sl_wifi_system_packet_t *rx_packet);

@@ -191,6 +191,8 @@ The iPerf command to start the TCP client is:
 >
 > `C:\> iperf.exe -c 2001:db8:0:1::121 -V -p 5001 -i 1 -t 30`
 
+> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
+
 ### TLS Tx Throughput
 
 To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a TLS server on the remote PC as described below:

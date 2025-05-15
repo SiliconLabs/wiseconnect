@@ -161,7 +161,7 @@ typedef sl_wifi_module_state_stats_response_t sl_si91x_module_state_stats_respon
 /**
  * @typedef sl_si91x_fw_version_info_t
  */
-typedef sl_wifi_fw_version_info_t sl_si91x_fw_version_info_t; ///< Fireware version information
+typedef sl_wifi_system_fw_version_info_t sl_si91x_fw_version_info_t; ///< Fireware version information
 
 /**
  * @typedef sl_si91x_fw_version_ext_info_t
@@ -182,7 +182,7 @@ typedef sl_wifi_firmware_header_t sl_si91x_firmware_header_t; ///< Firmware head
 #endif
 
 /// driver TX/RX packet structure
-typedef sl_wifi_packet_t sl_si91x_packet_t;
+typedef sl_wifi_system_packet_t sl_si91x_packet_t;
 
 /// Si91x queue packet structure
 typedef struct {
@@ -205,7 +205,7 @@ typedef struct {
 
 /// NWP Buffer allocation command parameters
 /// The summation of all three ratios should max 10 and the ratio should be in decimal value.
-typedef sl_wifi_dynamic_pool_t sl_si91x_dynamic_pool;
+typedef sl_wifi_system_dynamic_pool_t sl_si91x_dynamic_pool;
 
 /// Structure to represent a command queue
 typedef struct {

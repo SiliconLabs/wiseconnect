@@ -113,17 +113,4 @@ typedef struct {
  */
 typedef sl_net_ping_response_t sl_si91x_ping_response_t;
 
-/**
- * @brief Network Manager Message structure.
- * 
- * @details
- * This structure is used for communication between with the network manager thread.
- * It encapsulates details about the network interface, event flags.
- * 
- */
-typedef struct {
-  sl_net_interface_t interface; ///< Identifier for the network interface
-  uint32_t event_flags;         ///< Event flags for the network manager
-} sl_network_manager_message_t;
-
 /** @} */

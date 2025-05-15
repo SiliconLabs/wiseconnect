@@ -58,6 +58,10 @@
 #define SER_DISABLED            0x00 // Disabled all slave.
 #define MODE_FAULT_STATUS_SET   1U   // The status of mode fault setting.
 #define MODE_FAULT_STATUS_CLR   0U   // The status of mode fault clearing.
+#define SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN \
+  46 // Minimum pin number for specific range of HP pins to act as ULP pins
+#define SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
+  49 // Maximum pin number for specific range of HP pins to act as ULP pins
 /*When use the ULP Master instance with DMA enabled, it is advisable ulp memory used for low power modes */
 #define ULP_SSI_DUMMY_DATA \
   (ULP_SRAM_START_ADDR + (1 * 800)) // Dummy data to be written in receive only mode by master while in PS2 state
@@ -67,8 +71,17 @@
 #endif
 static uint8_t data_width_in_bytes = 0; // variable to store data width in bytes for current transfer
 static uint8_t ssi_slave_number    = 0; // variable to store current slave number
+#if !(defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
 #ifndef SI917_MEMLCD
-static uint8_t cs_gpio_mode_pin = 0; // ULP_SSI primary CS pin number store in this variable.
+static uint8_t cs0_gpio_mode_pin = 0; // ULP_SSI primary CS0 pin number store in this variable.
+static uint8_t cs1_gpio_mode_pin = 0; // ULP_SSI primary CS1 pin number store in this variable.
+static uint8_t cs2_gpio_mode_pin = 0; // ULP_SSI primary CS2 pin number store in this variable.
+static uint8_t cs0_gpio_port     = 0; // ULP_SSI primary CS0 port number store in this variable.
+static uint8_t cs1_gpio_port     = 0; // ULP_SSI primary CS1 port number store in this variable.
+static uint8_t cs2_gpio_port     = 0; // ULP_SSI primary CS2 port number store in this variable.
+static sl_status_t SPI_Configure_CS_Pin(const SPI_PIN *cs_pin, uint8_t *cs_gpio_mode_pin, uint8_t *cs_gpio_port);
+static sl_status_t SPI_Set_CS_Pin_State(uint8_t cs_gpio_mode_pin, uint8_t cs_gpio_port, uint8_t state);
+#endif
 #endif
 static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
 static sl_status_t SPI_Set_Mode_Fault_Event(const SPI_RESOURCES *spi);
@@ -78,8 +91,8 @@ static sl_status_t SPI_Set_Mode_Fault_Event(const SPI_RESOURCES *spi);
 #include "rsi_spi.h"
 
 /** @addtogroup SOC15
-* @{
-*/
+ * @{
+ */
 /**
  * @fn           int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event, const SPI_RESOURCES *spi, UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, RSI_UDMA_HANDLE_T *udmaHandle, uint32_t *mem)
  * @brief        Initialize SPI Interface.
@@ -215,69 +228,152 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
       RSI_EGPIO_HostPadsGpioModeEnable(spi->io.miso->pin);
   } else if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
     //clock
-    RSI_EGPIO_UlpPadReceiverEnable(spi->io.sck->pin);
-    RSI_EGPIO_SetPinMux(EGPIO1, spi->io.sck->port, spi->io.sck->pin, spi->io.sck->mode);
+    //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+    if (spi->io.sck->pin >= GPIO_MAX_PIN) {
+      RSI_EGPIO_UlpPadReceiverEnable(spi->io.sck->pin - GPIO_MAX_PIN);
+      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.sck->port, (spi->io.sck->pin - GPIO_MAX_PIN), spi->io.sck->mode);
+    } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+      RSI_EGPIO_SetPinMux(EGPIO, spi->io.sck->port, spi->io.sck->pin, EGPIO_PIN_MUX_MODE9);
+      if (spi->io.sck->pad_sel != 0) {
+        RSI_EGPIO_PadSelectionEnable(spi->io.sck->pad_sel);
+      }
+      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.sck->port, spi->io.sck->pin, 0);
+      if (spi->io.sck->pin >= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+          && spi->io.sck->pin <= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+        RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.sck->pin - 38), spi->io.sck->mode);
+      } else {
+        RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.sck->pin - 6), spi->io.sck->mode);
+      }
+    }
 
 #if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
     //CS Selection
     if (spi->io.cs0 != NULL) {
-      RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs0->pin);
-      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs0->port, spi->io.cs0->pin, spi->io.cs0->mode);
+      //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+      if (spi->io.cs0->pin > GPIO_MAX_PIN) {
+        RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs0->pin - GPIO_MAX_PIN);
+        RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs0->port, (spi->io.cs0->pin - GPIO_MAX_PIN), spi->io.cs0->mode);
+      } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+        RSI_EGPIO_SetPinMux(EGPIO, spi->io.cs0->port, spi->io.cs0->pin, EGPIO_PIN_MUX_MODE9);
+        if (spi->io.cs0->pad_sel != 0) {
+          RSI_EGPIO_PadSelectionEnable(spi->io.cs0->pad_sel);
+        }
+        RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs0->port, spi->io.cs0->pin, 0);
+        if (spi->io.cs0->pin >= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+            && spi->io.cs0->pin <= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+          RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.cs0->pin - 38), spi->io.cs0->mode);
+        } else {
+          RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.cs0->pin - 6), spi->io.cs0->mode);
+        }
+      }
     }
     if (spi->io.cs1 != NULL) {
-      RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs1->pin);
-      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs1->port, spi->io.cs1->pin, spi->io.cs1->mode);
+      //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+      if (spi->io.cs1->pin > GPIO_MAX_PIN) {
+        RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs1->pin - GPIO_MAX_PIN);
+        RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs1->port, (spi->io.cs1->pin - GPIO_MAX_PIN), spi->io.cs1->mode);
+      } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+        RSI_EGPIO_SetPinMux(EGPIO, spi->io.cs1->port, spi->io.cs1->pin, EGPIO_PIN_MUX_MODE9);
+        if (spi->io.cs1->pad_sel != 0) {
+          RSI_EGPIO_PadSelectionEnable(spi->io.cs1->pad_sel);
+        }
+        RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs1->port, spi->io.cs1->pin, 0);
+        if (spi->io.cs1->pin >= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+            && spi->io.cs1->pin <= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+          RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.cs1->pin - 38), spi->io.cs1->mode);
+        } else {
+          RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.cs1->pin - 6), spi->io.cs1->mode);
+        }
+      }
     }
     if (spi->io.cs2 != NULL) {
-      RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs2->pin);
-      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs2->port, spi->io.cs2->pin, spi->io.cs2->mode);
-    }
-    if (spi->io.cs3 != NULL) {
-      RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs3->pin);
-      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs3->port, spi->io.cs3->pin, spi->io.cs3->mode);
+      //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+      if (spi->io.cs2->pin > GPIO_MAX_PIN) {
+        RSI_EGPIO_UlpPadReceiverEnable(spi->io.cs2->pin - GPIO_MAX_PIN);
+        RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs2->port, (spi->io.cs2->pin - GPIO_MAX_PIN), spi->io.cs2->mode);
+      } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+        RSI_EGPIO_SetPinMux(EGPIO, spi->io.cs2->port, spi->io.cs2->pin, EGPIO_PIN_MUX_MODE9);
+        if (spi->io.cs2->pad_sel != 0) {
+          RSI_EGPIO_PadSelectionEnable(spi->io.cs2->pad_sel);
+        }
+        RSI_EGPIO_SetPinMux(EGPIO1, spi->io.cs2->port, spi->io.cs2->pin, 0);
+        if (spi->io.cs2->pin >= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+            && spi->io.cs2->pin <= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+          RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.cs2->pin - 38), spi->io.cs2->mode);
+        } else {
+          RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.cs2->pin - 6), spi->io.cs2->mode);
+        }
+      }
     }
 #else // For ULP_SSI primary non DMA case, configure CS as normal gpio pin to control manually.
 #ifndef SI917_MEMLCD
-    sl_si91x_gpio_pin_config_t sl_gpio_pin_config;
     sl_status_t status;
-    //Configured CS0 pin
-    if (spi->io.cs0 != NULL) {
-      sl_gpio_pin_config.port_pin.pin = spi->io.cs0->pin;
-    } //Configured CS1 pin
-    if (spi->io.cs1 != NULL) {
-      sl_gpio_pin_config.port_pin.pin = spi->io.cs1->pin;
-    } //Configured CS2 pin
-    if (spi->io.cs2 != NULL) {
-      sl_gpio_pin_config.port_pin.pin = spi->io.cs2->pin;
-    }
-    sl_gpio_pin_config.port_pin.port = SL_GPIO_ULP_PORT;
-    sl_gpio_pin_config.direction     = GPIO_OUTPUT;
     // Initialize the GPIOs by clearing all interrupts initially
     status = sl_gpio_driver_init();
     if (status != SL_STATUS_OK) {
       return ARM_DRIVER_ERROR;
     }
-    // Configure CS pin using GPIO driver pin configuration API.
-    // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
-    // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
-    status = sl_gpio_set_configuration(sl_gpio_pin_config);
-    if (status != SL_STATUS_OK) {
-      return ARM_DRIVER_ERROR;
+    if (spi->io.cs0 != NULL) {
+      //Configured CS0 pin
+      status = SPI_Configure_CS_Pin(spi->io.cs0, &cs0_gpio_mode_pin, &cs0_gpio_port);
+      if (status != SL_STATUS_OK) {
+        return ARM_DRIVER_ERROR;
+      }
     }
-    // Set CS line as high by default.
-    cs_gpio_mode_pin                                    = sl_gpio_pin_config.port_pin.pin;
-    ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = SET;
-    while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == SET))
-      ;
+    if (spi->io.cs1 != NULL) {
+      //Configured CS1 pin
+      status = SPI_Configure_CS_Pin(spi->io.cs1, &cs1_gpio_mode_pin, &cs1_gpio_port);
+      if (status != SL_STATUS_OK) {
+        return ARM_DRIVER_ERROR;
+      }
+    }
+    if (spi->io.cs2 != NULL) {
+      //Configured CS2 pin
+      status = SPI_Configure_CS_Pin(spi->io.cs2, &cs2_gpio_mode_pin, &cs2_gpio_port);
+      if (status != SL_STATUS_OK) {
+        return ARM_DRIVER_ERROR;
+      }
+    }
 #endif
 #endif
-    //mosi
-    RSI_EGPIO_UlpPadReceiverEnable(spi->io.mosi->pin);
-    RSI_EGPIO_SetPinMux(EGPIO1, spi->io.mosi->port, spi->io.mosi->pin, spi->io.mosi->mode);
+    //MOSI
+    //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+    if (spi->io.mosi->pin > GPIO_MAX_PIN) {
+      RSI_EGPIO_UlpPadReceiverEnable(spi->io.mosi->pin - GPIO_MAX_PIN);
+      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.mosi->port, (spi->io.mosi->pin - GPIO_MAX_PIN), spi->io.mosi->mode);
+    } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+      RSI_EGPIO_SetPinMux(EGPIO, spi->io.mosi->port, spi->io.mosi->pin, EGPIO_PIN_MUX_MODE9);
+      if (spi->io.mosi->pad_sel != 0) {
+        RSI_EGPIO_PadSelectionEnable(spi->io.mosi->pad_sel);
+      }
+      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.mosi->port, spi->io.mosi->pin, 0);
+      if (spi->io.mosi->pin >= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+          && spi->io.mosi->pin <= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+        RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.mosi->pin - 38), spi->io.mosi->mode);
+      } else {
+        RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.mosi->pin - 6), spi->io.mosi->mode);
+      }
+    }
 
-    //miso
-    RSI_EGPIO_UlpPadReceiverEnable(spi->io.miso->pin);
-    RSI_EGPIO_SetPinMux(EGPIO1, spi->io.miso->port, spi->io.miso->pin, spi->io.miso->mode);
+    //MISO
+    //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+    if (spi->io.miso->pin > GPIO_MAX_PIN) {
+      RSI_EGPIO_UlpPadReceiverEnable(spi->io.miso->pin - GPIO_MAX_PIN);
+      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.miso->port, (spi->io.miso->pin - GPIO_MAX_PIN), spi->io.miso->mode);
+    } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+      RSI_EGPIO_SetPinMux(EGPIO, spi->io.miso->port, spi->io.miso->pin, EGPIO_PIN_MUX_MODE9);
+      if (spi->io.miso->pad_sel != 0) {
+        RSI_EGPIO_PadSelectionEnable(spi->io.miso->pad_sel);
+      }
+      RSI_EGPIO_PadReceiverEnable(spi->io.miso->pin);
+      RSI_EGPIO_SetPinMux(EGPIO1, spi->io.miso->port, spi->io.miso->pin, 0);
+      if (spi->io.miso->pin >= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+          && spi->io.miso->pin <= SSI_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+        RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.miso->pin - 38), spi->io.miso->mode);
+      } else {
+        RSI_EGPIO_UlpSocGpioMode(ULPCLK, (spi->io.miso->pin - 6), spi->io.miso->mode);
+      }
+    }
   }
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
 // Enable DMA instance
@@ -650,19 +746,30 @@ int32_t SPI_Transfer(const void *data_out,
     // Interrupt mode
     /* spi->reg->IMR |= TXEIM | RXFIM; */
     /*enabled below bits
-      Transmit FIFO Empty Interrupt Mask
-      Transmit FIFO Overflow Interrupt Mask
-      Receive FIFO Underflow Interrupt Mask
-      Receive FIFO Overflow Interrupt Mask
-      Receive FIFO Full Interrupt Mask
-      */
+       Transmit FIFO Empty Interrupt Mask
+       Transmit FIFO Overflow Interrupt Mask
+       Receive FIFO Underflow Interrupt Mask
+       Receive FIFO Overflow Interrupt Mask
+       Receive FIFO Full Interrupt Mask
+       */
+#if !(defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
     // Down the CS pin for ULP primary to transfer the data.
 #ifndef SI917_MEMLCD
     if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
-      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = CLR;
-      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == CLR))
-        ;
+      // Set CS0 pin state
+      if (spi->io.cs0 != NULL) {
+        SPI_Set_CS_Pin_State(cs0_gpio_mode_pin, cs0_gpio_port, CLR);
+      }
+      // Set CS1 pin state
+      if (spi->io.cs1 != NULL) {
+        SPI_Set_CS_Pin_State(cs1_gpio_mode_pin, cs1_gpio_port, CLR);
+      }
+      // Set CS2 pin state
+      if (spi->io.cs2 != NULL) {
+        SPI_Set_CS_Pin_State(cs2_gpio_mode_pin, cs2_gpio_port, CLR);
+      }
     }
+#endif
 #endif
     spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
   }
@@ -1135,13 +1242,24 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
     // Appending the instance value in the callback event variable
     event |= (ssi_instance << SSI_INSTANCE_BIT);
     spi->info->cb_event(event);
+#if !(defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
 #ifndef SI917_MEMLCD
     // CS pin setting high after transferred all the bytes of data.
     if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
-      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = SET;
-      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == SET))
-        ;
+      // Set CS0 pin state to SET
+      if (spi->io.cs0 != NULL) {
+        SPI_Set_CS_Pin_State(cs0_gpio_mode_pin, cs0_gpio_port, SET);
+      }
+      // Set CS1 pin state to SET
+      if (spi->io.cs1 != NULL) {
+        SPI_Set_CS_Pin_State(cs1_gpio_mode_pin, cs1_gpio_port, SET);
+      }
+      // Set CS2 pin state to SET
+      if (spi->io.cs2 != NULL) {
+        SPI_Set_CS_Pin_State(cs2_gpio_mode_pin, cs2_gpio_port, SET);
+      }
     }
+#endif
 #endif
     if (spi->info->status.busy) {
       spi->info->status.busy = 0U;
@@ -1309,19 +1427,30 @@ int32_t SPI_Send(const void *data,
 
     /* spi->reg->IMR |= (TXEIM | RXFIM); */
     /*enabled below bits 
-    Transmit FIFO Empty Interrupt Mask
-    Transmit FIFO Overflow Interrupt Mask
-    Receive FIFO Underflow Interrupt Mask
-    Receive FIFO Overflow Interrupt Mask
-    Receive FIFO Full Interrupt Mask
-    */
+     Transmit FIFO Empty Interrupt Mask
+     Transmit FIFO Overflow Interrupt Mask
+     Receive FIFO Underflow Interrupt Mask
+     Receive FIFO Overflow Interrupt Mask
+     Receive FIFO Full Interrupt Mask
+     */
+#if !(defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
 #ifndef SI917_MEMLCD
     // Down the CS pin for ULP primary to send the data.
     if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
-      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = CLR;
-      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == CLR))
-        ;
+      // Set CS0 pin state
+      if (spi->io.cs0 != NULL) {
+        SPI_Set_CS_Pin_State(cs0_gpio_mode_pin, cs0_gpio_port, CLR);
+      }
+      // Set CS1 pin state
+      if (spi->io.cs1 != NULL) {
+        SPI_Set_CS_Pin_State(cs1_gpio_mode_pin, cs1_gpio_port, CLR);
+      }
+      // Set CS2 pin state
+      if (spi->io.cs2 != NULL) {
+        SPI_Set_CS_Pin_State(cs2_gpio_mode_pin, cs2_gpio_port, CLR);
+      }
     }
+#endif
 #endif
     spi->reg->IMR |= (TXEIM | TXOIM);
   }
@@ -1590,19 +1719,30 @@ int32_t SPI_Receive(void *data,
     // RX Buffer not empty interrupt enable
     /* spi->reg->IMR |= (TXEIM | RXFIM); */
     /*enabled below bits 
-    Transmit FIFO Empty Interrupt Mask
-    Transmit FIFO Overflow Interrupt Mask
-    Receive FIFO Underflow Interrupt Mask
-    Receive FIFO Overflow Interrupt Mask
-    Receive FIFO Full Interrupt Mask
-    */
+     Transmit FIFO Empty Interrupt Mask
+     Transmit FIFO Overflow Interrupt Mask
+     Receive FIFO Underflow Interrupt Mask
+     Receive FIFO Overflow Interrupt Mask
+     Receive FIFO Full Interrupt Mask
+     */
+#if !(defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
 #ifndef SI917_MEMLCD
     // Down the CS pin for ULP primary to receive the data.
     if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
-      ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = CLR;
-      while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == CLR))
-        ;
+      // Set CS0 pin state
+      if (spi->io.cs0 != NULL) {
+        SPI_Set_CS_Pin_State(cs0_gpio_mode_pin, cs0_gpio_port, CLR);
+      }
+      // Set CS1 pin state
+      if (spi->io.cs1 != NULL) {
+        SPI_Set_CS_Pin_State(cs1_gpio_mode_pin, cs1_gpio_port, CLR);
+      }
+      // Set CS2 pin state
+      if (spi->io.cs2 != NULL) {
+        SPI_Set_CS_Pin_State(cs2_gpio_mode_pin, cs2_gpio_port, CLR);
+      }
     }
+#endif
 #endif
     spi->reg->IMR |= (RXUIM | RXOIM | RXFIM);
     if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
@@ -1787,4 +1927,79 @@ static sl_status_t SPI_Set_Mode_Fault_Event(const SPI_RESOURCES *spi)
   }
   return status;
 }
+#if !(defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
+#ifndef SI917_MEMLCD
+/**
+ * @fn          static sl_status_t SPI_Configure_CS_Pin(const SPI_PIN *cs_pin, uint8_t *cs_gpio_mode_pin, uint8_t *cs_gpio_port)
+ * @brief       Configure the CS pin
+ * @param[in]   cs_pin            : Pointer to the CS pin configuration
+ * @param[in]   cs_gpio_mode_pin  : Pointer to the CS GPIO mode pin
+ * @param[in]   cs_gpio_port      : Pointer to the CS GPIO port
+ * @return      sl_status_t       : Status of the configuration
+ */
+static sl_status_t SPI_Configure_CS_Pin(const SPI_PIN *cs_pin, uint8_t *cs_gpio_mode_pin, uint8_t *cs_gpio_port)
+{
+  sl_si91x_gpio_pin_config_t sl_gpio_pin_config;
+  sl_status_t status;
+
+  if (cs_pin == NULL) {
+    return SL_STATUS_FAIL;
+  }
+
+  if (cs_pin->pin > 64) {
+    sl_gpio_pin_config.port_pin.pin  = (cs_pin->pin - 64);
+    sl_gpio_pin_config.port_pin.port = SL_GPIO_ULP_PORT;
+  } else {
+    sl_gpio_pin_config.port_pin.pin  = cs_pin->pin;
+    sl_gpio_pin_config.port_pin.port = SL_GPIO_PORT_A;
+  }
+
+  sl_gpio_pin_config.direction = GPIO_OUTPUT;
+
+  // Configure CS pin using GPIO driver pin configuration API
+  status = sl_gpio_set_configuration(sl_gpio_pin_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Set CS line as high by default
+  *cs_gpio_mode_pin = sl_gpio_pin_config.port_pin.pin;
+  *cs_gpio_port     = sl_gpio_pin_config.port_pin.port;
+
+  if (*cs_gpio_port == SL_GPIO_ULP_PORT) {
+    ULP_GPIO->PIN_CONFIG[*cs_gpio_mode_pin].BIT_LOAD_REG = SET;
+    while (!(ULP_GPIO->PIN_CONFIG[*cs_gpio_mode_pin].BIT_LOAD_REG == SET))
+      ;
+  } else {
+    GPIO->PIN_CONFIG[*cs_gpio_mode_pin].BIT_LOAD_REG = SET;
+    while (!(GPIO->PIN_CONFIG[*cs_gpio_mode_pin].BIT_LOAD_REG == SET))
+      ;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/**
+ * @fn          static sl_status_t SPI_Set_CS_Pin_State(uint8_t cs_gpio_mode_pin, uint8_t cs_gpio_port, uint8_t state)
+ * @brief       Set the state of the CS pin
+ * @param[in]   cs_gpio_mode_pin  : CS GPIO mode pin
+ * @param[in]   cs_gpio_port      : CS GPIO port
+ * @param[in]   state             : State to set
+ * @return      sl_status_t       : Status of the operation
+ */
+static sl_status_t SPI_Set_CS_Pin_State(uint8_t cs_gpio_mode_pin, uint8_t cs_gpio_port, uint8_t state)
+{
+  if (cs_gpio_port == SL_GPIO_ULP_PORT) {
+    ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = state;
+    while (!(ULP_GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == state))
+      ;
+  } else {
+    GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG = state;
+    while (!(GPIO->PIN_CONFIG[cs_gpio_mode_pin].BIT_LOAD_REG == state))
+      ;
+  }
+  return SL_STATUS_OK;
+}
+#endif
+#endif
 /** @} */

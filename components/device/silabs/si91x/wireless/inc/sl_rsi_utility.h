@@ -90,7 +90,7 @@ typedef union {
 
 typedef uint32_t sl_si91x_host_timestamp_t;
 
-void sli_handle_wifi_beacon(sl_wifi_packet_t *packet);
+void sli_handle_wifi_beacon(sl_wifi_system_packet_t *packet);
 sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
                                              sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters);
 void sli_wifi_flush_scan_results_database(void);
@@ -383,7 +383,9 @@ sl_status_t sli_si91x_bus_write_register(uint8_t address, uint8_t register_size,
 sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer);
 
 /* Function used to write frames */
-sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param);
+sl_status_t sli_si91x_bus_write_frame(sl_wifi_system_packet_t *packet,
+                                      const uint8_t *payloadparam,
+                                      uint16_t size_param);
 
 /* Function used to check the bus availability */
 sl_status_t sl_si91x_bus_init();

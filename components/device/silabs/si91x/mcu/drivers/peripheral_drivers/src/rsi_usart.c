@@ -54,6 +54,10 @@ sl_dma_init_t dma_init;
 #define USART_CONFIGURE_RTS_GPIO_PIN   (uint8_t)5
 #define USART_CONFIGURE_IR_TX_GPIO_PIN (uint8_t)6
 #define USART_CONFIGURE_IR_RX_GPIO_PIN (uint8_t)7
+#define UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN \
+  46 // Minimum pin number for specific range of HP pins to act as ULP pins
+#define UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
+  49 // Maximum pin number for specific range of HP pins to act as ULP pins
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -66,7 +70,7 @@ sl_dma_init_t dma_init;
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
-
+static void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t usart_pin_flag);
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
@@ -156,14 +160,26 @@ void UartIrqHandler(USART_RESOURCES *usart)
     }
   }
   if (((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) && (usart->info->cb_event)) {
-    //check if receiver contains atleast one char in RBR reg
+//check if receiver contains atleast one char in RBR reg
+#ifndef SLI_SI91X_MCU_RS485_DATA_BIT_9
     if (usart->pREGS->LSR_b.DR) {
-#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
-      usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint16_t)usart->pREGS->RBR;
-#else
-      usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
 #endif
-      usart->info->xfer.rx_cnt++;
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+      static bool is_address_frame = true;
+      if (is_address_frame) {
+        // First frame is an address frame (2 bytes)
+        usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint16_t)usart->pREGS->RBR;
+        usart->info->xfer.rx_cnt++; // Increment for address frame
+        is_address_frame = false;   // Switch to data frame for subsequent bytes
+      } else {
+        // Subsequent frames are data frames (1 byte)
+        usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
+        usart->info->xfer.rx_cnt++; // Increment by 1 for data frame
+      }
+#else
+    usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
+    usart->info->xfer.rx_cnt++;
+#endif
 
       // Check if requested amount of data is received
       if (usart->info->xfer.rx_cnt == usart->info->xfer.rx_num) {
@@ -193,7 +209,9 @@ void UartIrqHandler(USART_RESOURCES *usart)
         }
         usart->info->cb_event(event);
       }
+#ifndef SLI_SI91X_MCU_RS485_DATA_BIT_9
     }
+#endif
     //Check if requested amount of data is not received
     if ((usart->info->cb_event != NULL) && (usart->info->xfer.rx_cnt != usart->info->xfer.rx_num)) {
       // Update the event with rx tiemout
@@ -1132,11 +1150,54 @@ STATIC INLINE void configure_usart_gpio_pin(const USART_RESOURCES *usart, uint8_
     RSI_EGPIO_PadReceiverEnable(usart_gpio_pin->pin);
     RSI_EGPIO_SetPinMux(EGPIO, usart_gpio_pin->port, usart_gpio_pin->pin, usart_gpio_pin->mode);
   } else if (usart->pREGS == ULP_UART) {
+    configure_ulp_uart_gpio_pin(usart_gpio_pin, usart_pin_flag);
+  }
+}
+
+/*===================================================*/
+/**
+ * @fn          void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t usart_pin_flag)
+ * @brief       to configure ulp_uart pins basis of usart_pin_flag, which is passing CLOCK, RX, TX, CTS, 
+ *              RTS, IR_RX, IR_TX pin details.
+ * @return      none
+ */
+static void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t usart_pin_flag)
+{
+  if (usart_gpio_pin == NULL) {
+    return;
+  }
+
+  // Validate usart_pin_flag
+  if ((usart_pin_flag < USART_CONFIGURE_CLOCK_GPIO_PIN) || (usart_pin_flag > USART_CONFIGURE_IR_RX_GPIO_PIN)) {
+    // Invalid usart_pin_flag, return without configuring
+    return;
+  }
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (usart_gpio_pin->pin >= GPIO_MAX_PIN) {
+    if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+      RSI_EGPIO_UlpPadDriverDisableState((uint8_t)(usart_gpio_pin->pin - GPIO_MAX_PIN), ulp_Pullup);
+    }
+    RSI_EGPIO_UlpPadReceiverEnable(usart_gpio_pin->pin - GPIO_MAX_PIN);
+    RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, (usart_gpio_pin->pin - GPIO_MAX_PIN), usart_gpio_pin->mode);
+  } else {
+    // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, usart_gpio_pin->port, usart_gpio_pin->pin, EGPIO_PIN_MUX_MODE9);
+    if (usart_gpio_pin->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(usart_gpio_pin->pad_sel);
+    }
     if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
       RSI_EGPIO_UlpPadDriverDisableState(usart_gpio_pin->pin, ulp_Pullup);
     }
-    RSI_EGPIO_UlpPadReceiverEnable(usart_gpio_pin->pin);
-    RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, usart_gpio_pin->pin, usart_gpio_pin->mode);
+    RSI_EGPIO_PadReceiverEnable(usart_gpio_pin->pin);
+    RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, usart_gpio_pin->pin, 0);
+    if (usart_gpio_pin->pin >= UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && usart_gpio_pin->pin <= UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (usart_gpio_pin->pin - 38), usart_gpio_pin->mode);
+    } else if (usart_gpio_pin->pin == 15) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (usart_gpio_pin->pin - 8), usart_gpio_pin->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (usart_gpio_pin->pin - 6), usart_gpio_pin->mode);
+    }
   }
 }
 

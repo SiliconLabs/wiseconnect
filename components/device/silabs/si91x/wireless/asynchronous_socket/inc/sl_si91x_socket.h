@@ -118,23 +118,23 @@ int sl_si91x_socket_async(int family, int type, int protocol, sl_si91x_socket_re
  *
  * @param[in] option_value 
  *   The value of the parameter.
- *   | option_name                                       | option_value                         |  description                                                                                                               |
- *   |---------------------------------------------------|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
- *   | @ref SL_SI91X_SO_RCVTIME                          | sl_si91x_time_value                  | Socket Receive timeout. sl_si91x_time_value structure is used to represent time in two parts: seconds and microseconds.    |
- *   | @ref SL_SI91X_SO_MAXRETRY                         | uint16_t                             | Maximum number of TCP retries                                                                                              |
- *   | @ref SL_SI91X_SO_MSS                              | uint16_t                             | Maximum Segment Size (MSS) for the TCP connection                                                                          |
- *   | @ref SL_SI91X_SO_TCP_KEEPALIVE                    | uint16_t                             | Set TCP keepalive in seconds                                                                                               |
- *   | @ref SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET          | BIT(7)                               | Set high performance socket                                                                                                |
- *   | @ref SL_SI91X_SO_SSL_ENABLE                       | SL_SI91X_ENABLE_TLS                  | Enable TLS/SSL                                                                                                             |
- *   | @ref SL_SI91X_SO_SSL_V_1_0_ENABLE                 | SL_SI91X_TLS_V_1_0                   | Enable TLS v1.0                                                                                                            |
- *   | @ref SL_SI91X_SO_SSL_V_1_1_ENABLE                 | SL_SI91X_TLS_V_1_1                   | Enable TLS v1.1                                                                                                            |
- *   | @ref SL_SI91X_SO_SSL_V_1_2_ENABLE                 | SL_SI91X_TLS_V_1_2                   | Enable TLS v1.2                                                                                                            |
- *   | @ref SL_SI91X_SO_SSL_V_1_3_ENABLE                 | SL_SI91X_TLS_V_1_3                   | Enable TLS v1.3                                                                                                            |
- *   | @ref SL_SI91X_SO_SOCK_VAP_ID                      | uint8_t                              | Specifies the interface on which the socket will operate                                                                   |
- *   | @ref SL_SI91X_SO_CERT_INDEX                       | uint8_t                              | Certificate index                                                                                                          |
- *   | @ref SL_SI91X_SO_TLS_SNI                          | sl_si91x_socket_type_length_value_t  | Server Name Indication (SNI)                                                                                               |
- *   | @ref SL_SI91X_SO_TLS_ALPN                         | sl_si91x_socket_type_length_value_t  | Application-Layer Protocol Negotiation (ALPN)                                                                              |
- *   | @ref SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE | uint8_t                              | Maximum retransmission timeout value for TCP                                                                               |
+ *   | option_name                                       | option_value                              |  description                                                                                                               |
+ *   |---------------------------------------------------|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+ *   | @ref SL_SI91X_SO_RCVTIME                          | sl_si91x_time_value                       | Socket Receive timeout. sl_si91x_time_value structure is used to represent time in two parts: seconds and microseconds.    |
+ *   | @ref SL_SI91X_SO_MAXRETRY                         | uint16_t                                  | Maximum number of TCP retries                                                                                              |
+ *   | @ref SL_SI91X_SO_MSS                              | uint16_t                                  | Maximum Segment Size (MSS) for the TCP connection                                                                          |
+ *   | @ref SL_SI91X_SO_TCP_KEEPALIVE                    | uint16_t                                  | Set TCP keepalive in seconds                                                                                               |
+ *   | @ref SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET          | BIT(7)                                    | Set high performance socket                                                                                                |
+ *   | @ref SL_SI91X_SO_SSL_ENABLE                       | SL_SI91X_ENABLE_TLS                       | Enable TLS/SSL                                                                                                             |
+ *   | @ref SL_SI91X_SO_SSL_V_1_0_ENABLE                 | SL_SI91X_ENABLE_TLS \| SL_SI91X_TLS_V_1_0 | Enable TLS v1.0                                                                                                            |
+ *   | @ref SL_SI91X_SO_SSL_V_1_1_ENABLE                 | SL_SI91X_ENABLE_TLS \| SL_SI91X_TLS_V_1_1 | Enable TLS v1.1                                                                                                            |
+ *   | @ref SL_SI91X_SO_SSL_V_1_2_ENABLE                 | SL_SI91X_ENABLE_TLS \| SL_SI91X_TLS_V_1_2 | Enable TLS v1.2                                                                                                            |
+ *   | @ref SL_SI91X_SO_SSL_V_1_3_ENABLE                 | SL_SI91X_ENABLE_TLS \| SL_SI91X_TLS_V_1_3 | Enable TLS v1.3                                                                                                            |
+ *   | @ref SL_SI91X_SO_SOCK_VAP_ID                      | uint8_t                                   | Specifies the interface on which the socket will operate                                                                   |
+ *   | @ref SL_SI91X_SO_CERT_INDEX                       | uint8_t                                   | Certificate index                                                                                                          |
+ *   | @ref SL_SI91X_SO_TLS_SNI                          | sl_si91x_socket_type_length_value_t       | Server Name Indication (SNI)                                                                                               |
+ *   | @ref SL_SI91X_SO_TLS_ALPN                         | sl_si91x_socket_type_length_value_t       | Application-Layer Protocol Negotiation (ALPN)                                                                              |
+ *   | @ref SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE | uint8_t                                   | Maximum retransmission timeout value for TCP                                                                               |
  *
  * @param[in] option_len 
  *   The length of the parameter of type @ref socklen_t.

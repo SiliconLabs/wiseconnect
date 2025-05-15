@@ -3122,7 +3122,7 @@ void ble_iop_test_app(void *argument)
           smp_capabilities.ini_key_distribution = 0;
 
           smp_capabilities.rsp_key_distribution = 0;
-          smp_capabilities.auth_req             = 0;
+          smp_capabilities.auth_req             = AUTH_REQ_SC_BIT;
           status                                = rsi_ble_set_smp_pairing_cap_data(&smp_capabilities);
           if (status != RSI_SUCCESS) {
             LOG_PRINT("\n rsi_ble_set_smp_pairing_cap_data = %lx", status);
@@ -3137,7 +3137,7 @@ void ble_iop_test_app(void *argument)
           smp_capabilities.ini_key_distribution = 0;
 
           smp_capabilities.rsp_key_distribution = 0;
-          smp_capabilities.auth_req             = 0;
+          smp_capabilities.auth_req             = AUTH_REQ_MITM_BIT | AUTH_REQ_SC_BIT;
           status                                = rsi_ble_set_smp_pairing_cap_data(&smp_capabilities);
           if (status != RSI_SUCCESS) {
             LOG_PRINT("\n rsi_ble_set_smp_pairing_cap_data = %lx", status);

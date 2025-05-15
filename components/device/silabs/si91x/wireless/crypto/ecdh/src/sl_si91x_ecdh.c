@@ -60,9 +60,9 @@ static sl_status_t sli_si91x_get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_m
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_t *rx, uint8_t *ry, uint8_t *rz)
 {
-  const uint8_t *result          = NULL;
-  uint16_t offset                = 0;
-  const sl_wifi_packet_t *packet = NULL;
+  const uint8_t *result                 = NULL;
+  uint16_t offset                       = 0;
+  const sl_wifi_system_packet_t *packet = NULL;
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   result = packet->data;

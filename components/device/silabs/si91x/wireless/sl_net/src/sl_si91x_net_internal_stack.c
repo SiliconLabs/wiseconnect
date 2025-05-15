@@ -54,7 +54,7 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
   sl_status_t status                       = SL_STATUS_INVALID_PARAMETER;
   sli_si91x_req_ipv4_params_t ip_req       = { 0 };
   sli_si91x_req_ipv6_params_t ipv6_request = { 0 };
-  sl_wifi_packet_t *packet;
+  sl_wifi_system_packet_t *packet;
   sl_wifi_buffer_t *buffer = NULL;
   uint32_t wait_time       = (timeout ? SL_SI91X_WAIT_FOR_RESPONSE(timeout) : SLI_SI91X_RETURN_IMMEDIATELY);
 

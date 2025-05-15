@@ -270,7 +270,10 @@ void sli_si91x_power_manager_debug_log_ps_requirement(sl_power_state_t ps, bool 
 /**
  * @brief To initialize the Power Manager service.
  * 
- * @details Configures the PS4 state with a 100 MHz system clock.
+ * @details The application is configured to start in the PS3 Powersave state with a clock frequency of 40MHz.
+ * 
+ * @note The Power Manager initialization is automatically handled within the sl_service_init() function. 
+ *       Users do not need to manually initialize the Power Manager, ensuring a hassle-free setup process.
  * 
  * @return Status code indicating the result:
  *         - SL_STATUS_OK  - Success.
@@ -307,15 +310,15 @@ __STATIC_INLINE void sl_si91x_power_manager_core_exitcritical(void)
 /**
  * @brief To add a requirement on power states.
  * 
- * @details The default state for the Power Manager is PS4. If any requirements are added, 
- *          the Power Manager switches to the state if it is a valid transition. Before 
- *          transitioning from one state to another, make sure to remove requirements of 
- *          previous states if any were added. If an invalid state requirement is added, 
- *          it returns SL_STATUS_INVALID_PARAMETER. If the Power Manager service is not 
- *          initialized, it returns SL_STATUS_NOT_INITIALIZED. To initialize, call 
- *          \ref sl_si91x_power_manager_init. To get the requirements on all power states, 
- *          call \ref sl_si91x_power_manager_get_requirement_table. To know the current 
- *          power state, use \ref sl_si91x_power_manager_get_current_state.
+ * @details The default state for the Power Manager is PS3. The maximum number of requirements 
+ *          that can be added is 255. The Power Manager switches to the state if it is a valid 
+ *          transition. Before transitioning from one state to another, make sure to remove 
+ *          requirements of previous states if any were added. If an invalid state requirement 
+ *          is added, it returns SL_STATUS_INVALID_PARAMETER. If the Power Manager service is 
+ *          not initialized, it returns SL_STATUS_NOT_INITIALIZED. To initialize, call 
+ *          \ref sl_si91x_power_manager_init. To get the requirements on all power states, call 
+ *          \ref sl_si91x_power_manager_get_requirement_table. To know the current power state, 
+ *          use \ref sl_si91x_power_manager_get_current_state.
  * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init
@@ -358,12 +361,14 @@ __STATIC_INLINE sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_s
 
 /***************************************************************************/ /**
  * @brief To remove requirement on power states.
- * @details Default state for Power Manager is PS4.
- * Removing requirement will not impact on power state transitions.
- * If the current state is PS4 and no other requirements are added, and PS4 requirement is removed then it returns SL_STATUS_INVALID_PARAMETER.
- * If the Power Manager service is not initialized then it returns SL_STATUS_NOT_INITIALIZED, to initialize call \ref sl_si91x_power_manager_init.
- * To get the requirements on all power states, call \ref sl_si91x_power_manager_get_requirement_table.
- * To know the current power state, use \ref sl_si91x_power_manager_get_current_state.
+ * @details Default state for Power Manager is PS3.
+ * Requirements added to a power state must be removed in pairs to ensure proper state transitions. 
+ * If a requirement is added for a specific power state (e.g., PS4) and not removed, the application 
+ * will be unable to transition to a lower power state. For instance, if a requirement on PS4 is added 
+ * but not removed, the Power Manager will remain in PS4 and cannot transition to a lower power state.
+ * 
+ * @note: If the current state is PS4 and no other requirements are added, removing the PS4 requirement 
+ * will cause the device to remain in its last active state, which in this case is PS4.
  * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init
@@ -458,6 +463,8 @@ sl_clock_scaling_t sl_si91x_power_manager_get_clock_scaling(void);
  *         - SL_STATUS_INVALID_STATE (0x0002) - Not a valid transition.
  *         - SL_STATUS_NOT_INITIALIZED  - Power Manager is not initialized.
  *         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter is passed.
+ * 
+ * @note The user must take care of the initialization of the peripherals added.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  ******************************************************************************/
@@ -622,7 +629,12 @@ sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_sleep(void);
-
+/***************************************************************************/
+/**
+ * @note Applications using RTOS with tickless mode enabled must not call this API.
+ *       This API is not supposed to be used directly in the application and is called
+ *       automatically when the system is in an idle state with tickless mode.
+ */
 /***************************************************************************/
 /**
  * @brief To move into standby state and wait for the interrupt.
@@ -639,9 +651,9 @@ void sl_si91x_power_manager_standby(void);
 /**
  * @brief To configure the wakeup sources.
  * 
- * @details One or many wakeup sources can be configured using a logical 'OR' operation.
- *          The initialization of the peripheral configured as a wakeup source needs to be 
- *          performed by the user. The Power Manager only sets it as a wakeup source.
+ * @details Once the wakeup source is set by the Universal Configurator (UC), 
+ *          the Power Manager automatically handles the initialization, User need to 
+ *          install the appropriate wakeup component based on the configured wakeup source.
  * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init 
@@ -738,6 +750,27 @@ sl_power_state_t sl_si91x_power_manager_get_current_state(void);
  * }
  * ```
  ******************************************************************************/
+/**
+ * @brief Retrieve the power state requirement table for the power manager.
+ *
+ * This function provides access to the power state requirement table, which is used
+ * to manage and track the power state requirements of various components or modules
+ * in the system. The table contains information about the power states or
+ * dependencies required by different modules.
+ *
+ * @note The returned pointer points to a table managed internally by the power
+ *       manager. Ensure that the table is not modified directly to avoid
+ *       unexpected behavior.
+ *
+ * @return Pointer to the power state requirement table.
+ *
+ * @details  
+ * This API can be used to query the current power state requirements of the system
+ * and make decisions based on the power states of various components. For
+ * example, it can be used in scenarios where power optimization or power state
+ * transitions are required.
+ */
+
 uint8_t *sl_si91x_power_manager_get_requirement_table(void);
 
 /***************************************************************************/
@@ -766,6 +799,7 @@ sl_power_state_t sl_si91x_get_lowest_ps(void);
  ********  Mandatory callback that allows to cancel sleeping action. ********
  ******************************************************************************/
 boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
+
 /** @endcond */
 
 /** @} (end addtogroup POWER-MANAGER) */

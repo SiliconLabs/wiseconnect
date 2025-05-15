@@ -1129,7 +1129,7 @@ typedef struct {
 #pragma pack()
 
 /**
- * @struct sl_wifi_fw_version_info_t
+ * @struct sl_wifi_system_fw_version_info_t
  * @brief Firmware version information structure.
  */
 typedef struct {
@@ -1137,7 +1137,7 @@ typedef struct {
   uint8_t security_version; ///< Security version indicating if security is enabled or disabled
   uint8_t minor;            ///< Minor version number of the firmware
   uint8_t major;            ///< Major version number of the firmware
-} sl_wifi_fw_version_info_t;
+} sl_wifi_system_fw_version_info_t;
 
 /**
  * @struct sl_wifi_fw_version_ext_info_t
@@ -1156,15 +1156,15 @@ typedef struct {
  * @brief Firmware header information structure.
  */
 typedef struct {
-  uint16_t control_flags;                    ///< Control flags for the firmware image
-  uint16_t sha_type;                         ///< SHA type used for the firmware image
-  uint32_t magic_no;                         ///< Magic number identifying the firmware image
-  uint32_t image_size;                       ///< Size of the firmware image in bytes
-  sl_wifi_fw_version_info_t fw_version_info; ///< Firmware version information
-  uint32_t flash_location;                   ///< Address location in flash memory where the firmware image is stored
-  uint32_t crc;                              ///< Cyclic Redundancy Check (CRC) value of the firmware image
-  uint32_t mic[4];                           ///< Message Integrity Code (MIC) of the firmware image
-  uint32_t reserved;                         ///< Reserved fields for future use
+  uint16_t control_flags;                           ///< Control flags for the firmware image
+  uint16_t sha_type;                                ///< SHA type used for the firmware image
+  uint32_t magic_no;                                ///< Magic number identifying the firmware image
+  uint32_t image_size;                              ///< Size of the firmware image in bytes
+  sl_wifi_system_fw_version_info_t fw_version_info; ///< Firmware version information
+  uint32_t flash_location; ///< Address location in flash memory where the firmware image is stored
+  uint32_t crc;            ///< Cyclic Redundancy Check (CRC) value of the firmware image
+  uint32_t mic[4];         ///< Message Integrity Code (MIC) of the firmware image
+  uint32_t reserved;       ///< Reserved fields for future use
   sl_wifi_fw_version_ext_info_t fw_version_ext_info; ///< Firmware version extended information
   uint32_t reserved1[4];                             ///< Reserved fields for future use
 } sl_wifi_firmware_header_t;
@@ -1263,35 +1263,6 @@ typedef struct {
   uint16_t
     passive_scan_timeout_value; ///< Time spent on each channel when performing passive scan (milliseconds). The minimum passive_scan_timeout_value is 5 millisecs, and maximum is 1000 milliseconds. Default value of 400 milliseconds is used when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
 } sl_wifi_timeout_t;
-
-/**
- * @struct sl_wifi_wireless_info_t
- * @brief Structure representing specific wireless information.
- */
-typedef struct {
-
-  uint16_t
-    wlan_state; ///< WLAN state: connected or disconnected in station mode; number of stations connected in AP mode.
-
-  uint16_t channel_number; ///< Channel number of connected AP
-
-  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected access point
-
-  uint8_t mac_address[6]; ///< MAC address
-
-  uint8_t sec_type; ///< Security type
-
-  uint8_t psk_pmk[64]; ///< PSK for AP mode, PMK for Client mode
-
-  uint8_t ipv4_address[4]; ///< Module IP Address
-
-  uint8_t ipv6_address[16]; ///< Module IPv6 Address
-
-  uint8_t bssid[6]; ///< BSSID address of connected AP
-
-  uint8_t wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B)
-
-} sl_wifi_wireless_info_t;
 
 /**
  * @struct sl_wifi_request_tx_test_info_t

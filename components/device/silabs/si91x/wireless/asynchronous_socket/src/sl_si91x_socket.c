@@ -496,7 +496,7 @@ int sl_si91x_recvfrom(int socket,
   sl_si91x_socket_metadata_t *response = NULL;
   sli_si91x_socket_t *si91x_socket     = sli_get_si91x_socket(socket);
   sl_wifi_buffer_t *buffer             = NULL;
-  sl_wifi_packet_t *packet             = NULL;
+  sl_wifi_system_packet_t *packet      = NULL;
 
   // Check if the socket is valid
   SLI_SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);

@@ -27,7 +27,14 @@ This example demonstrates the measurement of relative humidity and temperature f
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Standalone
+  - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+  - Radio Boards
+    - BRD4338A [SiWx917-RB4338A]
+    - BRD4342A [SiWx917-RB4342A]
+    - BRD4343A [SiWx917-RB4343A]
+- Kits
+  - SiWx917 Development Kit [ BRD2605A ]
 
 ### Software Requirements
 

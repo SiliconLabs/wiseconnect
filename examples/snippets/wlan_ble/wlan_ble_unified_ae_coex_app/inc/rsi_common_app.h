@@ -22,8 +22,6 @@ int32_t ble_ext_scan_enable(void);
 
 #define ENABLE_1P8V 0 //! Disable this when using 3.3v
 
-#define SPI_DMA //! Enable SPI with DMA
-
 #define RSI_DEBUG_EN 0
 
 //! To enable WLAN task

@@ -46,7 +46,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 {
   sl_status_t status                = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer          = NULL;
-  sl_wifi_packet_t *packet          = NULL;
+  sl_wifi_system_packet_t *packet   = NULL;
   sl_si91x_ecdsa_request_t *request = (sl_si91x_ecdsa_request_t *)malloc(sizeof(sl_si91x_ecdsa_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);

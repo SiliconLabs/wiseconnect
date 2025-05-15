@@ -186,8 +186,8 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
 
   VERIFY_STATUS_AND_RETURN(status);
 
-  sl_wifi_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  response                 = (sli_si91x_network_params_response_t *)packet->data;
+  sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  response                        = (sli_si91x_network_params_response_t *)packet->data;
 
   memcpy(&socket_info_response->number_of_opened_sockets,
          response->num_open_socks,
@@ -472,7 +472,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   sli_si91x_req_socket_read_t request        = { 0 }; // Initialize a request structure
   sl_status_t status                         = SL_STATUS_OK;
   ssize_t bytes_read                         = 0; // Number of bytes read
-  sl_wifi_packet_t *packet                   = NULL;
+  sl_wifi_system_packet_t *packet            = NULL;
   const sl_si91x_socket_metadata_t *response = NULL;                            // Response structure
   sli_si91x_socket_t *si91x_socket           = sli_get_si91x_socket(socket_id); // Get socket information
 

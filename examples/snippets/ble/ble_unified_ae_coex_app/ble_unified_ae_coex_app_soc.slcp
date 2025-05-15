@@ -64,6 +64,8 @@ component:
   from: wiseconnect3_sdk
 - id: si91x_memory_default_config
   from: wiseconnect3_sdk
+- id: sl_power_manager
+  from: wiseconnect3_sdk
 - id: wiseconnect3_common
   from: wiseconnect3_sdk
 - id: wifi

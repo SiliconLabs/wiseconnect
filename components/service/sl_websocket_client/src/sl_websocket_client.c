@@ -219,6 +219,9 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
     return SL_WEBSOCKET_ERR_SOCKET_CREATION;
   }
 
+  // Clear the websocket_info structure to ensure all fields are initialized to zero
+  memset(si91x_socket->websocket_info, 0, sizeof(sli_si91x_websocket_info_t) + host_length + resource_length);
+
   // Set the lengths
   si91x_socket->websocket_info->host_length     = host_length;
   si91x_socket->websocket_info->resource_length = resource_length;

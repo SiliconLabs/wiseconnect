@@ -78,7 +78,7 @@ extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
  */
 static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_asyn_packet)
 {
-  sl_wifi_packet_t *raw_rx_packet = sl_si91x_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
+  sl_wifi_system_packet_t *raw_rx_packet = sl_si91x_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
   sl_mqtt_client_t *mqtt_client;
 
   raw_rx_packet->desc[12] = mqtt_asyn_packet->frame_status & 0xFF;        // Lower 8 bits
@@ -149,7 +149,7 @@ static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_
 }
 #endif
 
-void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_wifi_packet_t *packet)
+void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet)
 {
   sl_status_t status;
   sl_net_event_t service_event;
@@ -183,8 +183,8 @@ void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_wifi
      || packet->command == SLI_RECEIVE_RAW_DATA || packet->command == SLI_WLAN_RSP_TCP_ACK_INDICATION
      || packet->command == SLI_WLAN_RSP_SELECT_REQUEST);
   if (is_socket_command) {
-    sl_wifi_packet_t *raw_rx_packet = packet;
-    uint16_t si91x_event_status     = sli_get_si91x_frame_status(raw_rx_packet);
+    sl_wifi_system_packet_t *raw_rx_packet = packet;
+    uint16_t si91x_event_status            = sli_get_si91x_frame_status(raw_rx_packet);
 
     sl_status_t event_status = sli_convert_and_save_firmware_status(si91x_event_status);
     sli_si91x_socket_event_handler(event_status, (sli_si91x_socket_context_t *)data->sdk_context, raw_rx_packet);

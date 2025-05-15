@@ -105,6 +105,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - For software-controlled half-duplex mode, when using the RS485 send and receive project, disable "address match enable" and "send address enable" in the UC settings, as shown in the provided snapshots. 
 
+- For Full-duplex mode, when using the RS485 send and receive project, configure transfer mode to "full_duplex", disable "address match enable" and "send address enable" in the UC settings. Configure "current_mode = SL_UART_RS485_FULL_DUPLEX_SEND_RECEIVE" in master application to start sending the data to slave and receiving data from slave. Configure "current_mode = SL_UART_RS485_FULL_DUPLEX_RECEIVE_SEND" in slave application to start receiving the data from master and sending the data to master.
+
 - Configuration of UART0 RS485 configs from UC, when hardware controlled half duplex in receive mode is performed.
 
     > ![Figure: Selecting UC](resources/uc_screen/uart0_rs485_hardware_controlled_half_duplex_receive_mode_uc.png)
@@ -201,3 +203,4 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
 > - In a project utilizing both RS485-capable UART0 and UART1 (or) vice-versa, the application must use uint16_t data buffers for both UARTs to ensure proper handling of the 9-bit data inherent in RS485.
+> - The application has been tested on the BRD4338A board using the RS485 synopsys IP, where the 9th bit is used for addressing. Users may need to modify the application to suit their specific protocol requirements.

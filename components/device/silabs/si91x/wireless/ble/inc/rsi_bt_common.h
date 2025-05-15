@@ -518,7 +518,7 @@ typedef struct rsi_bt_cmd_update_gain_table_offset_or_maxpower_s {
  * * BT/BLE common function declarations
  * ******************************************************/
 void rsi_bt_set_status(rsi_bt_cb_t *bt_cb, int32_t status);
-void rsi_bt_common_tx_done(sl_wifi_packet_t *pkt);
+void rsi_bt_common_tx_done(sl_wifi_system_packet_t *pkt);
 int8_t rsi_bt_cb_init(rsi_bt_cb_t *bt_cb, uint16_t protocol_type);
 int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp);
 uint16_t rsi_bt_global_cb_init(struct rsi_driver_cb_s *driver_cb, uint8_t *buffer);

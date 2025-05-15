@@ -213,7 +213,11 @@ void RSI_PS_SaveCpuContext(void)
  */
 void RSI_PS_RestoreCpuContext(void)
 {
+#ifdef SL_SI91X_ENABLE_GCC_LTO
+  __asm__ volatile("ldr r0, %[sym]\n" : : [sym] "m"(__sp) : "r0");
+#else
   __asm("ldr r0 , =__sp");
+#endif
   __asm("ldr sp , [r0 , #0]");
   __asm("pop {r14}");
   __asm("pop {r12}");

@@ -66,7 +66,7 @@ static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
  * @param packet packet that contains the frame status which needs to be extracted.
  * @return  frame status
  *****************************************************************************/
-static inline uint16_t sli_get_si91x_frame_status(const sl_wifi_packet_t *packet)
+static inline uint16_t sli_get_si91x_frame_status(const sl_wifi_system_packet_t *packet)
 {
   return (uint16_t)(packet->desc[12] + (packet->desc[13] << 8));
 }

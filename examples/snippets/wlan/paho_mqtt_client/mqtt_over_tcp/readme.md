@@ -273,7 +273,7 @@ Follow the steps below for successful execution of the application:
    **![MQTT broker Configuration](resources/readme/mqtt_connect.png)**
 
 >**Note:**
-> If we want to use IPv6 with the embedded MQTT client application, we will be using the Mosquitto command line to test the example because the MQTT Explorer application doesn't support IPv6.
+> If we want to use IPv6 with the Paho MQTT client application, we will be using the Mosquitto command line to test the example because the MQTT Explorer application doesn't support IPv6.
 
 > The following commands are used to test the MQTT client with IPv6 addresses using the Mosquitto command line:
 >

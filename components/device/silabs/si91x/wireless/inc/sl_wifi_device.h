@@ -134,6 +134,16 @@
 #define SL_WIFI_FEAT_DISABLE_11AX_SUPPORT BIT(15)
 
 /**
+   * @def SL_WIFI_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION
+   * @brief Allow socket commands before establishing a WLAN connection.
+   * @details
+   * This feature, when enabled, permits the execution of socket commands even if the Wi-Fi connection has not been established.
+   * 
+   * @note If this feature is disabled, issuing socket commands before the device obtains an IP address will result in an invalid state error.
+   */
+#define SL_WIFI_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION BIT(18)
+
+/**
  * @def SL_WIFI_FEAT_SECURE_ATTESTATION
  * @brief Secure attestation.
  * @details
@@ -259,6 +269,14 @@
    * which enhances the module’s ability to switch between different frequency bands and avoid interference.
    */
 #define SL_WIFI_CUSTOM_FEAT_DUAL_BAND_ROAM_VCSAFD BIT(27)
+
+/**
+ * @def SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID
+ * @brief Validates the use of extended custom feature bitmap.
+ * @details The bit indicates the extended custom feature bitmap is valid.
+ * If this bit is enabled then only, the features present in the extended custom feature bitmap can be used.
+ */
+#define SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID BIT(31)
 /** @} */
 
 /** \addtogroup WIFI_EXTENDED_CUSTOM_FEATURE_BITMAP
@@ -269,13 +287,13 @@
 /*=========================================================================*/
 
 /**
-   * @def SL_WIFI_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM
+   * @def SL_WIFI_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM
    * @brief Extended custom bitmap for AP Broadcast customization.
    * @details Enabling this bit configures the Access Point to send broadcast packets before the DTIM (Delivery Traffic Indication Message) interval.
    * 
    * @note If this bit is enabled, the clients connected in power save mode might miss the packet.
    */
-#define SL_WIFI_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM BIT(4)
+#define SL_WIFI_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM BIT(4)
 
 /**
    * @def SL_WIFI_EXT_FEAT_FCC_LOW_PWR
@@ -313,13 +331,13 @@
 #define SL_WIFI_EXT_FEAT_IEEE_80211W BIT(13)
 
 /**
-   * @def SL_WIFI_EXT_FEAT_16th_STATION_IN_AP_MODE
+   * @def SL_WIFI_EXT_FEAT_16TH_STATION_IN_AP_MODE
    * @brief To enable 16 client support in Access Point (AP) mode.
    * @details Enabling this bit allows up to 16 stations to connect to the device when it is operating in AP mode.
    * 
    * @note If this bit is enabled, up to 16 stations can connect; otherwise, a maximum of 8 stations can connect.
    */
-#define SL_WIFI_EXT_FEAT_16th_STATION_IN_AP_MODE BIT(15)
+#define SL_WIFI_EXT_FEAT_16TH_STATION_IN_AP_MODE BIT(15)
 
 /**
    * @def SL_WIFI_EXT_FEAT_ENABLE_11R_ODS
@@ -342,13 +360,13 @@
 #define SL_WIFI_EXT_FEAT_WOWLAN_DISABLE BIT(17)
 
 /**
-   * @def SL_WIFI_EXT_FEAT_LOW_POWER_MODE
+   * @def SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
    * @brief To enable low power mode in WLAN.
    * @details Enabling this bit activates low power mode for WLAN, Active current would also be reduced.
    * As most of the code which is needed to maintain connection is kept in RAM.
    * There would be minimal execution of code from Flash which in turn results in low average current.
    */
-#define SL_WIFI_EXT_FEAT_LOW_POWER_MODE BIT(19)
+#define SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE BIT(19)
 
 /** @} */
 
@@ -1158,9 +1176,9 @@
  * If this bit is enabled then only, the features present in the extended custom feature bitmap can be used.
  */
 #ifndef __ZEPHYR__
-#define SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID BIT(31)
+#define SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID
 #else
-#define SL_SI91X_CUSTOM_FEAT_EXTENSION_VALID BIT(31)
+#define SL_SI91X_CUSTOM_FEAT_EXTENSION_VALID SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID
 #endif
 /** @} */
 
@@ -1195,9 +1213,8 @@
  * @details Enabling this bit configures the Access Point to send broadcast packets before the DTIM (Delivery Traffic Indication Message) interval.
  * 
  * @note If this bit is enabled, the clients connected in power save mode might miss the packets.
- * @note  The macro SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM is being deprecated and will be removed in the future. Use SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM instead.
  */
-#define SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM SL_WIFI_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM
+#define SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM SL_WIFI_EXT_FEAT_AP_BROADCAST_PKT_SND_BEFORE_DTIM
 
 /**
  * @def SL_SI91X_EXT_FEAT_FCC_LOW_PWR
@@ -1279,7 +1296,7 @@
  * 
  * @note If this bit is enabled, up to 16 stations can connect; otherwise, a maximum of 8 stations can connect.
  */
-#define SL_SI91X_EXT_FEAT_16th_STATION_IN_AP_MODE SL_WIFI_EXT_FEAT_16th_STATION_IN_AP_MODE
+#define SL_SI91X_EXT_FEAT_16th_STATION_IN_AP_MODE SL_WIFI_EXT_FEAT_16TH_STATION_IN_AP_MODE
 
 /**
  * @def SL_SI91X_EXT_FEAT_ENABLE_11R_ODS
@@ -1319,7 +1336,7 @@
  * As most of the code which is needed to maintain connection is kept in RAM.
  * There would be minimal execution of code from Flash which in turn results in low average current.
  */
-#define SL_SI91X_EXT_FEAT_LOW_POWER_MODE SL_WIFI_EXT_FEAT_LOW_POWER_MODE
+#define SL_SI91X_EXT_FEAT_LOW_POWER_MODE SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
 
 #if defined(SLI_SI917) || defined(DOXYGEN) || defined(SLI_SI915)
 
@@ -2528,7 +2545,7 @@ typedef struct {
   uint8_t tx_ratio_in_buffer_pool;     ///< tx ratio
   uint8_t rx_ratio_in_buffer_pool;     ///< rx ratio
   uint8_t global_ratio_in_buffer_pool; ///< global ratio
-} sl_wifi_dynamic_pool_t;
+} sl_wifi_system_dynamic_pool_t;
 
 // Device configuration for 911x. This should be in the 911x driver folder
 /// Device configuration for Si91x device
@@ -2542,7 +2559,8 @@ typedef struct {
     region_code; ///< Region code of type [sl_wifi_region_code_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-types#sl-wifi-region-code-t).
   sl_wifi_system_boot_configuration_t
     boot_config; ///< Boot configuration. [sl_wifi_system_boot_configuration_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-types#sl-wifi-system-boot-configuration-t).
-  sl_wifi_dynamic_pool_t ta_pool; ///< TA buffer allocation command parameters of type @ref sl_wifi_dynamic_pool_t.
+  sl_wifi_system_dynamic_pool_t
+    ta_pool;               ///< TA buffer allocation command parameters of type @ref sl_wifi_system_dynamic_pool_t.
   uint8_t efuse_data_type; ///<Type of eFuse data need to be read from flash. Refer to @ref sl_si91x_efuse_data_type_t.
   uint8_t
     nwp_fw_image_number; ///< Image number for the NWP firmware, used to specify which firmware image to load @ref SI91X_NWP_FW_IMAGE_NUMBERS.
@@ -2620,7 +2638,7 @@ typedef struct {
   };                  ///< Command header
 
   uint8_t data[]; ///< Data to be transmitted or received
-} sl_wifi_packet_t;
+} sl_wifi_system_packet_t;
 
 #ifndef __ZEPHYR__
 /** \addtogroup SL_SI91X_DEFAULT_DEVICE_CONFIGURATION 

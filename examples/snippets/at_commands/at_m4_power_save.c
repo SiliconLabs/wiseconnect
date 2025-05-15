@@ -103,10 +103,10 @@ sl_status_t m4_powersave_command_handler(void)
 
 sl_status_t m4_ta_secure_handshake_command_handler(const console_args_t *arguments)
 {
-  uint8_t sub_cmd_type = (uint8_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_SI91X_ENABLE_XTAL, uint8_t);
-  uint8_t xtal_enable  = (uint8_t)GET_OPTIONAL_COMMAND_ARG(arguments, 1, 1, uint8_t);
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
+  uint8_t xtal_enable = (uint8_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint8_t);
 
-  sl_status_t status = sl_si91x_m4_ta_secure_handshake(sub_cmd_type, 1, &xtal_enable, 0, NULL);
+  sl_status_t status = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -174,6 +174,7 @@ sl_status_t power_manager_calender_stop_handler(console_args_t *arguments)
 
 sl_status_t power_manager_calender_start_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   UNUSED_PARAMETER(arguments);
 
   if (calender_start == true) {
@@ -203,6 +204,7 @@ sl_status_t power_manager_calender_start_handler(console_args_t *arguments)
 
 sl_status_t power_manager_set_wakeup_source_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
   UNUSED_PARAMETER(arguments);
   sl_status_t status;
   uint32_t source = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint32_t);
@@ -237,6 +239,7 @@ sl_status_t power_manager_get_ps_requirement_table_handler(console_args_t *argum
 
 sl_status_t power_manager_config_ps_requirement_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
   UNUSED_PARAMETER(arguments);
   sl_status_t status;
 

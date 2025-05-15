@@ -349,7 +349,7 @@ sl_status_t sli_si91x_bus_read_register(uint8_t address, uint8_t register_size, 
   return status;
 }
 
-sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
+sl_status_t sli_si91x_bus_write_frame(sl_wifi_system_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
 {
   UNUSED_PARAMETER(payloadparam); // Unused parameter(to suppress compiler warnings)
   sl_status_t status;

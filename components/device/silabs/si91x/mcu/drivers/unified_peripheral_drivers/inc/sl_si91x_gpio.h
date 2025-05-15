@@ -62,6 +62,7 @@ typedef enum {
 
 ///@brief GPIO Interrupt Configurations.
 typedef enum {
+  SL_GPIO_INTERRUPT_NONE       = 0,        ///< interrupt disable
   SL_GPIO_INTERRUPT_LEVEL_HIGH = (1 << 0), ///< interrupt when pin level is '1'
   SL_GPIO_INTERRUPT_LEVEL_LOW  = (1 << 1), ///< interrupt when pin level is '0'
   SL_GPIO_INTERRUPT_RISE_EDGE  = (1 << 2), ///< interrupt when rising edge is detected

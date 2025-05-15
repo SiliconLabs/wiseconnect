@@ -54,8 +54,8 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
     return SL_STATUS_INVALID_PARAMETER;
   }
   sl_status_t status;
-  sl_wifi_buffer_t *buffer = NULL;
-  sl_wifi_packet_t *packet = NULL;
+  sl_wifi_buffer_t *buffer        = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
 
   sli_si91x_rsi_token_req_t *attest = (sli_si91x_rsi_token_req_t *)malloc(sizeof(sli_si91x_rsi_token_req_t));
 

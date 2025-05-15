@@ -561,7 +561,30 @@ typedef struct {
  * @{
  * */
 /// si91x Specific Wireless information
-typedef sl_wifi_wireless_info_t sl_si91x_rsp_wireless_info_t;
+typedef struct {
+
+  uint16_t
+    wlan_state; ///< WLAN state: connected or disconnected in station mode; number of stations connected in AP mode.
+
+  uint16_t channel_number; ///< Channel number of connected AP
+
+  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected access point
+
+  uint8_t mac_address[6]; ///< MAC address
+
+  uint8_t sec_type; ///< Security type
+
+  uint8_t psk_pmk[64]; ///< PSK for AP mode, PMK for Client mode
+
+  uint8_t ipv4_address[4]; ///< Module IP Address
+
+  uint8_t ipv6_address[16]; ///< Module IPv6 Address
+
+  uint8_t bssid[6]; ///< BSSID address of connected AP
+
+  uint8_t wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B)
+
+} sl_si91x_rsp_wireless_info_t;
 /** @} */
 
 ///< socket create command request structure

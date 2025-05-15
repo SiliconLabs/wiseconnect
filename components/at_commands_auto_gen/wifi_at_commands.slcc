@@ -75,7 +75,7 @@ template_contribution:
         handler: wifi_get_mac_address_command_handler
         arguments:
           - "uint8"
-      wifi-get-netinfo:
+      wifi-net-info?:
         handler: wifi_get_network_info_handler
       wifi-start-scan:
         handler: wifi_scan_command_handler
@@ -131,7 +131,7 @@ template_contribution:
         handler: enable_ssl_command_handler
         arguments:
           - "uint8"
-      siwx91x-nvic-reset:
+      soft-reset:
         handler: soc_reset_command_handler
       wifi-listen-interval:
         handler: set_listen_interval_command_handler

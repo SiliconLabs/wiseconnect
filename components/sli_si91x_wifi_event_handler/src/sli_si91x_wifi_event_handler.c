@@ -41,6 +41,7 @@
 #include "sl_net_types.h"
 #include "sl_net_constants.h"
 #include "sl_net_wifi_types.h"
+#include "sli_net_types.h"
 #include "sl_net.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_m4.h"
@@ -169,7 +170,7 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
 sl_status_t sli_si91x_req_wakeup(void);
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_packet_t *socket_packet);
+static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socket_packet);
 #endif
 
 bool sli_si91x_is_bus_ready(bool global_queue_block);
@@ -193,7 +194,7 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
   UNUSED_PARAMETER(command_type);
   sl_status_t status;
   sl_wifi_buffer_t *buffer;
-  sl_wifi_packet_t *packet;
+  sl_wifi_system_packet_t *packet;
   sli_si91x_queue_packet_t *node = NULL;
 
   if ((current_performance_profile != HIGH_PERFORMANCE) && (sli_si91x_req_wakeup() != SL_STATUS_OK)) {
@@ -282,7 +283,7 @@ static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue)
 {
   sl_status_t status;
   sl_wifi_buffer_t *buffer;
-  sl_wifi_packet_t *packet;
+  sl_wifi_system_packet_t *packet;
 
   if ((current_performance_profile != HIGH_PERFORMANCE) && (sli_si91x_req_wakeup() != SL_STATUS_OK)) {
     return SL_STATUS_TIMEOUT;
@@ -364,7 +365,7 @@ bool sli_si91x_is_bus_ready(bool global_queue_block)
 }
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_packet_t *socket_packet)
+static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socket_packet)
 {
   int socket_id = sli_si91x_get_socket_id(socket_packet);
 
@@ -409,7 +410,7 @@ static void sli_handle_dhcp_and_rejoin_failure(void *sdk_context,
   sli_si91x_queue_packet_t *node;
 
   // Retrieve the packet data from the response buffer
-  sl_wifi_packet_t *packet = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
 
   // Create a generic RX packet from the parameters
   status = sli_create_generic_rx_packet_from_params(&node, &temp_buffer, 0, 0, NULL, frame_status);
@@ -430,9 +431,9 @@ static void sli_handle_dhcp_and_rejoin_failure(void *sdk_context,
   }
 
   // Get the dummy packet data from the allocated buffer
-  sl_wifi_packet_t *dummy_packet = sl_si91x_host_get_buffer_data(dummy_packet_buffer, 0, NULL);
-  node->host_packet              = dummy_packet_buffer; // Link dummy packet to the node
-  node->sdk_context              = sdk_context;
+  sl_wifi_system_packet_t *dummy_packet = sl_si91x_host_get_buffer_data(dummy_packet_buffer, 0, NULL);
+  node->host_packet                     = dummy_packet_buffer; // Link dummy packet to the node
+  node->sdk_context                     = sdk_context;
 
   // Copy the original packet data to the dummy packet
   memcpy(dummy_packet, packet, (sizeof(packet->desc) + packet->length));
@@ -522,7 +523,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
     }
 #endif
 
-    const sl_wifi_packet_t *response = (const sl_wifi_packet_t *)data;
+    const sl_wifi_system_packet_t *response = (const sl_wifi_system_packet_t *)data;
     SL_DEBUG_LOG("><<<< Rx -> queueId : %u, frameId : 0x%x, frameStatus: 0x%x, length : %u\n",
                  queue_id,
                  frame_type,
@@ -1029,8 +1030,8 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case SLI_WLAN_RSP_SOCKET_ACCEPT:
           case SLI_WLAN_RSP_REMOTE_TERMINATE: {
             // Find relevant socket
-            sl_wifi_packet_t *socket_packet = (sl_wifi_packet_t *)data;
-            sli_si91x_socket_t *socket      = get_socket_from_packet(socket_packet);
+            sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
+            sli_si91x_socket_t *socket             = get_socket_from_packet(socket_packet);
             sli_si91x_command_queue_t *socket_command_queue;
 
             if ((socket == NULL) || (frame_type == SLI_WLAN_RSP_SELECT_REQUEST)
@@ -1184,8 +1185,8 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
 
             if (cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type == SLI_WLAN_RSP_HTTP_CLIENT_GET) {
               // If it's an HTTP GET response, check if the frame_status is not OK or if end_of_data is set to 1.
-              sl_wifi_packet_t *get_response_packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-              const uint16_t *end_of_data           = (uint16_t *)&get_response_packet->data;
+              sl_wifi_system_packet_t *get_response_packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+              const uint16_t *end_of_data                  = (uint16_t *)&get_response_packet->data;
 
               if (frame_status != SL_STATUS_OK || *end_of_data == 1) {
                 // Mark the command as not in flight and clear the frame_type
@@ -1302,10 +1303,10 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
           SL_DEBUG_LOG("Raw Data\n");
-          sl_wifi_packet_t *socket_packet = (sl_wifi_packet_t *)data;
-          sli_si91x_socket_t *socket      = NULL;
-          int socket_id                   = sli_si91x_get_socket_id(socket_packet);
-          socket                          = sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
+          sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
+          sli_si91x_socket_t *socket             = NULL;
+          int socket_id                          = sli_si91x_get_socket_id(socket_packet);
+          socket                                 = sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
 
           // Check if we found a matching socket
           if (socket != NULL) {
@@ -1609,12 +1610,12 @@ void sli_si91x_process_wifi_events()
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue) != 0) {
     // Remove packet from queue if available
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue, &buffer) == SL_STATUS_OK) {
-      sl_wifi_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-      uint16_t frame_status    = sli_get_si91x_frame_status(packet);
+      sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+      uint16_t frame_status           = sli_get_si91x_frame_status(packet);
 
       // Check if the command received is a WLAN join response
       if (packet->command == SLI_WLAN_RSP_JOIN) {
-        sl_network_manager_message_t message;             // Create a new message for the network manager
+        sli_network_manager_message_t message;            // Create a new message for the network manager
         message.interface = SL_NET_WIFI_CLIENT_INTERFACE; // Specify the network interface as the Wi-Fi client interface
         message.event_flags = frame_status != SL_STATUS_OK
                                 ? NETWORK_MANAGER_DISCONNECT_CMD
@@ -1649,7 +1650,8 @@ void sli_si91x_process_network_events()
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue) != 0) {
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue, &buffer) == SL_STATUS_OK) {
       sli_si91x_queue_packet_t *data = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-      sl_wifi_packet_t *packet       = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
+      sl_wifi_system_packet_t *packet =
+        (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
 
       // Dispatch the network event to the appropriate handler.
       SL_NET_EVENT_DISPATCH_HANDLER(data, packet);
@@ -1669,7 +1671,8 @@ void sli_si91x_process_socket_events()
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_SOCKET_CMD].event_queue) != 0) {
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_SOCKET_CMD].event_queue, &buffer) == SL_STATUS_OK) {
       sli_si91x_queue_packet_t *data = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-      sl_wifi_packet_t *packet       = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
+      sl_wifi_system_packet_t *packet =
+        (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
 
       // Dispatch the socket event to the appropriate handler.
       SL_NET_EVENT_DISPATCH_HANDLER(data, packet);
@@ -1693,7 +1696,7 @@ void sli_si91x_process_socket_data_events()
       // If data is available in the RX queue, remove and process it
       if (sli_si91x_remove_from_queue(&sli_si91x_sockets[i]->rx_data_queue, &buffer) == SL_STATUS_OK) {
         if (sli_si91x_sockets[i]->recv_data_callback != NULL) {
-          sl_wifi_packet_t *packet                 = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+          sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
           sl_si91x_socket_metadata_t *receive_data = (sl_si91x_socket_metadata_t *)packet->data;
           // Call the receive callback function with the received data
           sli_si91x_sockets[i]->recv_data_callback(i,
@@ -1717,7 +1720,7 @@ void sli_si91x_process_ble_events()
   // Process Bluetooth (BLE) events in the queue
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_BT_CMD].event_queue) != 0) {
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_BT_CMD].event_queue, &buffer) == SL_STATUS_OK) {
-      sl_wifi_packet_t *packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+      sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
       // Handle Bluetooth response and free the buffer
       rsi_driver_process_bt_resp_handler(packet);
       sli_si91x_host_free_buffer(buffer);

@@ -18,7 +18,7 @@
 #define __MQTT_CLIENT_C_
 
 #include "MQTTPacket.h"
-#include "MQTToverTCP.h" //Platform specific implementation header file
+#include "MQTTSi91x.h" //Platform specific implementation header file
 
 #define MAX_PACKET_ID        65535
 #define MAX_MESSAGE_HANDLERS 5

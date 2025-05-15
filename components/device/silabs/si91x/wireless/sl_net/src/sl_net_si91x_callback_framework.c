@@ -38,7 +38,7 @@ extern sl_net_event_handler_t net_event_handler;
 
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer)
 {
-  sl_wifi_packet_t *packet            = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet     = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   sl_status_t status                  = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
   sl_ip_address_t ip                  = { 0 };
   sl_net_ip_configuration_t ip_config = { 0 };

@@ -96,7 +96,7 @@ static void application_start(void *argument)
   ssid.length  = (uint8_t)(sizeof(DEFAULT_WIFI_CLIENT_PROFILE_SSID) - 1);
   memcpy(ssid.value, DEFAULT_WIFI_CLIENT_PROFILE_SSID, ssid.length);
 
-  status = sl_wifi_get_pairwise_master_key(SL_NET_WIFI_CLIENT_INTERFACE,
+  status = sl_wifi_get_pairwise_master_key(SL_WIFI_CLIENT_INTERFACE,
                                            type,
                                            &ssid,
                                            DEFAULT_WIFI_CLIENT_CREDENTIAL,

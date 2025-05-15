@@ -66,7 +66,7 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
   }
 
   // Start processing the event
-  sl_wifi_packet_t *packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     sl_status_t status = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
     if (packet->command == SLI_WLAN_RSP_JOIN) {

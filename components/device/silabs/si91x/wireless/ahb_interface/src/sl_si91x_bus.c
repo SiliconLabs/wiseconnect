@@ -69,7 +69,7 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
 {
   sl_status_t status;
   uint16_t data_length = 0;
-  sl_wifi_packet_t *packet;
+  sl_wifi_system_packet_t *packet;
   int8_t *pkt_buffer = NULL;
 
   if (M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID) {
@@ -112,7 +112,7 @@ sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
 }
 
 /**
- * @fn          sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet,
+ * @fn          sl_status_t sli_si91x_bus_write_frame(sl_wifi_system_packet_t *packet,
  *                  uint8_t *payloadparam, uint16_t size_param)
  * @brief       writing a command to the module.
  * @param[in]   payloadparam - pointer to the command payload parameter structure
@@ -121,7 +121,7 @@ sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
  *              Negative Value - Failure
  */
 
-sl_status_t sli_si91x_bus_write_frame(sl_wifi_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
+sl_status_t sli_si91x_bus_write_frame(sl_wifi_system_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
 {
 
   // Fill source address in the TX descriptors

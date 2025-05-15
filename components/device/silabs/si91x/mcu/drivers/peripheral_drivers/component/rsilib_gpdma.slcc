@@ -19,5 +19,8 @@ include:
     - path: "rsi_gpdma.h"
 provides:
   - name: rsilib_gpdma
+requires:
+  - name: romdriver_gpdma
+  - name: romdriver_packing  
 define:
   - name: GPDMA_ROMDRIVER_PRESENT

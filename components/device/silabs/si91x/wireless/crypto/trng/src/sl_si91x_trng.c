@@ -81,7 +81,7 @@ sl_status_t sl_si91x_trng_init(const sl_si91x_trng_config_t *config, uint32_t *o
 {
   sl_wifi_buffer_t *buffer = NULL;
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  const sl_wifi_packet_t *packet = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
 #endif
   sl_status_t status = SL_STATUS_OK;
 
@@ -174,7 +174,7 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
   sl_status_t status;
   sl_wifi_buffer_t *buffer = NULL;
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  const sl_wifi_packet_t *packet = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
 #endif
 
   if ((trng_key == NULL) || (key_length != TRNG_KEY_SIZE)) {
@@ -221,8 +221,8 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
 sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t length)
 {
   sl_status_t status;
-  sl_wifi_buffer_t *buffer = NULL;
-  sl_wifi_packet_t *packet = NULL;
+  sl_wifi_buffer_t *buffer        = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
 
   if ((random_number == NULL) || (length == 0) || (length > 1024)) {
     return SL_STATUS_INVALID_PARAMETER;

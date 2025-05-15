@@ -76,7 +76,8 @@ void rsi_usart_rs485_configure(USART0_Type *usart, usart_rs485_config_t usart_rs
     if (usart->TCR_b.XFER_MODE == RS485_HW_CTRL_HALF_DUPLEX_MODE) {
       // Set the multidrop transmit mode
       usart->LCR_EXT_b.TRANSMIT_MODE = RS485_TX_MODE_0;
-    } else if (usart->TCR_b.XFER_MODE == RS485_SW_CTRL_HALF_DUPLEX_MODE) {
+    } else if ((usart->TCR_b.XFER_MODE == RS485_SW_CTRL_HALF_DUPLEX_MODE)
+               || (usart->TCR_b.XFER_MODE == RS485_SW_CTRL_FULL_DUPLEX_MODE)) {
       // Set the multidrop transmit mode
       usart->LCR_EXT_b.TRANSMIT_MODE = RS485_TX_MODE_1;
     }

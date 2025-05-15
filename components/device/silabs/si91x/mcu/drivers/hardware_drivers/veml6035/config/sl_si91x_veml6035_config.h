@@ -41,7 +41,7 @@ extern "C" {
 #define VEML6035_SLAVE_ADDR 0x29
 
 // <h>I2C Instance for VEML6035 Sensor
-// <o SL_VEML6035_CONFIG_I2C_INSTANCE> I2C Instance
+// <o SL_VEML6035_CONFIG_I2C_INSTANCE> I2C Instance (make sure to install selected I2C instance)
 //   <SL_I2C0=>  I2C0
 //   <SL_I2C1=>  I2C1
 //   <SL_ULP_I2C=>  I2C2 (ULP_I2C)

@@ -52,7 +52,7 @@ template_contribution:
           - "uint8"
           - "uint8"
           - "uint8"
-      net-sta-channel:
+      net-sta-chan:
         handler: net_sta_channel_command_handler
         arguments:
           - "uint8"
@@ -65,7 +65,7 @@ template_contribution:
           - "uint8"
           - "string"
           - "uint8"
-      net-sta-options:
+      net-sta-opt:
         handler: net_sta_options_command_handler
         arguments:
           - "uint8"

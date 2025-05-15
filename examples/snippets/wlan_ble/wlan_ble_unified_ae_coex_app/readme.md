@@ -363,6 +363,8 @@ To measure **WLAN throughput**, run the following commands.
 
     ![](resources/readme/tcp_rx.png)
 
+> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
+
 5. To measure **TLS Tx** throughput, configure the SiWx917 device as a TLS client and follow the steps below to run a TLS server on Windows machine.
 
    - Copy SSL_Server_throughput_d.py from **release/resources/scripts/** to **release/resources/certificates/**.

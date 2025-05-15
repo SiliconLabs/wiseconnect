@@ -405,13 +405,13 @@ static void pin_configurations(void)
 
 #if (I2C_INSTANCE == 2)
   // SCL
-  sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(scl.pin));
-  sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(scl.pin), scl.mode, OUTPUT);
-  sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(scl.pin), GPIO_PULLUP);
+  sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(scl.pin - MAX_GPIO));
+  sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(scl.pin - MAX_GPIO), scl.mode, OUTPUT);
+  sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(scl.pin - MAX_GPIO), GPIO_PULLUP);
   // SDA
-  RSI_EGPIO_UlpPadReceiverEnable(sda.pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, sda.port, sda.pin, sda.mode);
-  sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(sda.pin), GPIO_PULLUP);
+  RSI_EGPIO_UlpPadReceiverEnable(sda.pin - MAX_GPIO);
+  RSI_EGPIO_SetPinMux(EGPIO1, sda.port, (sda.pin - MAX_GPIO), sda.mode);
+  sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(sda.pin - MAX_GPIO), GPIO_PULLUP);
 
 #endif // I2C_INSTANCE 2
 }

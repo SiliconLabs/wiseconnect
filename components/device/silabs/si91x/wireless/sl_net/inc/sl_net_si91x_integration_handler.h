@@ -32,7 +32,7 @@
 
 #define SL_NET_EVENT_DISPATCH_HANDLER(data, packet) sl_net_si91x_event_dispatch_handler(data, packet)
 
-void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_wifi_packet_t *packet);
+void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet);
 
 #define SLI_NETWORK_CLEANUP_HANDLER() sli_si91x_network_cleanup_handler()
 

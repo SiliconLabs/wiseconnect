@@ -99,6 +99,11 @@ int32_t rsi_ble_dual_role(void);
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
+
+#if !WLAN_TASK_ENABLE
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+#endif
+
 #endif
 osThreadId_t wifi_app_thread_id;
 osThreadId_t ble_app_thread_id;
@@ -1189,13 +1194,24 @@ void rsi_ble_main_app_task(void)
   }
 
 #if ENABLE_NWP_POWER_SAVE
+
   printf("\r\n keep module in to power save \r\n");
+
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
   if (status != RSI_SUCCESS) {
-    printf("\r\n Failed to initiate power save in BLE mode \r\n");
+    printf("\r\n Failed to initiate BLE power save \r\n");
     return;
   }
+#if !WLAN_TASK_ENABLE
+
+  //! initiating power save in BLE only mode, for coex mode, wifi power save is called in wifiapp.c
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
+  if (status != SL_STATUS_OK) {
+    printf("\r\n Failed to initiate Wi-Fi power save  :%lx\r\n", status);
+    return;
+  }
+#endif
   printf("\r\n Module is in power save \r\n");
 #endif
 

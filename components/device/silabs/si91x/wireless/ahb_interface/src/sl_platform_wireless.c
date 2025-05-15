@@ -27,7 +27,6 @@
  *
  ******************************************************************************/
 
-#include "FreeRTOSConfig.h"
 #include "rsi_wisemcu_hardware_setup.h"
 #include "rsi_m4.h"
 #include "rsi_rom_egpio.h"
@@ -41,6 +40,7 @@
 #include <stdio.h>
 #include "cmsis_os2.h"
 #include "sl_rsi_utility.h"
+#include "sl_si91x_os.h"
 
 extern osEventFlagsId_t si91x_events;
 extern osEventFlagsId_t si91x_async_events;
@@ -362,7 +362,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   __enable_irq();
 
   // Systick configuration upon Wake-up
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
+  SysTick_Config(SystemCoreClock / SL_OS_SYSTEM_TICK_RATE);
 #endif // SL_SI91X_TICKLESS_MODE  == 0
 }
 

@@ -59,15 +59,16 @@ sl_status_t sl_wifi_set_credential(sl_wifi_credential_id_t id,
   if ((NULL == credential) || (0 == credential_length)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-
-  if (credentials[id] == NULL) {
-    credentials[id] = malloc(sizeof(sl_wifi_basic_credential_entry_t) + credential_length);
-    if (credentials[id] == NULL) {
-      return SL_STATUS_ALLOCATION_FAILED;
-    }
-    memset(credentials[id], 0, sizeof(sl_wifi_basic_credential_entry_t) + credential_length);
-    credentials[id]->data_length = (uint16_t)credential_length;
+  // If a credential already exists for the given ID, free the allocated memory and allocate memory for the new credential
+  if (credentials[id] != NULL) {
+    free(credentials[id]);
   }
+  credentials[id] = malloc(sizeof(sl_wifi_basic_credential_entry_t) + credential_length);
+  if (credentials[id] == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+  memset(credentials[id], 0, sizeof(sl_wifi_basic_credential_entry_t) + credential_length);
+
   entry              = credentials[id];
   entry->type        = type;
   entry->data_length = (uint16_t)credential_length;

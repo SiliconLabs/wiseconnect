@@ -163,6 +163,7 @@ sl_status_t net_init_check_command_handler(console_args_t *arguments)
 
 sl_status_t net_init_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   sl_status_t status;
   sl_net_interface_t interface = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
   sl_net_event_handler_t event_handler = NULL;
@@ -211,6 +212,7 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
 
 sl_status_t net_deinit_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   sl_status_t status;
   sl_net_interface_t interface = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
 
@@ -236,6 +238,7 @@ sl_status_t net_deinit_command_handler(console_args_t *arguments)
 
 sl_status_t net_up_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
   sl_status_t status;
   sl_net_interface_t interface   = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
@@ -288,6 +291,7 @@ sl_status_t net_up_command_handler(console_args_t *arguments)
 
 sl_status_t net_down_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   sl_status_t status;
   sl_net_interface_t interface = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
 
@@ -314,11 +318,11 @@ sl_status_t net_down_command_handler(console_args_t *arguments)
 
 sl_status_t net_cred_wifipsk_command_handler(console_args_t *arguments)
 {
-  sl_net_credential_id_t cred_id =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID, sl_net_credential_id_t);
-  const char *password = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
+  sl_net_credential_id_t cred_id = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_credential_id_t);
+  const char *password           = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
 
-  if (password == NULL)
+  if ((password == NULL) || (cred_id == 0))
     return SL_STATUS_INVALID_PARAMETER;
 
   sl_status_t status = sl_net_set_credential(cred_id, SL_NET_WIFI_PSK, password, strlen(password));
@@ -440,6 +444,7 @@ void display_wifi_client_profile(const sl_net_wifi_client_profile_t *profile)
 
 sl_status_t net_sta_credential_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x07);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
   char *ssid                     = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, char *);
   sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
@@ -472,6 +477,7 @@ sl_status_t net_sta_credential_command_handler(console_args_t *arguments)
 
 sl_status_t net_sta_channel_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
   sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
 
@@ -479,7 +485,7 @@ sl_status_t net_sta_channel_command_handler(console_args_t *arguments)
     return SL_STATUS_INVALID_PARAMETER; // Invalid profile ID
   }
 
-  profile->config.channel.channel   = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_WIFI_AUTO_CHANNEL, uint16_t);
+  profile->config.channel.channel   = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint16_t);
   profile->config.channel.band      = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_AUTO_BAND, uint8_t);
   profile->config.channel.bandwidth = GET_OPTIONAL_COMMAND_ARG(arguments, 3, SL_WIFI_AUTO_BANDWIDTH, uint8_t);
 
@@ -494,6 +500,7 @@ sl_status_t net_sta_channel_command_handler(console_args_t *arguments)
 
 sl_status_t net_sta_bss_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
   sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
 
@@ -526,6 +533,7 @@ sl_status_t net_sta_bss_command_handler(console_args_t *arguments)
 
 sl_status_t net_sta_options_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
   sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
 
@@ -533,11 +541,10 @@ sl_status_t net_sta_options_command_handler(console_args_t *arguments)
     return SL_STATUS_INVALID_PARAMETER; // Invalid profile ID
   }
 
-  profile->config.client_options = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint8_t);
-  profile->config.channel_bitmap.channel_bitmap_2_4 =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_DEFAULT_CHANNEL_BITMAP, uint16_t);
-  profile->config.channel_bitmap.channel_bitmap_5 = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
-  profile->priority                               = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t);
+  profile->config.client_options                    = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint8_t);
+  profile->config.channel_bitmap.channel_bitmap_2_4 = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint16_t);
+  profile->config.channel_bitmap.channel_bitmap_5   = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
+  profile->priority                                 = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t);
 
   display_wifi_client_profile(profile);
 
@@ -550,6 +557,7 @@ sl_status_t net_sta_options_command_handler(console_args_t *arguments)
 
 sl_status_t net_sta_ip_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x07);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
   sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
 
@@ -594,6 +602,7 @@ sl_status_t net_sta_ip_command_handler(console_args_t *arguments)
 
 sl_status_t net_dhcp_config_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x3f);
   ip_config.dhcp_config.min_discover_retry_interval = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 5, uint16_t);
   ip_config.dhcp_config.max_discover_retry_interval = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 100, uint16_t);
   ip_config.dhcp_config.min_request_retry_interval  = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 5, uint16_t);
@@ -607,6 +616,7 @@ sl_status_t net_dhcp_config_command_handler(console_args_t *arguments)
 
 sl_status_t net_configure_ip_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x07);
   sl_net_interface_t interface =
     (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
   uint32_t timeout = GET_OPTIONAL_COMMAND_ARG(arguments, 10, SLI_SI91X_WAIT_FOR_EVER, uint32_t);

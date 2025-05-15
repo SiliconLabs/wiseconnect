@@ -102,9 +102,17 @@ int readPacket(Client *c, Timer *timer)
   int len           = 0;
   int rem_len       = 0;
 
-  /* 1. read the header byte.  This has the packet type in it */
-  if (c->ipstack->mqttread(c->ipstack, c->readbuf, 1, left_ms_mqtt(timer)) != 1)
-    goto exit;
+  // 1. read the header byte.  This has the packet type in it
+  // MQTT over WebSocket -  WebSocket header is 2 bytes, requiring a read request greater than 2 bytes for proper processing.
+
+  if (c->ipstack->transport_type == MQTT_TRANSPORT_WEBSOCKET) {
+    if (c->ipstack->mqttread(c->ipstack, c->readbuf, MQTT_WITH_WEBSOCKET_HEADER_LEN, left_ms_mqtt(timer)) != 1)
+      goto exit;
+  } else {
+    /* 1. read the header byte.  This has the packet type in it */
+    if (c->ipstack->mqttread(c->ipstack, c->readbuf, 1, left_ms_mqtt(timer)) != 1)
+      goto exit;
+  }
 
   len = 1;
   /* 2. read the remaining length.  This is variable in itself */

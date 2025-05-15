@@ -513,6 +513,8 @@ To measure TCP Rx throughput, configure the SiWx91x as a TCP client and start a 
 
   ![Figure: TCP_RX](resources/readme/SERVER_TCP_RX.png)
 
+> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
+
 #### TLS Tx Throughput
 
 To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a TLS server on the remote PC as described in the following bullets:

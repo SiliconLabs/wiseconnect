@@ -14,7 +14,7 @@
  *    Allan Stockdill-Mander - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-#include "MQTToverTCP.h"
+#include "MQTTSi91x.h"
 #include "sl_constants.h"
 #include <string.h>
 #include <stdint.h>
@@ -23,10 +23,20 @@
 #include "sl_net.h"
 #include "errno.h"
 #include "sl_si91x_socket_types.h"
-
 //For TLS
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_constants.h"
+
+//For WebSocket functionality
+#include "sl_websocket_client_types.h"
+#include "sl_websocket_client.h"
+#include "sli_websocket_client_sync.h"
+
+#define MQTT_WEBSOCKET_RESOURCE    "/mqtt"
+#define MQTT_WEBSOCKET_SUBPROTOCOL "mqtt"
+
+// WebSocket handle for MQTT connection
+static sl_websocket_client_t ws_handle = { 0 };
 
 char expired(Timer *timer)
 {
@@ -55,7 +65,7 @@ void InitTimer(Timer *timer)
   timer->end_time = 0;
 }
 
-static int mqtt_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
+static int mqtt_tcp_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
   struct timeval timeout;
   timeout.tv_sec  = timeout_ms / 1000;
@@ -68,38 +78,26 @@ static int mqtt_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
   return (bytes < 0) ? -1 : bytes;
 }
 
-static int mqtt_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
+static int mqtt_tcp_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
   UNUSED_PARAMETER(timeout_ms);
   return send(n->socket, buffer, len, 0);
 }
 
-static void mqtt_disconnect(Network *n)
+static void mqtt_tcp_disconnect(Network *n)
 {
   if (n->socket >= 0) {
     close(n->socket);
   }
 }
 
-void NetworkDisconnect(Network *n)
-{
-  mqtt_disconnect(n);
-}
-
-void NewNetwork(Network *n)
-{
-  n->socket     = -1;
-  n->mqttread   = mqtt_read;
-  n->mqttwrite  = mqtt_write;
-  n->disconnect = mqtt_disconnect;
-}
-
-int ConnectNetwork(Network *n, uint8_t flags, char *addr, int dst_port, int src_port, bool ssl)
+static int mqtt_tcpconnection_handler(Network *n, uint8_t flags, char *addr, int dst_port, int src_port, bool ssl)
 {
   UNUSED_PARAMETER(flags);
   int type = SOCK_STREAM;
   int rc   = -1;
   int status;
+
 #ifdef SLI_SI91X_ENABLE_IPV6
   struct sockaddr_in6 server_address_v6 = { 0 };
   struct sockaddr_in6 clientAddr_v6     = { 0 };
@@ -169,7 +167,7 @@ int ConnectNetwork(Network *n, uint8_t flags, char *addr, int dst_port, int src_
 
   if (status != SL_STATUS_OK) {
     printf("\r\nSocket bind failed with bsd error: %d\r\n", errno);
-    mqtt_disconnect(n);
+    mqtt_tcp_disconnect(n);
     return status;
   }
 
@@ -180,10 +178,134 @@ int ConnectNetwork(Network *n, uint8_t flags, char *addr, int dst_port, int src_
 #endif
   if (rc == -1) {
     printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
-    ;
     close(n->socket);
     return rc;
   }
   printf("\nSocket connection success \n");
   return status;
+}
+
+static int mqtt_ws_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
+{
+  struct timeval timeout;
+
+  timeout.tv_sec  = timeout_ms / 1000;
+  timeout.tv_usec = (timeout_ms % 1000) * 1000;
+
+  // Set socket receive timeout
+  setsockopt(n->socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+  int bytes = recv(n->socket, buffer, len, 0);
+  return (bytes < 0) ? -1 : bytes;
+}
+
+static int mqtt_ws_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
+{
+  UNUSED_PARAMETER(n);
+  UNUSED_PARAMETER(timeout_ms);
+
+  sl_websocket_send_request_t send_request;
+  send_request.opcode = SL_WEBSOCKET_OPCODE_BINARY | SL_WEBSOCKET_FIN_BIT;
+  send_request.buffer = buffer;
+  send_request.length = len;
+
+  sl_websocket_error_t ws_error = sl_websocket_send_frame(&ws_handle, &send_request);
+  if (ws_error != SL_WEBSOCKET_SUCCESS) {
+    return ws_error;
+  }
+
+  return len;
+}
+
+static void mqtt_ws_disconnect(Network *n)
+{
+  UNUSED_PARAMETER(n);
+
+  sl_websocket_close(&ws_handle);
+  sl_websocket_deinit(&ws_handle);
+}
+
+static int mqtt_websocketconnection_handler(Network *n, uint8_t flags, char *addr, int dst_port, int src_port, bool ssl)
+{
+  UNUSED_PARAMETER(flags);
+  sl_websocket_config_t ws_config = {
+    .host                = addr,
+    .resource            = MQTT_WEBSOCKET_RESOURCE,
+    .server_port         = dst_port,
+    .client_port         = src_port,
+    .ip_address          = addr,
+    .data_cb             = NULL,
+    .remote_terminate_cb = NULL,
+    .enable_ssl          = ssl,
+  };
+
+  // Initialize WebSocket
+  sl_websocket_error_t ws_error = sl_websocket_init(&ws_handle, &ws_config);
+  if (ws_error != SL_WEBSOCKET_SUCCESS) {
+    return ws_error;
+  }
+
+  // Set MQTT subprotocol
+  ws_error = sli_websocket_set_subprotocol(&ws_handle, MQTT_WEBSOCKET_SUBPROTOCOL);
+  if (ws_error != SL_WEBSOCKET_SUCCESS) {
+    sl_websocket_deinit(&ws_handle);
+    return ws_error;
+  }
+
+  // Connect WebSocket
+  ws_error = sli_websocket_connect_sync(&ws_handle);
+  if (ws_error != SL_WEBSOCKET_SUCCESS) {
+    sl_websocket_deinit(&ws_handle);
+    return ws_error;
+  }
+
+  n->socket = ws_handle.socket_fd;
+  return 0;
+}
+
+// Initialize the network structure
+void NetworkInit(Network *n)
+{
+  if (n == NULL)
+    return;
+
+  n->socket = -1;
+
+  if (n->transport_type == MQTT_TRANSPORT_TCP) {
+    n->mqttread   = mqtt_tcp_read;
+    n->mqttwrite  = mqtt_tcp_write;
+    n->disconnect = mqtt_tcp_disconnect;
+  } else if (n->transport_type == MQTT_TRANSPORT_WEBSOCKET) {
+    n->mqttread   = mqtt_ws_read;
+    n->mqttwrite  = mqtt_ws_write;
+    n->disconnect = mqtt_ws_disconnect;
+  }
+}
+
+// Connect to the MQTT broker using the specified transport type (TCP or WebSocket)
+int NetworkConnect(Network *n, uint8_t flags, char *addr, int dst_port, int src_port, bool ssl)
+{
+  if (n == NULL) {
+    return NETWORK_ERROR_NULL_STRUCTURE; // Error: NULL network structure
+  }
+
+  if (addr == NULL) {
+    return NETWORK_ERROR_NULL_ADDRESS; // Error: NULL address
+  }
+
+  if (n->transport_type == MQTT_TRANSPORT_TCP) {
+    return mqtt_tcpconnection_handler(n, flags, addr, dst_port, src_port, ssl);
+  } else if (n->transport_type == MQTT_TRANSPORT_WEBSOCKET) {
+    return mqtt_websocketconnection_handler(n, flags, addr, dst_port, src_port, ssl);
+  } else {
+    return NETWORK_ERROR_INVALID_TYPE; // Error: invalid transport type
+  }
+}
+
+// Cleans up and closes the network connection.
+void NetworkDisconnect(Network *n)
+{
+  if (n && n->disconnect) {
+    n->disconnect(n);
+  }
+  return;
 }

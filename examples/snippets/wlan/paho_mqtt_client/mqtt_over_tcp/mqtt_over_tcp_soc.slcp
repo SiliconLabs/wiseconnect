@@ -1,10 +1,10 @@
 project_name: wifi_mqtt_over_tcp_soc
 package: wifi
 quality: alpha
-label: Wi-Fi - MQTT_OVER_TCP
+label: Wi-Fi - Paho MQTT OVER TCP
 category: Example|Wi-Fi
 description: >
-  Demonstrates how SiWx91x device is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic using the Paho MQTT library
+  Demonstrates how SiWx91x device is configured as an MQTT client over TCP, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic using the Paho MQTT library
 filter:
   - name: Wireless Technology
     value:
@@ -61,6 +61,7 @@ readme:
 - path: readme.md
 other_file:
 -  path: resources/readme/mqtt_add_topic_name.png
+-  path: resources/readme/mqtt_server.png
 -  path: resources/readme/mqtt_application_prints_soc.png
 -  path: resources/readme/mqtt_connect.png
 -  path: resources/readme/mqtt_connect_subscribe.png

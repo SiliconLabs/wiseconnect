@@ -20,7 +20,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Development Kit [ BRD2605A ]
+- Silicon Labs SiWx917 Development Kit [ BRD2605A ]
 
 ### Software Requirements
 

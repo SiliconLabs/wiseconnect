@@ -92,7 +92,7 @@ static sl_mqtt_client_t *mqtt_client;
 static sl_mqtt_client_error_status_t sli_si91x_get_event_error_status(sl_mqtt_client_event_t event);
 static void sli_si91x_handle_connected_event(sl_status_t status,
                                              sl_si91x_mqtt_client_context_t *sdk_context,
-                                             const sl_wifi_packet_t *rx_packet,
+                                             const sl_wifi_system_packet_t *rx_packet,
                                              bool *is_error_event,
                                              uint8_t **event_data,
                                              sl_mqtt_client_disconnection_reason_t *reason);
@@ -103,10 +103,10 @@ static void sli_si91x_handle_unsubscribed_event(sl_status_t status,
                                                 sl_si91x_mqtt_client_context_t *sdk_context,
                                                 bool *is_error_event);
 static void sli_si91x_handle_message_received_event(sl_si91x_mqtt_client_context_t *sdk_context,
-                                                    sl_wifi_packet_t *rx_packet);
+                                                    sl_wifi_system_packet_t *rx_packet);
 static void sli_si91x_handle_disconnected_event(sl_status_t status,
                                                 sl_si91x_mqtt_client_context_t *sdk_context,
-                                                const sl_wifi_packet_t *rx_packet,
+                                                const sl_wifi_system_packet_t *rx_packet,
                                                 bool *is_error_event,
                                                 uint8_t **event_data,
                                                 sl_mqtt_client_disconnection_reason_t *reason);
@@ -803,13 +803,13 @@ static uint8_t sli_si91x_mqtt_identification_function(sl_wifi_buffer_t *buffer, 
   UNUSED_PARAMETER(user_data);
   if (buffer == NULL)
     return false;
-  const sl_wifi_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  const sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   return (SLI_WLAN_REQ_EMB_MQTT_CLIENT == packet->command);
 }
 
 sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
                                          sl_si91x_mqtt_client_context_t *sdk_context,
-                                         sl_wifi_packet_t *rx_packet)
+                                         sl_wifi_system_packet_t *rx_packet)
 {
   sl_mqtt_client_error_status_t error_status   = sli_si91x_get_event_error_status(sdk_context->event);
   bool is_error_event                          = false;
@@ -859,7 +859,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
 
 static void sli_si91x_handle_connected_event(sl_status_t status,
                                              sl_si91x_mqtt_client_context_t *sdk_context,
-                                             const sl_wifi_packet_t *rx_packet,
+                                             const sl_wifi_system_packet_t *rx_packet,
                                              bool *is_error_event,
                                              uint8_t **event_data,
                                              sl_mqtt_client_disconnection_reason_t *reason)
@@ -928,7 +928,7 @@ static void sli_si91x_handle_unsubscribed_event(sl_status_t status,
 }
 
 static void sli_si91x_handle_message_received_event(sl_si91x_mqtt_client_context_t *sdk_context,
-                                                    sl_wifi_packet_t *rx_packet)
+                                                    sl_wifi_system_packet_t *rx_packet)
 {
   // Extract the MQTT message from payload and create sl_mqtt_message
   sl_mqtt_client_message_t received_message;
@@ -967,7 +967,7 @@ static void sli_si91x_handle_message_received_event(sl_si91x_mqtt_client_context
 
 static void sli_si91x_handle_disconnected_event(sl_status_t status,
                                                 sl_si91x_mqtt_client_context_t *sdk_context,
-                                                const sl_wifi_packet_t *rx_packet,
+                                                const sl_wifi_system_packet_t *rx_packet,
                                                 bool *is_error_event,
                                                 uint8_t **event_data,
                                                 sl_mqtt_client_disconnection_reason_t *reason)

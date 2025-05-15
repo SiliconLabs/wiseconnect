@@ -294,7 +294,7 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
                                           uint32_t wait_period,
                                           sl_wifi_buffer_t **response_buffer);
 
-int sli_si91x_get_socket_id(sl_wifi_packet_t *packet);
+int sli_si91x_get_socket_id(sl_wifi_system_packet_t *packet);
 
 /**
  * A internal function to find a socket with the matching ID and not in the exlcuded_state

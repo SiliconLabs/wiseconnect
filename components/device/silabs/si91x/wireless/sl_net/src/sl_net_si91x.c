@@ -87,6 +87,7 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
+  sli_cleanup_auto_join();
   return sl_wifi_deinit();
 }
 
@@ -298,7 +299,7 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
   SL_WIFI_ARGS_CHECK_NULL_POINTER(sl_ip_address);
 
   sl_status_t status;
-  sl_wifi_packet_t *packet;
+  sl_wifi_system_packet_t *packet;
   sl_wifi_buffer_t *buffer                        = NULL;
   const sli_si91x_dns_response_t *dns_response    = { 0 };
   sli_si91x_dns_query_request_t dns_query_request = { 0 };

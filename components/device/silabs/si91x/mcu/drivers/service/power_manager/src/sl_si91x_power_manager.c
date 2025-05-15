@@ -52,11 +52,11 @@ static sl_clock_scaling_t clock_scaling_mode                   = SL_SI91X_POWER_
 // Table of power state counters. Each counter indicates the presence (not zero)
 // or absence (zero) of requirements on a given power state.
 static uint8_t requirement_ps_table[POWER_STATE_TABLE_SIZE] = {
-  0, // SL_SI91X_POWER_MANAGER_PS4 requirement counter
-  0, // SL_SI91X_POWER_MANAGER_PS3 requirement counter
-  0, // SL_SI91X_POWER_MANAGER_PS2 requirement counter
-  0, // SL_SI91X_POWER_MANAGER_PS1 requirement counter
   0, // SL_SI91X_POWER_MANAGER_PS0 requirement counter
+  0, // SL_SI91X_POWER_MANAGER_PS1 requirement counter
+  0, // SL_SI91X_POWER_MANAGER_PS2 requirement counter
+  0, // SL_SI91X_POWER_MANAGER_PS3 requirement counter
+  0, // SL_SI91X_POWER_MANAGER_PS4 requirement counter
 };
 /*******************************************************************************
  ***************************  Local Types  ********************************

@@ -42,7 +42,7 @@
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "cmsis_os2.h"
-#include "FreeRTOSConfig.h"
+#include "sl_si91x_os.h"
 #endif
 
 sl_status_t sli_si91x_submit_rx_pkt(void);
@@ -62,7 +62,7 @@ void sli_si91x_platform_init(void)
   DWT->CTRL |= 0x1;
 
 #if (SL_SI91X_TICKLESS_MODE == 0)
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
+  SysTick_Config(SystemCoreClock / SL_OS_SYSTEM_TICK_RATE);
   // Set P2P Intr priority
   NVIC_SetPriority(SysTick_IRQn, SYSTICK_INTR_PRI);
 #endif

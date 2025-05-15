@@ -26,7 +26,7 @@ source:
 - path: MQTTPacket/src/MQTTSerializePublish.c
 - path: MQTTPacket/src/MQTTSubscribeClient.c
 - path: MQTTPacket/src/MQTTUnsubscribeClient.c
-- path: MQTTClient-C/src/Si91x/MQTToverTCP.c
+- path: MQTTClient-C/src/Si91x/MQTTSi91x.c
 
 
 
@@ -41,7 +41,7 @@ include:
 
 - path: MQTTClient-C/src/Si91x
   file_list:
-     - path: MQTToverTCP.h
+     - path: MQTTSi91x.h
 
 - path: MQTTPacket/src/
   file_list:
@@ -56,5 +56,6 @@ include:
      
 requires:
 - name: bsd_socket
+- name: sl_websocket_client
 
 

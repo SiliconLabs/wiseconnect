@@ -143,7 +143,6 @@ typedef struct mqtt_client_s {
  *               Function Declarations
 ******************************************************/
 static void application_start(void *argument);
-void NewNetwork();
 int paho_mqtt_demo();
 
 /******************************************************
@@ -227,7 +226,13 @@ static void application_start(void *argument)
     printf("Gateway Address: ");
     print_sl_ip_address(&gateway);
   }
-  paho_mqtt_demo();
+
+  int result = paho_mqtt_demo();
+  if (result == 0) {
+    printf("Paho MQTT over TCP demo executed successfully.\n");
+  } else {
+    printf("Paho MQTT over TCP demo failed with error code: %d\n", result);
+  }
 }
 
 int paho_mqtt_demo()
@@ -264,7 +269,9 @@ int paho_mqtt_demo()
   buffer_ptr += TCP_MQTT_CLIENT_TX_BUFFER_SIZE;
   mqtt_client->tcp_mqtt_rx_buffer = buffer_ptr;
   buffer_ptr += TCP_MQTT_CLIENT_RX_BUFFER_SIZE;
-  NewNetwork(mqtt_client->client.ipstack);
+  mqtt_client->client.ipstack->transport_type = MQTT_TRANSPORT_TCP;
+
+  NetworkInit(mqtt_client->client.ipstack);
 
   MQTTClient((Client *)mqtt_client,
              mqtt_client->client.ipstack,
@@ -274,12 +281,27 @@ int paho_mqtt_demo()
              (uint8_t *)mqtt_client->tcp_mqtt_rx_buffer,
              TCP_MQTT_CLIENT_RX_BUFFER_SIZE);
 
-  status                             = ConnectNetwork(mqtt_client->client.ipstack,
+  status = NetworkConnect(mqtt_client->client.ipstack,
                           flags,
                           (char *)&(mqtt_client->server_ip),
                           mqtt_client->server_port,
                           mqtt_client->client_port,
                           enable_ssl);
+
+  if (status == NETWORK_ERROR_NULL_STRUCTURE) {
+    printf("\r\nError: Network structure is NULL.\r\n");
+    return status;
+  } else if (status == NETWORK_ERROR_NULL_ADDRESS) {
+    printf("\r\nError: Address is NULL.\r\n");
+    return status;
+  } else if (status == NETWORK_ERROR_INVALID_TYPE) {
+    printf("\r\nError: Invalid transport type.\r\n");
+    return status;
+  } else if (status != 0) {
+    printf("\r\n TCP Connection Failed: %d\r\n", status);
+    return status;
+  }
+
   MQTTPacket_connectData connectData = MQTTPacket_connectData_initializer;
   connectData.willFlag               = 0;
   // MQTT Version
@@ -359,7 +381,11 @@ int paho_mqtt_demo()
   } else {
     printf("\r\nDisconnect to the MQTT broker Success\r\n");
   }
-  NetworkDisconnect(mqtt_client->client.ipstack);
+
+  if (mqtt_client->client.ipstack) {
+    NetworkDisconnect(mqtt_client->client.ipstack);
+  }
+
   printf("\r\nExecution completed!\r\n");
 
   return 0;

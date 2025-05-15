@@ -494,9 +494,9 @@ sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_w
 {
   void *packet;
   struct netif *ifp;
-  sl_wifi_packet_t *rsi_pkt;
+  sl_wifi_system_packet_t *rsi_pkt;
   packet  = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  rsi_pkt = (sl_wifi_packet_t *)packet;
+  rsi_pkt = (sl_wifi_system_packet_t *)packet;
   SL_DEBUG_LOG("\nRX len : %d\n", rsi_pkt->length);
 
   /* get the network interface for STATION interface,

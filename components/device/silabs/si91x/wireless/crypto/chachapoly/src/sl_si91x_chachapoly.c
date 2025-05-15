@@ -45,9 +45,9 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
                                                 uint8_t chachapoly_flags,
                                                 uint8_t *output)
 {
-  sl_status_t status       = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer = NULL;
-  sl_wifi_packet_t *packet = NULL;
+  sl_status_t status              = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer        = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
   sli_si91x_chachapoly_request_t *request =
     (sli_si91x_chachapoly_request_t *)malloc(sizeof(sli_si91x_chachapoly_request_t));
 

@@ -470,7 +470,7 @@ static bool sli_filter_scan_info(const sli_scan_info_t *scan_info,
  *            Internal Function Declarations
  ******************************************************/
 // Function to Parse the Beacon and Probe response Frames
-void sli_handle_wifi_beacon(sl_wifi_packet_t *packet)
+void sli_handle_wifi_beacon(sl_wifi_system_packet_t *packet)
 {
   uint8_t subtype                   = 0;
   sli_wifi_data_frame_t *wifi_frame = (sli_wifi_data_frame_t *)packet->data;
@@ -1372,7 +1372,7 @@ sl_status_t sli_handle_command_in_flight_packet(sli_si91x_command_queue_t *queue
   // Allocate buffer for the dummy packet
   status = sli_si91x_host_allocate_buffer(&dummy_packet_buffer,
                                           SL_WIFI_RX_FRAME_BUFFER,
-                                          sizeof(sl_wifi_packet_t),
+                                          sizeof(sl_wifi_system_packet_t),
                                           SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   if (status != SL_STATUS_OK) {
     sli_si91x_host_free_buffer(current_packet);
@@ -1380,10 +1380,10 @@ sl_status_t sli_handle_command_in_flight_packet(sli_si91x_command_queue_t *queue
   }
 
   // Get the dummy packet data from the allocated buffer
-  sl_wifi_packet_t *dummy_packet = sl_si91x_host_get_buffer_data(dummy_packet_buffer, 0, NULL);
-  queue_node->host_packet        = dummy_packet_buffer;
-  dummy_packet->desc[2]          = (uint8_t)queue->frame_type;
-  dummy_packet->desc[3]          = (uint8_t)((0xFF00 & queue->frame_type) >> 8);
+  sl_wifi_system_packet_t *dummy_packet = sl_si91x_host_get_buffer_data(dummy_packet_buffer, 0, NULL);
+  queue_node->host_packet               = dummy_packet_buffer;
+  dummy_packet->desc[2]                 = (uint8_t)queue->frame_type;
+  dummy_packet->desc[3]                 = (uint8_t)((0xFF00 & queue->frame_type) >> 8);
 
   if (!compare_function || compare_function(queue_node->host_packet, user_data)) {
     sli_flush_command_in_flight_packet(queue, current_packet, dummy_packet_buffer, event_mask);
@@ -1450,18 +1450,19 @@ void sli_process_socket_close(sli_si91x_queue_packet_t *queue_node, const sli_si
   sl_status_t status =
     sli_si91x_host_allocate_buffer(&host_packet,
                                    SL_WIFI_RX_FRAME_BUFFER,
-                                   sizeof(sl_wifi_packet_t) + sizeof(sl_si91x_socket_close_response_t),
+                                   sizeof(sl_wifi_system_packet_t) + sizeof(sl_si91x_socket_close_response_t),
                                    SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   // If buffer allocation fails, log an error, trigger a breakpoint, and return
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
     BREAKPOINT();
   }
-  queue_node->host_packet        = host_packet;
-  queue_node->frame_status       = SL_STATUS_OK;
-  sl_wifi_packet_t *si91x_packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(queue_node->host_packet, 0, NULL);
-  si91x_packet->desc[12]         = 0;
-  si91x_packet->desc[13]         = 0;
+  queue_node->host_packet  = host_packet;
+  queue_node->frame_status = SL_STATUS_OK;
+  sl_wifi_system_packet_t *si91x_packet =
+    (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(queue_node->host_packet, 0, NULL);
+  si91x_packet->desc[12]                                  = 0;
+  si91x_packet->desc[13]                                  = 0;
   sl_si91x_socket_close_response_t *socket_close_response = (sl_si91x_socket_close_response_t *)si91x_packet->data;
   socket_close_response->socket_id                        = (uint16_t)socket->id;
   socket_close_response->port_number                      = socket->local_address.sin6_port;
@@ -1473,7 +1474,8 @@ void sli_process_socket_read_data(sli_si91x_queue_packet_t *queue_node,
                                   uint16_t frame_status,
                                   sli_si91x_socket_t *socket)
 {
-  sl_wifi_packet_t *si91x_packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(queue_node->host_packet, 0, NULL);
+  sl_wifi_system_packet_t *si91x_packet =
+    (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(queue_node->host_packet, 0, NULL);
   if (si91x_packet != NULL) {
     si91x_packet->desc[12] = (uint8_t)(frame_status & 0x00FF);
     si91x_packet->desc[13] = (uint8_t)((frame_status & 0xFF00) >> 8);
@@ -1564,9 +1566,9 @@ sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t in
       sl_wifi_buffer_t *host_packet = NULL;
       uint16_t length               = 0;
       if (socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_CLOSE) {
-        length = sizeof(sl_wifi_packet_t) + sizeof(sl_si91x_socket_close_response_t);
+        length = sizeof(sl_wifi_system_packet_t) + sizeof(sl_si91x_socket_close_response_t);
       } else {
-        length = sizeof(sl_wifi_packet_t);
+        length = sizeof(sl_wifi_system_packet_t);
       }
       // Allocate a buffer for the host packet
       status = sli_si91x_host_allocate_buffer(&host_packet,
@@ -1580,13 +1582,14 @@ sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t in
       }
 
       // Populate the packet descriptor with frame status
-      sl_wifi_packet_t *si91x_packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(host_packet, 0, NULL);
-      si91x_packet->desc[12]         = (uint8_t)(frame_status & 0x00FF);
-      si91x_packet->desc[13]         = (uint8_t)((frame_status & 0xFF00) >> 8);
-      si91x_packet->desc[2]          = (uint8_t)(socket->command_queue.frame_type & 0x00FF);
-      si91x_packet->desc[3]          = (uint8_t)((socket->command_queue.frame_type & 0xFF00) >> 8);
-      queue_node->host_packet        = host_packet;
-      host_packet->id                = current_packet->id;
+      sl_wifi_system_packet_t *si91x_packet =
+        (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(host_packet, 0, NULL);
+      si91x_packet->desc[12]  = (uint8_t)(frame_status & 0x00FF);
+      si91x_packet->desc[13]  = (uint8_t)((frame_status & 0xFF00) >> 8);
+      si91x_packet->desc[2]   = (uint8_t)(socket->command_queue.frame_type & 0x00FF);
+      si91x_packet->desc[3]   = (uint8_t)((socket->command_queue.frame_type & 0xFF00) >> 8);
+      queue_node->host_packet = host_packet;
+      host_packet->id         = current_packet->id;
       if (socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_CLOSE) {
         si91x_packet->desc[12]   = 0;
         si91x_packet->desc[13]   = 0;

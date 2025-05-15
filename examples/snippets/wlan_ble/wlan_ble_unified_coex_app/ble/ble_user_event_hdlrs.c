@@ -3688,32 +3688,34 @@ void rsi_bt_event_smp_req(uint16_t status, void *event_data)
   memcpy(&rsi_ble_conn_info[ble_conn_id].rsi_ble_event_smp_req, remote_smp, sizeof(rsi_bt_event_smp_req_t));
   printf("\r\n in smp request \r\n -conn%d \r\n", ble_conn_id);
   rsi_ble_conn_info[ble_conn_id].conn_state = on_connect_state;
-  if (ble_confgs.ble_conn_configuration[ble_conn_id].smp_enable) {
-    rsi_ble_conn_info[ble_conn_id].smp_pairing_request_received = true;
+  if (rsi_ble_conn_info[ble_conn_id].mtu_exchange_done) {
+    if (ble_confgs.ble_conn_configuration[ble_conn_id].smp_enable) {
+      rsi_ble_conn_info[ble_conn_id].smp_pairing_request_received = true;
 
-    if (rsi_ble_conn_info[ble_conn_id].first_connect == 0) {
-      if (!rsi_ble_conn_info[ble_conn_id].smp_pairing_initated) {
-        //! initiating the SMP pairing process
-        status = rsi_ble_smp_pair_request(rsi_ble_conn_info[ble_conn_id].rsi_ble_event_smp_req.dev_addr,
-                                          RSI_BLE_SMP_IO_CAPABILITY,
-                                          MITM_ENABLE);
-        if (status != RSI_SUCCESS) {
-          printf("\r\n RSI_BLE_SMP_REQ_EVENT: failed to initiate the SMP pairing process: 0x%x \r\n -conn%d",
-                 status,
-                 ble_conn_id);
-        } else {
-          rsi_ble_conn_info[ble_conn_id].smp_pairing_initated = true;
-          // rsi_6byte_dev_address_to_ascii(rsi_ble_conn_info[ble_conn_id].str_remote_address, rsi_ble_conn_info[ble_conn_id].rsi_connected_dev_addr);
-          printf("\r\n smp pairing request initiated to %s - conn%d \r\n",
-                 rsi_ble_conn_info[ble_conn_id].str_remote_address,
-                 ble_conn_id);
+      if (rsi_ble_conn_info[ble_conn_id].first_connect == 0) {
+        if (!rsi_ble_conn_info[ble_conn_id].smp_pairing_initated) {
+          //! initiating the SMP pairing process
+          status = rsi_ble_smp_pair_request(rsi_ble_conn_info[ble_conn_id].rsi_ble_event_smp_req.dev_addr,
+                                            RSI_BLE_SMP_IO_CAPABILITY,
+                                            MITM_ENABLE);
+          if (status != RSI_SUCCESS) {
+            printf("\r\n RSI_BLE_SMP_REQ_EVENT: failed to initiate the SMP pairing process: 0x%x \r\n -conn%d",
+                   status,
+                   ble_conn_id);
+          } else {
+            rsi_ble_conn_info[ble_conn_id].smp_pairing_initated = true;
+            // rsi_6byte_dev_address_to_ascii(rsi_ble_conn_info[ble_conn_id].str_remote_address, rsi_ble_conn_info[ble_conn_id].rsi_connected_dev_addr);
+            printf("\r\n smp pairing request initiated to %s - conn%d \r\n",
+                   rsi_ble_conn_info[ble_conn_id].str_remote_address,
+                   ble_conn_id);
+          }
         }
+      } else {
+        status = rsi_ble_start_encryption(rsi_ble_conn_info[ble_conn_id].rsi_ble_event_smp_req.dev_addr,
+                                          rsi_ble_conn_info[ble_conn_id].rsi_encryption_enabled.localediv,
+                                          rsi_ble_conn_info[ble_conn_id].rsi_encryption_enabled.localrand,
+                                          rsi_ble_conn_info[ble_conn_id].rsi_encryption_enabled.localltk);
       }
-    } else {
-      status = rsi_ble_start_encryption(rsi_ble_conn_info[ble_conn_id].rsi_ble_event_smp_req.dev_addr,
-                                        rsi_ble_conn_info[ble_conn_id].rsi_encryption_enabled.localediv,
-                                        rsi_ble_conn_info[ble_conn_id].rsi_encryption_enabled.localrand,
-                                        rsi_ble_conn_info[ble_conn_id].rsi_encryption_enabled.localltk);
     }
   }
 }

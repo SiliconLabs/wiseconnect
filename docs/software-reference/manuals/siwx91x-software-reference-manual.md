@@ -794,7 +794,17 @@ When a project includes both RS485-enabled UART0 and UART1 (or vice-versa), the 
 ### Appendix G: Exception Handlers
 Exception handlers are critical for managing unexpected events and ensuring system stability. Implementing custom exception handlers allows developers to handle specific exceptions and perform necessary actions to maintain system reliability. 
 
-### Appendix H: Acronyms and Abbreviations
+### Appendix H: ULP UART Limitations
+
+The Ultra-Low Power (ULP) UART is optimized for minimal energy consumption but comes with certain limitations that developers need to consider when designing low-power or high-performance applications.
+
+Limitations:
+
+* ULP UART does not support FIFO Threshold in both High Performance and Low Power modes due to UDMA limitations.
+* In High Performance mode, GPDMA is required to use FIFO Threshold, but there is currently no software support for this feature.
+* Always review the latest SDK and Hardware reference manual for updates or changes.
+
+### Appendix I: Acronyms and Abbreviations
 
 | **Term** | **Description** |
 |----------|-----------------|
@@ -827,7 +837,7 @@ Exception handlers are critical for managing unexpected events and ensuring syst
 | VCOM (Virtual COM Port) | A software interface that emulates a physical COM port. |
 | XTAL (Crystal Oscillator) | An electronic oscillator circuit that uses the mechanical resonance of a vibrating crystal to create an electrical signal with a precise frequency. |
 
-### Appendix I: Contact Information
+### Appendix J: Contact Information
 For further assistance and support, please contact:
 
 * Silicon Labs Support: [Silicon Labs Support] (https://www.silabs.com/support)

@@ -47,10 +47,10 @@ static sl_status_t sli_si91x_aes_pending(const sl_si91x_aes_config_t *config,
                                          uint8_t aes_flags,
                                          uint8_t *output)
 {
-  sl_status_t status               = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer         = NULL;
-  const sl_wifi_packet_t *packet   = NULL;
-  sli_si91x_aes_request_t *request = (sli_si91x_aes_request_t *)malloc(sizeof(sli_si91x_aes_request_t));
+  sl_status_t status                    = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer              = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
+  sli_si91x_aes_request_t *request      = (sli_si91x_aes_request_t *)malloc(sizeof(sli_si91x_aes_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
   memset(request, 0, sizeof(sli_si91x_aes_request_t));

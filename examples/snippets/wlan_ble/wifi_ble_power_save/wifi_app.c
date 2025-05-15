@@ -231,7 +231,7 @@ void rsi_wlan_app_task(void)
         ssid.length  = (uint8_t)strnlen(SSID, sizeof(ssid.value));
         memcpy(ssid.value, SSID, ssid.length);
 
-        status = sl_wifi_get_pairwise_master_key(SL_NET_WIFI_CLIENT_INTERFACE, type, &ssid, PSK, pairwise_master_key);
+        status = sl_wifi_get_pairwise_master_key(SL_WIFI_CLIENT_INTERFACE, type, &ssid, PSK, pairwise_master_key);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nGet Pairwise Master Key Failed, Error Code : 0x%lX\r\n", status);
           return;

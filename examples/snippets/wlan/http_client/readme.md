@@ -165,7 +165,9 @@ Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_https_server.py** 
 
    `python simple_https_server.py 443`
 
-    **NOTE:** If python command is not working, replace the python with py.
+  > **NOTE:** If python command is not working, replace the python with py.
+  
+  > **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
 
 ## Troubleshooting
 

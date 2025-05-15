@@ -117,11 +117,11 @@ sl_status_t sl_wifi_get_firmware_version(sl_wifi_firmware_version_t *version);
  * -
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] info
- *   [sl_wifi_wireless_info_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-rsp-wireless-info-t) object that contains the wlan info.
+ *   [sl_si91x_rsp_wireless_info_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-rsp-wireless-info-t) object that contains the wlan info.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-sl_status_t sl_wifi_get_wireless_info(sl_wifi_wireless_info_t *info);
+sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info);
 
 /***************************************************************************/ /**
  * @brief

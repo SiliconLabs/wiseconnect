@@ -38,6 +38,11 @@
 #include "rsi_i2s.h"
 #include "SAI.h"
 
+#define I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN \
+  46 // Minimum pin number for specific range of HP pins to act as ULP pins
+#define I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
+  49 // Maximum pin number for specific range of HP pins to act as ULP pins
+
 /** @addtogroup SOC17
 * @{
 */
@@ -545,20 +550,81 @@ void I2S0_Chnl1_PinMux(I2S_RESOURCES *i2s)
 void I2S1_PinMux(I2S_RESOURCES *i2s)
 {
   // SCK
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.sclk->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, i2s->io.sclk->pin, i2s->io.sclk->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.sclk->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.sclk->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, (uint8_t)(i2s->io.sclk->pin - GPIO_MAX_PIN), i2s->io.sclk->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.sclk->port, i2s->io.sclk->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.sclk->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.sclk->pad_sel);
+    }
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, i2s->io.sclk->pin, 0);
+    if (i2s->io.sclk->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.sclk->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.sclk->pin - 38), i2s->io.sclk->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.sclk->pin - 8), i2s->io.sclk->mode);
+    }
+  }
 
   // WSCLK
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.wsclk->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, i2s->io.wsclk->pin, i2s->io.wsclk->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.wsclk->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.wsclk->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, (uint8_t)(i2s->io.wsclk->pin - GPIO_MAX_PIN), i2s->io.wsclk->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.wsclk->port, i2s->io.wsclk->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.wsclk->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.wsclk->pad_sel);
+    }
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, i2s->io.wsclk->pin, 0);
+    if (i2s->io.wsclk->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.wsclk->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.wsclk->pin - 38), i2s->io.wsclk->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.wsclk->pin - 6), i2s->io.wsclk->mode);
+    }
+  }
 
   // TX pin
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.dout0->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, i2s->io.dout0->pin, i2s->io.dout0->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.dout0->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.dout0->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, (uint8_t)(i2s->io.dout0->pin - GPIO_MAX_PIN), i2s->io.dout0->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.dout0->port, i2s->io.dout0->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.dout0->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.dout0->pad_sel);
+    }
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, i2s->io.dout0->pin, 0);
+    if (i2s->io.dout0->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.dout0->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.dout0->pin - 38), i2s->io.dout0->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.dout0->pin - 6), i2s->io.dout0->mode);
+    }
+  }
 
   // RX pin
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.din0->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, i2s->io.din0->pin, i2s->io.din0->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.din0->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.din0->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, (uint8_t)(i2s->io.din0->pin - GPIO_MAX_PIN), i2s->io.din0->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.din0->port, i2s->io.din0->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.din0->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.din0->pad_sel);
+    }
+    RSI_EGPIO_PadReceiverEnable(i2s->io.din0->pin);
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, i2s->io.din0->pin, 0);
+    if (i2s->io.din0->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.din0->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.din0->pin - 38), i2s->io.din0->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.din0->pin - 6), i2s->io.din0->mode);
+    }
+  }
 }
 
 /*==============================================*/

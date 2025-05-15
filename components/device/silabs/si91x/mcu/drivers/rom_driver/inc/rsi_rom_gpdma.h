@@ -2,7 +2,7 @@
 * @file  rsi_rom_gpdma.h
 *******************************************************************************
 * # License
-* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -352,6 +352,113 @@ STATIC INLINE uint32_t RSI_GPDMA_InterruptStatus(RSI_GPDMA_HANDLE_T pHandle, RSI
 #else
   return gpdma_interrupt_status(pHandle, pCfg);
 #endif
+}
+
+/**
+ * @brief Enables link list mode for the specified GPDMA channel
+ *
+ * This function enables the link list mode for the specified GPDMA channel.
+ * Link list mode allows chaining multiple DMA transfers together.
+ *
+ * @param[in] pHandle Pointer to the GPDMA handle
+ * @param[in] dmaCh Channel number (0-7)
+ *
+ * @return RSI_OK if successful
+ * @return ERROR_GPDMA_INVALID_ARG if the handle is invalid or channel number is out of range
+ *
+ * @note The function sets the LINK_LIST_ON bit in the channel control register
+ */
+STATIC INLINE rsi_error_t RSI_GPDMA_Enable_Link_List_Mode(RSI_GPDMA_HANDLE_T *pHandle, uint32_t dmaCh)
+{
+  GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
+  if (pDrv->baseC == NULL || dmaCh > GPDMA_CHNL7) {
+    return ERROR_GPDMA_INVALID_ARG;
+  }
+  pDrv->baseC->CHANNEL_CONFIG[dmaCh].CHANNEL_CTRL_REG_CHNL_b.LINK_LIST_ON = 1;
+  return RSI_OK;
+}
+
+/**
+  * @brief Configures the link list pointer register with specific DMA descriptor.
+  *
+  * This function sets up the link list pointer register for the specified DMA descriptor
+  * . It validates the input arguments and ensures that
+  * the DMA channel and descriptor are valid before proceeding.
+  *
+  * @param[in] pHandle Pointer to the GPDMA handle.
+  * @param[in] pDesc Pointer to the GPDMA descriptor.
+  * @param[in] dmaCh DMA channel number to configure.
+  *
+  * @return None
+  *
+  * @note The function performs input validation. If the handle is NULL, the descriptor
+  *       is NULL, or the DMA channel number exceeds the maximum allowed channel, the
+  *       function will return without performing any operation.
+  */
+STATIC INLINE rsi_error_t RSI_GPDMA_Link_List_Pointer_Register(RSI_GPDMA_HANDLE_T *pHandle,
+                                                               RSI_GPDMA_DESC_T *pDesc,
+                                                               uint32_t dmaCh)
+{
+  GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
+  if (pHandle == NULL || dmaCh > GPDMA_CHNL7 || pDesc == NULL) {
+    return ERROR_GPDMA_INVALID_ARG;
+  }
+  pDrv->baseC->CHANNEL_CONFIG[dmaCh].LINK_LIST_PTR_REGS_b.LINK_LIST_PTR_REG_CHNL = (uintptr_t)pDesc;
+  return RSI_OK;
+}
+
+/**
+  * @brief Sets the priority for a specific GPDMA channel
+  * 
+  * This function configures the priority level of the specified GPDMA channel.
+  * 
+  * @param[in] pHandle   Pointer to the GPDMA handle structure
+  * @param[in] dmaCh     DMA channel number (0-7)
+  * @param[in] priority  Priority value to be set for the channel
+  * 
+  * @return RSI_OK on success
+  * @return ERROR_GPDMA_INVALID_ARG if pHandle is NULL or dmaCh is invalid
+  * 
+  * @note The valid channel range is 0 to GPDMA_CHNL7
+  */
+STATIC INLINE rsi_error_t RSI_GPDMA_SET_CHANNEL_PRIORITY(RSI_GPDMA_HANDLE_T *pHandle, uint32_t dmaCh, uint32_t priority)
+{
+  GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
+  if (pHandle == NULL || dmaCh > GPDMA_CHNL7) {
+    return ERROR_GPDMA_INVALID_ARG;
+  }
+  pDrv->baseC->CHANNEL_CONFIG[dmaCh].PRIORITY_CHNL_REGS_b.PRIORITY_CH = (priority & 0x3);
+  return RSI_OK;
+}
+
+/**
+  * @brief Sets the FIFO configuration for a specific GPDMA channel
+  *
+  * This function configures the FIFO size and starting address for a specified GPDMA channel.
+  *
+  * @param[in] pHandle    Pointer to the GPDMA handle
+  * @param[in] dmaCh      GPDMA channel number (0-7)
+  * @param[in] fifoSize   Size of the FIFO to be configured
+  * @param[in] startAddr  Starting address of the FIFO memory
+  *
+  * @return
+  *      - RSI_OK                  If the configuration is successful
+  *      - ERROR_GPDMA_INVALID_ARG If the input parameters are invalid (NULL pHandle or invalid channel)
+  *
+  * @note The function updates the FIFO_CONFIG_REGS for the specified channel with the provided values.
+  */
+STATIC INLINE rsi_error_t RSI_GPDMA_SET_CHANNEL_FIFO_SIZE(RSI_GPDMA_HANDLE_T *pHandle,
+                                                          uint32_t dmaCh,
+                                                          uint32_t fifoSize,
+                                                          uint32_t startAddr)
+{
+  GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
+  if (pHandle == NULL || dmaCh > GPDMA_CHNL7) {
+    return ERROR_GPDMA_INVALID_ARG;
+  }
+  pDrv->baseC->CHANNEL_CONFIG[dmaCh].FIFO_CONFIG_REGS_b.FIFO_STRT_ADDR = startAddr;
+  pDrv->baseC->CHANNEL_CONFIG[dmaCh].FIFO_CONFIG_REGS_b.FIFO_SIZE      = fifoSize;
+  return RSI_OK;
 }
 
 #ifdef __cplusplus

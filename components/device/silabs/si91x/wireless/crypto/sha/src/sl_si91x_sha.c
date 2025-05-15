@@ -56,7 +56,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   sl_status_t status = SL_STATUS_OK;
   uint16_t send_size = 0;
   sl_wifi_buffer_t *buffer;
-  const sl_wifi_packet_t *packet;
+  const sl_wifi_system_packet_t *packet;
   sli_si91x_sha_request_t *request = (sli_si91x_sha_request_t *)malloc(sizeof(sli_si91x_sha_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);

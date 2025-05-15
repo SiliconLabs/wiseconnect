@@ -1684,5 +1684,4 @@ int32_t rsi_ble_dual_role(void)
 void app_init(void)
 {
   osThreadNew((osThreadFunc_t)rsi_ble_main_app_task, NULL, &thread_attributes);
-  osThreadNew((osThreadFunc_t)rsi_ui_app_task, NULL, &thread_attributes);
 }

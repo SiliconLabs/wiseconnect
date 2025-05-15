@@ -584,6 +584,7 @@ sl_status_t wifi_init_command_handler(console_args_t *arguments)
 
 sl_status_t set_oper_mode_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   // initial checks
   if (sl_si91x_is_device_initialized()) {
     return SL_STATUS_ALREADY_INITIALIZED;
@@ -609,6 +610,7 @@ sl_status_t set_oper_mode_command_handler(console_args_t *arguments)
 
 sl_status_t set_coex_mode_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   // initial checks
   if (sl_si91x_is_device_initialized()) {
     return SL_STATUS_ALREADY_INITIALIZED;
@@ -622,6 +624,7 @@ sl_status_t set_coex_mode_command_handler(console_args_t *arguments)
 
 sl_status_t set_region_code_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   // initial checks
   if (sl_si91x_is_device_initialized()) {
     return SL_STATUS_ALREADY_INITIALIZED;
@@ -635,6 +638,7 @@ sl_status_t set_region_code_command_handler(console_args_t *arguments)
 
 sl_status_t enable_ssl_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   // initial checks
   if (sl_si91x_is_device_initialized()) {
     return SL_STATUS_ALREADY_INITIALIZED;
@@ -662,6 +666,7 @@ sl_status_t soc_reset_command_handler(console_args_t *arguments)
 sl_mac_address_t wifi_mac_address = { 0 };
 sl_status_t set_mac_address_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   // initial checks
   if (sl_si91x_is_device_initialized()) {
     return SL_STATUS_ALREADY_INITIALIZED;
@@ -753,6 +758,7 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
 
 sl_status_t wifi_get_extended_scan_results_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   UNUSED_PARAMETER(arguments);
 
   if (scan_type != SL_WIFI_SCAN_TYPE_EXTENDED) {
@@ -847,14 +853,18 @@ sl_status_t wifi_get_signal_strength_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_scan_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x1);
   sl_status_t status = SL_STATUS_OK;
   sl_wifi_ssid_t optional_ssid_arg;
   sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
   callback_status                                      = status;
   scan_results_complete                                = false;
 
-  sl_wifi_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_WIFI_CLIENT_2_4GHZ_INTERFACE, sl_wifi_interface_t);
+  sl_wifi_interface_t interface = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_wifi_interface_t);
+  if (interface == SL_WIFI_INVALID_INTERFACE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   char *ssid                 = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, char *);
   scan_type                  = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint8_t);
   uint16_t channel_bitmap_2g = GET_OPTIONAL_COMMAND_ARG(arguments, 5, 0, const uint16_t);
@@ -908,8 +918,8 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 
 sl_status_t set_listen_interval_command_handler(const console_args_t *arguments)
 {
-  sl_wifi_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_WIFI_CLIENT_2_4GHZ_INTERFACE, sl_wifi_interface_t);
+  CHECK_ARGUMENT_BITMAP(arguments, 0x03);
+  sl_wifi_interface_t interface        = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_wifi_interface_t);
   sl_wifi_listen_interval_v2_t profile = {
     .listen_interval            = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 1000, uint32_t),
     .listen_interval_multiplier = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 1, uint32_t),
@@ -923,8 +933,9 @@ sl_status_t set_listen_interval_command_handler(const console_args_t *arguments)
 
 sl_status_t get_listen_interval_command_handler(const console_args_t *arguments)
 {
-  sl_wifi_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_WIFI_CLIENT_2_4GHZ_INTERFACE, sl_wifi_interface_t);
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
+  sl_wifi_interface_t interface = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_wifi_interface_t);
+
   sl_wifi_listen_interval_v2_t profile = { 0 };
   sl_status_t status                   = sl_wifi_get_listen_interval_v2(interface, &profile);
   VERIFY_STATUS_AND_RETURN(status);
@@ -1203,7 +1214,11 @@ sl_status_t wifi_get_mac_address_command_handler(console_args_t *arguments)
 {
   sl_status_t status            = SL_STATUS_OK;
   sl_mac_address_t mac_addr     = { 0 };
-  sl_wifi_interface_t interface = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_WIFI_CLIENT_INTERFACE, sl_wifi_interface_t);
+  sl_wifi_interface_t interface = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_wifi_interface_t);
+
+  if (interface == SL_WIFI_INVALID_INTERFACE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
 
   status = sl_wifi_get_mac_address(interface, &mac_addr);
   VERIFY_STATUS_AND_RETURN(status);
@@ -1304,6 +1319,7 @@ sl_status_t wifi_get_ap_client_info_command_handler(console_args_t *argument)
 
 sl_status_t wifi_set_performance_profile_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   sl_wifi_performance_profile_v2_t performance_profile = { 0 };
   performance_profile.profile                          = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint8_t);
   performance_profile.dtim_aligned_type                = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0, uint8_t);
@@ -1485,6 +1501,7 @@ exit:
 
 sl_status_t wifi_is_interface_up_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
   sl_wifi_interface_t interface = (sl_wifi_interface_t)GET_COMMAND_ARG(arguments, 0);
 
   PRINT_AT_CMD_SUCCESS;
@@ -1640,6 +1657,7 @@ sl_status_t wifi_start_wps(console_args_t *arguments)
 }
 sl_status_t set_advanced_scan_configuration_command_handler(console_args_t *arguments)
 {
+  CHECK_ARGUMENT_BITMAP(arguments, 0x3f);
   sl_status_t status                                                = SL_STATUS_OK;
   sl_wifi_advanced_scan_configuration_t advanced_scan_configuration = {
     // Advance scanning parameters
@@ -1681,7 +1699,8 @@ sl_status_t get_advanced_scan_configuration_command_handler(console_args_t *argu
 
 sl_status_t wifi_stop_scan_command_handler(console_args_t *arguments)
 {
-  sl_wifi_interface_t interface = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_WIFI_CLIENT_INTERFACE, sl_wifi_interface_t);
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
+  sl_wifi_interface_t interface = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_wifi_interface_t);
   sl_status_t status            = sl_wifi_stop_scan(interface);
   PRINT_AT_CMD_SUCCESS;
   return status;

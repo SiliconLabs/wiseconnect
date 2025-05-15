@@ -122,7 +122,7 @@ sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
   const sl_http_client_callback_entry_t *entry = sli_get_http_client_callback_entry(event);
 
   // Get the packet data from the buffer
-  sl_wifi_packet_t *packet = (sl_wifi_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
   // Convert the firmware status to a library status
   sl_status_t status = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));

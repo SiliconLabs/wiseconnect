@@ -338,6 +338,13 @@ extern "C" {
 #define SL_SI91X_WC_FEAT_HIDE_PSK_CREDENTIALS  0
 #define SLI_SI91X_WC_FEAT_HIDE_PSK_CREDENTIALS (SL_SI91X_WC_FEAT_HIDE_PSK_CREDENTIALS << 9)
 
+// <q SL_SI91X_WC_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION> Allow socket commands before establishing a WLAN connection.
+// <i> This feature, when enabled, permits the execution of socket commands even if the Wi-Fi connection has not been established.
+// <i> Default: Disable
+#define SL_SI91X_WC_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION 0
+#define SLI_SI91X_WC_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION \
+  (SL_SI91X_WC_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION << 18)
+
 // This macro is not supported and is not displayed in the UI.
 // <i> <q SL_SI91X_WC_FEAT_CONC_STA_AP_DYN_SWITCH_SEL> Dynamic STA/AP Mode Switching(not supported)
 // <i> This bit enables or disables dynamic switching between Station (STA) and Access Point (AP) modes.
@@ -1478,7 +1485,7 @@ extern "C" {
    | SLI_SI91X_WC_FEAT_SSL_HIGH_STREAMING_BIT | SLI_SI91X_WC_FEAT_LONG_ICMP_PACKET                               \
    | SLI_SI91X_WC_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT | SLI_SI91X_WC_FEAT_LONG_HTTP_URL                         \
    | SLI_SI91X_WC_FEAT_DISABLE_11AX_SUPPORT | SLI_SI91X_WC_FEAT_FW_UPDATE_NEW_CODE                               \
-   | SLI_SI91X_WC_FEAT_SECURE_ATTESTATION)
+   | SLI_SI91X_WC_FEAT_SECURE_ATTESTATION | SLI_SI91X_WC_FEAT_SOCKET_CMDS_ALLOW_BEFORE_WLAN_CONNECTION)
 
 #define SL_SI91X_WC_TCP_IP_FEATURE_BITMAP                                                                            \
   (SLI_SI91X_WC_TCP_IP_FEAT_BYPASS | SLI_SI91X_WC_TCP_IP_FEAT_DHCPV4_CLIENT | SLI_SI91X_WC_TCP_IP_FEAT_DHCPV6_CLIENT \

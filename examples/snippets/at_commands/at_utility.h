@@ -33,4 +33,23 @@
 
 #define PRINT_AT_CMD_SUCCESS printf("OK ");
 
+/**
+ * @brief Checks if all mandatory arguments are passed for a specific AT command.
+ *
+ * This macro verifies that the required arguments, specified by the `_x` bitmap,
+ * are present in the `arguments->bitmap`. If any mandatory argument is missing,
+ * the macro returns `SL_STATUS_INVALID_PARAMETER`.
+ *
+ * @param[in] arguments Pointer to the structure containing the bitmap of passed arguments.
+ * @param[in] _x Bitmap representing the mandatory arguments that must be set.
+ *
+ * @return Returns `SL_STATUS_INVALID_PARAMETER` if any mandatory argument is missing.
+ */
+#define CHECK_ARGUMENT_BITMAP(arguments, _x) \
+  do {                                       \
+    if ((arguments->bitmap & _x) != _x) {    \
+      return SL_STATUS_INVALID_PARAMETER;    \
+    }                                        \
+  } while (0)
+
 #endif // AT_UTILITY_H

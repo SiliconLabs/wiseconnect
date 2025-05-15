@@ -210,6 +210,45 @@ static int32_t sli_si91x_connect_to_network(Network *n, uint8_t flags, const sl_
     }
   }
   
+  // Configure SNI (Server Name Indication)
+        if (n->tlsConnectParams.pDestinationURL != NULL) {
+          uint16_t sni_length = (uint16_t)sl_strlen(n->tlsConnectParams.pDestinationURL);
+
+          // Allocate memory for the SNI configuration
+          sl_si91x_socket_type_length_value_t *sni_value =
+            (sl_si91x_socket_type_length_value_t *)malloc(sizeof(sl_si91x_socket_type_length_value_t) + sni_length);
+
+          if (sni_value == NULL) {
+            SL_DEBUG_LOG("\r\nMemory allocation failed for SNI value\r\n");
+            return FAILURE;
+          }
+
+          // Set the type to SNI extension
+          sni_value->type = SL_SI91X_TLS_EXTENSION_SNI_TYPE;
+
+          // Set the length of the SNI data
+          sni_value->length = sni_length;
+
+          // Copy the SNI data (hostname) into the value field
+          memcpy(sni_value->value, n->tlsConnectParams.pDestinationURL, sni_length);
+
+          // Set the SNI option on the socket
+          if (setsockopt(n->socket_id,
+                         SOL_SOCKET,
+                         SL_SO_TLS_SNI,
+                         sni_value,
+                         sizeof(sl_si91x_socket_type_length_value_t) + sni_length)
+  < 0) {
+            SL_DEBUG_LOG("\r\nSet Socket option for SNI failed with bsd error: %d\r\n", errno);
+            close(n->socket_id);
+            free(sni_value);
+            return sli_si91x_get_aws_error(errno);
+          }
+
+          // Free the allocated memory after usage
+          free(sni_value);
+        }
+
   status = bind( n->socket_id, (struct sockaddr *)&client_addr, socket_length);
   if (status < 0) {
     close( n->socket_id);

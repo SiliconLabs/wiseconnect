@@ -137,6 +137,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
       Example:
       > openssl.exe s_server -accept 5002 -cert server-cert.pem -key server-key.pem -tls1
   ```
+> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
 
 - After the program gets executed, SiWx91x EVK would be connected to access point having the configuration same as that of in the application and get IP.
 - The SiWx91x EVK which is configured as SSL client will connect to remote SSL server and sends number of packets configured in NUMBER_OF_PACKETS.

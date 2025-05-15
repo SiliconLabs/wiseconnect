@@ -99,6 +99,17 @@ sl_status_t sli_net_delete_credential(sl_net_credential_id_t id, sl_net_credenti
 sl_status_t sli_handle_auto_join(sl_net_interface_t interface, sl_net_wifi_client_profile_t *profile);
 
 /**
+ * @brief Cleans up resources allocated for auto-join functionality.
+ *
+ * @details
+ * This function frees all resources allocated for the auto-join process, including:
+ * - Terminating the network manager thread
+ * - Deleting the network manager message queue
+ * - Deleting the auto-join event flags
+ */
+void sli_cleanup_auto_join(void);
+
+/**
  * @brief Event handler for network manager events.
  *
  * @param[in] arg Pointer to the argument passed to the event handler (can be NULL).

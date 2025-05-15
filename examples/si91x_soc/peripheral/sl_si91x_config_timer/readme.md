@@ -26,7 +26,6 @@
 ## Overview
 
 - Configurable timers are used for counting clocks and events, capturing events on the GPIOs in input mode, and outputting modulated signals. They can be programmed to work in Pulse Width Modulation (PWM) mode in which a pulse width modulated wave is driven on the outputs according to the programmed ON time and OFF times. Configurable Timers are present in MCU HP peripherals.
-  - Each config counter (CT) sub-module of configuration timer (CT) can be configured to contain one 32- or two 16-bit timers.
   - There is a programming feature to select Clocks, events or external clock as a tick.
   - The input clock can be the reference clock or the system clock.
   - Supports a wide range of features like starting the counter, stopping the counter, continuing the counter from the stopped value, halt and increment the counter, and capturing the events.

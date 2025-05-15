@@ -52,15 +52,15 @@ static sl_status_t sli_sntp_client_get_time_date(uint8_t *data,
                                                  uint32_t timeout,
                                                  uint16_t cmd_type)
 {
-  sl_status_t status                 = SL_STATUS_FAIL;
-  sli_si91x_sntp_client_t client_req = { 0 };
-  sli_si91x_wait_period_t wait_time  = 0;
-  sl_wifi_buffer_t *buffer           = NULL;
-  const sl_wifi_packet_t *packet     = NULL;
-  sl_wifi_buffer_t *sdk_context      = NULL;
-  sli_sntp_client_context_t *node    = NULL;
-  uint16_t length                    = 0;
-  uint16_t buffer_length             = 0;
+  sl_status_t status                    = SL_STATUS_FAIL;
+  sli_si91x_sntp_client_t client_req    = { 0 };
+  sli_si91x_wait_period_t wait_time     = 0;
+  sl_wifi_buffer_t *buffer              = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
+  sl_wifi_buffer_t *sdk_context         = NULL;
+  sli_sntp_client_context_t *node       = NULL;
+  uint16_t length                       = 0;
+  uint16_t buffer_length                = 0;
 
   if ((timeout > 0) && ((data == NULL) || (data_length == 0))) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -112,12 +112,12 @@ static sl_status_t sli_sntp_client_get_time_date(uint8_t *data,
 
 sl_status_t sli_si91x_sntp_event_handler(sli_si91x_queue_packet_t *data)
 {
-  uint16_t status                    = 0;
-  sl_sntp_client_response_t response = { 0 };
-  sl_wifi_packet_t *raw_rx_packet    = sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
-  sl_wifi_buffer_t *sdk_context      = (sl_wifi_buffer_t *)data->sdk_context;
-  sli_sntp_client_context_t *node    = NULL;
-  uint16_t buffer_length             = 0;
+  uint16_t status                        = 0;
+  sl_sntp_client_response_t response     = { 0 };
+  sl_wifi_system_packet_t *raw_rx_packet = sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
+  sl_wifi_buffer_t *sdk_context          = (sl_wifi_buffer_t *)data->sdk_context;
+  sli_sntp_client_context_t *node        = NULL;
+  uint16_t buffer_length                 = 0;
 
   node = (sli_sntp_client_context_t *)sl_si91x_host_get_buffer_data(sdk_context, 0, &buffer_length);
 
@@ -215,15 +215,15 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
 
 sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t timeout)
 {
-  sl_status_t status                 = SL_STATUS_FAIL;
-  sli_si91x_sntp_client_t client_req = { 0 };
-  sli_si91x_wait_period_t wait_time  = 0;
-  sl_wifi_buffer_t *buffer           = NULL;
-  const sl_wifi_packet_t *packet     = NULL;
-  uint16_t length                    = 0;
-  sl_wifi_buffer_t *sdk_context      = NULL;
-  sli_sntp_client_context_t *node    = NULL;
-  uint16_t buffer_length             = 0;
+  sl_status_t status                    = SL_STATUS_FAIL;
+  sli_si91x_sntp_client_t client_req    = { 0 };
+  sli_si91x_wait_period_t wait_time     = 0;
+  sl_wifi_buffer_t *buffer              = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
+  uint16_t length                       = 0;
+  sl_wifi_buffer_t *sdk_context         = NULL;
+  sli_sntp_client_context_t *node       = NULL;
+  uint16_t buffer_length                = 0;
 
   if ((timeout > 0) && (data == NULL)) {
     return SL_STATUS_INVALID_PARAMETER;

@@ -21,9 +21,9 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define PCM_SECONDARY_BUFFER_SIZE 16 // Transmit/Receive buffer size
-#define PCM_INSTANCE              0  // PCM instance
-#define FRAME_SIZE_ALIGNMENT      4  // Max frame offset
+#define PCM_SECONDARY_BUFFER_SIZE 1024 // Transmit/Receive buffer size
+#define PCM_INSTANCE              0    // PCM instance
+#define FRAME_SIZE_ALIGNMENT      4    // Max frame offset
 #define FRAME_OFFSET              1
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************

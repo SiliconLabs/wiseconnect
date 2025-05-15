@@ -47,7 +47,7 @@ static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
 {
   sl_status_t status                    = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer              = NULL;
-  const sl_wifi_packet_t *packet        = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
   sli_si91x_hmac_sha_request_t *request = (sli_si91x_hmac_sha_request_t *)malloc(sizeof(sli_si91x_hmac_sha_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
