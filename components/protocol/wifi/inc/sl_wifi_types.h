@@ -31,6 +31,7 @@
 
 #include "sl_wifi_constants.h"
 #include "sl_ieee802_types.h"
+#include "sl_constants.h"
 #include "sl_status.h"
 #include "sl_ip_types.h"
 #include "sl_slist.h"

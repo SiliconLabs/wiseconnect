@@ -20,7 +20,6 @@ include:
       - path: rsi_comparator.h
       - path: rsi_crc.h
       - path: rsi_ct.h
-      - path: rsi_cts.h
       - path: rsi_dac.h
       - path: rsi_efuse.h
       - path: rsi_egpio.h

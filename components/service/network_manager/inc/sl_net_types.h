@@ -110,6 +110,9 @@ typedef struct {
  * This typedef provides an alias for the `sl_net_ping_response_t` structure, 
  * specifically for use in the Si91x platform. It represents the response data 
  * for a ping operation, including IP version, ping size, and the pinged IP address.
+ * 
+ * @note
+ * Moving forward, this `sl_si91x_ping_response_t` type will be deprecated. Instead, use @ref sl_net_ping_response_t type. This is retained for backward compatibility.
  */
 typedef sl_net_ping_response_t sl_si91x_ping_response_t;
 

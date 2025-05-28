@@ -15,7 +15,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: blinky.c
 include:
   - path: .
@@ -26,7 +25,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: sleeptimer
   - id: data_segment_in_psram
     from: wiseconnect3_sdk

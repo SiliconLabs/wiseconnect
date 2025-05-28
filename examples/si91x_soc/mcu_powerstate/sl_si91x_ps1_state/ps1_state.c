@@ -197,11 +197,10 @@ void low_power_configuration(void)
                            | M4SS_PWRGATE_ULP_EFUSE_PERI | M4SS_PWRGATE_ULP_QSPI_ICACHE);
 
   // Power gate the ULPSS peripherals
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_CAP |
+  RSI_PS_UlpssPeriPowerDown(
 #ifndef DEBUG_UART
-                            ULPSS_PWRGATE_ULP_UART |
+    ULPSS_PWRGATE_ULP_UART |
 #endif
-                            ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA
-                            | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
 }

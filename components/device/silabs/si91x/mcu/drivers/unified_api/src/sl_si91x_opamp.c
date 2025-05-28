@@ -46,14 +46,9 @@
 // Defines macros for OPAMP pin selections, input/output configurations, and operational modes.
 #define SL_OPAMP_LP_MODE           0 // OPAMP low power enable
 #define SL_OPAMP_OUTPUT_MUX_ENABLE 1 // OPAMP output mux enable
-#define SL_OPAMP_OUT_MUX_SEL       0 // OPAMP Unity gain/ Non-Inv PGA
-#define SL_OPAMP_INV_OUT_MUX_SEL   1 // OPAMP Inverting PGA / Hystt
+#define SL_OPAMP_OUT_MUX_SEL       1 // OPAMP (0-ULP_GPIO_4 , 1- GPIO_30)
 #define SL_OPAMP_DYN_MODE_EN       0 // OPAMP Dynamic mode
 #define SL_OPAMP_CHANNEL_NO        0 // adc channel no in dynamic mode
-
-#define SL_OPAMP_R1_SELECT      1 // OPAMP r1 value
-#define SL_OPAMP_R2_SELECT      1 // OPAMP r2 value
-#define SL_OPAMP_HYST_R2_SELECT 2 // OPAMP Hyst r2 value
 
 typedef sl_gpio_t sl_si91x_gpio_t;
 
@@ -135,13 +130,15 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
     status = SL_STATUS_NULL_POINTER; // Return error if pointer is NULL
   }
 
-  sl_si91x_gpio_pin_config_t sl_gpio_pin_vinp = { { 0, opamp_config_ptr->vin_p_input }, GPIO_INPUT };
-  sl_si91x_gpio_pin_config_t sl_gpio_pin_vinn = { { 0, opamp_config_ptr->vin_n_input }, GPIO_INPUT };
-  sl_si91x_gpio_pin_config_t sl_gpio_pin_out  = { { 0, opamp_config_ptr->vout_output }, GPIO_OUTPUT };
+  sl_si91x_gpio_pin_config_t sl_gpio_pin_vinp   = { { 0, opamp_config_ptr->vin_p_input }, GPIO_INPUT };
+  sl_si91x_gpio_pin_config_t sl_gpio_pin_vinn   = { { 0, opamp_config_ptr->vin_n_input }, GPIO_INPUT };
+  sl_si91x_gpio_pin_config_t sl_gpio_pin_vinres = { { 0, opamp_config_ptr->vin_res_input }, GPIO_INPUT };
+  sl_si91x_gpio_pin_config_t sl_gpio_pin_out    = { { 0, opamp_config_ptr->vout_output }, GPIO_OUTPUT };
 
-  sl_si91x_gpio_t gpio_vinp = { 0, opamp_config_ptr->vin_p_input };
-  sl_si91x_gpio_t gpio_vinn = { 0, opamp_config_ptr->vin_n_input };
-  sl_si91x_gpio_t gpio_out  = { 0, opamp_config_ptr->vout_output };
+  sl_si91x_gpio_t gpio_vinp   = { 0, opamp_config_ptr->vin_p_input };
+  sl_si91x_gpio_t gpio_vinn   = { 0, opamp_config_ptr->vin_n_input };
+  sl_si91x_gpio_t gpio_vinres = { 0, opamp_config_ptr->vin_res_input };
+  sl_si91x_gpio_t gpio_out    = { 0, opamp_config_ptr->vout_output };
 
   sl_gpio_mode_t agpio_mode = AGPIO_MODE;
   sl_gpio_mode_t tgpio_mode = TGPIO_MODE;
@@ -187,6 +184,24 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
       return SL_STATUS_FAIL;
     }
   }
+  // Configure the resistor input pin
+  status = sl_gpio_set_configuration(sl_gpio_pin_vinres); // Set GPIO configuration for Resistor tap
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  if ((opamp_config_ptr->vin_n_input == TGPIO_PIN2) || (opamp_config_ptr->vin_n_input == TGPIO_PIN4)) {
+    // Set pin mode to TGPIO mode for specific pins
+    status = sl_gpio_driver_set_pin_mode(&gpio_vinres, tgpio_mode, 0);
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
+  } else {
+    // Set pin mode to AGPIO mode for other pins
+    status = sl_gpio_driver_set_pin_mode(&gpio_vinres, agpio_mode, 0);
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
+  }
   // Configure the output pin
   status = sl_gpio_set_configuration(sl_gpio_pin_out); // Set GPIO configuration for VOUT
   if (status != SL_STATUS_OK) {
@@ -196,7 +211,8 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
                                                                 (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
-  }                                                                                 // Set pad driver disable state
+  }
+  // Set pad driver disable state
   status = sl_si91x_gpio_driver_disable_pad_receiver(sl_gpio_pin_out.port_pin.pin); // Disable pad receiver
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
@@ -263,35 +279,44 @@ sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config)
  * @brief: Configure OPAMP for Unity Gain Features
  * @details: Configures OPAMP for unity gain features based on the instance number
  *******************************************************************************/
-void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_inst)
+static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
-#ifdef SL_OPAMP1_VIN_SEL
-    RSI_OPAMP1_UGB(SL_OPAMP1_VIN_SEL,
-                   ENABLE,
-                   SL_OPAMP_LP_MODE,
-                   SL_OPAMP_OUTPUT_MUX_ENABLE,
-                   SL_OPAMP_OUT_MUX_SEL,
-                   SL_OPAMP_DYN_MODE_EN,
-                   SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP1_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel   = SL_OPAMP1_VINP_SEL;
+    config.vin_n_sel   = SL_OPAMP1_VINN_SEL;
+    config.vref_sel    = SL_OPAMP1_VREF_SEL;
+    config.enable      = ENABLE;
+    config.lp_mode     = SL_OPAMP_LP_MODE;
+    config.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
+    config.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
+
+    RSI_OPAMP_UGB_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_2) {
-#ifdef SL_OPAMP2_VIN_SEL
-    RSI_OPAMP2_UGB(SL_OPAMP2_VIN_SEL,
-                   ENABLE,
-                   SL_OPAMP_LP_MODE,
-                   SL_OPAMP_OUTPUT_MUX_ENABLE,
-                   SL_OPAMP_DYN_MODE_EN,
-                   SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP2_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP2_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP2_VINN_SEL;
+    config.vref_sel   = SL_OPAMP2_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_UGB_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_3) {
-#ifdef SL_OPAMP3_VIN_SEL
-    RSI_OPAMP3_UGB(SL_OPAMP3_VIN_SEL,
-                   ENABLE,
-                   SL_OPAMP_LP_MODE,
-                   SL_OPAMP_OUTPUT_MUX_ENABLE,
-                   SL_OPAMP_DYN_MODE_EN,
-                   SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP3_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP3_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP3_VINN_SEL;
+    config.vref_sel   = SL_OPAMP3_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_UGB_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   }
 }
@@ -300,44 +325,53 @@ void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_inst)
  * @brief: Configure OPAMP for Inverting Programmable Gain Amplifier
  * @details: Configures OPAMP for inverting PGA based on the instance number
  *******************************************************************************/
-void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
+static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
-#ifdef SL_OPAMP1_VIN_SEL
-    RSI_OPAMP1_InvPGA(SL_OPAMP1_VREF_SEL,
-                      SL_OPAMP1_VIN_SEL,
-                      ENABLE,
-                      SL_OPAMP_LP_MODE,
-                      SL_OPAMP_R1_SELECT,
-                      SL_OPAMP_R2_SELECT,
-                      SL_OPAMP_OUTPUT_MUX_ENABLE,
-                      SL_OPAMP_INV_OUT_MUX_SEL,
-                      SL_OPAMP_DYN_MODE_EN,
-                      SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP1_VINP_SEL
+
+    Configure_OPAMP_t config;
+    config.vin_p_sel   = SL_OPAMP1_VINP_SEL;
+    config.vin_n_sel   = SL_OPAMP1_VINN_SEL;
+    config.vref_sel    = SL_OPAMP1_VREF_SEL;
+    config.enable      = ENABLE;
+    config.lp_mode     = SL_OPAMP_LP_MODE;
+    config.r1_sel      = SL_OPAMP1_R1_SELECT;
+    config.r2_sel      = SL_OPAMP1_R2_SELECT;
+    config.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
+    config.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
+
+    RSI_OPAMP_InvPGA_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_2) {
-#ifdef SL_OPAMP2_VIN_SEL
-    RSI_OPAMP2_InvPGA(SL_OPAMP2_VREF_SEL,
-                      SL_OPAMP2_VIN_SEL,
-                      ENABLE,
-                      SL_OPAMP_LP_MODE,
-                      SL_OPAMP_R1_SELECT,
-                      SL_OPAMP_R2_SELECT,
-                      SL_OPAMP_OUTPUT_MUX_ENABLE,
-                      SL_OPAMP_DYN_MODE_EN,
-                      SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP2_VINP_SEL
+
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP2_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP2_VINN_SEL;
+    config.vref_sel   = SL_OPAMP2_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP2_R1_SELECT;
+    config.r2_sel     = SL_OPAMP2_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_InvPGA_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_3) {
-#ifdef SL_OPAMP3_VIN_SEL
-    RSI_OPAMP3_InvPGA(SL_OPAMP3_VREF_SEL,
-                      SL_OPAMP3_VIN_SEL,
-                      ENABLE,
-                      SL_OPAMP_LP_MODE,
-                      SL_OPAMP_R1_SELECT,
-                      SL_OPAMP_R2_SELECT,
-                      SL_OPAMP_OUTPUT_MUX_ENABLE,
-                      SL_OPAMP_DYN_MODE_EN,
-                      SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP3_VINP_SEL
+
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP3_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP3_VINN_SEL;
+    config.vref_sel   = SL_OPAMP3_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP3_R1_SELECT;
+    config.r2_sel     = SL_OPAMP3_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_InvPGA_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   }
 }
@@ -346,44 +380,51 @@ void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
  * @brief: Configure OPAMP for Non-Inverting Programmable Gain Amplifier
  * @details: Configures OPAMP for non-inverting PGA based on the instance number
  *******************************************************************************/
-void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_inst)
+static void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
-#ifdef SL_OPAMP1_VIN_SEL
-    RSI_OPAMP1_NonInvPGA(SL_OPAMP1_VIN_SEL,
-                         SL_OPAMP1_VREF_SEL,
-                         ENABLE,
-                         SL_OPAMP_LP_MODE,
-                         SL_OPAMP_R1_SELECT,
-                         SL_OPAMP_R2_SELECT,
-                         SL_OPAMP_OUTPUT_MUX_ENABLE,
-                         SL_OPAMP_INV_OUT_MUX_SEL,
-                         SL_OPAMP_DYN_MODE_EN,
-                         SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP1_VINP_SEL
+
+    Configure_OPAMP_t config;
+    config.vin_p_sel   = SL_OPAMP1_VINP_SEL;
+    config.vin_n_sel   = SL_OPAMP1_VINN_SEL;
+    config.vref_sel    = SL_OPAMP1_VREF_SEL;
+    config.enable      = ENABLE;
+    config.lp_mode     = SL_OPAMP_LP_MODE;
+    config.r1_sel      = SL_OPAMP1_R1_SELECT;
+    config.r2_sel      = SL_OPAMP1_R2_SELECT;
+    config.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
+    config.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
+
+    RSI_OPAMP_NonInvPGA_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_2) {
-#ifdef SL_OPAMP2_VIN_SEL
-    RSI_OPAMP2_NonInvPGA(SL_OPAMP2_VIN_SEL,
-                         SL_OPAMP2_VREF_SEL,
-                         ENABLE,
-                         SL_OPAMP_LP_MODE,
-                         SL_OPAMP_R1_SELECT,
-                         SL_OPAMP_R2_SELECT,
-                         SL_OPAMP_OUTPUT_MUX_ENABLE,
-                         SL_OPAMP_DYN_MODE_EN,
-                         SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP2_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP2_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP2_VINN_SEL;
+    config.vref_sel   = SL_OPAMP2_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP2_R1_SELECT;
+    config.r2_sel     = SL_OPAMP2_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_NonInvPGA_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_3) {
-#ifdef SL_OPAMP3_VIN_SEL
-    RSI_OPAMP3_NonInvPGA(SL_OPAMP3_VIN_SEL,
-                         SL_OPAMP3_VREF_SEL,
-                         ENABLE,
-                         SL_OPAMP_LP_MODE,
-                         SL_OPAMP_R1_SELECT,
-                         SL_OPAMP_R2_SELECT,
-                         SL_OPAMP_OUTPUT_MUX_ENABLE,
-                         SL_OPAMP_DYN_MODE_EN,
-                         SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP3_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP3_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP3_VINN_SEL;
+    config.vref_sel   = SL_OPAMP3_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP3_R1_SELECT;
+    config.r2_sel     = SL_OPAMP3_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_NonInvPGA_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   }
 }
@@ -392,44 +433,50 @@ void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_inst)
  * @brief: Configure OPAMP for Inverting Programmable Hysteresis Comparator
  * @details: Configures OPAMP for inverting hysteresis comparator based on the instance number
  *******************************************************************************/
-void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_inst)
+static void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
-#ifdef SL_OPAMP1_VIN_SEL
-    RSI_OPAMP1_InvCMP(SL_OPAMP1_VIN_SEL,
-                      SL_OPAMP1_VREF_SEL,
-                      ENABLE,
-                      SL_OPAMP_LP_MODE,
-                      SL_OPAMP_R1_SELECT,
-                      SL_OPAMP_HYST_R2_SELECT,
-                      SL_OPAMP_OUTPUT_MUX_ENABLE,
-                      SL_OPAMP_INV_OUT_MUX_SEL,
-                      SL_OPAMP_DYN_MODE_EN,
-                      SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP1_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel   = SL_OPAMP1_VINP_SEL;
+    config.vin_n_sel   = SL_OPAMP1_VINN_SEL;
+    config.vref_sel    = SL_OPAMP1_VREF_SEL;
+    config.enable      = ENABLE;
+    config.lp_mode     = SL_OPAMP_LP_MODE;
+    config.r1_sel      = SL_OPAMP1_R1_SELECT;
+    config.r2_sel      = SL_OPAMP1_R2_SELECT;
+    config.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
+    config.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
+
+    RSI_OPAMP_InvCMP_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_2) {
-#ifdef SL_OPAMP2_VIN_SEL
-    RSI_OPAMP2_InvCMP(SL_OPAMP2_VIN_SEL,
-                      SL_OPAMP2_VREF_SEL,
-                      ENABLE,
-                      SL_OPAMP_LP_MODE,
-                      SL_OPAMP_R1_SELECT,
-                      SL_OPAMP_HYST_R2_SELECT,
-                      SL_OPAMP_OUTPUT_MUX_ENABLE,
-                      SL_OPAMP_DYN_MODE_EN,
-                      SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP2_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP2_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP2_VINN_SEL;
+    config.vref_sel   = SL_OPAMP2_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP2_R1_SELECT;
+    config.r2_sel     = SL_OPAMP2_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_InvCMP_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_3) {
-#ifdef SL_OPAMP3_VIN_SEL
-    RSI_OPAMP3_InvCMP(SL_OPAMP3_VIN_SEL,
-                      SL_OPAMP3_VREF_SEL,
-                      ENABLE,
-                      SL_OPAMP_LP_MODE,
-                      SL_OPAMP_R1_SELECT,
-                      SL_OPAMP_HYST_R2_SELECT,
-                      SL_OPAMP_OUTPUT_MUX_ENABLE,
-                      SL_OPAMP_DYN_MODE_EN,
-                      SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP3_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP3_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP3_VINN_SEL;
+    config.vref_sel   = SL_OPAMP3_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP3_R1_SELECT;
+    config.r2_sel     = SL_OPAMP3_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_InvCMP_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   }
 }
@@ -438,44 +485,50 @@ void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_inst)
  * @brief: Configure OPAMP for Non-Inverting Programmable Hysteresis Comparator
  * @details: Configures OPAMP for non-inverting hysteresis comparator based on the instance number
  *******************************************************************************/
-void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_config_inst)
+static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
-#ifdef SL_OPAMP1_VIN_SEL
-    RSI_OPAMP1_NonInvCMP(SL_OPAMP1_VIN_SEL,
-                         SL_OPAMP1_VREF_SEL,
-                         ENABLE,
-                         SL_OPAMP_LP_MODE,
-                         SL_OPAMP_R1_SELECT,
-                         SL_OPAMP_HYST_R2_SELECT,
-                         SL_OPAMP_OUTPUT_MUX_ENABLE,
-                         SL_OPAMP_INV_OUT_MUX_SEL,
-                         SL_OPAMP_DYN_MODE_EN,
-                         SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP1_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel   = SL_OPAMP1_VINP_SEL;
+    config.vin_n_sel   = SL_OPAMP1_VINN_SEL;
+    config.vref_sel    = SL_OPAMP1_VREF_SEL;
+    config.enable      = ENABLE;
+    config.lp_mode     = SL_OPAMP_LP_MODE;
+    config.r1_sel      = SL_OPAMP1_R1_SELECT;
+    config.r2_sel      = SL_OPAMP1_R2_SELECT;
+    config.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
+    config.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
+
+    RSI_OPAMP_NonInvCMP_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_2) {
-#ifdef SL_OPAMP2_VIN_SEL
-    RSI_OPAMP2_NonInvCMP(SL_OPAMP2_VIN_SEL,
-                         SL_OPAMP2_VREF_SEL,
-                         ENABLE,
-                         SL_OPAMP_LP_MODE,
-                         SL_OPAMP_R1_SELECT,
-                         SL_OPAMP_HYST_R2_SELECT,
-                         SL_OPAMP_OUTPUT_MUX_ENABLE,
-                         SL_OPAMP_DYN_MODE_EN,
-                         SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP2_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP2_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP2_VINN_SEL;
+    config.vref_sel   = SL_OPAMP2_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP2_R1_SELECT;
+    config.r2_sel     = SL_OPAMP2_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_NonInvCMP_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   } else if (opamp_config_inst == SL_OPAMP_3) {
-#ifdef SL_OPAMP3_VIN_SEL
-    RSI_OPAMP3_NonInvCMP(SL_OPAMP3_VIN_SEL,
-                         SL_OPAMP3_VREF_SEL,
-                         ENABLE,
-                         SL_OPAMP_LP_MODE,
-                         SL_OPAMP_R1_SELECT,
-                         SL_OPAMP_HYST_R2_SELECT,
-                         SL_OPAMP_OUTPUT_MUX_ENABLE,
-                         SL_OPAMP_DYN_MODE_EN,
-                         SL_OPAMP_CHANNEL_NO);
+#ifdef SL_OPAMP3_VINP_SEL
+    Configure_OPAMP_t config;
+    config.vin_p_sel  = SL_OPAMP3_VINP_SEL;
+    config.vin_n_sel  = SL_OPAMP3_VINN_SEL;
+    config.vref_sel   = SL_OPAMP3_VREF_SEL;
+    config.enable     = ENABLE;
+    config.lp_mode    = SL_OPAMP_LP_MODE;
+    config.r1_sel     = SL_OPAMP3_R1_SELECT;
+    config.r2_sel     = SL_OPAMP3_R2_SELECT;
+    config.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+    RSI_OPAMP_NonInvCMP_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
 #endif
   }
 }

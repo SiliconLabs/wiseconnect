@@ -16,7 +16,6 @@ readme:
   - path: readme.md
 source:
   - path: app.c
-  - path: main.c
   - path: psa_ccm_app.c
 include:
   - path: .
@@ -30,7 +29,7 @@ sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.0
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto

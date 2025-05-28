@@ -18,7 +18,7 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 - **Connection**: The device connects to a Wi-Fi network and acts as a TCP client.
 - **Request**: The device sends a request to the TCP server for the firmware update file.
 - **Download**: The server sends the firmware file to the device.
-- **Update**: The device writes the new firmware to teh appropriate flash offset and then restarts to complete the update.
+- **Update**: The device erases the target flash region, writes the new firmware to the appropriate offset, and then restarts to complete the update process.
 
 This process allows the device to update its software over the air (OTA) without needing a physical connection.
 
@@ -157,4 +157,6 @@ To esstablish the TCP Server with firmware file on remote PC, follow the steps b
 ![Figure: Log of M4 firmware transfer](resources/readme/output_remote_server.png)
 
 ![Figure: Log of M4 firmware transfer](resources/readme/output_soc.png)
+
+![Figure: Log of M4 firmware transfer](resources/readme/output_soc_1.png)
 

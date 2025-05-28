@@ -395,11 +395,11 @@ create_newsocket_with_new_osthread(receive_data_from_tls_server,
       #define TEST_TIMEOUT      30000         // Throughput test timeout in ms
     ```
 
-- Change the PLL_MODE to 1, in sl_si91x_protocol_types.h.
+- Change the `PLL_MODE` to `1` in the `sl_si91x_protocol_types.h` file.
 
-     **File path for Simplicity Studio IDE:**
+  **File path in Simplicity Studio IDE:**
 
-- In the Project explorer pane, expand as follows"  **wiseconnect3_sdk_xxx** > **components** > **device** > **silabs** > **si91x** > **wireless** > **inc** folder and open **sl_si91x_protocol_types.h** file.
+  - In the Project Explorer pane, navigate to **wiseconnect3_sdk_xxx/components/device/silabs/si91x/wireless/inc** and open the **sl_si91x_protocol_types.h** file.
 
   ```c
   #define PLL_MODE      1

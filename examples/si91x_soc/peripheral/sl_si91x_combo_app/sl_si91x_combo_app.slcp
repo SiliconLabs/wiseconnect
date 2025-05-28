@@ -16,7 +16,6 @@ readme:
   - path: readme.md
 source:
 - path: app.c
-- path: main.c
 - path: src/push_button_app.c
 - path: src/pwm_app.c
 - path: src/i2c_app.c
@@ -35,7 +34,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk

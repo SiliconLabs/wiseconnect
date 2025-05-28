@@ -87,13 +87,12 @@ void low_power_configuration(void)
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_IID | M4SS_PWRGATE_ULP_SDIO_SPI | M4SS_PWRGATE_ULP_RPDMA
                            | M4SS_PWRGATE_ULP_EFUSE_PERI | M4SS_PWRGATE_ULP_QSPI_ICACHE);
   // Power gate the ULPSS peripherals
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_CAP |
+  RSI_PS_UlpssPeriPowerDown(
 #ifndef DEBUG_UART
-                            ULPSS_PWRGATE_ULP_UART |
+    ULPSS_PWRGATE_ULP_UART |
 #endif
-                            ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA
-                            | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
   // Disable the supply to some NPSS peripherals
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);
   // Power-Down High-Frequency PLL Domain

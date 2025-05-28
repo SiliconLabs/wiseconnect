@@ -116,6 +116,12 @@ typedef enum {
  *
  * @note Some encryption types are not currently supported in station (STA) mode.
  * @note If encryption type is configured anything other than SL_WIFI_DEFAULT_ENCRYPTION, then make sure the AP (third party) supports the configured encryption type. If not, there might be a possibility of getting join failure due to the encryption type mismatch between AP (third party) and STA.
+ * @note If the encryption type is set to SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, then the eap_method is determined by the macro SL_EAP_PEAP_METHOD defined in components/protocol/wifi/si91x/sl_wifi.c.
+ * - PEAP can accept any of the following three values:
+ *     1. PEAP: The EAP server may bypass Phase2 authentication (less secure).
+ *     2. PEAPSAFE1: If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
+ *     3. PEAPSAFE2: Requires Phase2 authentication in all cases (most secure).
+ * - Possible values for the macro SL_EAP_PEAP_METHOD are "PEAP"(default), "PEAPSAFE1" and "PEAPSAFE2".
  */
 typedef enum {
   SL_WIFI_DEFAULT_ENCRYPTION,       ///< Default Wi-Fi encryption

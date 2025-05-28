@@ -484,10 +484,12 @@
         <enums name="credential_id">
             <enum name="credential_id_no_credential" value="0x0"/>
             <enum name="credential_id_default_wifi_client" value="0x1"/>
-            <enum name="credential_id_default_wifi_ap" value="0x2"/>
-            <enum name="credential_id_wifi_eap_client" value="0x3"/>
-            <enum name="credential_id_wifi_eap_server" value="0x4"/>
-            <enum name="credential_id_user" value="0x5"/>
+            <enum name="credential_id_wifi_client_1" value="0x2"/>
+            <enum name="credential_id_default_wifi_ap" value="0x3"/>
+            <enum name="credential_id_wifi_ap_1" value="0x4"/>
+            <enum name="credential_id_wifi_eap_client" value="0x5"/>
+            <enum name="credential_id_wifi_eap_server" value="0x6"/>
+            <enum name="credential_id_user" value="0x7"/>
             <enum name="credential_id_tls_client" value="0x100"/>
             <enum name="credential_id_tls_server" value="0x200"/>
             <enum name="credential_id_mqtt_server" value="0x300"/>

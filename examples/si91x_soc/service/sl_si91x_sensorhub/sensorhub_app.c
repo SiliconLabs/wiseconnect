@@ -121,11 +121,12 @@ void wireless_sleep(void);
  * @param[out]   sensor g output
  *
 ******************************************************************************/
+#ifdef GY61_ADC_SENSOR
 static long gy61_adc_raw_data_map(long x, long in_min, long in_max, long out_min, long out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
-
+#endif
 /**************************************************************************/ /**
  * @fn           void sl_si91x_sensor_event_handler()
  * @brief        This Sensor event handle to the Sensor HUB.

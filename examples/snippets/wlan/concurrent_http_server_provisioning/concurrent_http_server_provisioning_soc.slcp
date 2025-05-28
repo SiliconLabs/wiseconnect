@@ -21,7 +21,6 @@ sdk_extension:
 source:
 -  path: app.c
 -  path: wifi_app.c
--  path: main.c
 include:
 
 -  path: .
@@ -31,7 +30,7 @@ define:
 -  name: SL_SI91X_PRINT_DBG_LOG
 -  name: SLI_SI91X_ENABLE_IPV6
 component:
-  - id: sl_system
+  - id: sl_main
   - id: slist
   - id: freertos
   - id: freertos_heap_4

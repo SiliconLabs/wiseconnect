@@ -23,7 +23,6 @@ void test_sl_si91x_simple_rgb_led_get_colour(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("RGB_LED");
 
   RUN_TEST(test_sl_si91x_simple_rgb_led_init, __LINE__);

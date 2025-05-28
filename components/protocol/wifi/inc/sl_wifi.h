@@ -31,6 +31,7 @@
 #pragma once
 #include "sl_wifi_device.h"
 #include "sl_wifi_types.h"
+#include "sl_constants.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -354,7 +355,8 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
  *   Moving forward, this API will be deprecated. Instead, use the [sl_wifi_set_listen_interval_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-radio-api#sl-wifi-set-listen-interval-v2) API. This is retained for backward compatibility.
  *   Si91X implementation allows this API ONLY to be called before calling @ref sl_wifi_connect(), @ref sl_wifi_start_ap(), @ref sl_wifi_start_wps()
  ******************************************************************************/
-sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval);
+sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface,
+                                        sl_wifi_listen_interval_t listen_interval) SL_DEPRECATED_API_WISECONNECT_3_5;
 
 /***************************************************************************/ /**
  * @brief
@@ -392,7 +394,8 @@ sl_status_t sl_wifi_set_listen_interval_v2(sl_wifi_interface_t interface, sl_wif
  * @note
  *   Moving forward, this API will be deprecated. Instead, use the [sl_wifi_get_listen_interval_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-radio-api#sl-wifi-get-listen-interval-v2) API. This is retained for backward compatibility.
  ******************************************************************************/
-sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval);
+sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface,
+                                        sl_wifi_listen_interval_t *listen_interval) SL_DEPRECATED_API_WISECONNECT_3_5;
 
 /***************************************************************************/ /**
  * @brief
@@ -516,7 +519,8 @@ sl_status_t sl_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
  *   |               |                    |      10 |  26 |  30 |  30 |   14 |
  *   |               |                    |      13 |  26 |  20 |  20 |   14 |
  ******************************************************************************/
-sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uint8_t *payload, uint16_t payload_length);
+sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uint8_t *payload, uint16_t payload_length)
+  SL_DEPRECATED_API_WISECONNECT_3_5;
 
 /***************************************************************************/ /**
  * @brief
@@ -1382,7 +1386,8 @@ sl_status_t sl_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t 
  * @note
  *   For further more details on connected and non-connected mode please refer https://www.silabs.com/documents/public/application-notes/an1430-siwx917-soc-low-power.pdf.
  ******************************************************************************/
-sl_status_t sl_wifi_set_performance_profile(const sl_wifi_performance_profile_t *profile);
+sl_status_t sl_wifi_set_performance_profile(const sl_wifi_performance_profile_t *profile)
+  SL_DEPRECATED_API_WISECONNECT_3_5;
 
 /***************************************************************************/ /**
  * @brief
@@ -1417,7 +1422,7 @@ sl_status_t sl_wifi_set_performance_profile_v2(const sl_wifi_performance_profile
  * @note
  *   Moving forward, this API will be deprecated. Instead, use the [sl_wifi_get_performance_profile_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-power-api#sl-wifi-get-performance-profile-v2) API. This is retained for backward compatibility.
  ******************************************************************************/
-sl_status_t sl_wifi_get_performance_profile(sl_wifi_performance_profile_t *profile);
+sl_status_t sl_wifi_get_performance_profile(sl_wifi_performance_profile_t *profile) SL_DEPRECATED_API_WISECONNECT_3_5;
 
 /***************************************************************************/ /**
  * @brief

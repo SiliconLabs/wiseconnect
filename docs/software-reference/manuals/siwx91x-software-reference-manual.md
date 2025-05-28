@@ -685,6 +685,22 @@ The virtual COM (VCOM) port is available on the wireless pro kit mainboard (BRD4
 
 > **Note:** Debug logs from the NWP can be fetched via the NWP UART, which is available on the EXP header's EXP14 (UART_RX) and EXP12 (UART_TX) pins.
 
+### Link Time Optimization
+
+**Link Time Optimization** is a Compiler option which will allow the compiler to optimize the code better by removing unused functions and variables. Currently, this component is not visible by default in the SLCP file as it is tagged as Evaluation. To enable this component, ensure that the Evaluation filter is enabled by selecting it in the Quality dropdown menu as shown below.
+
+![Evaluation_Selection](./resources/evaluation_selection.png)
+
+Once this is toggled on, simply enter _LTO_ in the keyword search, and you will find **Enable Link time optimization (LTO) for WiSeConnect** under Platform > Toolchain. 
+
+![LTO_component](./resources/LTO_component.png)
+
+Due to a limitation in Studio extension, the LTO has to be set manually in the Project Tool Settings. Replace the Link Compiler and Linker flag _-fno-lto_ with _-lto_ as shown below:
+
+![lto_compiler_settings](./resources/lto_compiler_settings.png)
+
+Refer to the Preprocessor Macros [Appendices](#Appendices) for details on dependent LTO macro `SL_SI91X_ENABLE_GCC_LTO`.
+
 ## Appendices
 
 ### Appendix A: Preprocessor Macros
@@ -714,6 +730,12 @@ The `SLI_SI91X_MCU_4MB_LITE_IMAGE` macro will be enabled if the **lite_image_for
 For low-power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory. Refer to [Power manager integration guide](
 https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf
 ) for more details.
+
+#### SL_SI91X_ENABLE_GCC_LTO
+
+This macro enables the part of code required for Link timer optimization. 
+This macro will be enabled if the **Enable Link time optimization (LTO) for WiSeConnect** component is installed.
+
 
 ### Appendix B: Code Snippets
 

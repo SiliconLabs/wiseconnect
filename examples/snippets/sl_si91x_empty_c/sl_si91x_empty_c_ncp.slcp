@@ -20,13 +20,12 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
     - path: app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
 define:
   - name: DEBUG_EFM

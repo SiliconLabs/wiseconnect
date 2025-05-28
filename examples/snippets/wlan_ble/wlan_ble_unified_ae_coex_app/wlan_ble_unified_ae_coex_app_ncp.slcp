@@ -20,7 +20,6 @@ sdk_extension:
   version: 3.5.0
 source:
 - path: app.c
-- path: main.c
 - path: root_auto_gen.c
 - path: btc_auto_gen.c
 - path: ble/ble_cmd_hdlr_auto_gen.c
@@ -57,7 +56,7 @@ include:
   - path: rsi_common_utils.h
   - path: event_loop.h
 component:
-- id: sl_system
+- id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: device_init
@@ -111,6 +110,9 @@ other_file:
 - path: resources/readme/active_connection.png
 - path: resources/readme/add_heartrate_gatt_service.png
 - path: resources/readme/notification_enable.png
+- path: resources/readme/output_wlan_init.png
+- path: resources/readme/output_wlan_scan_conn.png
+- path: resources/readme/output_throughput.png
 - path: resources/readme/output_log1.png
 - path: resources/readme/output_log2.png
 - path: resources/readme/output_log3.png

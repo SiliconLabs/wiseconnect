@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to configure SiWx91x in Coex Mode with WLAN and BLE multiple connections (2 - Central, 8 - Peripheral).
+This application demonstrates how to configure SiWx91x in Coex Mode with WLAN(AWS MQTT) and BLE multiple connections (2 - Central, 8 - Peripheral) with data transfer.
 
 ## Prerequisites/Setup Requirements
 
@@ -23,9 +23,7 @@ This application demonstrates how to configure SiWx91x in Coex Mode with WLAN an
 - SoC Mode:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
   - Kits
-    - SiWx917 AC1 Module Explorer Kit (BRD2708A)
-- PSRAM Mode:  
-  - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
+    - SiWx91x AC1 Module Explorer Kit (BRD2708A)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
@@ -63,11 +61,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
+- The WLAN_TASK_ENABLE macro is a configuration option that controls whether the WLAN (Wi-Fi) task is enabled in the application.
+- When WLAN_TASK_ENABLE is set to 1, the application will start and run the WLAN task, allowing the device to scan for Wi-Fi networks, connect to an access point, and perform Wi-Fi-related operations.
+- If it is set to 0, the WLAN task will be disabled, and Wi-Fi functionality will not be configured in the application.
+
 **Configure the WLAN parameters**
 
 - Enable the macro to start the WLAN task defined in  `rsi_common_app.h` file.
     ```c
-    #define WLAN_TASK_ENABLE 0
+    #define WLAN_TASK_ENABLE 1
     ```
 - In the Project Explorer pane, expand the **wifi** folder and open the `wifi_app_config.h` file and update/modify following macros:
 
@@ -77,7 +79,7 @@ The application can be configured to suit your requirements and development envi
       #define PSK           "YOUR_AP_PASSPHRASE"
       #define SECURITY_TYPE SL_WIFI_WPA2
       ```
-  - The SiWx917 device is subscribed to `SUBSCRIBE_TO_TOPIC` and publishes on `PUBLISH_ON_TOPIC`.
+  - The SiWx91x device is subscribed to `SUBSCRIBE_TO_TOPIC` and publishes on `PUBLISH_ON_TOPIC`.
       ```c
       #define SUBSCRIBE_TO_TOPIC   "aws_status"      //! Subscribe Topic to receive the message from cloud
       #define PUBLISH_ON_TOPIC     "siwx91x_status"  //! Publish Topic to send the status from application to cloud
@@ -110,9 +112,9 @@ The application can be configured to suit your requirements and development envi
 #define AWS_IOT_MY_THING_NAME  "silicon_labs_thing"
 ```
 
-> - To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must have a device certificate, private key, and CA certificate, which are downloaded during the creation/registration of AWS Thing.
+> - To authenticate and securely connect with AWS, the SiWx91x device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must have a device certificate, private key, and CA certificate, which are downloaded during the creation/registration of AWS Thing.
 
-> - By default, the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx917, the certificate and private key should be converted into a C-array. For converting the certificates and private key into C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
+> - By default, the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx91x, the certificate and private key should be converted into a C-array. For converting the certificates and private key into C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
 
 > - By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format.
 
@@ -338,8 +340,6 @@ Follow the steps below for the successful execution of the program:
 
 1. Configure the remote ble devices in peripheral and put it in advertising mode and/or in central and put in scanning mode.
 
-   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App) connect mobile APP as advertiser.
-
 2. Connect any serial console for prints.
 
 3. Silicon Labs device is configured as GATT server with the below user-defined services.
@@ -376,25 +376,37 @@ Follow the steps below for the successful execution of the program:
 12. To check data transfer, enable Gatt notifications of Silicon Labs device on service characteristic having UUID 0x1AA1, where the Silicon Lab device as a peripheral device.
 
 13. If enabled, Silicon Labs device continuously transmits notifications which can be seen on remote device.
-   - Peripheral Role
+   - ### Peripheral Role
 
       ![](resources/readme/central_scan.png)
  
       ![](resources/readme/central_connected.png)
 
-   - Central Role
+      ![](resources/readme/notification_enable.png)
+
+   - ### Central Role
    
       ![](resources/readme/peripheral.png)
 
-      ![](resources/readme/peripheral_connected.png) 	  
+      ![](resources/readme/peripheral_connected.png)
 
-14. On Wi-Fi side, the SiWx91x device subscribes to the topic defined by `SUBSCRIBE_TO_TOPIC` and publishes to the topic defined by `PUBLISH_ON_TOPIC`. In this configuration, the SiWx91x device, sends and receives data based on the defined topics, with a message payload of "Hi from SiWx91x" and a publish periodicity of 30,000 milliseconds.
+      ![](resources/readme/notification_enable.png) 	  
 
-15. After successful program execution the prints looks as shown following.   
+
+**To Set up the WLAN connection**
+1. If `WLAN_TASK_ENABLE` is set to 1, the device initializes the Wi-Fi module using the configuration parameters defined in the application (such as SSID and security type).
+2. It then scans for available Wi-Fi networks, connects to the designated access point, and performs Wi-Fi-related operations as specified in the application.
+      ![Prints in docklight window](resources/readme/output1_wlan.png)
+
+3. Once the SiWx917 device receives the IP address, it initiates an MQTT connection to the AWS cloud. Upon successfully establishing the MQTT connection, the device subscribes and publishes to the cloud.
+      ![Prints in docklight window](resources/readme/output1_mqtt.png)
+
+4. On the Wi-Fi side, the SiWx917 device subscribes to the topic defined by `SUBSCRIBE_TO_TOPIC` ("aws_status") to receive messages from the cloud and publishes to the topic defined by `PUBLISH_ON_TOPIC`("siwx91x_status") to send messages to the cloud.
+5. According to the configuration SiWx917 device sends and receives data based on the defined topics, with a message payload of "Hi from SiWx91x" with a publishing interval of 30 seconds.
+6. After successful program execution the prints looks as shown following.
      
-     ![Prints in docklight window](resources/readme/output1.png)
-     ![Prints in docklight window](resources/readme/output2.png) 
-     ![Prints in docklight window](resources/readme/output3.png)
+    ![Prints in docklight window](resources/readme/output2.png)
+    ![Prints in docklight window](resources/readme/output3.png)
 	 ![Prints in docklight window](resources/readme/output4.png)
 
 ## Additional Information
@@ -424,7 +436,7 @@ Follow the steps below for the successful execution of the program:
 
 - After converting the certificate and private key to C - array, it is essential to include the device certificate: aws_device_certificate.crt.h and private key: aws_private_key.key.h in the app.c.
 
-- Ensure to load the certificate and private key to SiWx917 using [sl_net_set_credential()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential) API.
+- Ensure to load the certificate and private key to SiWx91x using [sl_net_set_credential()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential) API.
 
 - Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
 
@@ -476,10 +488,13 @@ Follow the steps below for the successful execution of the program:
 - The first BLE central connection (DUT as peripheral) interval should be at least 45ms.
 - The second BLE central connection (DUT as peripheral) interval should be atleast 500ms.
 - A minimum supervision timeout of 8 seconds is mandatory for all BLE connections.
+- This feature is supported only with power save enabled.
+- TWT(Target Wake Times) based wakeup is not supported.
 - This feature is not supported on PSRAM board.
-- SMP pairing is limited to IOCapabilities 0x01 and 0x00.
-- The BLE advertising interval should be configured to 211.25msec
-- The BLE scan window and scan interval should be in 1:3 ratio
+- SMP pairing is limited to IOCapabilities 0x01 and 0x03.
+- DUT does not save bonding information.
+- Bonding information needs to be removed from remote device before issuing reconnection.
+- The BLE advertising interval should be configured to 211.25msec.
+- The BLE scan window and scan interval should be in 1:3 ratio.
 - Supports only MQTT profile.
-- WPA3 security mode is not supported.
 - IPv6 is not supported.

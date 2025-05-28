@@ -19,7 +19,6 @@ sdk_extension:
   version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -28,7 +27,7 @@ define:
   - name: SL_SI91X_PRINT_DBG_LOG
   - name: SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE  
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: syscalls

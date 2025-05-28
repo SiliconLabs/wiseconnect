@@ -92,6 +92,7 @@ int32_t I2S_Control(uint32_t control,
 {
   uint32_t master = 0, data_bits = 0;
   uint32_t bit_freq = 0, val = 0;
+  bool mic_transfer = false;
 
   if ((i2s->flags & I2S_FLAG_POWERED) == 0U) {
     // I2S not powered
@@ -105,6 +106,9 @@ int32_t I2S_Control(uint32_t control,
     case ARM_SAI_CONFIGURE_TX:
       break;
     case ARM_SAI_CONFIGURE_RX:
+      break;
+    case ARM_SAI_CONFIGURE_MIC:
+      mic_transfer = true;
       break;
     case ARM_SAI_CONTROL_TX:
       // I2S Enable
@@ -309,8 +313,12 @@ int32_t I2S_Control(uint32_t control,
         i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_16_BIT;
         i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_16_BIT;
       } else {
-        i2s->reg->I2S_CCR_b.SCLKG                               = RES_16_BIT;
-        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
+        i2s->reg->I2S_CCR_b.SCLKG = RES_16_BIT;
+        if (mic_transfer) { // Mic ICS43434 in dev-kit uses this configuration
+          i2s->reg->I2S_CCR_b.WSS = 0x02;
+        } else {
+          i2s->reg->I2S_CCR_b.WSS = 0x00;
+        }
         i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_16_BIT;
         i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_16_BIT;
       }

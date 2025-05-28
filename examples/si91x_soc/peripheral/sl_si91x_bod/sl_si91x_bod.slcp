@@ -17,14 +17,13 @@ toolchain_settings:
 source:
   - path: bod_example.c
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
       - path: app.h
       - path: bod_example.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk

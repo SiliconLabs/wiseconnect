@@ -10,7 +10,6 @@ readme:
   - path: readme.md
 source:
   - path: app.c
-  - path: main.c
   - path: app.h
   - path: ulp_calendar_example.c
   - path: ulp_calendar_example.h
@@ -24,7 +23,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
@@ -58,7 +57,7 @@ template_contribution:
 - name: user_files_ps2
   value: main.o
 - name: user_files_ps2
-  value: sl_system_process_action.o
+  value: sl_main_process_action.o
 - name: user_files_ps2
   value: sl_event_handler.o
 ui_hints:

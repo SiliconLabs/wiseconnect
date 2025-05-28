@@ -38,11 +38,13 @@
 #include "cmsis_compiler.h"
 #include "sl_si91x_core_utilities.h"
 #include <string.h>
+#ifdef SL_NET_COMPONENT_INCLUDED
 #include "sl_net_types.h"
 #include "sl_net_constants.h"
 #include "sl_net_wifi_types.h"
 #include "sli_net_types.h"
 #include "sl_net.h"
+#endif
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_m4.h"
 #endif
@@ -236,7 +238,8 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
     }
   }
 #ifdef SLI_SI91X_MCU_INTERFACE
-  if ((packet->command == SLI_COMMON_RSP_TA_M4_COMMANDS) || (packet->command == SLI_WLAN_REQ_SET_CERTIFICATE)) {
+  if ((packet->command == SLI_COMMON_RSP_TA_M4_COMMANDS) || (packet->command == SLI_WLAN_REQ_SET_CERTIFICATE)
+      || (packet->command == SLI_COMMON_RSP_SOFT_RESET)) {
     // set flag
     sli_si91x_update_flash_command_status(true);
   }
@@ -517,7 +520,8 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
     frame_type   = (uint16_t)(data[2] + (data[3] << 8));   // Extract the frame type
     frame_status = (uint16_t)(data[12] + (data[13] << 8)); // Extract the frame status
 #ifdef SLI_SI91X_MCU_INTERFACE
-    if ((frame_type == SLI_COMMON_RSP_TA_M4_COMMANDS) || (frame_type == SLI_WLAN_REQ_SET_CERTIFICATE)) {
+    if ((frame_type == SLI_COMMON_RSP_TA_M4_COMMANDS) || (frame_type == SLI_WLAN_REQ_SET_CERTIFICATE)
+        || (frame_type == SLI_COMMON_RSP_SOFT_RESET)) {
       // clear flag
       sli_si91x_update_flash_command_status(false);
     }
@@ -1612,7 +1616,7 @@ void sli_si91x_process_wifi_events()
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue, &buffer) == SL_STATUS_OK) {
       sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
       uint16_t frame_status           = sli_get_si91x_frame_status(packet);
-
+#ifdef SL_NET_COMPONENT_INCLUDED
       // Check if the command received is a WLAN join response
       if (packet->command == SLI_WLAN_RSP_JOIN) {
         sli_network_manager_message_t message;            // Create a new message for the network manager
@@ -1622,6 +1626,7 @@ void sli_si91x_process_wifi_events()
                                 : NETWORK_MANAGER_CONNECT_CMD;    // Set the event flags based on the frame status
         osMessageQueuePut(network_manager_queue, &message, 0, 0); // Add the message to the network manager queue
       }
+#endif // SL_NET_COMPONENT_INCLUDED
       // Invoke registered event handler if it exists
       if (si91x_event_handler != NULL) {
         sl_wifi_event_t wifi_event = sli_convert_si91x_event_to_sl_wifi_event(packet->command, frame_status);

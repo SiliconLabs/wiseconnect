@@ -22,7 +22,6 @@ void test_sl_memlcd_get(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("MEMLCD");
 
   RUN_TEST(test_sl_memlcd_configure, __LINE__);

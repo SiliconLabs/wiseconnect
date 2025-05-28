@@ -39,51 +39,125 @@
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>OPAMP2 Input/Output Configuration Selection
 
-// OPAMP2 P
-// <o SL_OPAMP2_P_PIN> OPAMP2 P input Selection
+// OPAMP2 VinP
+// <o SL_OPAMP2_P_PIN> VinP Mux Selection
 //   <11=> P0 ULP_GPIO_11
-//   <5=> P1 ULP_GPIO_5
-// <i> Selection of OPAMP2 P
-#define SL_OPAMP2_P_PIN 5
+//   <5=>  P1 ULP_GPIO_5
+//   <1=>  P3 DAC
+//   <3=>  P4 Resistor_tap
+//   <0=>  P6 OPAMP1_OUT
+// <i> Selection of OPAMP2 VinP
+#define SL_OPAMP2_P_PIN 11
 #ifndef SL_OPAMP2_P_PORT
 #define SL_OPAMP2_P_PORT ULP
 #endif
 
 #if SL_OPAMP2_P_PIN == 11
-#define SL_OPAMP2_VIN_SEL 0
+#define SL_OPAMP2_VINP_SEL 0
 #elif SL_OPAMP2_P_PIN == 5
-#define SL_OPAMP2_VIN_SEL 1
+#define SL_OPAMP2_VINP_SEL 1
+#elif SL_OPAMP2_P_PIN == 1
+#define SL_OPAMP2_VINP_SEL 3
+#elif SL_OPAMP2_P_PIN == 3
+#define SL_OPAMP2_VINP_SEL 4
+#elif SL_OPAMP2_P_PIN == 0
+#define SL_OPAMP2_VINP_SEL 6
 #else
-#warning "OPAMP2 P pin is not selected. Please select a valid pin."
+#warning "OPAMP2 VinP input pin is not selected. Please select a valid pin."
 #endif
 
-// OPAMP2 N
-// <o SL_OPAMP2_N_PIN> OPAMP2 N input Selection
-//   <1=> None
+// OPAMP2 VinN
+// <o SL_OPAMP2_N_PIN> VinN Mux Selection
 //   <11=> N0 ULP_GPIO_11
-//   <5=> N1 ULP_GPIO_5
-// <i> Selection of OPAMP2 N
-#define SL_OPAMP2_N_PIN 1
+//   <1=>  N1 DAC
+//   <2=>  N2 Resistor_tap
+//   <4=>  N3 Out
+// <i> Selection of OPAMP2 VinN
+#define SL_OPAMP2_N_PIN 4
 #ifndef SL_OPAMP2_N_PORT
 #define SL_OPAMP2_N_PORT ULP
 #endif
 
-#if (SL_OPAMP2_N_PIN == 11) || (SL_OPAMP2_N_PIN == 1)
-#define SL_OPAMP2_VREF_SEL 0
-#elif SL_OPAMP2_N_PIN == 5
-#define SL_OPAMP2_VREF_SEL 1
+#if SL_OPAMP2_N_PIN == 11
+#define SL_OPAMP2_VINN_SEL 0
+#elif SL_OPAMP2_N_PIN == 1
+#define SL_OPAMP2_VINN_SEL 1
+#elif SL_OPAMP2_N_PIN == 2
+#define SL_OPAMP2_VINN_SEL 2
+#elif SL_OPAMP2_N_PIN == 4
+#define SL_OPAMP2_VINN_SEL 3
 #else
-#warning "OPAMP2 N pin is not selected. Please select a valid pin."
+#warning "OPAMP2 VinN input pin is not selected. Please select a valid pin."
+#endif
+
+// OPAMP2 Resistor
+// <o SL_OPAMP2_RES_PIN> Resistor Mux Selection
+//   <10=> None
+//   <11=> Res0 ULP_GPIO_11
+//   <5=>  Res1 ULP_GPIO_5
+//   <1=>  Res3 DAC
+//   <30=> Res5 OPAMP1_OUT0
+//   <4=>  Res5 OPAMP1_OUT1
+// <i> Selection of OPAMP2 Resistor
+#define SL_OPAMP2_RES_PIN 10
+#ifndef SL_OPAMP2_RES_PORT
+#if SL_OPAMP2_RES_PIN == 30
+#define SL_OPAMP2_RES_PORT HP
+#else
+#define SL_OPAMP2_RES_PORT ULP
+#endif
+#endif
+
+#if SL_OPAMP2_RES_PIN == 11
+#define SL_OPAMP2_VREF_SEL 0
+#elif SL_OPAMP2_RES_PIN == 5
+#define SL_OPAMP2_VREF_SEL 1
+#elif SL_OPAMP2_RES_PIN == 1
+#define SL_OPAMP2_VREF_SEL 3
+#elif SL_OPAMP2_RES_PIN == (30 || 4)
+#define SL_OPAMP2_VREF_SEL 5
+#elif SL_OPAMP2_RES_PIN == 10
+#define SL_OPAMP2_VREF_SEL 6
+#else
+#warning "OPAMP2 Resistor input pin is not selected. Please select a valid pin."
+#endif
+
+#if (SL_OPAMP2_P_PIN == SL_OPAMP2_N_PIN) || (SL_OPAMP2_P_PIN == SL_OPAMP2_RES_PIN)
+#warning "OPAMP2 both input pins should not be same"
 #endif
 
 // OPAMP2 OUT (Output)
-// <o SL_OPAMP2_OUT_PIN> OPAMP2 OUT Selection
+// <o SL_OPAMP2_OUT_PIN> OUT Selection
 //   <9=> ULP_GPIO_9
 // <i> Selection of OPAMP2 OUT
 #define SL_OPAMP2_OUT_PIN 9
 #ifndef SL_OPAMP2_OUT_PORT
 #define SL_OPAMP2_OUT_PORT ULP
 #endif
+
+// OPAMP2 R1 Resistor
+// <o SL_OPAMP2_R1_SELECT> R1 Resistor
+//   <0=> None
+//   <1=> 1_20Kohm
+//   <2=> 2_60Kohm
+//   <3=> 3_140Kohm
+// <i> Selection of OPAMP2 R1
+#define SL_OPAMP2_R1_SELECT 0
+
+// OPAMP2 R2 Resistor
+// <o SL_OPAMP2_R2_SELECT> R2 Resistor
+//   <8=> None
+//   <0=> 0_20Kohm
+//   <1=> 1_30Kohm
+//   <2=> 2_40Kohm
+//   <3=> 3_60Kohm
+//   <4=> 4_120Kohm
+//   <5=> 5_250Kohm
+//   <6=> 6_500Kohm
+//   <7=> 7_1000Kohm
+// <i> Selection of OPAMP2 R2
+#define SL_OPAMP2_R2_SELECT 8
+
 // </h>OPAMP
 // <<< end of configuration section >>>
 

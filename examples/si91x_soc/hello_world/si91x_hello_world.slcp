@@ -14,7 +14,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -23,7 +22,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: syscalls
     from: wiseconnect3_sdk
   - id: si91x_memory_default_config

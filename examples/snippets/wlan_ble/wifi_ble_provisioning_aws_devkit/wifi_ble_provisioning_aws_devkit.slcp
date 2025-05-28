@@ -23,7 +23,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: ble_app.c
   - path: wifi_app.c
   - path: sensor_app.c
@@ -49,7 +48,7 @@ define:
   - name: SENSOR_RESPONSE_BUFFER_SIZE
     value: 256
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: syscalls

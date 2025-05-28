@@ -483,6 +483,6 @@ void app_wifi_cmd_mqtt_client_publish(const void *nil)
   }
 
   // Send publish result
-  app_wifi_rsp_mqtt_client_publish_message(status);
+  app_wifi_rsp_mqtt_client_publish(status);
   return;
 }

@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_si91x_littlefs_hal.h"
 #include "rsi_debug.h"
 #include "unity.h"
@@ -55,7 +54,6 @@ void test_si91x_block_device_sync(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("LittleFS HAL");
 
   RUN_TEST(test_set_qspi_configs, __LINE__);

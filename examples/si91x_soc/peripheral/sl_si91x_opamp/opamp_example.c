@@ -29,18 +29,8 @@
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 
-// Define OPAMP instance macros for selection
-#define INSTANCE_ONE   1 // For opamp1
-#define INSTANCE_TWO   2 // For opamp2
-#define INSTANCE_THREE 3 // For opamp3
-
-// Define the OPAMP instance to be used
-#define SL_APP_OPAMP_INSTANCE_USED INSTANCE_ONE
-
-// Enable or disable DAC output with external voltage
-#define INPUT_DAC_NEG_INPUT_EXTERNAL DISABLE
-
-#if INPUT_DAC_NEG_INPUT_EXTERNAL
+// Enable or disable DAC output with external voltage from UC
+#if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
 #define VREF_VALUE 3.3f // Reference voltage
 static float vref_value = (float)VREF_VALUE;
 // Define DAC Macros
@@ -54,16 +44,16 @@ static float vref_value = (float)VREF_VALUE;
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 
-#if INPUT_DAC_NEG_INPUT_EXTERNAL
+/*******************************************************************************
+ **********************  Local variables   *************************************
+ ******************************************************************************/
+
+#if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
 static const int16_t dac_input_sample_data[1] = { 0x3FF };
 static boolean_t dac_static_intr_flag         = false;
 static boolean_t dac_fifo_intr_flag           = false;
 static void dac_callback_event(uint8_t event);
 #endif
-
-/*******************************************************************************
- **********************  Local variables   *************************************
- ******************************************************************************/
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -77,10 +67,9 @@ static void dac_callback_event(uint8_t event);
  ******************************************************************************/
 void opamp_example_init(void)
 {
-  sl_status_t status; // Variable to store the status of OPAMP operations
-  status = SL_STATUS_OK;
+  sl_status_t status = SL_STATUS_OK; // Variable to store the status of OPAMP operations
   do {
-#if INPUT_DAC_NEG_INPUT_EXTERNAL
+#if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
     sl_dac_clock_config_t dac_clock_config;
     //Initializing DAC peripheral
     status = sl_si91x_dac_init(&dac_clock_config);
@@ -131,8 +120,9 @@ void opamp_example_init(void)
     }
     DEBUGOUT("\r\n SL OPAMP Initialization is Successful\r\n");
 
-    // Configure the OPAMP instance based on the macro definition
-#if (SL_APP_OPAMP_INSTANCE_USED == INSTANCE_ONE)
+    // Configure the OPAMP instance from UC
+#ifdef SL_OPAMP_OPAMP1
+
     status = sl_si91x_opamp_set_configuration(&sl_opamp1_feature);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu", status);
@@ -141,7 +131,7 @@ void opamp_example_init(void)
       DEBUGOUT("\r\n SL OPAMP1 configuration are set successfully  \n");
     }
 #endif
-#if (SL_APP_OPAMP_INSTANCE_USED == INSTANCE_TWO)
+#ifdef SL_OPAMP_OPAMP2
     status = sl_si91x_opamp_set_configuration(&sl_opamp2_feature);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu", status);
@@ -150,7 +140,7 @@ void opamp_example_init(void)
       DEBUGOUT("\r\n SL OPAMP2 configuration are set successfully  \n");
     }
 #endif
-#if (SL_APP_OPAMP_INSTANCE_USED == INSTANCE_THREE)
+#ifdef SL_OPAMP_OPAMP3
     status = sl_si91x_opamp_set_configuration(&sl_opamp3_feature);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu", status);
@@ -172,7 +162,7 @@ void opamp_example_init(void)
  ******************************************************************************/
 void opamp_example_process_action(void)
 {
-#if INPUT_DAC_NEG_INPUT_EXTERNAL
+#if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
   do {
     if (dac_static_intr_flag == true) {
       dac_static_intr_flag = false;
@@ -191,7 +181,7 @@ void opamp_example_process_action(void)
  * This function handling DAC events. It is invoked when
  * a DAC event occurs and can be customized for specific event handling needs.
  ******************************************************************************/
-#if INPUT_DAC_NEG_INPUT_EXTERNAL
+#if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
 static void dac_callback_event(uint8_t event)
 {
   if (event == SL_DAC_STATIC_MODE_EVENT) {

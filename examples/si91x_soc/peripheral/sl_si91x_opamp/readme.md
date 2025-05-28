@@ -18,15 +18,14 @@
 
 - The opamp example demonstrates the initialization, configuration, and operation of the OPAMP peripheral by giving input on non-inverting terminal and inverting terminal of the opamp and checking output. It configure OPAMP instances for various use cases, including integration with DAC for external voltage comparison. 
 - In this application we can configure the 3 instances- OPAMP1, OPAMP2 and OPAMP3.
-- Every opamp will have Vinp mux to select "inp", Vinn mux to select "inn," and Resistor mux for feedback.
+- Each opamp features a VinP positive input mux for selecting "inp," a VinN negative input mux for selecting "inn," and a resistor mux for feedback configuration.
 
 The following configurations are used in this example:
-  
-- Unity Gain / Unity Gain with DAC
-- Inverting Programmable Gain Amplifier
-- Non-Inverting Programmable Gain Amplifier
-- Inverting Programmable hysteresis comparator
-- Non-Inverting Programmable hysteresis comparator
+ - Unity Gain Buffer
+ - Inverting Programmable Gain Amplifier
+ - Non-Inverting Programmable Gain Amplifier
+ - Inverting Programmable hysteresis comparator
+ - Non-Inverting Programmable hysteresis comparator
 
 
 ## Overview
@@ -78,22 +77,23 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 2. Click on **opamp1** and configure its parameters from the wizard.
 3. For creating opamp2 or opamp3 instances, write 'opamp2' or 'opamp3' and then click on **Done**.
 4. After creation of instances, separate configuration files are generated in the **config folder**.
-5. Select Opamp reference voltage **2.5V or 3.3V** and Opamp configuration **Unity Gain** ,**Inverting PGA**, **Non-Inverting PGA**, **Inverting with Hysteresis** and  **Non-Inverting with Hysteresis** from UC.
+5. Select Opamp reference voltage **2.5V or 3.3V** and Opamp configuration **Unity Gain** ,**Inverting PGA**, **Non-Inverting PGA**, **Inverting with Hysteresis** or  **Non-Inverting with Hysteresis** from UC.
 6. If the Opamp reference voltage is set to **2.5V**, the output voltage will be limited to **2.5V**, and if set to **3.3V**, the output voltage will be limited to **3.3V**.
-7. If the project is built without selecting configurations, it will take default values from UC.
+7. If DAC integration (the DAC output to serve as the input for the OPAMP) is required , enable DAC from UC.
+8. If the project is built without selecting configurations, it will take default values from UC.
 
     > ![Figure: UC-Screen](resources/uc_screen/opamp_uc_screen.png)
 
 ### Application Configuration Parameters
 
 - Configure the following macros in `opamp_example.c` file and update/modify following macros if required.
-1. OPAMP Instance Selection:   
-    - INSTANCE_ONE: Selects OPAMP1.
-    - INSTANCE_TWO: Selects OPAMP2.
-    - INSTANCE_THREE: Selects OPAMP3. 
+1. Select OPAMP Reference Voltage   
+    - 2500: 2.5 V
+    - 3300: 3.3 V
+    
     ```C
-    //Select OPAMP instance
-    #define SL_APP_OPAMP_INSTANCE_USED INSTANCE_ONE
+    // OPAMP Reference Voltage 
+    #define OPAMP_REF_VOLT 2500
     ```
 2. Select OPAMP features: 
     - SL_OPAMP_UNITY_GAIN_FEATURES: Unity Gain
@@ -102,13 +102,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - SL_OPAMP_INVERTING_PROGRAMMABLE_HYST_COMP: Inverting Hystresis Comparator
     - SL_OPAMP_NON_INVERTING_PROGRAMMABLE_HYST_COMP: Non-Inverting Hystresis Comparator
     ```C
-    // OPAMP Reference Voltage 
-    #define OPAMP_REF_VOLT 2500
     // OPAMP features
     #define SL_OPAMP_CONFIGURATION_SELECTION SL_OPAMP_UNITY_GAIN_FEATURES
     ```
 3. If DAC integration is required, enable the INPUT_DAC_NEG_INPUT_EXTERNAL macro:
     ```C
+    // DAC
     #define INPUT_DAC_NEG_INPUT_EXTERNAL ENABLE
     #define DAC_SAMPLING_RATE          5000000
     #define NUMBER_OF_INPUT_SAMPLE     1
@@ -124,37 +123,62 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 #### Pin Configuration of the WPK[BRD4002A] Base Board, and with radio board
 
-The following table lists the mentioned pin numbers for the radio board. If you want to use a different radio board- BRD4338A and BRD4343A, see the board user guide.
+The following table lists the mentioned pin numbers for the radio board. If you want to use a different radio board other than BRD4338A and BRD4343A, see the board user guide.
 
-#### Positive - Non-Inverting Input terminal GPIO Selection
-| OPAMP Instance | GPIO Selection (P0)| GPIO Selection (P1) | GPIO Selection (P2) | GPIO Selection (P3) | GPIO Selection (P4) |  GPIO Selection (P5) | 
-| --- | --- | --- | --- | --- | --- | --- |
-| OPAMP1 | GPIO_27 [P29] | ULP_GPIO_7 [EXP_HEADER-15]| ULP_GPIO_0 [F10]| ULP_GPIO_2 [F10] | ULP_GPIO_6 [EXP_HEADER-16] | ULP_GPIO_8 [P15]|
-| OPAMP2 | ULP_GPIO_11 [F6] | ULP_GPIO_5 [P18]| - | - | - |
-| OPAMP3 | ULP_GPIO_10 [P17] | GPIO_29 [P33] | - | - | - | -|
+#### Vinp Mux Selection
+| OPAMP Instance | 0| 1 | 2 | 3 | 4 |  5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| OPAMP1 | OPAMP1P0 (GPIO_27)| OPAMP1P1 (ULP_GPIO_7)| OPAMP1P2 (ULP_GPIO_0)| OPAMP1P3 (ULP_GPIO_2) | OPAMP1P4 (ULP_GPIO_6)| OPAMP1P5 (ULP_GPIO_8)| AUX_DAC_OUT | Resistor_tap |
+| OPAMP2 | OPAMP2P0 (ULP_GPIO_11) | OPAMP2P1 (ULP_GPIO_5)| --- | AUX_DAC_OUT | Resistor_tap | --- | OPAMP1_OUT | --- |
+| OPAMP3 | OPAMP3P0 (ULP_GPIO_10) | OPAMP3P0 (GPIO_29) | AUX_DAC_OUT | Resistor_tap | --- | OPAMP2_OUT | OPAMP2_Resistor_tap | --- |
 
-#### Negative Inverting Input terminal GPIO Selection
-| OPAMP Instance | GPIO Selection (N0) | GPIO Selection (N1) | GPIO Selection (N2) | GPIO Selection (N3) | GPIO Selection (N4) |  GPIO Selection (N5) | 
-| --- | --- | --- | --- | --- | --- | --- |
-| OPAMP1 | GPIO_27 [P29] | ULP_GPIO_7 [EXP_HEADER-15]| ULP_GPIO_0 [F10]| ULP_GPIO_2 [F10] | ULP_GPIO_6 [EXP_HEADER-16] | ULP_GPIO_8 [P15]|
-| OPAMP2 | ULP_GPIO_11 [F6] | ULP_GPIO_5 [P18]| - | - | - |
-| OPAMP3 | ULP_GPIO_10 [P17] | GPIO_29 [P33] | - | - | - | -|
+#### Vinn Mux Selection
+| OPAMP Instance | 0| 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- | --- |
+| OPAMP1 | OPAMP1N0 (GPIO_27)| OPAMP1N1 (ULP_GPIO_7)| AUX_DAC_OUT | Resistor_tap | Out |
+| OPAMP2 | OPAMP2N0 (ULP_GPIO_11) | AUX_DAC_OUT | Resistor_tap | Out | --- |
+| OPAMP3 | OPAMP3N0 (ULP_GPIO_10) | AUX_DAC_OUT | Resistor_tap | Out | --- |
+
+#### Resistor Mux Selection
+| OPAMP Instance | 0| 1 | 2 | 3 | 4 |  5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| OPAMP1 | OPAMP1Res0 (GPIO_27)| OPAMP1Res1 (ULP_GPIO_7)| OPAMP1Res2 (ULP_GPIO_0)| OPAMP1Res3 (ULP_GPIO_2) | OPAMP1Res4 (ULP_GPIO_6)| OPAMP1Res5 (ULP_GPIO_8)| AUX_DAC_OUT | --- |
+| OPAMP2 | OPAMP2Res0 (ULP_GPIO_11) | OPAMP2Res1 (ULP_GPIO_5)| --- | AUX_DAC_OUT | --- | OPAMP1_OUT | --- |
+| OPAMP3 | OPAMP3Res0 (ULP_GPIO_10) | OPAMP3Res0 (GPIO_29) | AUX_DAC_OUT | --- | OPAMP2_OUT | --- | --- |
 
 #### Output terminal GPIO Selection
   | OUTPUT SELECTION | OPAMP1 OUT | OPAMP2 OUT | OPAMP3 OUT |
   | --- | --- | --- | --- |
-  | OPAMP_OUT0            |      GPIO_30  [P35]   | ULP_GPIO_9 [F7] | GPIO_27  [P29] |
-  | OPAMP_OUT1            |     ULP_GPIO_4 [P17] |- | - |
-
- **Limitations:** 
-  -  GPIO 27 (Top GPIO), ULP_GPIO_2, ULP_GPIO_4, ULP_GPIO_9, ULP_GPIO_10 and ULP_GPIO_11 are not supported.
-  - The pin tool is not supported for all OPAMP instances.
+  | OPAMP_OUT0     |     GPIO_30   | ULP_GPIO_9 | GPIO_27 |
+  | OPAMP_OUT1     |     ULP_GPIO_4 |--- | --- |
 
 #### DAC
   | DAC | DAC Output |
   | --- | --- |
-  | DAC0 | ULP_GPIO_4 [P17] |
-  | DAC1 | GPIO_30 [P35] |
+  | DAC0 | ULP_GPIO_4 |
+  | DAC1 | GPIO_30 |
+
+### Pin Description on WPK
+  | GPIO        | Brd4338A | BRD4343A  |
+  | ----------  | -------- | --------  |
+  | GPIO_27     |   P29    |    P29    |
+  | GPIO_29     |   P33    |    P33    |
+  | GPIO_30     |   P35    |    P35    |
+  | ULP_GPIO_0  |   ---    |    F10    |
+  | ULP_GPIO_2  |   F10    |    P37    |
+  | ULP_GPIO_4  |   ---    |    P17    |
+  | ULP_GPIO_5  |   ---    |    P18    |
+  | ULP_GPIO_6  |  EXP-16  |  EXP-16   |
+  | ULP_GPIO_7  |  EXP-15  |  EXP-15   |
+  | ULP_GPIO_8  |   P15    |    P15    |
+  | ULP_GPIO_9  |   F7     |    F7     |
+  | ULP_GPIO_10 |   P17    |    ---    |
+  | ULP_GPIO_11 |   F6     |    F6     |
+   
+
+ ### **Limitations:** 
+  - GPIO 27 (Top GPIO), ULP_GPIO_2 and ULP_GPIO_4 are not supported.
+  - The pin tool is not supported for all OPAMP instances.
 
 ## Test the Application
 1. Compile and run the application. 
@@ -171,54 +195,81 @@ The following table lists the mentioned pin numbers for the radio board. If you 
 
 ### Unity Gain
  - Apply input voltage on non-inverting input terminal from constant D.C supply source and the output is connected to inverting input terminal internally.
- Check the output voltage on board on OPAMP_OUT.
+     >![Figure: Introduction](resources/readme/unity_gain.png)
+ - Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output and set VinN mux to "Out". Ensure the resistor mux is set to "None" in the UC.
+    > ![Figure: UC-Screen](resources/uc_screen/unity_gain_uc.png)
+ 
+ - Check the output voltage on board on OPAMP_OUT.
  - Output voltage should be equal to input voltage. Use a Logic analyzer / Oscilloscope  to check output voltage.
-  - Calculate the offset voltage[offset=Vout-Vin].
+ - Calculate the offset voltage[offset=Vout-Vin].
 
 ### Inverting Programmable Gain Amplifier
- - Apply input voltage on non-inverting input terminal an inverting input terminal from constant D.C supply source.
- Check the output voltage on board on OPAMP_OUT.
+ - Apply input voltage on non-inverting input terminal and inverting input terminal from constant D.C supply source.
+   >![Figure: Introduction](resources/readme/inverting_pga.png)
+  
+ - Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+    > ![Figure: UC-Screen](resources/uc_screen/invt_pga_uc.png)
+
+ - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Inverting amp configuration gain is –R2/R1
+ - Inverting amp configuration gain is –R2/R1. Vinp as Vref and Vinn as Vin.
 Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
 
+
 ### Non-Inverting Programmable Gain Amplifier
- - Apply input voltage on non-inverting input terminal an inverting input terminal from constant D.C supply source.
- Check the output voltage on board on OPAMP_OUT.
+ - Apply input voltage on non-inverting input terminal and inverting input terminal from constant D.C supply source.
+   >![Figure: Introduction](resources/readme/non-inverting_pga.png)
+
+ - Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.   
+    > ![Figure: UC-Screen](resources/uc_screen/noninvt_pga_uc.png)
+
+ - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - non inverting amp configuration gain is 1+R2/R1
+ - Non inverting amp configuration gain is 1+R2/R1. Vinp as Vin and Vinn as Vref.
  Calculate the output voltage [Vout=Vin+(Vin-Vref)*(R2/R1)].
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
 
+
 ### Inverting Comparator with Programmable Hysteresis
- - Apply input voltage on non-inverting input terminal an inverting input terminal from constant D.C supply source..
- Check the output voltage on board on OPAMP_OUT.
+ - Apply input voltage on non-inverting input terminal and inverting input terminal from constant D.C supply source.
+   >![Figure: Introduction](resources/readme/inverting_comp_hyst.png)
+
+- Choose any GPIO from the VinN mux selection for input,from the "Out selection" for output, set VinP mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+    > ![Figure: UC-Screen](resources/uc_screen/invt_hys_uc.png)
+
+ - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Calculate the Hysteresis   
+ - Calculate the Hysteresis (Vinn as Vin and Vinp as Vref)
   [VT1=(Vref*R2+Vcc*R1)/(R1+R2)]  
   [VT2=Vref*R2/(R1+R2)]   
   [Hystresis=Vcc*R1/(R1+R2)]
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
 
+
 ### Non-Inverting Comparator with Programmable Hysteresis
- - Apply input voltage on non-inverting input terminal an inverting input terminal from constant D.C supply source.
- Check the output voltage on board on OPAMP_OUT.
+ - Apply input voltage on non-inverting input terminal and inverting input terminal from constant D.C supply source.
+   >![Figure: Introduction](resources/readme/noninverting_comp_hyst.png)
+- Choose any GPIO from the VinN mux selection for input,from the "Out selection" for output, set VinP mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.   
+  > ![Figure: UC-Screen](resources/uc_screen/noninvt_hys_uc.png)
+ - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Calculate the Hysteresis  
+ - Calculate the Hysteresis  (Vinn as Vref and Vinp as Vin)
   [VT1=(Vref*(R1+R2)/R2]   
   [VT2=(Vref*(R1+R2)-Vcc*R1)/R2]  
   [Hysteresis=Vcc*R1/R2)]
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
 
+
 ### Unity Gain with DAC
  - The DAC output serves as the input for OPAMP1.
- - Verify the output voltage on the board at DAC_OUT.
+ - Verify the output voltage on the board at DAC_OUT. 
  - Use a logic analyzer or oscilloscope to observe the DAC output, which should match the calculated value.
  - DAC_output = ((input sample / 1024 (2^10)) * Vref Voltage)
   
    **Note:** If input sample value is '0x3FF' and voltage reference is 3.3v, [DAC_output=((0x3FF/1024)*3.3)]
+   > ![Figure: UC-Screen](resources/uc_screen/unity_gain_dac_uc.png)

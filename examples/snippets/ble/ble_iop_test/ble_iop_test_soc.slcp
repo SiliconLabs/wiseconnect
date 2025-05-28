@@ -20,7 +20,6 @@ sdk_extension:
   version: 3.5.0
 source:
 - path: app.c
-- path: main.c
 include:
 - path: .
   file_list:
@@ -30,7 +29,7 @@ include:
 define:
 - name: SL_SI91X_PRINT_DBG_LOG
 component:
-- id: sl_system
+- id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: syscalls
@@ -73,10 +72,10 @@ configuration:
 readme:
 - path: readme.md
 other_file:
-- path: resources/readme/board.png
+- path: resources/readme/new_board.png
 - path: resources/readme/bond.png
 - path: resources/readme/connect.png
-- path: resources/readme/edited.png
+- path: resources/readme/new_image.png
 - path: resources/readme/log.png
 - path: resources/readme/NA.png
 - path: resources/readme/no_of_devices_conn.png
@@ -90,6 +89,12 @@ other_file:
 - path: resources/readme/share.png
 - path: resources/readme/start.png
 - path: resources/readme/Test.png
+- path: resources/readme/test_tab.png
+- path: resources/readme/test_log1.png
+- path: resources/readme/test_log_2.png
+- path: resources/readme/test_log_3.png
+- path: resources/readme/pin_display.png 
+- path: resources/readme/le_privacy.png
 ui_hints:
   highlight:
   - path: readme.md

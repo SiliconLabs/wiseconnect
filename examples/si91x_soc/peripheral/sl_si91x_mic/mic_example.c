@@ -31,13 +31,15 @@
  ******************************************************************************/
 #define MIC_N_CHANNELS         2   // Number of Mic channels
 #define MIC_SAMPLE_BUFFER_SIZE 512 // Mic buffer size to collect mic samples
+
 /*******************************************************************************
  ***************************  LOCAL VARIABLES   ********************************
  ******************************************************************************/
 static float spl_0 = 0;
 static float spl_1 = 0;
-static int32_t buffer[MIC_SAMPLE_BUFFER_SIZE * MIC_N_CHANNELS];
+static int16_t buffer[MIC_SAMPLE_BUFFER_SIZE * MIC_N_CHANNELS];
 static uint16_t sampling_frequency = 44100;
+
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
@@ -83,9 +85,9 @@ void mic_process_action(void)
   }
 
   // Calculate the sound level from the retrieved samples
-  sl_si91x_mic_calculate_sound_level(&spl_0, buffer, MIC_SAMPLE_BUFFER_SIZE, 0);
+  sl_si91x_mic_calculate_sound_level(&spl_0, (int32_t *)buffer, MIC_SAMPLE_BUFFER_SIZE, 0);
   if (n_channels == 2) {
-    sl_si91x_mic_calculate_sound_level(&spl_1, buffer, MIC_SAMPLE_BUFFER_SIZE, 1);
+    sl_si91x_mic_calculate_sound_level(&spl_1, (int32_t *)buffer, MIC_SAMPLE_BUFFER_SIZE, 1);
     DEBUGOUT("Sound level [dB]: %.2f %.2f \r\n", spl_0, spl_1);
   } else {
     DEBUGOUT("Sound level [dB]: %.2f \r\n", spl_0);

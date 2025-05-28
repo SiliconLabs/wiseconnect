@@ -8,7 +8,6 @@ quality: production
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: app.c
   - path: veml6035_example.c
 include:
@@ -26,7 +25,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: sl_gpio
     from: wiseconnect3_sdk

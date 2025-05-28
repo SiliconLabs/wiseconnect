@@ -19,7 +19,6 @@ sdk_extension:
   version: 3.5.0
 source:
 - path: app.c
-- path: main.c
 include:
 - path: .
   file_list:
@@ -30,7 +29,7 @@ define:
 - name: SLI_SI91X_CONFIG_WIFI6_PARAMS
 - name: SLI_SI91X_ENABLE_TWT_FEATURE
 component:
-- id: sl_system
+- id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: device_init

@@ -177,7 +177,7 @@
     <description>Guide for updating an existing application using the WiSeConnect™ SDK v3.4.1 to a v3.4.2 application. This guide describes the naming and interface changes in v3.4.2, mostly in order to standardize the names and improve the overall usage experience of the Application Programming Interface (API). Migration requires the names everywhere to be updated in the existing code of an application.</description>
   </contentItemData>
 
-   <contentItemData label="WiSeConnect SDK Migration Guide from v3.4.2 to v3.5.0" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/master/docs/software-reference/developer-guides/migrating-from-v3-4-2.md" category="Quick Start Guides" priority="8">
+  <contentItemData label="WiSeConnect SDK Migration Guide from v3.4.2 to v3.5.0" itemURI="https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-4-2" category="Quick Start Guides" priority="8">
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="8"/>
     <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a brd4357a"/>

@@ -28,6 +28,7 @@ define:
   - name: SL_SI91X_USART_DMA
   - name: SL_SI91X_DMA
   - name: UART1_RS485_MODE
+  - name: SLI_SI91X_MCU_RS485_DATA_BIT_9
 requires:
   - name: udma_linker_config
   - name: sl_dma

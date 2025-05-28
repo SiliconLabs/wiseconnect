@@ -8,7 +8,6 @@ package: platform
 quality: experimental
 source:
   - path: app.c
-  - path: main.c
   - path: cpc_app.c
 include:
   - path: .
@@ -23,7 +22,7 @@ sdk_extension:
     version: 3.5.0
 toolchain_settings: []
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: enum
   - id: syscalls

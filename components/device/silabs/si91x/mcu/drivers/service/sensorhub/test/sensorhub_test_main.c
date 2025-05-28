@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sensor_hub.h"
 #include "sensors_config.h"
 #include "rsi_debug.h"
@@ -53,7 +52,6 @@ void test_sensor_hub_start(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("Sensor Hub");
 
   RUN_TEST(test_sensorhub_notify_cb_register, __LINE__);

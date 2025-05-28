@@ -12,7 +12,6 @@ sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.0
 source:
-  - path: main.c
   - path: psa_hmac_app.c
   - path: app.c
 include:
@@ -24,7 +23,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto

@@ -10,7 +10,6 @@ readme:
 source:
   - path: app.h
   - path: app.c
-  - path: main.c
   - path: sysrtc_example.c
   - path: sysrtc_example.h
 sdk:
@@ -23,7 +22,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: sl_sysrtc
     from: wiseconnect3_sdk

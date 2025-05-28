@@ -21,7 +21,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: ble_device_info.c
   - path: ble_main_task.c
   - path: ble_subtasks.c
@@ -39,7 +38,7 @@ define:
   - name: SL_SI91X_PRINT_DBG_LOG
   - name: SLI_SI91X_SOCKETS
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: device_init

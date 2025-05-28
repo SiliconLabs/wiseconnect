@@ -30,6 +30,9 @@
 #pragma once
 #include "sl_si91x_socket_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /**
  * @addtogroup SI91X_SOCKET_FUNCTIONS
  * @{ 
@@ -556,3 +559,6 @@ int sl_si91x_select(int nfds,
  */
 void sl_si91x_set_remote_termination_callback(sl_si91x_socket_remote_termination_callback_t callback);
 /** @} */
+#ifdef __cplusplus
+}
+#endif

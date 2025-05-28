@@ -35,6 +35,22 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+/** @brief
+ *    Macro for marking deprecated functions
+ *
+ *  @details
+ *    SL_DEPRECATED_API_WISECONNECT_<RELEASE> is used to mark functions that are
+ *    deprecated and should not be used from a given version of WiSeConnect SDK.
+ *    The accompanying SL_SUPPRESS_DEPRECATION_WARNINGS_WISECONNECT_<RELEASE>
+ *    define can be set to suppress warnings generated when using
+ *    deprecated APIs.
+ */
+#ifdef SL_SUPPRESS_DEPRECATION_WARNINGS_WISECONNECT_3_5
+#define SL_DEPRECATED_API_WISECONNECT_3_5
+#else
+#define SL_DEPRECATED_API_WISECONNECT_3_5 __attribute__((deprecated))
+#endif
+
 #define SLI_STATUS_ENUM(prefix, name, value) prefix##_##name = (prefix##_ENUM_OFFSET + value)
 #define SLI_STATUS_SHARED_ENUM(prefix, name) prefix##_##name = (SL_##name)
 

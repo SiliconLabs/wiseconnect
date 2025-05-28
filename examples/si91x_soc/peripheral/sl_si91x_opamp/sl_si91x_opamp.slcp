@@ -13,7 +13,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: app.h
   - path: opamp_example.c
   - path: opamp_example.h
@@ -21,7 +20,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
@@ -69,7 +68,18 @@ other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/opamp_console_output.png
   - path: resources/readme/dac_console_output.png
+  - path: resources/readme/unity_gain.png
+  - path: resources/readme/inverting_pga.png
+  - path: resources/readme/non-inverting_pga.png
+  - path: resources/readme/inverting_comp_hyst.png
+  - path: resources/readme/noninverting_comp_hyst.png
   - path: resources/uc_screen/opamp_uc_screen.png
+  - path: resources/uc_screen/unity_gain_uc.png
+  - path: resources/uc_screen/invt_pga_uc.png
+  - path: resources/uc_screen/noninvt_pga_uc.png
+  - path: resources/uc_screen/invt_hys_uc.png
+  - path: resources/uc_screen/noninvt_hys_uc.png
+  - path: resources/uc_screen/unity_gain_dac_uc.png
 readme:
   - path: readme.md
 ui_hints:

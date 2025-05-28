@@ -999,27 +999,37 @@
                     No Credential ID.
                 </description>
             </enum>
-            <enum name="credential_id_default_wifi_client" value="0x01" title="Wi-Fi Client Credential ID">
+            <enum name="credential_id_default_wifi_client" value="0x01" title="Default Wi-Fi Client Credential ID">
                 <description>
                     Default Wi-Fi Client Credential ID.
                 </description>
             </enum>
-            <enum name="credential_id_default_wifi_ap" value="0x02" title="Wi-Fi Access Point Credential ID">
+            <enum name="credential_id_wifi_client_1" value="0x02" title="Wi-Fi Client Credential ID 1">
+                <description>
+                    Wi-Fi Client Credential ID 1.
+                </description>
+            </enum>
+            <enum name="credential_id_default_wifi_ap" value="0x03" title="Default Wi-Fi Access Point Credential ID">
                 <description>
                     Default Wi-Fi Access Point Credential ID.
                 </description>
             </enum>
-            <enum name="credential_id_wifi_eap_client" value="0x03" title="Wi-Fi EAP Client Credential ID">
+            <enum name="credential_id_wifi_ap_1" value="0x04" title="Wi-Fi Access Point Credential ID 1">
+                <description>
+                    Wi-Fi Access Point Credential ID 1.
+                </description>
+            </enum>
+            <enum name="credential_id_wifi_eap_client" value="0x05" title="Wi-Fi EAP Client Credential ID">
                 <description>
                     Wi-Fi EAP Client Credential ID.
                 </description>
             </enum>
-            <enum name="credential_id_wifi_eap_server" value="0x04" title="Wi-Fi EAP Server Credential ID">
+            <enum name="credential_id_wifi_eap_server" value="0x06" title="Wi-Fi EAP Server Credential ID">
                 <description>
                     Wi-Fi EAP Server Credential ID.
                 </description>
             </enum>
-            <enum name="credential_id_user" value="0x05" title="User Credential ID">
+            <enum name="credential_id_user" value="0x07" title="User Credential ID">
                 <description>
                     User Credential ID.
                 </description>

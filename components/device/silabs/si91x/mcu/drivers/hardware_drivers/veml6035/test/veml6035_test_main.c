@@ -16,7 +16,6 @@
  ******************************************************************************/
 #include "unity.h"
 #include "sl_si91x_veml6035.h"
-#include "sl_system_init.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_driver_gpio.h"
 
@@ -62,7 +61,6 @@ void test_sl_si91x_veml6035_read_interrupt_status(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
 #if defined(SENSOR_ENABLE_GPIO_MAPPED_TO_UULP)
   if (sl_si91x_gpio_driver_get_uulp_npss_pin(SENSOR_ENABLE_GPIO_PIN) != 1) {
     // Enable GPIO ULP_CLK

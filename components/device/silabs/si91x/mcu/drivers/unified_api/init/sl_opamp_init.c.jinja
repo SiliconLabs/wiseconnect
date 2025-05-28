@@ -36,6 +36,7 @@
 sl_opamp_pin_config_t sl_{{ inst }}_pin_config = {
         .vin_p_input    = SL_{{ inst | upper }}_P_PIN,
         .vin_n_input    = SL_{{ inst | upper }}_N_PIN,
+        .vin_res_input  = SL_{{ inst | upper }}_RES_PIN,
         .vout_output    = SL_{{ inst | upper }}_OUT_PIN,
 };   
 sl_opamp_config_t sl_{{ inst }}_feature = {

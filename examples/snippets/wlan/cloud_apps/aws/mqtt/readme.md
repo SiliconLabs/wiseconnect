@@ -136,7 +136,7 @@ The application can be configured to suit your requirements and development envi
 - `PUBLISH_ON_TOPIC` refers to the topic to which the device publishes.
 - When `WRAP_PRIVATE_KEY` is enabled, the `aws_client_private_key` provided by the user will be wrapped using `sl_si91x_wrap()`. This `wrapped_private_key` will be loaded into the flash and used for the AWS connection.
 
-> Note: To use the `sl_si91x_wrap()` function, security must be enabled on the device. Follow the detailed instructions in **Section 5.5 - Enable Security Configurations in NWP and M4 Firmware Images** of the [UG574 SiWx917 SoC Manufacturing Utility User Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf).
+> Note: To use the `sl_si91x_wrap()` function, security must be enabled on the device. Follow the detailed instructions in **Section 5.4 and Section 5.5 - Enable Security Configurations in NWP and M4 Firmware Images** of the [UG574 SiWx917 SoC Manufacturing Utility User Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf).
 
 ### Configure the below parameters in `sl_net_default_values.h` present at `\<project>/config`
 

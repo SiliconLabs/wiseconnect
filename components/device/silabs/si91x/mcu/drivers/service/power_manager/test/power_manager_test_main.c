@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_clock_manager.h"
 #include "power_manager_m4_wireless_example.h"
@@ -102,8 +101,6 @@ void test_clock_manager_control_pll(void);
  ******************************************************************************/
 void test_power_manager_example_init()
 {
-  //  sl_system_init();
-
   // Initialization of thread with the application_start function
   osThreadNew((osThreadFunc_t)test_application_start, NULL, &test_thread_attributes);
 }

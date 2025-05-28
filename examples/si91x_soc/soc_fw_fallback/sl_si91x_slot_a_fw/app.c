@@ -205,7 +205,7 @@ static void application_start(void *argument)
 
   UNUSED_PARAMETER(argument); // Avoids compiler warning for unused parameter
 
-  DEBUGOUT("\r\n FW FallBack App is Running:%lX \r\n", rom_address);
+  DEBUGOUT("\r\n FW FallBack App is Running......\r\n");
 
   // This function checks the current active NWP slot information retrieved from the slot management structure.
   // If the active slot is valid (either SLOT_A or SLOT_B), it assigns the corresponding firmware image number
@@ -342,7 +342,7 @@ static sl_status_t firmware_update_process(int client_socket)
 
       case STATE_COMPLETED:
         // Firmware update process completed successfully
-        DEBUGOUT("\r\nFirmware Update Completed Successfully:%lX\r\n", ota_image_start_address);
+        DEBUGOUT("\r\n Firmware Update Completed Successfully \r\n");
 
         // Close the client socket
         close(client_socket);
@@ -363,6 +363,8 @@ static sl_status_t firmware_update_process(int client_socket)
               sl_si91x_ab_upgrade_set_slot_info(ota_image_start_address, ota_image_size, SL_SI91X_AB_OTA_IMAGE_TYPE_M4);
             if (status != SL_STATUS_OK) {
               DEBUGOUT("Failed to update M4 slot, error: %lu\n", status);
+            } else {
+              DEBUGOUT("\r\n Successfully updated M4 slot information \r\n");
             }
           }
 
@@ -375,6 +377,8 @@ static sl_status_t firmware_update_process(int client_socket)
                                                        SL_SI91X_AB_OTA_IMAGE_TYPE_NWP);
             if (status != SL_STATUS_OK) {
               DEBUGOUT("Failed to update NWP slot, error: %lu\n", status);
+            } else {
+              DEBUGOUT("\r\n Successfully updated NWP slot information \r\n");
             }
           }
 #endif
@@ -483,7 +487,6 @@ static sl_status_t sl_app_processing_response(int client_socket,
   static uint32_t current_flash_offset = 0; // Track current flash write offset
 
   if (recv_size > 0) {
-    DEBUGOUT("\r\nImage size: %x\r\n", recv_size);
 
     // Receive the firmware chunk from the server
     int data_length = recv(client_socket, recv_buffer, recv_size, 0);
@@ -517,15 +520,11 @@ static sl_status_t sl_app_processing_response(int client_socket,
         ta_ota_image = 1;
       }
 
-      DEBUGOUT("\r\nAddr: %lx, Size: %lx type:%u\r\n",
-               ota_config.ota_image_offset,
-               ota_config.ota_image_size,
-               ota_config.ota_image_type);
-      DEBUGOUT("\r\n max_count: %x, remaining_bytes: %x\r\n", *chunk_max_count, number_of_remaining_bytes);
-
       current_flash_offset = ota_config.ota_image_offset;
 
       // Erase flash memory before writing new firmware
+
+      printf("\r\nFirmware flash erase progress.....\r\n");
       status = sl_si91x_flash_erase(ota_config.ota_image_offset, ota_config.ota_image_size);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("\r\nFirmware flash erase fail:%lX\r\n", status);
@@ -534,18 +533,13 @@ static sl_status_t sl_app_processing_response(int client_socket,
         DEBUGOUT("\r\nFirmware flash erase success:%lu\r\n", status);
       }
 
+      DEBUGOUT("\r\nchunk writing progress.....\r\n");
     } else {
       // Determine size of the current firmware chunk to write
       fwup_chunk_length =
         (*data_chunk < *chunk_max_count)
           ? SL_SI91X_MAX_OTA_IMAGE_CHUNK_SIZE
           : (number_of_remaining_bytes == 0 ? SL_SI91X_MAX_OTA_IMAGE_CHUNK_SIZE : number_of_remaining_bytes);
-
-      DEBUGOUT("\r\nChunk: %d, fwup_chunk_length: %d, chunk_max_count: %d\r\n",
-               *data_chunk,
-               fwup_chunk_length,
-               *chunk_max_count);
-      DEBUGOUT("\r\ncurrent_flash_offset: %lx", current_flash_offset);
 
       // Write firmware chunk to flash memory
       status = sl_si91x_flash_write(current_flash_offset, recv_buffer, fwup_chunk_length);
@@ -588,36 +582,46 @@ void sl_app_display_ab_slot_info(const sl_si91x_fw_ab_slot_management_t *slot_in
     return;
   }
 
-  DEBUGOUT("\r\n========= Firmware Slot Information =========");
+  DEBUGOUT("\r\n========= Firmware Fallback A/B Slot Information =========");
   DEBUGOUT("\r\nMagic Word: 0x%lX", (unsigned long)slot_info->slot_magic_word);
 
   // M4 Slot Information
   DEBUGOUT("\r\n---- M4 Slot Information ----");
   DEBUGOUT("\r\nM4 Slot A:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->m4_slot_info.m4_slot_A.slot_id);
-  DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->m4_slot_info.m4_slot_A.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_A.image_size);
+  DEBUGOUT("\r\n  Image Offset: 0x%lX",
+           (unsigned long)slot_info->m4_slot_info.m4_slot_A.slot_image_offset & 0x00FFFFFF);
+  DEBUGOUT("\r\n  Image Size: 0x%lX bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_A.image_size);
 
   DEBUGOUT("\r\nM4 Slot B:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->m4_slot_info.m4_slot_B.slot_id);
-  DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->m4_slot_info.m4_slot_B.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_B.image_size);
+  DEBUGOUT("\r\n  Image Offset: 0x%lX",
+           (unsigned long)slot_info->m4_slot_info.m4_slot_B.slot_image_offset & 0x00FFFFFF);
+  DEBUGOUT("\r\n  Image Size: 0x%lX bytes", (unsigned long)slot_info->m4_slot_info.m4_slot_B.image_size);
 
-  DEBUGOUT("\r\nCurrently Active M4 Slot: %c", slot_info->m4_slot_info.current_active_M4_slot == SLOT_A ? 'A' : 'B');
+  DEBUGOUT("\r\nCurrently Active M4 Slot: %c",
+           slot_info->m4_slot_info.current_active_M4_slot == SLOT_A
+             ? 'A'
+             : (slot_info->m4_slot_info.current_active_M4_slot == SLOT_B ? 'B' : 'N'));
 
   // NWP Slot Information
   DEBUGOUT("\r\n---- NWP Slot Information ----");
   DEBUGOUT("\r\nNWP Slot A:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->nwp_slot_info.nwp_slot_A.slot_id);
-  DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.image_size);
+  DEBUGOUT("\r\n  Image Offset: 0x%lX",
+           (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.slot_image_offset & 0x00FFFFFF);
+  DEBUGOUT("\r\n  Image Size: 0x%lX bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_A.image_size);
 
   DEBUGOUT("\r\nNWP Slot B:");
   DEBUGOUT("\r\n  Slot ID: %u", slot_info->nwp_slot_info.nwp_slot_B.slot_id);
-  DEBUGOUT("\r\n  Image Offset: 0x%lX", (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.slot_image_offset);
-  DEBUGOUT("\r\n  Image Size: %lX bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.image_size);
+  DEBUGOUT("\r\n  Image Offset: 0x%lX",
+           (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.slot_image_offset & 0x00FFFFFF);
+  DEBUGOUT("\r\n  Image Size: 0x%lX bytes", (unsigned long)slot_info->nwp_slot_info.nwp_slot_B.image_size);
 
-  DEBUGOUT("\r\nCurrently Active NWP Slot: %c", slot_info->nwp_slot_info.current_active_nwp_slot == SLOT_A ? 'A' : 'B');
+  DEBUGOUT("\r\nCurrently Active NWP Slot: %c",
+           slot_info->nwp_slot_info.current_active_nwp_slot == SLOT_A
+             ? 'A'
+             : (slot_info->nwp_slot_info.current_active_nwp_slot == SLOT_B ? 'B' : 'N'));
 
   DEBUGOUT("\r\nSlot Structure CRC: 0x%lX", (unsigned long)slot_info->slot_struct_crc);
   DEBUGOUT("\r\n=============================================\r\n");
@@ -653,7 +657,7 @@ static void sl_app_handle_ab_slot_info(sl_si91x_fw_ab_slot_management_t *app_ab_
   if (status != SL_STATUS_OK) {
     DEBUGOUT("Failed to update M4 slot, error: %lu\n", status);
   } else {
-    DEBUGOUT("Successfully updated M4 slot with address: %lX and length: %lX\n", rom_address, rom_length);
+    DEBUGOUT("\r\n Successfully updated M4 slot information \r\n");
   }
 
   // Set the slot info for the NWP core
@@ -663,9 +667,7 @@ static void sl_app_handle_ab_slot_info(sl_si91x_fw_ab_slot_management_t *app_ab_
   if (status != SL_STATUS_OK) {
     DEBUGOUT("Failed to update NWP slot, error: %lu\n", status);
   } else {
-    DEBUGOUT("Successfully updated NWP slot with offset: %X and size: %X\n",
-             DEFAULT_NWP_SLOT_A_OFFSET,
-             DEFAULT_NWP_IMAGE_SIZE);
+    DEBUGOUT("Successfully updated NWP slot information\r\n");
   }
 
   // Read back the updated slot information

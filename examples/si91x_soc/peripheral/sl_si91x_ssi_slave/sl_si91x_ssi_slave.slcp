@@ -6,7 +6,6 @@ category: example|peripheral
 package: platform
 quality: production
 source:
-  - path: main.c
   - path: app.c
   - path: app.h
   - path: ssi_slave_example.c
@@ -21,7 +20,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk

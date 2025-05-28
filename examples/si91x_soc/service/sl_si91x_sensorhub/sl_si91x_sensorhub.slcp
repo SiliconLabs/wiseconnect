@@ -40,7 +40,6 @@ source:
   - path: sensors/inc/sensor_type.h
   - path: sensors/inc/hub_hal_intf.h
   - path: app.c
-  - path: main.c
   - path: app.h
   - path: sensorhub_app.c
   - path: sensorhub_aws_app.c
@@ -58,7 +57,7 @@ component:
   - id: freertos
   - id: freertos_heap_4
   - id: slist
-  - id: sl_system
+  - id: sl_main
   - id: wiseconnect3_common
     from: wiseconnect3_sdk
   - id: syscalls

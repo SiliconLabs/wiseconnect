@@ -19,7 +19,6 @@
 #include "bod_example.h"
 #include "rsi_debug.h"
 #include "sl_si91x_bod.h"
-#include "sl_system_init.h"
 #include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************

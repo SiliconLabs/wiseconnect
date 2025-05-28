@@ -13,7 +13,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: gpdma_example.c
 include:
   - path: .
@@ -24,7 +23,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: sl_gpdma
     from: wiseconnect3_sdk

@@ -501,24 +501,35 @@ typedef enum {
                                                                        Client
                                                                        Credential
                                                                        ID. */
-  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_DEFAULT_WIFI_AP     = 0x2,   /**< (0x2)
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_WIFI_CLIENT_1       = 0x2,   /**< (0x2)
+                                                                       Wi-Fi
+                                                                       Client
+                                                                       Credential
+                                                                       ID 1. */
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_DEFAULT_WIFI_AP     = 0x3,   /**< (0x3)
                                                                        Default
                                                                        Wi-Fi
                                                                        Access
                                                                        Point
                                                                        Credential
                                                                        ID. */
-  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_WIFI_EAP_CLIENT     = 0x3,   /**< (0x3)
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_WIFI_AP_1           = 0x4,   /**< (0x4)
+                                                                       Wi-Fi
+                                                                       Access
+                                                                       Point
+                                                                       Credential
+                                                                       ID 1. */
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_WIFI_EAP_CLIENT     = 0x5,   /**< (0x5)
                                                                        Wi-Fi EAP
                                                                        Client
                                                                        Credential
                                                                        ID. */
-  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_WIFI_EAP_SERVER     = 0x4,   /**< (0x4)
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_WIFI_EAP_SERVER     = 0x6,   /**< (0x6)
                                                                        Wi-Fi EAP
                                                                        Server
                                                                        Credential
                                                                        ID. */
-  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_USER                = 0x5,   /**< (0x5)
+  APP_WIFI_NET_PROFILE_CREDENTIAL_ID_USER                = 0x7,   /**< (0x7)
                                                                        User
                                                                        Credential
                                                                        ID. */

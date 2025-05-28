@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_si91x_clock_manager.h"
 #include "rsi_debug.h"
 #include "unity.h"
@@ -52,7 +51,6 @@ void test_sl_si91x_clock_manager_set_pll_clk(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("Clock Manager");
 
   RUN_TEST(test_sl_si91x_clock_manager_init, __LINE__);

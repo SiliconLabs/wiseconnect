@@ -23,7 +23,6 @@ source:
 - path: ble_device_info.c
 - path: ble_main_task.c
 - path: ble_subtasks.c
-- path: main.c
 - path: app.c
 include:
 - path: .
@@ -34,7 +33,7 @@ include:
 define:
 - name: SL_SI91X_PRINT_DBG_LOG
 component:
-- id: sl_system
+- id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: device_init

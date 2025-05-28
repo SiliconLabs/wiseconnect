@@ -31,6 +31,7 @@
 
 #include "sl_si91x_status.h"
 #include "sl_si91x_protocol_types.h"
+#include "sl_constants.h"
 #include "sl_bit.h"
 #include "sl_wifi_types.h"
 #include <stdint.h>

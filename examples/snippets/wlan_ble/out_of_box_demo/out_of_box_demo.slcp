@@ -15,7 +15,6 @@ sdk_extension:
 - {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
-  - path: main.c
   - path: ble_app.c
   - path: wifi_app.c
 include:
@@ -63,7 +62,7 @@ requires:
 - name: sl_si91x_mcu
 - name: wiseconnect3_common
 - name: sl_i2c
-- name: sl_system
+- name: sl_main
 - name: aws_sdk
 - name: network_manager
 - name: wiseconnect3_common

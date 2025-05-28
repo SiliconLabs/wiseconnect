@@ -20,7 +20,6 @@ sdk_extension:
     version: 3.5.0
 source:
   - path: demo.c
-  - path: main.c
   - path: at_command_parser.c
   - path: wifi_commands.c
   - path: network_commands.c
@@ -40,7 +39,7 @@ define:
   - name: SLI_AT_COMMAND_SUPPORT
   - name: SLI_CONSOLE_SUPPRESS_AUTO_ECHO
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: syscalls

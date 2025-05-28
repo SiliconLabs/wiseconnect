@@ -207,7 +207,7 @@ The application can be configured to suit your requirements and development envi
      ```
 
 > Note:
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
+> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 ### Configuring the BLE task
 

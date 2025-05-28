@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_si91x_dual_flash_intf.h"
 #include "rsi_debug.h"
 #include "unity.h"
@@ -57,7 +56,6 @@ void test_get_qspi_config(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("Dual Flash Interface");
 
   RUN_TEST(test_rsi_flash_init, __LINE__);

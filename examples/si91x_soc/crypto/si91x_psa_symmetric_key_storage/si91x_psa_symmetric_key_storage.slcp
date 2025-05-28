@@ -16,7 +16,6 @@ filter:
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: app.c
   - path: psa_symmetric_key_storage_app.c
 include:
@@ -33,7 +32,7 @@ sdk_extension:
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto

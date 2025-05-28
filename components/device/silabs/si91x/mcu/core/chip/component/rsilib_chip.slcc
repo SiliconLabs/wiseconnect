@@ -51,3 +51,6 @@ template_contribution:
       include: system_si91x.h
       handler: SystemCoreClockUpdate
     priority: -9999
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wno-error=deprecated-declarations

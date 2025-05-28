@@ -41,7 +41,6 @@ static boolean_t begin_transmission = true;
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 void callback_event(uint32_t event);
-//static void compare_loop_back_data(void);
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
@@ -197,7 +196,7 @@ void usart_example_process_action(void)
             break;
           }
           DEBUGOUT("UART_Task: UART Loopback data read successfully and written into UART_Message_Queue\n");
-          //          compare_loop_back_data();
+
           // If send macro is not enabled, current mode is set to completed.
           current_mode = SL_TRANSMISSION_COMPLETED;
         }
@@ -228,7 +227,6 @@ void usart_example_process_action(void)
           // Update transfer_complete flag with 0.
           transfer_complete = false;
 
-          //          compare_loop_back_data();
           // At last current mode is set to completed.
           current_mode = SL_TRANSMISSION_COMPLETED;
           DEBUGOUT("USART transfer completed \n");
@@ -237,33 +235,11 @@ void usart_example_process_action(void)
         break;
 
       case SL_TRANSMISSION_COMPLETED:
+        osDelay(100);
         break;
     }
-
-    osDelay(100);
   }
 }
-
-///*******************************************************************************
-// * Compares data received buffer via USART with data transfer buffer and print
-// * the loopback test passed or failed
-// ******************************************************************************/
-//static void compare_loop_back_data(void)
-//{
-//  uint16_t data_index = 0;
-//  // Check for data in and data out are same, if same then comparision
-//  // will continue till end of the buffer
-//  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-//    if (usart_data_in[data_index] != usart_data_out[data_index]) {
-//      break;
-//    }
-//  }
-//  if (data_index == BUFFER_SIZE) {
-//    DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
-//  } else {
-//    DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
-//  }
-//}
 
 /*******************************************************************************
  * Callback function triggered on data Transfer and reception

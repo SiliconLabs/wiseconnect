@@ -19,6 +19,7 @@ provides:
 source:
 - path: src/sl_si91x_driver.c
 - path: sl_net/src/sl_net_si91x.c
+  condition: ["sl_si91x_internal_stack"]
   unless:
     - sl_si91x_network_dual_stack
     - sl_si91x_lwip_stack

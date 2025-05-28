@@ -18,7 +18,6 @@ sdk_extension:
   version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -27,7 +26,7 @@ define:
   - name: SL_SI91X_PRINT_DBG_LOG
   - name: SL_SI91X_FAST_FW_UP
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: device_init

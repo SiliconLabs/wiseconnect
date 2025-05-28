@@ -17,7 +17,6 @@ readme:
   - path: readme.md
 source:
   - path: app.c
-  - path: main.c
   - path: app_iostream_usart.c
   - path: app.h
   - path: app_iostream_usart.h
@@ -25,7 +24,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: stdio
   - id: atomic
   - id: sl_common

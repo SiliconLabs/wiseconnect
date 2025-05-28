@@ -15,7 +15,6 @@ sdk_extension:
 - {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -25,7 +24,7 @@ component:
 - {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: syscalls}
 requires:
-- name: sl_system
+- name: sl_main
 - name: network_manager
 - name: basic_network_config_manager
 - name: sl_si91x_basic_buffers

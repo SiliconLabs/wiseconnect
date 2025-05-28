@@ -20,7 +20,6 @@ sdk_extension:
   version: 3.5.0
 source:
 - path: demo.c
-- path: main.c
 - path: xapi/xapi/xapi.c
 - path: xapi/autogen/app_wifi_commander.c
 - path: xapi/autogen/app_wifi_system_xapi_cmd_lut_handler.c
@@ -95,7 +94,7 @@ define:
 - name: SLI_SI91X_MCU_INTR_BASED_RX_ON_UART
 - name: APP_WIFI_API_FULL
 component:
-- id: sl_system
+- id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: syscalls

@@ -18,7 +18,6 @@ sdk:
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: psa_aes_app.c
   - path: app.c
 include:
@@ -27,7 +26,7 @@ include:
       - path: psa_aes_app.h
       - path: app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto

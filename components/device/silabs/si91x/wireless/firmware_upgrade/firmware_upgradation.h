@@ -30,6 +30,7 @@
 #pragma once
 
 #include "sl_status.h"
+#include "sl_constants.h"
 
 /** \addtogroup SL_SI91X_TYPES
  * @{
@@ -353,7 +354,6 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  *   | BIT(10)| Set this bit to specify index of SSL cert to be used for HTTPS.        |
  *   | BIT(11)| Set this bit to enable server name indication (SNI) for HTTPS.         |
  * 
- * @note
  * - Maximum supported length for user_name, password together is 278 bytes.
  * - Maximum length should be 872 bytes, which includes user_name, password, host_name, ip_address, resource, and extended_header.
  * - If username, password, hostname and extended http headers are not required, user should send empty string separated by delimiter.
@@ -362,13 +362,14 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  * - When the SL_SI91X_FEAT_LONG_HTTP_URL feature is enabled, the maximum supported URL length for HTTP OTAF is 2048 bytes.
  * - To select certificate index 0, no additional flags are required to be configured explicitly.
  * 
- * @note
- *  The following table summarizes the support for different modes and network stacks:
+ * - The following table summarizes the support for different modes and network stacks:
  * 
  *  | Mode      | Hosted Network Stack | Offload Network Stack |
  *  |-----------|----------------------|-----------------------|
  *  | SoC       | Not-Supported        | Supported             |
  *  | NCP       | Not-Supported        | Supported             |
+ * 
+ * - Moving forward, this structure will be deprecated. Instead, use the [sl_si91x_http_otaf_v2](../wiseconnect-api-reference-guide-si91x-driver/si91-x-firmware-update-from-module-functions#sl-si91x-http-otaf-v2) structure. This is retained for backward compatibility.
  ******************************************************************************/
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) || defined(DOXYGEN)
 sl_status_t sl_si91x_http_otaf(uint8_t type,
@@ -381,7 +382,7 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint8_t *user_name,
                                uint8_t *password,
                                const uint8_t *post_data,
-                               uint32_t post_data_length);
+                               uint32_t post_data_length) SL_DEPRECATED_API_WISECONNECT_3_5;
 #endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */
 
 /***************************************************************************/
@@ -415,5 +416,7 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
  * - When the SL_SI91X_FEAT_LONG_HTTP_URL feature is enabled, the maximum supported URL length for HTTP OTAF is 2048 bytes.
  * - To select certificate index 0, no additional flags need to be configured explicitly.
  ******************************************************************************/
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) || defined(DOXYGEN)
 sl_status_t sl_si91x_http_otaf_v2(const sl_si91x_http_otaf_params_t *http_otaf_params);
+#endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */
 /** @} */

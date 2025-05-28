@@ -39,20 +39,25 @@ extern "C" {
 /******************** OPAMP Common Configuration ******************************/
 
 // <<< Use Configuration Wizard in Context Menu >>>
+
+// <e>DAC Enable
+#define INPUT_DAC_NEG_INPUT_EXTERNAL 0
+// </e>
+
 // <h>OPAMP Common Configuration
 
 // <o OPAMP_REF_VOLT> OPAMP Reference Voltage
 //   <2500=> 2.5 V
 //   <3300=> 3.3 V
 // <i> Selection of OPAMP Reference Voltage
-#define OPAMP_REF_VOLT 2500
+#define OPAMP_REF_VOLT 3300
 
 // <o SL_OPAMP_CONFIGURATION_SELECTION> OPAMP Features Selection
 //   <SL_OPAMP_UNITY_GAIN_FEATURES=> Unity Gain
 //   <SL_OPAMP_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Inverting PGA
 //   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Non-Inverting PGA
-//   <SL_OPAMP_INVERTING_PROGRAMMABLE_HYST_COMP=> Inverting Hystresis Comparator
-//   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_HYST_COMP=> Non-Inverting Hystresis Comparator
+//   <SL_OPAMP_INVERTING_PROGRAMMABLE_HYST_COMP=> Inverting Hysteresis Comparator
+//   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_HYST_COMP=> Non-Inverting Hysteresis Comparator
 // <i> Selection of OPAMP Features
 
 #define SL_OPAMP_CONFIGURATION_SELECTION SL_OPAMP_UNITY_GAIN_FEATURES

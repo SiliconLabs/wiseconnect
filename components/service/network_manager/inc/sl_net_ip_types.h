@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sl_ip_types.h"
+#include "sl_constants.h"
 
 #if defined(__CC_ARM)
 #pragma anon_unions
@@ -146,6 +147,7 @@ typedef struct {
  *   (`min_discover_retry_interval`, `max_discover_retry_interval`, `max_discover_retries`) 
  *   and request (`min_request_retry_interval`, `max_request_retry_interval`, `max_request_retries`).
  * - The total wait time is the sum of the total discovery retry time and the total request retry time.
+ * - Moving forward, 'min_discover_retries' member variable will be deprecated. Instead, use the `max_discover_retries`. This is retained for backward compatibility.
  */
 typedef struct {
   uint16_t min_discover_retry_interval; ///< Minimum retry interval for discovery
@@ -153,8 +155,7 @@ typedef struct {
   uint16_t min_request_retry_interval;  ///< Minimum retry interval for request
   uint16_t max_request_retry_interval;  ///< Maximum retry interval for request
   union {
-    uint8_t
-      min_discover_retries; ///< [Deprecated] Use [max_discover_retries](#max_discover_retries) instead of this. This refers to the maximum no. of `discover` retries but is incorrectly named as min_discover_retries in SDK v3.4.0 and earlier. This is retained here for backward compatibility.
+    uint8_t min_discover_retries; ///< Deprecated. Use `max_discover_retries` instead.
     uint8_t max_discover_retries; ///< Maximum number of retries for discovery
   };
   uint8_t max_request_retries; ///< Maximum number of retries for request

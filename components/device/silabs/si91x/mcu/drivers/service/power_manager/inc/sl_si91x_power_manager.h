@@ -107,7 +107,6 @@ extern "C" {
 
 // ULPSS peripherals.
 #define SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC ULPSS_PWRGATE_ULP_MISC ///< ULP Miscellaneous Power Gate.
-#define SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP  ULPSS_PWRGATE_ULP_CAP  ///< ULP Capacitive Touch Sensor Power Gate.
 #define SL_SI91X_POWER_MANAGER_ULPSS_PG_UART ULPSS_PWRGATE_ULP_UART ///< ULP UART Power Gate.
 #define SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI  ULPSS_PWRGATE_ULP_SSI  ///< ULP SSI Power Gate.
 #define SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S  ULPSS_PWRGATE_ULP_I2S  ///< ULP I2S Power Gate.
@@ -821,6 +820,10 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *   If sl_system is used, only sl_system_init() must be called, otherwise
 *   @ref sl_si91x_power_manager_init() must be called manually.
 *
+*   ***Power Manager Architecture***
+*
+* @image html power_manager_arch.png "Power manager architecture"
+*
 *   ***Add and remove requirements***
 *
 *   The driver/application can add and remove power state requirements at runtime. Adding requirement function calls changes the power state. Removing requirement function calls will not have any effect for state transition.
@@ -836,6 +839,30 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *   @ref sl_si91x_power_manager_subscribe_ps_transition_event()
 *
 *   @ref sl_si91x_power_manager_unsubscribe_ps_transition_event()
+*
+*   ***Memory Footprint Analysis***
+*
+*   - Memory footprint analysis helps in understanding the memory usage of the application.            
+*   - It includes details about stack, heap, and global/static memory usage.
+*   - Tools like map files or IDE-specific memory analyzers can be used to analyze the memory footprint.
+*   - Optimizing memory usage ensures efficient resource utilization and avoids memory overflows.
+*   - In this example, ensure that the stack size (3072 bytes) and other memory allocations are sufficient for the application's requirements.
+*
+*   ***Tickless idle Mode***
+*
+*   - Application Task: This represents tasks running in your application. These tasks might call vTaskDelay or other blocking functions, leading the scheduler to consider them idle.
+*   - Scheduler (Idle): When no tasks are ready to run, the scheduler enters an idle state.
+*   - Check for Idle: The scheduler checks if FreeRTOS tickless mode is enabled (configUSE_TICKLESS_IDLE=1) and if all tasks are blocked.
+*   - Suspend Ticks & Enter Sleep: If conditions are met, the scheduler calls vPortSuppressTicksAndSleep to:
+*      - Disable the system tick interrupt.
+*      - start a timer to track the sleep duration.
+*      - Enter a low-power mode using MCU power management features (e.g., Wait For Interrupt instruction).
+*   - Wakeup Interrupt: An interrupt (event or timer) wakes up the MCU.
+*   - Scheduler Update: The scheduler calculates the sleep duration and adjusts the system tick counter accordingly.
+*   - Resume Scheduler & Tasks: The scheduler resumes the tick interrupt and exits the low-power mode. Tasks become ready to run again.
+*   - Application Code: Application tasks continue execution based on the updated system time.
+* 
+* @image html tickless_idle_mode.png "Tickless idle mode"
 *
 *   ***Sleep***
 *

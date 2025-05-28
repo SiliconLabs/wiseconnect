@@ -12,7 +12,6 @@ readme:
 source:
   - path: config_timer_example.c
   - path: app.c
-  - path: main.c
   - path: app.h
   - path: config_timer_example.h
 sdk:
@@ -22,7 +21,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk

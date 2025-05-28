@@ -127,10 +127,11 @@ typedef enum {
  *          ongoing transfers.
  ******************************************************************************/
 typedef enum {
-  SL_I2S_TRANSMIT      = ARM_SAI_CONFIGURE_TX, ///< I2S transmit.
-  SL_I2S_RECEIVE       = ARM_SAI_CONFIGURE_RX, ///< I2S receive.
-  SL_I2S_SEND_ABORT    = ARM_SAI_ABORT_SEND,   ///< I2S abort transmit.
-  SL_I2S_RECEIVE_ABORT = ARM_SAI_ABORT_RECEIVE ///< I2S abort receive.
+  SL_I2S_TRANSMIT         = ARM_SAI_CONFIGURE_TX,  ///< I2S transmit.
+  SL_I2S_RECEIVE          = ARM_SAI_CONFIGURE_RX,  ///< I2S receive.
+  SL_I2S_SEND_ABORT       = ARM_SAI_ABORT_SEND,    ///< I2S abort transmit.
+  SL_I2S_RECEIVE_ABORT    = ARM_SAI_ABORT_RECEIVE, ///< I2S abort receive.
+  SL_MIC_ICS43434_RECEIVE = ARM_SAI_CONFIGURE_MIC  ///< I2S MIC ICS43434 Configuration.
 } sl_i2s_xfer_type_t;
 
 /***************************************************************************/

@@ -50,3 +50,5 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 1. Compile and run the application. 
 2. This application retrieves the active application flash offset and branches to the retrieved offset.
+
+![Figure: Log of M4 Updater](resources/readme/updater.png)

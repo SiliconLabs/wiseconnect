@@ -18,7 +18,6 @@
 #include "rsi_error.h"
 #include "string.h"
 #include "app.h"
-#include "sl_system_init.h"
 #include "t_cose_common.h"
 #include "t_cose_sign1_sign.h"
 #include "t_cose_sign1_verify.h"

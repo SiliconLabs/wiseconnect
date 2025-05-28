@@ -1,34 +1,38 @@
-## BLE Interoperability Test App
+# BLE Interoperability Test App
   
 
- ## Table of Contents
-  - [Purpose / Scope](#purposescope) - [Prerequisites / Setup Requirements](#prerequisitessetup - requirements)
-  - [Hardware Requirements](#hardware - requirements) - [Software Requirements](#software - requirements)
-  - [Setup Diagram](#setup - diagram) - [Getting Started](#getting - started)
-  - [Application Build Environment](#application - build - environment)
-  - [Test the Application](#test - the - application)
+## Table of Contents
 
- ## Purpose/Scope
+  - [Purpose / Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  	- [Hardware Requirements](#hardware-requirements)
+	- [Software Requirements](#software-requirements)
+	- [Setup Diagram](#setup-diagram)
+  - [Application build environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Limitation](#limitation)
 
-      Interoperability(IOP) is a fundamental aspect of Bluetooth Low Energy (BLE), ensuring seamless communication between Bluetooth-enabled devices from different manufacturers. This project provides a comprehensive framework for testing IOP using Silicon Labs' test setup, which includes hardware kits, embedded software, and a mobile application.
+## Purpose/Scope
+
+Interoperability(IOP) is a fundamental aspect of Bluetooth Low Energy (BLE), ensuring seamless communication between Bluetooth-enabled devices from different manufacturers. This project provides a comprehensive framework for testing IOP using Silicon Labs' test setup, which includes hardware kits, embedded software, and a mobile application.
 
 The objective of this framework is to verify the interoperability of the SiWG917 family of SoCs with a wide range of Bluetooth-enabled devices, particularly smartphones. Given the vast diversity in smartphone hardware, Bluetooth firmware, and mobile operating systems, IOP testing is crucial to ensuring reliable connectivity.
 
 This document outlines the requirements, setup process, test execution, and data collection methods for performing IOP testing. The results of these tests help in analyzing compatibility, identifying potential issues, and improving Bluetooth performance across different devices.
 
-## NOTE: OTA ACK/UNACK features are not supported in Si917 IOP application 
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Silicon Labs Bluetooth Development Kit:
-	- Any Silicon Labs kit that supports Bluetooth technology can be used for IOP testing.
+	- Android/iOS phone that supports BLE can be used for IOP testing.
 	
 - Test Hardware:
 	- SiWG917 SoC Family Development Kits:
 		-   SOC Expansion Kits with SOC Radio Boards:
 			- (BRD4338A + BRD4002A)
+	- BLE Smartphone
 			
 ### Software Requirements
 
@@ -51,7 +55,7 @@ This document outlines the requirements, setup process, test execution, and data
 
 ### Setup Diagram
 
-![](resources/readme/edited.png)
+![](resources/readme/new_image.png)
 
 ## Getting Started
 
@@ -65,6 +69,16 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
+## Application Build Environment
+
+The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
+
+- Open ble_iop.h file and update/modify following macros,
+
+	- RSI_REMOTE_DEVICE_NAME refers the name of remote device to which Silicon Labs device has to connect.
+		
+		#define RSI_BLE_DEVICE_NAME 				(void *)"IOP_Test_1"
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -76,27 +90,17 @@ Follow the steps below for successful execution of the application:
 
 - Bringing up the Test Environment
 
-	1. Flash the IOP Test Application to the 917 board.
-
-	2. After flashing is complete, modify the application name defined using RSI_BLE_IOP_TEST_APPLICATION, rebuild it, and navigate to the binaries folder.
-
-	3. Right-click on any file within the folder and select "Browse files here" to locate the project_name.rps file.
-
-	4. Rename the file extension from .rps to .gbl (e.g., project_name.gbl).
-
-	5. Transfer this .gbl file to a location accessible on your smartphone, either in local storage or cloud storage.
-
-	6. This file will be used for acknowledged OTA testing during the IOP Test on the Si Connect mobile app.
+	- Flash the IOP Test Application to the 917 board.
 	
-	![](resources/readme/board.png)
+	![](resources/readme/new_board.png)
 
 - Running the IOP Test on Si Connect App
 
 	1. On your smartphone, launch the Si Connect App.
 
 	2. Click on the "Test" tab at the bottom of the screen.
-	
-	![](resources/readme/Test.png)
+
+	![](resources/readme/test_tab.png)
 
 	3. The Test tab displays a list of boards running the IOP Test Firmware.
 	
@@ -104,7 +108,7 @@ Follow the steps below for successful execution of the application:
 
 	4. Select the name of the IOP application flashed to the 917 board.
 
-	5. The app will navigate to the "IOP View", where you can tap on "Run Test" to start the IOP test sequence.
+	5. The app will navigate to the "IOP View", where you can click on "Run Test" to start the IOP test sequence.
 	
 	![](resources/readme/run.png)
 
@@ -114,15 +118,25 @@ Follow the steps below for successful execution of the application:
 	
 	![](resources/readme/pass.png)
 
-	2. Most tests run automatically, except for:
+	2. The execution of the test cases will proceed as follows:
+	
+       - Scan Tab: Scans for nearby BLE devices running the IOP Test Firmware.
+	 
+	   - Connect Tab: Connects to the selected BLE device for further operations.
+    
+	   - GATT Discovery Tab: Discovers all GATT services and characteristics on   the connected device.
+    
+	   - GATT Operations Tab: Performs all GATT operations, such as read, write,  and notifications.
+    
+	   - IOP Test OTA Update with ACK: As OTA is not supported in the current release, when a pop-up appears to upload the files, simply click on Cancel.
+    
+	   - IOP Test OTA Update with UNACK: As OTA is not supported in the current release, when a pop-up appears to upload the files, simply click on Cancel.
+    
+	   - Throughput Tab: Measures and displays the data transfer throughput   between the devices.
+	   
+	   -  Most tests run automatically, except for Security and Encryption tab: This test case will initiate the pairing process followed by the bonding procedure.
 
-		- OTA Test: The app prompts you to upload the .gbl file. Select the file from local storage or cloud storage.
-		
-		![](resources/readme/ota.png)    ![](resources/readme/progress.png)
-
-		- Security Tests:
-
-			- The app prompts you to bond with the device.
+			- The app will display a pop-up to bond with the device.
 			
 			![](resources/readme/bond.png)
 
@@ -130,17 +144,34 @@ Follow the steps below for successful execution of the application:
 			
 			![](resources/readme/pin.png)
 
-			- The PIN is displayed on the mainboard or logged via UART if the board lacks a display.
+			-  The PIN will be displayed in the serial port and must be entered twice for two different sub-test cases. 
+
+			![](resources/readme/pin_display.png)
+
+		- LE Privacy Test tab: 
+			- This test case involved the reconnection process with the help of the eariler bonding information 
+
+			![](resources/readme/le_privacy.png)
+
+- After successful program execution the prints looks as shown following.
+	
+	![](resources/readme/test_log1.png)
+
+	![](resources/readme/test_log_2.png)
+
+	![](resources/readme/test_log_3.png)
 
 ## Logging and Sharing data
 
-After the test is finalized on the mobile app, you can rerun the test or share the results.
+- Once all the tests are executed, the SiConnect app provides an option to share the results.
 
 ![](resources/readme/share.png)
 
-To rerun the tests, first reset the embedded device by pressing the reset button on the lower right side of the mainboard. Additionally, remove the bond from the phone’s Bluetooth settings.
+- To rerun the test case, you need to press the hard reset. The reset button is located on the lower right edge of the mainboard. Additionally, clear the bonding information from the phone's default Bluetooth settings.
 
-The *Share* option allows sharing the test log through OS-standard mediums, such as cloud storage (e.g., Dropbox, Google Drive, iCloud, and so on) or email, or saving it locally. The log is in xml format and contains information about the phone model, OS version, Bluetooth connection parameters, and the result of each test. Below is an example of a test log from running IOP test on a Pixel 2 with Android 11.
+- The *Share* option allows sharing the test log through OS-standard mediums, such as cloud storage (e.g., Dropbox, Google Drive, iCloud, and so on) or email, or saving it locally. The log is in xml format and contains information about the phone model, OS version, Bluetooth connection parameters, and the result of each test. 
+
+NOTE: Below is an example of a test log from running IOP test on Samsung A14 with Android 14.
 
 ![](resources/readme/log.png)
 
@@ -150,3 +181,9 @@ The *Share* option allows sharing the test log through OS-standard mediums, such
 Before programming the radio board mounted on the mainboard, make sure the power supply switch is in the AEM position (right side) as shown below.
 
 ![](resources/readme/readme_img0.png)
+
+### Limitation
+
+- OTA ACK/UNACK features are not supported in Si917 IOP application 
+- PSRAM support is not provided for ble_iop_app application
+- The ble_iop_app application is not supported NCP mode.

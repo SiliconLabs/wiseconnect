@@ -17,7 +17,6 @@
  ******************************************************************************/
 #include "unity.h"
 #include "sl_si91x_si70xx.h"
-#include "sl_system_init.h"
 #include "sl_si91x_driver_gpio.h"
 
 /*******************************************************************************
@@ -64,7 +63,6 @@ void test_si70xx_write_control_register(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   test_i2c_configuration_t test_i2c_config;
   test_i2c_config.mode           = SL_I2C_LEADER_MODE;
   test_i2c_config.transfer_type  = SL_I2C_USING_NON_DMA;

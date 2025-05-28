@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_sleeptimer.h"
 #include "rsi_debug.h"
 #include "unity.h"
@@ -113,7 +112,6 @@ void test_sleeptimer_restart_periodic_timer_ms(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("Sleeptimer");
 
   RUN_TEST(test_sleeptimer_init, __LINE__);

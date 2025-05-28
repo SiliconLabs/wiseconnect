@@ -74,8 +74,21 @@ static int mqtt_tcp_read(Network *n, unsigned char *buffer, int len, int timeout
   // Set socket receive timeout
   setsockopt(n->socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
-  int bytes = recv(n->socket, buffer, len, 0);
-  return (bytes < 0) ? -1 : bytes;
+  int total_bytes_read = 0;
+  while (total_bytes_read < len) {
+
+    int rc = recv(n->socket, &buffer[total_bytes_read], (len - total_bytes_read), 0);
+    if (rc == -1) {
+      if (errno != ENOTCONN && errno != ECONNRESET)
+        total_bytes_read = -1;
+      break;
+    } else if (rc == 0) {
+      total_bytes_read = 0;
+      break;
+    } else
+      total_bytes_read += rc;
+  }
+  return total_bytes_read;
 }
 
 static int mqtt_tcp_write(Network *n, unsigned char *buffer, int len, int timeout_ms)

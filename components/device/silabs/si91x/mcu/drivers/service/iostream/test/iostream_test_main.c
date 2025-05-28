@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_iostream.h"
 #include "sl_iostream_init_instances.h"
 #include "sl_iostream_handles.h"
@@ -59,7 +58,6 @@ void test_iostream_printf(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("IOStream USART");
 
   RUN_TEST(test_iostream_set_default, __LINE__);

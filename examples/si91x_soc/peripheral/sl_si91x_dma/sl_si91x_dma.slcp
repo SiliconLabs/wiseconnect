@@ -15,7 +15,6 @@ readme:
   - path: readme.md
 source:
   - path: app.c
-  - path: main.c
   - path: dma_example.c
   - path: dma_example.h
   - path: app.h
@@ -23,7 +22,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: sl_dma
     from: wiseconnect3_sdk

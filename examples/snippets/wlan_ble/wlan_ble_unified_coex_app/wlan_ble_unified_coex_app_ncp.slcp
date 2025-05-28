@@ -4,7 +4,7 @@ quality: alpha
 label: Unified app for Bluetooth and Wifi NCP
 category: Example|BLE
 description: >
-  Bluetooth Low energy supporting 8Central/2Peripheral connections with Coex.
+  Bluetooth Low energy supporting 8Peripheral/2Central connections with Coex.
 filter:
 - name: Wireless Technology
   value:
@@ -20,7 +20,6 @@ sdk_extension:
   version: 3.5.0
 source:
 - path: app.c
-- path: main.c
 - path: root_auto_gen.c
 - path: btc_auto_gen.c
 - path: ble/ble_cmd_hdlr_auto_gen.c
@@ -57,7 +56,7 @@ include:
   - path: rsi_common_utils.h
   - path: event_loop.h
 component:
-- id: sl_system
+- id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: device_init
@@ -110,7 +109,8 @@ other_file:
 - path: resources/readme/central_connected.png
 - path: resources/readme/peripheral.png
 - path: resources/readme/peripheral_connected.png
-- path: resources/readme/output1.png
+- path: resources/readme/output1_mqtt.png
+- path: resources/readme/output1_wlan.png
 - path: resources/readme/output2.png
 - path: resources/readme/output3.png
 - path: resources/readme/output4.png

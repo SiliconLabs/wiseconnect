@@ -49,6 +49,7 @@
 #define ARM_SAI_MASK_SLOTS_RX           (0x06U)     ///< Mask Receiver    slots; arg1 = mask (bit: 0=active, 1=inactive); all configured slots are active by default
 #define ARM_SAI_ABORT_SEND              (0x07U)     ///< Abort \ref ARM_SAI_Send
 #define ARM_SAI_ABORT_RECEIVE           (0x08U)     ///< Abort \ref ARM_SAI_Receive
+#define ARM_SAI_CONFIGURE_MIC           (0x09U)     ///< Configure ICS43434 microphone For SiWx917 dev-kit (BRD2605A); arg1 and arg2 provide additional configuration
 
 /*----- SAI Control Codes: Configuration Parameters: Mode -----*/
 #define ARM_SAI_MODE_Pos                 8

@@ -15,7 +15,6 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "nvm3_default.h"
 #include "nvm3.h"
 #include "nvm3_default_config.h"
@@ -117,7 +116,6 @@ void test_nvm3_countDeletedObjects(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("Common Flash Interface");
 
   RUN_TEST(test_nvm3_open, __LINE__);

@@ -15,7 +15,6 @@
  *
  ******************************************************************************
  ******************************************************************************/
-#include "sl_system_init.h"
 #include "sl_si91x_joystick.h"
 #include "rsi_debug.h"
 #include "unity.h"
@@ -33,7 +32,6 @@ void test_joystick_stop(void);
  ******************************************************************************/
 int main()
 {
-  sl_system_init();
   UnityBeginGroup("JOYSTICK");
   RUN_TEST(test_joystick_init, __LINE__);
   RUN_TEST(test_joystick_start, __LINE__);

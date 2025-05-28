@@ -17,7 +17,7 @@
 
 #include "sl_si91x_m4_ps.h"
 #include "cmsis_os2.h"
-#include "FreeRTOSConfig.h"
+#include "FreeRTOS.h"
 #include "sl_rsi_utility.h"
 #include "sl_sleeptimer.h"
 #include "sli_sleeptimer_hal.h"
@@ -319,11 +319,8 @@ static void sli_os_schedule_wakeup(TickType_t os_ticks)
                                      0,
                                      0,
                                      0);
-  // configASSERT( status == SL_STATUS_OK );
 
-#if (configASSERT_DEFINED == 0)
   (void)status;
-#endif
 }
 
 /***************************************************************************

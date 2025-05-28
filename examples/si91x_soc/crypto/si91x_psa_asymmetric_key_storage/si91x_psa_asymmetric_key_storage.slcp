@@ -16,7 +16,6 @@ filter:
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: psa_asymmetric_key_storage_app.c
   - path: app.c
 include:
@@ -31,7 +30,7 @@ sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.0
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto

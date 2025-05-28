@@ -253,7 +253,8 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if ((xfer_config->transfer_type != SL_I2S_TRANSMIT) && (xfer_config->transfer_type != SL_I2S_RECEIVE)) {
+    if ((xfer_config->transfer_type != SL_I2S_TRANSMIT) && (xfer_config->transfer_type != SL_I2S_RECEIVE)
+        && (xfer_config->transfer_type != SL_MIC_ICS43434_RECEIVE)) {
       //Invalid transfer type
       status = SL_STATUS_INVALID_PARAMETER;
       break;

@@ -21,7 +21,6 @@ sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.0
 source:
-  - path: main.c
   - path: psa_sha_app.c
   - path: app.c
 include:
@@ -30,7 +29,7 @@ include:
       - path: psa_sha_app.h
       - path: app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto

@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  firmware_upgradation.c
-* @brief
-*******************************************************************************
-* # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file firmware_upgradation.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_status.h"
 #include "sl_si91x_constants.h"
@@ -264,13 +276,15 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                const uint8_t *post_data,
                                uint32_t post_data_length)
 {
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
   UNUSED_PARAMETER(type);
   UNUSED_PARAMETER(post_data);
   UNUSED_PARAMETER(post_data_length);
-  SL_VERIFY_POINTER_OR_RETURN(host_name, SL_STATUS_NULL_POINTER);
 
   sl_status_t status                             = SL_STATUS_FAIL;
-  sli_si91x_http_client_request_t http_client    = { 0 };
   uint32_t send_size                             = 0;
   uint16_t http_length                           = 0;
   uint16_t length                                = 0;
@@ -280,12 +294,11 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   uint16_t offset                                = 0;
   uint16_t rem_length                            = 0;
   uint16_t chunk_size                            = 0;
+  sli_si91x_http_client_request_t *http_client   = malloc(sizeof(sli_si91x_http_client_request_t));
+  SL_VERIFY_POINTER_OR_RETURN(http_client, SL_STATUS_ALLOCATION_FAILED);
 
-  if (!device_initialized) {
-    return SL_STATUS_NOT_INITIALIZED;
-  }
-
-  http_client.ip_version = (flags & IP_VERSION_6) ? SL_IPV6_VERSION : SL_IPV4_VERSION;
+  memset(http_client, 0, sizeof(sli_si91x_http_client_request_t));
+  http_client->ip_version = (flags & IP_VERSION_6) ? SL_IPV6_VERSION : SL_IPV4_VERSION;
 
   // Set https feature
   https_enable = (flags & SL_SI91X_ENABLE_TLS) ? SL_SI91X_ENABLE_TLS : https_enable;
@@ -312,11 +325,17 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                                               : https_enable;
 
   if (flags & SL_SI91X_HTTPS_USE_SNI) {
+    if (host_name == NULL) {
+      free(http_client);
+      return SL_STATUS_NULL_POINTER;
+    }
+
     https_enable = (https_enable | SL_SI91X_HTTPS_USE_SNI);
 
     sl_si91x_socket_type_length_value_t *set_sni = (sl_si91x_socket_type_length_value_t *)malloc(
       sizeof(sl_si91x_socket_type_length_value_t) + sl_strlen((char *)host_name));
     if (set_sni == NULL) {
+      free(http_client);
       return SL_STATUS_ALLOCATION_FAILED;
     }
 
@@ -325,34 +344,38 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
     set_sni->length = sl_strlen((char *)host_name);
     memcpy(set_sni->value, host_name, set_sni->length);
     status = sli_si91x_set_sni_for_embedded_socket(set_sni);
-    free(set_sni);
     if (status != SL_STATUS_OK) {
+      free(http_client);
+      free(set_sni);
       return status;
     }
+    free(set_sni);
   }
 
   // Fill https features parameters
-  http_client.https_enable = https_enable;
+  http_client->https_enable = https_enable;
 
   // Fill port no
-  http_client.port_number = port;
-  memset(http_client.buffer, 0, sizeof(http_client.buffer));
+  http_client->port_number = port;
+  memset(http_client->buffer, 0, sizeof(http_client->buffer));
 
   // Fill username
-  if (sl_strlen((char *)user_name) < sizeof(http_client.buffer)) {
+  if (sl_strlen((char *)user_name) < sizeof(http_client->buffer)) {
     length = (uint16_t)sl_strlen((char *)user_name);
-    memcpy(http_client.buffer, user_name, length);
+    memcpy(http_client->buffer, user_name, length);
     http_length += length + 1;
   } else {
+    free(http_client);
     return status;
   }
 
   // Fill password
-  if (sl_strlen((char *)password) < (sizeof(http_client.buffer) - 1 - http_length)) {
+  if (sl_strlen((char *)password) < (sizeof(http_client->buffer) - 1 - http_length)) {
     length = (uint16_t)sl_strlen((char *)password);
-    memcpy(((http_client.buffer) + http_length), password, length);
+    memcpy(((http_client->buffer) + http_length), password, length);
     http_length += length + 1;
   } else {
+    free(http_client);
     return status;
   }
 
@@ -360,39 +383,43 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   host_name = ((flags & SL_SI91X_HTTP_V_1_1) && (sl_strlen((char *)host_name) == 0)) ? ip_address : host_name;
 
   // Copy  Host name
-  if (sl_strlen((char *)host_name) < (sizeof(http_client.buffer) - 1 - http_length)) {
+  if (sl_strlen((char *)host_name) < (sizeof(http_client->buffer) - 1 - http_length)) {
     length = (uint16_t)sl_strlen((char *)host_name);
-    memcpy(((http_client.buffer) + http_length), host_name, length);
+    memcpy(((http_client->buffer) + http_length), host_name, length);
     http_length += length + 1;
   } else {
+    free(http_client);
     return status;
   }
 
   // Copy IP address
-  if (sl_strlen((char *)ip_address) < (sizeof(http_client.buffer) - 1 - http_length)) {
+  if (sl_strlen((char *)ip_address) < (sizeof(http_client->buffer) - 1 - http_length)) {
     length = (uint16_t)sl_strlen((char *)ip_address);
-    memcpy(((http_client.buffer) + http_length), ip_address, length);
+    memcpy(((http_client->buffer) + http_length), ip_address, length);
     http_length += length + 1;
   } else {
+    free(http_client);
     return status;
   }
 
   // Copy URL resource
-  if (sl_strlen((char *)resource) < (sizeof(http_client.buffer) - 1 - http_length)) {
+  if (sl_strlen((char *)resource) < (sizeof(http_client->buffer) - 1 - http_length)) {
     length = (uint16_t)sl_strlen((char *)resource);
-    memcpy(((http_client.buffer) + http_length), resource, length);
+    memcpy(((http_client->buffer) + http_length), resource, length);
     http_length += length + 1;
   } else {
+    free(http_client);
     return status;
   }
 
   // Copy Extended header
   if (extended_header != NULL) {
-    if (sl_strlen((char *)extended_header) < (sizeof(http_client.buffer) - 1 - http_length)) {
+    if (sl_strlen((char *)extended_header) < (sizeof(http_client->buffer) - 1 - http_length)) {
       length = (uint16_t)sl_strlen((char *)extended_header);
-      memcpy(((http_client.buffer) + http_length), extended_header, length);
+      memcpy(((http_client->buffer) + http_length), extended_header, length);
       http_length += length;
     } else {
+      free(http_client);
       return status;
     }
   }
@@ -409,7 +436,7 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   if (http_length <= SLI_SI91X_MAX_HTTP_CHUNK_SIZE) {
     status = sli_si91x_driver_send_command(SLI_WLAN_REQ_HTTP_OTAF,
                                            SLI_SI91X_WLAN_CMD,
-                                           &http_client,
+                                           http_client,
                                            send_size,
                                            SLI_SI91X_WAIT_FOR_OTAF_RESPONSE,
                                            NULL,
@@ -427,11 +454,11 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
         chunk_size        = rem_length;
       }
 
-      packet_buffer->ip_version   = http_client.ip_version;
-      packet_buffer->https_enable = http_client.https_enable;
-      packet_buffer->port_number  = http_client.port_number;
+      packet_buffer->ip_version   = http_client->ip_version;
+      packet_buffer->https_enable = http_client->https_enable;
+      packet_buffer->port_number  = http_client->port_number;
 
-      memcpy(packet_buffer->buffer, (http_client.buffer + offset), chunk_size);
+      memcpy(packet_buffer->buffer, (http_client->buffer + offset), chunk_size);
 
       status = sl_si91x_custom_driver_send_command(
         SLI_WLAN_REQ_HTTP_OTAF,
@@ -453,6 +480,8 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
     // Free packet buffer structure memory
     free(packet_buffer);
   }
+
+  free(http_client);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }
