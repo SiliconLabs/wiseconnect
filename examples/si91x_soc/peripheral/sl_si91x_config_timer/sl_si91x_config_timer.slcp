@@ -35,6 +35,7 @@ other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/outputConsoleI_CT.png
   - path: resources/readme/outputConsoleI_CT_OCU.png
+  - path: resources/readme/time_period_config.png
 ui_hints:
   highlight:
     - path: readme.md

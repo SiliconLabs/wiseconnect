@@ -113,7 +113,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 5. After creation of instances, separate configuration files are generated in the **config folder**.
 6. If the project is built without selecting configurations, it will take default values from UC.
 
-  ![Figure: UC-Screen](resources/uc_screen/analog_comparator_uc_screen.png)
+    > ![Figure: UC-Screen](resources/uc_screen/comparator_uc_screen.png)
   
 ### Application Configuration Parameters
 

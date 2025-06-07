@@ -42,7 +42,7 @@
 **Note!** 
 1. Any PCM transfers with 16-bit and 32-bit resolutions should only have an even transfer size (8,10,12,14...)
 2. Any PCM transfers with 24-bit resolutions should only have transfer size as multiples of 4 (8,12,16,20...)
-3. Frame-sync will be 2 * sampling_frequency.
+3. Frame-sync will be equal to the sampling frequency, but if measured with a logic analyzer or a device that does not support mono PCM, it will appear as double the sampling frequency.
 4. PCM is not supported with low power states.
 
 ## Prerequisites/Setup Requirements
@@ -88,7 +88,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### General Configuration
 
 - SL_PCM0_RESOLUTION: PCM0 resolution can be configured through this macro,valid resolution values are 16, 24 and 32 bit.
-- SL_PCM0_SAMPLING_RATE: I2S0 sampling rate can be configured through this macro,valid sampling rate values are
+- SL_PCM0_SAMPLING_RATE: PCM0 sampling rate can be configured through this macro,valid sampling rate values are
     8kHz, 11.025kHz, 16kHz, 22.05kHz and 24kHz.
 - SL_PCM0_CHANNEL: PCM0 channel number (0-channel no 0, 1-channel no 1)
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.

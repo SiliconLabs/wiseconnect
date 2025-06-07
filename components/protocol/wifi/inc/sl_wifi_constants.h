@@ -121,7 +121,7 @@ typedef enum {
  *     1. PEAP: The EAP server may bypass Phase2 authentication (less secure).
  *     2. PEAPSAFE1: If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
  *     3. PEAPSAFE2: Requires Phase2 authentication in all cases (most secure).
- * - Possible values for the macro SL_EAP_PEAP_METHOD are "PEAP"(default), "PEAPSAFE1" and "PEAPSAFE2".
+ * - Possible values for the macro SL_EAP_PEAP_METHOD are "PEAP"(default), "PEAPSAFE1", and "PEAPSAFE2".
  */
 typedef enum {
   SL_WIFI_DEFAULT_ENCRYPTION,       ///< Default Wi-Fi encryption

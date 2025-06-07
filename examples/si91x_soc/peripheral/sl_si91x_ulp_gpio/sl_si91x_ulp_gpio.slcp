@@ -51,7 +51,8 @@ template_contribution:
   - name: user_files_ps2
     value: main.o
   - name: user_files_ps2
-    value: sl_main_process_action.o
+    value: sl_system_process_action.o
+    condition: [sl_system]
   - name: user_files_ps2
     value: sl_event_handler.o
 other_file:

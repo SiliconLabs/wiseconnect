@@ -137,6 +137,7 @@ For more information on the memory architecture and hardware interfaces of PSRAM
 - Only the Text and Data segments are recommended for installation in Wireless Applications from PSRAM.
 - **BSS, Heap & Stack region:** In PSRAM enabled demos, moving of text and data segments to PSRAM is supported. However, the BSS, Heap, and Stack regions should remain in SRAM. For SDK applications, the BSS, Heap and Stack regions are not configured to PSRAM.
 - **Code Classifier Usage:** The Code Classifier can be used to optimize memory allocation by selectively moving specific elements between SRAM and PSRAM. This is particularly useful in scenarios where performance improvements or memory usage optimizations are required. By classifying code, initialized data, or uninitialized data, developers can ensure efficient memory utilization and enhance application performance. For usage details, refer to the Code Classifier Demo Application.
+  > **Note:** Code classifier support does not extend to **static** variables.  
 
 #### Flash and PSRAM Combinations
 
@@ -579,6 +580,64 @@ Wireless initialization needs to be done before using NVM3 APIs in common flash 
 1. Wireless initialization is only required for Si91x common flash. For Si91x dual flash, nvm3_initDefault() can be directly called without wireless init.
 2. NVM3 APIs should not be called from an ISR.
 3. For more information about NVM3 usage, refer to [NVM3 - NVM Data Manager](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3).
+
+### IOSTREAM
+
+This section provides an overview of the IOSTREAM in SiWx917 SoC.
+
+**IOSTREAM:**
+
+The IO Stream module is a software platform component that facilitates input and output operations through stream-based communication. Streams serve as abstractions that provide a consistent method for reading and writing data, independent of the underlying physical communication interface. Within the Silicon Labs wiseconnect SDK, the IO Stream module supports various stream types , including RTT, SWO, UART, debug, and VUART.
+
+**Working of IOSTREAM in Si91x:**
+
+![IOSTREAM in Si91x](./resources/IOSTREAM_diagram.png)
+
+**Procedure 1: Installing from Simplicity Studio**
+
+1. **Launch the Application:**
+   - Open Simplicity Studio and navigate to your project.
+   - Double-click on the application `.slcp` file in the Project Explorer.
+
+   ![application slcp](./resources/empty_app_slcp.png)
+
+2. **Select Software Components:**
+   - In the `.slcp` file, go to the "SOFTWARE COMPONENTS" tab.
+   - Enter "IOSTREAM" in the search bar.
+   - Select required IOSTREAM component from the search results and click "Install".
+
+   ![IOSTREAM component install](./resources/IOSTREAM_select_and_install.png)
+
+**Procedure 2: Adding to the Application slcp File**
+
+1. Add the following lines to the application `.slcp` file and launch the project in Simplicity Studio:
+
+   ```yaml
+   requires:
+     -name: iostream_rtt_si91x
+
+2. For using other IOSTREAM add any of the following ```iostream_swo_si91x``` , ```iostream_vuart_si91x``` , ```iostream_debug_si91x``` .
+
+**Using IOSTREAM for prints:**
+1. To use IOSTREAM for printf or DEBUGOUT install component "SI91X IOSTREAM LOG".
+
+  ![IOSTREAM LOG stream select](./resources/IOSTREAM_select_log_stream.png)
+
+2. Select the interface to use for IOSTREAM.
+
+  ![IOSTREAM LOG config](./resources/IOSTREAM_LOG_config.png)  
+
+> **Note:** Ensure that the corresponding IOSTREAM component for your selected interface is installed.  
+> **Note:** IOSTREAM LOG does not support UART. To use `printf` or `DEBUGOUT` with UART, please refer to the IOSTREAM USART example.
+
+**IOSTREAM usage in Si91x:**
+
+1. Use  ```sl_iostream_write(sl_iostream_t *stream,const void *buffer,size_t buffer_length)``` api to write to a IOSTREAM.
+2. Use  ```sl_iostream_read(sl_iostream_t *stream,void *buffer,size_t buffer_length,size_t *bytes_read)``` api to read from a IOSTREAM.
+3. If multiple IOSTREAM components are installed IOSTREAM LOG can be used for selecting which IOSTREAM to use.
+
+> **Note:** For more information on how use above IOSTREAM apis refere to IOSTREAM USART BAREMETAL example.
+> **Note:** IOSTREAM VUART , IOSTREAM debug has limited support.
 
 
 ### SLEEP-Timer

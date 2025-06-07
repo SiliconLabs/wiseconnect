@@ -110,6 +110,7 @@
 #define RSI_BLE_MTU_EVENT                     0x05
 #define RSI_BLE_GATT_PROFILE_RESP_EVENT       0x06
 #define RSI_BLE_GATT_CHAR_SERVICES_RESP_EVENT 0x07
+#define RSI_BLE_GATT_ERROR                    0x08
 
 //! Address type of the device to connect
 #define RSI_BLE_DEV_ADDR_TYPE LE_RANDOM_ADDRESS
@@ -241,10 +242,8 @@ static rsi_ble_event_write_t app_ble_write_event;
 static uint16_t rsi_ble_att1_val_hndl;
 static rsi_ble_read_req_t app_ble_read_event;
 static rsi_ble_event_mtu_t app_ble_mtu_event;
-#if (GATT_ROLE == CLIENT)
-//static profile_descriptors_t rsi_ble_service;
+static rsi_ble_event_profile_by_uuid_t rsi_ble_service;
 static rsi_ble_event_read_by_type1_t char_servs;
-#endif
 uint8_t str_remote_address[18] = { '\0' };
 osSemaphoreId_t ble_main_task_sem;
 
@@ -674,10 +673,10 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
  * @section description
  * This is a callback function
  */
-static void rsi_ble_profile(uint16_t resp_status, rsi_ble_event_profile_by_uuid_t *rsi_ble_resp_profile)
+static void rsi_ble_profile(uint16_t resp_status, rsi_ble_event_profile_by_uuid_t *rsi_ble_event_profile)
 {
   UNUSED_PARAMETER(resp_status); //This statement is added only to resolve compilation warning, value is unchanged
-  memcpy(&profiles_list, rsi_ble_resp_profile, sizeof(rsi_ble_event_profile_by_uuid_t));
+  memcpy(&rsi_ble_service, rsi_ble_event_profile, sizeof(rsi_ble_event_profile_by_uuid_t));
   rsi_ble_app_set_event(RSI_BLE_GATT_PROFILE_RESP_EVENT);
   return;
 }
@@ -689,10 +688,11 @@ static void rsi_ble_profile(uint16_t resp_status, rsi_ble_event_profile_by_uuid_
  * @return     none
  * @section description   
  */
-static void rsi_ble_char_services(uint16_t resp_status, rsi_ble_event_read_by_type1_t *rsi_ble_resp_char_services)
+static void rsi_ble_char_services(uint16_t resp_status, rsi_ble_event_read_by_type1_t *rsi_ble_event_read_type1)
 {
+  //This statement is added only to resolve compilation warning, value is unchanged
   UNUSED_PARAMETER(resp_status); //This statement is added only to resolve compilation warning, value is unchanged
-  memcpy(&char_servs, rsi_ble_resp_char_services, sizeof(rsi_ble_event_read_by_type1_t));
+  memcpy(&char_servs, rsi_ble_event_read_type1, sizeof(rsi_ble_event_read_by_type1_t));
   rsi_ble_app_set_event(RSI_BLE_GATT_CHAR_SERVICES_RESP_EVENT);
   return;
 }
@@ -746,6 +746,25 @@ static void rsi_ble_on_mtu_event(rsi_ble_event_mtu_t *rsi_ble_mtu)
   memcpy(&app_ble_mtu_event, rsi_ble_mtu, sizeof(rsi_ble_event_mtu_t));
   mtu_size = (uint16_t)app_ble_mtu_event.mtu_size;
   rsi_ble_app_set_event(RSI_BLE_MTU_EVENT);
+}
+
+/*==============================================*/
+/**
+ * @fn         rsi_ble_gatt_error_event
+ * @brief      Callback invoked when a GATT error response is received.
+ * @param[in]  resp_status           Status code of the error response.
+ * @param[in]  rsi_ble_gatt_error    Pointer to the error response event structure.
+ * @return     none
+ * @section description
+ * This function is called by the BLE stack when a GATT error response is received from the remote device.
+ * It can be used to handle GATT protocol errors, such as invalid handle, read/write not permitted, etc.
+ */
+static void rsi_ble_gatt_error_event(uint16_t resp_status, rsi_ble_event_error_resp_t *rsi_ble_gatt_error)
+{
+  UNUSED_PARAMETER(resp_status); //This statement is added only to resolve compilation warning, value is unchanged
+  memcpy(remote_dev_bd_addr, rsi_ble_gatt_error->dev_addr, 6);
+  UNUSED_PARAMETER(remote_dev_bd_addr);
+  rsi_ble_app_set_event(RSI_BLE_GATT_ERROR);
 }
 
 /*==============================================*/
@@ -834,7 +853,7 @@ void rsi_ble_simple_gatt_test(void *argument)
                                   NULL,
                                   rsi_ble_on_read_req_event,
                                   rsi_ble_on_mtu_event,
-                                  NULL,
+                                  rsi_ble_gatt_error_event,
                                   NULL,
                                   NULL,
                                   rsi_ble_profile,
@@ -943,12 +962,14 @@ void rsi_ble_simple_gatt_test(void *argument)
         LOG_PRINT("\r\n Module connected to address : %s \r\n", str_remote_address);
 
 #if (GATT_ROLE == CLIENT)
+        memset(&service_uuid, 0, sizeof(service_uuid));
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_NEW_CLIENT_SERVICE_UUID;
-retry:
+
         status = rsi_ble_get_profile_async(conn_event_to_app.dev_addr, service_uuid, NULL);
-        if (status != 0)
-          goto retry;
+        if (status != 0) {
+          LOG_PRINT("\n rsi_ble_get_profile_async failed with %lx", status);
+        }
 #endif
 #if (GATT_ROLE == SERVER)
         status = rsi_ble_mtu_exchange_event((uint8_t *)conn_event_to_app.dev_addr, RSI_BLE_MTU_SIZE);
@@ -1099,10 +1120,13 @@ adv:
 #if (GATT_ROLE == CLIENT)
         //! get characteristics of the immediate alert servcie
         //rsi_6byte_dev_address_to_ascii ((int8_t *)remote_dev_addr, (uint8_t *)conn_event_to_app.dev_addr);
-        rsi_ble_get_char_services_async(conn_event_to_app.dev_addr,
-                                        *(uint16_t *)profiles_list.start_handle,
-                                        *(uint16_t *)profiles_list.end_handle,
-                                        NULL);
+        status = rsi_ble_get_char_services_async(conn_event_to_app.dev_addr,
+                                                 *(uint16_t *)rsi_ble_service.start_handle,
+                                                 *(uint16_t *)rsi_ble_service.end_handle,
+                                                 NULL);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("rsi_ble_get_char_services_async status: 0x%lX\r\n", status);
+        }
 #endif
       } break;
 
@@ -1121,10 +1145,13 @@ adv:
           if (char_servs.char_services[ix].char_data.char_uuid.val.val16 == RSI_BLE_CLIENT_ATTRIBUTE_1_UUID) {
             rsi_ble_att1_val_hndl = char_servs.char_services[ix].char_data.char_handle;
 
-            rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
-                                      rsi_ble_att1_val_hndl,
-                                      RSI_MIN(mtu_size - 3, 100),
-                                      (uint8_t *)&client_data);
+            status = rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
+                                               rsi_ble_att1_val_hndl,
+                                               RSI_MIN(mtu_size - 3, 100),
+                                               (uint8_t *)&client_data);
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("rsi_ble_set_att_cmd_async status: 0x%lX\r\n", status);
+            }
             //! set the event to calculate RSSI value
             // #ifndef RSI_SAMPLE_HAL
             //             UNUSED_VARIABLE(last_time);
@@ -1144,6 +1171,12 @@ adv:
         rsi_ble_app_clear_event(RSI_BLE_MTU_EVENT);
 
       } break;
+
+      case RSI_BLE_GATT_ERROR: {
+
+        //! clear the served even
+        rsi_ble_app_clear_event(RSI_BLE_GATT_ERROR);
+      }
       default: {
       }
     }

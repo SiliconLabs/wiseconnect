@@ -45,8 +45,6 @@ static bod_callback_t user_callback = NULL;
 
 // Static variable to hold the registered callback for button
 static bod_button_callback_t user_button_callback = NULL;
-// Static variable to indicate if BOD is enabled
-static boolean_t bod_enabled = DISABLE;
 
 // Enumeration for BOD modes
 typedef enum sl_bod_mode {
@@ -70,8 +68,6 @@ sl_status_t sl_si91x_bod_init(void)
   // Set manual comparator mux selection to 4
   BOD->BOD_COMP_MODE_REG_b.MANUAL_CMP_MUX_SEL = SL_BOD_CMP_MUX_SEL_EN;
 
-  // Update the BOD enabled status
-  bod_enabled = ENABLE;
   // Check if the BOD comparator is enabled successfully
   if (BOD->BOD_COMP_SEL_REG_b.CMP_5_EN == ENABLE) {
     return SL_STATUS_OK; // Return success status
@@ -89,8 +85,6 @@ sl_status_t sl_si91x_bod_deinit(void)
   BOD->BOD_COMP_SEL_REG_b.CMP_5_EN = DISABLE;
   // Reset manual comparator mux selection
   BOD->BOD_COMP_MODE_REG_b.MANUAL_CMP_MUX_SEL = DISABLE;
-  // Update the BOD enabled status
-  bod_enabled = DISABLE;
   // Unregister the BOD callback function
   sl_si91x_bod_unregister_callback();
   // Check if the BOD comparator is disabled successfully

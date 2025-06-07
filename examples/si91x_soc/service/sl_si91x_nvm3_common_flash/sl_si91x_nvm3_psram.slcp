@@ -65,6 +65,7 @@ readme:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
+  - path: resources/uc_screen/si91x_nvm3_uc_screen.png
 ui_hints:
   highlight:
     - path: readme.md

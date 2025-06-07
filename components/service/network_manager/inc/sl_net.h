@@ -35,6 +35,8 @@
 /** 
  * \addtogroup NET_INTERFACE_FUNCTIONS Network Interface
  * 
+ * @note To manage the network interface lifecycle correctly, it's important to use functions like sl_net_init(), sl_net_up(), sl_net_down(), and sl_net_deinit() as intended.
+ *       Improper sequencing or combining sl_net_* and sl_wifi_* API functions without following the recommended order may lead to unpredictable or undefined behavior.
  * @note Stack overflows may occur if you invoke functions or use your own variables or data structures while handling callbacks.
  *       Please configure the stack size by modifying the pre-processor macro `SL_SI91X_EVENT_HANDLER_STACK_SIZE` as
  *       per your application's requirements. See [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-preprocessor-build-settings/list-of-preprocessor-build-settings)

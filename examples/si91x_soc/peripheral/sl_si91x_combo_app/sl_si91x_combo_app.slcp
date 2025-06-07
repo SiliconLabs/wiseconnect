@@ -91,3 +91,9 @@ ui_hints:
       focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/i2c_uc_screen.png
+  - path: resources/readme/image507d.png
+  - path: resources/readme/image507e.png
+  - path: resources/readme/output.png

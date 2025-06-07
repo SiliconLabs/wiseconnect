@@ -24,7 +24,7 @@ This example does both a Generic DMA transfer with predefined config or a user d
 - GPDMA is used for performing transfers without processor intervention.
 - Si91x GPDMA supports memory-to-memory.
 - The GPDMA supports both linked list mode and non linked list mode.
-- In linked list mode GPDMA fetche linked descriptors without CPU intervention.
+- In linked list mode GPDMA fetches linked descriptors without CPU intervention.
 - GPDMA supports 8 channels.
 
 ## About Example Code
@@ -74,10 +74,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   > ![Figure: result](resources/uc_screen/ucScreenGPDMA.PNG)
 
-- Configure SL_GPDMA_MAX_CHANNEL(0-7) - Max channel number that is used
-- Select the channel between 0 to 7 or make it 0xFF to automatically select available channel
-- For using more than 1 channel each channel should have it's own buffer for storing desctiptors
-- Configure the following macros in the `gpdma_example.c` file and update/modify following macros, if required.
+- Set `SL_GPDMA_MAX_CHANNEL` (0–7) to specify the maximum channel used in the application.
+- Select a channel between 0 and 7, or use `0xFF` to automatically select an available channel.
+- If using multiple channels, ensure each channel has its own buffer for storing descriptors.
+- Configure and update the required macros in the `gpdma_example.c` file as needed.
 
     ```C
     #define SL_GPDMA_SIMPLE_TRANSFER 1  ///< Enable/Disable simple transfer
@@ -85,11 +85,16 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     #define GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0 4096 //Maximum transfer size per channel
     #define CHANNEL 0
     ```  
-- ```SL_GPDMA_SIMPLE_TRANSFER``` when this is enabled descriptors with predefined values are used for transfer
-- To use custom descriptor values use disable this macro ```SL_GPDMA_SIMPLE_TRANSFER``` and select values for the descriptor.
-- ``` GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0 ``` this is the maximum transfer that will be done in the given channel.This should be defined for every channel that is used.
-- Memory should be allocated descriptors of every channel that is used.
-- Size of the descriptor memory buffer can be calculated in the same way as macro ```SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0 ```
+- When the `SL_GPDMA_SIMPLE_TRANSFER` macro is enabled, the transfer uses descriptors with predefined values.
+- To use custom descriptor values, disable the `SL_GPDMA_SIMPLE_TRANSFER` macro.
+- The `GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0` macro defines the maximum transfer size for the specified channel. This macro should be defined for each channel in use.
+- Allocate memory for the descriptors of every channel that is used.
+- The size of the descriptor memory buffer for each channel can be calculated similarly to the `SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0` macro.
+```C
+#define SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0 \
+  ((GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0 + MAX_TRANSFER_PER_DESCRIPTOR - 1) / MAX_TRANSFER_PER_DESCRIPTOR)
+```
+- `MAX_TRANSFER_PER_DESCRIPTOR` specifies the maximum transfer length for each descriptor. The maximum allowed value is 4095 bytes.
 
 
 ## Test the Application

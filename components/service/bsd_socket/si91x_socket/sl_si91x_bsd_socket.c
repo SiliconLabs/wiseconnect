@@ -501,6 +501,11 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
                                          sizeof(request),
                                          wait_time,
                                          &buffer);
+  if (status == SL_STATUS_SI91X_SOCKET_CLOSED) {
+    sli_si91x_host_free_buffer(buffer);
+    errno = ENOTCONN;
+    return -1;
+  }
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
     sli_si91x_host_free_buffer(buffer);

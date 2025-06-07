@@ -16,15 +16,14 @@
   - [HSPI Secondary Data Flow:](#hspi-secondary-data-flow)
 
 ## About Example Code
-
-This example showcases the SoC clock configuration and HSPI secondary initialization with GPDMA, ensuring smooth communication with the SPI primary  and efficient callback management for HSPI operations.
+This example showcases the use of the HSPI secondary interface with GPDMA, providing reliable communication with an SPI primary device and efficient management of HSPI operation callbacks.
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A]
 - An external SPI Primary device.
 
 ### Software Requirements
@@ -35,7 +34,7 @@ This example showcases the SoC clock configuration and HSPI secondary initializa
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -53,14 +52,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure UC from the slcp component to enable or disable the DMA
 
-  >![Figure: Introduction](resources/uc_screen/hspi_secondary_uc.png)
+  >![Figure: hspi_secondary_uc](resources/uc_screen/hspi_secondary_uc.png)
  - To change the buffer size do modify the below macros in `sl_si91x_hspi_secondary_drv_config.h file`  under config drop down
   
       ```c
       #define SL_HSPI_TX_BUFFER_SIZE 1024    ///< TX buffer Size
       #define SL_HSPI_RX_BUFFER_SIZE 1024   ///< RX buffer Size
       ```
-  >![Figure: Introduction](resources/readme/hspi_buffer_size_config.PNG)
+  >![Figure: hspi_buffer_size_config](resources/readme/hspi_buffer_size_config.png)
 ### Pin Configuration
 
 | GPIO pin  |  Connection |  Description|
@@ -83,17 +82,19 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     Ensure the SPI Secondary application is running before the SPI Primary application. This order is essential for proper data communication with  HSPI Secondary.
 
 3. After successful program execution, the prints in serial console looks as shown below.   
-   - ####  If DMA is enable
-  >![Figure: Introduction](resources/readme/output_hspi_secondary.PNG)    
-   - ####  If DMA is disable
-  >![Figure: Introduction](resources/readme/output_hspi_secondary_blocking.PNG) 
+   
+  - ####  If GPDMA is enabled
+  >![Figure: output_hspi_secondary](resources/readme/output_hspi_secondary.png)
+
+  - ####  If GPDMA is disabled
+  >![Figure: output_hspi_secondary_blocking](resources/readme/output_hspi_secondary_blocking.png) 
 
 ## HSPI Secondary Data Flow:
 
 - **TX Path (SPI Primary Read):**
 The SPI Primary reads data sent by the HSPI Secondary data buffer
 - **RX Path (SPI Primary Write):**
-The SPI Primary writes data to the HSPI Secondary, 
+The SPI Primary writes data to the HSPI Secondary
 
 > **Note:**
 >

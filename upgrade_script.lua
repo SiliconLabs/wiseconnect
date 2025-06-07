@@ -4,7 +4,7 @@ local component_present = slc.is_selected('adc_ulp_component') or slc.is_selecte
 
 if component_present then
   table.insert(changeset, {
-    ['status'] = 'user_verification',
+    ['status'] = 'automatic',
     ['description'] =  [['Warning: This upgrade will add the following component to the project which moves the ULP code to RAM. Please remove the  "PM PS2 Component" component to run the ULP code from flash:
     Component Path: Device > Si91x > MCU > Service > Power Manager > ULP Peripheral']]
   })

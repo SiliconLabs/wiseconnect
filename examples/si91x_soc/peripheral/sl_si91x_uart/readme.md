@@ -102,11 +102,12 @@ Configuration of UART at UC (Universal Configuration):
   | UART_RTS_PIN   | GPIO_27 |     P29         |           [MOSI]         |
 
 ## Test the Application
-
-1. Connect TX pin(GPIO_7) to RX pin of UART-TTL cable and RX pin(GPIO_6) to TX pin of UART-TTL cable.
-2. When the application runs, UART sends and receives data in full-duplex mode.
-3. Observe the UART transferred data on console and then the same 1024 bytes of data sent back.
-4. After running this application, you can observe the output from the serial terminal as shown below.
+1. Connect the TX pin (GPIO_7) of the board to the RX pin of the UART-TTL cable, and the RX pin (GPIO_6) of the board to the TX pin of the UART-TTL cable.
+2. Power on the board and run the application.
+3. Use a serial terminal on your PC to receive the transmitted data and send it back to the board.
+4. The application will transmit 1024 bytes over UART to the serial port and wait for the user to send back 1024 bytes for data comparison.
+5. Observe the UART data transfer in the serial terminal. The application will verify that the received data matches the transmitted data.
+6. The output on the serial terminal should resemble the example shown below.
 
     > ![Figure: expected result](resources/readme/output_console_uart.png)
 >

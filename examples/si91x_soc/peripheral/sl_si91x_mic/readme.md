@@ -59,4 +59,4 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 1. Compile and run the application.
 2. Verify that the application successfully outputs the dBSPL (decibel) values in the console logs as shown below.
 
-> ![Figure: Console Logs](resources/readme/mic_console_logs.png)
+    > ![Figure: Console Logs](resources/readme/mic_console_logs.png)

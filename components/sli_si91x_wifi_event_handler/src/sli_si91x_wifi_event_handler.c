@@ -243,6 +243,7 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
     // set flag
     sli_si91x_update_flash_command_status(true);
   }
+  sli_si91x_update_tx_command_status(true);
 #endif
   // Write the frame to the bus using packet data and length
   status = sli_si91x_bus_write_frame(packet, packet->data, length);
@@ -251,6 +252,7 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
   if (packet->desc[2] == SLI_COMMON_REQ_SOFT_RESET) {
     sli_si91x_config_m4_dma_desc_on_reset();
   }
+  sli_si91x_update_tx_command_status(false);
 #endif
 
   // Handle errors during frame writing
@@ -306,6 +308,10 @@ static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue)
   // Modify the packet's descriptor to include the firmware queue ID in the length field
   packet->desc[1] |= (5 << 4);
 
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sli_si91x_update_tx_command_status(true);
+#endif
+
   // Write the frame to the bus using packet data and length
   status = sli_si91x_bus_write_frame(packet, packet->data, length);
 
@@ -314,6 +320,10 @@ static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue)
     SL_DEBUG_LOG("\r\n BUS_WRITE_ERROR \r\n");
     BREAKPOINT();
   }
+
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sli_si91x_update_tx_command_status(false);
+#endif
 
   SL_DEBUG_LOG("<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u\n", 5, 0, length);
 

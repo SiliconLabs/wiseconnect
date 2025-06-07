@@ -32,30 +32,30 @@
 /*******************************************************************************
  ***************************  DEFINES / MACROS ********************************
  ******************************************************************************/
-#define GPIO_RELEASE_VERSION                    0  // GPIO Release version
-#define GPIO_MAJOR_VERSION                      0  // GPIO SQA version
-#define GPIO_MINOR_VERSION                      2  // GPIO Developer version
-#define GPIO_DIRECTION_MAX_VALUE                1  // GPIO maximum direction set value
-#define GPIO_CLOCK_MAX_VAL                      1  // Validating clock for GPIO instance
-#define GPIO_GROUP_INTERRUPT_MAX_VALUE          1  // Maximum number of GPIO group interrupts
-#define GPIO_LEVEL_EDGE_MAX_VALUE               1  // GPIO maximum level edge value
-#define GPIO_POLARITY_MAX_VALUE                 1  // GPIO maximum polarity value
-#define GPIO_AND_OR_MAX_VALUE                   1  // GPIO maximum AND_OR value
-#define GPIO_SLEW_RATE_MAX_VALUE                1  // GPIO maximum SLEW RATE value
-#define GPIO_RECEIVER_MAX_VALUE                 1  // GPIO maximum receiver value
-#define GPIO_PIN_VALUE_MAX_VALUE                1  // GPIO maximum pin value
-#define GPIO_STRENGTH_MAX_VAL                   3  // GPIO maximum strength value
-#define GPIO_DISABLE_STATE_MAX_VAL              3  // GPIO maximum disable state value
-#define GPIO_UULP_MAX_PIN_NUM                   5  // GPIO UULP maximum pin number
-#define GPIO_MODE_MAX_VALUE                     7  // GPIO maximum MODE value
-#define GPIO_INTERRUPT_MAX_VALUE                7  // GPIO interrupt maximum value
-#define GPIO_ULP_INTERRUPT_MAX_VALUE            7  // GPIO interrupt maximum value
-#define GPIO_ULP_MAX_PIN_NUM                    11 // GPIO ULP maximum pin number
-#define GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE 16 // NPSSGPIO maximum value
-#define GPIO_NPSS_WAKEUP_MAX_VALUE              4  // NPSSGPIO maximum value
-#define GPIO_NPSS_PIN_MAX_VALUE                 4  // NPSSGPIO pin maximum value
-#define GPIO_MAX_PAD_NUM                        34 // GPIO maximum pad number
-#define GPIO_MAX_PIN_NUM                        57 // Maximum number of GPIO pins in m4 instance
+#define GPIO_RELEASE_VERSION                0  // GPIO Release version
+#define GPIO_MAJOR_VERSION                  0  // GPIO SQA version
+#define GPIO_MINOR_VERSION                  2  // GPIO Developer version
+#define GPIO_DIRECTION_MAX_VALUE            1  // GPIO maximum direction set value
+#define GPIO_CLOCK_MAX_VAL                  1  // Validating clock for GPIO instance
+#define GPIO_GROUP_INTERRUPT_MAX_VALUE      1  // Maximum number of GPIO group interrupts
+#define GPIO_LEVEL_EDGE_MAX_VALUE           1  // GPIO maximum level edge value
+#define GPIO_POLARITY_MAX_VALUE             1  // GPIO maximum polarity value
+#define GPIO_AND_OR_MAX_VALUE               1  // GPIO maximum AND_OR value
+#define GPIO_SLEW_RATE_MAX_VALUE            1  // GPIO maximum SLEW RATE value
+#define GPIO_RECEIVER_MAX_VALUE             1  // GPIO maximum receiver value
+#define GPIO_PIN_VALUE_MAX_VALUE            1  // GPIO maximum pin value
+#define GPIO_STRENGTH_MAX_VAL               3  // GPIO maximum strength value
+#define GPIO_DISABLE_STATE_MAX_VAL          3  // GPIO maximum disable state value
+#define GPIO_UULP_MAX_PIN_NUM               5  // GPIO UULP maximum pin number
+#define GPIO_MODE_MAX_VALUE                 7  // GPIO maximum MODE value
+#define GPIO_INTERRUPT_MAX_VALUE            7  // GPIO interrupt maximum value
+#define GPIO_ULP_INTERRUPT_MAX_VALUE        7  // GPIO interrupt maximum value
+#define GPIO_ULP_MAX_PIN_NUM                11 // GPIO ULP maximum pin number
+#define GPIO_UULP_INTERRUPT_VALUE_MAX_VALUE 16 // UULP GPIO maximum value
+#define GPIO_UULP_WAKEUP_MAX_VALUE          4  // UULP GPIO maximum value
+#define GPIO_UULP_PIN_MAX_VALUE             4  // UULP GPIO pin maximum value
+#define GPIO_MAX_PAD_NUM                    34 // GPIO maximum pad number
+#define GPIO_MAX_PIN_NUM                    57 // Maximum number of GPIO pins in m4 instance
 
 #define ULP_GPIO_INTERRUPT_PRIORITY 18 // Priority 18 for ulp pin interrupt
 #define GPIO_INTERRUPT_PRIOPRITY0   52 // Priority 52 for m4 pin interrupt 0
@@ -378,7 +378,7 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
   // Check if the GPIO port is the Ultra-Ultra Low Power GPIO port.
   if (gpio->port == SL_GPIO_UULP_PORT) {
     // Check if the GPIO pin or interrupt number exceeds the maximum allowed values.
-    if (int_no > GPIO_NPSS_PIN_MAX_VALUE) {
+    if (int_no > GPIO_UULP_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
     // Check if a callback function is already registered for the given Ultra-Ultra Low Power GPIO interrupt number.
@@ -1479,10 +1479,10 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_s
 }
 
 /*******************************************************************************
- * This API is used to select the UULP mode in NPSS GPIO control register.
+ * This API is used to select the UULP mode in UULP GPIO control register.
  * Few actions are required to be performed before setting the mode,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  @note: Select UULP GPIO pins for UULP instances(0 to 4).
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t mode)
@@ -1497,7 +1497,7 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uul
 }
 
 /*******************************************************************************
- * This API is used to enable receiver bit in NPSS GPIO control register.
+ * This API is used to enable receiver bit in UULP GPIO control register.
  * Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API,
  * before using this API.
  * @note: Select UULP GPIO pins for UULP instances(0 to 4).
@@ -1514,12 +1514,12 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_receiver(uint8_t pin, sl_si91x
 }
 
 /*******************************************************************************
- * This API is used to select the UULP direction in NPSS GPIO control
+ * This API is used to select the UULP direction in UULP GPIO control
  * register. Few actions are required to be performed before setting the
  * direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
- *  - Select UULP NPSS direction for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
+ *  - Select UULP direction for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  * @note: Select UULP GPIO pins for UULP instances(0 to 4).
  ******************************************************************************/
@@ -1535,11 +1535,11 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_direction(uint8_t pin, sl_si91x_g
 }
 
 /*******************************************************************************
- * This API is used to get the UULP direction in NPSS GPIO control
+ * This API is used to get the UULP direction in UULP GPIO control
  * register. Few actions are required to be performed before setting the
  * direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Get the direction of the GPIO pin.
@@ -1558,11 +1558,11 @@ uint8_t sl_si91x_gpio_driver_get_uulp_npss_direction(uint8_t pin)
 }
 
 /*******************************************************************************
- * This API is used to select the UULP pin value in NPSS GPIO control
+ * This API is used to select the UULP pin value in UULP GPIO control
  * register. Few actions are required to be performed before setting the
  * direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Select the GPIO pin value.
@@ -1583,7 +1583,7 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_g
  * This API is used to toggle the UULP pin.
  * Few actions are required to be performed before setting the direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Toggle the UULP GPIO pin.
@@ -1601,11 +1601,11 @@ sl_status_t sl_si91x_gpio_driver_toggle_uulp_npss_pin(uint8_t pin)
 }
 
 /*******************************************************************************
- * This API is used to get the UULP pin value in NPSS GPIO control
+ * This API is used to get the UULP pin value in UULP GPIO control
  * register. Few actions are required to be performed before setting the
  * direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Select the GPIO pin value.
@@ -1640,12 +1640,12 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_polarity(uint8_t pin, sl_si91x
 }
 
 /*******************************************************************************
- * This API is used to set the UULP NPSS GPIO to wakeup interrupt
+ * This API is used to set the UULP GPIO to wakeup interrupt
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSS_WAKEUP_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_WAKEUP_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Set UULP GPIO wakeup interrupt
@@ -1654,12 +1654,12 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio
 }
 
 /*******************************************************************************
- * This API is used to clear the UULP NPSS GPIO to wakeup interrupt
+ * This API is used to clear the UULP GPIO to wakeup interrupt
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSS_WAKEUP_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_WAKEUP_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Clear UULP GPIO wakeup interrupt
@@ -1668,7 +1668,7 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
 }
 
 /*******************************************************************************
- * This API is used to mask the UULP NPSS GPIO interrupt.
+ * This API is used to mask the UULP GPIO interrupt.
  * Few actions are required to be performed before interrupt mask is
  * performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
@@ -1679,7 +1679,7 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
 sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_INTERRUPT_VALUE_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Mask UULP GPIO interrupt
@@ -1688,7 +1688,7 @@ sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_inter
 }
 
 /*******************************************************************************
- * Get the NPSS GPIO interrupt status.
+ * Get the UULP GPIO interrupt status.
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_uulp_interrupt_status(void)
 {
@@ -1708,12 +1708,12 @@ uint32_t sl_si91x_gpio_driver_get_ulp_interrupt_status(uint32_t flags)
 }
 
 /*******************************************************************************
- * This API is used to un-mask the UULP NPSS GPIO interrupt.
+ * This API is used to un-mask the UULP GPIO interrupt.
  * Few actions are required to be performed before interrupt un-mask is
  * performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
  *  - Set UULP PAD configuration register.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Un-mask interrupt by setting corresponding bit in register.
@@ -1723,7 +1723,7 @@ uint32_t sl_si91x_gpio_driver_get_ulp_interrupt_status(uint32_t flags)
 sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_INTERRUPT_VALUE_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Unmask UULP GPIO interrupt
@@ -1738,7 +1738,7 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
 sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_INTERRUPT_VALUE_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Clear UULP GPIO interrupt
@@ -1747,7 +1747,7 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt
 }
 
 /*******************************************************************************
- * This API is used to mask the UULP NPSS GPIO interrupt.
+ * This API is used to mask the UULP GPIO interrupt.
  * Few actions are required to be performed before interrupt mask is
  * performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
@@ -1757,7 +1757,7 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt
 sl_status_t sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_PIN_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Mask UULP GPIO interrupt
@@ -1766,12 +1766,12 @@ sl_status_t sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt(uint8_t npssgpio_i
 }
 
 /*******************************************************************************
- * This API is used to un-mask the UULP NPSS GPIO interrupt.
+ * This API is used to un-mask the UULP GPIO interrupt.
  * Few actions are required to be performed before interrupt un-mask is
  * performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
  *  - Set UULP PAD configuration register.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Un-mask interrupt by setting corresponding bit in register.
@@ -1780,7 +1780,7 @@ sl_status_t sl_si91x_gpio_driver_mask_set_uulp_npss_interrupt(uint8_t npssgpio_i
 sl_status_t sl_si91x_gpio_driver_mask_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_PIN_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Unmask UULP GPIO interrupt
@@ -1794,7 +1794,7 @@ sl_status_t sl_si91x_gpio_driver_mask_clear_uulp_npss_interrupt(uint8_t npssgpio
 sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   // Check if npssgpio_interrupt exceeds the maximum allowed
-  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
+  if (npssgpio_interrupt > GPIO_UULP_PIN_MAX_VALUE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Clear UULP GPIO interrupt
@@ -1809,7 +1809,7 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_interrupt(uint8_t npssgpio_inte
  * done. The actions to be performed in UULP GPIO initialization are:
  *  - Enable the ULP clock using @ref sl_si91x_gpio_driver_enable_clock() API.
  *  - Set UULP PAD configuration register.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Configure the UULP pin interrupt.
@@ -1828,7 +1828,7 @@ sl_status_t sl_si91x_gpio_driver_configure_uulp_interrupt(sl_si91x_gpio_interrup
     return SL_STATUS_BUSY;
   }
   // Check if npssgpio_interrupt or flags exceeds the maximum allowed
-  if ((flags > GPIO_FLAGS_MAX_VALUE) || (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE)) {
+  if ((flags > GPIO_FLAGS_MAX_VALUE) || (npssgpio_interrupt > GPIO_UULP_PIN_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   // Assign the callback function pointer for the specified interrupt number.

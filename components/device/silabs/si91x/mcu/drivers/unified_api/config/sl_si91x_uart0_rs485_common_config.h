@@ -41,7 +41,7 @@
 // </h>
 // <<< end of configuration section >>>
 // <<< sl:start pin_tool >>>
-// <usart0 signal=TX,RX,RS485_RE,RS485_DE,RS485_EN> SL_USART0
+// <usart0 signal=TX,RX,(RS485_RE),(RS485_DE),(RS485_EN)> SL_USART0
 // $[USART0_SL_USART0]
 #ifndef SL_USART0_PERIPHERAL
 #define SL_USART0_PERIPHERAL USART0

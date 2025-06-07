@@ -1064,6 +1064,7 @@ adv:
       case RSI_BLE_GATT_PROFILES_RESP_EVENT: {
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_GATT_PROFILES_RESP_EVENT);
+        memset(&service_uuid, 0, sizeof(service_uuid));
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_HEART_RATE_SERVICE_UUID;
         rsi_ble_get_profile_async(conn_event_to_app.dev_addr, service_uuid, NULL);

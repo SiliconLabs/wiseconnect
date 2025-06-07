@@ -31,6 +31,8 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/ucScreenGPDMA.PNG
+  - path: resources/readme/outputConsoleI_GPDMA.PNG
 readme:
   - path: readme.md
 ui_hints:

@@ -37,6 +37,7 @@ component:
       - i2s0
 other_file:
   - path: resources/readme/setupdiagram.png
+  - path: resources/readme/mic_console_logs.png
 define:
   - name: SYSCALLS_WRITE
 readme:

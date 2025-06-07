@@ -42,8 +42,12 @@ extern const sl_wifi_scan_configuration_t default_wifi_scan_configuration;
 extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
 
 /** \addtogroup WIFI_COMMON_API Common
-  * \ingroup SL_WIFI_FUNCTIONS
-  * @{ */
+ * 
+ *  @note To manage the Wi-Fi interface lifecycle correctly, it's important to use functions like sl_wifi_init(), sl_wifi_connect(), sl_wifi_disconnect(), and sl_wifi_deinit() as intended.
+ *        Improper sequencing or combining sl_wifi_* and sl_net_* API functions without following the recommended order may lead to unpredictable or undefined behavior.
+ *
+ * \ingroup SL_WIFI_FUNCTIONS
+ * @{ */
 
 /***************************************************************************/ /**
  * @brief
@@ -817,8 +821,12 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
 /** @} */
 
 /** \addtogroup WIFI_CLIENT_API Client
-  * \ingroup SL_WIFI_FUNCTIONS
-  * @{ */
+ * 
+ * @note To manage the Wi-Fi interface lifecycle correctly, it's important to use functions like sl_wifi_init(), sl_wifi_connect(), sl_wifi_disconnect(), and sl_wifi_deinit() as intended.
+ *       Improper sequencing or combining sl_wifi_* and sl_net_* API functions without following the recommended order may lead to unpredictable or undefined behavior.
+ *
+ * \ingroup SL_WIFI_FUNCTIONS
+ * @{ */
 // Wi-Fi Client functions
 
 /***************************************************************************/ /**

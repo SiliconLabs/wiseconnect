@@ -42,7 +42,7 @@
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <uart1 signal=TX,RX,RS485_RE,RS485_DE,RS485_EN> SL_UART1
+// <uart1 signal=TX,RX,(RS485_RE),(RS485_DE),(RS485_EN)> SL_UART1
 // $[UART1_SL_UART1]
 #ifndef SL_UART1_PERIPHERAL
 #define SL_UART1_PERIPHERAL UART1

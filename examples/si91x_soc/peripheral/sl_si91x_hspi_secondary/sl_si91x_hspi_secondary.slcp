@@ -29,10 +29,11 @@ component:
   - id: sl_hspi_secondary
     from: wiseconnect3_sdk
 other_file:
-  - path: resources/readme/output_hspi_secondary.PNG
+  - path: resources/readme/output_hspi_secondary.png
   - path: resources/readme/setupdiagram.png
   - path: resources/uc_screen/hspi_secondary_uc.png
-  - path: resources/readme/output_hspi_secondary_blocking.PNG
+  - path: resources/readme/output_hspi_secondary_blocking.png
+  - path: resources/readme/hspi_buffer_size_config.png
 readme:
   - path: readme.md
 ui_hints:

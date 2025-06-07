@@ -43,7 +43,9 @@ extern "C" {
 
 static sl_si91x_gpdma_data_context_t gpdma_driver; // GPDMA driver context
 
-static sl_gpdma_channel_data_t sl_gpdma_channel_allocation_data_t[SL_GPDMA_MAX_CHANNEL] = { 0 }; // GPDMA channel data
+static sl_gpdma_channel_data_t sl_gpdma_channel_allocation_data_t[SL_GPDMA_MAX_CHANNEL + 1] = {
+  0
+}; // GPDMA channel data
 
 static sl_si91x_gpdma_resources_Data_t gpdma_resource_data = {
   // GPDMA resource data

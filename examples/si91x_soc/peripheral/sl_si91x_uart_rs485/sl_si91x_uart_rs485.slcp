@@ -39,7 +39,7 @@ define:
   - name: SLI_SI91X_MCU_RS485_MODE  
 other_file:
   - path: resources/readme/setupdiagram.png
-  - path: resources/readme/2_board_setup.png
+  - path: resources/readme/3_board_setup.png
   - path: resources/readme/N_board_setup.png
   - path: resources/readme/uart1_rs485_output_console.png
   - path: resources/uc_screen/uart0_rs485_hardware_controlled_half_duplex_receive_mode_uc.png

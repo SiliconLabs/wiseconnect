@@ -63,7 +63,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 define:
-  - name: MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
+  - name: SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
     value: 1
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

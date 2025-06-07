@@ -85,6 +85,7 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/nvm3/component
   - path: components/device/silabs/si91x/mcu/drivers/service/sleeptimer/component
   - path: components/device/silabs/si91x/mcu/drivers/service/iostream/component
+  - path: components/device/silabs/si91x/mcu/drivers/debug/component    
   - path: components/device/silabs/si91x/mcu/drivers/service/power_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/clock_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/wdt_manager/component

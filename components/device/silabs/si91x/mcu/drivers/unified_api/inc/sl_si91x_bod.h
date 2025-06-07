@@ -552,10 +552,14 @@ void sl_si91x_bod_disable_blackout_in_sleep_mode(void);
   *
   * @section BOD_Config Configuration
   *
-  * The BOD module can be configured using several parameters, including:
-  * - **Threshold Voltage**: The voltage level at which the BOD triggers an interrupt or reset.
-  * - **Slot Value**: The slot value for comparator sampling determines the number of empty slots 
-  *   between two active slots. Each empty slot consists of 6 cycles of the 32KHz (ulp_fsm_clk). 
+  * The BOD module offers several configurable parameters, such as:
+  * 
+  * - **Threshold Voltage:** Specifies the voltage level at which the BOD will trigger an interrupt or system reset.
+  * 
+  * - **Slot Value:** Specifies the number of inactive (empty) slots inserted between two active comparator sampling slots. Each empty slot corresponds to 6 cycles of the 32KHz (ulp_fsm_clk), determining the interval between consecutive active sampling events.
+  * Configuring the slot value allows you to adjust the timing and frequency of BOD checks, which can help balance synchronization requirements and power consumption.
+  * Each slot defines a time interval based on 6 cycles of the 32KHz (ulp_fsm_clk).
+  * - Slots are used to control the timing between active operations, supporting proper synchronization and improved power efficiency.
   *   
   *    - For example, if cmp_slot_value is programmed as 2, there will be 2 empty slots between active slots, each consisting of 6 cycles.
   * - **Blackout Enable**: Enabling or disabling blackout reset functionality.

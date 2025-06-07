@@ -331,6 +331,8 @@ Following are the non-configurable macros in the application.
 
 To measure **WLAN throughput**, run the following commands.
 
+> **Note:** The "wlan_ble_unified_ae_coex_app" application has been verified only with TCP_TX.
+
 1. To measure **UDP Tx** throughput, configure the SiWx91x device as a UDP client and open the UDP server on the remote PC using the following iPerf command. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
 
     ```sh

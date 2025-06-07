@@ -77,7 +77,6 @@ extern "C" {
 /*ULPSS Peripheral power gate */
 /* ULPSS_PWRCTRL_SET_REG bits (NPSS MCU(MCU DM POWER CTRL FF's Domain))*/
 #define ULPSS_PWRGATE_ULP_MISC BIT(18)
-#define ULPSS_PWRGATE_ULP_CAP  BIT(19)
 #if defined(CHIP_9118)
 #define ULPSS_PWRGATE_ULP_VAD BIT(20)
 #endif

@@ -810,7 +810,7 @@ sl_status_t sl_si91x_get_m4_app_addr(uint32_t *app_addr)
   }
 
   // Convert offset to actual address
-  (*app_addr) += SLI_SI91X_CHUNK_LENGTH;
+  (*app_addr) += SL_SI91X_CHUNK_LENGTH;
   DEBUGOUT("\r\n [m4_app_addr] app_addr:%lX Current_M4_Slot:%X Current Slot Offset:%lX\r\n",
            *app_addr,
            fw_slot_info_t.m4_slot_info.current_active_M4_slot,

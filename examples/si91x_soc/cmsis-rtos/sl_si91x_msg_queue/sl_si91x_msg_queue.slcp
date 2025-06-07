@@ -69,10 +69,14 @@ configuration:
   - name: SL_I2C_I2C0_MODE
     value: SL_I2C_FOLLOWER_MODE
 other_file:
-- {path: resources/readme/image506d.png}
-- {path: resources/readme/image506e.png}
-- {path: resources/readme/setupdiagram.png}
-- {path: resources/readme/output.png}
+  - path: resources/readme/msg_queue_example_overview.png
+  - path: resources/uc_screen/usart_uc_screen.png
+  - path: resources/uc_screen/usart_uc_screen.png
+  - path: resources/readme/image513d.png
+  - path: resources/readme/image506d.png
+  - path: resources/readme/image506e.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output.png
 define:
   - name: USART_CONFIG
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER

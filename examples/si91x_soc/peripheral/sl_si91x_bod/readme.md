@@ -14,7 +14,9 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to set up and use the Brown Out Detection (BOD) feature. It allows users to configure the threshold value for BOD and monitor the voltage levels on VMCU. When the voltage drops below the configured threshold, a BOD interrupt is triggered, and the application handles the event accordingly.
+- This application demonstrates how to set up and use the Brown Out Detection (BOD) feature. It allows users to configure the threshold value for BOD and monitor the voltage levels on VMCU. When the voltage drops below the configured threshold, a BOD interrupt is triggered, and the application handles the event accordingly.
+
+- **Black-out:** When Black-out is enabled, the reset line will be pulled down automatically if the battery voltage (Vbatt) falls below ~1.65V.
 
 
 ## Prerequisites/Setup Requirements
@@ -49,8 +51,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ## Application Build Environment
 
 ### Application Configuration Parameters
-  - Threshold and slot value are configurable in `bod_example.h` or can be updated through UC (supports only slot value and blackout can be enabled).
-  ```
+  - The threshold and slot values can be configured in `bod_example.h`. Alternatively, the slot value and blackout feature can be updated through the UC configuration.
+    ```
 #define SL_BOD_DEFAULT_SLOT_VALUE 2  ///< Default BOD Slot value
 #define SL_BOD_DEFAULT_THRESHOLD 2.7f ///< Default BOD threshold value
 ```
@@ -70,17 +72,20 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   - **Enable BOD UC Configuration:** This needs to be enabled to apply these configurations in the application.
     - **Slot Value:** The slot value can be configured using this option.
-      > **Note:** Slot configuration values can be verified in power mode applications only. In the active state, we can't observe the difference in terms of power. To verify with different slot values, use a larger value to achieve a lower sleep current.
+      > **Note:** Slot configuration values can only be validated in power mode applications. In the active state, the power difference is not noticeable. To test with various slot values, use a higher value to achieve reduced sleep current.
 
 
     - **Enable Black-Out Detection:** By enabling this, the system will reset when the VMCU voltage drops below 1.65V.
 
 ## Test the Application
-- Refer to the instructions in the Create a Project section on the Developing with WiSeConnect™ SDK v3.x with SiWx91x™ Boards page to:
+- Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+  - Compile and run the application.
+  - After successful program execution, the prints in serial console looks as shown below.
 
 - Expected Results
-If the user decreases the voltage less than the threshold voltage, then a BOD interrupt occurs.
-The console will as below.(Interrupt operations are not there in the Console Output)
+   - If the user decreases the voltage less than the threshold voltage, then a BOD interrupt occurs.
+  - The console output will appear as shown below. (Interrupt operations are not included in the Console Output section.)
 
   - Console Output:
 

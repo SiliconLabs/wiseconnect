@@ -65,8 +65,8 @@ static sl_status_t get_battery_status(float *battery_status);
 
 /*******************************************************************************
  * @brief: Initializes OPAMP peripheral
- * @details: Enables system core clock and Auxiliary clock with MHZ RC clock
- * Configures OPAMP reference voltage as 2.5V or 3.3V
+ * @details: This API enables the auxiliary clock using the MHz RC clock
+ *           and configures the OPAMP reference voltage to either 2.5V or 3.3V
  *******************************************************************************/
 sl_status_t sl_si91x_opamp_init(void)
 {
@@ -98,8 +98,8 @@ sl_status_t sl_si91x_opamp_init(void)
   return status;
 }
 /*******************************************************************************
- * @brief: Get battery level status
- * @details: Function to get the current battery status
+ * @brief: Get battery voltage level status
+ * @details: This API reads the current battery voltage and checks if it is within the valid range (1.6V to 3.3V)
  *******************************************************************************/
 static sl_status_t get_battery_status(float *battery_status)
 {
@@ -118,8 +118,8 @@ static sl_status_t get_battery_status(float *battery_status)
   }
 }
 /*******************************************************************************
- * @brief: Set OPAMP Pin Configuration 
- * @details: Validates input parameters and initialize OPAMP pins
+ * @brief: Set OPAMP GPIO pins for input and output
+ * @details: This API is used to validates input/output parameters and initialize OPAMP pins
  *******************************************************************************/
 sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
 {
@@ -235,10 +235,9 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
 }
 
 /*******************************************************************************
- * @brief: Configures OPAMP parameters
- * @details: Function to set OPAMP configuration
+ * @brief: Configures OPAMP features based on the selected instance number
+ * @details: This API is used to configure OPAMP by selecting feature based on the opamp instance number
  *******************************************************************************/
-
 sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config)
 {
   sl_status_t status;

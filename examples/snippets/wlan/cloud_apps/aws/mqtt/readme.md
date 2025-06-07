@@ -191,6 +191,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   ![SoC Application prints](resources/readme/application_prints_soc.png)
 
+  ![SoC Application prints](resources/readme/application_prints_soc1.png)
+
 - In this instance, the SiWx91x has established a secure connection with the AWS Cloud, subscribed to *aws_status* topic, and published a message "Hi from SiWx91x" on *siwx91x_status* topic.
 - The NWP processor is then set into associated power save mode.
 - Subsequently, the M4 processor is set into power save.
@@ -203,7 +205,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   - The button press triggers the M4 processor to wake from sleep. The application then performs a publish on *siwx91x_status* topic, and sets the M4 processor back to sleep.
 
   *case 3*: When ALARM-timer elapses
-  - By default, the ALARM-timer periodicity is 30 seconds (**ALARM_PERIODIC_TIME**). During every iteration, the ALARM triggers the M4 processor to wake from sleep. The application then performs a publish on *siwx91x_status* topic, and sets the M4 processor back to sleep.
+  - By default, the ALARM-timer periodicity is 30 seconds (**PUBLISH_PERIODICITY**). During every iteration, the ALARM triggers the M4 processor to wake from sleep. The application then performs a publish on *siwx91x_status* topic, and sets the M4 processor back to sleep.
 
 - **NCP Mode**:
 

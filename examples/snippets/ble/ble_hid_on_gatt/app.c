@@ -1748,6 +1748,7 @@ scan:
         app_state |= BIT(ENCRYPT_EN);
 #if (GATT_ROLE == CLIENT)
         //Get the HID service handles, if it exixts in remote device.
+        memset(&service_uuid, 0, sizeof(uuid_t));
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_HID_SERVICE_UUID;
         rsi_ble_get_profile_async(glbl_enc_enabled.dev_addr, service_uuid, NULL);

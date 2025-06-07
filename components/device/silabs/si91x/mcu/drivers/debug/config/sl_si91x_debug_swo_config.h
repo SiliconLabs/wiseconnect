@@ -35,10 +35,10 @@
 
 // <h>SWO Configuration
 
-// <o SL_SI91X_DEBUG_SWO_FREQ> SWO Frequency
+// <o SL_SI91X_DEBUG_SWO_FREQ_KHZ> SWO Frequency in KHz <50-6000>
 // <i> Must be 875 kHz for communication with Silicon Labs debuggers
-// <i> Default: 875000
-#define SL_SI91X_DEBUG_SWO_FREQ 875000
+// <i> Default: 875
+#define SL_SI91X_DEBUG_SWO_FREQ_KHZ 875
 
 // <o SL_SI91X_DEBUG_SWO_SAMPLE_INTERVAL> SWO debug sample intervals
 // <64=>    64
@@ -77,5 +77,7 @@
 // </h>
 
 // <<< end of configuration section >>>
+
+#define SL_SI91X_DEBUG_SWO_FREQ SL_SI91X_DEBUG_SWO_FREQ_KHZ * 1000
 
 #endif // SL_SI91X_DEBUG_SWO_CONFIG_H

@@ -118,6 +118,7 @@ typedef struct {
  * @details This API initializes the OPAMP module and prepares it for operation.
  *          It sets up the necessary hardware configurations and enables the OPAMP.
  *          This function must be called before using any other OPAMP-related APIs.
+ *          Configures OPAMP reference voltage as 2.5V or 3.3V
  * 
  * @return Status of the OPAMP initialization operation:
  *         - SL_STATUS_OK if the initialization was successful.
@@ -143,7 +144,7 @@ void sl_si91x_opamp_deinit(void);
 
 /***************************************************************************/
 /**
- * @brief Configure the OPAMP settings and selected GPIOs pins for input and output.
+ * @brief Configure the OPAMP GPIOs by selecting pins for input and output.
  * @details This API sets up the configuration multiplexing for the OPAMP peripheral,
  *          ensuring the correct GPIO pins are configured for OPAMP operation.
  *          It maps the OPAMP input and output pins to the appropriate hardware pins.
@@ -151,7 +152,8 @@ void sl_si91x_opamp_deinit(void);
  * @pre Pre-condition: 
  *      - \ref sl_si91x_opamp_init() must be called before using this function.
  * 
- * @param[in] opamp_config_ptr Pointer to OPAMP configuration structure \ref sl_opamp_pin_config_t.
+ * @param[in] opamp_config_ptr GPIO inputs and outputs pins selections Pointer to structure
+ *             \ref sl_opamp_pin_config_t
  * 
  * @return Status code indicating the result:
  *         - SL_STATUS_OK if the OPAMP parameters were configured properly.
@@ -164,16 +166,16 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr);
 
 /***************************************************************************/
 /**
- * @brief Configure the OPAMP.
+ * @brief Configure the OPAMP features and instance number.
  * @details This API configures the OPAMP by selecting features such as unity gain,
  *          non-inverting and inverting inputs, enabling/disabling hysteresis, and
- *          cascaded configurations. It also configures the input pins for proper
- *          operation.
+ *          cascaded configurations based on the selected OPAMP instance number. 
  *
  * @pre Pre-condition: 
  *      - \ref sl_si91x_opamp_init() must be called before using this function.
  * 
- * @param[in] opamp_config Pointer to the OPAMP configuration structure.
+ * @param[in] opamp_config OPAMP instance number and features selection Pointer to structure.
+ *            \ref sl_opamp_config_t
  * 
  * @return Status of the OPAMP configuration operation:
  *         - SL_STATUS_OK if the configuration was successful.

@@ -11,3 +11,6 @@ metadata:
     license: Zlib
 provides:
   - name: pm_ps2_component
+template_contribution:
+  - name: user_files_ps2
+    value: sl_main_process_action.o

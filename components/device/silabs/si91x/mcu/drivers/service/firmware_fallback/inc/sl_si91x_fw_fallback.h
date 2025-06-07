@@ -54,7 +54,7 @@ extern "C" {
 #define SLI_SI91X_RPS_HEADER_SIZE sizeof(sl_si91x_firmware_header_t) ///< Firmware RPS header size
 
 /** @brief Flash memory chunk size for erase operations. */
-#define SLI_SI91X_CHUNK_LENGTH 4096 ///< Flash erase chunk length (4KB)
+#define SL_SI91X_CHUNK_LENGTH 4096 ///< Flash erase chunk length (4KB)
 
 /** @brief Base address of M4 and NWP flash memory. */
 #define SLI_SI91X_M4_FLASH_BASE_ADDR  0x8000000 ///< M4 flash base address
@@ -63,7 +63,7 @@ extern "C" {
 /** @brief Slot information flash offsets. */
 #define SLI_SI91X_SLOT_INFO_FLASH_OFFSET 0x81F1000 ///< Primary slot information offset
 #define SLI_SI91X_BACKUP_SLOT_INFO_FLASH_OFFSET \
-  (SLI_SI91X_SLOT_INFO_FLASH_OFFSET + SLI_SI91X_CHUNK_LENGTH) ///< Backup slot offset
+  (SLI_SI91X_SLOT_INFO_FLASH_OFFSET + SL_SI91X_CHUNK_LENGTH) ///< Backup slot offset
 
 /** @brief Image type identifiers in RPS. */
 #define SL_SI91X_M4_RPS_BIT  1 ///< M4 RPS image type

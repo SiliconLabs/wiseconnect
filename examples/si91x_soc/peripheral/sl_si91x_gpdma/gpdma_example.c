@@ -45,7 +45,7 @@ sl_si91x_gpdma_descriptor_t
   sl_descriptors_memory[SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0]; // Memory for storing the descriptors
 uint8_t src[GPDMA_TRANSFER_LENGTH] = { 0 };                     // Source buffer for transfer
 uint8_t dst[GPDMA_TRANSFER_LENGTH] = { 0 };                     // Destination buffer for transfer
-
+uint32_t gpdma_channel             = GPDMA_CHANNEL;             // GPDMA Channel used
 /*******************************************************************************
  ***************************  GLOBAL VARIABLES  *******************************
  ******************************************************************************/
@@ -103,7 +103,6 @@ static void fetch_done_callback()
 void gpdma_example_init(void)
 {
   sl_status_t status                     = SL_STATUS_OK;
-  uint32_t channel                       = GPDMA_CHANNEL;
   uint32_t channel_priority              = 0;
   sl_gpdma_callback_pointer_t callback_t = { 0 };
 #if (SL_GPDMA_SIMPLE_TRANSFER != 1)
@@ -145,7 +144,7 @@ void gpdma_example_init(void)
   callback_t.transfer_complete_cb         = transfer_complete_callback;      // Transfer complete callback
 
   //Allocate a channel for GPDMA transfer
-  status = sl_si91x_gpdma_allocate_channel(&channel, channel_priority, GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0);
+  status = sl_si91x_gpdma_allocate_channel(&gpdma_channel, channel_priority, GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("\r\n Allocate channel fail %lu \r\n", status);
   } else {
@@ -153,7 +152,7 @@ void gpdma_example_init(void)
   }
 
   //Register the callback functions for GPDMA transfer
-  status = sl_si91x_gpdma_register_callbacks(channel, &callback_t);
+  status = sl_si91x_gpdma_register_callbacks(gpdma_channel, &callback_t);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("\r\n Register callback fail %lu \r\n", status);
   } else {
@@ -162,7 +161,7 @@ void gpdma_example_init(void)
 
 #if SL_GPDMA_SIMPLE_TRANSFER
   //In simple transfer allocate a descriptor for GPDMA transfer
-  status = sl_si91x_gpdma_allocate_descriptor(sl_descriptors_memory, GPDMA_TRANSFER_LENGTH, channel);
+  status = sl_si91x_gpdma_allocate_descriptor(sl_descriptors_memory, GPDMA_TRANSFER_LENGTH, gpdma_channel);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("\r\n Descriptor allocation failed %lu \r\n", status);
   } else {
@@ -172,7 +171,8 @@ void gpdma_example_init(void)
 #else
 
   //In normal transfer build a descriptor for GPDMA transfer
-  status = sl_si91x_gpdma_build_descriptor(sl_descriptors_memory, &descriptor_config, GPDMA_TRANSFER_LENGTH, channel);
+  status =
+    sl_si91x_gpdma_build_descriptor(sl_descriptors_memory, &descriptor_config, GPDMA_TRANSFER_LENGTH, gpdma_channel);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("\r\n Build descriptor fail %lu \r\n", status);
   } else {
@@ -189,9 +189,8 @@ void gpdma_example_process_action(void)
 {
   sl_status_t status = SL_STATUS_OK;
   uint32_t count     = 0;
-  uint32_t channel   = GPDMA_CHANNEL;
   if (gpdma_start_transfer) {
-    status = sl_si91x_gpdma_transfer(channel, src, dst);
+    status = sl_si91x_gpdma_transfer(gpdma_channel, src, dst);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("\r\n Transfer_fail %lu \r\n", status);
     }

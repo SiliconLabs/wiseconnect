@@ -10,6 +10,9 @@
       license: Zlib
 - requires:
   - name: siwn917y100lgnba
+- define:
+  - name: SI91X_32kHz_EXTERNAL_OSCILLATOR
+    value: '1'
 - tag:
   - board:pn:BRD4357
   - board:variant:A

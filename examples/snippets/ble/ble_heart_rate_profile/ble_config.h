@@ -45,7 +45,7 @@
 
 #define RSI_BLE_MAX_NBR_ATT_SERV 10
 
-#define RSI_BLE_GATT_ASYNC_ENABLE 0
+#define RSI_BLE_GATT_ASYNC_ENABLE 1
 #define RSI_BLE_GATT_INIT         0
 
 /* Number of BLE GATT RECORD SIZE IN (n*16 BYTES), eg:(0x40*16)=1024 bytes */

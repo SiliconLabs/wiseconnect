@@ -51,6 +51,8 @@
 #include <string.h>
 #include "assert.h"
 
+static bool sli_si91x_tx_command_status = false;
+
 /******************************************************
  *               Macro Declarations
  ******************************************************/
@@ -180,7 +182,6 @@ static bool sli_si91x_packet_status = 0;
 extern bool device_initialized;
 
 // Declaration of external functions
-extern void si91x_bus_thread(void *args);
 extern void sli_si91x_async_rx_event_handler_thread(void *args);
 sl_status_t sl_si91x_host_power_cycle(void);
 void sli_convert_performance_profile_to_power_save_command(sl_wifi_system_performance_profile_t profile,
@@ -1976,11 +1977,22 @@ void sli_si91x_update_flash_command_status(bool flag)
   sli_si91x_packet_status = flag;
 }
 
+bool sli_si91x_get_tx_command_status()
+{
+  return sli_si91x_tx_command_status;
+}
+
+void sli_si91x_update_tx_command_status(bool flag)
+{
+  sli_si91x_tx_command_status = flag;
+}
+
 /*  This function is used to update the power manager to see whether the device is ready for sleep or not.
  True indicates ready for sleep, and false indicates not ready for sleep.*/
 bool sli_si91x_is_sdk_ok_to_sleep()
 {
-  return ((!sli_si91x_get_flash_command_status()) && (sl_si91x_is_device_initialized()));
+  return ((!sli_si91x_get_flash_command_status()) && (sl_si91x_is_device_initialized())
+          && (!sli_si91x_get_tx_command_status()));
 }
 
 bool sl_si91x_is_device_initialized(void)
