@@ -638,7 +638,7 @@ typedef struct {
 typedef struct {
   uint32_t listen_interval; ///< Wi-Fi Listen interval in millisecs
   uint32_t
-    listen_interval_multiplier; ///< Multiply listen interval by configured value in assoc req. Default value is 1. Recommended max value is 10. Higher value may cause interop issues.
+    listen_interval_multiplier; ///< Multiplier for the listen interval, sent by the device in the association request to the AP. Default: 1. Max recommended: 10. Higher values may lead to interoperability issues.
 } sl_wifi_listen_interval_v2_t;
 
 /**

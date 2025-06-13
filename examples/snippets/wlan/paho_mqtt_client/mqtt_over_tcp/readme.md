@@ -107,14 +107,19 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
   - CLIENT_PORT port refers to the device MQTT client port number.
 
    ```c
-#define CLIENT_PORT 1
+#define CLIENT_PORT 5001
    ```
+  - client.ipstack->transport_type = MQTT_TRANSPORT_TCP;
 
+   ```c
+      This sets the transport type for the MQTT client to use TCP, enabling MQTT communication over a TCP connection.
+   ```
+   
   - CLIENT_ID refers to the unique ID with which the MQTT client connects to MQTT broker/server.
 
    ```c
   int8_t clientID[] = "WISECONNECT_SDK_TOPIC";
-   ``
+   ```
 
   - PUBLISH_MESSAGE refers to message that would be published by MQTT client.
 
@@ -128,7 +133,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
 #define QOS 0
    ```
 
-  - KEEP_ALIVE_PERIOD client keep alive period in milliseconds.
+  - KEEP_ALIVE_PERIOD client keep alive period in seconds.
 
    ```c
 #define KEEP_ALIVE_PERIOD 100
@@ -159,13 +164,13 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
    ```
 
 **MQTT client application level memory configuration**
-```c
+   ```c
 //! Memory to initialize MQTT client Info structure
 #define TCP_MQTT_CLIENT_INIT_BUFF_LEN 3500 
       
       //! Global buffer or memory which is used for MQTT client initialization. This is used for the MQTT client information storage.
       uint8_t tcp_mqtt_client_buffer[TCP_MQTT_CLIENT_INIT_BUFF_LEN]
-```
+   ```
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -179,7 +184,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - NCP mode
 
-   ![Application prints](resources/readme/mqtt_Application_prints_ncp.png)
+   ![Application prints](resources/readme/mqtt_application_prints_ncp.png)
 
 Follow the steps below for successful execution of the application:
 
@@ -277,19 +282,19 @@ Follow the steps below for successful execution of the application:
 
 > The following commands are used to test the MQTT client with IPv6 addresses using the Mosquitto command line:
 >
-> 1. `mosquitto_sub -h 2405:201:c013:61e3:faf7:fb6f:8d37:bca8 -p 1883 -t test/topic`
+> 1. `mosquitto_sub -h 2409:40f2:2044:d93c:f088:79d:19aa:c1c3 -p 1883 -t THERMOSTAT-DATA`
 >
 >    This command runs the Mosquitto client in subscriber mode.  It will connect to the MQTT broker and listen for messages published to a specific topic.
 >
->    - `-h 2405:201:c013:61e3:faf7:fb6f:8d37:bca8`: Specifies the hostname or IP address of the MQTT broker to connect to. In this case, it's an IPv6 address.
+>    - `-h 2409:40f2:2044:d93c:f088:79d:19aa:c1c3`: Specifies the hostname or IP address of the MQTT broker to connect to. In this case, it's an IPv6 address.
 >    - `-p 1883`: Specifies the network port that the MQTT broker is listening on. The default MQTT port is 1883.
->    - `-t test/topic`: Specifies the topic that the client should subscribe to. The client will receive any messages published to this topic.
+>    - `-t THERMOSTAT-DATA`: Specifies the topic that the client should subscribe to. The client will receive any messages published to this topic.
 >
-> 2. `mosquitto_pub -h 2401:4901:1290:10de::1000 -p 1883 -t THERMOSTAT-DATA -m "hello"`
+> 2. `mosquitto_pub -h 2409:40f2:2044:d93c:f088:79d:19aa:c1c3 -p 1883 -t THERMOSTAT-DATA -m "hello"`
 >
 >    This command runs the Mosquitto client in publisher mode. It connects to the MQTT broker, publishes a message to a specific topic, and then automatically disconnects and closes the client.
 >
->    - `-h 2401:4901:1290:10de::1000`: Like the `-h` option for `mosquitto_sub`, this specifies the hostname or IP address of the MQTT broker to connect to.
+>    - `-h 2409:40f2:2044:d93c:f088:79d:19aa:c1c3`: Like the `-h` option for `mosquitto_sub`, this specifies the hostname or IP address of the MQTT broker to connect to.
 >    - `-p 1883`: This is the same as the `-p` option for `mosquitto_sub`, specifying the network port of the MQTT broker.
 >    - `-t THERMOSTAT-DATA`: Specifies the topic that the client should publish the message to.
 >    - `-m "hello"`: Specifies the message to publish. In this case, the message is the string "hello".

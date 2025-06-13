@@ -75,19 +75,19 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   > ![Figure: result](resources/uc_screen/ucScreenGPDMA.PNG)
 
 - Set `SL_GPDMA_MAX_CHANNEL` (0–7) to specify the maximum channel used in the application.
-- Select a channel between 0 and 7, or use `0xFF` to automatically select an available channel.
-- If using multiple channels, ensure each channel has its own buffer for storing descriptors.
 - Configure and update the required macros in the `gpdma_example.c` file as needed.
 
     ```C
     #define SL_GPDMA_SIMPLE_TRANSFER 1  ///< Enable/Disable simple transfer
     #define GPDMA_TRANSFER_LENGTH   4096  // Transfer length in bytes
     #define GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0 4096 //Maximum transfer size per channel
-    #define CHANNEL 0
+    #define GPDMA_CHANNEL 0             //GPDMA channel to use for the transfer.
     ```  
 - When the `SL_GPDMA_SIMPLE_TRANSFER` macro is enabled, the transfer uses descriptors with predefined values.
 - To use custom descriptor values, disable the `SL_GPDMA_SIMPLE_TRANSFER` macro.
 - The `GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0` macro defines the maximum transfer size for the specified channel. This macro should be defined for each channel in use.
+- Set `GPDMA_CHANNEL` to any value from 0 to `SL_GPDMA_MAX_CHANNEL`, or use `0xFF` to automatically select an available channel.
+- If using multiple channels, ensure each channel has its own buffer for storing descriptors.
 - Allocate memory for the descriptors of every channel that is used.
 - The size of the descriptor memory buffer for each channel can be calculated similarly to the `SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0` macro.
 ```C

@@ -53,15 +53,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Application Configuration Parameters
   - The threshold and slot values can be configured in `bod_example.h`. Alternatively, the slot value and blackout feature can be updated through the UC configuration.
     ```
-#define SL_BOD_DEFAULT_SLOT_VALUE 2  ///< Default BOD Slot value
-#define SL_BOD_DEFAULT_THRESHOLD 2.7f ///< Default BOD threshold value
-```
+    #define SL_BOD_DEFAULT_SLOT_VALUE 2  ///< Default BOD Slot value
+    #define SL_BOD_DEFAULT_THRESHOLD 2.7f ///< Default BOD threshold value
+    ```
   - Battery voltage ranges can be customized for improved battery status monitoring by modifying the configurations in `sl_si91x_bod.h`.
 
-  ```
-  #define SL_BOD_MAX_BATTERY_VOLTAGE 3.3f ///< Maximum battery voltage for Brown-Out Detector (BOD)
-  #define SL_BOD_MIN_BATTERY_VOLTAGE 1.6f ///< Minimum battery voltage for Brown-Out Detector (BOD)
-  ```
+    ```
+    #define SL_BOD_MAX_BATTERY_VOLTAGE 3.3f ///< Maximum battery voltage for Brown-Out Detector (BOD)
+    #define SL_BOD_MIN_BATTERY_VOLTAGE 1.6f ///< Minimum battery voltage for Brown-Out Detector (BOD)
+    ```
 
 - Configure UC from the slcp component.
 
@@ -71,11 +71,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - You can use the configuration wizard to configure different parameters. The configuration screen is below, with options for the user to pick based on need.
 
   - **Enable BOD UC Configuration:** This needs to be enabled to apply these configurations in the application.
-    - **Slot Value:** The slot value can be configured using this option.
-      > **Note:** Slot configuration values can only be validated in power mode applications. In the active state, the power difference is not noticeable. To test with various slot values, use a higher value to achieve reduced sleep current.
+    - **Slot Value:** Sets how often the comparator checks the BOD value. In automatic mode, up to six voltage comparisons (cmp_[1-5]_en and button_wakeup_en) are performed in sequence during each slot interval. Adjust this option to control the comparison frequency and interval.
+      - Slot value effects are only observable in low-power (sleep) modes. In active mode, power consumption differences are minimal. For noticeable results, test with higher slot values to further reduce sleep current.
 
+    - **Enable Black-Out Detection:** When enabled, the system will automatically reset if the VMCU voltage falls below 1.65V.
 
-    - **Enable Black-Out Detection:** By enabling this, the system will reset when the VMCU voltage drops below 1.65V.
+    - **Automatic Mode:** In this mode, up to six voltage comparisons can be performed consecutively within each slot interval. All enabled comparisons (cmp_[1-5]_en and button_wakeup_en) are checked in sequence during each slot.
+
+    - **Manual Mode:** In manual mode, only a single comparison is performed repeatedly. You can select which comparison to use by setting the `manual_cmp_mux_sel` parameter and enabling the corresponding `cmp_en` signal.
 
 ## Test the Application
 - Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

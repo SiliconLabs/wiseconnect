@@ -164,9 +164,9 @@ typedef struct {
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
-  * 
-  * @note The mode can be set to automatic only. Due to the hardware
-  *       limitations in Si91x, the manual mode is not supported.
+  * * @note The mode can be set to either `SL_BOD_MANUAL_MODE` or `SL_BOD_AUTOMATIC_MODE`.
+  *       - `SL_BOD_MANUAL_MODE` allows manual control of the BOD settings.
+  *       - `SL_BOD_AUTOMATIC_MODE` enables automatic BOD operation based on predefined settings.
   *****************************************************************/
 sl_status_t sl_si91x_bod_set_mode(uint8_t mode);
 
@@ -174,7 +174,7 @@ sl_status_t sl_si91x_bod_set_mode(uint8_t mode);
 /**
   * @brief Configure the slot value for BOD.
   *
-  * @param[in] slot_value The slot value to configure.
+  * @param[in] slot_value The slot value to set, which must be in the range 2 to 65535.
   * 
   * @pre Pre-conditions:
   *     - The BOD module must be initialized using @ref sl_si91x_bod_init().

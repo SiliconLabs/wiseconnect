@@ -45,7 +45,12 @@
   - Silicon Labs [BRD4338A](https://www.silabs.com/)
   - Silicon Labs [Si917 Evaluation Kit WPK(BRD4002)]
 - Host Device (For example : Raspberry Pi 4 Model B) as Primary
+  - Power Adapter
+  - Mini HDMI connector (to connect RPi to a Monitor)
+  - Ethernet Connector (to connect RPi to a Ethernet Network)
 - SD-card (128 GB) 
+- Monitor
+- Keyboard & Mouse
 
 ### Software Requirements
   - Simplicity Studio
@@ -126,7 +131,7 @@ Keep Raspberry pi OFF always at the time of flashing the application on secondar
      - Configure Wi-Fi (optional, can be done later).
      - Set Timezone to Asia/Kolkata and Keyboard layout to US.
      - Save settings by clicking the SAVE icon.
-7.  Follow the steps provided in the README file located at linux_sdio_driver/
+7. Download the v4.19 kernel version for RPI from the Raspberry pi from Github(https://github.com/raspberrypi/linux/tree/rpi-4.19.y).
 8. Click "WRITE", confirm with "YES".
 ```
 
@@ -205,19 +210,6 @@ e. sudo make install
 
 13. Follow the commands mentioned in 5th step and make sure probe is connected successfully.
 
-14. Open another terminal , and below commands:
-
-
-```
-a. mkdir build
-b. cd build
-c. cmake ../
-d. make 
-e. sudo make install
-f. ./cpcd -c ./../cpcd.conf
-```
-
-
 **Note:**
 
 On successful execution of above commands, output will look like : "Starting daemon in normal mode" message displayed.
@@ -230,7 +222,8 @@ On successful execution of above commands, output will look like : "Starting dae
 
 -  You get error saying "ModuleNotFoundError: No module named 'libcpc' " 
 Follow the below command: 
-export PYTHONPATH=$PYTHONPATH:<daemon directory>/lib/bindings/python/src/libcpc
+
+  export PYTHONPATH=$PYTHONPATH:/path/to/module
 
 - If you restart the cpc-daemon after closing it, it will result in a "Daemon exiting with status EXIT_FAILURE" error. To prevent this, power off the Raspberry Pi, reset the secondary device, and then try running it again.
 

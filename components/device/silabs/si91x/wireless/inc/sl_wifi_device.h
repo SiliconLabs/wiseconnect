@@ -2621,7 +2621,7 @@ typedef struct {
   sl_wifi_twt_request_t twt_request;     ///< Target Wake Time (TWT) request settings.
   sl_wifi_twt_selection_t twt_selection; ///< Target Wake Time (TWT) selection request settings.
   uint8_t
-    beacon_miss_ignore_limit; ///< Wake up for the next beacon if the number of missed beacons exceeds the limit. The default value is 1, with a recommended maximum value of 10. Higher values may cause interoperability issues.
+    beacon_miss_ignore_limit; ///< Number of consecutive missed beacons that can be ignored while the device remains in sleep mode. If the number of beacon misses exceeds this limit and the beacon is still not received, the device will wake up to listen for the beacon. The default value is 1. Recommended range: 1 - 10. Values beyond 10, might lead to interoperability issues.
 } sl_wifi_performance_profile_v2_t;
 
 /** @} */

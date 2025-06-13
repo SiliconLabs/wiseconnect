@@ -40,7 +40,6 @@ The following configurations are used in this example:
 - In this example, first the OPAMP is initialized by enabling clocks and BOD through \ref sl_si91x_opamp_init API.
 - Sets OPAMP instance and OPAMP feature configuration \ref sl_si91x_opamp_set_configuration API (inputs are configured as per the usecase macros enabled).
 - Optional integration with DAC for external voltage comparison.
-- To use this application following Hardware, Software and the Project Setup is required.
 
 
 ## Prerequisites/Setup Requirements
@@ -117,7 +116,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - DAC operation mode: static mode
     - Sample rate: Sample rate can be configurable to DAC, sample rate unit is samples/second.
     - Apply the different voltages (2.5V to 3.3v) as reference voltage and input samples,The output data should match the input sample that was supplied.
-    - After running the application, see the output on logic analyzer at DAC output GPIO pins.
 
 ## Pin Configuration
 
@@ -143,15 +141,15 @@ The following table lists the mentioned pin numbers for the radio board. If you 
 
 ## OPAMP Mux Selection
 ### OPAMP input and ouput pin mux selection 
-The following table shows the available input (Vinp, Vinn, or Resistor) and output (Vout) mux options for each OPAMP instance that can be selected from UC.
-#### Vinp Mux Selection
+The following table shows the available input (VinP, VinN, or Resistor) and output (Vout) mux options for each OPAMP instance that can be selected from UC.
+#### VinP Mux Selection
 | OPAMP Instance | 0| 1 | 2 | 3 | 4 |  5 | 6 | 7 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | OPAMP1 | OPAMP1P0 (GPIO_27)| OPAMP1P1 (ULP_GPIO_7)| OPAMP1P2 (ULP_GPIO_0)| OPAMP1P3 (ULP_GPIO_2) | OPAMP1P4 (ULP_GPIO_6)| OPAMP1P5 (ULP_GPIO_8)| AUX_DAC_OUT | Resistor_tap |
 | OPAMP2 | OPAMP2P0 (ULP_GPIO_11) | OPAMP2P1 (ULP_GPIO_5)| --- | AUX_DAC_OUT | Resistor_tap | --- | OPAMP1_OUT | --- |
 | OPAMP3 | OPAMP3P0 (ULP_GPIO_10) | OPAMP3P1 (GPIO_29) | AUX_DAC_OUT | Resistor_tap | --- | OPAMP2_OUT | OPAMP2_Resistor_tap | --- |
 
-#### Vinn Mux Selection
+#### VinN Mux Selection
 | OPAMP Instance | 0| 1 | 2 | 3 | 4 |
 | --- | --- | --- | --- | --- | --- |
 | OPAMP1 | OPAMP1N0 (GPIO_27)| OPAMP1N1 (ULP_GPIO_7)| AUX_DAC_OUT | Resistor_tap | Out |
@@ -216,7 +214,7 @@ DAC enable, output pin configuration:
 
  - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Inverting amp configuration gain is –R2/R1. Vinp as Vref and Vinn as Vin.
+ - Inverting amp configuration gain is –R2/R1. VinP as Vref and VinN as Vin.
 Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
@@ -231,7 +229,7 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 
  - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Non inverting amp configuration gain is 1+R2/R1. Vinp as Vin and Vinn as Vref.
+ - Non inverting amp configuration gain is 1+R2/R1. VinP as Vin and VinN as Vref.
  Calculate the output voltage [Vout=Vin+(Vin-Vref)*(R2/R1)].
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
@@ -246,7 +244,7 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 
  - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Calculate the Hysteresis (Vinn as Vin and Vinp as Vref)
+ - Calculate the Hysteresis (VinN as Vin and VinP as Vref)
   [VT1=(Vref*R2+Vcc*R1)/(R1+R2)]  
   [VT2=Vref*R2/(R1+R2)]   
   [Hystresis=Vcc*R1/(R1+R2)]
@@ -261,7 +259,7 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
   > ![Figure: UC-Screen](resources/uc_screen/noninvt_hys_uc.png)
  - Check the output voltage on board on OPAMP_OUT.
  - Use a Logic analyzer / Oscilloscope  to check output voltage.
- - Calculate the Hysteresis  (Vinn as Vref and Vinp as Vin)
+ - Calculate the Hysteresis  (VinN as Vref and VinP as Vin)
   [VT1=(Vref*(R1+R2)/R2]   
   [VT2=(Vref*(R1+R2)-Vcc*R1)/R2]  
   [Hysteresis=Vcc*R1/R2)]
@@ -271,8 +269,8 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 
 #### Unity Gain with DAC
  - The DAC output serves as the input for OPAMP1.
- - Verify the output voltage on the board at DAC_OUT. 
- - Use a logic analyzer or oscilloscope to observe the DAC output, which should match the calculated value.
+ - Verify the output voltage on the board at DAC_OUT.
+ - Use a logic analyzer or oscilloscope to monitor the DAC output GPIO pins and verify that the observed values correspond to the expected calculated value.
  - DAC_output = ((input sample / 1024 (2^10)) * Vref Voltage)
   
    **Note:** If input sample value is '0x3FF' and voltage reference is 3.3v, [DAC_output=((0x3FF/1024)*3.3)]

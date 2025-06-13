@@ -72,6 +72,7 @@ other_file:
 -  path: resources/readme/mqtt_add_topic_name.png
 -  path: resources/readme/mqtt_server.png
 -  path: resources/readme/mqtt_application_prints_soc.png
+-  path: resources/readme/mqtt_application_prints_ncp.png
 -  path: resources/readme/mqtt_connect.png
 -  path: resources/readme/mqtt_connect_subscribe.png
 -  path: resources/readme/mqtt_delete_connections.png
