@@ -99,7 +99,7 @@ void sl_si91x_button_init(const sl_button_t *handle);
 /**
  * @brief Deinitialize the specified button and release associated resources.
  * 
- * @details This function de-initializes the specified button.
+ * @details This function deinitializes the specified button.
  *          After deinitialization, the button is no longer functional until reinitialized.
  * 
  * @param[in] handle Pointer to an \ref sl_button_t structure containing the button configuration details.

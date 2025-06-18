@@ -229,7 +229,7 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *  | 0x54               | Pathlen certificate is Invalid.                            |
  *
  * @note
- *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the Most Significant Bit (MSB) of the reason code.If the MSB is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame. Please refer to the "Reason Codes Table" section in the IEEE 802.11 standard to learn about the de-authentication or disassociation reason codes.
+ *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the Most Significant Bit (MSB) of the reason code. If the MSB is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame. Refer to the "Reason Codes Table" section in the IEEE 802.11 standard to learn about the de-authentication or disassociation reason codes.
  *   Pem Header Error (0x4D) and Pem Footer Error (0x4E) apply only when certificates are loaded individually.
  *   If certificates are loaded together in a single file, only the Pem Error (0x53) triggers for any header or footer errors.
  *   In case of event failure, the `SL_WIFI_FAIL_EVENT_STATUS_INDICATION` bit is set in the `event` parameter.

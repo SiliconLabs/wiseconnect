@@ -34,7 +34,7 @@ The Wi-Fi Commander application is a command-line interface application designed
 ### Software Requirements
 
 - Simplicity Studio
-- Wi-Fi commander tool
+- Wi-Fi Commander Tool
 
 **Note:** The user can use the Wi-Fi Commander tool to send commands and receive the corresponding responses and events.
 
@@ -44,9 +44,9 @@ The Wi-Fi Commander application is a command-line interface application designed
 
 ## Getting Started
 
-The application operates on a PC, referred to as the Wi-Fi commander tool, while the Wi-Fi stack runs on SiWx91x chipset in SoC Mode, known as the Target.
+The application operates on a PC, referred to as the Wi-Fi Commander Tool, while the Wi-Fi stack runs on SiWx91x chipset in SoC Mode, known as the target.
 
-The communication between the Wi-Fi commander tool and Target occurs via a serial interface (UART), which can be tunneled through USB if you're using a development kit. This communication is defined by Silicon Labs' proprietary protocol called xAPI.
+The communication between the Wi-Fi Commander Tool and target occurs via a serial interface (UART), which can be tunneled through USB if you are using a development kit. This communication is defined by Silicon Labs' proprietary protocol called xAPI.
 
 Refer to the instructions here:
 

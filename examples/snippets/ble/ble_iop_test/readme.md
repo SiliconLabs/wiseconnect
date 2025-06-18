@@ -1,6 +1,5 @@
 # BLE Interoperability Test App
   
-
 ## Table of Contents
 
   - [Purpose / Scope](#purposescope)
@@ -73,11 +72,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-- Open ble_iop.h file and update/modify following macros,
+1. Open **ble_iop.h** file and update/modify following macro:
 
-	- RSI_REMOTE_DEVICE_NAME refers the name of remote device to which Silicon Labs device has to connect.
-		
+	- RSI_REMOTE_DEVICE_NAME refers the name of remote device to which theSilicon Labs device has to connect.
+
+     ```c
 		#define RSI_BLE_DEVICE_NAME 				(void *)"IOP_Test_1"
+	 ```
 
 ## Test the Application
 
@@ -88,84 +89,83 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps below for successful execution of the application:
 
-- Bringing up the Test Environment
+### Bringing up the Test Environment
 
-	- Flash the IOP Test Application to the 917 board.
+Flash the IOP Test Application to the 917 board.
 	
-	![](resources/readme/new_board.png)
+![](resources/readme/new_board.png)
 
-- Running the IOP Test on Si Connect App
+### Running the IOP Test on Si Connect App
 
-	1. On your smartphone, launch the Si Connect App.
+1. On your smartphone, launch the Si Connect App.
 
-	2. Click on the "Test" tab at the bottom of the screen.
+2. Click on the "Test" tab at the bottom of the screen.
 
 	![](resources/readme/test_tab.png)
 
-	3. The Test tab displays a list of boards running the IOP Test Firmware.
+3. The Test tab displays a list of boards running the IOP Test Firmware.
 	
 	![](resources/readme/no_of_devices_conn.png)
 
-	4. Select the name of the IOP application flashed to the 917 board.
+4. Select the name of the IOP application flashed to the 917 board.
 
-	5. The app will navigate to the "IOP View", where you can click on "Run Test" to start the IOP test sequence.
-	
-	![](resources/readme/run.png)
+5. The app will navigate to the "IOP View", where you can click on "Run Test" to start the IOP test sequence.
 
-- Running the IOP Test
+    ![](resources/readme/run.png)
 
-	1. Once the IOP test sequence starts, the mobile app will execute test cases and indicate Pass/Fail when completed.
-	
-	![](resources/readme/pass.png)
+### Running the IOP Test
 
-	2. The execution of the test cases will proceed as follows:
-	
-       - Scan Tab: Scans for nearby BLE devices running the IOP Test Firmware.
-	 
-	   - Connect Tab: Connects to the selected BLE device for further operations.
-    
-	   - GATT Discovery Tab: Discovers all GATT services and characteristics on   the connected device.
-    
-	   - GATT Operations Tab: Performs all GATT operations, such as read, write,  and notifications.
-    
-	   - IOP Test OTA Update with ACK: As OTA is not supported in the current release, when a pop-up appears to upload the files, simply click on Cancel.
-    
-	   - IOP Test OTA Update with UNACK: As OTA is not supported in the current release, when a pop-up appears to upload the files, simply click on Cancel.
-    
-	   - Throughput Tab: Measures and displays the data transfer throughput   between the devices.
-	   
-	   -  Most tests run automatically, except for Security and Encryption tab: This test case will initiate the pairing process followed by the bonding procedure.
+1. Once the IOP test sequence starts, the mobile app will execute test cases and indicate Pass/Fail when completed.
 
-			- The app will display a pop-up to bond with the device.
-			
-			![](resources/readme/bond.png)
+   ![](resources/readme/pass.png)
 
-			- Some prompts require simple confirmation (Just Works pairing), while others require entering a PIN (Authenticated pairing).
-			
-			![](resources/readme/pin.png)
+2. The execution of the test cases will proceed as follows:
 
-			-  The PIN will be displayed in the serial port and must be entered twice for two different sub-test cases. 
+    - **Scan** tab: Scans for nearby BLE devices running the IOP Test Firmware.
 
-			![](resources/readme/pin_display.png)
+    - **Connect** tab: Connects to the selected BLE device for further operations.
 
-		- LE Privacy Test tab: 
-			- This test case involved the reconnection process with the help of the eariler bonding information 
+    - **GATT Discovery** tab: Discovers all GATT services and characteristics on   the connected device.
 
-			![](resources/readme/le_privacy.png)
+    - **GATT Operations** tab: Performs all GATT operations, such as read, write, and notifications.
 
-- After successful program execution the prints looks as shown following.
-	
-	![](resources/readme/test_log1.png)
+    - **IOP Test OTA Update with ACK**: Becasue OTA is not supported in the current release, when a pop-up appears to upload the files, click **Cancel**.
 
-	![](resources/readme/test_log_2.png)
+    - **IOP Test OTA Update with UNACK**: Because OTA is not supported in the current release, when a pop-up appears to upload the files, click **Cancel**.
 
-	![](resources/readme/test_log_3.png)
+    - **Throughput** tab: Measures and displays the data transfer throughput   between the devices.
+
+    - Most tests run automatically, except for **Security** and Encryption tab: This test case will initiate the pairing process followed by the bonding procedure.
+
+        - The app will display a pop-up to bond with the device.
+
+          ![](resources/readme/bond.png)
+
+        - Some prompts require simple confirmation (Just Works pairing), while others require entering a PIN (Authenticated pairing).
+
+          ![](resources/readme/pin.png)
+
+        - The PIN will be displayed in the serial port and must be entered twice for two different sub-test cases.
+
+           ![](resources/readme/pin_display.png)
+
+    - **LE Privacy Test** tab: This test case involved the reconnection process with the help of the eariler bonding information.
+
+      ![](resources/readme/le_privacy.png)
+
+After successful program execution, the output should be similar to the images shown below:
+
+   ![](resources/readme/test_log1.png)
+
+   ![](resources/readme/test_log_2.png)
+
+   ![](resources/readme/test_log_3.png)
 
 ## Logging and Sharing data
 
-- Once all the tests are executed, the SiConnect app provides an option to share the results.
+After all the tests are executed, the SiConnect app provides an option to share the results.
 
-![](resources/readme/share.png)
+  ![](resources/readme/share.png)
 
 - To rerun the test case, you need to press the hard reset. The reset button is located on the lower right edge of the mainboard. Additionally, clear the bonding information from the phone's default Bluetooth settings.
 
@@ -175,7 +175,6 @@ NOTE: Below is an example of a test log from running IOP test on Samsung A14 wit
 
 ![](resources/readme/log.png)
 
-
 ### Programming the Radio Board
 
 Before programming the radio board mounted on the mainboard, make sure the power supply switch is in the AEM position (right side) as shown below.
@@ -184,6 +183,6 @@ Before programming the radio board mounted on the mainboard, make sure the power
 
 ### Limitation
 
-- OTA ACK/UNACK features are not supported in Si917 IOP application 
-- PSRAM support is not provided for ble_iop_app application
+- OTA ACK/UNACK features are not supported in Si917 IOP application.
+- PSRAM support is not provided for ble_iop_app application.
 - The ble_iop_app application is not supported NCP mode.

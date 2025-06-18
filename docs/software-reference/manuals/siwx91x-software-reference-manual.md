@@ -112,13 +112,14 @@ The WiSeConnect SDK provides a power save mechanism for the PSRAM which effectiv
 **Supported PSRAM Variants**
 
 
-  On SiWx917 platform the PSRAM is available mainly in two variants Stacked and External.
-* Stacked PSRAM : The PSRAM is integrated within IC module and by default interfaced on GPIO 0-5 Pinset.
+On the SiWx917 platform, the PSRAM is available mainly in two variants Stacked and External.
+
+- Stacked PSRAM: The PSRAM is integrated within IC module and by default interfaced on GPIO 0-5 Pinset.
   There are two variants of stacked PSRAM being mounted in relation to OPNs:
- - APS6404L_SQRH variant of PSRAM, with a capacity of 8MB and supporting Half Sleep Functionality.
- - APS1604M_SQR variant of PSRAM, with a capacity of 2MB and lacking support for Half Sleep Functionality.
-* External PSRAM: The PSRAM is interfaced externally.
- - APS6404L_SQH variant of PSRAM, with a capacity of 8MB and supporting Half Sleep Functionality.
+  - APS6404L_SQRH variant of PSRAM, with a capacity of 8 MB and supporting Half Sleep Functionality.
+  - APS1604M_SQR variant of PSRAM, with a capacity of 2 MB and lacking support for Half Sleep Functionality.
+- External PSRAM: The PSRAM is interfaced externally.
+  - APS6404L_SQH variant of PSRAM, with a capacity of 8 MB and supporting Half Sleep Functionality.
 
  |  Board       |       OPN         | PSRAM Variant | Flash Variant  |
  ---------------|-------------------|---------------|----------------|
@@ -135,7 +136,7 @@ For more information on the memory architecture and hardware interfaces of PSRAM
 
 - **Cache Coherency:** This is especially crucial when a buffer placed in PSRAM is accessed by both the NWP and M4 cores for bidirectional transactions. While the M4 core accesses PSRAM through cache, the Master (NWP core and DMA) interacts with PSRAM directly. Therefore, if PSRAM is used as a shared buffer, it's essential to move such buffers to SRAM.
 - Only the Text and Data segments are recommended for installation in Wireless Applications from PSRAM.
-- **BSS, Heap & Stack region:** In PSRAM enabled demos, moving of text and data segments to PSRAM is supported. However, the BSS, Heap, and Stack regions should remain in SRAM. For SDK applications, the BSS, Heap and Stack regions are not configured to PSRAM.
+- **BSS, Heap and Stack Region:** In PSRAM-enabled demos, moving of text and data segments to PSRAM is supported. However, the BSS, Heap, and Stack regions should remain in SRAM. For SDK applications, the BSS, Heap, and Stack regions are not configured to PSRAM.
 - **Code Classifier Usage:** The Code Classifier can be used to optimize memory allocation by selectively moving specific elements between SRAM and PSRAM. This is particularly useful in scenarios where performance improvements or memory usage optimizations are required. By classifying code, initialized data, or uninitialized data, developers can ensure efficient memory utilization and enhance application performance. For usage details, refer to the Code Classifier Demo Application.
   > **Note:** Code classifier support does not extend to **static** variables.  
 
@@ -197,6 +198,7 @@ This section outlines how to utilize a 32 kHz external oscillator with UULP_GPIO
 > - Switching the LF-FSM clock to the internal 32 kHz RC oscillator may result in timer drifts due to the change in the clock source.
 
 ### Recommendations
+
 - It is strongly recommended not to use RO clock in MCU
 - Configure the clock source and frequency based on the application's power and performance requirements.
 - Use low-power clock oscillators for energy-efficient applications.
@@ -204,32 +206,34 @@ This section outlines how to utilize a 32 kHz external oscillator with UULP_GPIO
 
 Refer to the User callback recommendation code snippet in the [Appendices](#user-callback-recommendation) for details on how to override the default SysTick handler in the CMSIS wrapper.
 
-### 32kHz Clock Configurations 
-- By default, the 32kHz XTAL clock source is enabled for Sleep-Timer, LF-FSM, and SysRTC on IC boards. For module boards, the Sleep-Timer and SysRTC use an External Oscillator clock, while LF-FSM operates with a 32kHz RC clock.
+### 32 kHz Clock Configurations
+
+- By default, the 32 kHz XTAL clock source is enabled for Sleep-Timer, LF-FSM, and SysRTC on IC boards. For module boards, the Sleep-Timer and SysRTC use an External Oscillator clock, while LF-FSM operates with a 32 kHz RC clock.
 - To change the clock source:
   - For Sleep-Timer, switch from XTAL to RC by installing the Sleep-Timer clock configuration.
   - For SysRTC, use the UC configuration for SysRTC.
   - For LF-FSM, install the LF-FSM clock configuration component.
-- For module boards, LF-FSM does not support clock source selection, as the external oscillator does not feed into the LF-FSM domain.
+- For module boards, LF-FSM does not support clock source selection, because the external oscillator does not feed into the LF-FSM domain.
 
-### 32KHz Internal RC Calibration Component
+### 32 KHz Internal RC Calibration Component
 
-The 32kHz RC Calibration component is designed to enhance clock accuracy by reducing drift through periodic calibration. While the internal RC oscillator is functional, it does not provide the precision required for peripherals dependent on the Low-Frequency FSM (LF-FSM). Installing this component improves clock accuracy, ensuring an error margin of no more than 500 PPM.
+The 32 kHz RC calibration component is designed to enhance clock accuracy by reducing drift through periodic calibration. While the internal RC oscillator is functional, it does not provide the precision required for peripherals dependent on the Low-Frequency FSM (LF-FSM). Installing this component improves clock accuracy, ensuring an error margin of no more than 500 PPM.
 
 The calibration process is performed periodically to maintain sustained accuracy over time. The calendar alarm peripheral serves a dual purpose by managing both periodic calibration triggers and standard alarm events. An intelligent algorithm determines the next trigger, categorizing interrupts as either calibration events or alarm events using flags. This implementation is seamlessly integrated into the primary functionality of the calendar alarm without causing interference.
 
-Pre-requisites for Installing the 32kHz RC Calibration Component:
-- For IC Boards: Users must configure the LF-FSM clock as internal 32kHz RC clock. To achieve this, install the SL_SI91X_LF_FSM_CLOCK_SELECTION software component and update the LF-FSM to operate using the 32kHz RC clock prior to installing the RC calibration component.
-- For Module Boards: The internal 32KHz RC Clock is fed to the LF-FSM by default. The user can directly install the 32KHz RC Calibration to enable the calibration.
+Pre-requisites for installing the 32 kHz RC calibration component are as follows:
+
+- For IC Boards: Users must configure the LF-FSM clock as internal 32 kHz RC clock. To achieve this, install the SL_SI91X_LF_FSM_CLOCK_SELECTION software component and update the LF-FSM to operate using the 32 kHz RC clock prior to installing the RC calibration component.
+- For Module Boards: The internal 32 KHz RC Clock is fed to the LF-FSM by default. The user can directly install the 32 KHz RC calibration component to enable the calibration.
 
 ##### Notes: (Applicable only when the 32kHz RC calibration is enabled)
-- When 32kHz RC calibration is enabled, the M4 is active for 7.11 milliseconds every 30 minutes, consuming a current of 8.75 milliamperes.
-- When calibration is enabled, users can choose to use either the calendar peripheral or calendar wakeup functionality. Using both simultaneously is not supported, as it may cause conflicts within the calibration framework's time management.
+- When 32 kHz RC calibration is enabled, the M4 is active for 7.11 milliseconds every 30 minutes, consuming a current of 8.75 milliamperes.
+- When calibration is enabled, users can choose to use either the calendar peripheral or calendar wakeup functionality. Using both simultaneously is not supported, because it may cause conflicts within the calibration framework's time management.
 - When calibration is enabled with the alarm wakeup source, calendar wakeup initialization occurs only once during service initialization, instead of before entering sleep mode.
 - During sleep, the system automatically wakes up when the calibration event is triggered.
 - In the calendar alarm wakeup source, the initial wakeup will encounter overhead due to wakeup path execution. However, this overhead will be mitigated in subsequent cycles.
-- This component is intended for use only when the 32kHz RC clock is supplied to the LF-FSM.
-- The 32kHz calibration feature is available exclusively in PS3 and PS4 states.
+- This component is intended for use only when the 32 kHz RC clock is supplied to the LF-FSM.
+- The 32 kHz calibration feature is available exclusively in PS3 and PS4 states.
 
 ##### Limitations:
 - If the user configures the alarm as a wakeup source, the minimum configurable value is 10 milliseconds. 
@@ -746,11 +750,11 @@ The virtual COM (VCOM) port is available on the wireless pro kit mainboard (BRD4
 
 ### Link Time Optimization
 
-**Link Time Optimization** is a Compiler option which will allow the compiler to optimize the code better by removing unused functions and variables. Currently, this component is not visible by default in the SLCP file as it is tagged as Evaluation. To enable this component, ensure that the Evaluation filter is enabled by selecting it in the Quality dropdown menu as shown below.
+**Link Time Optimization** is a Compiler option that allows the compiler to optimize the code by removing unused functions and variables. Currently, this component is not visible by default in the SLCP file because it is tagged as **Evaluation**. To enable this component, ensure that the **Evaluation** filter is enabled by selecting it in the Quality dropdown menu as shown below.
 
 ![Evaluation_Selection](./resources/evaluation_selection.png)
 
-Once this is toggled on, simply enter _LTO_ in the keyword search, and you will find **Enable Link time optimization (LTO) for WiSeConnect** under Platform > Toolchain. 
+After this is toggled on, enter _LTO_ in the keyword search, and you will find **Enable Link time optimization (LTO) for WiSeConnect** under **Platform > Toolchain**.
 
 ![LTO_component](./resources/LTO_component.png)
 
@@ -795,7 +799,6 @@ https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/servic
 This macro enables the part of code required for Link timer optimization. 
 This macro will be enabled if the **Enable Link time optimization (LTO) for WiSeConnect** component is installed.
 
-
 ### Appendix B: Code Snippets
 
 #### User callback recommendation
@@ -803,17 +806,16 @@ This macro will be enabled if the **Enable Link time optimization (LTO) for WiSe
 Below is an example demonstrating the use of a Mutex mechanism in a GSPI callback when using an RTOS:
 
 ```C
-// Example GSPI callback using Mutex
-void GSPI_TransferComplete_Callback(void) {
-    // Lock the mutex before accessing shared resources
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+  // Example GSPI callback using Mutex
+  void GSPI_TransferComplete_Callback(void) {
+      // Lock the mutex before accessing shared resources
+      xSemaphoreTake(xMutex, portMAX_DELAY);
 
-    // Perform operations on shared resources
+      // Perform operations on shared resources
 
-    // Release the mutex after operations are complete
-    xSemaphoreGive(xMutex);
-}
-
+      // Release the mutex after operations are complete
+      xSemaphoreGive(xMutex);
+  }
 ```
 
 ### Appendix C: Custom Sys-Tick Handler
@@ -873,6 +875,7 @@ The sl_si91x_delay_ms function halts the processor for a specified duration, mea
 When a project includes both RS485-enabled UART0 and UART1 (or vice-versa), the application's data buffers for both UARTs should be defined as uint16_t to properly manage the 9-bit data associated with RS485 communication.
 
 ### Appendix G: Exception Handlers
+
 Exception handlers are critical for managing unexpected events and ensuring system stability. Implementing custom exception handlers allows developers to handle specific exceptions and perform necessary actions to maintain system reliability. 
 
 ### Appendix H: ULP UART Limitations
@@ -881,9 +884,9 @@ The Ultra-Low Power (ULP) UART is optimized for minimal energy consumption but c
 
 Limitations:
 
-* ULP UART does not support FIFO Threshold in both High Performance and Low Power modes due to UDMA limitations.
-* In High Performance mode, GPDMA is required to use FIFO Threshold, but there is currently no software support for this feature.
-* Always review the latest SDK and Hardware reference manual for updates or changes.
+- ULP UART does not support FIFO threshold in both high-performance and low-power modes due to UDMA limitations.
+- In high-performance mode, GPDMA is required to use FIFO threshold, but there is currently no software support for this feature.
+- Always review the latest SDK and Hardware reference manual for updates or changes.
 
 ### Appendix I: Acronyms and Abbreviations
 

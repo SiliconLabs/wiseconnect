@@ -150,7 +150,7 @@ The application can be configured to suit your requirements and development envi
 
 ## Socket Configuration Macros
 
-Configure the sockets using the following Macros in `app.h` file.
+Configure the sockets using the following macros in `app.h` file.
 
 The following macros are used to configure the socket parameters in the application. These settings should be updated by calling the `sl_si91x_config_socket` API based on the specific requirements of the application, such as the number of TX, RX, and TCP/UDP sockets.
 
@@ -200,26 +200,26 @@ The following macros are used to configure the socket parameters in the applicat
 
 ### Guidelines for Configuration
 
-- **Update Values Based on Usage:**
+- **Update values based on usage:**
   - Customize these macros according to the number and type of sockets your application requires.
   - For example, adjust the values of `TCP_TX_ONLY_SOCKETS`, `TCP_RX_ONLY_SOCKETS`, etc., based on your TX and RX requirements for TCP/UDP communication.
 
-- **Maximum Sockets:**
+- **Maximum sockets:**
   - The total number of sockets (`TOTAL_SOCKETS`) **must not exceed 10**.
 
-- **High-Performance Sockets:**
+- **High-performance sockets:**
   - Use `TCP_RX_HIGH_PERFORMANCE_SOCKETS` for scenarios that demand high throughput.
 
-- **Window Configuration:**
+- **Window configuration:**
   - Configure `TCP_RX_WINDOW_SIZE_CAP` and `TCP_RX_WINDOW_DIV_FACTOR` to optimize RX performance.
 
-**Path for wifi_app.c in Simplicity Studio IDE:**
+- **Path for wifi_app.c in Simplicity Studio IDE:**
 
-- The `wifi_app.c` file will be located at **concurrent_http_server_provisioning**.
-
-Configure the following parameters in `wifi_app.c` file.
+  - The `wifi_app.c` file will be located at **concurrent_http_server_provisioning**.
 
 ## Socket Type Macros
+
+Configure the following parameters in `wifi_app.c` file.
 
 The following macros are used to define the type of sockets in the application:
 
@@ -253,7 +253,7 @@ The following macros are used to define the type of sockets in the application:
 
 This API creates a new socket and spawns an associated OS thread to handle the specified socket operations. It dynamically allocates memory for socket information, initializes thread attributes, and assigns the given socket handler function to the created thread. The thread runs independently to execute the specified socket operations, enabling concurrent multi-socket communication in the application.
 
-#### **Function Prototype**
+#### Function Prototype
 
 ```c
 osThreadId_t create_newsocket_with_new_osthread(socket_handler sock_handler,
@@ -269,13 +269,13 @@ osThreadId_t create_newsocket_with_new_osthread(socket_handler sock_handler,
 
 | **Parameter**       | **Type**             | **Description**                                                                                             |
 |---------------------|----------------------|-------------------------------------------------------------------------------------------------------------|
-| `sock_handler`      | `socket_handler`    | A callback function pointer for handling the socket operations (e.g., sending or receiving data).           |
+| `sock_handler`      | `socket_handler`    | A callback function pointer for handling the socket operations (for example, sending or receiving data).           |
 | `Portnumber`        | `uint32_t`          | The port number on which the socket will operate.                                                          |
-| `ip_address`        | `char *`            | The IP address for the socket connection (use `NULL` for server-side sockets that don't require an address).|
+| `ip_address`        | `char *`            | The IP address for the socket connection (use `NULL` for server-side sockets that do not require an address).|
 | `thread_name`       | `char *`            | The name of the OS thread that will be created for this socket.                                            |
-| `thread_priority`   | `uint8_t`           | The priority of the OS thread (e.g., `osPriorityLow`).                                                     |
-| `thread_size`       | `uint32_t`          | The stack size of the OS thread in bytes (e.g., `1024 * 4`).                                               |
-| `flag`              | `uint8_t`           | The socket type or behavior flag (e.g., `SYNC_SOCKET` for synchronized operations or `ASYNC_SOCKET` for asynchronous). |
+| `thread_priority`   | `uint8_t`           | The priority of the OS thread (for example, `osPriorityLow`).                                                     |
+| `thread_size`       | `uint32_t`          | The stack size of the OS thread in bytes (for example, `1024 * 4`).                                               |
+| `flag`              | `uint8_t`           | The socket type or behavior flag (for example, `SYNC_SOCKET` for synchronized operations or `ASYNC_SOCKET` for asynchronous). |
 
 #### **Return Value**  
 
@@ -387,7 +387,7 @@ create_newsocket_with_new_osthread(receive_data_from_tls_server,
                                    SYNC_SOCKET);    // Synchronous socket
 ```
 
-- Throughput Test options
+- Throughput test options
 
     ```c
       #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512MB data transfer

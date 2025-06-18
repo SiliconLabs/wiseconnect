@@ -29,7 +29,7 @@
 - The power domains will be disabled and NWP will be shutdown.
 - The application will then switch to the PS2 state and clock is at 20 MHz.
 - Finally, the application will enter the ps2 sleep mode.
-- To ensure a continuous PS2 active state, configure the ACTIVE_STATE macro to 1 in the application. This will transition the application to the PS2 state with the clock running at 20MHz.
+- To ensure a continuous PS2 active state, configure the ACTIVE_STATE macro to 1 in the application. This will transition the application to the PS2 state with the clock running at 20 MHz.
 
 ## Prerequisites/Setup Requirements
 

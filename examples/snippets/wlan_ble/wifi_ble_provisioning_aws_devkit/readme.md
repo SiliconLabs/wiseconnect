@@ -19,7 +19,7 @@
   
 ## Purpose / Scope
 
-In this application, the Bluetooth Low Energy (BLE) and Simplicity Connect Application (formerly EFR Connect App) are used for provisioning the SiWx917 to a Wi-Fi Network. SiWx917 acts as a Wi-Fi station and connects to the AWS cloud via MQTT. 
+In this application, the Bluetooth Low Energy (BLE) and Simplicity Connect Application (formerly EFR Connect App) are used for provisioning the SiWx917 to a Wi-Fi Network. SiWx917 acts as a Wi-Fi station and connects to the AWS cloud via MQTT.
 
 The user can enable the required LED from the mobile app. The mobile app will publish the required LED state to MQTT_TOPIC1. SiWx917 subscribes to MQTT_TOPIC1 and enables the requested LED.
 
@@ -91,18 +91,18 @@ By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in 
 
 ## Test the Application
 
-The below instructions are provied in [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
+The following instructions are provied in [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 - Build the application.
 - Flash, run, and debug the application.
 
-Follow the steps below for successful execution of the application:
+Complete the following steps for successful execution of the application:
 
 1. Connect any serial console for prints.
 
 2. When the SiWx917 EVK enters BLE advertising mode, launch the **Simplicity Connect App (formerly EFR Connect App)**.
 
-3. Click on Demo and select AWS IoT.
+3. Click on **Demo** and select **AWS IoT**.
 
    ![](resources/readme/Mobile_app_ui_1.png)
 
@@ -116,7 +116,7 @@ Follow the steps below for successful execution of the application:
 
    ![](resources/readme/remote_screen2.png)
 
-7. Click on the SSID of the AP, enter a password if the AP is in security mode. Click on connect to associate with the access point.
+7. Click on the SSID of the AP, then enter a password if the AP is in security mode. Click **Connect** to associate with the access point.
 
    ![](resources/readme/remote_screen3.png)
 
@@ -147,42 +147,42 @@ Follow the steps below for successful execution of the application:
 
 ### MQTT Connection
 
-- After successfully connecting to Wi-Fi, the application establishes a connection to AWS IoT Core. It subscribes to a topic (`MQTT_TOPIC2`) and publishes a message on another topic (`MQTT_TOPIC1`). The application then waits to receive data published on the subscribed topic from the cloud.
+After successfully connecting to Wi-Fi, the application establishes a connection to AWS IoT Core. It subscribes to a topic (`MQTT_TOPIC2`) and publishes a message on another topic (`MQTT_TOPIC1`). The application then waits to receive data published on the subscribed topic from the cloud.
 
-1. Go to the mobile app and enable the required LED
+1. Go to the mobile app and enable the required LED.
 
 2. Realtime sensor data will be displayed on the mobile app dashboard. You can also see the published data by subscribing to the topic (MQTT_TOPIC1) in AWS console.
 
-  ![](resources/readme/publish_status_from_AWS.png)
+   ![](resources/readme/publish_status_from_AWS.png)
 
 ## Additional Information
 
 ### Setting up Security Certificates
 
-- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/scripts/).
+The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/scripts/).
 
-- Copy the downloaded device certificate, private key from AWS, and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
+1. Copy the downloaded device certificate, private key from AWS, and the certificate_to_array.py to `<SDK>/resources/certificates`.
 
-- To convert the device certificate and private key to C arrays, open a system command prompt in the same path and give the following commands.
+2. To convert the device certificate and private key to C arrays, open a system command prompt in the same path and give the following commands.
 
-  ```sh
-  $> python3 certificate_to_array.py <input filename> <output arrayname>
+   ```sh
+   $> python3 certificate_to_array.py <input filename> <output arrayname>
 
-  For example:
-  $> python3 certificate_to_array.py d8f3a44d3f.pem.crt aws_client_certificate.pem
-  $> python3 certificate_to_array.py d8f3a44d3f.pem.key aws_client_private_key.pem
-  ```
+   For example:
+   $> python3 certificate_to_array.py d8f3a44d3f.pem.crt aws_client_certificate.pem
+   $> python3 certificate_to_array.py d8f3a44d3f.pem.key aws_client_private_key.pem
+   ```
 
-- After running the above commands, two new files are created as below:
+   After running the above commands, two new files are created as below:
 
    ```sh
    aws_client_certificate.pem.crt.h
    aws_client_private_key.pem.key.h
    ```
 
-- After converting the device certificate and private key to C - array, it is essential to include the device certificate: `aws_client_certificate.pem.crt.h` and private key: `aws_client_private_key.pem.key.h` in the `<SDK>/resources/certificates` folder.
+3. After converting the device certificate and private key to C - array, it is essential to include the device certificate: `aws_client_certificate.pem.crt.h` and private key: `aws_client_private_key.pem.key.h` in the `<SDK>/resources/certificates` folder.
 
-- Ensure to load the device certificate and private key to SiWx917 using [sl_net_set_credential()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential) API.
+4. Ensure to load the device certificate and private key to SiWx917 using the [sl_net_set_credential()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential) API.
 
    ```c
    status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_CERTIFICATE, aws_client_certificate, (sizeof(aws_client_certificate) - 1));
@@ -190,9 +190,9 @@ Follow the steps below for successful execution of the application:
    status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_PRIVATE_KEY, aws_client_private_key, (sizeof(aws_client_private_key) - 1));
    ```
 
-- Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
+5. Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
 
-- The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
+The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
 
   > **NOTE :**
   > Support for the SNI extension has been added to the AWS SDK, ensuring it is set by the client when connecting to an AWS server using TLS 1.3. This is handled internally by the AWS SDK and does not affect compatibility with other TLS versions.
@@ -246,13 +246,13 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
    ![Add Device 1](resources/readme/aws_create_thing_step4.png)
 
-5. During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
+5. During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click **Next**.
 
    ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
 6. Attach the policy to the thing created.
 
-   - If you have an existing policy, attach it and click on create thing.
+   - If you have an existing policy, attach it and click **Create thing**.
 
      ![Attach policy](resources/readme/aws_choosing_policy.png)
 

@@ -61,12 +61,12 @@
 typedef struct {
   uint32_t key_type; ///< Type of the key as indicated by @ref sl_si91x_crypto_key_type_t
   uint16_t
-    padding; ///< Type of padding. A value of 1 specifies HMAC padding, whereas a value of 0 specifies PKCS7 padding
-  uint16_t hmac_sha_mode; ///< Specifies HMAC SHA mode if HMAC padding is enabled; otherwise reserved
+    padding; ///< Type of padding. A value of 1 specifies HMAC padding, whereas a value of 0 specifies PKCS7 padding.
+  uint16_t hmac_sha_mode; ///< Specifies HMAC SHA mode if HMAC padding is enabled; otherwise reserved.
   uint32_t key_size;      ///< Size of the key in bytes
   sl_si91x_crypto_wrap_mode_t
     wrap_iv_mode; ///< Specifies the wrap IV mode. IV is mandatory for @ref SL_SI91X_WRAP_IV_CBC_MODE.
-  uint8_t wrap_iv[SL_SI91X_IV_SIZE]; ///< Buffer to store the initialization vector (IV)
+  uint8_t wrap_iv[SL_SI91X_IV_SIZE]; ///< Buffer to store the initialization vector (IV).
   /**
    * @brief Key or plain text to be wrapped.
    * @note 

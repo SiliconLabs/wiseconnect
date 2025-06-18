@@ -40,7 +40,7 @@
  * @brief Wrap key buffer size in bytes.
  * @note 
  *   - By default @ref SL_SI91X_WRAP_KEY_BUFFER_SIZE is set to 1400 bytes.  
- *   - To configure @ref SL_SI91X_WRAP_KEY_BUFFER_SIZE, use the configuration wizard in the Simplicity Studio for the Wrap component.
+ *   - To configure @ref SL_SI91X_WRAP_KEY_BUFFER_SIZE, use the configuration wizard in Simplicity Studio for the Wrap component.
  */
 
 // <<< Use Configuration Wizard in Context Menu >>>

@@ -40,17 +40,17 @@ This example showcases the use of the HSPI secondary interface with GPDMA, provi
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+1. [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+2. [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+3. [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+4. [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-- Configure UC from the slcp component to enable or disable the DMA
+- Configure UC from the slcp component to enable or disable the DMA.
 
   >![Figure: hspi_secondary_uc](resources/uc_screen/hspi_secondary_uc.png)
  - To change the buffer size do modify the below macros in `sl_si91x_hspi_secondary_drv_config.h file`  under config drop down
@@ -69,15 +69,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |GPIO_27   | P29 | HSPI_MOSI |
 |GPIO_28   | P31 | HSPI_MISO |
 
-
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. **Physical Connections:** 
-   
+1. **Physical Connections:**
+
    Establish the hardware connections between the SPI Secondary and SPI Primary by connecting the MOSI, MISO, CLK, and CS pins.
-2. **Start Secondary First:** 
+
+2. **Start Secondary First:**
 
     Ensure the SPI Secondary application is running before the SPI Primary application. This order is essential for proper data communication with  HSPI Secondary.
 
@@ -89,10 +89,18 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   - ####  If GPDMA is disabled
   >![Figure: output_hspi_secondary_blocking](resources/readme/output_hspi_secondary_blocking.png) 
 
-## HSPI Secondary Data Flow:
+   - If DMA is enabled:
+
+     ![Figure: Introduction](resources/readme/output_hspi_secondary.PNG)
+
+   - If DMA is disabled
+
+     ![Figure: Introduction](resources/readme/output_hspi_secondary_blocking.PNG)
+
+## HSPI Secondary Data Flow
 
 - **TX Path (SPI Primary Read):**
-The SPI Primary reads data sent by the HSPI Secondary data buffer
+   The SPI Primary reads data sent by the HSPI Secondary data buffer.
 - **RX Path (SPI Primary Write):**
 The SPI Primary writes data to the HSPI Secondary
 

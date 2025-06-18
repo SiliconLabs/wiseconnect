@@ -66,7 +66,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ### Pin Configuration
 
 - The sensor is internally connected on SiWG917 Dev kit board on ULP_I2C.
-- However, to use this sensor driver on Custom boards, following pins are supported based on the instance selected in UC.
+- However, to use this sensor driver on Custom boards, the following pins are supported based on the instance selected in UC.
 
 **I2C0:**
 

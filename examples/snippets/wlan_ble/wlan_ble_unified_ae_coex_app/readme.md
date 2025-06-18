@@ -14,7 +14,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to configure SiWx91x in Extended Advertising/Scanning mode with BLE(1 -Central,1-Peripheral) connections along with BLE data transfer and WLAN TCP data transfer.
+This application demonstrates how to configure SiWx91x in Extended Advertising/Scanning mode with BLE (1 -Central,1-Peripheral) connections along with BLE data transfer and WLAN TCP data transfer.
 
 ## Prerequisites/Setup Requirements
 
@@ -37,7 +37,7 @@ This application demonstrates how to configure SiWx91x in Extended Advertising/S
     - SPI - EFR32 
 - Smartphone configured as BLE peripheral/central which supports extended advertising.
 - Access point
-- Windows PC(to run the TCP server).
+- Windows PC (to run the TCP server).
 
 ### Software Requirements
 
@@ -73,98 +73,128 @@ The application can be configured to suit your requirements and development envi
 
 **Configure the WLAN parameters**
 
-- Enable the macro to start the WLAN task defined in  `rsi_common_app.h` file.
     ```c
     #define WLAN_TASK_ENABLE 1
     ```
-- In the Project Explorer pane, expand the **wifi** folder and open the `wifi_app_config.h` file and update/modify following macros:
 
-  - Enter the AP Connectivity essentials configurations as the value to SSID, SECURITY_TYPE, CHANNEL_NO and PSK
+2. In the Project Explorer pane, expand the **wifi** folder and open the `wifi_app_config.h` file and update/modify following macros:
+
+   - Enter the AP Connectivity essentials configurations as the value to SSID, SECURITY_TYPE, CHANNEL_NO and PSK
+
       ```c
       #define SSID          "YOUR_AP_SSID"
       #define SECURITY_TYPE SL_WIFI_WPA2
       #define CHANNEL_NO    0
       #define PSK           "YOUR_AP_PASSPHRASE"
       ```
-  - Choose the throughput type by configuring below macro:
+
+   - Choose the throughput type by configuring below macro:
+
       ```c
       #define     THROUGHPUT_TYPE            TCP_TX
       ```
+
       - Valid Configurations of THROUGHPUT_TYPE:
 
-      - UDP_TX → UDP transmit
-      - UDP_RX → UDP receive
-      - TCP_TX → TCP transmit
-      - TCP_RX → TCP receive
-      - SSL_TX → SSL transmit
-      - SSL_RX → SSL receive
+        - UDP_TX → UDP transmit
+        - UDP_RX → UDP receive
+        - TCP_TX → TCP transmit
+        - TCP_RX → TCP receive
+        - SSL_TX → SSL transmit
+        - SSL_RX → SSL receive
 
-  - IP address of remote server:
+   - IP address of remote server:
+
       ```c
       #define     SERVER_IP          "192.168.0.234"
       ```
-  - Port number of module:
+
+   - Port number of module:
+
       ```c
       #define     DEVICE_PORT                5005
       ```
-  - Port number of remote server
+
+   - Port number of remote server
+
       ```c
       #define     SERVER_PORT                5000
       ```
-  - To select the ip, configure below macros:
+
+   - To select the ip, configure below macros:
+
       ```c
       #define     DHCP_MODE                  1
       ```
-  - Enable the following macro only if the user wants to ensure that the WiFi thread continuously scans for APs and prints the scan results
+
+   - Enable the following macro only if the user wants to ensure that the Wi-Fi thread continuously scans for APs and prints the scan results:
+
       ```c
       #define WIFI_CONTINUOUS_SCAN_MODE_ONLY 0
       ```
-  - Enable this macro only if the user wants to connect WiFi to the AP, print the IP address, and then suspend the connection
+
+   - Enable this macro only if the user wants to connect WiFi to the AP, print the IP address, and then suspend the connection
+
       ```c
       #define WIFI_CONNECTION_ONLY 0
+      ```
 
-**Configure the BLE parameters**
+### Configure the BLE Parameters
 
 - Open `ble_config.h` file and update/modify following macros:
 
-  - Configure the following macros to enable extended advertsing and scanning by default respectively
+  - Configure the following macros to enable extended advertsing and scanning by default respectively:
+
        ```c
        #define ADV_ENABLED_DEFAULT    1
        #define SCAN_ENABLED_DEFAULT   1
        ```
-  - Set the following macro to enable second advertising set
+
+  - Set the following macro to enable second advertising set:
+
        ```c
        #define ADV_SET2    1
        ```
-  - Configure the following macros to set the number of peripheral and central connections that can be made
+
+  - Configure the following macros to set the number of peripheral and central connections that can be made:
+
        ```c
        #define RSI_BLE_MAX_NBR_SLAVES    1
        #define RSI_BLE_MAX_NBR_MASTERS   1
        ```
-  - Fill the name of the peripheral to be connected to in the following macro
+
+  - Fill the name of the peripheral to be connected to in the following macro:
+
        ```c
        #define RSI_REMOTE_DEVICE_NAME1   AEdevice1
        ```
-  - Configure following macro to enable secure connection for central and peripheral respectively :
+
+  - Configure following macro to enable secure connection for central and peripheral respectively:
+
        ```c
        #define SMP_ENABLE_C1    1
        #define SMP_ENABLE_P1    1
        ```
-  - Set following macro to receive 'gatt notifications' from remote device
+
+  - Set following macro to receive 'gatt notifications' from remote device:
+
        ```c
        #define RX_NOTIFICATIONS_FROM_C1    1
        #define RX_NOTIFICATIONS_FROM_P1    1
        ```
+  
     > **Note**: Max limit for number of peripheral connections is 1 and central connections is 1
 
   - Power save configuration:
 
     - By default, The application is configured without power save.
+
        ```c
        #define ENABLE_NWP_POWER_SAVE 0
        ```
 
     - If user wants to run the application in power save, modify the following configuration.
+
        ```c
        #define ENABLE_NWP_POWER_SAVE 1
        ```
@@ -177,7 +207,9 @@ The application can be configured to suit your requirements and development envi
        ```c
        #define BLE_AE_ADV_DATA_LEN    0x19
        ```
-    - Follow mentioned macro needs to be populated with data
+
+    - Follow mentioned macro needs to be populated with data:
+
        ```c
        #define BLE_AE_ADV_DATA    "AE_PERIPHERAL_DATA_1"
        ```
@@ -256,39 +288,57 @@ The application can be configured to suit your requirements and development envi
        ```c
        #define BLE_AE_SCAN_FILTER_TYPE       SCAN_FILTER_TYPE_ALL
        ```
-  - The scan type for primary phy can be set using following macro
+
+  - The scan type for primary phy can be set using following macro:
+
        ```c
        #define PRI_PHY_BLE_AE_SCAN_TYPE      SCAN_TYPE_ACTIVE
        ```
-  - The scan type for secondary phy can be set using following macro
+
+  - The scan type for secondary phy can be set using following macro:
+
        ```c
        #define SEC_PHY_BLE_AE_SCAN_TYPE      SCAN_TYPE_ACTIVE
        ```
-  - The primary phy extended scan interval can be set using following macro
+
+  - The primary phy extended scan interval can be set using following macro:
+
        ```c
        #define PRI_PHY_LE_AE_SCAN_INTERVAL   0x100
        ```
-  - The primary phy extended scan window can be set using following macro
+
+  - The primary phy extended scan window can be set using following macro:
+
        ```c
        #define PRI_PHY_LE_AE_SCAN_WINDOW     0x50
        ```
-  - The secondary phy extended scan interval can be set using following macro
+
+  - The secondary phy extended scan interval can be set using following macro:
+
        ```c
        #define SEC_PHY_LE_AE_SCAN_INTERVAL   0x100
        ```
-  - The secondary phy extended scan window can be set using following macro
+
+  - The secondary phy extended scan window can be set using following macro:
+
        ```c
        #define SEC_PHY_LE_AE_SCAN_WINDOW     0x50
        ```
-  - Extended scanning filter duplicates can be set using following macro
+
+  - Extended scanning filter duplicates can be set using following macro:
+
        ```c
        #define BLE_AE_SCAN_ENABLE_FILTER_DUP 0x00
        ```
+
   - Extended scan duration can be set using following macro
+
        ```c
        #define BLE_AE_SCAN_DUR               0x00
        ```
+
   - Extended scan period can be set using following macro
+
        ```c
        #define BLE_AE_SCAN_PERIOD            0x00
        ```
@@ -298,7 +348,8 @@ The application can be configured to suit your requirements and development envi
        ```
 Following are the non-configurable macros in the application.
 
-  - The event properties bits:
+    - The event properties bits:
+
        ```c
        #define BLE_CONNECTABLE_ADV        (1 << 0)
        #define BLE_SCANNABLE_ADV          (1 << 1)
@@ -324,9 +375,9 @@ Following are the non-configurable macros in the application.
 
  >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
 
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h` 
-   
+> **Note:**
+> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`.
+
 ## WLAN throughputs: UDP/TCP/TLS unidirectional
 
 To measure **WLAN throughput**, run the following commands.
@@ -411,84 +462,87 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps as mentioned for the successful execution of the application:
 
-1. Set all the configurations necessary refering to sections "Configure the BLE parameters" and "Configure the WLAN parameters".
+1. Set all the configurations necessary as described in sections "Configure the BLE parameters" and "Configure the WLAN parameters".
 
    **Note:** According to the application flow, both WLAN and BLE tasks are running in separate threads. Depending on the user's choice, either the WLAN connection will establish first or the BLE connection will establish first.
-   
-2. By default, the Si91x device is configured for two extended advertising sets and extended scanning. Its advertising can be validated with any remote device that supports the AE feature. The image below shows the Si91x device's extended advertising sets as seen in the SiConnect app.
+
+2. By default, the Si91x device is configured for two extended advertising sets and extended scanning. Its advertising can be validated with any remote device that supports the AE feature. The following image shows the Si91x device's extended advertising sets as seen in the SiConnect app.
 
      ![](resources/readme/remote_scanner.png)
 
 ### Central Connection
-   1. To make remote central connection , scan from any BLE scanner application(SiConnect app) search for the device(if no random address is set it will advertise with the public address).
-   2. Default application advertises with random address for BLE_AE_ADV_HNDL_SET_1 and with public address for BLE_AE_ADV_HNDL_SET_2.
-   3. As shown in step 2, to establish the connection, click on the "CONNECT" option of the device for the required advertising set.
-   4. Once the physical level connection is established, and if SMP is enabled, the application will initiate the SMP process, as shown in the images below.
+
+1. To make remote central connection, scan from any BLE scanner application (SiConnect app) search for the device (if no random address is set it will advertise with the public address).
+2. Default application advertises with a random address for BLE_AE_ADV_HNDL_SET_1 and with a public address for BLE_AE_ADV_HNDL_SET_2.
+3. As shown in step 2, to establish the connection, click on the **CONNECT** option of the device for the required advertising set.
+4. AFter the physical level connection is established, and if SMP is enabled, the application will initiate the SMP process, as shown in the images below.
+
 ### Pairing Procedure
-- A pairing request pop-up will appear as shown in the image below. Click on the "Pair and connect" option.
+
+1. A pairing request pop-up will appear as shown in the image below. Click on the **Pair and connect** option.
 
      ![](resources/readme/pairing_prompt_on_conn.png)
 
-- A subsequent pairing pop-up will appear as shown in the image below. Click on the "Pair" option.
+2. A subsequent pairing pop-up will appear as shown in the image below. Click on the **Pair** option.
 
      ![](resources/readme/pairing_prompt.png)
 
-- The passkey will be displayed in the serial terminal.
- 
+3. The passkey will be displayed in the serial terminal.
+
      ![](resources/readme/passkey_display_term_log.png)
 
-- Enter the passkey as shown in the following image and click on the "OK" option to proceed.      
+4. Enter the passkey as shown in the following image and click on the "OK" option to proceed.
 
      ![](resources/readme/passkey_entry.png)
 
-- Once the SMP pairing process is successful, the connection status is displayed as follows:
+5. Once the SMP pairing process is successful, the connection status is displayed as follows:
 
      ![](resources/readme/active_connection.png)
 
 ### Peripheral Connection
-   1. If extended scanning is enabled, the Si91x device will scan for the advertising devices using the configured scan parameters
-   
+
+   1. If extended scanning is enabled, the Si91x device will scan for the advertising devices using the configured scan parameters.
+
    2. To make a remote peripheral connection, advertise the remote device with the specific name defined in the RSI_REMOTE_DEVICE_NAME1 macro.
 
-   **Note:**  Refer to " Create a New Advertisement Set " for creating the advertising set in the Simplicity Connect mobile App(formerly EFR Connect App).
+      **Note:**  See [Create a New Advertisement Set](https://docs.silabs.com/mobile-apps/latest/mobile-apps-explore/03-ble-configure-view) for creating the advertising set in the Simplicity Connect mobile App (formerly EFR Connect App).
 
-   Refer [Create a New Advertisement Set](https://docs.silabs.com/mobile-apps/latest/mobile-apps-explore/03-ble-configure-view) .
-    
-   3. Add required services say for example heartrate service as shown in the image below and advertise from the remote peripheral device.
+   3. Add required services (for example, heartrate service) as shown in the following below and advertise from the remote peripheral device.
 
        ![](resources/readme/add_heartrate_gatt_service.png)
 
    4. If SMP is enabled for this connection, the bonding process is initiated after connection is established as mentioned in Pairing procedure.
 
 ### BLE Data Transfer
-   1. Click on the "Notify" property to enable notifications for continuous data transfer from the Si91x device.
-    When notifications are enabled, the "Notify" option will be highlighted as shown in the image below.
-    
+
+   1. Click on the **Notify** property to enable notifications for continuous data transfer from the Si91x device.
+    When notifications are enabled, the **Notify** option will be highlighted as shown in the following image.
+
        ![](resources/readme/notification_enable.png)
 
-**To Set up the WLAN connection**
+**To Set Up the WLAN Connection**
 
    1. If `WLAN_TASK_ENABLE` is set to 1, the device initializes the Wi-Fi module using the configuration parameters defined in the application (such as SSID and security type).
    2. It then scans for available Wi-Fi networks, connects to the designated access point, and performs Wi-Fi-related operations as specified in the application.
 
-![Prints in docklight window](resources/readme/output_wlan_init.png)
-![Prints in docklight window](resources/readme/output_wlan_scan_conn.png)
+      ![Prints in docklight window](resources/readme/output_wlan_init.png)
+      ![Prints in docklight window](resources/readme/output_wlan_scan_conn.png)
 
-   3. To enable Wi-Fi TCP data transfer, the application has the TCP client functionality. User need to run the TCP server on the PC that is connected to the same AP.
+   3. To enable Wi-Fi TCP data transfer, the application has the TCP client functionality. The user needs to run the TCP server on the PC that is connected to the same AP.
 
-   **Note:**  Refer to the commands mentioned in the section "WLAN throughputs: UDP/TCP/TLS unidirectional" point 3 to configure iperf as TCP server.
+      **Note:**  Refer to the commands mentioned in the section "WLAN throughputs: UDP/TCP/TLS unidirectional" point 3 to configure iperf as TCP server.
 
-   4. On the WiFi side, the SiWx91x device is configured as a UDP/TCP/TLS server or client. When the SiWx91x is configured as a server, it transmits data to the iperf client. Similarly, when the SiWx91x is configured as a client, it receives data from the iperf server  for a specified interval of 30 seconds. Once the transmission or reception is complete, the final average application throughput will be displayed in the serial console.
+   4. On the Wi-Fi side, the SiWx91x device is configured as a UDP/TCP/TLS server or client. When the SiWx91x device is configured as a server, it transmits data to the iperf client. Similarly, when the SiWx91x device is configured as a client, it receives data from the iperf server for a specified interval of 30 seconds. After the transmission or reception is complete, the final average application throughput will be displayed in the serial console.
      ![Prints in docklight window](resources/readme/output_throughput.png)
 
-   5. Refer the below images for console prints:
-     ![Prints in docklight window](resources/readme/output_log1.png)
-     ![Prints in docklight window](resources/readme/output_log2.png)
-     ![Prints in docklight window](resources/readme/output_log3.png)
+   5. Refer the following images for examples of console prints:
+      ![Prints in docklight window](resources/readme/output_log1.png)
+      ![Prints in docklight window](resources/readme/output_log2.png)
+      ![Prints in docklight window](resources/readme/output_log3.png)
      ![Prints in docklight window](resources/readme/output_log4.png)
 
+## Limitations for this App
 
-**Limitations for this app**
 - PSRAM is not supported for this feature.
 - This feature is supported only with TA_480K_M4SS_192K and TA_416K_M4SS_256K RAM configurations.
 - This feature is supported only with power save enabled.

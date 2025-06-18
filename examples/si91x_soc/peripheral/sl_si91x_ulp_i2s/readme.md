@@ -53,16 +53,16 @@ The data received should match the transmitted data.
 **Note!**
 
 1. `sl_i2s_xfer_config_t` has following parameters:
-   (a) **mode** - Configure I2S device in Primary(Master)/Secondary(Slave) mode
-   (b) **sync** - I2S synchronous mode (4-pin mode: SCK and WS signals are shared between I2S transmit and receive blocks) and asynchronous mode(requires SCK and WS pins). Currently, the driver only supports ASYNC mode.
+   (a) **mode** - Configure I2S device in Primary (Master) /Secondary (Slave) mode.
+   (b) **sync** - I2S synchronous mode (4-pin mode: SCK and WS signals are shared between I2S transmit and receive blocks) and asynchronous mode (requires SCK and WS pins). Currently, the driver only supports ASYNC mode.
    (c) **protocol** - I2S/PCM protocol. Currently, the driver only supports I2S protocol.
-   (d) **resolution** - Audio data resolutions (16-bit, 24-bit and 32-bit)
-   (e) **data_size** - Transfer buffer data type (8-bit, 16-bit and 32-bit)
+   (d) **resolution** - Audio data resolutions (16-, 24-, and 32-bit).
+   (e) **data_size** - Transfer buffer data type (8-, 16- and 32-bit).
    (f) **sampling_rate** - Audio sampling rate.
    (g) **transfer_type** - Transfer type (Transmit, Receive, Transmit abort, and Receive abort).
 2. Transfers with 16-bit resolution must use a `uint16_t` data type buffer and pass SL_I2S_DATA_SIZE16 to the data_size parameter in `sl_i2s_xfer_config_t` while configuring the transfer.
 3. Transfers with 24-bit and 32-bit resolutions must use a `uint32_t` data type buffer and pass `SL_I2S_DATA_SIZE32` to the data_size parameter in `sl_i2s_xfer_config_t` while configuring the transfer.
-4. Since 8-bit resolution is not supported, a `uint8_t` data type buffer can use 16-bit resolution for transfers and pass SL_I2S_DATA_SIZE8 to the data_size parameter in  `sl_i2s_xfer_config_t` while configuring the transfer. While performing this operation, the data buffer should be typecast to `(uint16_t *)` and the transfer size should be half of the 8-bit data type buffer. (Refer to the I2S loopback application for more details). For 8-bit transfers, the transfer size should be multiples of 4 (8,12,16,20...).
+4. Since 8-bit resolution is not supported, a `uint8_t` data type buffer can use 16-bit resolution for transfers and pass SL_I2S_DATA_SIZE8 to the data_size parameter in  `sl_i2s_xfer_config_t` while configuring the transfer. While performing this operation, the data buffer should be typecast to `(uint16_t *)`, and the transfer size should be half of the 8-bit data type buffer. (Refer to the I2S loopback application for more details.) For 8-bit transfers, the transfer size should be multiples of 4 (8,12,16,20...).
 5. Any I2S transfers with 16-bit and 32-bit resolutions should only have an even transfer size (8,10,12,14...).
 6. Any I2S transfers with 24-bit resolution should only have transfer size as multiples of 4 (8,12,16,20...).
 7. The `I2S_LOOP_BACK` macro is used only for I2S loopback applications to avoid clock generation from the receiver block during transfer.
@@ -143,7 +143,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 4. Data send/receive success and data comparison success prints can be seen on serial console.
 5. After successful program execution, the prints in serial console looks as shown below.
 
-   >![output](resources/readme/output.png)
+   ![output](resources/readme/output.png)
 
 >**Note:**
 >
@@ -156,4 +156,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 >
 > **Note:**
 >
->- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, as the wireless shutdown scenario is not supported in the current SDK.
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, because the wireless shutdown scenario is not supported in the current SDK.

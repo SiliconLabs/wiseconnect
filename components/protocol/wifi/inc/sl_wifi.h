@@ -859,7 +859,7 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  * @note
  *   It is recommended to set the timeout to 120000 milliseconds to cover the worst case timeout scenario.
  * @note
- *   If this API fails with error SL_STATUS_TIMEOUT, the user is advised to reset the NWP with [sl_net_deinit](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-deinit)
+ *   If this API fails with error SL_STATUS_TIMEOUT, reset the NWP with [sl_net_deinit](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-deinit).
  ******************************************************************************/
 sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                             const sl_wifi_client_configuration_t *access_point,

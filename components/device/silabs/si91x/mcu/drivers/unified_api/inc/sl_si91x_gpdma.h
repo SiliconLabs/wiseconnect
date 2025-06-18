@@ -191,7 +191,7 @@ typedef struct {
  * @brief Structure to hold GPDMA channel allocation data.
  * 
  * This structure defines the parameters related to the allocation of a GPDMA channel, including
- * callback functions, transfer type, descriptor memory location, number of descriptors, FIFO size.
+ * callback functions, transfer type, descriptor memory location, number of descriptors, and FIFO size.
  */
 typedef struct {
   sl_gpdma_callback_t gpdma_callback[4];          ///< Structure holding the DMA channel callback functions.
@@ -204,8 +204,8 @@ typedef struct {
 /**
  * @brief Structure to hold GPDMA resource data.
  * 
- * This structure holds the resource data of GPDMA, including no of allocated channels,channel priority bitmap,trasfer type bitmap,
- * top fifo, transfer type.
+ * This structure holds the resource data of GPDMA, including the number of allocated channels, channel priority bitmap, transfer type bitmap,
+ * top FIFO, and transfer type.
  *
  * @details 
  * channel allocation bitmap: bit 0-7 for channel 0-7, 1 for unallocated and 0 for allocated
@@ -248,7 +248,7 @@ sl_status_t sl_si91x_gpdma_init();
  * @brief To allocate a GPDMA channel for the transfer.
  * 
  * @details This API checks the available GPDMA channels and allocates one. It sets the priority of the allocated channel
- * and assigns the channel number to the *channel_no variable. If no channel is available, it will return SL_GPDMA_NO_CHANNEL_AVAILABLE.
+ * and assigns the channel number to the channel_no variable. If no channel is available, it will return SL_GPDMA_NO_CHANNEL_AVAILABLE.
  * 
  * Note: Users can also initialize the desired channel number, and this API checks whether the desired channel is available and allocates the
  * channel if available. If users want the driver to allocate an available channel, channel_no should be initialized to 0.
@@ -264,7 +264,7 @@ sl_status_t sl_si91x_gpdma_init();
  *                     - 1: priority 2.
  *                     - 2: priority 2
  *                     - 3: priority 3
- * @param[in] max_transfer_size maximum transfer size in the given channel
+ * @param[in] max_transfer_size Maximum transfer size in the given channel.
  * 
  * @return sl_status_t Channel allocation status:
 *         - SL_STATUS_OK  - Channel allocated.
@@ -272,7 +272,7 @@ sl_status_t sl_si91x_gpdma_init();
 *         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
 *         - SL_STATUS_GPDMA_NO_CHANNEL_AVAILABLE  - All GPDMA channels are allocated.
 *         - SL_STATUS_GPDMA_CHANNEL_ALREADY_ALLOCATED - The desired channel is already allocated.
-*         - SL_STATUS_BUSY - channel is busy. 
+*         - SL_STATUS_BUSY - Channel is busy. 
 * 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -332,7 +332,7 @@ sl_status_t sl_si91x_gpdma_register_callbacks(uint32_t channel_no, sl_gpdma_call
 
 /***************************************************************************/
 /**
- * @brief To unregister the GPDMA callbacks (transfer complete & error).
+ * @brief To unregister the GPDMA callbacks (transfer complete and error).
  * 
  * @details This API unregisters the DMA callbacks for transfer complete and error events. 
  * Users need to update the 8-bit variable callback_type and pass it to the function. 
@@ -356,7 +356,7 @@ sl_status_t sl_si91x_gpdma_register_callbacks(uint32_t channel_no, sl_gpdma_call
 *         - SL_STATUS_NOT_INITIALIZED  - GPDMA peripheral not initialized.
 *         - SL_STATUS_INVALID_PARAMETER  - Invalid channel number or callback type.
 *         - SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED - Given channel is not allocated.
-*         - SL_STATUS_BUSY - channel is busy. 
+*         - SL_STATUS_BUSY - Channel is busy. 
 * 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -385,7 +385,7 @@ sl_status_t sl_si91x_gpdma_unregister_callbacks(uint32_t channel_no, uint8_t cal
 *         - SL_STATUS_NOT_INITIALIZED  - GPDMA peripheral not initialized.
 *         - SL_STATUS_SUSPENDED - Transfer initialization failed.
 *         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid or source or destination is NULL.
-*         - SL_STATUS_BUSY - channel is busy. 
+*         - SL_STATUS_BUSY - Channel is busy. 
 * 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -423,7 +423,7 @@ sl_status_t sl_si91x_gpdma_stop_transfer(uint32_t channel_no);
  * @brief Allocates a GPDMA descriptor with default config for given channel based on tranfer size.
  *
  * @details This function allocates GPDMA descriptor 
- * in the provided memory location and fill the descriptors with default value and attach it to the given channel.
+ * in the provided memory location, fills the descriptors with default values, and attaches it to the given channel.
  * The descriptor is configured for the specified transfer size and channel number.
  *
  * @param[in,out] pDesc_memory   Pointer to the memory location where the descriptor
@@ -437,7 +437,7 @@ sl_status_t sl_si91x_gpdma_stop_transfer(uint32_t channel_no);
  *         - SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_ALREADY_ALLOCATED : descriptor memory buffer already allocated to given channel.
  *         - SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED: Given channel is not allocated.
  *         - SL_STATUS_INVALID_PARAMETER: Invalid input parameters.
- *         - SL_STATUS_BUSY - channel is busy. 
+ *         - SL_STATUS_BUSY - Channel is busy. 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *************************************************************************************/
 
@@ -454,14 +454,14 @@ sl_status_t sl_si91x_gpdma_allocate_descriptor(sl_si91x_gpdma_descriptor_t *pDes
  * @pre Pre-condition:
  *      - \ref sl_si91x_gpdma_init must be called prior.
  *      - \ref sl_si91x_gpdma_allocate_descriptor must be called prior.
- * @param[in] channel_number The channel number 0-7 from which to deallocate the descriptor
+ * @param[in] channel_number The channel number 0-7 from which to deallocate the descriptor.
  *
  * @return sl_status_t SL_STATUS_OK if the descriptor was successfully deallocated,
  *                     SL_STATUS_INVALID_PARAMETER if the channel number is invalid,
  *                     SL_STATUS_BUSY if the transfer is still in progress in given channel,
  *                     SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED given channel is not allocated,
  *
- * @note The channel must be disabled before calling this function to avoid unpredictable behavior
+ * @note The channel must be disabled before calling this function to avoid unpredictable behavior.
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  **************************************************************************************/
 
@@ -486,7 +486,7 @@ sl_status_t sl_Si91x_gpdma_deallocate_descriptor(uint32_t channel_number);
  *         - SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_NOT_SUFFICIENT: descriptor memory buffer size is not sufficient.
  *         - SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_ALREADY_ALLOCATED : descriptor memory buffer already allocated to given channel.
  *         - SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED: Given channel is not allocated.
- *         - SL_STATUS_BUSY - channel is busy. 
+ *         - SL_STATUS_BUSY - Channel is busy. 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *****************************************************************************/
 /****************************************************************************/
@@ -501,16 +501,16 @@ sl_status_t sl_si91x_gpdma_build_descriptor(sl_si91x_gpdma_descriptor_t *pDescri
  * This function allocates a FIFO (First In, First Out) buffer of the specified size
  * to the selected GPDMA channel.
  *
- * @param[in] channel_no The GPDMA channel number to allocate the FIFO for
- * @param[in] fifo_size  The size of the FIFO buffer to allocate (in bytes)
- * @return    status of the operation.
+ * @param[in] channel_no The GPDMA channel number to allocate the FIFO for.
+ * @param[in] fifo_size  The size of the FIFO buffer to allocate (in bytes).
+ * @return    Status of the operation.
  *           - SL_STATUS_OK: If the FIFO was successfully allocated.
  *           - SL_STATUS_INVALID_PARAMETER: If the channel number is invalid or the FIFO size is not supported.
  *           - SL_STATUS_GPDMA_FIFO_MEMORY_NOT_AVAILABLE: If the FIFO memory is not available.
  *           - SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED: Given channel is not allocated.
- *           - SL_STATUS_BUSY - channel is busy. 
+ *           - SL_STATUS_BUSY - Channel is busy. 
  *
- * @note The availability of channels and maximum FIFO size may vary based on hardware configuration
+ * @note The availability of channels and maximum FIFO size may vary based on hardware configuration.
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *****************************************************************************/
 /****************************************************************************/

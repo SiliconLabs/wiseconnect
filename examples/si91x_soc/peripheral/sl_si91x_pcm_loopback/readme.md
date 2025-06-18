@@ -20,7 +20,7 @@
 ## Overview
 
 - Supports programmable audio data resolutions of 16, 24, and 32 bits.
-- Supported audio sampling rates are 8, 11.025, 16, 22.05, 24 Khz.
+- Supported audio sampling rates are 8, 11.025, 16, 22.05, snf 24 Khz.
 - Supports Master and Slave modes.
 - Full duplex communication with independent transmitter and receiver.
 - Programmable FIFO thresholds with a maximum FIFO depth of 8 and support for DMA.
@@ -37,8 +37,8 @@
 - Application remains in a wait state until the data transfer is complete.
 - Test passes after successful data comparison.
 
-**Note!**
-1. Ensure transfer sizes align with the resolution requirements (e.g., multiples of 4 for 24-bit resolutions).
+>**Note!**
+>Ensure transfer sizes align with the resolution requirements (for example, multiples of 4 for 24-bit resolutions).
 
 ## Prerequisites/Setup Requirements
 
@@ -63,32 +63,34 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Simplicity Studio.
-- Install WiSeConnect 3 extension.
-- Connect your device to the computer.
-- Upgrade your connectivity firmware.
-- Create a Studio project.
+1. Install Simplicity Studio.
+2. Install WiSeConnect 3 extension.
+3. Connect your device to the computer.
+4. Upgrade your connectivity firmware.
+5. Create a Studio project.
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-- Configure UC from the slcp component.
-- Open **sl_si91x_pcm_loopback.slcp** project file, select the **software component** tab, and search for **PCM** in the search bar.
+1. Configure UC from the slcp component.
+2. Open **sl_si91x_pcm_loopback.slcp** project file, select the **software component** tab, and search for **PCM** in the search bar.
 
-- Using the configuration wizard, configure parameters like:
 
 ### General Configuration
 
+Using the configuration wizard, configure parameters like:
+
 - `SL_PCM0_RESOLUTION`: PCM resolution can be configured through this macro. Valid resolution values are 16, 24, and 32 bits.
-- `SL_PCM0_SAMPLING_RATE`: PCM sampling rate can be configured through this macro. Valid sampling rate values are 8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz.
-- Configuration files are generated in the **config folder**. If not changed, the code will run on default UC values.
+- `SL_PCM0_SAMPLING_RATE`: PCM sampling rate can be configured through this macro. Valid sampling rate values are 8kHz, 11.025, 16, 22.05, and 24 kHz.
 
-- Configure the following macros in `pcm_loopback_example.c` file and update/modify them if required.
+Configuration files are generated in the **config** folder. If not changed, the code will run on default UC values.
 
-```C
-#define PCM_LOOPBACK_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
-```
+Configure the following macros in `pcm_loopback_example.c` file and update/modify them if required.
+
+  ```C
+  #define PCM_LOOPBACK_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
+  ```
 
 ### Pin Configuration
 
@@ -99,15 +101,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 | GPIO_28   |         P31                           |          [CS]             | PCM DOUT         |
 | GPIO_27   |         P29                           |          [MOSI]           | PCM DIN          |
 
-- For pin connections, refer to:
+- For pin connections, refer to the following diagram:
 
-   >![Figure: Pin Connections](resources/readme/image505d.png)
+  ![Figure: Pin Connections](resources/readme/image505d.png)
 
-### Pin Description
+- Pin Description
 
->**Note:** Make sure pin configuration in `RTE_Device_xxx.h` file:
-> - SiWx917: `RTE_Device_917.h` (path: /$project/config/RTE_Device_917.h)
-> - SiWx915: `RTE_Device_915.h` (path: /$project/config/RTE_Device_915.h)
+  >**Note:** Review the pin configuration in `RTE_Device_xxx.h` file:
+  > - SiWx917: `RTE_Device_917.h` (path: /$project/config/RTE_Device_917.h)
+  > - SiWx915: `RTE_Device_915.h` (path: /$project/config/RTE_Device_915.h)
 
 ## Test the Application
 
@@ -117,7 +119,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 2. The application transmits data and receives it in loopback mode.
 3. After successful program execution, the prints in the serial console look as shown below.
 
-   >![Output](resources/readme/loopback_output.png)
+   ![Output](resources/readme/loopback_output.png)
 
 > **Note:**
 >

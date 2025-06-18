@@ -1118,14 +1118,14 @@ typedef struct {
   uint32_t
     timestamp; ///< Timestamp. This is the value of the counter at the time of message. This counter is continuously incremented by one per 100ms time.
   uint8_t
-    state_code; ///< State code. This field indicates the state of the module. State code contains two parts (upper and lower nibbles). Upper nibble represents the state of rejoin process and StateCode represented by the lower nibble of state code.
+    state_code; ///< State code. This field indicates the state of the module. State code contains two parts (upper and lower nibbles). Upper nibble represents the state of rejoin process, and the lower nibble of state code represents the StateCode.
   uint8_t reason_code; ///< Reason code. This is used to get the reason code from firmware point of view.
   uint8_t
-    channel; ///< Channel number. If the value of the channel is 0, it means channel information is not available. In State-I, channel of association or Invalid if it is startup. In State-II, channel of next association if module finds better AP in bgscan result. In State-III, channel at the time of association.
+    channel; ///< Channel number. If the value of the channel is 0, channel information is not available. In State-I, this represents the channel of association or Invalid if it is startup. In State-II, this represents the channel of next association if module finds better AP in bgscan result. In State-III, this represents the channel at the time of association.
   uint8_t
-    rssi; ///< RSSI VALUE. If value of rssi is 100, it means RSSI information is not available. In State-I it is RSSI of AP at the time of trigger. In State-II it is RSSI of next association. In State-III it is RSSI at the time of final association.
+    rssi; ///< RSSI VALUE. If value of rssi is 100, RSSI information is not available. In State-I, this represents the RSSI of AP at the time of trigger. In State-II, this represent the RSSI of next association. In State-III, this represents the RSSI at the time of final association.
   uint8_t bssid
-    [6]; ///< BSSID of AP. If the value of AP BSSID is 00:00:00:00:00:00, it means MAC information is not available. In State-I it is MAC of AP at the time of scan trigger. In State-II it is MAC of next association. In State-III it is MAC at the time of association.
+    [6]; ///< BSSID of AP. If the value of AP BSSID is 00:00:00:00:00:00, MAC information is not available. In State-I, it represents the MAC of AP at the time of scan trigger. In State-II, this represents the MAC of next association. In State-III, this represents the MAC at the time of association.
 } sl_wifi_module_state_stats_response_t;
 #pragma pack()
 
@@ -1273,8 +1273,8 @@ typedef struct {
   uint16_t enable; ///< Enable/disable TX test mode
   uint16_t power;  ///< TX power in dBm.  Range : 2 - 18 dBm.
                    ///<
-  ///< @note 1. User can configure the maximum power level allowed for the given frequncey in the configured region by providing 127 as power level.
-  ///< @note 2. User should configure a minimum delay (approx. 10 milliseconds) before and after sl_si91x_transmit_test_start API to observe a stable output at requested dBm level.
+  ///< @note 1. User can configure the maximum power level allowed for the given frequency in the configured region by providing 127 as power level.
+  ///< @note 2. User should configure a minimum delay (approximately 10 milliseconds) before and after sl_si91x_transmit_test_start API to observe a stable output at requested dBm level.
   uint32_t rate;   ///< Transmit data rate
                    ///<     ### Data Rates ###
                    ///<			Data rate(Mbps)	|	Value of rate
@@ -1312,7 +1312,7 @@ typedef struct {
                    ///<
                    ///< 4 - Continuous wave Mode (non modulation) in single tone mode (center frequency +5 MHz).
                    ///<
-  ///< `Burst mode`: DUT transmits a burst of packets with the given power, rate, length in the channel configured.
+  ///< `Burst mode`: DUT transmits a burst of packets with the given power, rate, and length in the channel configured.
   ///<               The burst size will be determined by the number of packets and if its zero, then DUT keeps transmitting till a sl_si91x_transmit_test_stop API is called.
   ///<
   ///< `Continuous Mode`: The DUT transmits a unmodulated waveform continuously
@@ -1343,7 +1343,7 @@ typedef struct {
     ///<			11			|	2462
     ///<			12			|	2467
     ///<			13			|	2472
-    ///< @note	To start transmit test in channels 12 and 13, configure region parameters in sl_si91x_set_device_region API
+    ///< @note	To start transmit test in channels 12 and 13, configure region parameters in sl_si91x_set_device_region API.
     ///<    ###	The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
     ///< 		Channel Numbers(5GHz) |	Center frequencies for 20MHz channel width
     ///< 		:--------------------:|:------------------------------------------:
@@ -1375,26 +1375,26 @@ typedef struct {
     ul_dl; ///< Indicates whether the PPDU is UL/DL. Set it to 1 if PPDU is to be sent by station to AP; 0 if PPDU is to be sent by AP to station.
   uint8_t he_ppdu_type; ///< he_ppdu_type 0-HE SU PPDU, 1-HE ER SU PPDU, 2-HE TB PPDU, 3-HE MU PPDU
   uint8_t
-    beam_change; ///< Indicates the spatial mapping of pre-HE and HE fields. Enter 0 for pre-HE and HE fields are spatially mapped in the same way and 1 for pre-HE and HE fields are spatially mapped differently.
+    beam_change; ///< Indicates the spatial mapping of pre-HE and HE fields. Enter 0 for pre-HE and HE fields are spatially mapped in the same way, and enter 1 for pre-HE and HE fields are spatially mapped differently.
   uint8_t bw;    ///< Indicates the BW for the PPDU: 0 for 242-tone RU, 1 for upper 106-tone RU.
   uint8_t
     stbc; ///< Indicates whether STBC is used for PPDU transmission. Set to 0 for no STBC and 1 for STBC (only if DCM field is set to 0).
   uint8_t
     tx_bf; ///< Indicates whether beamforming matrix is applied to the transmission. 0 - no beamforming matrix, 1 - beamforming matrix.
-  uint8_t gi_ltf;        ///< Indicates the GI and LTF size. GI_LTF shall be in the range 0-3
+  uint8_t gi_ltf;        ///< Indicates the GI and LTF size. GI_LTF should be in the range 0-3.
   uint8_t dcm;           ///< Indicates whether DCM is applied to Data Symbols. 0 - No DCM, 1 - DCM.
-  uint8_t nsts_midamble; ///< Indicates the NSTS and Midamble Periodicity. NSTS_MIDAMBLE shall be in the range 0-7
+  uint8_t nsts_midamble; ///< Indicates the NSTS and Midamble Periodicity. NSTS_MIDAMBLE should be in the range 0-7.
   uint8_t
     spatial_reuse; ///< spatial_reuse shall be in the range 0-15. 4 indicates that spatial reuse is allowed during the transmission of PPDU.
-  uint8_t bss_color;              ///< Color value of BSS. Must be in the range 0 to 63
-  uint16_t he_siga2_reserved;     ///< HE_SIGA2_RESERVED shall be in the range 0-511
+  uint8_t bss_color;              ///< Color value of BSS. Must be in the range 0 to 63.
+  uint16_t he_siga2_reserved;     ///< HE_SIGA2_RESERVED should be in the range 0-511.
   uint8_t ru_allocation;          ///< Indicates the RU Allocation Subfield for 20MHz BW. Must be in the range 0-255.
   uint8_t n_heltf_tot;            ///< Indicates the number of HE-LTF to be transmitted. Can be in the range 0-7.
   uint8_t sigb_dcm;               ///< Indicates whether DCM is applied to SIG-B Symbols. 0-disable, 1-enable
   uint8_t sigb_mcs;               ///< Indicates the MCS for SIG-B Symbols. Allowed range is 0-5.
   uint16_t user_sta_id;           ///< Indicates the Station ID of the intended user. Allowed range is 0-2047.
-  uint8_t user_idx;               ///< USER_IDX shall be in the range 0-8
-  uint8_t sigb_compression_field; ///< SIGB_COMPRESSION_FIELD shall be 0/1
+  uint8_t user_idx;               ///< USER_IDX should be in the range 0-8.
+  uint8_t sigb_compression_field; ///< SIGB_COMPRESSION_FIELD should be 0/1.
 #endif
 } sl_wifi_request_tx_test_info_t;
 

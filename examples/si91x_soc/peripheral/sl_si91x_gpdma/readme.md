@@ -17,7 +17,7 @@
 
 This GPDMA example performs memory-to-memory DMA transfer of different sizes. Users can change the DMA transfer size by updating TRANSFER_LENGTH.
 
-This example does both a Generic DMA transfer with predefined config or a user defined descriptor for performing DMA transfer.
+This example does both a Generic DMA transfer with a predefined config and a user-defined descriptor for performing DMA transfer.
 
 ## Overview
 
@@ -72,7 +72,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Open **sl_si91x_gpdma.slcp** project file, select the **Software Component** tab, and search for **SL_GPDMA** in the search bar.
 
-  > ![Figure: result](resources/uc_screen/ucScreenGPDMA.PNG)
+   > ![Figure: result](resources/uc_screen/ucScreenGPDMA.PNG)
 
 - Set `SL_GPDMA_MAX_CHANNEL` (0–7) to specify the maximum channel used in the application.
 - Configure and update the required macros in the `gpdma_example.c` file as needed.
@@ -96,6 +96,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ```
 - `MAX_TRANSFER_PER_DESCRIPTOR` specifies the maximum transfer length for each descriptor. The maximum allowed value is 4095 bytes.
 
+   - `SL_GPDMA_SIMPLE_TRANSFER`: When this is enabled, descriptors with predefined values are used for transfer. To use custom descriptor values, disable the  `SL_GPDMA_SIMPLE_TRANSFER` macro and select values for the descriptor.
+   - ` GPDMA_MAX_TRANSFER_LENGTH_CHANNEL0`: This is the maximum transfer that will be done in the given channel. This should be defined for every channel that is used.
+   - Memory should be allocated descriptors of every channel that is used.
+   - Size of the descriptor memory buffer can be calculated in the same way as macro `SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0`.
 
 ## Test the Application
 
@@ -110,6 +114,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 > - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-> - Only Memory to Memory transfer is supported in GPDMA.
-> - By default FIFO size for each channel is allocated as 8 in allocate channel.FIFO size should be higher than or equal to AHB burst size
+> - Only memory-to-memory transfer is supported in GPDMA.
+> - By default, the FIFO size for each channel is allocated as 8 in allocate channel. The FIFO size should be higher than or equal to AHB burst size.
 

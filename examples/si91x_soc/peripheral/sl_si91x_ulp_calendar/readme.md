@@ -132,6 +132,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   >![output](resources/readme/output_ulp_calendar.png)
 
 > **Note:**
+>
 >- The required files for low power state are moved to RAM rest of the application is executed from flash.
 >- In this application we are changing the power state from PS4 to PS2 and SET the ALARM_EXAMPLE to switch from the PS2 TO PS4.
 
@@ -143,4 +144,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 >
 > **Note:**
 >
->- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, as the wireless shutdown scenario is not supported in the current SDK.
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, because the wireless shutdown scenario is not supported in the current SDK.

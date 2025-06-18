@@ -42,9 +42,9 @@ Demonstrates basic file operations using the LittleFS library on a QSPI-based fl
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit + External Flash
 
-**Note:**
+>**Note:**
 >- LittleFS service is supported on both stacked flash and external flash SiWG917 OPNs. 
->- For detailed information about pinset configurations, refer to the Flash and PSRAM Combinations section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/release/v3.4.2/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+>- For detailed information about pinset configurations, refer to the **Flash and PSRAM Combinations** section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/release/v3.4.2/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 ### Software Requirements
 
 - Simplicity Studio
@@ -72,12 +72,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    - Read the data from the file both before and after the simulated reboot.
    - Execute write, append, seek, and truncate operations on the file, observing the results after each action.
    - Clear the file contents and confirm that the file is empty after the operation.
- > ![Figure: Build run and Debug](resources/readme/file_operations_output.png)
+  ![Figure: Build run and Debug](resources/readme/file_operations_output.png)
 
- >
+>
 > **Note**:
 >
->- When we run the littlefs example first time, after flash erase we see the errors **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. So ignore the error when run first time.
-
-
-
+> When you run the littlefs example first time, after flash erase you see the errors **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. Ignore the error when running the example the first time.

@@ -650,7 +650,7 @@ sl_status_t sl_si91x_get_firmware_size(const void *buffer, uint32_t *fw_image_si
  * The crystal good time can be configured to any value between 600 and 5000 microseconds, allowing flexibility for fine-tuning based on specific crystal
  * characteristics or application requirements.
  * @note
- * In an ideal environment, the average current consumption in associated mode increases by approximately 10 µA when the crystal good time is raised
+ * In an ideal environment, the average current consumption in the associated mode increases by approximately 10 µA when the crystal good time is raised
  * from 600 µs to 2000 µs, as observed with the wifi_powersave_standby_associated_soc example.
  * @note
  * However, the @ref SI91X_CONFIG_FEATURE_BITMAP supports only a limited set of predefined values: 600, 1000, 2000, and 3000 microseconds. If both this API and

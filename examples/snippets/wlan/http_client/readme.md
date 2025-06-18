@@ -151,7 +151,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. In a Windows PC, make sure python is installed.
 2. Copy the **simple_http_server.py** script from the **`/<SDK>/resources/scripts/`** to **`/<SDK>/resources/certificates/`**.
-Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_http_server.py** script on port number 80 using the following command:
+3. Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_http_server.py** script on port number 80 using the following command:
 
    `python simple_http_server.py 80`
 

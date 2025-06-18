@@ -97,6 +97,7 @@ The application can be configured to suit your requirements and development envi
   - Enable this macro only if the user wants to connect WiFi to the AP, print the IP address, and then suspend the connection
       ```c
       #define WIFI_CONNECTION_ONLY 0
+      ```
 
 ### Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`:
 
@@ -376,6 +377,7 @@ Follow the steps below for the successful execution of the program:
 12. To check data transfer, enable Gatt notifications of Silicon Labs device on service characteristic having UUID 0x1AA1, where the Silicon Lab device as a peripheral device.
 
 13. If enabled, Silicon Labs device continuously transmits notifications which can be seen on remote device.
+
    - ### Peripheral Role
 
       ![](resources/readme/central_scan.png)
@@ -394,6 +396,7 @@ Follow the steps below for the successful execution of the program:
 
 
 **To Set up the WLAN connection**
+
 1. If `WLAN_TASK_ENABLE` is set to 1, the device initializes the Wi-Fi module using the configuration parameters defined in the application (such as SSID and security type).
 2. It then scans for available Wi-Fi networks, connects to the designated access point, and performs Wi-Fi-related operations as specified in the application.
       ![Prints in docklight window](resources/readme/output1_wlan.png)
@@ -401,9 +404,9 @@ Follow the steps below for the successful execution of the program:
 3. Once the SiWx917 device receives the IP address, it initiates an MQTT connection to the AWS cloud. Upon successfully establishing the MQTT connection, the device subscribes and publishes to the cloud.
       ![Prints in docklight window](resources/readme/output1_mqtt.png)
 
-4. On the Wi-Fi side, the SiWx917 device subscribes to the topic defined by `SUBSCRIBE_TO_TOPIC` ("aws_status") to receive messages from the cloud and publishes to the topic defined by `PUBLISH_ON_TOPIC`("siwx91x_status") to send messages to the cloud.
-5. According to the configuration SiWx917 device sends and receives data based on the defined topics, with a message payload of "Hi from SiWx91x" with a publishing interval of 30 seconds.
-6. After successful program execution the prints looks as shown following.
+4. On the Wi-Fi side, the SiWx917 device subscribes to the topic defined by `SUBSCRIBE_TO_TOPIC` ("aws_status") to receive messages from the cloud and publishes to the topic defined by `PUBLISH_ON_TOPIC` ("siwx91x_status") to send messages to the cloud.
+5. According to the configuration, the SiWx917 device sends and receives data based on the defined topics, with a message payload of "Hi from SiWx91x" with a publishing interval of 30 seconds.
+6. After successful program execution, the prints looks as shown in following images.
      
     ![Prints in docklight window](resources/readme/output2.png)
     ![Prints in docklight window](resources/readme/output3.png)
@@ -483,10 +486,10 @@ Follow the steps below for the successful execution of the program:
 
 
 **Limitations for this application**
-- This feature is supported only with SL_SI91X_EXT_FEAT_480K_M4SS_192K memory configuration.
-- The minimum connection interval for all the 8 BLE peripheral connections (DUT as central) should be 200ms.
-- The first BLE central connection (DUT as peripheral) interval should be at least 45ms.
-- The second BLE central connection (DUT as peripheral) interval should be atleast 500ms.
+- This feature is only supported with SL_SI91X_EXT_FEAT_480K_M4SS_192K memory configuration.
+- The minimum connection interval for all the 8 BLE peripheral connections (DUT as central) should be 200 ms.
+- The first BLE central connection (DUT as peripheral) interval should be at least 45 ms.
+- The second BLE central connection (DUT as peripheral) interval should be at least 500 ms.
 - A minimum supervision timeout of 8 seconds is mandatory for all BLE connections.
 - This feature is supported only with power save enabled.
 - TWT(Target Wake Times) based wakeup is not supported.

@@ -150,7 +150,7 @@
  * @details
  * Enables secure attestation functionality.
  * 
- * @note Bit(16) is used internally by SDK. Bits 17-29, and bit 31 is reserved.
+ * @note Bit(16) is used internally by SDK. Bits 17-29 and bit 31 are reserved.
  */
 #define SL_WIFI_FEAT_SECURE_ATTESTATION BIT(30)
 
@@ -167,7 +167,7 @@
    * @details If this bit is set to 1, the DHCP server behavior changes when the device is in Access Point (AP) mode.
    * The DHCP server assigns IP addresses to client nodes without sending out a Gateway address, providing only the assigned IP and Subnet values.
    * It is highly recommended to keep this value at '0' for standard AP functionality,
-   * as disabling the gateway address is typically needed only for very specialized use cases. The default value of this bit is '0'.
+   * because disabling the gateway address is typically needed only for very specialized use cases. The default value of this bit is '0'.
    * 
    * @note Bits 0 - 1 are reserved.
    */
@@ -203,7 +203,7 @@
 /**
    * @def SL_WIFI_CUSTOM_FEAT_WAKE_ON_WIRELESS
    * @brief Enables wake-on-wireless functionality in UART mode.
-   * @details This bit enables the wake-on-wireless feature when operates in UART mode, which allows the module to wake up in response to wireless events.
+   * @details This bit enables the wake-on-wireless feature when operating in UART mode, which allows the module to wake up in response to wireless events.
    * 
    * @note applicable for NCP only.
    */
@@ -259,7 +259,7 @@
    * @details When bit is set, any new connection request for an LTCP socket would be rejected immediately if the maximum number of clients are connected already.
    * By default, such requests are maintained in a pending list until an existing client disconnects.
    * 
-   * @note When BIT[26] = 0: New connection requests are held in a pending list. When BIT[26] = 1: New connection requests are immediately rejected.
+   * @note When BIT[26] = 0: New connection requests are held in a pending list. When BIT[26] = 1: new connection requests are immediately rejected.
    */
 #define SL_WIFI_CUSTOM_FEAT_REJECT_CONNECT_REQ_IMMEDIATELY BIT(26)
 
@@ -299,7 +299,7 @@
 /**
    * @def SL_WIFI_EXT_FEAT_FCC_LOW_PWR
    * @brief Extended custom bitmap to support FCC (currently not supported).
-   * @details Enabling this bit allows the device to operate in a mode that complies with FCC (Federal Communications Commission) regulations for low power operation.
+   * @details Enabling this bit allows the device to operate in a mode that complies with FCC (Federal Communications Commission) regulations for low-power operation.
    */
 #define SL_WIFI_EXT_FEAT_FCC_LOW_PWR BIT(5)
 
@@ -345,7 +345,7 @@
    * @brief To enable 802.11R Over the Distribution System Roaming.
    * @details Enabling this bit activates support for 802.11R (Fast BSS Transition) Over the Distribution System Roaming, which enhances roaming performance across different access points in the distribution system.
    * 
-   * @note 1. Resource Request Support is not present.
+   * @note 1. Resource request support is not present.
    * @note 2. If both BIT[11] and BIT[16] are not enabled, the device would default to Legacy Roaming.
    */
 #define SL_WIFI_EXT_FEAT_ENABLE_11R_ODS BIT(16)
@@ -354,7 +354,7 @@
    * @def SL_WIFI_EXT_FEAT_WOWLAN_DISABLE
    * @brief To disable the WoWLAN (Wake-on-Wireless-LAN) feature.
    * @details Enabling this bit disables the WoWLAN feature, which is used for waking the device from a low-power state through wireless network activity.
-   * By default WOW LAN Is enabled to maintain backward compatibility. So given option to disable this feature.
+   * By default, WOW LAN is enabled to maintain backward compatibility. This provides an option to disable this feature.
    * 
    * @note This only valid in NCP mode.
    */
@@ -363,9 +363,9 @@
 /**
    * @def SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
    * @brief To enable low power mode in WLAN.
-   * @details Enabling this bit activates low power mode for WLAN, Active current would also be reduced.
-   * As most of the code which is needed to maintain connection is kept in RAM.
-   * There would be minimal execution of code from Flash which in turn results in low average current.
+   * @details Enabling this bit activates low-power mode for WLAN, Active current would also be reduced.
+   * As most of the code which is needed to maintain connection is kept in RAM,
+   * there would be minimal execution of code from flash which in turn results in low average current.
    */
 #define SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE BIT(19)
 
@@ -376,28 +376,28 @@
 /*=========================================================================*/
 // Join feature bit map parameters description !//
 /*=========================================================================*/
-/// To enable b/g only mode in station mode
+/// To enable b/g only mode in station mode.
 #define SL_WIFI_JOIN_FEAT_STA_BG_ONLY_MODE_ENABLE (1 << 0)
 
 /// To take listen interval from join command.
 #define SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID (1 << 1)
 
-/// To enable quick join feature
+/// To enable quick join feature.
 #define SL_WIFI_JOIN_FEAT_QUICK_JOIN (1 << 2)
 
-/// To enable CCXV2 feature
+/// To enable CCXV2 feature.
 #define SL_WIFI_JOIN_FEAT_CCXV2_FEATURE (1 << 3)
 
-/// To connect to AP based on BSSID together with configured SSID
+/// To connect to AP based on BSSID together with configured SSID.
 #define SL_WIFI_JOIN_FEAT_BSSID_BASED (1 << 4)
 
-/// MFP Capable only
+/// MFP Capable only.
 #define SL_WIFI_JOIN_FEAT_MFP_CAPABLE_ONLY (1 << 5)
 
 /// MFP Capable required
 #define SL_WIFI_JOIN_FEAT_MFP_CAPABLE_REQUIRED ((1 << 5) | (1 << 6))
 
-/// Listen interval from power save command
+/// Listen interval from power save command.
 #define SL_WIFI_JOIN_FEAT_PS_CMD_LISTEN_INTERVAL_VALID (1 << 7)
 /** @} */
 
@@ -468,9 +468,9 @@
 
 /**
    * @def SL_WIFI_BURN_INTO_FLASH
-   * @brief Option to burn data into Flash.
+   * @brief Option to burn data into flash.
    * 
-   * @details This option specifies that the data should be burned into Flash memory.
+   * @details This option specifies that the data should be burned into flash memory.
    * Flash memory provides non-volatile storage that can be reprogrammed.
    * This is suitable for data that might need to be updated or modified over time.
    */
@@ -567,7 +567,7 @@
  * @def SL_SI91X_FEAT_LP_GPIO_BASED_HANDSHAKE
  * @brief Low Power (LP) mode GPIO handshake.
  * @details
- * Enables GPIO-based handshake for low power mode.
+ * Enables GPIO-based handshake for low-power mode.
  * 
  * @note Not applicable for SiWx91x.
  */
@@ -577,7 +577,7 @@
  * @def SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
  * @brief Ultra Low Power (ULP) mode GPIO handshake.
  * @details
- * Enables GPIO-based handshake for ultra low power mode.
+ * Enables GPIO-based handshake for ultra-low-power mode.
  * 
  * @note Not applicable for SoC
  */
@@ -691,7 +691,7 @@
  * @details
  * Enables secure attestation functionality.
  * 
- * @note Bit(16) is used internally by SDK. Bits 17-29, and bit 31 is reserved.
+ * @note Bit(16) is used internally by SDK. Bits 17-29 and bit 31 are reserved.
  */
 #define SL_SI91X_FEAT_SECURE_ATTESTATION SL_WIFI_FEAT_SECURE_ATTESTATION
 /** @} */
@@ -858,7 +858,7 @@
  *
  * @details
  * This feature allows the device to use IPv6 (Internet Protocol version 6),
- * that provides a larger address space and improved routing capabilities.
+ * which provides a larger address space and improved routing capabilities.
  * 
  * @note IPv6 would also be enabled if the DHCPv6 client or DHCPv6 server
  * feature is enabled, regardless of the tcp_ip_feature_bit_map[17] setting.
@@ -1335,7 +1335,7 @@
  * @brief To enable low power mode in WLAN.
  * @details Enabling this bit activates low power mode for WLAN, Active current would also be reduced.
  * As most of the code which is needed to maintain connection is kept in RAM.
- * There would be minimal execution of code from Flash which in turn results in low average current.
+ * There would be minimal execution of code from flash which in turn results in low average current.
  */
 #define SL_SI91X_EXT_FEAT_LOW_POWER_MODE SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
 
@@ -2017,9 +2017,9 @@
 
 /**
  * @def SL_SI91X_BT_BLE_STACK_BYPASS_ENABLE
- * @brief Enable BT and BLE stack Bypass.
+ * @brief Enable BT and BLE stack bypass.
  * @details
- * Enables or disables the BT and BLE stack bypass mode
+ * Enables or disables the BT and BLE stack bypass mode.
  
  * @note Bit 24 enables the BT and BLE stack bypass mode.
  */
@@ -2390,9 +2390,9 @@
 #define ASSOCIATED_POWER_SAVE_LOW_LATENCY \
   SL_WIFI_SYSTEM_ASSOCIATED_POWER_SAVE_LOW_LATENCY ///< Low power profile when the device is associated with an AP (FAST PSP).
 #define DEEP_SLEEP_WITHOUT_RAM_RETENTION \
-  SL_WIFI_SYSTEM_DEEP_SLEEP_WITHOUT_RAM_RETENTION ///< Deep Sleep without RAM Retention when the device is not associated with AP.
+  SL_WIFI_SYSTEM_DEEP_SLEEP_WITHOUT_RAM_RETENTION ///< Deep Sleep without RAM retention when the device is not associated with AP.
 #define DEEP_SLEEP_WITH_RAM_RETENTION \
-  SL_WIFI_SYSTEM_DEEP_SLEEP_WITH_RAM_RETENTION ///< Deep Sleep with RAM Retention when the device is not associated with AP.
+  SL_WIFI_SYSTEM_DEEP_SLEEP_WITH_RAM_RETENTION ///< Deep Sleep with RAM retention when the device is not associated with AP.
 /// Si91x performance profile
 typedef sl_wifi_system_performance_profile_t sl_si91x_performance_profile_t;
 
@@ -2456,9 +2456,9 @@ typedef enum {
 
 /**
  * @def SL_SI91X_BURN_INTO_FLASH
- * @brief Option to burn data into Flash.
+ * @brief Option to burn data into flash.
  * 
- * @details This option specifies that the data should be burned into Flash memory.
+ * @details This option specifies that the data should be burned into flash memory.
  * Flash memory provides non-volatile storage that can be reprogrammed.
  * This is suitable for data that might need to be updated or modified over time.
  */
@@ -2521,8 +2521,8 @@ typedef enum {
 
 /**
  * @struct sl_wifi_system_boot_configuration_t
- * @brief Boot configuration structure
- * @note: Refer sl_wifi_device.h for complete bit map details
+ * @brief Boot configuration structure.
+ * @note: Refer sl_wifi_device.h for complete bit map details.
  */
 typedef struct {
   uint16_t
@@ -2633,7 +2633,7 @@ typedef struct {
       uint16_t length;  ///< Length of data
       uint16_t command; ///< command type
       uint8_t unused
-        [12]; ///< Contains command status and other additional information. Unused for TX and only used for rx packets.
+        [12]; ///< Contains command status and other additional information. Unused for TX and only used for RX packets.
     };
     uint8_t desc[16]; ///< packet header
   };                  ///< Command header

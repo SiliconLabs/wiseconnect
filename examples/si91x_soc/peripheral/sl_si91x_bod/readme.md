@@ -1,4 +1,4 @@
-# BOD [Brown Out Detection]
+# Brown Out Detection (BOD)
 
 ## Table of Contents
 
@@ -18,12 +18,12 @@
 
 - **Black-out:** When Black-out is enabled, the reset line will be pulled down automatically if the battery voltage (Vbatt) falls below ~1.65V.
 
-
 ## Prerequisites/Setup Requirements
 
-To use this application, the following hardware, software, and project setup is required.
+To use this application, the following hardware, software, and project setup are required.
 
 ### Hardware Requirements
+
 - Windows PC
 - SiWx917 Radio Board
 
@@ -32,9 +32,10 @@ To use this application, the following hardware, software, and project setup is 
 - Simplicity Studio
 - Serial console setup
   - For serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -67,7 +68,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ![Figure: Introduction](resources/uc_screen/bod_uc_screen.png)
 
-- Open  the **sl_si91x_bod.slcp** project file, select **Software Component** tab and search for **BOD** in search bar.
+- Open  the **sl_si91x_bod.slcp** project file, select **Software Component** tab and search for **BOD** in the search bar.
 - You can use the configuration wizard to configure different parameters. The configuration screen is below, with options for the user to pick based on need.
 
   - **Enable BOD UC Configuration:** This needs to be enabled to apply these configurations in the application.
@@ -99,7 +100,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - When Blackout is enabled:
 
       ![Figure: Introduction](resources/readme/bod_interrupt_result_console.png)
-    
+
     - When Blackout is Disabled:
 
       ![Figure: Introduction](resources/readme/bod_interrupt_result_console_DisableBlkot.png)

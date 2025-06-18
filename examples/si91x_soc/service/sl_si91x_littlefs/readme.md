@@ -39,9 +39,9 @@ When flashed with this example the boot count get updated in the "boot_count" fi
 - Windows PC
 - Silicon Labs Si917 Evaluation Kit + External Flash
 
-**Note:**
+>**Note:**
 >- LittleFS service is not supported on stacked flash boards. However, if the board supports external flash, users can connect external flash to access the LittleFS service. 
->- For detailed information about pinset configurations, refer to the Flash and PSRAM Combinations section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/release/v3.4.2/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+>- For detailed information about pinset configurations, refer to the **Flash and PSRAM Combinations** section in the [Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/release/v3.4.2/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 
 ### Software Requirements
 
@@ -72,7 +72,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
  >
 > **Note**:
 >
->- When we run the littlefs example first time, after flash erase we see the errors **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. So ignore the error when run first time.
+>- When you run the littlefs example first time, after flash erase you see the error **(error: Corrupted dir pair at {0x0, 0x1})** because flash is not yet formatted for littlefs. Ignore the error when running the example the first time.
 
 
 

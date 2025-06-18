@@ -1,4 +1,4 @@
-# SL PCM SECONDARY
+# SL Pulse Code Modulation (PCM) Secondary
 
 ## Table of Contents
 
@@ -15,14 +15,14 @@
 
 ## Purpose/Scope
 
-- This application demonstrates the PCM secondary device transfer using the I2S interface.
+This application demonstrates the Pulse Code Modulation (PCM) secondary device transfer using the I2S interface.
 
 ## Overview
 
-- PCM (Pulse Code Modulation) is implemented using the I2S interface.
+- PCM is implemented using the I2S interface.
 - The PCM Mode supports only mono mode.
 - Programmable Audio data resolutions of 16, 24, and 32 bits.
-- Supported audio sampling rates are 8, 11.025, 16, 22.05, 24 KHz.
+- Supported audio sampling rates are 8, 11.025, 16, 22.05, and 24 KHz.
 - Support for Master and Slave modes.
 - Full duplex communication due to the independence of transmitter and receiver.
 - Programmable FIFO thresholds with maximum FIFO depth of 8 and support for DMA.
@@ -30,7 +30,7 @@
 
 ## About Example Code
 
-- Initializes the PCM peripheral (via I2S) and stores the driver handle in pcm_handle using sl_si91x_pcm_init().
+- Initialize the PCM peripheral (via I2S) and stores the driver handle in pcm_handle using sl_si91x_pcm_init().
 - Register user callback using sl_si91x_pcm_register_event_callback().
 - Configure receiver transfer parameters for PCM using sl_si91x_pcm_set_configuration().
 - Configure transmit DMA channel and wait for data to be sent to the primary device.
@@ -68,22 +68,21 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+1. [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+2. [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+3. [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+4. [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+5. [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-- Configure UC from the slcp component.
-- Open **sl_si91x_pcm_secondary.slcp** project file select **software component** tab and search for **I2S** in search bar.
+1. Configure UC from the slcp component.
+2. Open the **sl_si91x_pcm_secondary.slcp** project file and select the **Software component** tab.
+3. Search for **I2S** in the search bar.
 
   ![Figure: Introduction](resources/uc_screen/pcm_secondary_uc_screen.png)
-
-- Using configuration wizard one can configure different parameters like:
 
 ### General Configuration
 
@@ -93,7 +92,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - SL_PCM0_CHANNEL: PCM0 channel number (0-channel no 0, 1-channel no 1)
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
-- Configure the following macros in pcm_secondary_example.c file and update/modify following macros if required.
+- SL_PCM0_RESOLUTION: PCM0 resolution can be configured through this macro. Valid resolution values are 16, 24 and 32 bit.
+- SL_PCM0_SAMPLING_RATE: I2S0 sampling rate can be configured through this macro. Valid sampling rate values are
+    8, 11.025, 16, 22.05, and 24 kHz.
+- SL_PCM0_CHANNEL: PCM0 channel number (0-channel no 0, 1-channel no 1)
+
+Configuration files are generated in the **config** folder. If not changed, the code will run on default UC values.
+
+Configure the following macros in `pcm_secondary_example.c` file and update/modify following macros if required.
 
 ```C
 #define PCM_SECONDARY_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
@@ -108,26 +114,25 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 | GPIO_28   |         P31                           |          [CS]             | I2S DOUT         |
 | GPIO_27   |         P29                           |          [MOSI]           | I2S DIN          |
 
-- For pin connections, refer to
+- For pin connections, refer to the following diagram:
+  
+  ![Figure: Pin connections](resources/readme/image505d.png)
 
-   >![Figure: Pin connections](resources/readme/image505d.png)
+- Pin description
 
-### Pin Description
-
->**Note:** Make sure pin configuration in RTE_Device_xxx.h file 
-> - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
-> - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
+  >**Note:** Make sure pin configuration in RTE_Device_xxx.h file 
+   > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
+  > - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. Take two Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4325A/BRD4325B/BRD4338A]
-2. First compile and run pcm primary device application in one board.
-3. Compile and run this application in another board.
-4. When the application runs. It sends data to the primary device and after successful
-   comparison, it receives data from the primary device.
-5. After successful program execution the prints in serial console looks as shown below.
+1. Take two Silicon Labs boards [Si917 Evaluation Kit WPK(BRD4002) + BRD4325A/BRD4325B/BRD4338A]
+2. On the first board, compile and run the PCM primary device application.
+3. On the other board, compile and run this application.
+4. When the application runs, it sends data to the primary device. After successful comparison, it receives data from the primary device.
+5. After successful program execution, the prints in serial console looks as shown below.
 
    >![output](resources/readme/output.png)
 

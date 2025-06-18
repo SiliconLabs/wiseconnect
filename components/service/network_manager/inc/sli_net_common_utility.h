@@ -46,7 +46,7 @@ sl_status_t sli_net_register_event_handler(sl_net_event_handler_t function);
  * @brief Set a network credential.
  *
  * @param[in] id Credential ID to identify the credential.
- * @param[in] type Type of the credential (e.g., password, certificate).
+ * @param[in] type Type of the credential (for example, password or certificate).
  * @param[in] credential Pointer to the credential data.
  * @param[in] credential_length Length of the credential data in bytes.
  * @return Status of the operation.
@@ -62,7 +62,7 @@ sl_status_t sli_net_set_credential(sl_net_credential_id_t id,
  * @brief Retrieve a network credential.
  *
  * @param[in] id Credential ID to identify the credential.
- * @param[out] type Pointer to store the type of the credential (e.g., password, certificate).
+ * @param[out] type Pointer to store the type of the credential (for example, password or certificate).
  * @param[out] credential Pointer to store the retrieved credential data.
  * @param[out] credential_length Pointer to store the length of the retrieved credential data in bytes.
  * @return Status of the operation.
@@ -79,7 +79,7 @@ sl_status_t sli_net_get_credential(sl_net_credential_id_t id,
  * @brief Delete a network credential.
  *
  * @param[in] id Credential ID to identify the credential to delete.
- * @param[in] type Type of the credential to delete (e.g., password, certificate).
+ * @param[in] type Type of the credential to delete (for example, password or certificate).
  * @return Status of the operation.
  *         - SL_STATUS_OK: Credential deleted successfully.
  *         - SL_STATUS_FAIL: Failed to delete the credential.

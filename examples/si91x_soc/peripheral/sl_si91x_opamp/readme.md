@@ -115,11 +115,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     ```
     - DAC operation mode: static mode
     - Sample rate: Sample rate can be configurable to DAC, sample rate unit is samples/second.
-    - Apply the different voltages (2.5V to 3.3v) as reference voltage and input samples,The output data should match the input sample that was supplied.
+    - Apply the different voltages (2.5 V to 3.3 v) as reference voltage and input samples. The output data should match the input sample that was supplied.
 
 ## Pin Configuration
 
-### Pin Configuration of the WPK[BRD4002A] Base Board, and with radio board
+### Pin Configuration of the WPK[BRD4002A] Base Board, and with Radio Board
 
 The following table lists the mentioned pin numbers for the radio board. If you want to use a different radio board other than BRD4338A and BRD4343A, see the board user guide.
 
@@ -186,11 +186,11 @@ DAC enable, output pin configuration:
 1. Compile and run the application. 
 2. Apply input voltage on Non-Inverting and Inverting terminal pin from constant D.C supply source.
  - Console outputs.
-   - If OPAMP enable:
+   - If OPAMP is enabled:
     
       ![Figure: Introduction](resources/readme/opamp_console_output.png)
 
-    - If DAC enable :
+    - If DAC is enabled:
      
        ![Figure: Introduction](resources/readme/dac_console_output.png)
 
