@@ -54,6 +54,7 @@ sl_i2c_pin_init_t sl_i2c_{{ inst }}_pin_init = {
   .scl_pin = SL_I2C_{{ inst | upper }}_SCL_PIN,
   .scl_mux = SL_I2C_{{ inst | upper }}_SCL_MUX,
   .scl_pad = SL_I2C_{{ inst | upper }}_SCL_PAD,
+  .instance = SL_{{ inst | upper }},
 };
 {% endfor %}
 

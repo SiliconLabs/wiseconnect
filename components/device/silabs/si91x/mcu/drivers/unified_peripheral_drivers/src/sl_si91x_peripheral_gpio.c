@@ -334,6 +334,8 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum)
 void sl_si91x_gpio_enable_host_pad_selection(uint8_t gpio_num)
 {
   if (gpio_num >= HOST_PAD_MIN && gpio_num <= HOST_PAD_MAX) {
+    // writing 1 to this enables MCUHP to configure GPIO 25 to 30
+    NWP_MCUHP_GPIO_CTRL2 = (0x1 << 5);
     // (tass_m4ss_gpio_sel)PAD selection (25 to 30)
     // A value of 1 on this gives control to M4SS(by default it is 0)
     HOST_PADS_GPIO_MODE |= BIT(gpio_num - HOST_PAD_SELECT);
@@ -981,10 +983,10 @@ void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_si91x_gpio_slew
 }
 
 /*******************************************************************************
- * This API is used to select the UULP mode in NPSS GPIO control register.
+ * This API is used to select the UULP mode in UULP GPIO control register.
  * Few actions are required to be performed before setting the mode,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  @note: Select UULP GPIO pins for UULP instances(UULP_GPIO_0 to UULP_GPIO_4).
  ******************************************************************************/
 void sl_si91x_gpio_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t mode)
@@ -996,7 +998,7 @@ void sl_si91x_gpio_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t 
 }
 
 /*******************************************************************************
- * This API is used to enable receiver bit in NPSS GPIO control register.
+ * This API is used to enable receiver bit in UULP GPIO control register.
  * Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API, before
  *    using this API.
  * @note: Select UULP GPIO pins for UULP instances(UULP_GPIO_0 to UULP_GPIO_4).
@@ -1010,11 +1012,11 @@ void sl_si91x_gpio_select_uulp_npss_receiver(uint8_t pin, sl_si91x_gpio_receiver
 }
 
 /*******************************************************************************
- * This API is used to select the UULP direction in NPSS GPIO control register.
+ * This API is used to select the UULP direction in UULP GPIO control register.
  * Few actions are required to be performed before setting the direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
- *  - Select UULP NPSS direction for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
+ *  - Select UULP  direction for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  * @note: Select UULP GPIO pins for UULP instances(UULP_GPIO_0 to UULP_GPIO_4).
  ******************************************************************************/
@@ -1027,10 +1029,10 @@ void sl_si91x_gpio_set_uulp_npss_direction(uint8_t pin, sl_si91x_gpio_direction_
 }
 
 /*******************************************************************************
- * This API is used to get the UULP direction in NPSS GPIO control register.
+ * This API is used to get the UULP direction in UULP GPIO control register.
  * Few actions are required to be performed before setting the direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Get the direction of the GPIO pin.
@@ -1044,10 +1046,10 @@ uint8_t sl_si91x_gpio_get_uulp_npss_direction(uint8_t pin)
 }
 
 /*******************************************************************************
- * This API is used to select the UULP pin value in NPSS GPIO control register.
+ * This API is used to select the UULP pin value in UULP GPIO control register.
  * Few actions are required to be performed before setting the direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Select the GPIO pin value.
@@ -1065,7 +1067,7 @@ void sl_si91x_gpio_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_gpio_pin_value_
  * This API is used to toggle the UULP pin.
  * Few actions are required to be performed before setting the direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Toggle the UULP GPIO pin.
@@ -1079,10 +1081,10 @@ void sl_si91x_gpio_toggle_uulp_npss_pin(uint8_t pin)
 }
 
 /*******************************************************************************
- * This API is used to get the UULP pin value in NPSS GPIO control register.
+ * This API is used to get the UULP pin value in UULP GPIO control register.
  * Few actions are required to be performed before setting the direction,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Select the GPIO pin value.
@@ -1108,7 +1110,7 @@ void sl_si91x_gpio_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity
 }
 
 /*******************************************************************************
- * This API is used to set the UULP NPSS GPIO to wakeup interrupt
+ * This API is used to set the UULP  GPIO to wakeup interrupt
 *******************************************************************************/
 void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1116,7 +1118,7 @@ void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 }
 
 /*******************************************************************************
- * This API is used to clear the UULP NPSS GPIO to wakeup interrupt
+ * This API is used to clear the UULP  GPIO to wakeup interrupt
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1124,11 +1126,12 @@ void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 }
 
 /*******************************************************************************
- * This API is used to mask the UULP NPSS GPIO interrupt.
+ * This API is used to mask the UULP  GPIO interrupt.
  * Few actions are required to be performed before interrupt mask is performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select the .
+ *
  *  @note: All the UULP interrupts are masked by default.
+ *  @note This function is deprecated and should be replaced with `sl_si91x_gpio_mask_set_uulp_npss_interrupt`.
 *******************************************************************************/
 void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1137,15 +1140,16 @@ void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 }
 
 /*******************************************************************************
- * This API is used to un-mask the UULP NPSS GPIO interrupt.
+ * This API is used to un-mask the UULP  GPIO interrupt.
  * Few actions are required to be performed before interrupt un-mask is performed,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
  *  - Set UULP PAD configuration register.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Un-mask interrupt by setting corresponding bit in register.
  *  @note: All the UULP interrupts are masked by default.
+ *  @note This function is deprecated and should be replaced with `sl_si91x_gpio_mask_clear_uulp_npss_interrupt`.
 *******************************************************************************/
 void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
@@ -1155,10 +1159,50 @@ void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 
 /*******************************************************************************
  * This API is used to clear the UULP interrupt.
+ * @note This function is deprecated and should be replaced with `sl_si91x_gpio_clear_uulp_npss_interrupt`.
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt)
 {
   GPIO_NPSS_INTERRUPT_CLEAR_REG = (npssgpio_interrupt << 1);
+}
+
+/*******************************************************************************
+ * This API is used to mask the UULP GPIO interrupt.
+ * Few actions are required to be performed before interrupt mask is performed,
+ *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
+ *
+ *  @note: All the UULP interrupts are masked by default.
+*******************************************************************************/
+void sl_si91x_gpio_mask_set_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(npssgpio_interrupt));
+  GPIO_NPSS_INTERRUPT_MASK_SET_REG = (BIT(npssgpio_interrupt) << 1);
+}
+
+/*******************************************************************************
+ * This API is used to un-mask the UULP  GPIO interrupt.
+ * Few actions are required to be performed before interrupt un-mask is performed,
+ *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
+ *  - Set UULP PAD configuration register.
+ *  - Select UULP  receiver for UULP GPIO pin.
+ *  - Set the mode of the GPIO pin.
+ *  - Set the direction of the GPIO pin.
+ *  - Un-mask interrupt by setting corresponding bit in register.
+ *  @note: All the UULP interrupts are masked by default.
+*******************************************************************************/
+void sl_si91x_gpio_mask_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(npssgpio_interrupt));
+  GPIO_NPSS_INTERRUPT_MASK_CLR_REG = (BIT(npssgpio_interrupt) << 1);
+}
+
+/*******************************************************************************
+ * This API is used to clear the UULP interrupt.
+*******************************************************************************/
+void sl_si91x_gpio_clear_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(npssgpio_interrupt));
+  GPIO_NPSS_INTERRUPT_CLEAR_REG = (BIT(npssgpio_interrupt) << 1);
 }
 
 /*******************************************************************************
@@ -1184,21 +1228,25 @@ uint32_t sl_si91x_gpio_get_ulp_interrupt_status(uint32_t flags)
  * The actions to be performed in UULP GPIO initialization are:
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
  *  - Set UULP PAD configuration register.
- *  - Select UULP NPSS receiver for UULP GPIO pin.
+ *  - Select UULP  receiver for UULP GPIO pin.
  *  - Set the mode of the GPIO pin.
  *  - Set the direction of the GPIO pin.
  *  - Configure the UULP pin interrupt.
  * Enable the IRQ handler.
- * @note: The NPSS GPIO interrupt pin number is transformed into a bit mask by
+ * @note: The UULP GPIO interrupt pin number is transformed into a bit mask by
  * shifting a single bit to the left by the specified pin number.
 *******************************************************************************/
 void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags, uint8_t npssgpio_interrupt)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_FLAG(flags));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_INTR(npssgpio_interrupt));
+
+  // Unmask UULP interrupt
+  sl_si91x_gpio_mask_clear_uulp_npss_interrupt(npssgpio_interrupt);
+
+  // need bit position of GPIO number to write into config register
   npssgpio_interrupt = BIT(npssgpio_interrupt);
-  // Unmask NPSS interrupt
-  sl_si91x_gpio_unmask_uulp_npss_interrupt(npssgpio_interrupt);
+
   // Enable or disable interrupt rising edge in GPIO UULP instance
   if ((flags & SL_GPIO_INTERRUPT_RISING_EDGE) == SL_GPIO_INTERRUPT_RISING_EDGE) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_0);
@@ -1245,10 +1293,10 @@ void sl_si91x_gpio_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_in
 /*******************************************************************************
  * This API is used to verify assumptions and print message if the assumption is false.
  ******************************************************************************/
-void sl_assert_failed(uint8_t *file, uint32_t line)
+void sl_assert_failed(uint8_t *file, unsigned int line)
 {
 #ifdef DEBUG_UART
-  DEBUGOUT("Assert failed: file %s on line %lu \r\n", file, line);
+  DEBUGOUT("Assert failed: file %s on line %u \r\n", file, line);
 #else
   (void)file;
   (void)line;
@@ -1261,7 +1309,7 @@ void sl_assert_failed(uint8_t *file, uint32_t line)
  * It selects the mode, direction, polarity, enables receiver etc in the register.
  * To set the UULP PAD configuration,
  *  - Enable the ULP clock using @ref sl_si91x_gpio_enable_clock() API.
- *  - Select UULP NPSS input buffer for UULP GPIO pin.
+ *  - Select UULP  input buffer for UULP GPIO pin.
  *  @note: Select UULP GPIO pins for UULP instances(UULP_GPIO_0 to UULP_GPIO_4).
 *******************************************************************************/
 void sl_si91x_gpio_set_uulp_pad_configuration(uulp_pad_config_t *pad_config)

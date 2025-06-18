@@ -18,16 +18,12 @@
 #ifndef RSI_DRIVER_H
 #define RSI_DRIVER_H
 
-//#ifndef EFM32_SDIO // This file is not needed for EFM32 board. In order to avoid compilation warnings, we excluded the below code for EFM32
-//#include "rsi_board_configuration.h"
-//#endif
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_ccp_user_config.h"
 #endif
 #include <rsi_data_types.h>
 #include <rsi_error.h>
 #include <rsi_wlan_defines.h>
-//#ifdef WISECONNECT
 #if (defined(__CC_ARM) || defined(WISECONNECT))
 #ifdef RSI_WLAN_API_ENABLE
 #include <rsi_wlan_config.h>
@@ -49,63 +45,6 @@
 #include <rsi_wlan_common_config.h>
 #endif
 #include <rsi_user.h>
-//#include <rsi_utils.h>
-//#include <rsi_os.h>
-//#include <rsi_events.h>
-//#include <rsi_scheduler.h>
-//#include <rsi_pkt_mgmt.h>
-//#include <rsi_queue.h>
-//#include <rsi_common_apis.h>
-// #include <rsi_common.h>
-//#include <rsi_wlan_apis.h>
-//#include <rsi_wlan.h>
-//#include <rsi_socket.h>
-//#include <rsi_timer.h>
-//#ifdef RSI_SPI_INTERFACE
-//#include <rsi_spi_intf.h>
-//#include <rsi_spi_cmd.h>
-//#endif
-//#ifdef RSI_SDIO_INTERFACE
-//#include <rsi_sdio.h>
-//#endif
-//#ifdef RSI_UART_INTERFACE
-//#include <rsi_uart.h>
-//#endif
-//#include <rsi_hal.h>
-//#include <rsi_nwk.h>
-//#include <rsi_setregion_countryinfo.h>
-//#include <rsi_bootup_config.h>
-//#if (defined(RSI_BT_ENABLE) || defined(RSI_BLE_ENABLE))
-//#include <rsi_bt_common.h>
-//#include <rsi_bt_apis.h>
-//
-//#include "rsi_bt.h"
-//#include "rsi_ble.h"
-//#include "rsi_bt_common_apis.h"
-//#endif
-//#ifdef RSI_ZB_ENABLE
-//#include <rsi_zb_api.h>
-//#endif
-//#include <string.h>
-//#ifdef __GNUC__
-//#include "strings.h"
-//#endif
-//#ifdef RSI_WAC_MFI_ENABLE
-//#include "rsi_iap.h"
-//#endif
-//#ifdef RSI_PROP_PROTOCOL_ENABLE
-//#include "rsi_prop_protocol.h"
-//#endif
-//#include "rsi_apis_rom.h"
-//#include "rsi_wlan_non_rom.h"
-//#ifdef SAPI_LOGGING_ENABLE
-//#include "debug_auto_gen.h"
-//#include "sl_app_logging.h"
-//#endif
-//#ifdef FW_LOGGING_ENABLE
-//#include "sl_fw_logging.h"
-//#endif
-//#include <stdlib.h>
 
 #include "rsi_pkt_mgmt.h"
 
@@ -133,18 +72,18 @@
 #define RSI_BT_HCI_Q      7
 #endif
 // WLAN mgmt queue type
-#define RSI_WLAN_MGMT_Q 4
+#define SLI_WLAN_MGMT_Q 4
 
 // WLAN data queue type
 #define RSI_WLAN_DATA_Q 5
 
 #ifdef FW_LOGGING_ENABLE
 #define RSI_SL_LOG_DATA_Q 8
-#define SL_LOG_DATA       0x01
+#define SLI_LOG_DATA      0x01
 #endif
 
 // frame descriptor length
-#define RSI_FRAME_DESC_LEN 16
+#define SLI_FRAME_DESC_LEN 16
 
 // status offset in frame descriptor
 #define RSI_STATUS_OFFSET 12
@@ -192,7 +131,6 @@ uint32_t rsi_hal_critical_section_entry(void);
 void rsi_hal_critical_section_exit(void);
 
 int32_t rsi_driver_process_recv_data(rsi_pkt_t *pkt);
-//int32_t rsi_driver_send_data(int32_t sock_no, uint8_t* buffer, uint32_t length, struct rsi_sockaddr *destAddr);
 int32_t rsi_send_raw_data(uint8_t *buffer, uint32_t length);
 int32_t rsi_ftp_mode_set(uint8_t mode);
 

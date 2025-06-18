@@ -337,7 +337,7 @@ The driver assumes that buffers can be chained together and may need to query mu
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_MULTICAST
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == SLI_WLAN_RSP_MULTICAST
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -369,7 +369,7 @@ The driver assumes that buffers can be chained together and may need to query mu
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_MULTICAST
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == SLI_WLAN_RSP_MULTICAST
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -406,12 +406,12 @@ The driver assumes that buffers can be chained together and may need to query mu
    wifi ->> app: return error
   else
    Note over wifi: Construct fw version command packet with timeout = ?? 
-   wifi ->> fw:Send RSI_WLAN_REQ_FW_VERSION device command
+   wifi ->> fw:Send SLI_WLAN_REQ_FW_VERSION device command
 
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_FW_VERSION
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_FW_VERSION
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -450,12 +450,12 @@ The driver assumes that buffers can be chained together and may need to query mu
    wifi ->> app: return error
   else
    Note over wifi: Construct get mac address command packet with timeout = ?? 
-   wifi ->> fw:Send RSI_WLAN_REQ_MAC_ADDRESS device command
+   wifi ->> fw:Send SLI_WLAN_REQ_MAC_ADDRESS device command
 
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_MAC_ADDRESS
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_MAC_ADDRESS
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -498,7 +498,7 @@ The driver assumes that buffers can be chained together and may need to query mu
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_GET_STATS
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_GET_STATS
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -541,7 +541,7 @@ The driver assumes that buffers can be chained together and may need to query mu
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_GET_STATUS
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_GET_STATUS
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -583,7 +583,7 @@ The driver assumes that buffers can be chained together and may need to query mu
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_GET_INTERFACE_STATUS
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_GET_INTERFACE_STATUS
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end
@@ -628,7 +628,7 @@ The driver assumes that buffers can be chained together and may need to query mu
             par Firmware to Bus thread
                 Note over bus: Waiting for NCP_HOST_RX_EVENT and rx pending packet
                 fw -->> bus: Send NCP_HOST_RX_EVENT event
-                alt if interrupt status RSI_RX_PKT_PENDING received and queue_id == RSI_WLAN_MGMT_Q and frameType == RSI_WLAN_RSP_SET_MAC_ADDRESS
+                alt if interrupt status SLI_RX_PKT_PENDING received and queue_id == SLI_WLAN_MGMT_Q and frameType == SLI_WLAN_RSP_SET_MAC_ADDRESS
                     Note over bus: Add buffer to NCP_COMMAND_RESPONSE_QUEUE and set event to NCP_HOST_COMMAND_RESPONSE_EVENT
                 end
             end

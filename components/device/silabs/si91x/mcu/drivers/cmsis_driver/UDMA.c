@@ -3,15 +3,28 @@
 * @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -100,140 +113,78 @@ UDMA_RESOURCES UDMA1_Resources = {
  */
 void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Channel_Info *chnl_info)
 {
-    volatile uint32_t ch = 0;
     volatile uint32_t size = 0;
     volatile uint32_t intr = 0; 
     volatile uint32_t src_inc = 0;
     volatile uint32_t dst_inc = 0;
     volatile uint32_t dma_len = 0;
-    for (ch = 0; ch < UDMA_NUMBER_OF_CHANNELS; ch++) {
+
+    // error check, invalid instance
+    if ((udma->reg != UDMA0) && (udma->reg != UDMA1)) {
+      return;
+    }
+
+    for (volatile uint32_t ch = 0; ch < UDMA_NUMBER_OF_CHANNELS; ch++) {
       intr = udma->reg->UDMA_DONE_STATUS_REG;
       if (intr & (1U << ch)) {
         // Clear interrupt flag
-        udma->reg->UDMA_DONE_STATUS_REG = (1U << ch);
-        if (chnl_info[ch].Cnt != chnl_info[ch].Size) {
-          if (udma->reg == UDMA0) {
-            // Data waiting to transfer
-            size = chnl_info[ch].Size - (chnl_info[ch].Cnt);
-            // Max DMA transfer size = 4k
-            if (size >= DESC_MAX_LEN) {
-              size    = DESC_MAX_LEN;
-              dma_len = 0x3FF;
-              chnl_info[ch].Cnt += size;
-            }
-            if ((size > 0) && (size < DESC_MAX_LEN)) {
-              dma_len = size - 1;
-              chnl_info[ch].Cnt += size;
-            }
-          }
-          if (udma->reg == UDMA1) {
-            // Data waiting to transfer
-            size = chnl_info[ch].Size - (chnl_info[ch].Cnt);
-
-            // Max DMA transfer size = 4k
-            if (size >= DESC_MAX_LEN) {
-              size    = DESC_MAX_LEN;
-              dma_len = 0x3FF;
-              chnl_info[ch].Cnt += size;
-            }
-            if ((size > 0) && (size < DESC_MAX_LEN)) {
-              dma_len = size - 1;
-              chnl_info[ch].Cnt += size;
-            }
-          }
-          // Source Address Increment
-          if (udma->reg == UDMA0) {
-            src_inc = UDMA_Table[ch].vsUDMAChaConfigData1.srcInc;
-          }
-          if (udma->reg == UDMA1) {
-            src_inc = UDMA_Table[ch].vsUDMAChaConfigData1.srcInc;
-          }
-          if (src_inc != UDMA_SRC_INC_NONE) {
-            if (udma->reg == UDMA0) {
-              UDMA_Table[ch].pSrcEndAddr = (void *)((uint32_t)UDMA_Table[ch].pSrcEndAddr + (size << src_inc));
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-            if (udma->reg == UDMA1) {
-              UDMA_Table[ch].pSrcEndAddr = (void *)((uint32_t)UDMA_Table[ch].pSrcEndAddr + (size << src_inc));
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-          } else {
-            if (udma->reg == UDMA0) {
-              UDMA_Table[ch].pSrcEndAddr                             = (void *)((uint32_t)UDMA_Table[ch].pSrcEndAddr);
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-            if (udma->reg == UDMA1) {
-              UDMA_Table[ch].pSrcEndAddr                             = (void *)((uint32_t)UDMA_Table[ch].pSrcEndAddr);
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-          }
-          // Destination Address Increment
-          if (udma->reg == UDMA0) {
-            dst_inc = UDMA_Table[ch].vsUDMAChaConfigData1.dstInc;
-          }
-          if (udma->reg == UDMA1) {
-            dst_inc = UDMA_Table[ch].vsUDMAChaConfigData1.dstInc;
-          }
-          if (dst_inc != UDMA_DST_INC_NONE) {
-            if (udma->reg == UDMA0) {
-              UDMA_Table[ch].pDstEndAddr = (void *)((uint32_t)UDMA_Table[ch].pDstEndAddr + (size << dst_inc));
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-            if (udma->reg == UDMA1) {
-              UDMA_Table[ch].pDstEndAddr = (void *)((uint32_t)UDMA_Table[ch].pDstEndAddr + (size << dst_inc));
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-          } else {
-            if (udma->reg == UDMA0) {
-              UDMA_Table[ch].pDstEndAddr                             = (void *)((uint32_t)UDMA_Table[ch].pDstEndAddr);
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-            if (udma->reg == UDMA1) {
-              UDMA_Table[ch].pDstEndAddr                             = (void *)((uint32_t)UDMA_Table[ch].pDstEndAddr);
-              UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
-              UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
-            }
-          }
-          // Enable DMA Channel
-          udma->reg->CHNL_ENABLE_SET = (1U << ch);
-        } else {
-          // All Data has been transferred
-          // Clear Channel active flag
-          //Clear_Channel_active_flag (ch);
-          // Signal Event
-          if (udma->reg == UDMA0) {
-            if (chnl_info[ch].cb_event) {
-              chnl_info[ch].cb_event(UDMA_EVENT_XFER_DONE, ch);
-            }
-          }
-          if (udma->reg == UDMA1) {
-            if (chnl_info[ch].cb_event) {
-              chnl_info[ch].cb_event(UDMA_EVENT_XFER_DONE, ch);
-            }
-          }
-        }
+        udma->reg->UDMA_DONE_STATUS_REG = (1U << ch);      
       } else {
         // DMA error interrupt
         if (udma->reg->ERR_CLR & (1U << ch)) {
           udma->reg->ERR_CLR_b.ERR_CLR = 0x1;
-          // Clear Channel active flag
-          //Clear_Channel_active_flag (ch);
           // Clear interrupt flag
           udma->reg->UDMA_DONE_STATUS_REG = (1U << ch);
           // Signal Event
           if (chnl_info[ch].cb_event) {
             chnl_info[ch].cb_event(UDMA_EVENT_ERROR, ch);
           }
-          if (chnl_info[ch].cb_event) {
-            chnl_info[ch].cb_event(UDMA_EVENT_ERROR, ch);
+        }
+        // continue check for subsequent channels
+        continue;
+      }
+
+      // valid interrupt, check if data is waiting to transfer
+      if (chnl_info[ch].Cnt != chnl_info[ch].Size) {
+        // Data waiting to transfer
+        size = chnl_info[ch].Size - chnl_info[ch].Cnt;
+        if (size > 0) {
+          // Max DMA transfer size = 4k
+          if (size >= DESC_MAX_LEN) {
+            size = DESC_MAX_LEN;
           }
+          dma_len = size - 1;
+          chnl_info[ch].Cnt += size;
+        }
+        // Source Address Increment
+        src_inc = UDMA_Table[ch].vsUDMAChaConfigData1.srcInc;
+        
+        if (src_inc != UDMA_SRC_INC_NONE) {
+          UDMA_Table[ch].pSrcEndAddr = (void *)((uint32_t)UDMA_Table[ch].pSrcEndAddr + (size << src_inc));
+        } else {
+          UDMA_Table[ch].pSrcEndAddr = (void *)((uint32_t)UDMA_Table[ch].pSrcEndAddr);
+        }
+
+        // Destination Address Increment
+        dst_inc = UDMA_Table[ch].vsUDMAChaConfigData1.dstInc;
+
+        if (dst_inc != UDMA_DST_INC_NONE) {
+          UDMA_Table[ch].pDstEndAddr = (void *)((uint32_t)UDMA_Table[ch].pDstEndAddr + (size << dst_inc));
+        } else {
+          UDMA_Table[ch].pDstEndAddr = (void *)((uint32_t)UDMA_Table[ch].pDstEndAddr);
+        }
+
+        // Update other DMA parameters
+        UDMA_Table[ch].vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_len & 0x03FF);
+        UDMA_Table[ch].vsUDMAChaConfigData1.transferType       = UDMA_MODE_BASIC;
+
+        // Enable DMA Channel
+        udma->reg->CHNL_ENABLE_SET = (1U << ch);
+      } else {
+        // All Data has been transferred
+        // Signal Event
+        if (chnl_info[ch].cb_event) {
+          chnl_info[ch].cb_event(UDMA_EVENT_XFER_DONE, ch);
         }
       }
     }
@@ -254,11 +205,10 @@ void IRQ033_Handler(void)
     }
   }
   //Check if the transfer type is memory-memory
-  if ((UDMA0_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) && \
-      (UDMA0_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE)) {
-      if(udma0_chnl_info[channel].Size != udma0_chnl_info[channel].Cnt) {
+  if ((UDMA0_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) &&
+      (UDMA0_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE) &&
+      (udma0_chnl_info[channel].Size != udma0_chnl_info[channel].Cnt)) {
           soft_trig_flag = 1;
-      }
   }
  ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA0_Resources,UDMA0_Table,udma0_chnl_info);
  if(soft_trig_flag) {
@@ -310,11 +260,10 @@ void IRQ010_Handler (void)
     }
   }
   //Check if the transfer type is memory-memory
-  if ((UDMA1_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) && \
-      (UDMA1_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE)) {
-      if(udma1_chnl_info[channel].Size != udma1_chnl_info[channel].Cnt) {
+  if ((UDMA1_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) &&
+      (UDMA1_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE) &&
+      (udma1_chnl_info[channel].Size != udma1_chnl_info[channel].Cnt)) {
           soft_trig_flag = 1;
-      }
   }
   ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
   if(soft_trig_flag) {

@@ -52,7 +52,7 @@ extern "C" {
 // </h>
 
 // <h>I2C Instance for Si70xx Sensor
-// <o SL_SI70XX_CONFIG_I2C_INSTANCE> I2C Instance
+// <o SL_SI70XX_CONFIG_I2C_INSTANCE> I2C Instance (make sure to install selected I2C instance)
 //   <SL_I2C0=>  I2C0
 //   <SL_I2C1=>  I2C1
 //   <SL_ULP_I2C=>  I2C2 (ULP_I2C)

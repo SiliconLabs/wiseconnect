@@ -29,7 +29,7 @@ requires:
   - name: sl_si91x_mcu
   - name: wifi_resources
   - name: freertos
-  - name: device_init_nvic
+  - name: freertos_heap_4
 template_contribution:
   - name: littlefs_enable
     value: true

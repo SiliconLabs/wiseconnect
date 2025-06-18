@@ -76,10 +76,10 @@ void print_sl_ip_address(const sl_ip_address_t *sl_ip_address);
 void print_sl_ipv4_address(const sl_ipv4_address_t *ip_address);
 void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address);
 void print_mac_address(const sl_mac_address_t *mac_address);
-void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer);
-void little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length);
+void sli_convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer);
+void sli_little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length);
 int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, unsigned int *ptr_result);
-void reverse_digits(unsigned char *xx, int no_digits);
+void sli_reverse_digits(unsigned char *xx, int no_digits);
 void print_firmware_version(const sl_wifi_firmware_version_t *firmware_version);
 
 /***************************************************************************/ /**

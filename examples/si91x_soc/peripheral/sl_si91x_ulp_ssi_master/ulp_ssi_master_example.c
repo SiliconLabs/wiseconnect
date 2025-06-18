@@ -293,6 +293,7 @@ void ssi_master_example_process_action(void)
     case SL_ULP_SSI_POWER_STATE_TRANSITION:
       if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
         // Control power management by adjusting clock references and shutting down the power supply
+        // This function is for demonstration purpose only. For more details, refer to the README file.
         sl_si91x_wireless_shutdown();
 
         // Switching the power state from PS4 to PS2 mode
@@ -496,9 +497,8 @@ static void configure_ps2_power_state(void)
                           | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10;
   config.ulpss_ram_banks = 0;
   // Ored value for ulpss peripheral.
-  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM;
+  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM;
   // Ored value for npss peripheral.
   peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS
                          | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2

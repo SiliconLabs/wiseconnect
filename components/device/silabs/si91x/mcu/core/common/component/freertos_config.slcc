@@ -11,6 +11,10 @@ metadata:
     license: MIT
 root_path: "components/device/silabs/si91x/mcu/core/common/freertos_config"
 category: RTOS|FreeRTOS|Configuration
+include:
+  - path: "../inc"
+    file_list:
+      - path: "sl_si91x_os.h"
 config_file:
   - path: "FreeRTOSConfig.h"
     file_id: freertos_config
@@ -21,3 +25,6 @@ config_file:
     path: "FreeRTOSConfig.h"
 provides:
   - name: freertos_config
+define:
+  - name: __FREERTOS_OS_WISECONNECT
+    value: '1'

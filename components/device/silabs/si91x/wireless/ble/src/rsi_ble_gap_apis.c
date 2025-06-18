@@ -1634,6 +1634,35 @@ int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
   return rsi_bt_driver_send_cmd(RSI_BT_VENDOR_SPECIFIC, &acceptlist_using_payload, NULL);
 }
 
+/**
+ * @fn         int32_t rsi_ble_set_coex_roles_priority(const uint8_t *payload)
+ * @brief      Give vendor-specific command to set the priorities for the various coex roles.
+ *             The payload contains role id, followed by min, max priorities of the specified role..
+ *             This is a Blocking API.
+ * @pre        Device should be initialized before calling this API.
+ * @param[in]  payload - Payload (There are 7 coex roles refer rsi_ble_coex_role_id_t, each having min and max priority followed by the role id in the role_priority_payload.)
+ * @return     0 - Success \n
+ *             Non-Zero Value - Failure \n
+ *             If the return value is less than 0 \n
+ *               -4 - Buffer not available to serve the command
+ *              0x4E62  Invalid Parameters \n
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
+ */
+
+int32_t rsi_ble_set_coex_roles_priority(const uint8_t *payload)
+{
+
+  SL_PRINTF(SL_RSI_BLE_SET_COEX_ROLES_PRIORITY, BLE, LOG_INFO);
+  rsi_ble_set_coex_roles_priority_t coex_roles_priority;
+  memset(&coex_roles_priority, 0, sizeof(coex_roles_priority));
+
+  coex_roles_priority.opcode[0] = (BLE_VENDOR_SET_COEX_ROLE_PRIORITY & 0xFF);
+  coex_roles_priority.opcode[1] = ((BLE_VENDOR_SET_COEX_ROLE_PRIORITY >> 8) & 0xFF);
+
+  memcpy(coex_roles_priority.role_priority_payload, payload, 21);
+
+  return rsi_bt_driver_send_cmd(RSI_BT_VENDOR_SPECIFIC, &coex_roles_priority, NULL);
+}
 /*==============================================*/
 /**
  * @fn         void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len)
@@ -1740,7 +1769,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  *                     127  	    BLE HP Mode, Max power supported. \n
  *              #define RSI_BLE_PWR_INX_DBM  1  indicate tx_power in dBm \n
  *              tx_power in dBm (-8 dBm to 18 dBm) \n
- * @note: When switching between HP mode and LP mode user need to ensure there should not be any protocol activity running.  
+ * @note: This API currently supports controlling the tx power in the configured chain during wireless initialization. However, changing the chain from LP to HP or vice versa is not supported.  
  * @return      0 - Success \n
  *              Non-Zero Value - Failure \n
  *              0x4E02 	Unknown Connection Identifier \n 

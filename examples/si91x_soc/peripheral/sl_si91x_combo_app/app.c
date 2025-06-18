@@ -71,25 +71,31 @@ void app_init(void)
   pwm_init();
   i2c_init();
   timer_init();
+
+  // create a thread for button functionality
+  tid_thread_button = osThreadNew((osThreadFunc_t)button_app, NULL, &button_thread_attributes);
+  if (tid_thread_button == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
+
+  // create a thread for pwm functionality
+  tid_thread_pwm = osThreadNew((osThreadFunc_t)pwm_app, NULL, &pwm_thread_attributes);
+  if (tid_thread_pwm == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
+
+  // create a thread for i2c leader functionality
+  tid_thread_i2c = osThreadNew((osThreadFunc_t)i2c_app, NULL, &i2c_thread_attributes);
+  if (tid_thread_i2c == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
 }
 /*******************************************************************************
  * App ticking function.
  ******************************************************************************/
 void app_process_action(void)
 {
-  tid_thread_button = osThreadNew((osThreadFunc_t)button_app, NULL, &button_thread_attributes);
-  if (tid_thread_button == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
-  tid_thread_pwm = osThreadNew((osThreadFunc_t)pwm_app, NULL, &pwm_thread_attributes);
-  if (tid_thread_pwm == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
-  tid_thread_i2c = osThreadNew((osThreadFunc_t)i2c_app, NULL, &i2c_thread_attributes);
-  if (tid_thread_i2c == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
 }

@@ -45,11 +45,11 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
                                                 uint8_t chachapoly_flags,
                                                 uint8_t *output)
 {
-  sl_status_t status        = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer  = NULL;
-  sl_si91x_packet_t *packet = NULL;
-  sl_si91x_chachapoly_request_t *request =
-    (sl_si91x_chachapoly_request_t *)malloc(sizeof(sl_si91x_chachapoly_request_t));
+  sl_status_t status              = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer        = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
+  sli_si91x_chachapoly_request_t *request =
+    (sli_si91x_chachapoly_request_t *)malloc(sizeof(sli_si91x_chachapoly_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -77,7 +77,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
   }
 #endif
 
-  memset(request, 0, sizeof(sl_si91x_chachapoly_request_t));
+  memset(request, 0, sizeof(sli_si91x_chachapoly_request_t));
 
   request->algorithm_type       = CHACHAPOLY;
   request->algorithm_sub_type   = config->chachapoly_mode;
@@ -114,23 +114,23 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
 
   if (config->chachapoly_mode == SL_SI91X_CHACHAPOLY_POLY1305_KEYR_KEYS_MODE
       || config->chachapoly_mode == SL_SI91X_POLY1305_MODE) {
-    memcpy(request->keyr_in, config->key_config.a0.keyr_in, SL_SI91X_KEYR_SIZE);
-    memcpy(request->keys_in, config->key_config.a0.keys_in, SL_SI91X_KEYS_SIZE);
+    memcpy(request->keyr_in, config->key_config.a0.keyr_in, SLI_SI91X_KEYR_SIZE);
+    memcpy(request->keys_in, config->key_config.a0.keys_in, SLI_SI91X_KEYS_SIZE);
   }
 
 #endif
 
-  status = sl_si91x_driver_send_command(
-    RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sli_si91x_driver_send_command(
+    SLI_COMMON_REQ_ENCRYPT_CRYPTO,
     SI91X_COMMON_CMD,
     request,
-    (sizeof(sl_si91x_chachapoly_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY + chunk_length),
+    (sizeof(sli_si91x_chachapoly_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY + chunk_length),
     SL_SI91X_WAIT_FOR_RESPONSE(32000),
     NULL,
     &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -138,7 +138,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
   memcpy(output, packet->data, packet->length);
 
   free(request);
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
 
   return status;
 }
@@ -148,8 +148,8 @@ static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *
 {
 
   sl_status_t status = SL_STATUS_FAIL;
-  sl_si91x_chachapoly_request_t *request =
-    (sl_si91x_chachapoly_request_t *)malloc(sizeof(sl_si91x_chachapoly_request_t));
+  sli_si91x_chachapoly_request_t *request =
+    (sli_si91x_chachapoly_request_t *)malloc(sizeof(sli_si91x_chachapoly_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -165,7 +165,7 @@ static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *
 
   SL_VERIFY_POINTER_OR_RETURN(config->key_config.b0.key_buffer, SL_STATUS_NULL_POINTER);
 
-  memset(request, 0, sizeof(sl_si91x_chachapoly_request_t));
+  memset(request, 0, sizeof(sli_si91x_chachapoly_request_t));
 
   request->algorithm_type     = CHACHAPOLY;
   request->algorithm_sub_type = config->chachapoly_mode;
@@ -191,9 +191,9 @@ static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *
          config->key_config.b0.key_buffer,
          config->key_config.b0.key_size);
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_chachapoly_request_t)),
+                                                 (sizeof(sli_si91x_chachapoly_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);

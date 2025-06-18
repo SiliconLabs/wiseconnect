@@ -145,8 +145,8 @@ typedef enum {
  *          Quadrature Encoder Interface (QEI).
  */
 typedef enum {
-  SL_QEI_POS_CNT_16,  ///< Mode for 16-bit position counting.
   SL_QEI_POS_CNT_32,  ///< Mode for 32-bit position counting.
+  SL_QEI_POS_CNT_16,  ///< Mode for 16-bit position counting.
   SL_QEI_POS_CNT_LAST ///< Last member of the enum for validation purposes.
 } sl_qei_pos_cnt_mode_t;
 
@@ -381,6 +381,9 @@ sl_status_t sl_si91x_qei_init(sl_qei_init_t *qei_init);
 /***************************************************************************/
 /**
  * @brief De-initialize the QEI module.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_qei_init
  *
  * @details This function cleans up and deinitializes the QEI module, ensuring
  *          that all resources are released and the module is no longer active.
@@ -908,6 +911,9 @@ sl_status_t sl_si91x_qei_register_callback(sl_qei_callback_t callback,
  *
  * @details This function removes a previously registered callback function, stopping it from
  *          being called on QEI events.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_qei_register_callback
  *
  * @param[in] intr_mask Pointer to interrupt mask settings of type \ref sl_qei_intr_mask_t
  *

@@ -49,9 +49,7 @@ extern "C" {
 #define I2S0_UC                  0
 
 // <o SL_I2S0_RESOLUTION> I2S0 Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16
@@ -87,9 +85,7 @@ extern "C" {
 #define ULP_I2S_UC               0
 
 // <o SL_ULP_I2S_RESOLUTION> ULP_I2S Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16

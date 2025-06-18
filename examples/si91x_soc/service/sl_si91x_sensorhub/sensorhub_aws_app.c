@@ -77,7 +77,7 @@
 #define MQTT_USERNAME       "username"
 #define MQTT_PASSWORD       "password"
 
-#define ENABLE_POWER_SAVE 0
+#define ENABLE_NWP_POWER_SAVE 0
 
 #if SH_AWS_ENABLE
 extern char mqtt_publish_payload[500];
@@ -85,7 +85,7 @@ extern char mqtt_publish_payload[500];
 #define MQTT_PUBLISH_PAYLOAD "Hi from SiWx91x" //! Publish message
 #endif
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 volatile uint8_t powersave_given = 0;
 #endif
 
@@ -174,7 +174,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
                       ),
@@ -204,7 +204,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
 #ifdef SLI_SI91X_MCU_INTERFACE
                    .config_feature_bit_map = 0
 #else
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                    .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP)
 #else
                    .config_feature_bit_map = 0
@@ -551,11 +551,11 @@ sl_status_t start_aws_mqtt(void)
           printf("\rQoS%d publish is successful\r\n", PUBLISH_QOS);
         }
 
-#if ENABLE_POWER_SAVE
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
-                                                              .listen_interval = 1000 };
+#if ENABLE_NWP_POWER_SAVE
+        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
+                                                                 .listen_interval = 1000 };
         if (!powersave_given) {
-          rc = sl_wifi_set_performance_profile(&performance_profile);
+          rc = sl_wifi_set_performance_profile_v2(&performance_profile);
           if (rc != SL_STATUS_OK) {
             printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
           }

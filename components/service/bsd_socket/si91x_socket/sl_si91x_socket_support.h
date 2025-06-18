@@ -33,7 +33,11 @@
 #include <string.h>
 #include <stdint.h>
 
+#ifndef __ZEPHYR__
 #include "socket.h"
+#else
+#include <sys/socket.h>
+#endif
 #include "sl_status.h"
 #include "sl_si91x_protocol_types.h"
 

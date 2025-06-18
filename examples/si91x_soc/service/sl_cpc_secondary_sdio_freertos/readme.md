@@ -46,7 +46,13 @@
   - Silicon Labs [BRD4338A](https://www.silabs.com/)
   - Silicon Labs [Si917 Evaluation Kit WPK(BRD4002)]
 - Host Device (For example : Raspberry Pi 4 Model B) as Primary
+  - Power Adapter
+  - Mini HDMI connector (to connect RPi to a Monitor)
+  - Ethernet Connector (to connect RPi to a Ethernet Network)
 - SD-card (128 GB) 
+- Monitor
+- Keyboard & Mouse
+
 
 ### Software Requirements
   - Simplicity Studio
@@ -125,7 +131,7 @@ Keep Raspberry pi OFF always at the time of flashing the application on secondar
      - Configure Wi-Fi (optional, can be done later).
      - Set Timezone to Asia/Kolkata and Keyboard layout to US.
      - Save settings by clicking the SAVE icon.
-7. Download the latest kernel version for RPI from the Raspberry pi official page.
+7. Download the v4.19 kernel version for RPI from the Raspberry pi from Github(https://github.com/raspberrypi/linux/tree/rpi-4.19.y).
 8. Click "WRITE", confirm with "YES".
 ```
 
@@ -183,10 +189,7 @@ c. reset_sequence: false
 
 ```
 
-9. Apply the patch located in resources/cpcd.patch. 
-
-
-10. Open a new terminal window and follow the below commands from /dameon/ directory:
+9. Open a new terminal window and follow the below commands from /dameon/ directory:
 
 ```
 a. mkdir build
@@ -203,19 +206,19 @@ On successful execution of above commands, output will look like : "Starting dae
 
 >![Figure: daemon_picture](resources/readme/daemon_picture.png)
 
-11. Once the CPCd connection is successful with the secondary, open another tab(make sure CPCd running in the background) goto /path_to_cpcd/script/ and run "python3 cpc_interactive_client.py -i cpcd_0 -l ../build/libcpc.so" command.
+10. Once the CPCd connection is successful with the secondary, open another tab(make sure CPCd running in the background) goto /path_to_cpcd/script/ and run "python3 cpc_interactive_client.py -i cpcd_0 -l ../build/libcpc.so" command.
 
 **Note:**
 
 - if you get error saying "ModuleNotFoundError: No module named 'libcpc' " 
 Follow the below command: 
-export PYTHONPATH=$PYTHONPATH:<daemon directory>/lib/bindings/python/src/libcpc
+export PYTHONPATH=$PYTHONPATH:/path/to/module
 
 - If you restart the cpc-daemon after closing it, it will result in a "Daemon exiting with status EXIT_FAILURE" error. To prevent this, power off the Raspberry Pi, reset the secondary device, and then try running it again.
 
 
 
-12. Now you should be able to see the welcome message. Using help command you can proceed with the testing. Refer the picture below:
+11. Now you should be able to see the welcome message. Using help command you can proceed with the testing. Refer the picture below:
 >![Figure: help_command](resources/readme/help_command.png)
 
 ### Run the Application

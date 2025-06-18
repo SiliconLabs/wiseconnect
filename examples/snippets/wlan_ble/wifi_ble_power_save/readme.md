@@ -207,7 +207,7 @@ The application can be configured to suit your requirements and development envi
      ```
 
 > Note:
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
+> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 ### Configuring the BLE task
 
@@ -354,6 +354,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
       Example:
       > openssl.exe s_server –accept 5001 –cert server-cert.pem -key server-key.pem –tls1_2
    ```
+  > **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
 
    ![](resources/readme/openssl_command.png)
 

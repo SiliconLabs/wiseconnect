@@ -114,10 +114,10 @@
 
 #define EXT_DATA_LEN_IND 1
 
-#define DUTY_CYCLING_DISABLE 0
-#define DUTY_CYCLING_ENABLE  1
-#define ENABLE_POWER_SAVE    0  //! Set to 1 for powersave mode
-#define LOCAL_DEV_ADDR_LEN   18 // Length of the local device address
+#define DUTY_CYCLING_DISABLE  0
+#define DUTY_CYCLING_ENABLE   1
+#define ENABLE_NWP_POWER_SAVE 0  //! Set to 1 for powersave mode
+#define LOCAL_DEV_ADDR_LEN    18 // Length of the local device address
 
 #define GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE 0 //! To update gain table and max tx power and offsets
 
@@ -598,7 +598,7 @@ void ble_per(void *unused)
                 per_stats.rssi,
                 per_stats.id_pkts_rcvd);
     }
-#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
     if (!(P2P_STATUS_REG & TA_wakeup_M4)) {
       P2P_STATUS_REG &= ~M4_wakeup_TA;
       LOG_PRINT("\r\n M4 sleep");

@@ -77,7 +77,7 @@
   ((((((uint32_t)(sizeof(rsi_pkt_pool_t))) + 3) & ~3)) \
    + ((RSI_DRIVER_RX_PKT_LEN + sizeof(void *)) * RSI_DRIVER_RX_POOL_PKT_COUNT))
 
-#define RSI_EVENT_INFO_POOL_SIZE (((((uint32_t)(sizeof(rsi_event_cb_t))) + 3) & ~3) * RSI_MAX_NUM_EVENTS)
+#define RSI_EVENT_INFO_POOL_SIZE (((((uint32_t)(sizeof(rsi_event_cb_t))) + 3) & ~3) * SLI_MAX_NUM_EVENTS)
 // pool size of socket information
 #ifdef RSI_WLAN_ENABLE
 #define RSI_SOCKET_INFO_POOL_SIZE (((((uint32_t)(sizeof(rsi_socket_info_t))) + 3) & ~3) * RSI_NUMBER_OF_SOCKETS)
@@ -304,13 +304,13 @@ typedef enum rsi_common_cmd_response_e {
 typedef enum rsi_common_cmd_request_e {
 
   RSI_COMMON_REQ_OPERMODE              = 0x10,
-  RSI_COMMON_REQ_ANTENNA_SELECT        = 0x1B,
+  SLI_COMMON_REQ_ANTENNA_SELECT        = 0x1B,
   RSI_COMMON_REQ_FEATURE_FRAME         = 0xC8,
   RSI_COMMON_REQ_SOFT_RESET            = 0x1C,
   RSI_COMMON_REQ_PWRMODE               = 0x15,
   RSI_COMMON_REQ_ENCRYPT_CRYPTO        = 0x76,
   RSI_COMMON_REQ_UART_FLOW_CTRL_ENABLE = 0xA4,
-  RSI_COMMON_REQ_TA_M4_COMMANDS        = 0xB0,
+  SLI_COMMON_REQ_TA_M4_COMMANDS        = 0xB0,
   RSI_COMMON_REQ_DEBUG_LOG             = 0x26
 
 #ifdef RSI_WAC_MFI_ENABLE
@@ -348,7 +348,10 @@ typedef enum rsi_common_cmd_request_e {
   RSI_COMMON_REQ_SET_RTC_TIMER = 0xE9,
   RSI_COMMON_REQ_GET_RTC_TIMER = 0xF2,
   RSI_COMMON_REQ_SET_CONFIG    = 0xBA,
-  RSI_COMMON_REQ_GET_CONFIG    = 0x0C
+  RSI_COMMON_REQ_GET_CONFIG    = 0x0C,
+
+  // FW Fall back request from host
+  SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST = 0x2C
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_REQ_GPIO_CONFIG = 0x28
@@ -357,6 +360,7 @@ typedef enum rsi_common_cmd_request_e {
   ,
   RSI_COMMON_REQ_DEVICE_LOGGING_INIT = 0x82
 #endif
+
 } rsi_common_cmd_request_t;
 
 #ifdef SLI_PUF_ENABLE
@@ -372,26 +376,26 @@ typedef enum rsi_puf_state_e {
 #endif
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+/// Managing interactions between the Trusted Application (TA) and the M4 core
 typedef enum ta_m4_commands_e {
-  SL_SI91X_TAKE_M4_64K                 = 1,
-  SL_SI91X_GET_IPMU_PROGRAMMING_VALUES = 2,
-  SL_SI91X_READ_TA_REGISTER            = 3,
-  SL_SI91X_WRITE_TA_REGISTER           = 4,
-  // This enum varibale added for M4 has to give indication to NWP, for Configure the Clock switching between 1.3V to 3.3V.
-  SL_SI91X_ENABLE_XTAL = 5,
+  SL_SI91X_TAKE_M4_64K                 = 1, ///< Allocates 64KB of memory for the M4 core
+  SL_SI91X_GET_IPMU_PROGRAMMING_VALUES = 2, ///< Retrieves the programming values from the IPMU
+  SL_SI91X_READ_TA_REGISTER            = 3, ///< Reads the value from a Trusted Application (TA) register
+  SL_SI91X_WRITE_TA_REGISTER           = 4, ///< Writes a specified value to a TA register
+  SL_SI91X_ENABLE_XTAL                 = 5, ///< Signals the NWP to configure clock switching between 1.3V and 3.3V
 #if defined(SLI_SI917) || defined(SLI_SI915)
-  SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
+  SL_SI91X_WRITE_TO_COMMON_FLASH = 6, ///< //Writes data to the common flash memory
 #endif
 } sl_si91x_ta_m4_commands_t;
-//  M4 and NWP secure handshake request structure.
+
+///  M4 and NWP secure handshake request structure.
 typedef struct ta_m4_handshake_param {
-  // sub_cmd form the  enum ta_m4_commands_e(Main command type is RSI_COMMON_REQ_TA_M4_COMMANDS)
-  sl_si91x_ta_m4_commands_t sub_cmd;
-  // length of input_data
-  uint8_t input_data_size;
-  // Input data. In this input data first byte is reserved for enable(1) or Disable(0) sub_cmd of this structure.
-  uint8_t *input_data;
-} sl_si91x_ta_m4_handshake_parameters_t;
+  sl_si91x_ta_m4_commands_t
+    sub_cmd; ///< sub_cmd form the  enum ta_m4_commands_e(Main command type is RSI_COMMON_REQ_TA_M4_COMMANDS)
+  uint8_t input_data_size; ///< length of input_data
+  uint8_t *
+    input_data; ///< Input data. In this input data first byte is reserved for enable(1) or Disable(0) sub_cmd of this structure.
+} sli_si91x_ta_m4_handshake_parameters_t;
 
 #if defined(SLI_SI917) || defined(SLI_SI915)
 #define RSI_MAX_CHUNK_SIZE 1400
@@ -604,11 +608,11 @@ typedef struct rsi_driver_cb_non_rom {
   volatile uint32_t timer_counter;
 #ifndef RSI_TX_EVENT_HANDLE_TIMER_DISABLE
   volatile uint32_t driver_timer_start;
-  sl_si91x_timer_t timer_start;
+  sli_si91x_timer_t timer_start;
 #endif
 #ifndef RSI_RX_EVENT_HANDLE_TIMER_DISABLE
   volatile uint32_t driver_rx_timer_start;
-  sl_si91x_timer_t rx_timer_start;
+  sli_si91x_timer_t rx_timer_start;
 #endif
 
 #ifdef RSI_SPI_INTERFACE

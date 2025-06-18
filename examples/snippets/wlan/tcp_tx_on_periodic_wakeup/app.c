@@ -54,7 +54,7 @@
  *                    Constants
  ******************************************************/
 
-#define ENABLE_POWER_SAVE 1
+#define ENABLE_NWP_POWER_SAVE 1
 
 /******************************************************
  *                      Macros
@@ -115,7 +115,7 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
                       ),
@@ -136,7 +136,7 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                       | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-#if defined(SLI_SI91X_MCU_INTERFACE) || ENABLE_POWER_SAVE
+#if defined(SLI_SI91X_MCU_INTERFACE) || ENABLE_NWP_POWER_SAVE
                    .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 #else
                    .config_feature_bit_map = 0
@@ -223,7 +223,6 @@ void send_data_to_tcp_server(void)
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   sl_status_t rc                    = SL_STATUS_FAIL;
-  sl_status_t status                = SL_STATUS_OK;
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
@@ -246,10 +245,10 @@ void send_data_to_tcp_server(void)
 
   printf("\r\nTCP_TX Throughput test start\r\n");
 
-  sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                        .listen_interval = 1000 };
-#if ENABLE_POWER_SAVE
-  rc = sl_wifi_set_performance_profile(&performance_profile);
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                           .listen_interval = 1000 };
+#if ENABLE_NWP_POWER_SAVE
+  rc = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (rc != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
   } else {
@@ -276,7 +275,7 @@ void send_data_to_tcp_server(void)
     }
     total_bytes_sent = 0;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 #ifdef SLI_SI91X_MCU_INTERFACE
     osStatus_t semaphore_status = osSemaphoreAcquire(button_semaphore, ALARM_TIMEOUT);
     if (semaphore_status == osOK) {

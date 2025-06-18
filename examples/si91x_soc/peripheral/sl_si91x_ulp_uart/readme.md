@@ -75,7 +75,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Enable the ULP_UART mode in UC before running/flashing the code.
 
-   ![Figure: Introduction](resources/readme/ulpuart_uc.png)
+   ![Figure: Introduction](resources/readme/ulpuart_uc.PNG)
 
 - Data send and receive from VCOM console is for one iteration only. On VCOM console, set the configuration such that the received data is sent back on the same port.
 - To check continuous data transfer, modify the following macro to ENABLE in the `ulp_uart_example.h` file.
@@ -90,11 +90,22 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Pin Configuration
 
-| 917 GPIO           | 915 GPIO          | Explorer kit GPIO |Description|
-| ------------------ | ----------------- | ----------------- | --------- |
-| ULP_GPIO_11  [F6]  | ULP_GPIO_7  [F6]  | ULP_GPIO_7  [TX]  | TX (VCOM) |
-| ULP_GPIO_9   [F7]  | ULP_GPIO_6  [F7]  | ULP_GPIO_6  [RX]  | RX (VCOM) |
-| ULP_GPIO_8 [P15]   | ULP_GPIO_4  [P36] | ULP_GPIO_8  [EXP_HEADER-2]  |GPIO_Toggle|
+|     SiWG917M       |      SiWG917Y     | Description |
+| ------------------ | ----------------- | ----------- |
+| ULP_GPIO_11  [F6]  | ULP_GPIO_11 [F6]  | TX (VCOM)   |
+| ULP_GPIO_9   [F7]  | ULP_GPIO_9  [F7]  | RX (VCOM)   |
+| ULP_GPIO_8   [P15] | ULP_GPIO_8  [P15] | GPIO_Toggle |
+
+
+## Flow Control Configuration
+
+- Set the SL_ULP_UART_FLOW_CONTROL_TYPE parameter to RTS and CTS in UC to enable UART flow control.
+- Select pins for CTS and RTS.
+
+  |      SiWG917M       |     SiWG917Y     |   Description    |           
+  | ------------------  | ---------------- | ---------------  |
+  |  ULP_GPIO_1  [P16]  | ULP_GPIO_1 [P16] | ULP_UART_CTS_PIN |
+  |  ULP_GPIO_10 [P17]  | ULP_GPIO_0 [F10] | ULP_UART_RTS_PIN |
 
 ## Test the Application
 
@@ -122,6 +133,7 @@ Follow the steps below for successful execution of the application:
 >- The required files for low-power state are moved to RAM. The rest of the application is executed from flash.
 >- In this application, we are changing the power state from PS4 to PS2 and vice - versa.
 >- Once the power state changes from PS4 to PS2 and vice - versa, you have to reconfigure the uart configs once again using sl_si91x_usart_set_configuration() API  because of frequency change. Refer to `ulp_uart_example.c` file for more info.
+>- CTS and RTS only works when not using ROM driver for UART
 >
 > **Note:**
 >
@@ -172,3 +184,7 @@ Follow the steps below for successful execution of the application:
 
 > **Note:**
 > Header connection pin references mentioned here are all specific to BRD4338A. If user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.
+>
+> **Note:**
+>
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, because the wireless shutdown scenario is not supported in the current SDK.

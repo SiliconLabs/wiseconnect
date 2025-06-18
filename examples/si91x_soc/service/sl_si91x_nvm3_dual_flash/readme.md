@@ -68,6 +68,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Configure UC from the slcp component.
 
    ![Figure: Introduction](resources/uc_screen/si91x_nvm3_uc_screen.png)
+
 - Open **sl_si91x_nvm3_dual_flash.slcp** project file select **software component** tab and search for **NVM3 for Si91x** in search bar.
 - Using configuration wizard one can configure different parameters like:
 
@@ -106,7 +107,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - After successful program execution the prints in serial console looks as shown below.
 
-  ![Figure: Introduction](resources/readme/output.png)
+    ![Figure: Introduction](resources/readme/output.png)
 
 ## Resources
 

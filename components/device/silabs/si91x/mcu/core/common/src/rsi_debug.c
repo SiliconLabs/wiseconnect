@@ -1,25 +1,40 @@
 /*******************************************************************************
- * @file  rsi_debug.c
- * @brief
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
- *
- ******************************************************************************/
+* @file  rsi_debug.c
+* @brief
+*******************************************************************************
+* # License
+* <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 
 #include <stdarg.h>
 #include "rsi_debug.h"
 #include "USART.h"
 #include "rsi_ccp_common.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
+#endif /* SL_COMPONENT_CATALOG_PRESENT */
 
 #ifdef SL_CATALOG_KERNEL_PRESENT
 #include "cmsis_os2.h"
@@ -179,8 +194,7 @@ int WRITEFUNC(int iFileHandle, const char *pcBuffer, int iLength)
   (void)pcBuffer; // Explicitly mark pcBuffer as unused to avoid warnings
 
 #if defined(DEBUG_ENABLE)
-  int i;
-  for (i = 0; i < iLength; i++) {
+  for (int i = 0; i < iLength; i++) {
     Board_UARTPutChar(pcBuffer[i]);
   }
 #endif
@@ -370,21 +384,21 @@ int stdin_getchar(void)
     ch = Board_UARTGetChar();
 #endif
   } while (ch == -1);
-  return (ch);
+  return ch;
 }
 int stdout_putchar(int ch)
 {
 #ifdef DEBUG_UART
-  (Board_UARTPutChar(ch));
+  Board_UARTPutChar((uint8_t)ch);
 #endif
-  return (ch);
+  return ch;
 }
 int stderr_putchar(int ch)
 {
 #ifdef DEBUG_UART
-  Board_UARTPutChar(ch);
+  Board_UARTPutChar((uint8_t)ch);
 #endif
-  return (ch);
+  return ch;
 }
 
 #endif // SLI_SI91X_DBG_MIDDLEWARE_EN

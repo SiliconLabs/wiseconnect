@@ -13,6 +13,7 @@ provides:
 - name: wifi
 source:
 - path: src/sl_wifi_callback_framework.c
+  condition: ["sl_si91x_wireless"]
 - path: si91x/sl_wifi.c
   condition: ["sl_si91x_wireless"]
 include:
@@ -24,10 +25,12 @@ include:
     - path: sl_wifi_host_interface.h
     - path: sl_wifi_types.h
     - path: sl_wifi.h
+    - path: sli_wifi_constants.h
 
 define:
 - name: SL_WIFI_COMPONENT_INCLUDED
 
 requires:
 - name: wifi_driver
+- name: sli_wifi_command_engine
 

@@ -60,9 +60,9 @@ static sl_status_t sli_si91x_get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_m
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_t *rx, uint8_t *ry, uint8_t *rz)
 {
-  uint8_t *result           = NULL;
-  uint16_t offset           = 0;
-  sl_si91x_packet_t *packet = NULL;
+  const uint8_t *result                 = NULL;
+  uint16_t offset                       = 0;
+  const sl_wifi_system_packet_t *packet = NULL;
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   result = packet->data;
@@ -76,12 +76,12 @@ static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_
 
 static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
                                           sl_si91x_ecdh_sub_mode_t ecdh_sub_mode,
-                                          uint8_t *sx,
-                                          uint8_t *sy,
-                                          uint8_t *sz,
-                                          uint8_t *tx,
-                                          uint8_t *ty,
-                                          uint8_t *tz,
+                                          const uint8_t *sx,
+                                          const uint8_t *sy,
+                                          const uint8_t *sz,
+                                          const uint8_t *tx,
+                                          const uint8_t *ty,
+                                          const uint8_t *tz,
                                           uint8_t *rx,
                                           uint8_t *ry,
                                           uint8_t *rz)
@@ -100,11 +100,11 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   SL_VERIFY_POINTER_OR_RETURN(ry, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(rz, SL_STATUS_NULL_POINTER);
 
-  sl_si91x_ecdh_add_sub_request_t *request =
-    (sl_si91x_ecdh_add_sub_request_t *)malloc(sizeof(sl_si91x_ecdh_add_sub_request_t));
+  sli_si91x_ecdh_add_sub_request_t *request =
+    (sli_si91x_ecdh_add_sub_request_t *)malloc(sizeof(sli_si91x_ecdh_add_sub_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_ecdh_add_sub_request_t));
+  memset(request, 0, sizeof(sli_si91x_ecdh_add_sub_request_t));
 
   status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
@@ -113,18 +113,18 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type = ECDH;
-  request->ecdh_mode      = ecdh_mode;
-  request->ecdh_sub_mode  = ecdh_sub_mode;
+  request->ecdh_mode      = (uint8_t)ecdh_mode;
+  request->ecdh_sub_mode  = (uint8_t)ecdh_sub_mode;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  request->sx = sx;
-  request->sy = sy;
-  request->sz = sz;
-  request->tx = tx;
-  request->ty = ty;
-  request->tz = tz;
-  request->rx = rx;
-  request->ry = ry;
-  request->rz = rz;
+  request->sx = (uint8_t *)sx;
+  request->sy = (uint8_t *)sy;
+  request->sz = (uint8_t *)sz;
+  request->tx = (uint8_t *)tx;
+  request->ty = (uint8_t *)ty;
+  request->tz = (uint8_t *)tz;
+  request->rx = (uint8_t *)rx;
+  request->ry = (uint8_t *)ry;
+  request->rz = (uint8_t *)rz;
 #else
   memcpy(request->sx, sx, size);
   memcpy(request->sy, sy, size);
@@ -142,28 +142,28 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
 #endif
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 sizeof(sl_si91x_ecdh_add_sub_request_t),
+                                                 sizeof(sli_si91x_ecdh_add_sub_request_t),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        sizeof(sl_si91x_ecdh_add_sub_request_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         sizeof(sli_si91x_ecdh_add_sub_request_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -173,7 +173,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
@@ -182,12 +182,12 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
-                                         uint8_t *sx,
-                                         uint8_t *sy,
-                                         uint8_t *sz,
-                                         uint8_t *tx,
-                                         uint8_t *ty,
-                                         uint8_t *tz,
+                                         const uint8_t *sx,
+                                         const uint8_t *sy,
+                                         const uint8_t *sz,
+                                         const uint8_t *tx,
+                                         const uint8_t *ty,
+                                         const uint8_t *tz,
                                          uint8_t *rx,
                                          uint8_t *ry,
                                          uint8_t *rz)
@@ -196,12 +196,12 @@ sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
-                                            uint8_t *sx,
-                                            uint8_t *sy,
-                                            uint8_t *sz,
-                                            uint8_t *tx,
-                                            uint8_t *ty,
-                                            uint8_t *tz,
+                                            const uint8_t *sx,
+                                            const uint8_t *sy,
+                                            const uint8_t *sz,
+                                            const uint8_t *tx,
+                                            const uint8_t *ty,
+                                            const uint8_t *tz,
                                             uint8_t *rx,
                                             uint8_t *ry,
                                             uint8_t *rz)
@@ -210,10 +210,10 @@ sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
-                                               uint8_t *d,
-                                               uint8_t *sx,
-                                               uint8_t *sy,
-                                               uint8_t *sz,
+                                               const uint8_t *d,
+                                               const uint8_t *sx,
+                                               const uint8_t *sy,
+                                               const uint8_t *sz,
                                                uint32_t affinity,
                                                uint8_t *rx,
                                                uint8_t *ry,
@@ -233,10 +233,10 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   SL_VERIFY_POINTER_OR_RETURN(ry, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(rz, SL_STATUS_NULL_POINTER);
 
-  sl_si91x_ecdh_mul_request_t *request = (sl_si91x_ecdh_mul_request_t *)malloc(sizeof(sl_si91x_ecdh_mul_request_t));
+  sli_si91x_ecdh_mul_request_t *request = (sli_si91x_ecdh_mul_request_t *)malloc(sizeof(sli_si91x_ecdh_mul_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_ecdh_mul_request_t));
+  memset(request, 0, sizeof(sli_si91x_ecdh_mul_request_t));
 
   status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
@@ -245,18 +245,18 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type  = ECDH;
-  request->ecdh_mode       = ecdh_mode;
+  request->ecdh_mode       = (uint8_t)ecdh_mode;
   request->ecdh_sub_mode   = SL_SI91X_ECDH_MUL;
   request->ecdh_curve_type = SL_SI91X_ECDH_CURVE_P;
   request->affinity        = affinity;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  request->d  = d;
-  request->sx = sx;
-  request->sy = sy;
-  request->sz = sz;
-  request->rx = rx;
-  request->ry = ry;
-  request->rz = rz;
+  request->d  = (uint8_t *)d;
+  request->sx = (uint8_t *)sx;
+  request->sy = (uint8_t *)sy;
+  request->sz = (uint8_t *)sz;
+  request->rx = (uint8_t *)rx;
+  request->ry = (uint8_t *)ry;
+  request->rz = (uint8_t *)rz;
 #else
   memcpy(request->d, d, size);
   memcpy(request->sx, sx, size);
@@ -264,10 +264,10 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(request->sz, sz, size);
 #endif
   if (reverse) {
-    reverse_digits(request->sx, size);
-    reverse_digits(request->sy, size);
-    reverse_digits(request->sz, size);
-    reverse_digits(request->d, size);
+    sli_reverse_digits(request->sx, size);
+    sli_reverse_digits(request->sy, size);
+    sli_reverse_digits(request->sz, size);
+    sli_reverse_digits(request->d, size);
   }
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -278,28 +278,28 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
 #endif
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_ecdh_mul_request_t)),
+                                                 (sizeof(sli_si91x_ecdh_mul_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        (sizeof(sl_si91x_ecdh_mul_request_t)),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         (sizeof(sli_si91x_ecdh_mul_request_t)),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -310,12 +310,12 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
 #endif
 
   if (reverse) {
-    reverse_digits(rx, size);
-    reverse_digits(ry, size);
-    reverse_digits(rz, size);
+    sli_reverse_digits(rx, size);
+    sli_reverse_digits(ry, size);
+    sli_reverse_digits(rz, size);
   }
 
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
@@ -324,9 +324,9 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
-                                       uint8_t *sx,
-                                       uint8_t *sy,
-                                       uint8_t *sz,
+                                       const uint8_t *sx,
+                                       const uint8_t *sy,
+                                       const uint8_t *sz,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz)
@@ -342,11 +342,11 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   SL_VERIFY_POINTER_OR_RETURN(ry, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(rz, SL_STATUS_NULL_POINTER);
 
-  sl_si91x_ecdh_double_request_t *request =
-    (sl_si91x_ecdh_double_request_t *)malloc(sizeof(sl_si91x_ecdh_double_request_t));
+  sli_si91x_ecdh_double_request_t *request =
+    (sli_si91x_ecdh_double_request_t *)malloc(sizeof(sli_si91x_ecdh_double_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_ecdh_double_request_t));
+  memset(request, 0, sizeof(sli_si91x_ecdh_double_request_t));
 
   status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
@@ -355,16 +355,16 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type = ECDH;
-  request->ecdh_mode      = ecdh_mode;
+  request->ecdh_mode      = (uint8_t)ecdh_mode;
   request->ecdh_sub_mode  = SL_SI91X_ECDH_DOUBLE;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  request->sx = sx;
-  request->sy = sy;
-  request->sz = sz;
-  request->rx = rx;
-  request->ry = ry;
-  request->rz = rz;
+  request->sx = (uint8_t *)sx;
+  request->sy = (uint8_t *)sy;
+  request->sz = (uint8_t *)sz;
+  request->rx = (uint8_t *)rx;
+  request->ry = (uint8_t *)ry;
+  request->rz = (uint8_t *)rz;
 #else
   memcpy(request->sx, sx, size);
   memcpy(request->sy, sy, size);
@@ -380,28 +380,28 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_ecdh_double_request_t)),
+                                                 (sizeof(sli_si91x_ecdh_double_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        (sizeof(sl_si91x_ecdh_double_request_t)),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         (sizeof(sli_si91x_ecdh_double_request_t)),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -411,7 +411,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
@@ -420,9 +420,9 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
 }
 
 sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
-                                       uint8_t *sx,
-                                       uint8_t *sy,
-                                       uint8_t *sz,
+                                       const uint8_t *sx,
+                                       const uint8_t *sy,
+                                       const uint8_t *sz,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz)
@@ -438,11 +438,11 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   SL_VERIFY_POINTER_OR_RETURN(ry, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(rz, SL_STATUS_NULL_POINTER);
 
-  sl_si91x_ecdh_affine_request_t *request =
-    (sl_si91x_ecdh_affine_request_t *)malloc(sizeof(sl_si91x_ecdh_affine_request_t));
+  sli_si91x_ecdh_affine_request_t *request =
+    (sli_si91x_ecdh_affine_request_t *)malloc(sizeof(sli_si91x_ecdh_affine_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_ecdh_affine_request_t));
+  memset(request, 0, sizeof(sli_si91x_ecdh_affine_request_t));
 
   status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
@@ -451,7 +451,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   }
 
   request->algorithm_type  = ECDH;
-  request->ecdh_mode       = ecdh_mode;
+  request->ecdh_mode       = (uint8_t)ecdh_mode;
   request->ecdh_sub_mode   = SL_SI91X_ECDH_AFFINITY;
   request->ecdh_curve_type = SL_SI91X_ECDH_CURVE_P;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -478,28 +478,28 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
 #endif
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_ecdh_affine_request_t)),
+                                                 (sizeof(sli_si91x_ecdh_affine_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        (sizeof(sl_si91x_ecdh_affine_request_t)),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         (sizeof(sli_si91x_ecdh_affine_request_t)),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -509,7 +509,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);

@@ -46,7 +46,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 {
   sl_status_t status                = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer          = NULL;
-  sl_si91x_packet_t *packet         = NULL;
+  sl_wifi_system_packet_t *packet   = NULL;
   sl_si91x_ecdsa_request_t *request = (sl_si91x_ecdsa_request_t *)malloc(sizeof(sl_si91x_ecdsa_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
@@ -93,8 +93,8 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
   request->key_length = config->key_config.a0.key_length;
 #endif
 
-  status = sl_si91x_driver_send_command(
-    RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sli_si91x_driver_send_command(
+    SLI_COMMON_REQ_ENCRYPT_CRYPTO,
     SI91X_COMMON_CMD,
     request,
     (sizeof(sl_si91x_ecdsa_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_ECDSA + chunk_length),
@@ -105,7 +105,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
 
   VERIFY_STATUS_AND_RETURN(status);
@@ -123,7 +123,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 
   memcpy(output, packet->data, packet->length);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   free(request);
 
   return status;

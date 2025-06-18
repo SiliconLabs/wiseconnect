@@ -301,6 +301,17 @@ void send_data_to_tcp_server(void)
   return;
 }
 
+void close_sockets(int client_socket, int server_socket)
+{
+  if (client_socket > 0)
+    close(client_socket);
+
+  if (server_socket > 0)
+    close(server_socket);
+
+  return;
+}
+
 void receive_data_from_tcp_client(void)
 {
   int server_socket                 = -1;
@@ -385,8 +396,7 @@ void receive_data_from_tcp_client(void)
       } else {
         LOG_PRINT("\r\nTCP recv failed with BSD error = %d\r\n", errno);
       }
-      close(server_socket);
-      close(client_socket);
+      close_sockets(client_socket, server_socket);
       return;
     }
 
@@ -412,9 +422,21 @@ void receive_data_from_tcp_client(void)
 
   total_set_fds_count = select(highest_socket_number + 1, &read_fds, NULL, NULL, &timeout);
 
-  if (total_set_fds_count == 0 || total_set_fds_count == -1) {
-    LOG_PRINT("\r\nSocket select failed with bsd error: %d\r\n", errno);
-    close(client_socket);
+  if (total_set_fds_count == -1) {
+    if (errno == 0) {
+      // get the error code returned by the firmware
+      status = sl_si91x_get_saved_firmware_status();
+      LOG_PRINT("\r\nSocket select failed with bsd error: %d and status = 0x%lx\r\n", errno, status);
+    } else {
+      LOG_PRINT("\r\nSocket select failed with bsd error: %d\r\n", errno);
+    }
+    close(server_socket);
+    return;
+  }
+
+  if (total_set_fds_count == 0) {
+    printf("\r\n No data available on any file descriptor \r\n");
+    close_sockets(client_socket, server_socket);
     return;
   }
 
@@ -439,7 +461,6 @@ void receive_data_from_tcp_client(void)
             LOG_PRINT("\r\nTCP recv failed with BSD error = %d\r\n", errno);
           }
           close(server_socket);
-          close(client_socket);
           return;
         }
 
@@ -459,11 +480,7 @@ void receive_data_from_tcp_client(void)
     }
   }
 #endif
-  if (client_socket > 0)
-    close(client_socket);
-
-  if (server_socket > 0)
-    close(server_socket);
+  close_sockets(client_socket, server_socket);
 
   LOG_PRINT("\r\n Socket close success\r\n");
   LOG_PRINT("\r\nTCP_RX Throughput test finished\r\n");

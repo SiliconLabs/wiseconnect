@@ -18,6 +18,7 @@ include:
     - path: aws_client_certificate.pem.crt.h
     - path: aws_client_private_key.pem.key.h
     - path: aws_starfield_ca.pem.h
+    - path: aws_ota_certificate.pem.h
     - path: azure_baltimore_ca.pem.h
     - path: cacert.pem.h
     - path: clientcert.pem.h
@@ -48,6 +49,12 @@ config_file:
 - path: lwip_defaults/lwipopts.h
   file_id: lwipopts
   condition: ["sl_si91x_lwip_stack"]
+- path: lwip_defaults/lwipopts.h
+  file_id: lwipopts
+  condition: ["sl_lwip_series3_stack"]
+- path: lwip_defaults/lwipopts.h
+  file_id: lwipopts
+  condition: ["sl_si91x_network_dual_stack"]
 - path: defaults/aws_iot_config.h
   file_id: aws_iot_config
   condition: ["aws_sdk"]

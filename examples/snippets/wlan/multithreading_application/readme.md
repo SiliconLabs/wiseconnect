@@ -15,9 +15,7 @@
    - [Steps to set up MQTT server](#steps-to-set-up-mqtt-server)
 ## Purpose/Scope
 
-This application demonstrates how to configure the SiWx91x multithreading in concurrent mode, i.e., in both Wi-Fi Station mode (STA instance) and Access Point mode (SoftAP instance).
-In this example application, the SiWx91x's STA instance is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic.
-In this example application, configure the SiWx91x as a soft access point and measure WLAN UDP/TCP throughput by configuring the SiWx91x in client/server role.
+This application demonstrates how to configure the SiWx91x device in concurrent mode using multithreading, i.e., in both Wi-Fi Station mode (STA instance) and Access Point mode (SoftAP instance). The SiWx91x's STA instance is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic. And simultaneously, configures the SiWx91x device as a soft Access Point and measures WLAN UDP/TCP throughput by configuring the SiWx91x AP interface in a client/server role.
 
 ## Prerequisites/Setup Requirements
 

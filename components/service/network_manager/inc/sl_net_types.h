@@ -34,6 +34,7 @@
 #include "sl_net_ip_types.h"
 #include "sl_constants.h"
 #include "sl_status.h"
+#include "sl_utility.h"
 #include <stdint.h>
 
 /** \addtogroup SL_NET_TYPES Types
@@ -50,7 +51,7 @@
  * Network event of type @ref sl_net_event_t.
  * | @ref sl_net_event_t                  | DataType                               |
  * |:-------------------------------------|:---------------------------------------|
- * | SL_NET_PING_RESPONSE_EVENT           | @ref sl_si91x_ping_response_t          |
+ * | SL_NET_PING_RESPONSE_EVENT           | @ref sl_net_ping_response_t          |
  * | SL_NET_DNS_RESOLVE_EVENT             | [sl_ip_address_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-ip-address-t) |
  * | SL_NET_OTA_FW_UPDATE_EVENT           | NULL in case of success, else uint16_t chunk number in case of failure |
  * | SL_NET_DHCP_NOTIFICATION_EVENT       | NULL                                   |
@@ -86,6 +87,7 @@ typedef sl_status_t (*sl_net_event_handler_t)(sl_net_event_t event,
 typedef void sl_net_profile_t;
 
 /**
+ * @struct sl_net_ping_response_t
  * @brief Ping Response structure.
  * 
  * @details
@@ -99,5 +101,19 @@ typedef struct {
     uint8_t ipv4_address[4];  ///< IPv4 address
     uint8_t ipv6_address[16]; ///< IPv6 address
   } ping_address;             ///< Pinged IP address
-} sl_si91x_ping_response_t;
+} sl_net_ping_response_t;
+
+/**
+ * @brief Alias for sl_net_ping_response_t.
+ * 
+ * @details
+ * This typedef provides an alias for the `sl_net_ping_response_t` structure, 
+ * specifically for use in the Si91x platform. It represents the response data 
+ * for a ping operation, including IP version, ping size, and the pinged IP address.
+ * 
+ * @note
+ * Moving forward, this `sl_si91x_ping_response_t` type will be deprecated. Instead, use @ref sl_net_ping_response_t type. This is retained for backward compatibility.
+ */
+typedef sl_net_ping_response_t sl_si91x_ping_response_t;
+
 /** @} */

@@ -73,15 +73,15 @@
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 static sl_adc_callback_t user_callback = NULL;
-static uint8_t number_of_channel;
+static uint8_t num_of_channels_enabled;
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
-static sl_status_t validate_adc_parameters(sl_adc_config_t *adc_config);
-static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_channel_config);
-static sl_status_t validate_adc_thrld_parameters(sl_adc_fifo_thrld_config_t *adc_fifo_threshold);
-static sl_status_t validate_adc_internal_parameters(sl_adc_internal_config_t *adc_internal_config);
+static sl_status_t validate_adc_parameters(const sl_adc_config_t *adc_config);
+static sl_status_t validate_adc_channel_parameters(const sl_adc_channel_config_t *adc_channel_config);
+static sl_status_t validate_adc_thrld_parameters(const sl_adc_fifo_thrld_config_t *adc_fifo_threshold);
+static sl_status_t validate_adc_internal_parameters(const sl_adc_internal_config_t *adc_internal_config);
 static sl_status_t sl_si91x_adc_channel_interrupt_clear(sl_adc_config_t adc_config, uint8_t channel_num);
 static sl_status_t sl_si91x_adc_configure_reference_voltage(float vref_value, float chip_voltage);
 static float sl_si91x_adc_get_chip_voltage(void);
@@ -135,66 +135,66 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
   rsi_error_t error_status;
   uint8_t ch_num       = 0;
   float battery_status = 0;
-  number_of_channel    = adc_config.num_of_channel_enable;
-  do {
-    // Validate ADC parameters, if the parameters incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_parameters(&adc_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Validate ADC channel parameters, if the parameters incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_channel_parameters(&adc_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    if (adc_config.num_of_channel_enable == MINIMUM_NUMBER_OF_CHANNEL) {
-      ch_num = adc_channel_config.channel;
-    }
-    //Validate sampling length is proper or not
-    if ((adc_config.operation_mode == SL_ADC_STATIC_MODE)
-        && (adc_channel_config.num_of_samples[ch_num] > MINIMUM_SAMPLING_LENGTH)) {
-      status = SL_STATUS_INVALID_COUNT;
-      break;
-    }
-    // validate sample length, if it above 1023 it will return error code.
-    if ((adc_channel_config.num_of_samples[ch_num] > MAXIMUM_SAMPLING_LENGTH)
-        || (adc_channel_config.num_of_samples[ch_num] < MINIMUM_SAMPLING_LENGTH)) {
-      status = SL_STATUS_INVALID_COUNT;
-      break;
-    }
+
+  // Validate ADC parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_parameters(&adc_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  } else {
+    // adc_config is valid, so set the number of channel
+    num_of_channels_enabled = adc_config.num_of_channel_enable;
+  }
+  // Validate ADC channel parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_channel_parameters(&adc_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  if (adc_config.num_of_channel_enable == MINIMUM_NUMBER_OF_CHANNEL) {
+    ch_num = adc_channel_config.channel;
+  }
+  //Validate sampling length is proper or not
+  if ((adc_config.operation_mode == SL_ADC_STATIC_MODE)
+      && (adc_channel_config.num_of_samples[ch_num] > MINIMUM_SAMPLING_LENGTH)) {
+    return SL_STATUS_INVALID_COUNT;
+  }
+  // validate sample length, if it above 1023 it will return error code.
+  if ((adc_channel_config.num_of_samples[ch_num] > MAXIMUM_SAMPLING_LENGTH)
+      || (adc_channel_config.num_of_samples[ch_num] < MINIMUM_SAMPLING_LENGTH)) {
+    return SL_STATUS_INVALID_COUNT;
+  }
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
-    /* Power-up Button Calibration*/
-    RSI_PS_BodPwrGateButtonCalibEnable();
-    /* Enable PTAT for Analog Peripherals*/
-    RSI_PS_AnalogPeriPtatEnable();
-    /* Power-up Analog(IPMU) Domain peripherals*/
-    RSI_IPMU_PowerGateSet(CMP_NPSS_PG_ENB);
-    /*Turn on ULPSS SRAM Core/Periphery domains*/
-    RSI_PS_UlpssRamBanksPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
-    RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
+  /* Power-up Button Calibration*/
+  RSI_PS_BodPwrGateButtonCalibEnable();
+  /* Enable PTAT for Analog Peripherals*/
+  RSI_PS_AnalogPeriPtatEnable();
+  /* Power-up Analog(IPMU) Domain peripherals*/
+  RSI_IPMU_PowerGateSet(CMP_NPSS_PG_ENB);
+  /*Turn on ULPSS SRAM Core/Periphery domains*/
+  RSI_PS_UlpssRamBanksPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
+  RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
 #endif
-    // Initialize ADC.
-    if (adc_config.operation_mode == SL_ADC_FIFO_MODE) {
-      if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
-        error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
-      } else {
-        error_status = ADC_Per_Channel_Init(adc_channel_config, adc_config, callback_event_handler);
-      }
-    } else { // ADC init for Static mode.
+  // Initialize ADC.
+  if (adc_config.operation_mode == SL_ADC_FIFO_MODE) {
+    if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
+      error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
+    } else {
       error_status = ADC_Per_Channel_Init(adc_channel_config, adc_config, callback_event_handler);
     }
-    status = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Get the battery/chip voltage level status.
-    battery_status = sl_si91x_adc_get_chip_voltage();
-    /* Configure reference voltage for analog peripheral ,here till 2.8V generate by using
-        AUX_LDO so more than 2.8V enable LDO bypass mode */
-    status = sl_si91x_adc_configure_reference_voltage(vref_value, battery_status);
-  } while (false);
+  } else { // ADC init for Static mode.
+    error_status = ADC_Per_Channel_Init(adc_channel_config, adc_config, callback_event_handler);
+  }
+  status = convert_rsi_to_sl_error_code(error_status);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Get the battery/chip voltage level status.
+  battery_status = sl_si91x_adc_get_chip_voltage();
+  /* Configure reference voltage for analog peripheral ,here till 2.8V generate by using
+      AUX_LDO so more than 2.8V enable LDO bypass mode */
+  status = sl_si91x_adc_configure_reference_voltage(vref_value, battery_status);
+
   return status;
 }
 
@@ -274,31 +274,31 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate ADC parameters, if the parameters incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_parameters(&adc_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Validate ADC channel parameters, if the parameters incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_channel_parameters(&adc_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // set the configuration for ADC channel.
-    if (adc_config.operation_mode == SL_ADC_FIFO_MODE) {
-      if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
-        error_status = ADC_ChannelConfig(adc_channel_config, adc_config);
-      } else {
-        error_status = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
-      }
-    } else { // Static mode configuration
+
+  // Validate ADC parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_parameters(&adc_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Validate ADC channel parameters, if the parameters incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_channel_parameters(&adc_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // set the configuration for ADC channel.
+  if (adc_config.operation_mode == SL_ADC_FIFO_MODE) {
+    if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
+      error_status = ADC_ChannelConfig(adc_channel_config, adc_config);
+    } else {
       error_status = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
     }
-    status = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+  } else { // Static mode configuration
+    error_status = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
+  }
+  status = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -313,25 +313,22 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
  ******************************************************************************/
 sl_status_t sl_si91x_adc_register_event_callback(sl_adc_callback_t callback_event)
 {
-  sl_status_t status;
-  do {
-    // Validate instance, if the parameters is NULL, it returns an error code.
-    if (callback_event == NULL) {
-      status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    // To validate the function pointer if the parameters is not NULL then, it
-    // returns an error code
-    if (user_callback != NULL) {
-      status = SL_STATUS_BUSY;
-      break;
-    }
-    // User callback address is passed to the static variable which is called
-    // at the time of interrupt
-    user_callback = callback_event;
-    // Returns SL_STATUS_OK if callback is successfully registered
-    status = SL_STATUS_OK;
-  } while (false);
+  // Returns SL_STATUS_OK if callback is successfully registered
+  sl_status_t status = SL_STATUS_OK;
+
+  // Validate instance, if the parameters is NULL, it returns an error code.
+  if (callback_event == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  // To validate the function pointer if the parameters is not NULL then, it
+  // returns an error code
+  if (user_callback != NULL) {
+    return SL_STATUS_BUSY;
+  }
+  // User callback address is passed to the static variable which is called
+  // at the time of interrupt
+  user_callback = callback_event;
+
   return status;
 }
 
@@ -360,23 +357,22 @@ sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate channel number.
-    if (channel_num >= MAXIMUM_CHANNEL_ID) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC internal parameters
-    status = validate_adc_internal_parameters(&adc_internal_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    error_status = RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP,
-                                               channel_num,
-                                               adc_internal_config.ch_offset_val[channel_num],
-                                               adc_internal_config.ch_sampling_factor[channel_num]);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+
+  // Validate channel number.
+  if (channel_num >= MAXIMUM_CHANNEL_ID) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ADC internal parameters
+  status = validate_adc_internal_parameters(&adc_internal_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  error_status = RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP,
+                                             channel_num,
+                                             adc_internal_config.ch_offset_val[channel_num],
+                                             adc_internal_config.ch_sampling_factor[channel_num]);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -393,28 +389,27 @@ sl_status_t sl_si91x_adc_configure_ping_pong_memory_address(sl_adc_internal_conf
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate channel number.
-    if (channel_num >= MAXIMUM_CHANNEL_ID) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC internal parameters
-    status = validate_adc_internal_parameters(&adc_internal_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Configure ADC ping and pong memory address.
-    error_status = RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP,
-                                                   channel_num,
-                                                   adc_internal_config.ping_addr[channel_num],
-                                                   adc_internal_config.pong_addr[channel_num],
-                                                   adc_internal_config.ping_length[channel_num],
-                                                   adc_internal_config.pong_length[channel_num],
-                                                   ADC_PING_ENABLE,
-                                                   ADC_PONG_ENABLE);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+  adc_ping_pong_memory_adr_config_t PingPongMemoryAdrConfig;
+
+  // Validate channel number.
+  if (channel_num >= MAXIMUM_CHANNEL_ID) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ADC internal parameters
+  status = validate_adc_internal_parameters(&adc_internal_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Configure ADC ping and pong memory address.
+  PingPongMemoryAdrConfig.ping_addr   = adc_internal_config.ping_addr[channel_num];
+  PingPongMemoryAdrConfig.pong_addr   = adc_internal_config.pong_addr[channel_num];
+  PingPongMemoryAdrConfig.ping_length = adc_internal_config.ping_length[channel_num];
+  PingPongMemoryAdrConfig.pong_length = adc_internal_config.pong_length[channel_num];
+  PingPongMemoryAdrConfig.ping_enable = ADC_PING_ENABLE;
+  PingPongMemoryAdrConfig.pong_enable = ADC_PONG_ENABLE;
+  error_status = RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP, channel_num, PingPongMemoryAdrConfig);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -431,27 +426,27 @@ sl_status_t sl_si91x_adc_fifo_threshold_configuration(sl_adc_config_t adc_config
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate ADC parameters, if the parameters are incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_parameters(&adc_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Validate ADC fifo threshold parameters, if the parameters are incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_thrld_parameters(&adc_fifo_threshold);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    error_status = RSI_ADC_Config(AUX_ADC_DAC_COMP,
-                                  adc_fifo_threshold.num_of_channel_en,
-                                  adc_config.operation_mode,
-                                  adc_fifo_threshold.a_empty_threshold,
-                                  adc_fifo_threshold.a_full_threshold,
-                                  adc_fifo_threshold.dma_type);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+
+  // Validate ADC parameters, if the parameters are incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_parameters(&adc_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Validate ADC fifo threshold parameters, if the parameters are incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_thrld_parameters(&adc_fifo_threshold);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  error_status = RSI_ADC_Config(AUX_ADC_DAC_COMP,
+                                adc_fifo_threshold.num_of_channel_en,
+                                adc_config.operation_mode,
+                                adc_fifo_threshold.a_empty_threshold,
+                                adc_fifo_threshold.a_full_threshold,
+                                adc_fifo_threshold.dma_type);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -494,32 +489,31 @@ sl_status_t sl_si91x_adc_read_data(sl_adc_channel_config_t adc_channel_config, u
   rsi_error_t error_status;
   uint8_t data_process                    = 0;
   static uint8_t ping_pong_memory_read[4] = { ADC_PING_ENABLE, ADC_PING_ENABLE, ADC_PING_ENABLE, ADC_PING_ENABLE };
-  do {
-    // Validate channel number.
-    if (channel_num >= MAXIMUM_CHANNEL_ID) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC parameters, if the parameters are incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_channel_parameters(&adc_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    data_process = 1;
-    error_status = RSI_ADC_ReadData(adc_channel_config.rx_buf[channel_num],
-                                    ping_pong_memory_read[channel_num],
-                                    channel_num,
-                                    data_process,
-                                    adc_channel_config.input_type[channel_num]);
-    // Select the ping and pong address to read the data based on channel number.
-    if (ping_pong_memory_read[channel_num] == ADC_PING_ENABLE) {
-      ping_pong_memory_read[channel_num] = ADC_PING_DISABLE;
-    } else {
-      ping_pong_memory_read[channel_num] = ADC_PING_ENABLE;
-    }
-    status = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+
+  // Validate channel number.
+  if (channel_num >= MAXIMUM_CHANNEL_ID) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ADC parameters, if the parameters are incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_channel_parameters(&adc_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  data_process = 1;
+  error_status = RSI_ADC_ReadData(adc_channel_config.rx_buf[channel_num],
+                                  ping_pong_memory_read[channel_num],
+                                  channel_num,
+                                  data_process,
+                                  adc_channel_config.input_type[channel_num]);
+  // Select the ping and pong address to read the data based on channel number.
+  if (ping_pong_memory_read[channel_num] == ADC_PING_ENABLE) {
+    ping_pong_memory_read[channel_num] = ADC_PING_DISABLE;
+  } else {
+    ping_pong_memory_read[channel_num] = ADC_PING_ENABLE;
+  }
+  status = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -574,24 +568,23 @@ sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_chann
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate channel number.
-    if (channel_num >= MAXIMUM_CHANNEL_ID) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC parameters, if the parameters are incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_channel_parameters(&adc_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    error_status = RSI_ADC_StaticMode(AUX_ADC_DAC_COMP,
-                                      adc_channel_config.pos_inp_sel[channel_num],
-                                      adc_channel_config.neg_inp_sel[channel_num],
-                                      adc_channel_config.input_type[channel_num]);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+
+  // Validate channel number.
+  if (channel_num >= MAXIMUM_CHANNEL_ID) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ADC parameters, if the parameters are incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_channel_parameters(&adc_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  error_status = RSI_ADC_StaticMode(AUX_ADC_DAC_COMP,
+                                    adc_channel_config.pos_inp_sel[channel_num],
+                                    adc_channel_config.neg_inp_sel[channel_num],
+                                    adc_channel_config.input_type[channel_num]);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -606,25 +599,24 @@ sl_status_t sl_si91x_adc_configure_fifo_mode(sl_adc_channel_config_t adc_channel
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate channel number.
-    if (channel_num >= MAXIMUM_CHANNEL_ID) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC parameters, if the parameters are incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_channel_parameters(&adc_channel_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    error_status = RSI_ADC_FifoMode(AUX_ADC_DAC_COMP,
-                                    channel_num,
-                                    adc_channel_config.pos_inp_sel[channel_num],
-                                    adc_channel_config.neg_inp_sel[channel_num],
-                                    adc_channel_config.input_type[channel_num]);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+
+  // Validate channel number.
+  if (channel_num >= MAXIMUM_CHANNEL_ID) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ADC parameters, if the parameters are incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_channel_parameters(&adc_channel_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  error_status = RSI_ADC_FifoMode(AUX_ADC_DAC_COMP,
+                                  channel_num,
+                                  adc_channel_config.pos_inp_sel[channel_num],
+                                  adc_channel_config.neg_inp_sel[channel_num],
+                                  adc_channel_config.input_type[channel_num]);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -839,21 +831,20 @@ static sl_status_t sl_si91x_adc_channel_interrupt_clear(sl_adc_config_t adc_conf
 {
   sl_status_t status;
   rsi_error_t error_status;
-  do {
-    // Validate channel number.
-    if (channel_num >= MAXIMUM_CHANNEL_ID) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC parameters, if the parameters are incorrect
-    // If the status is not equal to SL_STATUS_OK, returns error code.
-    status = validate_adc_parameters(&adc_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    error_status = RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, channel_num, adc_config.operation_mode);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  } while (false);
+
+  // Validate channel number.
+  if (channel_num >= MAXIMUM_CHANNEL_ID) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ADC parameters, if the parameters are incorrect
+  // If the status is not equal to SL_STATUS_OK, returns error code.
+  status = validate_adc_parameters(&adc_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  error_status = RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, channel_num, adc_config.operation_mode);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
   return status;
 }
 
@@ -932,24 +923,21 @@ static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
  * According to the values in ADC configuration structure, it performs the
  * 'OR' operation of the values.
  ******************************************************************************/
-static sl_status_t validate_adc_parameters(sl_adc_config_t *adc_config)
+static sl_status_t validate_adc_parameters(const sl_adc_config_t *adc_config)
 {
-  sl_status_t status;
-  do {
-    // Validates the ADC operation mode, if it is not either static or fifo mode it returns error code.
-    if (adc_config->operation_mode >= SL_ADC_OPERATION_MODE_LAST) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // If the number of channel is not in range i.e., between 1 and 19, returns the error code.
-    if ((adc_config->num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNEL)
-        || (adc_config->num_of_channel_enable > MAXIMUM_NUMBER_OF_CHANNEL)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
+  // Returns SL_STATUS_OK if the parameter are appropriate
+  sl_status_t status = SL_STATUS_OK;
+
+  // Validates the ADC operation mode, if it is not either static or fifo mode it returns error code.
+  if (adc_config->operation_mode >= SL_ADC_OPERATION_MODE_LAST) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+  // If the number of channel is not in range i.e., between 1 and 19, returns the error code.
+  else if ((adc_config->num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNEL)
+           || (adc_config->num_of_channel_enable > MAXIMUM_NUMBER_OF_CHANNEL)) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+
   return status;
 }
 
@@ -961,46 +949,64 @@ static sl_status_t validate_adc_parameters(sl_adc_config_t *adc_config)
  * According to the values in adc channel configuration structure, it performs
  * the 'OR' operation of the values.
  ******************************************************************************/
-static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_channel_config)
+static sl_status_t validate_adc_channel_parameters(const sl_adc_channel_config_t *adc_channel_config)
 {
-  sl_status_t status;
-  uint8_t channel = 0;
-  do {
-    if (number_of_channel == MINIMUM_NUMBER_OF_CHANNEL) {
-      channel = adc_channel_config->channel;
+  sl_status_t status               = SL_STATUS_OK;
+  uint8_t channel                  = 0;
+  uint8_t num_of_channels_added    = 0;
+  uint8_t biggest_channel_id_added = 0;
+
+  // get the number of channels added in UC indirectly from num_of_samples[] array
+  for (uint8_t i = 0; i < MAXIMUM_NUMBER_OF_CHANNEL; i++) {
+    if (adc_channel_config->num_of_samples[i] != 0) {
+      num_of_channels_added++;
+      biggest_channel_id_added = i;
+      if (num_of_channels_added > 1 && (num_of_channels_added != (i + 1))) {
+        // If the number of channels added is more than 1, then it should be in sequential order
+        return SL_STATUS_INVALID_CONFIGURATION;
+      }
     }
-    // Validate input type
-    if (adc_channel_config->input_type[channel] >= SL_ADC_INPUT_TYPE_LAST) {
+  }
+
+  // number of channels added (installed) should be equal to number of channels configured in the UC
+  if (num_of_channels_added != num_of_channels_enabled) {
+    return SL_STATUS_INVALID_CONFIGURATION;
+  }
+
+  // If the number of channels configured is 1,
+  // then channel added in the UC should be same as selection in the application
+  if (num_of_channels_enabled == MINIMUM_NUMBER_OF_CHANNEL) {
+    channel = adc_channel_config->channel;
+    if (biggest_channel_id_added != channel) {
+      return SL_STATUS_INVALID_CONFIGURATION;
+    }
+  }
+
+  // Validate input type
+  if (adc_channel_config->input_type[channel] >= SL_ADC_INPUT_TYPE_LAST) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+  // Invalid sample rate validation.
+  else if (adc_channel_config->sampling_rate[channel] == INVALID_SAMPLE_RATE) {
+    status = SL_STATUS_NOT_FOUND;
+  }
+  // Verify the user given sampling rate is proper or not
+  else if (adc_channel_config->sampling_rate[channel] > MAX_SAMPLE_RATE) {
+    status = SL_STATUS_INVALID_RANGE;
+  }
+  // Validate ping and pong address maximum value.
+  else if (adc_channel_config->chnl_ping_address[channel] >= START_PING_ADDR) {
+    if ((adc_channel_config->chnl_ping_address[channel] < ((uint32_t)START_PING_ADDR))
+        || (adc_channel_config->chnl_pong_address[channel] > ((uint32_t)END_PONG_ADDR))) {
       status = SL_STATUS_INVALID_PARAMETER;
-      break;
     }
-    // Invalid sample rate validation.
-    if (adc_channel_config->sampling_rate[channel] == INVALID_SAMPLE_RATE) {
-      status = SL_STATUS_NOT_FOUND;
-      break;
+  } else {
+    if ((adc_channel_config->chnl_ping_address[channel] > ((uint32_t)MAXIMUM_PING_ADDR))
+        || (adc_channel_config->chnl_pong_address[channel] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
+      status = SL_STATUS_INVALID_PARAMETER;
     }
-    // Verify the user given sampling rate is proper or not
-    if (adc_channel_config->sampling_rate[channel] > MAX_SAMPLE_RATE) {
-      status = SL_STATUS_INVALID_RANGE;
-      break;
-    }
-    // Validate ping and pong address maximum value.
-    if (adc_channel_config->chnl_ping_address[channel] >= START_PING_ADDR) {
-      if ((adc_channel_config->chnl_ping_address[channel] < ((uint32_t)START_PING_ADDR))
-          || (adc_channel_config->chnl_pong_address[channel] > ((uint32_t)END_PONG_ADDR))) {
-        status = SL_STATUS_INVALID_PARAMETER;
-        break;
-      }
-    } else {
-      if ((adc_channel_config->chnl_ping_address[channel] > ((uint32_t)MAXIMUM_PING_ADDR))
-          || (adc_channel_config->chnl_pong_address[channel] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
-        status = SL_STATUS_INVALID_PARAMETER;
-        break;
-      }
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
+  }
+  // Returns SL_STATUS_OK if the parameters are appropriate
   return status;
 }
 
@@ -1012,44 +1018,36 @@ static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_
  * According to the values in internal parameters configuration structure, it
  * performs the 'OR' operation of the values.
  ******************************************************************************/
-static sl_status_t validate_adc_internal_parameters(sl_adc_internal_config_t *adc_internal_config)
+static sl_status_t validate_adc_internal_parameters(const sl_adc_internal_config_t *adc_internal_config)
 {
-  sl_status_t status;
-  do {
-    // Validate ADC input type.
-    if (adc_internal_config->input_type[0] >= SL_ADC_INPUT_TYPE_LAST) {
+  // Returns SL_STATUS_OK if the parameter are appropriate
+  sl_status_t status = SL_STATUS_OK;
+
+  // Validate ADC input type.
+  if (adc_internal_config->input_type[0] >= SL_ADC_INPUT_TYPE_LAST) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+  // Verify ADC sampling length with maximum and minimum value.
+  else if ((adc_internal_config->num_of_samples[0] < MINIMUM_SAMPLING_LENGTH)
+           || (adc_internal_config->num_of_samples[0] > MAXIMUM_SAMPLING_LENGTH)) {
+    status = SL_STATUS_INVALID_COUNT;
+  }
+  // Validate ping and pong address maximum value.
+  else if (adc_internal_config->ping_addr[0] >= START_PING_ADDR) {
+    if ((adc_internal_config->ping_addr[0] < ((uint32_t)START_PING_ADDR))
+        || (adc_internal_config->pong_addr[0] > ((uint32_t)END_PONG_ADDR))) {
       status = SL_STATUS_INVALID_PARAMETER;
-      break;
     }
-    // Verify ADC sampling length with maximum and minimum value.
-    if ((adc_internal_config->num_of_samples[0] < MINIMUM_SAMPLING_LENGTH)
-        || (adc_internal_config->num_of_samples[0] > MAXIMUM_SAMPLING_LENGTH)) {
-      status = SL_STATUS_INVALID_COUNT;
-      break;
-    }
-    // Validate ping and pong address maximum value.
-    if (adc_internal_config->ping_addr[0] >= START_PING_ADDR) {
-      if ((adc_internal_config->ping_addr[0] < ((uint32_t)START_PING_ADDR))
-          || (adc_internal_config->pong_addr[0] > ((uint32_t)END_PONG_ADDR))) {
-        status = SL_STATUS_INVALID_PARAMETER;
-        break;
-      }
-    } else {
-      if ((adc_internal_config->ping_addr[0] > ((uint32_t)MAXIMUM_PING_ADDR))
-          || (adc_internal_config->pong_addr[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
-        status = SL_STATUS_INVALID_PARAMETER;
-        break;
-      }
-    }
-    //       Validate ping and pong length maximum value
-    if ((adc_internal_config->ping_length[0] >= MAXIMUM_PING_LENGTH)
-        || (adc_internal_config->pong_length[0] >= MAXIMUM_PONG_LENGTH)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
+  } else if ((adc_internal_config->ping_addr[0] > ((uint32_t)MAXIMUM_PING_ADDR))
+             || (adc_internal_config->pong_addr[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+  // Validate ping and pong length maximum value
+  else if ((adc_internal_config->ping_length[0] >= MAXIMUM_PING_LENGTH)
+           || (adc_internal_config->pong_length[0] >= MAXIMUM_PONG_LENGTH)) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+
   return status;
 }
 
@@ -1061,23 +1059,20 @@ static sl_status_t validate_adc_internal_parameters(sl_adc_internal_config_t *ad
  * According to the values in adc fifo threshold configuration structure, it
  * performs the 'OR' operation of the values.
  ******************************************************************************/
-static sl_status_t validate_adc_thrld_parameters(sl_adc_fifo_thrld_config_t *adc_fifo_threshold)
+static sl_status_t validate_adc_thrld_parameters(const sl_adc_fifo_thrld_config_t *adc_fifo_threshold)
 {
-  sl_status_t status;
-  do {
-    // Validate DMA type
-    if (adc_fifo_threshold->dma_type >= SL_ADC_DMA_TYPE_LAST) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Verify the user given channel type
-    if (adc_fifo_threshold->num_of_channel_en >= SL_ADC_CHANNEL_TYPE_LAST) {
-      status = SL_STATUS_INVALID_RANGE;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
+  sl_status_t status = SL_STATUS_OK;
+
+  // Validate DMA type
+  if (adc_fifo_threshold->dma_type >= SL_ADC_DMA_TYPE_LAST) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+  // Verify the user given channel type
+  else if (adc_fifo_threshold->num_of_channel_en >= SL_ADC_CHANNEL_TYPE_LAST) {
+    status = SL_STATUS_INVALID_RANGE;
+  }
+
+  // Returns SL_STATUS_OK if the parameters are appropriate
   return status;
 }
 
@@ -1094,6 +1089,8 @@ static void callback_event_handler(uint8_t channel_no, uint8_t event)
       break;
     case SL_ADC_STATIC_MODE_EVENT:
       user_callback(channel_no, SL_ADC_STATIC_MODE_EVENT);
+      break;
+    default:
       break;
   }
 }

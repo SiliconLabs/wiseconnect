@@ -67,14 +67,14 @@
 /*=======================================================================*/
 //!	Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
-#if ENABLE_POWER_SAVE
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for powersave mode
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #if defined(SL_SI91X_PRINT_DBG_LOG)
@@ -521,7 +521,7 @@ void ble_ae_central(void)
     LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n Keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -531,7 +531,7 @@ void ble_ae_central(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return;

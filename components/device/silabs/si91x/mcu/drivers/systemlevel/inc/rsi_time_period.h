@@ -39,36 +39,30 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+/**
+  * @brief Structure to hold the calibration configuration parameters.
+  */
+typedef struct {
+  uint32_t u32TimePeriodRefClk;  ///< Reference clock
+  uint32_t u32XtalSettle;        ///< Clock settling time
+  uint16_t u16ClkCnt;            ///< No. of clocks required for calibration
+  boolean_t bPeriodicCalibEn;    ///< Periodic calibration enable
+  uint8_t u8PeriodicCalibRate;   ///< Calibration periodic rate
+  boolean_t bTemperatureCalibEn; ///< Temperature based calibration enable
+  uint8_t u8TemperatureVal;      ///< Temperature value
+  uint8_t u8AverageFactor;       ///< Average factor
+} rsi_timeperiod_calib_config_t;
+
 rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod);
 rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                         uint32_t u32TimePeriodRefClk,
-                                         uint32_t u32XtalSettle,
-                                         uint16_t u16RcClkCnt,
-                                         boolean_t bPeriodicCalibEn,
-                                         uint8_t u8PeriodicCalibRate,
-                                         boolean_t bTemperatureCalibEn,
-                                         uint8_t u8TemperatureVal,
-                                         uint8_t u8AverageFactor);
+                                         const rsi_timeperiod_calib_config_t *rc_calib_config);
 uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod);
 uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod);
 rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                                uint32_t u32TimePeriodRefClk,
-                                                uint32_t u32XtalSettle,
-                                                uint16_t u16RcClkCnt,
-                                                boolean_t bPeriodicCalibEn,
-                                                uint8_t u8PeriodicCalibRate,
-                                                boolean_t bTemperatureCalibEn,
-                                                uint8_t u8TemperatureVal,
-                                                uint8_t u8AverageFactor);
+                                                const rsi_timeperiod_calib_config_t *xtal32khz_calib_config);
 rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                         uint8_t u8RefClkSrc,
-                                         uint32_t u32XtalSettle,
-                                         uint16_t u16RoClkCnt,
-                                         boolean_t bPeriodicCalibEn,
-                                         uint8_t u8PeriodicCalibRate,
-                                         uint8_t u8AverageFactor
-
-);
+                                         const rsi_timeperiod_calib_config_t *ro_calib_config);
 rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn);
 rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time);
 

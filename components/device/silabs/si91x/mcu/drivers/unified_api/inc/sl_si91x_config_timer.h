@@ -69,7 +69,7 @@ typedef void (*sl_config_timer_callback_t)(void *callback_flag);
  */
 typedef enum {
   SL_COUNTER_16BIT,     ///< 16-bit counter mode.
-  SL_COUNTER_32BIT,     ///< 32-bit counter mode.
+  RESERVED,             ///< Reserved
   SL_COUNTER_MODE_LAST, ///< Last member of the enumeration for validation.
 } sl_config_timer_mode_t;
 
@@ -106,7 +106,6 @@ typedef enum {
  * @brief Enumeration to represent timer configuration parameter values.
  */
 typedef enum {
-  SL_COUNTER_MODE_32              = COUNTER32_BITMODE,    ///< 32-bit mode value for the counter.
   SL_COUNTER0_SOFT_RESET_ENABLE   = SOFTRESET_COUNTER_0,  ///< Soft reset enable value for counter-0.
   SL_COUNTER0_PERIODIC_ENABLE     = PERIODIC_ENCOUNTER_0, ///< Periodic mode enable value for counter-0.
   SL_COUNTER0_TRIGGER_ENABLE      = COUNTER0_TRIG,        ///< Software trigger enable value for counter-0.
@@ -333,9 +332,9 @@ void sl_si91x_config_timer_init(void);
 
 /***************************************************************************/
 /**
- * @brief To set the config-timer mode as 32 or 16-bit counters.
+ * @brief To set the config-timer mode as 16-bit counters.
  * 
- * @details In 32-bit mode, Counter_1 and Counter_0 are merged and used as a single 32-bit counter.
+ * @details 
  * In this mode, Counter_0 modes/triggers/enables are used.
  * 
  * @pre Pre-conditions:
@@ -356,7 +355,7 @@ sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
 /**
  * @brief To configure Config-timer parameters.
  * 
- * @details This API sets the Config-timer parameters such as 32-bit or 16-bit mode, periodic mode, counter trigger enable, 
+ * @details This API sets the Config-timer parameters such as 16-bit mode, periodic mode, counter trigger enable, 
  * soft reset enable, buffer enable, sync trigger enable, and
  * sets direction for counter0 and counter1.
  * Counter trigger enable starts the counter.
@@ -374,7 +373,9 @@ sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
  *         - SL_STATUS_OK  - Success, timer configurations are set properly.
  *         - SL_STATUS_INVALID_PARAMETER  - Counter direction parameter has an invalid value.
  *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
- * 
+ * @note 
+ * Config Timer supports only 16-bit mode, and the SL_CT_MODE_32BIT_ENABLE_MACRO in configuration file is defined to 16-bit mode by default. 
+ *
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
@@ -468,8 +469,6 @@ sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_conf
  * @brief To set the Config-timer initial count based on the timer mode.
  * 
  * @details Configurable timer modes are mentioned below:
- *  - For 32-bit mode, counter0_initial_value is passed to the CT count register. 
- *    For 32-bit mode, pass counter1_initial_value as zero.
  *  - For 16-bit mode counters, the ORed value of both initial values is passed to the register.
  *
  * @pre Pre-conditions:
@@ -495,7 +494,7 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
 /**
  * @brief To set the Config-timer match-count based on the timer mode and counter number.
  * 
- * @details If the mode is 32-bit, use counter0.
+ * @details 
  * If the mode is 16-bit, as per the passed counter number, it updates the match value.
  * For 16-bit mode, it takes a 16-bit match-value only, else throws an error.
  * 
@@ -869,7 +868,7 @@ sl_config_timer_version_t sl_si91x_config_timer_get_version(void);
  *
  *   @n @section CONFIG-TIMER_Config Configuration
  *   To configure the config-timer, several parameters need to be defined:
- *   - Timer mode (32-bit or 16-bit) @ref sl_config_timer_mode_t
+ *   - Timer mode (16-bit) @ref sl_config_timer_mode_t
  *   - Periodic mode (Enable/Disable)
  *   - Counter trigger (Enable/Disable)
  *   - Soft reset (Enable/Disable)

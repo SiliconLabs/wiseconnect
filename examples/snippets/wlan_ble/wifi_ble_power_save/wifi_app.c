@@ -69,7 +69,7 @@
 #define SSL_CLIENT 1
 
 #define DHCP_HOST_NAME NULL
-#define TIMEOUT_MS     18000
+#define TIMEOUT_MS     25000
 #define LOW            0
 
 //! application control block
@@ -231,7 +231,7 @@ void rsi_wlan_app_task(void)
         ssid.length  = (uint8_t)strnlen(SSID, sizeof(ssid.value));
         memcpy(ssid.value, SSID, ssid.length);
 
-        status = sl_wifi_get_pairwise_master_key(SL_NET_WIFI_CLIENT_INTERFACE, type, &ssid, PSK, pairwise_master_key);
+        status = sl_wifi_get_pairwise_master_key(SL_WIFI_CLIENT_INTERFACE, type, &ssid, PSK, pairwise_master_key);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nGet Pairwise Master Key Failed, Error Code : 0x%lX\r\n", status);
           return;
@@ -294,7 +294,7 @@ void rsi_wlan_app_task(void)
         LOG_PRINT("\r\nConfigured IP\r\n");
         wifi_app_cb.state = WIFI_APP_IPCONFIG_DONE_STATE;
       }
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 
       LOG_PRINT("\r\nInitiating PowerSave\r\n");
       status = rsi_initiate_power_save();

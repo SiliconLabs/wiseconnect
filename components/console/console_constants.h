@@ -168,6 +168,9 @@ typedef enum {
 typedef enum {
   SL_CONSOLE_TOKENIZE_ON_SPACE = (1 << 0),
   SL_CONSOLE_TOKENIZE_ON_DOT   = (1 << 1),
+  SL_CONSOLE_TOKENIZE_ON_EQUAL = (1 << 2),
+  SL_CONSOLE_TOKENIZE_ON_COMMA = (1 << 3),
+  SL_CONSOLE_TOKENIZE_ON_QUERY = (1 << 4),
 } sl_console_tokenize_options_t;
 
 #ifdef __cplusplus

@@ -112,7 +112,6 @@ static char *event_type[]     = { [SL_SNTP_CLIENT_START]           = "SNTP Clien
  ******************************************************/
 sl_status_t embedded_sntp_client(void);
 static void application_start(void *argument);
-uint64_t ip_to_reverse_hex(char *ip);
 
 /******************************************************
  *               Function Definitions
@@ -232,14 +231,16 @@ sl_status_t embedded_sntp_client(void)
   int32_t dns_retry_count          = MAX_DNS_RETRY_COUNT;
 
   // Convert DNS server IP addresses to sl_ip_address_t structures
-  sl_ip_address_t primary_dns_server;
-  sl_ip_address_t secondary_dns_server;
+  sl_ip_address_t primary_dns_server   = { 0 };
+  sl_ip_address_t secondary_dns_server = { 0 };
 
-  primary_dns_server.type        = SL_IPV4;
-  primary_dns_server.ip.v4.value = ip_to_reverse_hex(DNS_SERVER1_IP);
+  primary_dns_server.type = SL_IPV4;
+  // Convert the DNS server IP address (DNS_SERVER1_IP) from string to IPv4 address format
+  sl_net_inet_addr(DNS_SERVER1_IP, (uint32_t *)&primary_dns_server.ip.v4);
 
-  secondary_dns_server.type        = SL_IPV4;
-  secondary_dns_server.ip.v4.value = ip_to_reverse_hex(DNS_SERVER2_IP);
+  secondary_dns_server.type = SL_IPV4;
+  // Convert the secondary DNS server IP address (DNS_SERVER2_IP) from string to IPv4 address format
+  sl_net_inet_addr(DNS_SERVER2_IP, (uint32_t *)&secondary_dns_server.ip.v4);
 
   // Create sl_net_set_dns_address_t structure
   sl_net_dns_address_t dns_address;
@@ -405,23 +406,4 @@ sl_status_t embedded_sntp_client(void)
   printf("SNTP client execution completed \r\n");
 
   return SL_STATUS_OK;
-}
-
-uint64_t ip_to_reverse_hex(char *ip)
-{
-  uint32_t ip1, ip2, ip3, ip4;
-  uint64_t ip_hex;
-  uint32_t status;
-
-  status = sscanf(ip, "%lu.%lu.%lu.%lu", &ip1, &ip2, &ip3, &ip4);
-  if (status != 4) {
-    return 0x00000000; // Problem if we actually pass 0.0.0.0
-  }
-
-  ip_hex = (uint64_t)ip1;
-  ip_hex |= (uint64_t)(ip2 << 8);
-  ip_hex |= (uint64_t)(ip3 << 16);
-  ip_hex |= (uint64_t)(ip4 << 24);
-
-  return ip_hex;
 }

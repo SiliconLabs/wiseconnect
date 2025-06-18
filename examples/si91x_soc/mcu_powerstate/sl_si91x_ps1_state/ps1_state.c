@@ -42,8 +42,6 @@ void low_power_configuration(void);
 void ps1_state_init(void)
 {
   sl_status_t status;
-  // Reduces the RETN_LDO voltage by 0.05V.
-  RSI_IPMU_Retn_Voltage_Reduction();
   // change the TASS reference clock to MHz RC.
   RSI_ChangeTassRefClock();
   // Power downs the domains.
@@ -88,6 +86,8 @@ void ps1_state_init(void)
 static void set_ulp_timer_wakeup_source(void)
 {
   sl_status_t status;
+  // Set ulp timer timer input clock source as RC MHz
+  sl_timer_clk_handle.ulp_timer_clk_input_src = ULP_TIMER_MHZ_RC_CLK_SRC;
   // ULP Timer initialization, the values are fetched from the UC.
   status = sl_si91x_ulp_timer_init(&sl_timer_clk_handle);
   if (status != SL_STATUS_OK) {
@@ -197,11 +197,10 @@ void low_power_configuration(void)
                            | M4SS_PWRGATE_ULP_EFUSE_PERI | M4SS_PWRGATE_ULP_QSPI_ICACHE);
 
   // Power gate the ULPSS peripherals
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_CAP |
+  RSI_PS_UlpssPeriPowerDown(
 #ifndef DEBUG_UART
-                            ULPSS_PWRGATE_ULP_UART |
+    ULPSS_PWRGATE_ULP_UART |
 #endif
-                            ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA
-                            | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
 }

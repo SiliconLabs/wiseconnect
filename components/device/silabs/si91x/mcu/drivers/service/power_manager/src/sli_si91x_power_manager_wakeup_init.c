@@ -31,7 +31,9 @@
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_power_manager_wakeup_handler.h"
 #include "rsi_rom_power_save.h"
-
+#if defined(SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+#include "sli_si91x_32khz_rc_calibration.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -75,10 +77,19 @@
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 #if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
-static void calendar_callback_function(void);
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+// In the current design, if calibration is initialized, the alarm wakeup source should only be initialized once.
+// Flag to indicate whether the calendar alarm wakeup source has been initialized for the first time.
+static bool sli_si91x_calibration_calendar_single_execution = false;
+#endif
+static sl_status_t sli_si91x_power_manager_calendar_deinit(void);
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
+__attribute__((weak)) void calendar_alarm_callback_function(void);
 static void set_periodic_alarm(uint32_t alarm_time);
 #endif // ENABLE_ALARM
+#if defined(ENABLE_SECOND) && (ENABLE_SECOND == ENABLE)
+__attribute__((weak)) void calendar_second_callback_function(void);
+#endif // ENABLE_SECOND
 #endif // SL_ENABLE_CALENDAR_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_GPIO_WAKEUP_SOURCE) && (SL_ENABLE_GPIO_WAKEUP_SOURCE == ENABLE)
@@ -90,99 +101,165 @@ static sl_status_t uulp_gpio_configuration(uint8_t pin, uint8_t polarity);
 static void wdt_callback_function(void);
 #endif // SL_ENABLE_WDT_WAKEUP_SOURCE
 
+#if defined(SL_ENABLE_DST_WAKEUP_SOURCE) && (SL_ENABLE_DST_WAKEUP_SOURCE == ENABLE)
+static sl_status_t sli_si91x_power_manager_dst_deinit(void);
+__attribute__((weak)) void dst_callback_function(void);
+#endif // SL_ENABLE_DST_WAKEUP_SOURCE
+
+#if defined(SL_ENABLE_WIRELESS_WAKEUP_SOURCE) && (SL_ENABLE_WIRELESS_WAKEUP_SOURCE == ENABLE)
+static sl_status_t sli_si91x_power_manager_wireless_wakeup_deinit(void);
+#endif
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
+#if defined(SL_ENABLE_DST_WAKEUP_SOURCE) && (SL_ENABLE_DST_WAKEUP_SOURCE == ENABLE)
+typedef void (*sl_dst_irq_callback_t)(void);
+static sl_dst_irq_callback_t dst_callback = NULL;
+#endif // SL_ENABLE_DST_WAKEUP_SOURCE
 /*******************************************************************************
 ***********************  Global function Definitions *************************
  ******************************************************************************/
+
 /*******************************************************************************
- *
+ * Calendar based wakeup is initialized.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_calendar_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 #if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
-  // Calendar is initialized.
-  sl_si91x_calendar_init();
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+  // In the current design, if calibration is initialized, the alarm wakeup source should only be initialized once.
+  if (sli_si91x_calibration_calendar_single_execution == false) {
+#endif
+    // Calendar is de-initialized.
+    status = sli_si91x_power_manager_calendar_deinit();
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
+    // Calendar is initialized.
+    sl_si91x_calendar_init();
 #if defined(ENABLE_SECOND) && (ENABLE_SECOND == ENABLE)
-  // Second trigger callback is configured.
-  status = sl_si91x_calendar_register_sec_trigger_callback(calendar_callback_function);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
-  // Second based wakeup source is configured
-  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
+    // Second based callback is configured.
+    status = sl_si91x_calendar_register_sec_trigger_callback(calendar_second_callback_function);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
+    // Second based wakeup source is configured
+    status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
 #endif // ENABLE_SECOND
 
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
-  sl_calendar_datetime_config_t datetime_config;
-  // Current date time is fetched
-  status = sl_si91x_calendar_get_date_time(&datetime_config);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // If the date time is not configured, then only it is configured. Evaluated by the default values
-  if ((!datetime_config.Year) && !(datetime_config.Century) && !(datetime_config.Hour)) {
-    // Setting datetime for Calendar
-    status = sl_si91x_calendar_build_datetime_struct(&datetime_config,
-                                                     CENTURY,
-                                                     YEAR,
-                                                     February,
-                                                     Friday,
-                                                     DAY,
-                                                     HOUR,
-                                                     MINUTE,
-                                                     SECONDS,
-                                                     MILLI_SECONDS);
+    sl_calendar_datetime_config_t datetime_config;
+    // Current date time is fetched
+    status = sl_si91x_calendar_get_date_time(&datetime_config);
     if (status != SL_STATUS_OK) {
       return status;
     }
-    status = sl_si91x_calendar_set_date_time(&datetime_config);
-    if (status != SL_STATUS_OK) {
-      return status;
+    // If the date time is not configured, then only it is configured. Evaluated by the default values
+    if ((!datetime_config.Year) && !(datetime_config.Century) && !(datetime_config.Hour)) {
+      // Setting datetime for Calendar
+      status = sl_si91x_calendar_build_datetime_struct(&datetime_config,
+                                                       CENTURY,
+                                                       YEAR,
+                                                       February,
+                                                       Friday,
+                                                       DAY,
+                                                       HOUR,
+                                                       MINUTE,
+                                                       SECONDS,
+                                                       MILLI_SECONDS);
+      if (status != SL_STATUS_OK) {
+        return status;
+      }
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+      // Apply the calibration for the first time.
+      sli_si91x_lf_fsm_rc_calibration();
+#endif
+      status = sl_si91x_calendar_set_date_time(&datetime_config);
+      if (status != SL_STATUS_OK) {
+        return status;
+      }
     }
-  }
-  // Periodic alarm setting API is called.
-  set_periodic_alarm(ALARM_TIME_MSEC);
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+    // For the event handler to provide the next event, we need to set the alarm time to variable of the event handler.
+    // This value will be utilized by the calibration event handler to decide the next event.
+    sli_si91x_set_remaining_time(ALARM_TIME_MSEC);
+    // Set the wakeup flag to indicate that the wakeup source has been configured.
+    // If this flag is set, the event handler will return the next event, considering the alarm interrupt (wakeup interrupt) as a periodically event. Otherwise, the alarm interrupt will be configured as a one-time event.
+    sli_si91x_set_calendar_wakeup_peripheral_flag();
+    // Invokes the calibration event handler to determine the next event.
+    // Configures the calendar alarm based on the return value of the event handler.
+    set_periodic_alarm(sli_si91x_get_calib_next_event_time_handler(DISABLE));
+#else
+    set_periodic_alarm(ALARM_TIME_MSEC);
+#endif
 
-  // Alarm callback is registered
-  status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_callback_function);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // Alarm based wakeup source is configured
-  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ALARM_WAKEUP, true);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+    // Alarm based callback is registered
+    status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_alarm_callback_function);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Alarm based wakeup source is configured
+    status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ALARM_WAKEUP, true);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
 #endif // ENABLE_ALARM
 
 #if defined(ENABLE_MSEC) && (ENABLE_MSEC == ENABLE)
-  // Milli Second trigger callback is configured.
-  status = sl_si91x_calendar_register_msec_trigger_callback(calendar_callback_function);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
-  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_MSEC_WAKEUP, true);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    return status;
-  }
+    // Milli Second based callback is configured.
+    status = sl_si91x_calendar_register_msec_trigger_callback(calendar_alarm_callback_function);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
+    status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_MSEC_WAKEUP, true);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      return status;
+    }
 #endif // ENABLE_MSEC
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+    // Set the flag. So that calendar alarm wakeup source through UC will be initialized for the first time only.
+    sli_si91x_calibration_calendar_single_execution = true;
+  }
+#endif
 #endif // SL_ENABLE_CALENDAR_WAKEUP_SOURCE
-
   return status;
 }
 
+#if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
 /*******************************************************************************
- *
+ * Calendar based wakeup is de-initialized.
+ ******************************************************************************/
+static sl_status_t sli_si91x_power_manager_calendar_deinit(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+#if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
+  // Unregister the alarm based callback.
+  status = sl_si91x_calendar_unregister_alarm_trigger_callback();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+#endif
+#if defined(ENABLE_SECOND) && (ENABLE_SECOND == ENABLE)
+  // Unregister the second based callback.
+  status = sl_si91x_calendar_unregister_sec_trigger_callback();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+#endif
+  return status;
+}
+#endif
+/*******************************************************************************
+ * GPIO based wakeup is initialized.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_gpio_init(void)
 {
@@ -191,26 +268,38 @@ sl_status_t sli_si91x_power_manager_gpio_init(void)
 #if defined(SL_ENABLE_GPIO_WAKEUP_SOURCE) && (SL_ENABLE_GPIO_WAKEUP_SOURCE == ENABLE)
 
 #if defined(ENABLE_NPSS_GPIO_0) && (ENABLE_NPSS_GPIO_0 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_0, NPSS_GPIO_0_POLARITY);
+  status = uulp_gpio_configuration(UULP_GPIO_0, NPSS_GPIO_0_POLARITY);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 #endif // ENABLE_NPSS_GPIO_0
 
 #if defined(ENABLE_NPSS_GPIO_1) && (ENABLE_NPSS_GPIO_1 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_1, NPSS_GPIO_1_POLARITY);
+  status = uulp_gpio_configuration(UULP_GPIO_1, NPSS_GPIO_1_POLARITY);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 #endif // ENABLE_NPSS_GPIO_1
 
 #if defined(ENABLE_NPSS_GPIO_2) && (ENABLE_NPSS_GPIO_2 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_2, NPSS_GPIO_2_POLARITY);
+  status = uulp_gpio_configuration(UULP_GPIO_2, NPSS_GPIO_2_POLARITY);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 #endif // ENABLE_NPSS_GPIO_2
 
 #if defined(ENABLE_NPSS_GPIO_3) && (ENABLE_NPSS_GPIO_3 == ENABLE)
-  uulp_gpio_configuration(UULP_GPIO_3, NPSS_GPIO_3_POLARITY);
+  status = uulp_gpio_configuration(UULP_GPIO_3, NPSS_GPIO_3_POLARITY);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 #endif // ENABLE_NPSS_GPIO_4
 #endif // SL_ENABLE_GPIO_WAKEUP_SOURCE
   return status;
 }
 
 /*******************************************************************************
- *
+ * WDT based wakeup is initialized.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_wdt_init(void)
 {
@@ -237,12 +326,19 @@ sl_status_t sli_si91x_power_manager_wdt_init(void)
 #endif // SL_ENABLE_WDT_WAKEUP_SOURCE
   return status;
 }
-
+/*******************************************************************************
+ * Deep sleep timer based wakeup is initialized.
+ ******************************************************************************/
 sl_status_t sli_si91x_power_manager_dst_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 #if defined(SL_ENABLE_DST_WAKEUP_SOURCE) && (SL_ENABLE_DST_WAKEUP_SOURCE == ENABLE)
-
+  // Deep-sleep timer is de-initialized.
+  status = sli_si91x_power_manager_dst_deinit();
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, return with the error code.
+    return status;
+  }
   // Power-up the RTC and Time period block
   RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCURTC | SLPSS_PWRGATE_ULP_TIMEPERIOD);
 
@@ -262,18 +358,61 @@ sl_status_t sli_si91x_power_manager_dst_init(void)
     // If status is not OK, return with the error code.
     return status;
   }
+  // To validate the function spointer and void pointer, if the parameters is not NULL then, it
+  // returns an error code
+  // If another callback is registered without unregistering previous callback then, it
+  // returns an error code, so it is mandatory to unregister the callback before registering
+  // another callback
+  if (dst_callback != NULL) {
+    return SL_STATUS_BUSY;
+  }
+  // The function pointer is feeded to the static variable which is called in the IRQ handler
+  dst_callback = dst_callback_function;
   /* Interrupt unmask */
   RSI_DST_IntrUnMask();
   NVIC_EnableIRQ(NVIC_DS_TIMER);
+  // When the trigger is enabled, the bit 15 (deep sleep timer) is 0, so the comparison is to validate whether the
+  // deep sleep timer trigger is enabled or not.
+  if ((NPSS_INTR_MASK_CLR_REG & NPSS_TO_MCU_WAKEUP_INTR) != DISABLE) {
+    return SL_STATUS_FAIL;
+  }
 #endif // SL_ENABLE_DST_WAKEUP_SOURCE
   return status;
 }
-
+#if defined(SL_ENABLE_DST_WAKEUP_SOURCE) && (SL_ENABLE_DST_WAKEUP_SOURCE == ENABLE)
+/*******************************************************************************
+ * Deep sleep timer based wakeup is de-initialized.
+ ******************************************************************************/
+static sl_status_t sli_si91x_power_manager_dst_deinit(void)
+{
+  sl_status_t status;
+  RSI_DST_IntrMask();
+  NVIC_DisableIRQ(NVIC_DS_TIMER);
+  dst_callback = NULL;
+  // Validate if deep sleep timer trigger is disabled or not and return the error code accordingly
+  if ((NPSS_INTR_MASK_SET_REG & NPSS_TO_MCU_WAKEUP_INTR) == DISABLE) {
+    status = SL_STATUS_FAIL;
+  } else {
+    status = SL_STATUS_OK;
+  }
+  return status;
+}
+#endif
+/*******************************************************************************
+ * Wireless based wakeup is initialized.
+ ******************************************************************************/
 sl_status_t sli_si91x_power_manager_wireless_wakeup_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 
 #if defined(SL_ENABLE_WIRELESS_WAKEUP_SOURCE) && (SL_ENABLE_WIRELESS_WAKEUP_SOURCE == ENABLE)
+  // Wireless wake up is de-initialized.
+  status = sli_si91x_power_manager_wireless_wakeup_deinit();
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, return with the error code.
+    return status;
+  }
+
   NVIC_SetPriority(NPSS_TO_MCU_WIRELESS_INTR_IRQn, WIRELESS_WAKEUP_Priority);
   status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_WIRELESS_WAKEUP, true);
   if (status != SL_STATUS_OK) {
@@ -286,10 +425,23 @@ sl_status_t sli_si91x_power_manager_wireless_wakeup_init(void)
 
   return status;
 }
+#if defined(SL_ENABLE_WIRELESS_WAKEUP_SOURCE) && (SL_ENABLE_WIRELESS_WAKEUP_SOURCE == ENABLE)
+/*******************************************************************************
+ * Wireless based wakeup is de-initialized.
+ ******************************************************************************/
+static sl_status_t sli_si91x_power_manager_wireless_wakeup_deinit(void)
+{
+  /* Disable NVIC */
+  NVIC_DisableIRQ(NPSS_TO_MCU_WIRELESS_INTR_IRQn);
+  return SL_STATUS_OK;
+}
+#endif
 
 #if defined(SL_ENABLE_CALENDAR_WAKEUP_SOURCE) && (SL_ENABLE_CALENDAR_WAKEUP_SOURCE == ENABLE)
-
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
+/*******************************************************************************
+ * Set the period alarm time.
+ ******************************************************************************/
 static void set_periodic_alarm(uint32_t alarm_time)
 {
   sl_calendar_datetime_config_t set_alarm_config, get_datetime_config;
@@ -364,20 +516,44 @@ static void set_periodic_alarm(uint32_t alarm_time)
     set_alarm_config.Month = RESET_MONTH;
     set_alarm_config.Year += NEXT_OCCURENECE;
   }
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+  // The flag is cleared indicating execution is happening through driver files.
+  sli_si91x_clear_calibration_application_flag();
+#endif
 
   sl_si91x_calendar_set_alarm(&set_alarm_config);
+
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+  // The flag is cleared indicating execution is happening through driver files.
+  sli_si91x_set_calibration_application_flag();
+#endif
 }
 #endif // ENABLE_ALARM
-
-static void calendar_callback_function(void)
-{
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
+/*******************************************************************************
+ * Alarm based wakeup callback function.
+ ******************************************************************************/
+__attribute__((weak)) void calendar_alarm_callback_function(void)
+{
+#if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == DISABLE)
   set_periodic_alarm(ALARM_TIME_MSEC);
 #endif // ENABLE_ALARM
 }
+#endif
+#if defined(ENABLE_SECOND) && (ENABLE_SECOND == ENABLE)
+/*******************************************************************************
+ * Second based wakeup callback function.
+ ******************************************************************************/
+__attribute__((weak)) void calendar_second_callback_function(void)
+{
+}
+#endif // ENABLE_SECOND
 #endif // SL_ENABLE_CALENDAR_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_GPIO_WAKEUP_SOURCE) && (SL_ENABLE_GPIO_WAKEUP_SOURCE == ENABLE)
+/*******************************************************************************
+ * Set the GPIO configuration for wakeup.
+ ******************************************************************************/
 static sl_status_t uulp_gpio_configuration(uint8_t pin, uint8_t polarity)
 {
   sl_status_t status = SL_STATUS_OK;
@@ -429,7 +605,9 @@ static sl_status_t uulp_gpio_configuration(uint8_t pin, uint8_t polarity)
   }
   return status;
 }
-
+/*******************************************************************************
+ * GPIO based wakeup callback function.
+ ******************************************************************************/
 __attribute__((weak)) void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
 {
   (void)(pin_intr);
@@ -438,6 +616,9 @@ __attribute__((weak)) void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
 #endif // SL_ENABLE_GPIO_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_WDT_WAKEUP_SOURCE) && (SL_ENABLE_WDT_WAKEUP_SOURCE == ENABLE)
+/*******************************************************************************
+ * WDT based wakeup callback function.
+ ******************************************************************************/
 static void wdt_callback_function(void)
 {
   // Empty funtion
@@ -445,14 +626,32 @@ static void wdt_callback_function(void)
 #endif // SL_ENABLE_WDT_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_DST_WAKEUP_SOURCE) && (SL_ENABLE_DST_WAKEUP_SOURCE == ENABLE)
+/*******************************************************************************
+ * Deep sleep timer interrupt IRQ handler.
+ ******************************************************************************/
 void DS_IRQ(void)
 {
   // Deep sleep timer interrupt
-  RSI_DST_TimerIntrClear();
+  // It checks the trigger is enabled or not, then it clears the trigger
+  // and calls the callback function
+  if (NPSS_INTR_STATUS_REG & NPSS_TO_MCU_WAKEUP_INTR) {
+    RSI_DST_TimerIntrClear();
+    // Call the callback function;
+    dst_callback();
+  }
+}
+/*******************************************************************************
+ * Deep sleep timer based wakeup callback function.
+ ******************************************************************************/
+__attribute__((weak)) void dst_callback_function(void)
+{
 }
 #endif // SL_ENABLE_DST_WAKEUP_SOURCE
 
 #if defined(SL_ENABLE_WIRELESS_WAKEUP_SOURCE) && (SL_ENABLE_WIRELESS_WAKEUP_SOURCE == ENABLE)
+/*******************************************************************************
+ * Wireless interrupt IRQ handler.
+ ******************************************************************************/
 void WIRELESS_WAKEUP_IRQ()
 {
   /*Clear interrupt */

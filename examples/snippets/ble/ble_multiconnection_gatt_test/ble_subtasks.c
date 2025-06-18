@@ -1220,7 +1220,7 @@ void rsi_ble_task_on_conn(void *parameters)
               continue;
             }
             LOG_PRINT("\r\n Advertising started - conn%d\n", l_conn_id);
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
             LOG_PRINT("\r\n Initiate module in to power save \r\n");
             status = rsi_initiate_power_save();
             if (status != RSI_SUCCESS) {

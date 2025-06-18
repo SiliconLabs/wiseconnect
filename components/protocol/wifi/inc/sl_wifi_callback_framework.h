@@ -29,9 +29,14 @@
 
 #pragma once
 
-#include "sl_wifi_host_interface.h"
 #include "sl_wifi_device.h" // To access the device specific structs
 #include <stdint.h>
+#ifndef __ZEPHYR__
+#include "sli_cmsis_os2_ext_task_register.h"
+
+/// External variable representing the index of the thread local array at which the firmware status will be stored.
+extern sli_task_register_id_t sli_fw_status_storage_index;
+#endif
 
 /** \addtogroup WIFI_CALLBACK_FRAMEWORK Callback Framework
   * \ingroup SL_WIFI
@@ -113,10 +118,10 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *   | @ref sl_wifi_event_t                 | DataType                                    |
  *   |:-------------------------------------|:--------------------------------------------|
  *   | SL_WIFI_STATS_EVENT                  | Not supported in current release            |
- *   | SL_WIFI_STATS_ASYNC_EVENT            | [sl_si91x_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)        |
+ *   | SL_WIFI_STATS_ASYNC_EVENT            | [sl_wifi_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)        |
  *   | SL_WIFI_STATS_ADVANCE_EVENT          | Not supported in current release            |
  *   | SL_WIFI_STATS_TEST_MODE_EVENT        | Not supported in current release            |
- *   | SL_WIFI_STATS_MODULE_STATE_EVENT     | [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t) |
+ *   | SL_WIFI_STATS_MODULE_STATE_EVENT     | [sl_wifi_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t) |
  * @param data
  *   Pointer to the payload received.
  * @param data_length
@@ -129,7 +134,7 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *
  * @note
  *  SL_WIFI_STATS_MODULE_STATE_EVENT messages are used to indicate module state to the host. These messages are enabled by setting the 10th bit of the custom feature bitmap in opermode.
- *  For the event SL_WIFI_STATS_MODULE_STATE_EVENT response structure refer [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t).
+ *  For the event SL_WIFI_STATS_MODULE_STATE_EVENT response structure refer [sl_wifi_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t).
  * - state_code of this response  (1 byte), indicates the state of the module. `state_code` contains two parts, the upper nibble and lower nibble.
  *  The state code is formed by combining the upper and the lower nibbles using a bitwise OR operation, that is, State code = upper nibble | lower nibble
  *  For example, if the state code is 82 but is not found in the table, it can be divided as follows: state_code = 80 | 02, where 80 is the upper nibble and 02 is the lower nibble.
@@ -224,11 +229,9 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  *  | 0x54               | Pathlen certificate is Invalid.                            |
  *
  * @note
- *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the Most Significant Bit (MSB) of the reason code.
- *   If the MSB is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame.
+ *   In addition to the above, the reason code received in the Deauthentication/Disassociation frame from the AP is modified by setting the Most Significant Bit (MSB) of the reason code. If the MSB is set in the reason code, it should be masked with 0x7F to extract the actual reason code received in the Deauthentication/Disassociation frame. Refer to the "Reason Codes Table" section in the IEEE 802.11 standard to learn about the de-authentication or disassociation reason codes.
  *   Pem Header Error (0x4D) and Pem Footer Error (0x4E) apply only when certificates are loaded individually.
  *   If certificates are loaded together in a single file, only the Pem Error (0x53) triggers for any header or footer errors.
- * @note
  *   In case of event failure, the `SL_WIFI_FAIL_EVENT_STATUS_INDICATION` bit is set in the `event` parameter.
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.
  */
@@ -297,7 +300,7 @@ typedef sl_status_t (*sl_wifi_join_callback_t)(sl_wifi_event_t event,
  *   | SL_WIFI_RESCHEDULE_TWT_SUCCESS_EVENT          | TWT session was successfully rescheduled.               |
  *   | SL_WIFI_TWT_INFO_FRAME_EXCHANGE_FAILED_EVENT  | TWT information frame exchange failed.                  |
  * @param data
- *   Pointer to the data received of type [sl_si91x_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
+ *   Pointer to the data received of type [sl_wifi_twt_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-twt-response-t).
  *   This parameter provides detailed information about the TWT response event. The structure contains various fields that describe the TWT session parameters and status.
  * @param data_length
  *   Length of the data received in bytes.
@@ -311,7 +314,7 @@ typedef sl_status_t (*sl_wifi_join_callback_t)(sl_wifi_event_t event,
  *   When this bit is set, the `data` parameter will be of type `sl_status_t`, and the `data_length` parameter can be ignored.
  */
 typedef sl_status_t (*sl_wifi_twt_config_callback_t)(sl_wifi_event_t event,
-                                                     sl_si91x_twt_response_t *data,
+                                                     sl_wifi_twt_response_t *data,
                                                      uint32_t data_length,
                                                      void *optional_arg);
 
@@ -518,4 +521,23 @@ static inline sl_status_t sl_wifi_set_transceiver_callback(sl_wifi_transceiver_c
   return sl_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
 }
 
+#ifndef __ZEPHYR__
+/***************************************************************************/ /**
+ * @brief 
+ *   Retrieves the saved thread-specific firmware status value.
+ *  
+ * @details
+ *   This function fetches the firmware status value that is specific to the current thread.
+ * 
+ * @return
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
+ ******************************************************************************/
+static inline sl_status_t sl_wifi_get_saved_firmware_status(void)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+
+  sli_osTaskRegisterGetValue(NULL, sli_fw_status_storage_index, &status);
+  return status;
+}
+#endif
 /** @} */

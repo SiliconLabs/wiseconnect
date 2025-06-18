@@ -137,7 +137,6 @@ void sysrtc_example_init(void)
 #else
   interrupt_enabled.group1_overflow_interrupt_is_enabled = false;
 #endif
-
   do {
 
     // Configuring SYSRTC clock source

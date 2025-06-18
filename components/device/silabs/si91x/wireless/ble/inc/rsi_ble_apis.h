@@ -2972,6 +2972,24 @@ int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
 
 /*==============================================*/
 /**
+ * @fn         int32_t rsi_ble_set_coex_roles_priority(const uint8_t *payload)
+ * @brief      Give vendor-specific command to set the priorities for the various coex roles.
+ *             The payload contains role id, followed by min, max priorities of the specified role..
+ *             This is a Blocking API.
+ * @pre        Device should be initialized before calling this API.
+ * @param[in]  payload - Payload (There are 7 coex roles refer rsi_ble_coex_role_id_t, each having min and max priority followed by the role id in the role_priority_payload.)
+ * @return     0 - Success \n
+ *             Non-Zero Value - Failure \n
+ *             If the return value is less than 0 \n
+ *               -4 - Buffer not available to serve the command
+ *              0x4E62  Invalid Parameters \n
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
+ */
+
+/*==============================================*/
+int32_t rsi_ble_set_coex_roles_priority(const uint8_t *payload);
+
+/**
  * @fn         void BT_LE_ADPacketExtract(uint8_t *remote_name, const uint8_t *pbuf, uint8_t buf_len);
  * @brief      Used to extract remote Bluetooth device name from the received advertising report.
  * @pre Pre-conditions:
@@ -3033,6 +3051,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  * @note        Refer to the Status Codes section for the above error codes at 
  *              [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes).
  * @note        The higher power will be backed off based on country region.
+ * @note        This API currently supports controlling the TX power in the configured chain during wireless initialization. However, changing the chain from LP to HP or vice versa is not supported.
  * @note        Use the following setting to indicate tx_power as an index: 
  *              `#define RSI_BLE_PWR_INX 30`
  *              Default value for power index is 31. 
@@ -3044,7 +3063,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  *                - 127      : BLE HP Mode, maximum power supported.
 
  * @note        Use the following setting to indicate tx_power in dBm (-8 to 18 dBm): `#define RSI_BLE_PWR_INX_DBM  1`
- * @note        When switching between HP mode and LP mode, ensure that no protocol activity is running.  
+ *   
  * @note        For the LP Chain - Power index vs output power in dBm in E2E mode:
  *   |       Power Index   |                  Output Power in dBm                              |
  *   ----------------------|-------------------------------------------------------------------|

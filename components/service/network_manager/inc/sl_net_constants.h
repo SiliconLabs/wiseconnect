@@ -34,7 +34,19 @@
 #include "sl_wifi_constants.h"
 
 /// Network Interface Type mask
-#define NETWORK_INTERFACE_TYPE_MASK 0xFFF8
+#define NETWORK_INTERFACE_TYPE_MASK 0xFFFF
+
+#define MAX_WIFI_CLIENT_PROFILES 2 ///< Maximum number of Wi-Fi client profiles.
+#define MAX_WIFI_AP_PROFILES     2 ///< Maximum number of Wi-Fi access point profiles.
+
+#define AUTO_JOIN_RETRY_COUNT 3 ///< Number of retries for auto-join.
+
+#define NETWORK_MANAGER_CONNECT_CMD         BIT(0) ///< Command to connect the network manager.
+#define NETWORK_MANAGER_DISCONNECT_CMD      BIT(1) ///< Command to disconnect the network manager.
+#define NETWORK_MANAGER_CONNECT_FAILURE_CMD BIT(2) ///< Command for network manager connection failure.
+
+#define AUTO_JOIN_SUCCESS_FLAG 0x01 ///< Flag indicating auto-join success.
+#define AUTO_JOIN_FAILURE_FLAG 0x02 ///< Flag indicating auto-join failure.
 
 /// Interface Type Selection
 #define SL_NET_INTERFACE_TYPE(x) (x & NETWORK_INTERFACE_TYPE_MASK)
@@ -52,15 +64,24 @@
  * This enumeration defines the various network interfaces supported by the system. Currently, only `SL_NET_WIFI_CLIENT_INTERFACE` and `SL_NET_WIFI_AP_INTERFACE` are supported.
  */
 typedef enum {
-  SL_NET_WIFI_CLIENT_INTERFACE = (1 << 3), ///< Wi-Fi Client Interface
-  SL_NET_WIFI_AP_INTERFACE     = (2 << 3), ///< Wi-Fi Access Point Interface
-  SL_NET_ETHERNET_INTERFACE    = (3 << 3), ///< Ethernet Interface (not currently supported)
-  SL_NET_THREAD_INTERFACE      = (4 << 3), ///< Thread Interface (not currently supported)
-  SL_NET_BLUETOOTH_INTERFACE   = (5 << 3), ///< Bluetooth Interface (not currently supported)
-  SL_NET_ZWAVE_INTERFACE       = (6 << 3), ///< Z-Wave Interface (not currently supported)
+  SL_NET_WIFI_CLIENT_1_INTERFACE = (1 << 3),                       ///< Wi-Fi Client 1 Interface
+  SL_NET_WIFI_CLIENT_2_INTERFACE = (1 << 3) + 1,                   ///< Wi-Fi Client 2 Interface
+  SL_NET_WIFI_CLIENT_INTERFACE   = SL_NET_WIFI_CLIENT_1_INTERFACE, ///< Wi-Fi Client Interface
+  SL_NET_WIFI_AP_1_INTERFACE     = (2 << 3),                       ///< Wi-Fi Access Point 1 Interface
+  SL_NET_WIFI_AP_2_INTERFACE     = (2 << 3) + 1,                   ///< Wi-Fi Access Point 2 Interface
+  SL_NET_WIFI_AP_INTERFACE       = SL_NET_WIFI_AP_1_INTERFACE,     ///< Wi-Fi Access Point Interface
+  SL_NET_ETHERNET_INTERFACE      = (3 << 3),                       ///< Ethernet Interface (not currently supported)
+  SL_NET_THREAD_INTERFACE        = (4 << 3),                       ///< Thread Interface (not currently supported)
+  SL_NET_BLUETOOTH_INTERFACE     = (5 << 3),                       ///< Bluetooth Interface (not currently supported)
+  SL_NET_ZWAVE_INTERFACE         = (6 << 3),                       ///< Z-Wave Interface (not currently supported)
 } sl_net_interface_t;
 /** @} */
 
+///Max Client Interfaces
+#define MAX_NET_CLIENT_INTERFACES 2
+
+///Max Access Point Interfaces
+#define MAX_NET_AP_INTERFACES 2
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
 /**
@@ -88,7 +109,8 @@ typedef enum {
   SL_NET_OTA_FW_UPDATE_EVENT,     ///< Event triggered when an OTA firmware update is completed.
   SL_NET_DHCP_NOTIFICATION_EVENT, ///< Event triggered when a DHCP notification is received.
   SL_NET_IP_ADDRESS_CHANGE_EVENT, ///< Event triggered when there is a DHCP IP address change.
-  SL_NET_EVENT_COUNT              ///< Represents the maximum count of events. Used internally by the SDK.
+  SL_NET_AUTO_JOIN_EVENT, ///< Event triggered when the auto-join process starts, is in progress, or is completed.
+  SL_NET_EVENT_COUNT      ///< Represents the maximum count of events. Used internally by the SDK.
 } sl_net_event_t;
 
 /**
@@ -114,6 +136,8 @@ typedef enum {
   SL_NET_PROFILE_ID_9  = 9,  ///< Profile Id 9
   SL_NET_PROFILE_ID_10 = 10, ///< Profile Id 10
 
+  SL_NET_AUTO_JOIN = 0xFF, ///< Auto-join profile ID
+
   SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID = SL_NET_PROFILE_ID_0, ///< Wi-Fi Client Default Profile.
   SL_NET_DEFAULT_WIFI_AP_PROFILE_ID     = SL_NET_PROFILE_ID_0, ///< Wi-Fi Access Point Default Profile.
   SL_NET_DEFAULT_ETHERNET_PROFILE_ID    = SL_NET_PROFILE_ID_0, ///< Ethernet Default Profile (not currently supported).
@@ -129,19 +153,32 @@ typedef enum {
  * This enumeration defines the various types of network credentials that can be used for authentication and security purposes.
  */
 typedef enum {
-  SL_NET_INVALID_CREDENTIAL_TYPE, ///< Invalid Credential Type.
-  SL_NET_WIFI_PSK,                ///< Wi-Fi PSk Credential.
-  SL_NET_WIFI_PMK,                ///< Wi-Fi PMK Credential.
-  SL_NET_WIFI_WEP,                ///< Wi-Fi WEP Credential.
-  SL_NET_CERTIFICATE,             ///< TLS Client Certificate.
-  SL_NET_PUBLIC_KEY,              ///< TLS Certificate Public key.
-  SL_NET_PRIVATE_KEY,             ///< TLS Certificate Private key.
-  SL_NET_PACK_FILE,               ///< EAP Fast Pack File.
-  SL_NET_SIGNING_CERTIFICATE,     ///< TLS CA Certificate.
-  SL_NET_HTTP_CLIENT_CREDENTIAL,  ///< HTTP Client Credential.
-  SL_NET_EAP_CLIENT_CREDENTIAL,   ///< Wi-Fi EAP Credential.
-  SL_NET_MQTT_CLIENT_CREDENTIAL   ///< MQTT Client Credential.
+  SL_NET_INVALID_CREDENTIAL_TYPE,  ///< Invalid Credential Type.
+  SL_NET_WIFI_PSK,                 ///< Wi-Fi PSk Credential.
+  SL_NET_WIFI_PMK,                 ///< Wi-Fi PMK Credential.
+  SL_NET_WIFI_WEP,                 ///< Wi-Fi WEP Credential.
+  SL_NET_CERTIFICATE,              ///< TLS Client Certificate.
+  SL_NET_PUBLIC_KEY,               ///< TLS Certificate Public key.
+  SL_NET_PRIVATE_KEY,              ///< TLS Certificate Private key.
+  SL_NET_PACK_FILE,                ///< EAP Fast Pack File.
+  SL_NET_SIGNING_CERTIFICATE,      ///< TLS CA Certificate.
+  SL_NET_HTTP_CLIENT_CREDENTIAL,   ///< HTTP Client Credential.
+  SL_NET_EAP_CLIENT_CREDENTIAL,    ///< Wi-Fi EAP Credential.
+  SL_NET_MQTT_CLIENT_CREDENTIAL,   ///< MQTT Client Credential.
+  SL_NET_TLS_PRIVATE_KEY_CBC_WRAP, ///< CBC TLS Private Certificate Key.
+  SL_NET_TLS_PRIVATE_KEY_ECB_WRAP  ///< ECB TLS Private Certificate Key.
 } sl_net_credential_type_t;
+
+/**
+ * @enum sl_net_auto_join_status_t
+ * @brief Enumeration to represent the status of the auto-join process.
+ * 
+ */
+typedef enum {
+  SL_NET_AUTO_JOIN_IN_PROGRESS, ///< Auto-join process is in progress.
+  SL_NET_AUTO_JOIN_CONNECTED,   ///< Successfully connected to an AP.
+  SL_NET_AUTO_JOIN_FAILED       ///< Failed to connect to any AP.
+} sl_net_auto_join_status_t;
 
 /**
  * @typedef sl_net_certificate_id_t
@@ -163,14 +200,17 @@ typedef uint32_t sl_net_certificate_id_t;
  *  - In case of @ref sl_net_credential_type_t of @ref SL_NET_CERTIFICATE, @ref SL_NET_PUBLIC_KEY, @ref SL_NET_PRIVATE_KEY, @ref SL_NET_SIGNING_CERTIFICATE, @ref SL_NET_PACK_FILE, the user can ONLY set @ref SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID, @ref SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID, @ref SL_NET_TLS_CLIENT_CREDENTIAL_START, or @ref SL_NET_TLS_SERVER_CREDENTIAL_START at a time for Si91x devices.
  */
 typedef enum {
-  SL_NET_INVALID_CREDENTIAL_ID             = 0, ///< Invalid Credential Id.
+  SL_NET_INVALID_CREDENTIAL_ID = 0, ///< Invalid Credential Id. (Deprecated: Use SL_NET_NO_CREDENTIAL_ID instead)
+  SL_NET_NO_CREDENTIAL_ID      = 0, ///< No Credential.
   SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID = 1, ///< Wi-Fi Client Credential Id.
   ///< @note In case of `Basic Network Configuration Manager`, by default `default_wifi_client_credential` from `sl_net_default_values.h` is used. User can choose to override this by setting the credential using @ref sl_net_set_credential.
-  SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID = 2, ///< Wi-Fi Access Point Credential Id.
+  SL_NET_WIFI_CLIENT_CREDENTIAL_ID_1   = 2, ///< Wi-Fi Client Credential Id 1.
+  SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID = 3, ///< Wi-Fi Access Point Credential Id.
   ///< @note In case of `Basic Network Configuration Manager`, by default `default_wifi_ap_credential` from `sl_net_default_values.h` is used. User can choose to override this by setting the credential using @ref sl_net_set_credential.
-  SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID = 3,        ///< Wi-Fi EAP Client Credential Id.
-  SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID = 4,        ///< Wi-Fi EAP Server Credential Id.
-  SL_NET_USER_CREDENTIAL_ID            = 5,        ///< User Credential Id.
+  SL_NET_WIFI_AP_CREDENTIAL_ID_1       = 4,        ///< Wi-Fi AP Credential Id 1.
+  SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID = 5,        ///< Wi-Fi EAP Client Credential Id.
+  SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID = 6,        ///< Wi-Fi EAP Server Credential Id.
+  SL_NET_USER_CREDENTIAL_ID            = 7,        ///< User Credential Id.
   SL_NET_TLS_CLIENT_CREDENTIAL_START   = (1 << 8), ///< TLS Client Credential Id.
   SL_NET_TLS_SERVER_CREDENTIAL_START   = (2 << 8), ///< TLS Server Credential Id.
   SL_NET_MQTT_SERVER_CREDENTIAL_START  = (3 << 8), ///< MQTT Server Credential Id.

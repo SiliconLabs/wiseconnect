@@ -37,6 +37,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************* PWM Configuration **************************/
+
+// macro to validate if channel_0 is added
+#define SL_PWM_CHANNEL_0_AVAILABLE
+
 // <h> PWM CHANNEL_0 Configuration
 // <o SL_PWM_CHANNEL_0_FREQUENCY> Frequency <500-200000>
 // <i> Default: 25000

@@ -1,0 +1,52 @@
+project_name: sl_si91x_pcm_secondary
+label: SI91x - SL_PCM_SECONDARY
+description: |
+  Demonstrates how to use the PCM secondary interface on the SI91x SoC device.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.0
+source:
+  - path: app.c
+  - path: app.h
+  - path: pcm_secondary_example.c
+  - path: pcm_secondary_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_main
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_pcm
+    from: wiseconnect3_sdk
+  - id: pcm_instance
+    from: wiseconnect3_sdk
+    instance:
+      - pcm0
+define:
+  - name: SYSCALLS_WRITE
+configuration:
+  - name: SL_PCM0_MODE
+    value: SL_I2S_SLAVE
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/image505d.png
+  - path: resources/uc_screen/pcm_secondary_uc_screen.png
+  - path: resources/readme/output.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

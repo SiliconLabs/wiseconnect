@@ -33,9 +33,6 @@
 #include "sl_net_default_values.h"
 #include <string.h>
 
-#define MAX_WIFI_CLIENT_PROFILES 2
-#define MAX_WIFI_AP_PROFILES     2
-
 static sl_net_wifi_client_profile_t wifi_client_profiles[MAX_WIFI_CLIENT_PROFILES] = { 0 };
 static sl_net_wifi_ap_profile_t wifi_ap_profiles[MAX_WIFI_AP_PROFILES]             = { 0 };
 
@@ -43,7 +40,8 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
                                sl_net_profile_id_t profile_id,
                                const sl_net_profile_t *profile)
 {
-
+  if (profile_id == SL_NET_AUTO_JOIN)
+    return SL_STATUS_NOT_SUPPORTED;
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:
@@ -72,8 +70,9 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
 sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id, sl_net_profile_t *profile)
 {
 
+  if (profile_id == SL_NET_AUTO_JOIN)
+    return SL_STATUS_NOT_SUPPORTED;
   SL_WIFI_ARGS_CHECK_NULL_POINTER(profile);
-
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:
@@ -98,7 +97,8 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
 
 sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
 {
-
+  if (profile_id == SL_NET_AUTO_JOIN)
+    return SL_STATUS_NOT_SUPPORTED;
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:

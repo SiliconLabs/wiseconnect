@@ -24,11 +24,10 @@
 ## About Example Code
 - This example demonstrates the transition to the PS3 active and sleep states, with RAM retention and NWP shutdown. By default, our application is configured to retain 320KB RAM.
 - Initially, the Power Manager service is initialized, transitioning the processor to the PS3 state with the clock set to 40 MHz (Power Save) using sl_si91x_power_manager_init.
-- In the application, RET LDO voltage is changed to 0.75V.
 - The power domains will be disabled and NWP will be shutdown.
-- The application will then switch the clock to 90 MHz in performance mode (This is specifically for this application).
+- The application will then switch the clock to 80 MHz in performance mode (This is specifically for this application).
 - Finally, the application will enter the ps3 sleep mode.
-- To ensure a continuous PS3 active state, configure the ACTIVE_STATE macro to 1 in the application. This will transition the application to the PS3 state with the clock running at 90 MHz and begin toggling the NPSS GPIO 3(P18 on the WPK).
+- To ensure a continuous PS3 active state, configure the ACTIVE_STATE macro to 1 in the application. This will transition the application to the PS3 state with the clock running at 80 MHz.
 
 ## Prerequisites/Setup Requirements
 
@@ -89,6 +88,5 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 3. After successful program execution, the prints in the serial console look as shown below.
   ![Figure: PS3 Sleep State](resources/readme/ps3_sleep_state.png)
 4. For Active number, please set the ACTIVE_STATE macro as 1.
-5. This will continuously toggle the NPSS GPIO 3 (P18 on the WPK), indicating that the application is in an active state.
-6. After successful program execution, the prints in the serial console look as shown below.
+5. After successful program execution, the prints in the serial console look as shown below.
   ![Figure: PS3 Active State](resources/readme/ps3_active_state.png)

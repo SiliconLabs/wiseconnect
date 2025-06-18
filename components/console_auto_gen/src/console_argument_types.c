@@ -73,7 +73,7 @@ const char *socket_domain_type[]                   = { "af_inet", "af_inet6", NU
 const char *socket_protocol_type[] = { "ip_icmp", "ip_proto", "ip_raw", "ip_tcp", "ip_udp", "ip_udp_lite", NULL };
 const char *socket_type_type[]     = { "dgram", "stream", NULL };
 const char *wifi_ap_flag_type[]    = { "hidden_ssid", NULL };
-const char *wifi_band_type[]       = { "2.4g", "5g", "60g", "6g", "900m", "auto", NULL };
+const char *wifi_band_type[]       = { "2.4g", "5g", "dual", "60g", "6g", "900m", "auto", NULL };
 const char *wifi_bandwidth_type[]  = { "10m", "160m", "20m", "40m", "80m", NULL };
 const char *wifi_encryption_type[] = { "ccmp", "fast", "open", "peap", "tkip", "tls", "ttls", "wep", NULL };
 const char *wifi_init_mode_type[]  = {
@@ -180,6 +180,7 @@ const value_list_t console_argument_values[] = {
   [CONSOLE_TYPE(wifi_ap_flag)]    = (const uint32_t[]){ SL_WIFI_HIDDEN_SSID },
   [CONSOLE_TYPE(wifi_band)]       = (const uint32_t[]){ SL_WIFI_BAND_2_4GHZ,
                                                         SL_WIFI_BAND_5GHZ,
+                                                        SL_WIFI_BAND_DUAL,
                                                         SL_WIFI_BAND_60GHZ,
                                                         SL_WIFI_BAND_6GHZ,
                                                         SL_WIFI_BAND_900MHZ,
@@ -201,7 +202,9 @@ const value_list_t console_argument_values[] = {
   [CONSOLE_TYPE(wifi_interface)]  = (const uint32_t[]){ SL_WIFI_AP_2_4GHZ_INTERFACE,
                                                         SL_WIFI_AP_5GHZ_INTERFACE,
                                                         SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
-                                                        SL_WIFI_CLIENT_5GHZ_INTERFACE },
+                                                        SL_WIFI_CLIENT_5GHZ_INTERFACE,
+                                                        SL_WIFI_CLIENT_DUAL_INTERFACE,
+                                                        SL_WIFI_AP_DUAL_INTERFACE },
   [CONSOLE_TYPE(wifi_security)]   = (const uint32_t[]){ SL_WIFI_OPEN,
                                                         SL_WIFI_WEP,
                                                         SL_WIFI_WPA,

@@ -138,6 +138,37 @@ void data_callback(uint32_t sock_no,
     //After sending the pong response we are closing the socket in this application
     is_ping_received = true;
     return;
+  } else if (opcode == SL_WEBSOCKET_OPCODE_CLOSE) {
+    // Validate the length
+    if (length < 2) {
+      printf("Close frame received with insufficient length. No status code or reason available.\r\n");
+      return;
+    }
+
+    // Extract status code from the buffer
+    uint16_t status_code = (buffer[0] << 8) | buffer[1];
+
+    // Check if there is a reason text
+    if (length == 2) {
+      printf("Close frame received. Status code: %d, No reason available.\r\n", status_code);
+      return;
+    }
+
+    // Extract reason from the buffer
+    char *reason = (char *)malloc(length - 2 + 1); // +1 for null-terminator
+    if (reason == NULL) {
+      printf("Memory allocation failed for reason text.\r\n");
+      return;
+    }
+    memcpy(reason, buffer + 2, length - 2);
+    reason[length - 2] = '\0';
+
+    // Print the status code and reason
+    printf("Close frame received. Status code: %d, Reason: %s\r\n", status_code, reason);
+
+    // Free the allocated memory
+    free(reason);
+    return;
   }
 
   // Print data as characters

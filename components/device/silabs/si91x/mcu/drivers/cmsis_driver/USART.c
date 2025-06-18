@@ -33,6 +33,15 @@
 #include "USART.h"
 #include "clock_update.h"
 #include "rsi_usart.h"
+#if (SLI_SI91X_MCU_RS485_MODE== 1)
+#include "sl_si91x_driver_gpio.h"
+#ifdef UART1_RS485_MODE
+#include "sl_si91x_uart1_rs485_common_config.h"
+#endif
+#ifdef UART0_RS485_MODE
+#include "sl_si91x_uart0_rs485_common_config.h"
+#endif
+#endif
 #ifdef USART_MODULE
 #include "sl_si91x_usart_common_config.h"
 #endif
@@ -200,8 +209,8 @@ static  USART_RESOURCES USART0_Resources = {
 		&usart0_clock,
 		&usart0_tx,
 		&usart0_rx,
-		&usart0_rts,
 		&usart0_cts,
+		&usart0_rts,
 		&usart0_ir_tx,
 		&usart0_ir_rx ,
 		},
@@ -338,10 +347,10 @@ static  USART_RESOURCES UART1_Resources = {
 #define  ULP_UART_IRQ_HANDLER     IRQ012_Handler
 static USART_INFO ULP_UART_Info = {0};
 
-static  USART_PIN ulp_uart_tx     = { RTE_ULP_UART_TX_PORT ,RTE_ULP_UART_TX_PIN ,RTE_ULP_UART_TX_MUX ,0 };
-static  USART_PIN ulp_uart_rx     = { RTE_ULP_UART_RX_PORT ,RTE_ULP_UART_RX_PIN ,RTE_ULP_UART_RX_MUX ,0 };
-static  USART_PIN ulp_uart_cts    = { RTE_ULP_UART_CTS_PORT ,RTE_ULP_UART_CTS_PIN ,RTE_ULP_UART_CTS_MUX ,0 };
-static  USART_PIN ulp_uart_rts    = { RTE_ULP_UART_RTS_PORT ,RTE_ULP_UART_RTS_PIN ,RTE_ULP_UART_RTS_MUX ,0 };
+static  USART_PIN ulp_uart_tx     = { RTE_ULP_UART_TX_PORT ,RTE_ULP_UART_TX_PIN ,RTE_ULP_UART_TX_MUX ,RTE_ULP_UART_TX_PAD };
+static  USART_PIN ulp_uart_rx     = { RTE_ULP_UART_RX_PORT ,RTE_ULP_UART_RX_PIN ,RTE_ULP_UART_RX_MUX ,RTE_ULP_UART_RX_PAD };
+static  USART_PIN ulp_uart_cts    = { RTE_ULP_UART_CTS_PORT ,RTE_ULP_UART_CTS_PIN ,RTE_ULP_UART_CTS_MUX ,RTE_ULP_UART_CTS_PAD };
+static  USART_PIN ulp_uart_rts    = { RTE_ULP_UART_RTS_PORT ,RTE_ULP_UART_RTS_PIN ,RTE_ULP_UART_RTS_MUX ,RTE_ULP_UART_RTS_PAD };
 
 #if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
 void ULPUART_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
@@ -393,12 +402,22 @@ static  USART_RESOURCES ULP_UART_Resources = {
 				0,              // IRDA               (Not supported)
 				0,              // smart_card         (Not supported)
 				0,              // smart_card_clock   (Not supported)
+		 #ifdef  USART_ROMDRIVER_PRESENT		
 				0,              // RTS Flow Control available
 				0,              // CTS Flow Control available
+		 #else	
+		        1,              // RTS Flow Control available
+		        1,              // CTS Flow Control available
+		 #endif			
 				1,              // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
 				1,              // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+		 #ifdef  USART_ROMDRIVER_PRESENT		
 				0,              // RTS Line: 0=not available, 1=available.
 				0,              // CTS Line: 0=not available, 1=available.
+		 #else
+		        1,              // RTS Line: 0=not available, 1=available.
+		        1,              // CTS Line: 0=not available, 1=available.		 
+		 #endif
 				0,              // DTR Line: 0=not available, 1=available.
 				0,              // DSR Line: 0=not available, 1=available.
 				0,              // DCD Line: 0=not available, 1=available.
@@ -526,7 +545,7 @@ static int32_t ARM_USART0_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_USART0_Transfer (const void *data_out, void *data_in, uint32_t num)
+static int32_t ARM_USART0_Transfer (const void *data_out, const void *data_in, uint32_t num)
 {
   if((num < RTE_USART0_DMA_TX_LEN_PER_DES) && (num < RTE_USART0_DMA_RX_LEN_PER_DES)) {
 
@@ -731,7 +750,7 @@ static int32_t ARM_UART1_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_UART1_Transfer (const void *data_out,void *data_in,uint32_t num)
+static int32_t ARM_UART1_Transfer (const void *data_out, const void *data_in, uint32_t num)
 {
   if((num < RTE_UART1_DMA_TX_LEN_PER_DES) && (num < RTE_UART1_DMA_RX_LEN_PER_DES)) {
       UART1_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -930,7 +949,7 @@ static int32_t ARM_ULP_UART_Receive (const void *data, uint32_t num)
 #endif	
 }
 
-static int32_t ARM_ULP_UART_Transfer (const void *data_out,void *data_in,uint32_t num)
+static int32_t ARM_ULP_UART_Transfer (const void *data_out, const void *data_in, uint32_t num)
 {
   if((num < RTE_ULP_UART_DMA_TX_LEN_PER_DES) && (num < RTE_ULP_UART_DMA_RX_LEN_PER_DES)) {
       ULP_UART_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -1064,67 +1083,68 @@ void ULP_UART_IRQ_HANDLER (void)
 uint32_t USART_GetParity_StopBit(uint8_t usart_peripheral)
 {
   uint32_t reg_value = false;
-  do {
-    if (usart_peripheral >= UARTLAST) {
-      break;
-    }
-    if (usart_peripheral == USART_0) {
-      reg_value = USART0_Resources.pREGS->LCR;
-      break;
-    }
-    if (usart_peripheral == UART_1) {
-      reg_value = UART1_Resources.pREGS->LCR;
-      break;
-    }
-    if (usart_peripheral == ULPUART) {
-      reg_value = ULP_UART_Resources.pREGS->LCR;
-      break;
-    }
-  } while (false);
+
+	switch (usart_peripheral) {
+		case USART_0:
+			reg_value = USART0_Resources.pREGS->LCR;
+			break;
+
+		case UART_1:
+			reg_value = UART1_Resources.pREGS->LCR;
+			break;
+
+		case ULPUART:
+			reg_value = ULP_UART_Resources.pREGS->LCR;
+			break;
+
+		default:
+			break;
+	}
   return reg_value;
 }
 uint32_t USART_GetBaudrate(uint8_t usart_peripheral)
 {
-  uint32_t baud_rate = false;
-  do {
-    if (usart_peripheral >= UARTLAST) {
-      break;
-    }
-    if (usart_peripheral == USART_0) {
-      baud_rate = USART0_Resources.info->baudrate;
-      break;
-    }
-    if (usart_peripheral == UART_1) {
-      baud_rate = UART1_Resources.info->baudrate;
-      break;
-    }
-    if (usart_peripheral == ULPUART) {
-      baud_rate = ULP_UART_Resources.info->baudrate;
-      break;
-    }
-  } while (false);
+  uint32_t baud_rate = 0;
+
+	switch (usart_peripheral) {
+		case USART_0:
+			baud_rate = USART0_Resources.info->baudrate;
+			break;
+
+		case UART_1:
+			baud_rate = UART1_Resources.info->baudrate;
+			break;
+
+		case ULPUART:
+			baud_rate = ULP_UART_Resources.info->baudrate;
+			break;
+
+		default:
+			break;
+	}
   return baud_rate;
 }
 uint8_t USART_GetInitState(uint8_t usart_peripheral)
 {
   uint8_t init_state = false;
-  do {
-    if (usart_peripheral >= UARTLAST) {
-      break;
-    }
-    if (usart_peripheral == USART_0) {
-      init_state = (USART0_Resources.info->flags & USART_FLAG_INITIALIZED);
-      break;
-    }
-    if (usart_peripheral == UART_1) {
-      init_state = (UART1_Resources.info->flags & USART_FLAG_INITIALIZED);
-      break;
-    }
-    if (usart_peripheral == ULPUART) {
-      init_state = (ULP_UART_Resources.info->flags & USART_FLAG_INITIALIZED);
-      break;
-    }
-  } while (false);
+
+	switch (usart_peripheral) {
+		case USART_0:
+			init_state = (USART0_Resources.info->flags & USART_FLAG_INITIALIZED);
+			break;
+
+		case UART_1:
+			init_state = (UART1_Resources.info->flags & USART_FLAG_INITIALIZED);
+			break;
+
+		case ULPUART:
+			init_state = (ULP_UART_Resources.info->flags & USART_FLAG_INITIALIZED);
+			break;
+
+		default:
+			break;
+	}
+	
   return init_state;
 }
 

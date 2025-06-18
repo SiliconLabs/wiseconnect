@@ -1,4 +1,4 @@
-# SL GPIO EXAMPLE
+# SL GPIO HP EXAMPLE
 
 ## Table of Contents
 

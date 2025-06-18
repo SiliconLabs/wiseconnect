@@ -76,7 +76,7 @@
 #define SL_HIGH_PERFORMANCE_SOCKET   BIT(7)
 #define TWT_AUTO_CONFIG              1
 #define TWT_SCAN_TIMEOUT             10000
-#define ENABLE_POWER_SAVE            1
+#define ENABLE_NWP_POWER_SAVE        1
 
 // Use case based TWT selection params
 #define TWT_RX_LATENCY                       5000
@@ -239,10 +239,10 @@ void app_init(const void *unused)
 void application_start()
 {
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  sl_wifi_firmware_version_t version                = { 0 };
-  sl_mac_address_t mac_addr                         = { 0 };
-  data_semaphore                                    = osSemaphoreNew(1, 0, NULL);
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  sl_wifi_firmware_version_t version                   = { 0 };
+  sl_mac_address_t mac_addr                            = { 0 };
+  data_semaphore                                       = osSemaphoreNew(1, 0, NULL);
 
   sl_si91x_set_timeout(&timeout_configuration);
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &twt_client_configuration, NULL, NULL);
@@ -339,9 +339,9 @@ void application_start()
   }
   printf("Enabled Broadcast Data Filter\r\n");
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-  status                      = sl_wifi_set_performance_profile(&performance_profile);
+  status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -397,7 +397,7 @@ sl_status_t send_udp_data(void)
 sl_status_t create_tcp_socket(void)
 {
   struct sockaddr_in server_address = { 0 };
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   int socket_return_value = 0;
 

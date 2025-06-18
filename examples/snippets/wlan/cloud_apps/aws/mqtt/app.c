@@ -67,19 +67,31 @@
 
 #define CERTIFICATE_INDEX 0
 
-#define SUBSCRIBE_TO_TOPIC   "aws_status"      //! Subscribe Topic to receive the message from cloud
-#define PUBLISH_ON_TOPIC     "siwx91x_status"  //! Publish Topic to send the status from application to cloud
-#define MQTT_PUBLISH_PAYLOAD "Hi from SiWx91x" //! Publish message
-#define SUBSCRIBE_QOS        QOS1              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
-#define PUBLISH_QOS          QOS1              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
-#define PUBLISH_PERIODICITY  30000             //! Publish periodicity in milliseconds
-#define MQTT_USERNAME        "username"
-#define MQTT_PASSWORD        "password"
-#define ENABLE_POWER_SAVE    1
-#define LOW                  0
+#define SUBSCRIBE_TO_TOPIC    "aws_status"      //! Subscribe Topic to receive the message from cloud
+#define PUBLISH_ON_TOPIC      "siwx91x_status"  //! Publish Topic to send the status from application to cloud
+#define MQTT_PUBLISH_PAYLOAD  "Hi from SiWx91x" //! Publish message
+#define SUBSCRIBE_QOS         QOS1              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
+#define PUBLISH_QOS           QOS1              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
+#define PUBLISH_PERIODICITY   30000             //! Publish periodicity in milliseconds
+#define MQTT_USERNAME         "username"
+#define MQTT_PASSWORD         "password"
+#define ENABLE_NWP_POWER_SAVE 1
+#define LOW                   0
+#define WRAP_PRIVATE_KEY      0 //! Enable this to wrap the private key
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 volatile uint8_t powersave_given = 0;
+#endif
+
+#if WRAP_PRIVATE_KEY
+#include "sl_si91x_wrap.h"
+
+sl_si91x_wrap_config_t wrap_config = { 0 };
+uint8_t *wrapped_private_key       = NULL;
+
+// IV used for SL_NET_TLS_PRIVATE_KEY_CBC_WRAP mode.
+uint8_t iv[SL_SI91X_IV_SIZE] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 #endif
 
 /******************************************************
@@ -94,6 +106,13 @@ void subscribe_handler(struct _Client *pClient,
                        IoT_Publish_Message_Params *pParams,
                        void *pClientData);
 void disconnect_notify_handler(AWS_IoT_Client *pClient, void *data);
+#if WRAP_PRIVATE_KEY
+sl_status_t set_tls_wrapped_private_key(sl_net_credential_id_t id,
+                                        sl_net_credential_type_t type,
+                                        const uint8_t *key_ptr,
+                                        uint32_t key_length,
+                                        const uint8_t *iv);
+#endif
 
 //! Enumeration for states in application
 typedef enum app_state {
@@ -160,7 +179,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
                       ),
@@ -190,7 +209,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
 #ifdef SLI_SI91X_MCU_INTERFACE
                    .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 #else
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                    .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 #else
                    .config_feature_bit_map = 0
@@ -249,6 +268,40 @@ void subscribe_handler(struct _Client *pClient,
   UNUSED_PARAMETER(data);
   printf("\rData received on the Subscribed Topic: %.*s \r\n", pParams->payloadLen, (char *)pParams->payload);
 }
+
+#if WRAP_PRIVATE_KEY
+sl_status_t set_tls_wrapped_private_key(sl_net_credential_id_t id,
+                                        sl_net_credential_type_t type,
+                                        const uint8_t *key_ptr,
+                                        uint32_t key_length,
+                                        const uint8_t *iv)
+{
+  if ((key_ptr == NULL) || (key_length == 0) || ((type == SL_NET_TLS_PRIVATE_KEY_CBC_WRAP) && (iv == NULL))) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Append the key_length with the size of IV in case of CBC WRAP mode
+  size_t wrapped_key_len = key_length + ((type == SL_NET_TLS_PRIVATE_KEY_CBC_WRAP) ? SL_SI91X_IV_SIZE : 0);
+
+  unsigned char *wrapped_key = (unsigned char *)malloc(wrapped_key_len);
+  if (wrapped_key == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  // Copy the original key_ptr into the new wrapped key
+  memcpy(wrapped_key, key_ptr, key_length);
+
+  // Append the IV to the wrapped key in case of CBC WRAP mode
+  if (type == SL_NET_TLS_PRIVATE_KEY_CBC_WRAP) {
+    memcpy(wrapped_key + key_length, iv, SL_SI91X_IV_SIZE);
+  }
+
+  sl_status_t status = sl_net_set_credential(id, type, wrapped_key, wrapped_key_len);
+
+  free(wrapped_key);
+  return status;
+}
+#endif
 
 void app_init(void)
 {
@@ -357,6 +410,49 @@ sl_status_t load_certificates_in_flash(void)
   }
   printf("\r\nLoading TLS Client certificate at index %d Successful\r\n", CERTIFICATE_INDEX);
 
+#if WRAP_PRIVATE_KEY
+  wrap_config.key_type     = SL_SI91X_TRANSPARENT_KEY;
+  wrap_config.key_size     = (sizeof(aws_client_private_key) - 1);
+  wrap_config.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
+  memcpy(wrap_config.key_buffer, aws_client_private_key, wrap_config.key_size);
+
+  if (wrap_config.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+    memcpy(wrap_config.wrap_iv, iv, SL_SI91X_IV_SIZE);
+  }
+
+  // Since the output of wrap API is a 16 byte aligned, update the value of wrapped_private_key_length to the next multiple of 16 bytes.
+  uint32_t wrapped_private_key_length =
+    ((wrap_config.key_size + SL_SI91X_DEFAULT_16BYTE_ALIGN) & (~SL_SI91X_DEFAULT_16BYTE_ALIGN));
+
+  wrapped_private_key = (uint8_t *)malloc(wrapped_private_key_length);
+  SL_VERIFY_POINTER_OR_RETURN(wrapped_private_key, SL_STATUS_NULL_POINTER);
+
+  status = sl_si91x_wrap(&wrap_config, wrapped_private_key);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nWrapping private key failed, Error Code : 0x%lX\r\n", status);
+    free(wrapped_private_key);
+    return status;
+  }
+  printf("\r\nWrapping private key is successful\r\n");
+
+  sl_net_credential_type_t credential_type = ((wrap_config.wrap_iv_mode == SL_SI91X_WRAP_IV_ECB_MODE)
+                                                ? SL_NET_TLS_PRIVATE_KEY_ECB_WRAP
+                                                : SL_NET_TLS_PRIVATE_KEY_CBC_WRAP);
+
+  status = set_tls_wrapped_private_key(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX),
+                                       credential_type,
+                                       wrapped_private_key,
+                                       wrapped_private_key_length,
+                                       ((wrap_config.wrap_iv_mode == SL_SI91X_WRAP_IV_ECB_MODE) ? NULL : iv));
+  if (status != SL_STATUS_OK) {
+    printf("\r\nLoading TLS Client wrapped private key in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    free(wrapped_private_key);
+    return status;
+  }
+  printf("\r\nLoading TLS Client wrapped private key at index %d Successful\r\n", CERTIFICATE_INDEX);
+
+  free(wrapped_private_key);
+#else
   // Load SSL Client private key
   status = sl_net_set_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX),
                                  SL_NET_PRIVATE_KEY,
@@ -367,13 +463,14 @@ sl_status_t load_certificates_in_flash(void)
     return status;
   }
   printf("\r\nLoading TLS Client private key at index %d Successful\r\n", CERTIFICATE_INDEX);
+#endif
 
   return SL_STATUS_OK;
 }
 
 sl_status_t start_aws_mqtt(void)
 {
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
   uint32_t start_time         = 0;
   uint8_t publish_timer_start = 0;
   uint8_t publish_msg         = 0;
@@ -510,7 +607,7 @@ sl_status_t start_aws_mqtt(void)
             if (qos1_publish_handle == 0) {
               application_state = AWS_MQTT_PUBLISH_STATE;
             } else {
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
               qos1_publish_handle = 0;
               application_state   = AWS_MQTT_SLEEP_STATE;
 #else
@@ -528,7 +625,7 @@ sl_status_t start_aws_mqtt(void)
         rc = aws_iot_shadow_yield(&mqtt_client, 1);
         if (SUCCESS == rc) {
           printf("\rYield is successful\n");
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
           publish_msg = 1;
 #endif
         }
@@ -537,7 +634,7 @@ sl_status_t start_aws_mqtt(void)
       } break;
 
       case AWS_MQTT_PUBLISH_STATE: {
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
         if ((!publish_timer_start) || publish_msg) {
 #endif
           publish_iot_msg.qos        = PUBLISH_QOS;
@@ -564,7 +661,7 @@ sl_status_t start_aws_mqtt(void)
             printf("\rQoS%d publish is successful\r\n", PUBLISH_QOS);
           }
 
-#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
+#if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
           publish_msg = 0;
           if (!publish_timer_start) {
             publish_timer_start = 1;
@@ -582,11 +679,11 @@ sl_status_t start_aws_mqtt(void)
         }
 #endif
 
-#if ENABLE_POWER_SAVE
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                              .listen_interval = 1000 };
+#if ENABLE_NWP_POWER_SAVE
+        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                                 .listen_interval = 1000 };
         if (!powersave_given) {
-          rc = sl_wifi_set_performance_profile(&performance_profile);
+          rc = sl_wifi_set_performance_profile_v2(&performance_profile);
           if (rc != SL_STATUS_OK) {
             printf("\r\nPower save configuration Failed, Error Code : %d\r\n", rc);
           }
@@ -603,7 +700,7 @@ sl_status_t start_aws_mqtt(void)
 #endif
       } break;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
       case AWS_MQTT_SLEEP_STATE: {
         if (select_given == 1 && (check_for_recv_data != 1)) {
 

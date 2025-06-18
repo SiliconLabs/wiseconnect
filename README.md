@@ -13,22 +13,20 @@ The WiSeConnect 3 (versions 3.0.0 and later) SDK is the next-generation API for 
 
 ## Release Notes
 
-- See [here](docs/release-notes/index_soc.md) for the latest SoC release notes.
-- See [here](docs/release-notes/index_ncp.md) for the latest NCP release notes.
+The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect 3) SDK Version 3.5.0 (June 18, 2025) - Release Notes](https://docs.silabs.com/wiseconnect/3.5.0/sisdk-wifi-release-notes/).
 
 ## Licensing
 
 WiSeConnect 3 SDK is covered by one of several different licenses. The default license is the [Master Software License Agreement](https://www.silabs.com/about-us/legal/master-software-license-agreement) (MSLA), which applies unless otherwise noted. See [here](license.md) for full details.
 
 ## Documentation
-
-The online WiSeConnect 3 SDK documentation is available [here](https://docs.silabs.com/wiseconnect/latest).
+An archive of all documents associated with the latest release of WiSeConnect™ 3 SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect 3 SDK documentation is available [here](https://docs.silabs.com/wiseconnect/3.5.0).
 
 ### Software Reference
 
   - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
   - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
-  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-4-1.md) for information on porting your WiSeConnect v3.4.1 application to WiSeConnect v3.4.2
+  - See our [Migration Guide](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-4-2) for information on porting your WiSeConnect v3.4.2 application to WiSeConnect v3.5.0
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
 

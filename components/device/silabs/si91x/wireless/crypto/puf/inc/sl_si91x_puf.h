@@ -3,15 +3,28 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
 
@@ -156,7 +169,7 @@ sl_status_t sl_si91x_puf_set_key_disable_req(void);
  * @note
  *  This operation needs to be done every time a key is needed.
  */
-sl_status_t sl_si91x_puf_get_key_req(uint8_t *key_code_ptr, uint8_t *key_ptr);
+sl_status_t sl_si91x_puf_get_key_req(const uint8_t *key_code_ptr, uint8_t *key_ptr);
 
 /**
  * @brief Disables further key retrieval operations on PUF.
@@ -184,7 +197,7 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void);
  * @note
  *  This operation needs to be done for different keys to be loaded into AES engine.
  */
-sl_status_t sl_si91x_puf_load_key_req(uint8_t *key_code_ptr);
+sl_status_t sl_si91x_puf_load_key_req(const uint8_t *key_code_ptr);
 
 /**
  * @brief Sets intrinsic key operation
@@ -229,9 +242,9 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
                                          uint16_t key_size,
                                          const uint8_t *key_ptr,
                                          uint16_t data_size,
-                                         uint8_t *data_ptr,
+                                         const uint8_t *data_ptr,
                                          uint16_t iv_size,
-                                         uint8_t *iv_ptr,
+                                         const uint8_t *iv_ptr,
                                          uint8_t *aes_encry_resp);
 
 /**
@@ -258,9 +271,9 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
                                          uint16_t key_size,
                                          const uint8_t *key_ptr,
                                          uint16_t data_size,
-                                         uint8_t *data_ptr,
+                                         const uint8_t *data_ptr,
                                          uint16_t iv_size,
-                                         uint8_t *iv_ptr,
+                                         const uint8_t *iv_ptr,
                                          uint8_t *aes_decry_resp);
 
 /**
@@ -286,9 +299,9 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
                                      uint16_t key_size,
                                      const uint8_t *key_ptr,
                                      uint16_t data_size,
-                                     uint8_t *data_ptr,
+                                     const uint8_t *data_ptr,
                                      uint16_t iv_size,
-                                     uint8_t *iv_ptr,
+                                     const uint8_t *iv_ptr,
                                      uint8_t *aes_mac_resp);
 
 /** @} */

@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
-* @file sl_si91x_i2c_init_inst_config.h
+* @file sl_si91x_i2c_init_INSTANCE_config.h
 * @brief I2c driver configuration file.
 *******************************************************************************
 * # License

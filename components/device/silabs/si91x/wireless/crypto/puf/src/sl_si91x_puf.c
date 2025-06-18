@@ -174,13 +174,13 @@ sl_status_t sl_si91x_puf_start_req(void)
 
   sl_status_t status = SL_STATUS_OK;
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_START,
-                                        SI91X_COMMON_CMD,
-                                        NULL,
-                                        0,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_START,
+                                         SI91X_COMMON_CMD,
+                                         NULL,
+                                         0,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
   // change puf_state
   puf_state = SLI_SI91X_PUF_STATE_STARTED;
@@ -200,11 +200,14 @@ sl_status_t sl_si91x_puf_set_key_req(uint8_t key_index, uint8_t key_size, const 
       || (key_code_ptr == NULL)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
+  if ((size_t)(key_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE != strlen((const char *)key_ptr)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
 
   sl_status_t status                      = SL_STATUS_OK;
   sli_si91x_req_puf_set_key_t puf_set_key = { 0 };
   sl_wifi_buffer_t *buffer                = NULL;
-  sl_si91x_packet_t *packet               = NULL;
+  sl_wifi_system_packet_t *packet         = NULL;
 
   // Assign key_index
   puf_set_key.key_index = key_index;
@@ -216,16 +219,16 @@ sl_status_t sl_si91x_puf_set_key_req(uint8_t key_index, uint8_t key_size, const 
   memcpy(&puf_set_key.key[0], key_ptr, (key_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE);
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_SET_KEY,
-                                        SI91X_COMMON_CMD,
-                                        &puf_set_key,
-                                        sizeof(sli_si91x_req_puf_set_key_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_SET_KEY,
+                                         SI91X_COMMON_CMD,
+                                         &puf_set_key,
+                                         sizeof(sli_si91x_req_puf_set_key_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -236,7 +239,7 @@ sl_status_t sl_si91x_puf_set_key_req(uint8_t key_index, uint8_t key_size, const 
   if (packet->length > 0) {
     memcpy(key_code_ptr, packet->data, packet->length);
   }
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -249,20 +252,20 @@ sl_status_t sl_si91x_puf_set_key_disable_req(void)
 
   sl_status_t status = SL_STATUS_OK;
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_DIS_SET_KEY,
-                                        SI91X_COMMON_CMD,
-                                        NULL,
-                                        0,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_DIS_SET_KEY,
+                                         SI91X_COMMON_CMD,
+                                         NULL,
+                                         0,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
   // change puf_state
   puf_state = SLI_SI91X_PUF_STATE_SET_KEY_DISABLED;
   return status;
 }
 
-sl_status_t sl_si91x_puf_get_key_req(uint8_t *key_code_ptr, uint8_t *key_ptr)
+sl_status_t sl_si91x_puf_get_key_req(const uint8_t *key_code_ptr, uint8_t *key_ptr)
 {
   // initial checks
   if (!sl_si91x_is_device_initialized()) {
@@ -278,22 +281,22 @@ sl_status_t sl_si91x_puf_get_key_req(uint8_t *key_code_ptr, uint8_t *key_ptr)
   sl_status_t status                      = SL_STATUS_OK;
   sli_si91x_req_puf_get_key_t puf_get_key = { 0 };
   sl_wifi_buffer_t *buffer                = NULL;
-  sl_si91x_packet_t *packet               = NULL;
+  sl_wifi_system_packet_t *packet         = NULL;
 
   // Copy data to be sent
   memcpy(&puf_get_key.key_code[0], key_code_ptr, SLI_SI91X_PUF_KEY_CODE_SIZE_BYTES);
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_GET_KEY,
-                                        SI91X_COMMON_CMD,
-                                        &puf_get_key,
-                                        sizeof(sli_si91x_req_puf_get_key_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_GET_KEY,
+                                         SI91X_COMMON_CMD,
+                                         &puf_get_key,
+                                         sizeof(sli_si91x_req_puf_get_key_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -301,7 +304,7 @@ sl_status_t sl_si91x_puf_get_key_req(uint8_t *key_code_ptr, uint8_t *key_ptr)
   if (packet->length > 0) {
     memcpy(key_ptr, packet->data, packet->length);
   }
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -314,13 +317,13 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void)
 
   sl_status_t status = SL_STATUS_OK;
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_DIS_GET_KEY,
-                                        SI91X_COMMON_CMD,
-                                        NULL,
-                                        0,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_DIS_GET_KEY,
+                                         SI91X_COMMON_CMD,
+                                         NULL,
+                                         0,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
   // change puf_state
   puf_state = SLI_SI91X_PUF_STATE_GET_KEY_DISABLED;
@@ -328,7 +331,7 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void)
   return status;
 }
 
-sl_status_t sl_si91x_puf_load_key_req(uint8_t *key_code_ptr)
+sl_status_t sl_si91x_puf_load_key_req(const uint8_t *key_code_ptr)
 {
   // initial checks
   if (!sl_si91x_is_device_initialized()) {
@@ -348,13 +351,13 @@ sl_status_t sl_si91x_puf_load_key_req(uint8_t *key_code_ptr)
   memcpy(&puf_load_key.key_code[0], key_code_ptr, SLI_SI91X_PUF_KEY_CODE_SIZE_BYTES);
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_LOAD_KEY,
-                                        SI91X_COMMON_CMD,
-                                        &puf_load_key,
-                                        sizeof(sli_si91x_req_puf_load_key_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_LOAD_KEY,
+                                         SI91X_COMMON_CMD,
+                                         &puf_load_key,
+                                         sizeof(sli_si91x_req_puf_load_key_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         NULL);
 
   VERIFY_STATUS_AND_RETURN(status);
   // change puf_state
@@ -379,7 +382,7 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
   sl_status_t status                        = SL_STATUS_OK;
   sli_si91x_req_puf_intr_key_t puf_intr_key = { 0 };
   sl_wifi_buffer_t *buffer                  = NULL;
-  sl_si91x_packet_t *packet                 = NULL;
+  sl_wifi_system_packet_t *packet           = NULL;
 
   // Assign key_index
   puf_intr_key.key_index = key_index;
@@ -388,16 +391,16 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
   puf_intr_key.key_size = key_size;
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_PUF_INTR_KEY,
-                                        SI91X_COMMON_CMD,
-                                        &puf_intr_key,
-                                        sizeof(sli_si91x_req_puf_intr_key_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_INTR_KEY,
+                                         SI91X_COMMON_CMD,
+                                         &puf_intr_key,
+                                         sizeof(sli_si91x_req_puf_intr_key_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -405,8 +408,64 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
   if (packet->length > 0) {
     memcpy(intr_key_resp, packet->data, packet->length);
   }
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   return status;
+}
+
+// Common parameters check for AES encryption/decryption
+static sl_status_t sli_puf_aes_common_checks(uint8_t mode,
+                                             uint8_t key_source,
+                                             uint16_t key_size,
+                                             const uint8_t *key_ptr,
+                                             uint16_t data_size,
+                                             const uint8_t *data_ptr,
+                                             uint16_t iv_size,
+                                             const uint8_t *iv_ptr,
+                                             const uint8_t *response_ptr)
+{
+  // initial checks
+  if (!sl_si91x_is_device_initialized()) {
+    SL_DEBUG_LOG("\r\nDevice not initialized\r\n");
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  if (puf_state < SLI_SI91X_PUF_STATE_KEY_LOADED) {
+    SL_DEBUG_LOG("\r\nInvalid PUF state\r\n");
+    return SL_STATUS_INVALID_STATE;
+  }
+  // Data pointer check
+  if (data_ptr == NULL) {
+    SL_DEBUG_LOG("\r\nData pointer is NULL\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Response pointer/length check
+  if (response_ptr == NULL) {
+    SL_DEBUG_LOG("\r\nResponse pointer is NULL\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  if ((key_size > SL_SI91X_PUF_KEY_SIZE_256) || (iv_size > SL_SI91X_PUF_IV_SIZE_256)
+      || (data_size > SLI_SI91X_MAX_PUF_DATA_SIZE_BYTES) || (data_size < SLI_SI91X_PUF_BLOCK_SIZE)
+      || (mode > SL_SI91X_AES_CBC_MODE)) {
+    SL_DEBUG_LOG("\r\nInvalid parameter size\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Check if key source is AES_AS_KEY_SOURCE and key_ptr is NULL or key length is not proper
+  if ((key_source == SL_SI91X_AES_AS_KEY_SOURCE)
+      && ((key_ptr == NULL) || (strlen((const char *)key_ptr) != (size_t)(key_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE))) {
+    SL_DEBUG_LOG("\r\nInvalid key source or key length\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Check if data size is not multiple of block size
+  if (data_size % SLI_SI91X_PUF_BLOCK_SIZE != 0 || data_size > SLI_SI91X_MAX_PUF_DATA_SIZE_BYTES) {
+    SL_DEBUG_LOG("\r\nInvalid data size\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Check if mode is AES_CBC_MODE and iv_ptr is NULL or iv length is not proper
+  if ((mode == SL_SI91X_AES_CBC_MODE)
+      && ((iv_ptr == NULL) || strlen((const char *)iv_ptr) != (size_t)(iv_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE)) {
+    SL_DEBUG_LOG("\r\nInvalid IV for AES CBC mode\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
@@ -414,42 +473,27 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
                                          uint16_t key_size,
                                          const uint8_t *key_ptr,
                                          uint16_t data_size,
-                                         uint8_t *data_ptr,
+                                         const uint8_t *data_ptr,
                                          uint16_t iv_size,
-                                         uint8_t *iv_ptr,
+                                         const uint8_t *iv_ptr,
                                          uint8_t *aes_encry_resp)
 {
-  // initial checks
-  if (!sl_si91x_is_device_initialized()) {
-    return SL_STATUS_NOT_INITIALIZED;
-  }
-  if (puf_state < SLI_SI91X_PUF_STATE_KEY_LOADED) {
-    return SL_STATUS_INVALID_STATE;
-  }
-  // Response pointer/length check
-  if (aes_encry_resp == NULL) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((mode == SL_SI91X_AES_CBC_MODE) && (iv_ptr == NULL)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((key_source == SL_SI91X_AES_AS_KEY_SOURCE) && (key_ptr == NULL)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((key_size > SL_SI91X_PUF_KEY_SIZE_256) || (iv_size > SL_SI91X_PUF_IV_SIZE_256)
-      || (data_size > SLI_SI91X_MAX_PUF_DATA_SIZE_BYTES) || (data_size < SLI_SI91X_PUF_BLOCK_SIZE)
-      || (mode > SL_SI91X_AES_CBC_MODE)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  // Check if data size is multiple of key size
-  if (data_size % ((key_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE)) {
-    return SL_STATUS_INVALID_PARAMETER;
+  sl_status_t status = sli_puf_aes_common_checks(mode,
+                                                 key_source,
+                                                 key_size,
+                                                 key_ptr,
+                                                 data_size,
+                                                 data_ptr,
+                                                 iv_size,
+                                                 iv_ptr,
+                                                 aes_encry_resp);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
 
-  sl_status_t status                    = SL_STATUS_OK;
   sli_si91x_req_aes_encrypt_t aes_encry = { 0 };
   sl_wifi_buffer_t *buffer              = NULL;
-  sl_si91x_packet_t *packet             = NULL;
+  sl_wifi_system_packet_t *packet       = NULL;
 
   if (mode == SL_SI91X_AES_CBC_MODE) {
     // Copy IV
@@ -468,16 +512,16 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
   sli_uint16_to_2bytes_util(data_size, aes_encry.data_size);
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_AES_ENCRYPT,
-                                        SI91X_COMMON_CMD,
-                                        &aes_encry,
-                                        sizeof(sli_si91x_req_aes_encrypt_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_AES_ENCRYPT,
+                                         SI91X_COMMON_CMD,
+                                         &aes_encry,
+                                         sizeof(sli_si91x_req_aes_encrypt_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -485,7 +529,7 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
   if (packet->length > 0) {
     memcpy(aes_encry_resp, packet->data, packet->length);
   }
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -494,43 +538,27 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
                                          uint16_t key_size,
                                          const uint8_t *key_ptr,
                                          uint16_t data_size,
-                                         uint8_t *data_ptr,
+                                         const uint8_t *data_ptr,
                                          uint16_t iv_size,
-                                         uint8_t *iv_ptr,
+                                         const uint8_t *iv_ptr,
                                          uint8_t *aes_decry_resp)
 {
-  // initial checks
-  if (!sl_si91x_is_device_initialized()) {
-    return SL_STATUS_NOT_INITIALIZED;
-  }
-  if (puf_state < SLI_SI91X_PUF_STATE_KEY_LOADED) {
-    return SL_STATUS_INVALID_STATE;
-  }
-
-  // Response pointer/length check
-  if (aes_decry_resp == NULL) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((mode == SL_SI91X_AES_CBC_MODE) && (iv_ptr == NULL)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((key_source == SL_SI91X_AES_AS_KEY_SOURCE) && (key_ptr == NULL)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((key_size > SL_SI91X_PUF_KEY_SIZE_256) || (iv_size > SL_SI91X_PUF_IV_SIZE_256)
-      || (data_size > SLI_SI91X_MAX_PUF_DATA_SIZE_BYTES) || (data_size < SLI_SI91X_PUF_BLOCK_SIZE)
-      || (mode > SL_SI91X_AES_CBC_MODE)) {
-    return SL_STATUS_INVALID_PARAMETER;
+  sl_status_t status = sli_puf_aes_common_checks(mode,
+                                                 key_source,
+                                                 key_size,
+                                                 key_ptr,
+                                                 data_size,
+                                                 data_ptr,
+                                                 iv_size,
+                                                 iv_ptr,
+                                                 aes_decry_resp);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
 
-  // Check if data size is multiple of key size
-  if (data_size % ((key_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE))
-    return SL_STATUS_INVALID_PARAMETER;
-
-  sl_status_t status                    = SL_STATUS_OK;
   sli_si91x_req_aes_decrypt_t aes_decry = { 0 };
   sl_wifi_buffer_t *buffer              = NULL;
-  sl_si91x_packet_t *packet             = NULL;
+  sl_wifi_system_packet_t *packet       = NULL;
 
   if (mode == SL_SI91X_AES_CBC_MODE) {
     // Copy IV
@@ -550,16 +578,16 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
   sli_uint16_to_2bytes_util(data_size, aes_decry.data_size);
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_AES_DECRYPT,
-                                        SI91X_COMMON_CMD,
-                                        &aes_decry,
-                                        sizeof(sli_si91x_req_aes_decrypt_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_AES_DECRYPT,
+                                         SI91X_COMMON_CMD,
+                                         &aes_decry,
+                                         sizeof(sli_si91x_req_aes_decrypt_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -567,7 +595,7 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
   if (packet->length > 0) {
     memcpy(aes_decry_resp, packet->data, packet->length);
   }
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -575,41 +603,20 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
                                      uint16_t key_size,
                                      const uint8_t *key_ptr,
                                      uint16_t data_size,
-                                     uint8_t *data_ptr,
+                                     const uint8_t *data_ptr,
                                      uint16_t iv_size,
-                                     uint8_t *iv_ptr,
+                                     const uint8_t *iv_ptr,
                                      uint8_t *aes_mac_resp)
 {
-  // initial checks
-  if (!sl_si91x_is_device_initialized()) {
-    return SL_STATUS_NOT_INITIALIZED;
-  }
-  if (puf_state < SLI_SI91X_PUF_STATE_KEY_LOADED) {
-    return SL_STATUS_INVALID_STATE;
+  sl_status_t status =
+    sli_puf_aes_common_checks(0, key_source, key_size, key_ptr, data_size, data_ptr, iv_size, iv_ptr, aes_mac_resp);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
 
-  // Response, data and IV pointers NULL check
-  if (aes_mac_resp == NULL || data_ptr == NULL || iv_ptr == NULL) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  if ((key_source == SL_SI91X_AES_AS_KEY_SOURCE) && (key_ptr == NULL)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  if ((data_size > SLI_SI91X_MAX_PUF_DATA_SIZE_BYTES) || (data_size < SLI_SI91X_PUF_BLOCK_SIZE)
-      || (key_size > SL_SI91X_PUF_KEY_SIZE_256) || (iv_size > SL_SI91X_PUF_IV_SIZE_256)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  // Check if data size is multiple of key size
-  if (data_size % ((key_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE))
-    return SL_STATUS_INVALID_PARAMETER;
-
-  sl_status_t status              = SL_STATUS_OK;
   sli_si91x_req_aes_mac_t aes_mac = { 0 };
   sl_wifi_buffer_t *buffer        = NULL;
-  sl_si91x_packet_t *packet       = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
 
   //Fill AES Encry Mode
   aes_mac.mode = ((key_size << 1) | (key_source << 2) | (iv_size << 3));
@@ -628,16 +635,16 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
   memcpy(&aes_mac.iv[0], iv_ptr, (iv_size + 1) * SLI_SI91X_PUF_BLOCK_SIZE);
 
   // driver send
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_AES_MAC,
-                                        SI91X_COMMON_CMD,
-                                        &aes_mac,
-                                        sizeof(sli_si91x_req_aes_mac_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(1000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_AES_MAC,
+                                         SI91X_COMMON_CMD,
+                                         &aes_mac,
+                                         sizeof(sli_si91x_req_aes_mac_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                         NULL,
+                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -645,6 +652,6 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
   if (packet->length > 0) {
     memcpy(aes_mac_resp, packet->data, packet->length);
   }
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   return status;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* @file  efx32_ncp_host.c
+* @file  stm32_ncp_host.c
 * @brief 
 *******************************************************************************
 * # License
@@ -28,12 +28,12 @@
 #include "stm32f4xx_hal.h"
 #include "sl_board_configuration.h"
 
-#define SPI_BUFFER_LENGTH 2300
-#define DMA_ENABLED
+#define SLI_SPI_BUFFER_LENGTH 2300
+#define SLI_DMA_ENABLED
 
-static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_SPI1_Init(void);
+static void sli_mx_gpio_init(void);
+static void sli_mx_dma_init(void);
+static void sli_mx_spi1_init(void);
 extern void Error_Handler(void);
 void gpio_interrupt(void);
 
@@ -41,16 +41,16 @@ SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_rx;
 DMA_HandleTypeDef hdma_spi1_tx;
 extern volatile int8_t init_error;
-volatile uint8_t dma_tx_rx_completed = 0;
+volatile uint8_t sli_dma_tx_rx_completed = 0;
 
-uint8_t spi_buffer[SPI_BUFFER_LENGTH];
+uint8_t sli_spi_buffer[SLI_SPI_BUFFER_LENGTH];
 
 /**
   * @brief SPI1 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_SPI1_Init(void)
+static void sli_mx_spi1_init(void)
 {
 
   /* USER CODE BEGIN SPI1_Init 0 */
@@ -84,7 +84,7 @@ static void MX_SPI1_Init(void)
 /**
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void)
+static void sli_mx_dma_init(void)
 {
 
   /* DMA controller clock enable */
@@ -104,7 +104,7 @@ static void MX_DMA_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
+static void sli_mx_gpio_init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
@@ -163,19 +163,19 @@ void sl_si91x_host_release_from_reset(void)
   HAL_GPIO_WritePin(RESET_PIN_GPIO_Port, RESET_PIN_Pin, GPIO_PIN_SET);
 }
 
-sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
 {
   UNUSED_PARAMETER(config);
   uint32_t status = 0;
 
   //! Initialize the host platform GPIOs
-  MX_GPIO_Init();
+  sli_mx_gpio_init();
 
   //! Initialize DMA
-  MX_DMA_Init();
+  sli_mx_dma_init();
 
   //! Initialize SPI
-  MX_SPI1_Init();
+  sli_mx_spi1_init();
   if (init_error != 0) {
     return SL_STATUS_FAIL;
   }
@@ -186,6 +186,14 @@ sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
 sl_status_t sl_si91x_host_deinit(void)
 {
   return SL_STATUS_OK;
+}
+
+__WEAK void sl_si91x_host_spi_cs_assert()
+{
+}
+
+__WEAK void sl_si91x_host_spi_cs_deassert()
+{
 }
 
 /*==================================================================*/
@@ -203,17 +211,17 @@ sl_status_t sl_si91x_host_deinit(void)
 sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length)
 {
   if (rx_buffer == NULL) {
-    rx_buffer = spi_buffer;
+    rx_buffer = sli_spi_buffer;
   }
   if (tx_buffer == NULL) {
-    tx_buffer = spi_buffer;
+    tx_buffer = sli_spi_buffer;
   }
 
-#ifdef DMA_ENABLED
+#ifdef SLI_DMA_ENABLED
   HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)tx_buffer, (uint8_t *)rx_buffer, buffer_length);
-  while (!dma_tx_rx_completed) {
+  while (!sli_dma_tx_rx_completed) {
   }
-  dma_tx_rx_completed = 0;
+  sli_dma_tx_rx_completed = 0;
 #else
   HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)tx_buffer, (uint8_t *)rx_buffer, buffer_length, 10);
 #endif
@@ -268,7 +276,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 
-  dma_tx_rx_completed = 1;
+  sli_dma_tx_rx_completed = 1;
 }
 
 void gpio_interrupt(void)

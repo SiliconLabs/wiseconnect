@@ -57,7 +57,7 @@ typedef struct Timer Timer;
  * @param Timer - pointer to the timer to be checked for expiration
  * @return bool - true = timer expired, false = timer not expired
  */
-bool has_timer_expired(Timer *);
+bool has_timer_expired(const Timer *);
 
 /**
  * @brief Create a timer (milliseconds)
@@ -87,7 +87,7 @@ void countdown_sec(Timer *, uint32_t);
  * @param Timer - pointer to the timer to be set to checked
  * @return int - milliseconds left on the countdown timer
  */
-uint32_t left_ms(Timer *);
+uint32_t left_ms(const Timer *);
 
 /**
  * @brief Initialize a timer

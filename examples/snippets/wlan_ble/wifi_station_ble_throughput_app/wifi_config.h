@@ -88,9 +88,9 @@
 /*=======================================================================*/
 //!	Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set 1 to enable power save mode
-#define PSP_MODE          RSI_SLEEP_MODE_8
-#define PSP_TYPE          RSI_MAX_PSP
+#define ENABLE_NWP_POWER_SAVE 0 //! Set 1 to enable power save mode
+#define PSP_MODE              RSI_SLEEP_MODE_8
+#define PSP_TYPE              RSI_MAX_PSP
 
 /*=======================================================================*/
 //! Power save command parameters

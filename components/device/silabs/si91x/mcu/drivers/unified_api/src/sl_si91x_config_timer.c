@@ -94,7 +94,7 @@ void sl_si91x_config_timer_init(void)
 * @brief:set configurations for config-timer
 *
 * @details:
-* Sets 32 bit or 16 bit timer mode
+* Sets 16 bit timer mode
 * Sets timer Periodic or one shot mode
 * Sets counter direction
 * Enables/disables Counter Buffer
@@ -104,14 +104,6 @@ void sl_si91x_config_timer_init(void)
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *timer_config_ptr)
 {
-  /* CONFIG_TIMER_UC is defined by default. when this macro (CONFIG_TIMER_UC) is defined, peripheral
-  * configuration is directly taken from the configuration set in the universal configuration (UC).
-  * if the application requires the configuration to be changed in run-time, undefined this macro
-  * and change the peripheral configuration.
-  */
-#if (CONFIG_TIMER_UC == 1)
-  timer_config_ptr = &ct_configuration;
-#endif
   uint32_t config_value;
   sl_status_t status;
   do {
@@ -130,6 +122,14 @@ sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *ti
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    /* CONFIG_TIMER_UC is defined by default. when this macro (CONFIG_TIMER_UC) is defined, peripheral
+    * configuration is directly taken from the configuration set in the universal configuration (UC).
+    * if the application requires the configuration to be changed in run-time, undefined this macro
+    * and change the peripheral configuration.
+    */
+#if (CONFIG_TIMER_UC == 1)
+    timer_config_ptr = &ct_configuration;
+#endif
     // Evaluating timer-config parameters ORed value
     status = evaluate_config_params(timer_config_ptr, &config_value);
     if (status != SL_STATUS_OK) {
@@ -272,7 +272,6 @@ sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_conf
 *
 * @details:
 * It sets match-count value for respective counter
-* If mode is 32-bit, use counter0
 * If mode is 16-bit as per passed counter number it updates the match value
 * For 16-bit mode it takes 16-bit match-value only, else through error
 *******************************************************************************/
@@ -327,8 +326,6 @@ sl_status_t sl_si91x_config_timer_get_match_value(uint32_t time_period_in_us, ui
 * @brief:sets initial value for counter-0 or counter-1 ,as per ct MODE
 *
 * @details:
-* For 32-bit mode, counter0_initial_value is passes to count value register
-* for 32-bit mode pass counter1 initial-value as zero
 * For 16--bit mode counters, ored value of both initial value is passed to the register 
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
@@ -351,11 +348,6 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
     // for clearing previous counter values
     sl_si91x_config_timer_reset_counter(SL_COUNTER_0);
     sl_si91x_config_timer_reset_counter(SL_COUNTER_1);
-    // Setting initial count value for 32-bit mode counter
-    if (mode == SL_COUNTER_32BIT) {
-      RSI_CT_SetCount(CT, counter0_initial_value);
-      break;
-    }
     // Setting initial count value for 16-bit mode counter0 & counter1
     if (mode == SL_COUNTER_16BIT) {
       uint32_t _ORed_value = (counter0_initial_value) | (counter1_initial_value << 16);
@@ -370,7 +362,6 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
 * @brief:sets wfg mode compare value for counter-0 or counter-1, as per CT mode
 *
 * @details:
-* For 32-bit mode, counter0_initial_value is passes to count value register
 * For 16--bit mode counters, ored value of both initial value is passed to the register 
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_wfg_compare_values(sl_counter_number_t counter_number,
@@ -398,7 +389,7 @@ sl_status_t sl_si91x_config_timer_set_wfg_compare_values(sl_counter_number_t cou
 * @brief:set config timer mode 
 *
 * @details:
-* Sets 32 bit or 16 bit timer mode
+* Sets 16 bit timer mode
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode)
 {
@@ -1033,9 +1024,6 @@ static sl_status_t evaluate_config_params(sl_config_timer_config_t *config_handl
       break;
     }
     // Evaluating ORed value of timer parameters
-    if (config_handle_ptr->is_counter_mode_32bit_enabled) {
-      *config_value = SL_COUNTER_MODE_32;
-    }
     if (config_handle_ptr->is_counter0_soft_reset_enabled) {
       *config_value |= SL_COUNTER0_SOFT_RESET_ENABLE;
     }
@@ -1059,10 +1047,6 @@ static sl_status_t evaluate_config_params(sl_config_timer_config_t *config_handl
     }
     if ((config_handle_ptr->counter0_direction) == SL_COUNTER0_UP_DOWN) {
       *config_value |= SL_COUNTER0_UP_DOWN_DIRECTION;
-    }
-    // Removing counter 1 parameters if it is a 32-bit counter mode
-    if ((config_handle_ptr->is_counter_mode_32bit_enabled) == SL_COUNTER_MODE_32) {
-      break;
     }
     if (config_handle_ptr->is_counter1_soft_reset_enabled) {
       *config_value |= SL_COUNTER1_SOFT_RESET_ENABLE;

@@ -5,7 +5,7 @@ description: >
   The VEML6035 Ambient Light Sensor provides an implementation of a highly accurate ambient light sensor API.
   This sensor supports ambient light detection with a high-sensitivity photodiode, low-noise amplifier.
   The VEML6035 communicates via an easy-to-use I2C interface and includes an additional interrupt feature for advanced control.
-  This component is instantiable, corresponding initialization settings.
+  To use this component, make sure to install the required I2C instance.
 category: Device|Si91x|MCU|Hardware
 quality: production
 metadata:

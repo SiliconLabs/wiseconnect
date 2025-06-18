@@ -25,6 +25,10 @@ include:
     condition: [brd4186c]
     file_list:
       - path: si91x_ncp_spi_config.h
+  - path: "brd4187c"
+    condition: [brd4187c]
+    file_list:
+      - path: si91x_ncp_spi_config.h
   - path: "brd4271a"
     condition: [brd4271a]
     file_list:

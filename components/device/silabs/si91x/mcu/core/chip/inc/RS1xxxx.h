@@ -12771,161 +12771,6 @@ typedef struct { /*!< (@ 0x24040C00) IR Structure                               
   };
 } IR_Type; /*!< Size = 28 (0x1c)                                                          */
 
-/* =========================================================================================================================== */
-/* ================                                            CTS                                            ================ */
-/* =========================================================================================================================== */
-
-/**
-  * @brief The capacitive touch sensor (CTS) controller is used to detect the position  of the touch from the user on the capacitive touch screen (CTS)
-  */
-
-typedef struct { /*!< (@ 0x24042C00) CTS Structure                                              */
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_0_0; /*!< (@ 0x00000000) Configuration Register 0_0                                 */
-
-    struct {
-      __IOM uint32_t CLK_SEL1 : 2;     /*!< (@ 0x00000000) Mux select for clock_mux_1                                 */
-      __IOM uint32_t PRE_SCALAR_1 : 8; /*!< (@ 0x00000002) Division factor for clock divider                          */
-      __IOM uint32_t PRE_SCALAR_2 : 4; /*!< (@ 0x0000000A) Division factor for clock divider                          */
-      __IOM uint32_t CLK_SEL2 : 1;     /*!< (@ 0x0000000E) Mux select for clock_mux_2                                 */
-      __IOM uint32_t
-        CTS_STATIC_CLK_EN : 1; /*!< (@ 0x0000000F) Enable static for capacitive touch sensor                  */
-      __IOM uint32_t
-        FIFO_AFULL_THRLD : 6; /*!< (@ 0x00000010) Threshold for fifo afull                                   */
-      __IOM uint32_t
-        FIFO_AEMPTY_THRLD : 6;      /*!< (@ 0x00000016) Threshold for fifo aempty                                  */
-      __IM uint32_t FIFO_EMPTY : 1; /*!< (@ 0x0000001C) FIFO empty status bit                                      */
-      __IM uint32_t RESERVED1 : 3;  /*!< (@ 0x0000001D) Reserved1                                                  */
-    } CTS_CONFIG_REG_0_0_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_FIFO_ADDRESS; /*!< (@ 0x00000004) FIFO Address Register                                      */
-
-    struct {
-      __IOM uint32_t FIFO : 32; /*!< (@ 0x00000000) Used for FIFO reads and write operations                   */
-    } CTS_FIFO_ADDRESS_b;
-  };
-  __IM uint32_t RESERVED[62];
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_1; /*!< (@ 0x00000100) Configuration Register 1_1                                 */
-
-    struct {
-      __IOM uint32_t
-        POLYNOMIAL_LEN : 2;            /*!< (@ 0x00000000) Length of polynomial                                       */
-      __IOM uint32_t SEED_LOAD : 1;    /*!< (@ 0x00000002) Seed of polynomial                                         */
-      __IOM uint32_t BUFFER_DELAY : 5; /*!< (@ 0x00000003) Delay of buffer. Delay programmed will be equal
-                                                                    to delay in nano seconds. Max delay value
-                                                                    is 32.Default delay should be programmed
-                                                                    before using Capacitive touch sensor module.               */
-      __IOM uint32_t WAKE_UP_ACK : 1;  /*!< (@ 0x00000008) Ack for wake up interrupt. This is a level signal.
-                                                                    To acknowledge wake up , set this bit to
-                                                                    one and reset it .                                         */
-      __IOM uint32_t ENABLE1 : 1;      /*!< (@ 0x00000009) Enable signal                                              */
-      __IOM uint32_t SOFT_RESET_2 : 1; /*!< (@ 0x0000000A) Reset the FIFO write and FIFO read occupancy
-                                                                    pointers                                                   */
-      __IOM uint32_t
-        CNT_ONEHOT_MODE : 1;          /*!< (@ 0x0000000B) Continuous or One hot mode                                 */
-      __IOM uint32_t SAMPLE_MODE : 2; /*!< (@ 0x0000000C) Select bits for FIFO write and FIFO average                */
-      __IOM uint32_t
-        RESET_WR_FIFO : 1;           /*!< (@ 0x0000000E) Resets the signal fifo_wr_int                              */
-      __OM uint32_t BYPASS : 1;      /*!< (@ 0x0000000F) Bypass signal                                              */
-      __IOM uint32_t BIT_SEL : 2;    /*!< (@ 0x00000010) Selects different set of 12 bits to be stored
-                                                                    in FIFO                                                    */
-      __IOM uint32_t RESERVED1 : 1;  /*!< (@ 0x00000012) Reserved1                                                   */
-      __OM uint32_t EXT_TRIG_EN : 1; /*!< (@ 0x00000013) Select bit for NPSS clock or Enable                        */
-      __IOM uint32_t RESERVED2 : 12; /*!< (@ 0x00000014) Reserved2                                                  */
-    } CTS_CONFIG_REG_1_1_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_2; /*!< (@ 0x00000104) Configuration Register 1_2                                 */
-
-    struct {
-      __IOM uint32_t
-        PWM_ON_PERIOD : 16; /*!< (@ 0x00000000) PWM ON period                                              */
-      __IOM uint32_t
-        PWM_OFF_PERIOD : 16; /*!< (@ 0x00000010) PWM OFF period                                             */
-    } CTS_CONFIG_REG_1_2_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_3; /*!< (@ 0x00000108) Configuration Register 1_3                                 */
-
-    struct {
-      __IOM uint32_t PRS_SEED : 32; /*!< (@ 0x00000000) Pseudo random generator (PRS) seed value                   */
-    } CTS_CONFIG_REG_1_3_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_4; /*!< (@ 0x0000010C) Configuration Register 1_4                                 */
-
-    struct {
-      __IOM uint32_t PRS_POLY : 32; /*!< (@ 0x00000000) Polynomial programming register for PRS generator          */
-    } CTS_CONFIG_REG_1_4_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_5; /*!< (@ 0x00000110) Configuration Register 1_5                                 */
-
-    struct {
-      __IOM uint32_t
-        INTER_SENSOR_DELAY : 16; /*!< (@ 0x00000000) Inter-sensor scan delay value                              */
-      __IOM uint32_t
-        N_SAMPLE_COUNT : 16; /*!< (@ 0x00000010) Number of repetitions of sensor scan                       */
-    } CTS_CONFIG_REG_1_5_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_6; /*!< (@ 0x00000114) Configuration Register 1_6                                 */
-
-    struct {
-      __IOM uint32_t SENSOR_CFG : 32; /*!< (@ 0x00000000) Register of scan controller containing the programmed
-                                                                    bit map                                                    */
-    } CTS_CONFIG_REG_1_6_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_7; /*!< (@ 0x00000118) Configuration Register 1_7                                 */
-
-    struct {
-      __IOM uint32_t
-        VALID_SENSORS : 4;          /*!< (@ 0x00000000) Value of number of sensors valid in the bit map            */
-      __IOM uint32_t RESERVED1 : 2; /*!< (@ 0x00000004) Reserved1                                                  */
-      __IOM uint32_t VREF_SEL : 1;  /*!< (@ 0x00000006) Enable for Vref programmed                                 */
-      __IOM uint32_t MASK_FIFO_AFULL_INTR : 1; /*!< (@ 0x00000007) Wake up interrupt and fifo_afull_intr are ORed
-                                                                    and given as a single interrupt to the
-                                                                    processor.                                                 */
-      __IOM uint32_t RESERVED2 : 4; /*!< (@ 0x00000008) Reserved2                                                  */
-      __IOM uint32_t REF_VOLT_CONFIG : 3; /*!< (@ 0x0000000C) This is given as an input voltage to analog model
-                                                                    as comparator reference voltage.                           */
-      __IOM uint32_t WAKEUP_MODE : 1; /*!< (@ 0x0000000F) Select bit for high/low mode.                              */
-      __IOM uint32_t
-        WAKE_UP_THRESHOLD : 16; /*!< (@ 0x00000010) Wakeup threshold.                                          */
-    } CTS_CONFIG_REG_1_7_b;
-  };
-
-  union {
-    __IM uint32_t CTS_CONFIG_REG_1_8; /*!< (@ 0x0000011C) Configuration Register 1_8                                 */
-
-    struct {
-      __IM uint32_t PRS_STATE : 32; /*!< (@ 0x00000000) Current state of PRS                                       */
-    } CTS_CONFIG_REG_1_8_b;
-  };
-
-  union {
-    __IOM uint32_t CTS_CONFIG_REG_1_9; /*!< (@ 0x00000120) Configuration Register 1_9                                 */
-
-    struct {
-      __IOM uint32_t TRIG_DIV : 10;  /*!< (@ 0x00000000) Allows one pulse for every 'trig_div' no. of
-                                                                    pulses of 1 ms clock                                       */
-      __IOM uint32_t RESERVED1 : 22; /*!< (@ 0x0000000A) Reserved1                                                  */
-    } CTS_CONFIG_REG_1_9_b;
-  };
-} CTS_Type; /*!< Size = 292 (0x124)                                                        */
-
 /**
  * @brief Ethernet MAC
  */
@@ -13991,7 +13836,6 @@ typedef struct { /*!< (@ 0x20220000) SDIOH Structure                            
 #define AUX_ADC_DAC_COMP_BASE 0x24043800UL
 #define OPAMP_BASE            0x24043A14UL
 #define IR_BASE               0x24040C00UL
-#define CTS_BASE              0x24042C00UL
 #define SMIH_BASE             0x20220000UL
 
 /*Clock and power*/
@@ -14060,7 +13904,6 @@ typedef struct { /*!< (@ 0x20220000) SDIOH Structure                            
 #define AUX_ADC_DAC_COMP ((AUX_ADC_DAC_COMP_Type *)AUX_ADC_DAC_COMP_BASE)
 #define OPAMP            ((OPAMP_Type *)OPAMP_BASE)
 #define IR               ((IR_Type *)IR_BASE)
-#define CTS              ((CTS_Type *)CTS_BASE)
 #define VAD              ((VAD_Type *)VAD_BASE)
 #define SMIH             ((SMIH_Type *)SMIH_BASE)
 

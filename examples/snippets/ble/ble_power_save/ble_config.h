@@ -54,8 +54,8 @@
  * *                      Macros
  * ******************************************************/
 //! Power Save Profile Mode
-#define ENABLE_POWER_SAVE 1
-#define PSP_MODE          RSI_SLEEP_MODE_2
+#define ENABLE_NWP_POWER_SAVE 1
+#define PSP_MODE              RSI_SLEEP_MODE_2
 
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP

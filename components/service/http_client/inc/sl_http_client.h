@@ -1,14 +1,29 @@
-/*******************************************************************************
+/***************************************************************************/ /**
+ * @file  sl_http_client.h
+ *******************************************************************************
  * # License
- * Copyright 2019 Silicon Laboratories Inc. www.silabs.com
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
 #pragma once
@@ -105,10 +120,11 @@ typedef enum {
  *   This enumeration defines the versions of the Transport Layer Security (TLS) protocol that can be used by the HTTPS client. Each version provides different levels of security and compatibility.
  */
 typedef enum {
-  SL_TLS_V_1_0 = 0, ///< Use TLS Version 1.0 for HTTPS Client.
-  SL_TLS_V_1_1 = 1, ///< Use TLS Version 1.1 for HTTPS Client.
-  SL_TLS_V_1_2 = 2, ///< Use TLS Version 1.2 for HTTPS Client.
-  SL_TLS_V_1_3 = 3  ///< Use TLS Version 1.3 for HTTPS Client.
+  SL_TLS_V_1_0           = 0, ///< Use TLS Version 1.0 for HTTPS Client.
+  SL_TLS_V_1_1           = 1, ///< Use TLS Version 1.1 for HTTPS Client.
+  SL_TLS_V_1_2           = 2, ///< Use TLS Version 1.2 for HTTPS Client.
+  SL_TLS_V_1_3           = 3, ///< Use TLS Version 1.3 for HTTPS Client.
+  SL_TLS_DEFAULT_VERSION = -1 ///< Use the default TLS version for HTTPS Client.
 } sl_http_client_tls_version_t;
 
 /**
@@ -495,6 +511,7 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
  *   - The `body_length` header in the request is set internally by default on Si91x specific chipsets.
  *   - HTTP PUT does not support sending the body through this API; it is mandatory to call @ref sl_http_client_write_chunked_data on Si91x specific chipsets.
  *   - HTTP response status and response codes (e.g., 200, 201, 404) would be returned in the corresponding event handler registered during @ref sl_http_client_request_init.
+ *   - If the `sni_extension` field in the `sl_http_client_request_t` structure is NULL, the `host_name` field will be used as the SNI, provided that `host_name` is not equal to `ip_address`.
  ******************************************************************************/
 sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl_http_client_request_t *request);
 

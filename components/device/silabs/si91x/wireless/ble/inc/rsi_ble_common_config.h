@@ -70,13 +70,14 @@
 /*=======================================================================*/
 // BLE Attribute Security Define
 /*=======================================================================*/
-#define ATT_REC_MAINTAIN_IN_HOST BIT(0) ///< Att record maintained by the stack
+#define ATT_REC_MAINTAIN_IN_HOST BIT(0) ///< Attribute record maintained in Host
 #define SEC_MODE_1_LEVEL_1       BIT(1) ///< NO Auth and No Enc
 #define SEC_MODE_1_LEVEL_2       BIT(2) ///< UnAUTH with Enc
 #define SEC_MODE_1_LEVEL_3       BIT(3) ///< AUTH with Enc
 #define SEC_MODE_1_LEVEL_4       BIT(4) ///< AUTH LE_SC Pairing with Enc
 #define ON_BR_EDR_LINK_ONLY      BIT(5) ///< BR/EDR link-only mode
 #define ON_LE_LINK_ONLY          BIT(6) ///< LE link-only mode
+#define VARIABLE_ATT_CHAR_VAL    BIT(7) ///< Variable characteristic value length
 /*=======================================================================*/
 // Max Tx data length and Tx timeout values
 /*=======================================================================*/
@@ -760,5 +761,13 @@ the number of peripherals has been updated to 1, and the number of connection ev
 
 #ifndef RSI_BLE_AE_MAX_ADV_SETS
 #define RSI_BLE_AE_MAX_ADV_SETS 2 ///< default number of Advertising sets in extended advertising (Max value = 3)
+#endif
+/*=======================================================================*/
+// Extended features
+/*=======================================================================*/
+
+#ifndef RSI_BT_BLE_STACK_BYPASS_ENABLE
+#define RSI_BT_BLE_STACK_BYPASS_ENABLE \
+  0 // 1 - enable BT stack bypass feature 0 - disable // by default it is 0 - disabled
 #endif
 /** @} */

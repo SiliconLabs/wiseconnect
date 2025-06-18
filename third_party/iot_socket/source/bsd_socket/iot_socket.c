@@ -35,6 +35,7 @@
 #include "iot_socket_types.h"
 #include "sl_constants.h"
 #include "netdb.h"
+#include "sl_string.h"
 
 /******************************************************
  *                      Macros
@@ -159,28 +160,29 @@ static int32_t sli_si91x_construct_remote_host_address(sockaddr_storage_t *addr,
 
   // Initialize the sockaddr_storage structure
   memset(addr, 0, sizeof(struct sockaddr_in));
-  switch (ip_len) {
-    case sizeof(struct in_addr): {
-      struct sockaddr_in *sa = (struct sockaddr_in *)addr;
-      sa->sin_len            = sizeof(struct sockaddr_in);
-      sa->sin_family         = AF_INET;
-      sa->sin_port           = port;
-      memcpy(&sa->sin_addr, ip, sizeof(struct in_addr));
-      memset(sa->sin_zero, 0, SIN_ZERO_LEN);
-      if (sa->sin_addr.s_addr == 0)
-        return IOT_SOCKET_EINVAL; // Invalid IP address
-    } break;
+
+  if (ip_len == sizeof(struct in_addr)) {
+    struct sockaddr_in *sa = (struct sockaddr_in *)addr;
+    sa->sin_len            = sizeof(struct sockaddr_in);
+    sa->sin_family         = AF_INET;
+    sa->sin_port           = port;
+    memcpy(&sa->sin_addr, ip, sizeof(struct in_addr));
+    memset(sa->sin_zero, 0, SIN_ZERO_LEN);
+    if (sa->sin_addr.s_addr == 0) {
+      return IOT_SOCKET_EINVAL; // Invalid IP address
+    }
+  }
 #if defined(SLI_SI91X_ENABLE_IPV6)
-    case sizeof(struct in6_addr): {
-      struct sockaddr_in6 *sa = (struct sockaddr_in6 *)addr;
-      sa->sin6_len            = sizeof(struct sockaddr_in6);
-      sa->sin6_family         = AF_INET6;
-      sa->sin6_port           = port;
-      memcpy(&sa->sin6_addr, ip, sizeof(struct in6_addr));
-    } break;
+  else if (ip_len == sizeof(struct in6_addr)) {
+    struct sockaddr_in6 *sa = (struct sockaddr_in6 *)addr;
+    sa->sin6_len            = sizeof(struct sockaddr_in6);
+    sa->sin6_family         = AF_INET6;
+    sa->sin6_port           = port;
+    memcpy(&sa->sin6_addr, ip, sizeof(struct in6_addr));
+  }
 #endif
-    default:
-      return IOT_SOCKET_EINVAL; // Invalid IP length
+  else {
+    return IOT_SOCKET_EINVAL; // Invalid IP length
   }
 
   return IOT_SOCKET_NO_ERROR;
@@ -190,7 +192,7 @@ static int32_t sli_si91x_copy_ip_address_and_port(sockaddr_storage_t addr, uint8
 {
   if ((ip != NULL) && (ip_len != NULL) && (port != NULL)) {
     if (addr.socket_family == AF_INET) {
-      struct sockaddr_in *sa = (struct sockaddr_in *)&addr;
+      const struct sockaddr_in *sa = (struct sockaddr_in *)&addr;
       if (*ip_len >= sizeof(sa->sin_addr)) {
         // Copy IPv4 address
         memcpy(ip, &sa->sin_addr, sizeof(sa->sin_addr));
@@ -453,7 +455,7 @@ int32_t iotSocketSetOpt(int32_t socket, int32_t opt_id, const void *opt_val, uin
       return IOT_SOCKET_ENOTSUP;
     }
     case IOT_SOCKET_SO_RCVTIMEO: {
-      status = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const void *)opt_val, opt_len);
+      status = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, opt_val, opt_len);
       break;
     }
     case IOT_SOCKET_SO_SNDTIMEO: {
@@ -462,8 +464,6 @@ int32_t iotSocketSetOpt(int32_t socket, int32_t opt_id, const void *opt_val, uin
     }
     case IOT_SOCKET_SO_KEEPALIVE: {
       return IOT_SOCKET_ENOTSUP; // TBD
-      //status = setsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, (const void *)opt_val, opt_len);
-      break;
     }
     default: {
       return IOT_SOCKET_ENOTSUP; // Unsupported option
@@ -487,7 +487,7 @@ int32_t iotSocketGetOpt(int32_t socket, int32_t opt_id, void *opt_val, uint32_t 
 
   switch (opt_id) {
     case IOT_SOCKET_SO_RCVTIMEO: {
-      status = getsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (void *)opt_val, (socklen_t *)opt_len);
+      status = getsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, opt_val, opt_len);
       break;
     }
     case IOT_SOCKET_SO_SNDTIMEO: {
@@ -496,11 +496,9 @@ int32_t iotSocketGetOpt(int32_t socket, int32_t opt_id, void *opt_val, uint32_t 
     }
     case IOT_SOCKET_SO_KEEPALIVE: {
       return IOT_SOCKET_ENOTSUP; // TBD
-      //status = getsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, (void *)opt_val, opt_len);
-      break;
     }
     case IOT_SOCKET_SO_TYPE: {
-      status               = getsockopt(socket, SOL_SOCKET, SO_TYPE, (void *)opt_val, (socklen_t *)opt_len);
+      status               = getsockopt(socket, SOL_SOCKET, SO_TYPE, opt_val, opt_len);
       *(uint32_t *)opt_val = (*(uint32_t *)opt_val == SOCK_STREAM) ? IOT_SOCKET_SOCK_STREAM : IOT_SOCKET_SOCK_DGRAM;
       break;
     }
@@ -551,7 +549,7 @@ int32_t iotSocketRecvFrom(int32_t socket, void *buf, uint32_t len, uint8_t *ip, 
   }
 
   // Receive data from the socket into the buffer
-  bytes_received = recvfrom(socket, buf, len, NO_FLAGS, (struct sockaddr *)&addr, (socklen_t *)&addr_len);
+  bytes_received = recvfrom(socket, buf, len, NO_FLAGS, (struct sockaddr *)&addr, &addr_len);
 
   if (bytes_received < 0) {
     return sli_si91x_errno_to_rc(); // Return the error code on failure
@@ -571,7 +569,7 @@ int32_t iotSocketGetHostByName(const char *name, int32_t af, uint8_t *ip, uint32
   struct hostent *host_ent = NULL;
 
   // Check if url length exceeds
-  if (strlen(name) > DNS_REQUEST_MAX_URL_LEN) {
+  if (sl_strlen((char *)name) > DNS_REQUEST_MAX_URL_LEN) {
     return IOT_SOCKET_ENOTSUP; // URL too long, not supported
   }
 
@@ -596,7 +594,7 @@ int32_t iotSocketGetHostByName(const char *name, int32_t af, uint8_t *ip, uint32
 
   // Use gethostbyname2 to resolve the host name
   host_ent    = gethostbyname2(name, af);
-  int *herrno = __h_errno_location();
+  const int *herrno = __h_errno_location();
 
   if (host_ent == NULL) {
     switch (*herrno) {

@@ -31,11 +31,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define LDMA_MAX_TRANSFER_LENGTH     4096
-#define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
-#define PACKET_PENDING_INT_PRI       3
+#define SLI_LDMA_MAX_TRANSFER_LENGTH     4096
+#define SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH (SLI_LDMA_MAX_TRANSFER_LENGTH / 2048)
+#define PACKET_PENDING_INT_PRI           3
+#define SLI_SPI_BIT_RATE                 10000000
 
-static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam);
+static bool sli_dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam);
 
 unsigned int rx_ldma_channel;
 unsigned int tx_ldma_channel;
@@ -46,16 +47,16 @@ static uint8_t host_initialized = 0;
 
 uint8_t dummy_buffer_test[2500];
 // LDMA descriptor and transfer configuration structures for EUSART TX channel
-LDMA_Descriptor_t ldmaTXDescriptor[LDMA_DESCRIPTOR_ARRAY_LENGTH];
+LDMA_Descriptor_t ldmaTXDescriptor[SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH];
 LDMA_TransferCfg_t ldmaTXConfig;
 
 // LDMA descriptor and transfer configuration structures for EUSART RX channel
-LDMA_Descriptor_t ldmaRXDescriptor[LDMA_DESCRIPTOR_ARRAY_LENGTH];
+LDMA_Descriptor_t ldmaRXDescriptor[SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH];
 LDMA_TransferCfg_t ldmaRXConfig;
 
 static osSemaphoreId_t transfer_done_semaphore = NULL;
 
-static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam)
+static bool sli_dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam)
 {
   UNUSED_PARAMETER(channel);
   UNUSED_PARAMETER(sequenceNo);
@@ -86,7 +87,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
   return GPIO_PinInGet(WAKE_INDICATOR_PIN.port, WAKE_INDICATOR_PIN.pin);
 }
 
-sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
+sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
 {
   UNUSED_PARAMETER(config);
   if (!host_initialized) {
@@ -108,8 +109,8 @@ sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration *config)
 
     EUSART_SpiInit_TypeDef init = EUSART_SPI_MASTER_INIT_DEFAULT_HF;
 
-    init.bitRate          = 10000000; // 10 MHz shift clock
-    init.advancedSettings = &adv;     // Advanced settings structure
+    init.bitRate          = SLI_SPI_BIT_RATE; // 10 MHz shift clock
+    init.advancedSettings = &adv;             // Advanced settings structure
 
     /*
    * Route EUSART RX, TX, and CLK to the specified pins.  Note that CS is
@@ -184,6 +185,17 @@ void sl_si91x_host_enable_high_speed_bus()
 {
 }
 
+__WEAK void sl_si91x_host_spi_cs_assert()
+{
+  EUSART_BaudrateSet(SPI_EUSART, 0, SLI_SPI_BIT_RATE);
+  GPIO_PinOutClear(SPI_CS_PIN.port, SPI_CS_PIN.pin);
+}
+
+__WEAK void sl_si91x_host_spi_cs_deassert()
+{
+  GPIO_PinOutSet(SPI_CS_PIN.port, SPI_CS_PIN.pin);
+}
+
 /*==================================================================*/
 /**
  * @fn         sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length)
@@ -224,7 +236,7 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
       rx_buffer = (uint8_t *)&dummy_buffer_test;
     }
     //Transfer length is more than 2048 bytes. Initialize multiple LDMA Tx descriptor.
-    for (i = 0; i < (LDMA_DESCRIPTOR_ARRAY_LENGTH - 1); i++) {
+    for (i = 0; i < (SLI_LDMA_DESCRIPTOR_ARRAY_LENGTH - 1); i++) {
       ldmaRXDescriptor[i] =
         (LDMA_Descriptor_t)LDMA_DESCRIPTOR_LINKREL_P2M_BYTE(&(SPI_EUSART->RXDATA), (rx_buffer + (2048 * i)), 2048, 1);
       ldmaTXDescriptor[i] =
@@ -245,7 +257,7 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
   ldmaRXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(SPI_EUSART_LDMA_RX);
 
   // Start both channels
-  DMADRV_LdmaStartTransfer(rx_ldma_channel, &ldmaRXConfig, ldmaRXDescriptor, dma_callback, NULL);
+  DMADRV_LdmaStartTransfer(rx_ldma_channel, &ldmaRXConfig, ldmaRXDescriptor, sli_dma_callback, NULL);
   DMADRV_LdmaStartTransfer(tx_ldma_channel, &ldmaTXConfig, ldmaTXDescriptor, NULL, NULL);
 
   if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {

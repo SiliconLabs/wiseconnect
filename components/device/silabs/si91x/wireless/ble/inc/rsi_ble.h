@@ -64,6 +64,8 @@
 #define BLE_VENDOR_RF_TYPE_CMD_OPCODE 0xFC14
 /// BLE_VENDOR_ACCEPTLIST_USING_ADV_DATA_PAYLOAD.
 #define BLE_VENDOR_ACCEPTLIST_USING_ADV_DATA_PAYLOAD 0xFC1B
+/// BLE_VENDOR_SET_COEX_ROLE_PRIORITY.
+#define BLE_VENDOR_SET_COEX_ROLE_PRIORITY 0xFC31
 /// Defines the maximum number of GAP extension callbacks.
 #define RSI_BLE_MAX_NUM_GAP_EXT_CALLBACKS 2
 /// Defines the maximum number of advertising extension event callbacks.
@@ -376,6 +378,17 @@ typedef enum rsi_ble_callback_id_e {
   RSI_BLE_ON_ADV_EXT_ADVERTISE_SET_TERMINATED_EVENT  = 7,
   RSI_BLE_ON_ADV_EXT_SCAN_REQUEST_RECEIVED_EVENT     = 8,
 } rsi_ble_callback_id_t;
+
+/// Enumerations for coex roles
+typedef enum rsi_ble_coex_role_id_e {
+  RSI_COEX_ROLE_BLE_SCAN           = 0,
+  RSI_COEX_ROLE_BLE_INIT           = 1,
+  RSI_COEX_ROLE_BLE_CONNECTION     = 2,
+  RSI_COEX_ROLE_BLE_ADVERTISE      = 3,
+  RSI_COEX_ROLE_BLE_EXT_ADVERTISE  = 4,
+  RSI_COEX_ROLE_BLE_EXT_SCAN       = 5,
+  RSI_COEX_ROLE_BLE_EXT_CONNECTION = 6,
+} rsi_ble_coex_role_id_t;
 /** @} */
 /********************************************************
  * *                 Structure Definitions
@@ -545,6 +558,30 @@ typedef struct rsi_ble_req_acceptlist_using_payload_s {
   uint8_t adv_data_payload[31];
 } rsi_ble_req_acceptlist_using_payload_t;
 
+/**
+ * @brief Structure representing the BLE request to manage the priorities of coex roles.
+ *
+ * This structure is used to define the priorities for the various coex roles,
+ * including the role id, followed by min, max priorities of the specified role.
+ * There are 7 coex roles refer rsi_ble_coex_role_id_t, each having min and max priority followed by the role id in the role_priority_payload.
+ */
+typedef struct rsi_ble_set_coex_roles_priority_s {
+  /** Operation code for the request */
+  uint8_t opcode[2];
+  /** Role priority payload
+  *    ---------------------------------------------------------------------------------------------------------
+  *   |       Role ID       |                   Role Description          |   Min Priority |   Max Priority
+  *   ----------------------|-----------------------------------------------------------------------------------
+  *   |      0              |                   BLE Scan                  |      X         |      Y
+  *   |      1              |                   BLE Init                  |      X         |      Y
+  *   |      2              |                   BLE Connection            |      X         |      Y
+  *   |      3              |                   BLE Advertise             |      X         |      Y
+  *   |      4              |                   EXT Advertise             |      X         |      Y
+  *   |      5              |                   EXT Scan                  |      X         |      Y
+  *   |      6              |                   EXT Connection            |      X         |      Y
+  * */
+  uint8_t role_priority_payload[21];
+} rsi_ble_set_coex_roles_priority_t;
 /** @addtogroup BT_BLE_CONSTANTS
  *  @{
  */

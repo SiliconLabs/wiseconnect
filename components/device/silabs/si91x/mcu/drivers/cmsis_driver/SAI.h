@@ -97,6 +97,12 @@
 #define    RES_24_BIT					0x4
 #define    RES_32_BIT					0x5
 
+#define    PCM_RES_8_BIT          0x0
+#define    PCM_RES_12_BIT         0x1
+#define    PCM_RES_16_BIT         0x2
+#define    PCM_RES_24_BIT         0x3
+#define    PCM_RES_32_BIT         0x4
+
 #define    I2S_FIFO_DEPTH			8
 #define    I2S_TX_TL					7
 #define    I2S_RX_TL					7
@@ -189,7 +195,7 @@ typedef struct _I2S_STATUS {
   uint8_t frame_error;                   // Sync Frame error detected (cleared on start of next send/receive operation)
 } I2S_STATUS;
 
-// I2S Information (Run-Time)
+// I2S Information Run Time
 typedef struct _I2S_INFO 
 {
   ARM_SAI_SignalEvent_t   cb_event;      // Event callback
@@ -231,7 +237,7 @@ typedef struct I2S_IO_PINS {
 	I2S_PIN  *dout1;
 }I2S_IO;
 
-// I2S Reseurces definitions
+// I2S Resources definitions
 typedef struct 
 {
   ARM_SAI_CAPABILITIES    capabilities;  // Capabilities

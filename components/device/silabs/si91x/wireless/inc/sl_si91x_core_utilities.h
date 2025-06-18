@@ -31,6 +31,7 @@
 #include "sl_si91x_types.h"
 #include "sl_wifi_device.h"
 #include "sl_additional_status.h"
+#ifndef __ZEPHYR__
 #include "sli_cmsis_os2_ext_task_register.h"
 
 /// External variable representing the index of the thread local array at which the firmware status will be stored.
@@ -56,29 +57,32 @@ static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
   sli_osTaskRegisterGetValue(NULL, sli_fw_status_storage_index, &status);
   return status;
 }
+#endif
 /** @} */
 
 /******************************************************************************
  * A utility function to extract firmware status from RX packet.
- * The extracted firmware status can be given to convert_and_save_firmware_status() to get sl_status equivalent.
+ * The extracted firmware status can be given to sli_convert_and_save_firmware_status() to get sl_status equivalent.
  * @param packet packet that contains the frame status which needs to be extracted.
  * @return  frame status
  *****************************************************************************/
-static inline uint16_t get_si91x_frame_status(const sl_si91x_packet_t *packet)
+static inline uint16_t sli_get_si91x_frame_status(const sl_wifi_system_packet_t *packet)
 {
   return (uint16_t)(packet->desc[12] + (packet->desc[13] << 8));
 }
 
+#ifndef __ZEPHYR__
 /******************************************************************************
  * @brief
  * 	A utility function that store the firmware status code in thread specific storage.
  * @param[in] converted_firmware_status
  *	Firmware status code that needs to be saved.
  *****************************************************************************/
-static inline void save_si91x_firmware_status(sl_status_t converted_firmware_status)
+static inline void sli_save_si91x_firmware_status(sl_status_t converted_firmware_status)
 {
   sli_osTaskRegisterSetValue(NULL, sli_fw_status_storage_index, converted_firmware_status);
 }
+#endif
 
 /******************************************************************************
  * @brief
@@ -88,11 +92,13 @@ static inline void save_si91x_firmware_status(sl_status_t converted_firmware_sta
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *****************************************************************************/
-static inline sl_status_t convert_and_save_firmware_status(uint16_t si91x_firmware_status)
+static inline sl_status_t sli_convert_and_save_firmware_status(uint16_t si91x_firmware_status)
 {
   sl_status_t converted_firmware_status = (si91x_firmware_status == SL_STATUS_OK) ? SL_STATUS_OK
                                                                                   : (si91x_firmware_status | BIT(16));
-  save_si91x_firmware_status(converted_firmware_status);
+#ifndef __ZEPHYR__
+  sli_save_si91x_firmware_status(converted_firmware_status);
+#endif
   return converted_firmware_status;
 }
 
@@ -104,7 +110,7 @@ static inline sl_status_t convert_and_save_firmware_status(uint16_t si91x_firmwa
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *****************************************************************************/
-static inline sl_status_t convert_si91x_status_to_sl_status(si91x_status_t si91x_status)
+static inline sl_status_t sli_convert_si91x_status_to_sl_status(si91x_status_t si91x_status)
 {
   switch (si91x_status) {
     case RSI_ERROR_NONE:
@@ -153,7 +159,7 @@ static inline sl_status_t convert_si91x_status_to_sl_status(si91x_status_t si91x
  * @param[in] queue Pointer to the destination buffer queue where the buffer will be appended.
  * @param[in] buffer Pointer to the buffer that is to be appended to the queue.
  */
-void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
+void sli_si91x_append_to_buffer_queue(sli_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
 
 /**
  * @brief Atomically remove the head buffer from a buffer queue.
@@ -167,7 +173,7 @@ void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_bu
  * @return sl_status_t Returns the status of the operation. A value of 0 (SL_STATUS_OK) indicates success.
  *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
-sl_status_t sli_si91x_pop_from_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
+sl_status_t sli_si91x_pop_from_buffer_queue(sli_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
 
 /**
  * @brief
@@ -196,7 +202,7 @@ sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
  * @return
  *   true if empty; false if not empty.
  *****************************************************************************/
-static inline bool sli_si91x_buffer_queue_empty(sl_si91x_buffer_queue_t *queue)
+static inline bool sli_si91x_buffer_queue_empty(const sli_si91x_buffer_queue_t *queue)
 {
   return (queue->head == NULL);
 }

@@ -197,6 +197,9 @@ static const console_descriptive_command_t _start_dhcp_command = {
   .handler       = start_dhcp_command_handler,
   .argument_list = { CONSOLE_OPTIONAL_ARG('i', CONSOLE_ENUM_ARG(sl_ip_address_type_t)),
                      CONSOLE_OPTIONAL_ARG('m', CONSOLE_ENUM_ARG(sl_ip_management_t)),
+                     CONSOLE_OPTIONAL_ARG('a', CONSOLE_ARG_IP_ADDRESS),
+                     CONSOLE_OPTIONAL_ARG('g', CONSOLE_ARG_IP_ADDRESS),
+                     CONSOLE_OPTIONAL_ARG('n', CONSOLE_ARG_IP_ADDRESS),
                      CONSOLE_ARG_END }
 };
 

@@ -347,14 +347,10 @@ sl_status_t sl_si91x_qei_init(sl_qei_init_t *qei_init)
  ******************************************************************************/
 void sl_si91x_qei_deinit(void)
 {
-  sl_qei_intr_mask_t *intr_mask                      = 0;
-  intr_mask->qei_index_cnt_match_intr_mask           = true;
-  intr_mask->qei_position_cnt_match_intr_mask        = true;
-  intr_mask->qei_position_cnt_reset_intr_mask        = true;
-  intr_mask->qei_velocity_computation_over_intr_mask = true;
-  intr_mask->qei_velocity_less_than_intr_mask        = true;
-  // Unregistering callback
-  sl_si91x_qei_unregister_callback(intr_mask);
+  uint32_t configParms = 0;
+  // Reset the position counter and index counter
+  configParms = (SL_QEI_POS_CNT_RST) | (SL_QEI_INDEX_COUNT_RESET);
+  RSI_QEI_SetConfiguration(QEI, configParms);
   RSI_QEI_Disable(QEI); // Disable the QEI
 }
 
@@ -454,6 +450,11 @@ sl_status_t sl_si91x_qei_unregister_callback(sl_qei_intr_mask_t *intr_mask)
       status = SL_STATUS_NULL_POINTER;
       break;
     }
+    // Check if a callback is not registered
+    if (callback_func_ptr == NULL) {
+      status = SL_STATUS_FAIL;
+      break;
+    }
     // Evaluate and set masked interrupt flags
     if (intr_mask->qei_index_cnt_match_intr_mask) {
       intr_mask_value |= SL_QEI_IDX_CNT_MATCH_INTR_MASK; // Mask index count match interrupt
@@ -474,7 +475,10 @@ sl_status_t sl_si91x_qei_unregister_callback(sl_qei_intr_mask_t *intr_mask)
       intr_mask_value |= SL_QEI_VELOCITY_LESS_INTR_MASK; // Mask velocity less interrupt
     }
     RSI_QEI_IntrMask(QEI, intr_mask_value); // Mask the interrupts
-    callback_flag = NULL;                   // Clear the callback flag
+    if (RSI_QEI_GetIntrMask(QEI) == 0) {
+      callback_func_ptr = NULL; // Clear the callback function
+      callback_flag     = NULL; // Clear the callback flag
+    }
   } while (false);
   return status;
 }

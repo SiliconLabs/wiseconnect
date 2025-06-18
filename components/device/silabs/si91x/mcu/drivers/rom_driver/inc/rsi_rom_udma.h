@@ -310,33 +310,33 @@ STATIC INLINE rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, ui
 /**************************************************************************************
 								              UDMA ROM FUNCTION PROTOTYPES											  
 		 **************************************************************************************/
-rsi_error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
-                                          const RSI_UDMA_CHA_CFG_T *pCfg,
-                                          RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
-                                          void *pSrcAddr,
-                                          void *pDstAddr);
+STATIC INLINE rsi_error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
+                                                        const RSI_UDMA_CHA_CFG_T *pCfg,
+                                                        RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
+                                                        void *pSrcAddr,
+                                                        void *pDstAddr);
 
-rsi_error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle,
-                                                     uint8_t dmaCh,
-                                                     uint8_t taskCount,
-                                                     void *pTaskList,
-                                                     uint32_t transferType);
+STATIC INLINE rsi_error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle,
+                                                                   uint8_t dmaCh,
+                                                                   uint8_t taskCount,
+                                                                   void *pTaskList,
+                                                                   uint32_t transferType);
 
-uint32_t RSI_UDMA_GetChannelTransferLength(RSI_UDMA_HANDLE_T pHandle,
-                                           const RSI_UDMA_CHA_CFG_T *pCfg,
-                                           RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
+STATIC INLINE uint32_t RSI_UDMA_GetChannelTransferLength(RSI_UDMA_HANDLE_T pHandle,
+                                                         const RSI_UDMA_CHA_CFG_T *pCfg,
+                                                         RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
 
-uint32_t RSI_UDMA_GetChannelTransferMode(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
+STATIC INLINE uint32_t RSI_UDMA_GetChannelTransferMode(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
-RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *pInit);
+STATIC INLINE RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *pInit);
 
-rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
+STATIC INLINE rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
 static void RSI_UDMA_DeInit(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
-void RSI_UDMA_Interrupthandler(RSI_UDMA_HANDLE_T pHandle);
+STATIC INLINE void RSI_UDMA_Interrupthandler(RSI_UDMA_HANDLE_T pHandle);
 
-rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
+STATIC INLINE rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
 #ifdef __cplusplus
 }

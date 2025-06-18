@@ -89,14 +89,14 @@ int32_t rsi_ble_dual_role(void);
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 1 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 1 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 #endif
 
 static const sl_wifi_device_configuration_t
@@ -1383,7 +1383,7 @@ void rsi_ble_main_app_task(void)
     LOG_PRINT("\n FILL USER config successful \n");
   }
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -1393,7 +1393,7 @@ void rsi_ble_main_app_task(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return;
@@ -1684,5 +1684,4 @@ int32_t rsi_ble_dual_role(void)
 void app_init(void)
 {
   osThreadNew((osThreadFunc_t)rsi_ble_main_app_task, NULL, &thread_attributes);
-  osThreadNew((osThreadFunc_t)rsi_ui_app_task, NULL, &thread_attributes);
 }

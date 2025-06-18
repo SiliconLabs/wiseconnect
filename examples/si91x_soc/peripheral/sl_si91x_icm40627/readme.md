@@ -25,7 +25,7 @@ This example demonstrates the measurement of acceleration in 3 axes, gyroscope i
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs SiWx917 Development Kit [ BRD2605A ]
 
 ### Software Requirements
 

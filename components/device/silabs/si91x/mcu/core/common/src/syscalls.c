@@ -37,6 +37,9 @@
 #include "syscalls.h"
 #include "rsi_debug.h"
 #include "sl_component_catalog.h"
+#ifdef SL_CATALOG_SI91X_IOSTREAM_PRINTS_PRESENT
+#include "sl_si91x_iostream_log_config.h"
+#endif
 #if defined SL_UART
 #include "sl_uart.h"
 #endif
@@ -55,7 +58,6 @@ extern char Serial_receive(void);
 
 char *__env[1] = { 0 };
 char **environ = __env;
-uint8_t buf[20];
 
 /*! @brief Specification modifier flags for scanf. */
 enum _debugconsole_scanf_flag {
@@ -104,22 +106,26 @@ void _exit(int status)
 #ifdef SL_CATALOG_KERNEL_PRESENT
 extern osMutexId_t si91x_prints_mutex;
 #endif
-int _write(int file, char *ptr, int len)
+int _write(int file, const char *ptr, int len)
 {
-  int todo;
   (void)file;
 #ifdef SL_CATALOG_KERNEL_PRESENT
   if (osKernelGetState() == osKernelRunning) {
     osMutexAcquire(si91x_prints_mutex, osWaitForever);
   }
 #endif
-  for (todo = 0; todo < len; todo++) {
+  for (int todo = 0; todo < len; todo++) {
 #ifdef DEBUG_SERIAL
     Serial_send(*ptr++);
 
 #else
+#if SL_SI91X_IOSTREAM_LOG_PRINTS_ENABLE
+    sl_iostream_write(SL_IOSTREAM_STDOUT, ptr, (size_t)len);
+#elif DEBUG_UART
     Board_UARTPutChar(*ptr++);
-
+#else
+    (void)ptr;
+#endif
 #endif
   }
 #ifdef SL_CATALOG_KERNEL_PRESENT
@@ -228,7 +234,6 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
       /* Loop to get full conversion specification. */
       while ((*c) && (!(flag & kSCANF_DestMask))) {
         switch (*c) {
-
           case '0':
           case '1':
           case '2':
@@ -275,7 +280,6 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
             flag |= kSCANF_DestInt;
             c++;
             break;
-
           case 'c':
             flag |= kSCANF_DestChar;
             if (!field_width) {
@@ -336,7 +340,7 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
 
           if ((!(flag & kSCANF_Suppress)) && (s != p)) {
             /* Add NULL to end of string. */
-            *buf = '\0';
+            *buff = '\0';
             nassigned++;
           }
           break;
@@ -379,7 +383,7 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
               break;
           }
 
-          while ((*p) && (field_width--)) {
+          while ((*p) && field_width) {
             if ((*p <= '9') && (*p >= '0')) {
               temp = *p - '0';
             } else if ((*p <= 'f') && (*p >= 'a')) {
@@ -397,6 +401,7 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
             }
             p++;
             n_decode++;
+            field_width--;
           }
           val *= neg;
           if (!(flag & kSCANF_Suppress)) {
@@ -421,7 +426,6 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
 }
 int _read(char *fmt_ptr, ...)
 {
-
   char temp_buf[IO_MAXLINE + 1];
   va_list ap;
   uint32_t i;
@@ -432,25 +436,20 @@ int _read(char *fmt_ptr, ...)
 
   for (i = 0; i < (uint32_t)IO_MAXLINE; i++) {
 #ifdef DEBUG_SERIAL
-    temp_buf[i] = result = Serial_receive();
+    result = Serial_receive();
 #elif defined(SL_UART)
     sl_uart_rx_byte(NULL, (uint8_t *)&result);
-    temp_buf[i] = result;
 #else
-    temp_buf[i] = result = (char)Board_UARTGetChar();
+    result = (char)Board_UARTGetChar();
 #endif
+    temp_buf[i] = result;
     if ((result == '\r') || (result == '\n')) {
       /* End of Line. */
-      if (i == 0) {
-        temp_buf[i] = '\0';
-        i           = (uint32_t)-1;
-      } else {
-        break;
-      }
+      break;
     }
   }
 
-  if (i == IO_MAXLINE) {
+  if ((i == 0) || (i == IO_MAXLINE)) {
     temp_buf[i] = '\0';
   } else {
     temp_buf[i + 1] = '\0';

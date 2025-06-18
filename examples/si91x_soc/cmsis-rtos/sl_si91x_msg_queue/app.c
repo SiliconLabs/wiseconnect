@@ -59,6 +59,21 @@ void app_init(void)
 
   // initialize uart driver
   usart_example_init();
+
+  // create a thread for i2c follower functionality
+  tid_thread_i2c =
+    osThreadNew((osThreadFunc_t)i2c_follower_example_process_action, NULL, &i2c_follower_thread_attributes);
+  if (tid_thread_i2c == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
+
+  // create a thread for usart functionality
+  tid_thread_usart = osThreadNew((osThreadFunc_t)usart_example_process_action, NULL, &usart_thread_attributes);
+  if (tid_thread_usart == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
 }
 
 /*******************************************************************************
@@ -66,15 +81,4 @@ void app_init(void)
  ******************************************************************************/
 void app_process_action(void)
 {
-  tid_thread_i2c =
-    osThreadNew((osThreadFunc_t)i2c_follower_example_process_action, NULL, &i2c_follower_thread_attributes);
-  if (tid_thread_i2c == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
-  tid_thread_usart = osThreadNew((osThreadFunc_t)usart_example_process_action, NULL, &usart_thread_attributes);
-  if (tid_thread_usart == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
 }

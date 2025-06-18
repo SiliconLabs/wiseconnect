@@ -70,7 +70,7 @@
 #define IS_LAST_WILL_RETAINED 1
 
 #define ENCRYPT_CONNECTION     0
-#define CERTIFICATE_INDEX      0
+#define CERTIFICATE_INDEX      1
 #define KEEP_ALIVE_INTERVAL    2000
 #define MQTT_CONNECT_TIMEOUT   5000
 #define MQTT_KEEPALIVE_RETRIES 0
@@ -351,7 +351,7 @@ sl_status_t mqtt_example()
       printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
       return status;
     }
-    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
+    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", CERTIFICATE_INDEX);
   }
 
   if (SEND_CREDENTIALS) {

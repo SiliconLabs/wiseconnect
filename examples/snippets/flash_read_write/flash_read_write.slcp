@@ -14,13 +14,12 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -28,7 +27,7 @@ include:
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: sl_si91x_mem_pool_buffers

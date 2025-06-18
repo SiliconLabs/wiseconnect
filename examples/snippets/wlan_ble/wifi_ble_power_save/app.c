@@ -167,7 +167,7 @@ void rsi_wlan_ble_app(void *argument)
     rsi_ble_app_task();
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 #ifndef BLE_ADVERTISE_ONLY
     if ((wlan_socket_connection_done == 1) && (ble_connection_done == 1)) {
 #else

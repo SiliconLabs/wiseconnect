@@ -167,6 +167,7 @@ void ulp_i2c_leader_example_process_action(void)
         DEBUGOUT("Switching PS4->PS2 state, reset follower within 10 seconds\n");
         // Control power management by adjusting clock references and shutting down
         // the power supply
+        // This function is for demonstration purpose only. For more details, refer to the README file.
         sl_si91x_wireless_shutdown();
         // Adding 10 seconds delay before 2nd cycle of transfer
         delay(TEN_SECOND_DELAY_HP_MODE);
@@ -288,10 +289,9 @@ static void configuring_ps2_power_state(void)
   peri.m4ss_peripheral = SL_SI91X_POWER_MANAGER_M4SS_PG_QSPI | SL_SI91X_POWER_MANAGER_M4SS_PG_EFUSE
                          | SL_SI91X_POWER_MANAGER_M4SS_PG_SDIO_SPI;
   // Ored value for ulpss peripheral.
-  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX;
+  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM | SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX;
   // Ored value for npss peripheral.
   peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS
                          | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2

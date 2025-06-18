@@ -15,7 +15,10 @@ provides:
 source:
 - path: src/sl_net_credentials.c
 - path: src/sl_net_nvm_profiles.c
+define:
+- name: SL_SI91X_NVM3_CONFIG_MANAGER
 requires:
 - name: network_manager
 - name: nvm3_credential_manager
-
+conflicts:
+- name: basic_network_config_manager

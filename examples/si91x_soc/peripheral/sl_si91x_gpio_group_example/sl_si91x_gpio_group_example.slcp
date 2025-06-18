@@ -7,14 +7,13 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: app.c
   - path: app.h
   - path: gpio_group_example.c
@@ -23,7 +22,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: sl_gpio
     from: wiseconnect3_sdk

@@ -19,7 +19,6 @@
 #include "sl_adc_instances.h"
 #include "sl_si91x_adc.h"
 #include "sl_si91x_adc_common_config.h"
-
 #include "rsi_rom_clks.h"
 
 /*******************************************************************************

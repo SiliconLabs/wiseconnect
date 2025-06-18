@@ -171,9 +171,9 @@ static void application_start(void *argument)
 
 static void enable_standby(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { .profile = POWER_SAVE_PROFILE };
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile = POWER_SAVE_PROFILE };
 
-  sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
+  sl_status_t status = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPower save profile with deep sleep Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -184,9 +184,9 @@ static void enable_standby(void)
 #ifndef SLI_SI91X_MCU_INTERFACE
 static void enable_high_performance(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { .profile = HIGH_PERFORMANCE };
+  sl_wifi_performance_profile_v2_t performance_profile = { .profile = HIGH_PERFORMANCE };
 
-  sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
+  sl_status_t status = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to keep module in HIGH_PERFORMANCE mode, Error Code : 0x%lX\r\n", status);
     return;

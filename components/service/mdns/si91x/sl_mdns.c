@@ -1,23 +1,36 @@
-/*******************************************************************************
-* @file  sl_mdns.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_mdns.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include "sl_mdns.h"
 #include "sl_slist.h"
 #include "sl_si91x_driver.h"
+#include "sl_string.h"
 
 #define MAX_MDNS_SERVICE_COUNT 1
 #define MDNSD_BUFFER_SIZE      1000
@@ -54,14 +67,14 @@ typedef struct {
 **********************************************************************************************************************/
 static void sli_si91x_clean_service_handle(sl_wifi_buffer_t *service_handle)
 {
-  sl_mdns_service_t *service = NULL;
-  uint16_t buffer_length     = 0;
+  const sl_mdns_service_t *service = NULL;
+  uint16_t buffer_length           = 0;
 
   service = (sl_mdns_service_t *)sl_si91x_host_get_buffer_data(service_handle, 0, &buffer_length);
   free((char *)service->instance_name);
   free((char *)service->service_type);
   free((char *)service->service_message);
-  sl_si91x_host_free_buffer(service_handle);
+  sli_si91x_host_free_buffer(service_handle);
 
   return;
 }
@@ -96,7 +109,7 @@ static void sli_si91x_clean_mdns_handle(sl_mdns_t *mdns)
     interface = (sl_wifi_buffer_t *)interface->node.node;
     in        = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(block, 0, &buffer_length);
     sli_si91x_clean_service_list(in);
-    sl_si91x_host_free_buffer(block);
+    sli_si91x_host_free_buffer(block);
   }
 
   return;
@@ -106,10 +119,11 @@ static void sli_si91x_clean_mdns_handle(sl_mdns_t *mdns)
 **********************************************************************************************************************/
 sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config, sl_mdns_event_handler_t event_handler)
 {
-  sl_si91x_mdns_req_t req = { 0 };
-  sl_status_t status      = SL_STATUS_FAIL;
-  uint32_t length         = 0;
-  uint16_t ttl            = 0;
+  sl_si91x_mdns_req_t req   = { 0 };
+  sl_status_t status        = SL_STATUS_FAIL;
+  uint32_t length           = 0;
+  uint16_t ttl              = 0;
+  uint32_t length_host_name = 0;
 
   memset(mdns, 0, sizeof(sl_mdns_t));
   memcpy(&(mdns->configuration), config, sizeof(sl_mdns_configuration_t));
@@ -127,16 +141,17 @@ sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config,
     return SL_STATUS_INVALID_TYPE;
   }
 
-  memcpy(req.buffer, config->host_name, strlen(config->host_name));
-  length = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE + strlen(config->host_name) + 1;
+  length_host_name = sl_strnlen((char *)config->host_name, 32) + 1; // +1 for null terminator
+  memcpy(req.buffer, config->host_name, length_host_name);
+  length = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE + length_host_name;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD,
-                                        &req,
-                                        length,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         length,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
 
   return status;
 }
@@ -150,13 +165,13 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns)
   req.command_type = SI91X_MDNSD_DEINIT;
   length           = sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD,
-                                        &req,
-                                        length,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         length,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
 
   sli_si91x_clean_mdns_handle(mdns);
   memset(mdns, 0, sizeof(sl_mdns_t));
@@ -170,7 +185,7 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
   sl_mdns_interface_t *in         = NULL;
   uint16_t buffer_length          = 0;
 
-  status = sl_si91x_host_allocate_buffer(&new_interface, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_interface_t), 1000);
+  status = sli_si91x_host_allocate_buffer(&new_interface, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_interface_t), 1000);
   VERIFY_STATUS_AND_RETURN(status);
   in               = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(new_interface, 0, &buffer_length);
   in->interface    = interface;
@@ -182,23 +197,25 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_mdns_remove_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
+sl_status_t sl_mdns_remove_interface(const sl_mdns_t *mdns, sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(mdns);
   UNUSED_PARAMETER(interface);
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interface, sl_mdns_service_t *service)
+sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interface, const sl_mdns_service_t *service)
 {
-  sl_status_t status            = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *new_service = NULL;
-  sl_wifi_buffer_t *target_in   = NULL;
-  sl_mdns_interface_t *in       = NULL;
-  sl_mdns_service_t *srv        = NULL;
-  sl_si91x_mdns_req_t req       = { 0 };
-  uint32_t length               = 0;
-  uint16_t buffer_length        = 0;
+  sl_status_t status              = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *new_service   = NULL;
+  sl_mdns_interface_t *in         = NULL;
+  sl_mdns_service_t *srv          = NULL;
+  sl_si91x_mdns_req_t req         = { 0 };
+  uint32_t length                 = 0;
+  uint16_t buffer_length          = 0;
+  uint32_t length_service_type    = 0;
+  uint32_t length_instance_name   = 0;
+  uint32_t length_service_message = 0;
 
   if (NULL == mdns->interface_list) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -220,12 +237,16 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if ((strlen(service->service_type) + strlen(service->instance_name) + strlen(service->service_message) + 3)
-      > MDNSD_BUFFER_SIZE) {
+  length_service_type    = sl_strnlen((char *)service->service_type, MDNSD_BUFFER_SIZE) + 1;
+  length_instance_name   = sl_strnlen((char *)service->instance_name, MDNSD_BUFFER_SIZE) + 1;
+  length_service_message = sl_strnlen((char *)service->service_message, MDNSD_BUFFER_SIZE) + 1;
+
+  if ((length_service_type + length_instance_name + length_service_message) > MDNSD_BUFFER_SIZE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  for (target_in = mdns->interface_list; (NULL != target_in); target_in = (sl_wifi_buffer_t *)target_in->node.node) {
+  for (sl_wifi_buffer_t *target_in = mdns->interface_list; (NULL != target_in);
+       target_in                   = (sl_wifi_buffer_t *)target_in->node.node) {
     in = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(target_in, 0, &buffer_length);
 
     if (in->interface == interface) {
@@ -239,17 +260,17 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  status = sl_si91x_host_allocate_buffer(&new_service, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_service_t), 1000);
+  status = sli_si91x_host_allocate_buffer(&new_service, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_service_t), 1000);
   VERIFY_STATUS_AND_RETURN(status);
   srv                = (sl_mdns_service_t *)sl_si91x_host_get_buffer_data(new_service, 0, &buffer_length);
-  srv->instance_name = malloc(strlen(service->instance_name) + 1);
-  strcpy((char *)srv->instance_name, service->instance_name);
+  srv->instance_name = malloc(length_instance_name);
+  memcpy((char *)srv->instance_name, service->instance_name, length_instance_name);
 
-  srv->service_type = malloc(strlen(service->service_type) + 1);
-  strcpy((char *)srv->service_type, service->service_type);
+  srv->service_type = malloc(length_service_type);
+  memcpy((char *)srv->service_type, service->service_type, length_service_type);
 
-  srv->service_message = malloc(strlen(service->service_message) + 1);
-  strcpy((char *)srv->service_message, service->service_message);
+  srv->service_message = malloc(length_service_message);
+  memcpy((char *)srv->service_message, service->service_message, length_service_message);
 
   srv->port = service->port;
   srv->ttl  = service->ttl;
@@ -263,22 +284,22 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
   req.req_conf.reg_srv.more    = 0;
   length                       = 0;
 
-  strcpy((char *)req.buffer, service->service_type);
-  length += strlen(service->service_type) + 1;
+  memcpy((char *)req.buffer, service->service_type, length_service_type);
+  length += length_service_type;
 
-  strcpy((char *)((req.buffer) + length), service->instance_name);
-  length += strlen(service->instance_name) + 1;
+  memcpy((char *)((req.buffer) + length), service->instance_name, length_instance_name);
+  length += length_instance_name;
 
-  strcpy((char *)((req.buffer) + length), service->service_message);
-  length += strlen(service->service_message) + 1 + (sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE);
+  memcpy((char *)((req.buffer) + length), service->service_message, length_service_message);
+  length += length_service_message + (sizeof(sl_si91x_mdns_req_t) - MDNSD_BUFFER_SIZE);
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MDNSD,
-                                        SI91X_NETWORK_CMD,
-                                        &req,
-                                        length,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         length,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
   if (SL_STATUS_OK != status) {
     sli_si91x_clean_service_handle(new_service);
     VERIFY_STATUS_AND_RETURN(status);
@@ -290,15 +311,15 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_mdns_unregister_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query)
+sl_status_t sl_mdns_unregister_service(const sl_mdns_t *mdns, const sl_mdns_service_query_t *service_query)
 {
   UNUSED_PARAMETER(mdns);
   UNUSED_PARAMETER(service_query);
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
-                                           sl_mdns_service_query_t *service_query,
+sl_status_t sl_mdns_update_service_message(const sl_mdns_t *mdns,
+                                           const sl_mdns_service_query_t *service_query,
                                            const char *message,
                                            uint32_t message_length)
 {
@@ -309,7 +330,7 @@ sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-sl_status_t sl_mdns_discover_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query)
+sl_status_t sl_mdns_discover_service(const sl_mdns_t *mdns, const sl_mdns_service_query_t *service_query)
 {
   UNUSED_PARAMETER(mdns);
   UNUSED_PARAMETER(service_query);

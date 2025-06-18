@@ -30,6 +30,51 @@
 #pragma once
 
 #include "sl_status.h"
+#include "sl_constants.h"
+
+/** \addtogroup SL_SI91X_TYPES
+ * @{
+ * */
+/**
+ * @brief Si91x specific HTTP OTAF parameters.
+ *
+ * This structure contains the parameters required for HTTP Over-The-Air Firmware (OTAF) updates
+ * specific to the Si91x series.
+ * 
+ * @note
+ *   The following table lists the flags that can be used with this function:
+ * 
+ *   | Flags  | Description                                                            |
+ *   |:-------|:-----------------------------------------------------------------------|
+ *   | BIT(0) | Set this bit to enable HTTPS feature.                                  |
+ *   | BIT(1) | Set this bit to enable IPv6. By default, it is configured to IPv4.     |
+ *   | BIT(2) | Set this bit to support TLS Version 1.0 if HTTPS is enabled.           |
+ *   | BIT(3) | Set this bit to support TLS Version 1.2 if HTTPS is enabled.           |
+ *   | BIT(4) | Set this bit to support TLS Version 1.1 if HTTPS is enabled.           |
+ *   | BIT(6) | Set this bit to use HTTP version 1.1                                   |
+ *   | BIT(9) | Set this bit to specify index of SSL cert to be used for HTTPS.        |
+ *   | BIT(10)| Set this bit to specify index of SSL cert to be used for HTTPS.        |
+ */
+typedef struct {
+  uint16_t flags;           /**< Configuration flags. */
+  uint8_t *ip_address;      /**< Server IP address. */
+  uint16_t port;            /**< Port number. Default: 80 for HTTP, 443 for HTTPS. */
+  uint8_t *resource;        /**< 
+                      * @brief Requested resource URL in string format.
+                      * @details 
+                      * - The maximum supported HTTP URL is 2048 bytes when the SL_SI91X_FEAT_LONG_HTTP_URL bit is enabled in the feature_bit_map.
+                      * - If the SL_SI91X_FEAT_LONG_HTTP_URL bit is disabled, the maximum supported length for the HTTP URL is (872 - (length of user_name + length of password) - length of hostname - length of IP address) bytes, excluding delimiters.
+                      */
+  uint8_t *host_name;       /**< Host name. */
+  uint8_t *extended_header; /**< 
+                             * @brief User-configurable header fields to append to the default HTTP/HTTPS header.
+                             * @details The extended header can have multiple header fields, each ended by "\r\n" (0xD 0xA).
+                             *          Example: key1:value1"\r\n"key2:value2"\r\n"
+                             */
+  uint8_t *user_name;       /**< Username for server authentication. */
+  uint8_t *password;        /**< Password for server authentication. */
+} sl_si91x_http_otaf_params_t;
+/** @} */
 
 /** \addtogroup SI91X_FIRMWARE_UPDATE_FROM_HOST_FUNCTIONS 
  * \ingroup SI91X_FIRMWARE_UPDATE_FUNCTIONS
@@ -254,7 +299,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  *  - Certificate index: 0
  * 
  * @param[in] type
- *   Valid values are: 2 - HTTP_OTAF.
+ *  (Not supported)
  * 
  * @param[in] flags 
  *   Configuration flags. See the table below for details.
@@ -274,8 +319,8 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  *   Host name.
  * 
  * @param[in] extended_header 
- *  - The purpose of this function is to append user configurable header fields to the default HTTP/HTTPS header.
- *    The extended header may contain multiple header fields, with each field terminated by "\r\n" (0x0D 0x0A).
+ *   User-configurable header fields to append to the default HTTP/HTTPS header.
+ *  - The extended header may contain multiple header fields, with each field terminated by "\r\n" (0x0D 0x0A).
  * 
  *    Example: key1:value1"\r\n"key2:value2"\r\n"
  * 
@@ -307,8 +352,8 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  *   | BIT(6) | Set this bit to use HTTP version 1.1                                   |
  *   | BIT(9) | Set this bit to specify index of SSL cert to be used for HTTPS.        |
  *   | BIT(10)| Set this bit to specify index of SSL cert to be used for HTTPS.        |
+ *   | BIT(11)| Set this bit to enable server name indication (SNI) for HTTPS.         |
  * 
- * @note
  * - Maximum supported length for user_name, password together is 278 bytes.
  * - Maximum length should be 872 bytes, which includes user_name, password, host_name, ip_address, resource, and extended_header.
  * - If username, password, hostname and extended http headers are not required, user should send empty string separated by delimiter.
@@ -317,13 +362,14 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  * - When the SL_SI91X_FEAT_LONG_HTTP_URL feature is enabled, the maximum supported URL length for HTTP OTAF is 2048 bytes.
  * - To select certificate index 0, no additional flags are required to be configured explicitly.
  * 
- * @note
- *  The following table summarizes the support for different modes and network stacks:
+ * - The following table summarizes the support for different modes and network stacks:
  * 
  *  | Mode      | Hosted Network Stack | Offload Network Stack |
  *  |-----------|----------------------|-----------------------|
  *  | SoC       | Not-Supported        | Supported             |
  *  | NCP       | Not-Supported        | Supported             |
+ * 
+ * - Moving forward, this structure will be deprecated. Instead, use the [sl_si91x_http_otaf_v2](../wiseconnect-api-reference-guide-si91x-driver/si91-x-firmware-update-from-module-functions#sl-si91x-http-otaf-v2) structure. This is retained for backward compatibility.
  ******************************************************************************/
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) || defined(DOXYGEN)
 sl_status_t sl_si91x_http_otaf(uint8_t type,
@@ -336,7 +382,41 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint8_t *user_name,
                                uint8_t *password,
                                const uint8_t *post_data,
-                               uint32_t post_data_length);
+                               uint32_t post_data_length) SL_DEPRECATED_API_WISECONNECT_3_5;
 #endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */
 
+/***************************************************************************/
+/**
+ * @brief
+ *  Sends an HTTP request to a specified server URL
+ * 
+ * @details      
+ *  This function sends an HTTP request to a specified server URL with optional data and headers,
+ *  and facilitates firmware downloads from the server. 
+ * 
+ *  This API is blocking API.
+ * 
+ *  By default, the following values are used:
+ *  - SSL version: 1.0
+ *  - HTTP version: 1.0
+ *  - Certificate index: 0
+ *  
+ * @param[in] http_otaf_params 
+ *  HTTP OTAF parameters   
+ * 
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * 
+ * @note
+ * - Maximum supported length for user_name, password together is 278 bytes.
+ * - Maximum length should be 872 bytes, which includes user_name, password, host_name, ip_address, resource, and extended_header.
+ * - If username, password, hostname and extended http headers are not required, user should send empty string separated by delimiter.
+ * - If content of any field contains a comma then NULL delimiter should be used.
+ * - This API will wait until the response is received from NWP.
+ * - When the SL_SI91X_FEAT_LONG_HTTP_URL feature is enabled, the maximum supported URL length for HTTP OTAF is 2048 bytes.
+ * - To select certificate index 0, no additional flags need to be configured explicitly.
+ ******************************************************************************/
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) || defined(DOXYGEN)
+sl_status_t sl_si91x_http_otaf_v2(const sl_si91x_http_otaf_params_t *http_otaf_params);
+#endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */
 /** @} */

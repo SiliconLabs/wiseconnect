@@ -31,8 +31,14 @@
 #define __SL_SI91X_PSRAM_HANDLE_H_
 
 #include "sl_si91x_psram.h"
-#include "sl_si91x_psram_config.h"
 #include "sl_si91x_psram_pin_config.h"
+#ifdef SLI_SI91X_MCU_PSRAM_APS1604M_SQR
+#include "sl_si91x_psram_aps1604m_sqr_config.h"
+#elif defined(SLI_SI91X_MCU_PSRAM_APS6404L_SQH)
+#include "sl_si91x_psram_aps6404l_sqh_config.h"
+#else
+#include "sl_si91x_psram_aps6404l_sqrh_config.h"
+#endif
 
 /**
  * @file sl_si91x_psram_handle.h

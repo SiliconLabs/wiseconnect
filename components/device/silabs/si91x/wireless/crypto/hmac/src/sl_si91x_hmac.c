@@ -38,25 +38,25 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
-                                          uint8_t *data,
+static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
+                                          const uint8_t *data,
                                           uint16_t chunk_length,
                                           uint32_t total_length,
                                           uint8_t hmac_sha_flags,
                                           uint8_t *output)
 {
-  sl_status_t status                   = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer             = NULL;
-  sl_si91x_packet_t *packet            = NULL;
-  sl_si91x_hmac_sha_request_t *request = (sl_si91x_hmac_sha_request_t *)malloc(sizeof(sl_si91x_hmac_sha_request_t));
+  sl_status_t status                    = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer              = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
+  sli_si91x_hmac_sha_request_t *request = (sli_si91x_hmac_sha_request_t *)malloc(sizeof(sli_si91x_hmac_sha_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_hmac_sha_request_t));
+  memset(request, 0, sizeof(sli_si91x_hmac_sha_request_t));
 
   request->algorithm_type       = HMAC_SHA;
-  request->algorithm_sub_type   = config->hmac_mode;
+  request->algorithm_sub_type   = (uint8_t)config->hmac_mode;
   request->hmac_sha_flags       = hmac_sha_flags;
-  request->total_length         = total_length;
+  request->total_length         = (uint16_t)total_length;
   request->current_chunk_length = chunk_length;
   memcpy(request->hmac_data, data, chunk_length);
 
@@ -75,26 +75,26 @@ static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
   request->key_length = config->key_config.A0.key_length;
 #endif
 
-  status =
-    sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD,
-                                 request,
-                                 (sizeof(sl_si91x_hmac_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
-                                 SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                 NULL,
-                                 &buffer);
+  status = sli_si91x_driver_send_command(
+    SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+    SI91X_COMMON_CMD,
+    request,
+    (sizeof(sli_si91x_hmac_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
+    SL_SI91X_WAIT_FOR_RESPONSE(32000),
+    NULL,
+    &buffer);
 
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
 
-  sl_si91x_host_free_buffer(buffer);
+  sli_si91x_host_free_buffer(buffer);
   free(request);
   return status;
 }
@@ -105,11 +105,11 @@ static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
                                             sl_si91x_hmac_config_t *config,
                                             uint8_t *output)
 {
-  sl_status_t status                   = SL_STATUS_FAIL;
-  sl_si91x_hmac_sha_request_t *request = (sl_si91x_hmac_sha_request_t *)malloc(sizeof(sl_si91x_hmac_sha_request_t));
+  sl_status_t status                    = SL_STATUS_FAIL;
+  sli_si91x_hmac_sha_request_t *request = (sli_si91x_hmac_sha_request_t *)malloc(sizeof(sli_si91x_hmac_sha_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_hmac_sha_request_t));
+  memset(request, 0, sizeof(sli_si91x_hmac_sha_request_t));
 
   request->algorithm_type     = HMAC_SHA;
   request->algorithm_sub_type = config->hmac_mode;
@@ -128,9 +128,9 @@ static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
     memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.B0.wrap_iv, SL_SI91X_IV_SIZE);
   }
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_hmac_sha_request_t)),
+                                                 (sizeof(sli_si91x_hmac_sha_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
@@ -139,7 +139,7 @@ static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
 
 #endif
 
-sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
+sl_status_t sl_si91x_hmac(const sl_si91x_hmac_config_t *config, uint8_t *output)
 {
   uint32_t total_length  = 0;
   uint16_t chunk_len     = 0;
@@ -200,7 +200,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
         hmac_sha_flags = MIDDLE_CHUNK;
       }
     } else {
-      chunk_len = total_length;
+      chunk_len = (uint16_t)total_length;
 
       // Make hmac_sha_flag as Last chunk
       hmac_sha_flags = LAST_CHUNK;

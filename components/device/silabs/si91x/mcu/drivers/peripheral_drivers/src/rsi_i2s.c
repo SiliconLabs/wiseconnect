@@ -38,6 +38,11 @@
 #include "rsi_i2s.h"
 #include "SAI.h"
 
+#define I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN \
+  46 // Minimum pin number for specific range of HP pins to act as ULP pins
+#define I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
+  49 // Maximum pin number for specific range of HP pins to act as ULP pins
+
 /** @addtogroup SOC17
 * @{
 */
@@ -87,6 +92,7 @@ int32_t I2S_Control(uint32_t control,
 {
   uint32_t master = 0, data_bits = 0;
   uint32_t bit_freq = 0, val = 0;
+  bool mic_transfer = false;
 
   if ((i2s->flags & I2S_FLAG_POWERED) == 0U) {
     // I2S not powered
@@ -100,6 +106,9 @@ int32_t I2S_Control(uint32_t control,
     case ARM_SAI_CONFIGURE_TX:
       break;
     case ARM_SAI_CONFIGURE_RX:
+      break;
+    case ARM_SAI_CONFIGURE_MIC:
+      mic_transfer = true;
       break;
     case ARM_SAI_CONTROL_TX:
       // I2S Enable
@@ -237,11 +246,7 @@ int32_t I2S_Control(uint32_t control,
 
   // Protocol
   val = (control & ARM_SAI_PROTOCOL_Msk);
-  if ((val != ARM_SAI_PROTOCOL_I2S) && (val != ARM_SAI_PROTOCOL_PCM_SHORT)) {
-    // Only I2S protocol is supported
-    return ARM_SAI_ERROR_PROTOCOL;
-  }
-  if (val == ARM_SAI_PROTOCOL_PCM_SHORT) {
+  if (val == ARM_SAI_PROTOCOL_PCM_SHORT || val == ARM_SAI_PROTOCOL_PCM_LONG) {
     i2s->protocol = PCM_PROTOCOL;
     if (i2s->reg == I2S0) {
       MISC_SOFT_SET_REG_2 |= PCM_ENA; //|PCM_FSYNCSTART ;
@@ -299,57 +304,55 @@ int32_t I2S_Control(uint32_t control,
 
   // Data size
   switch ((control & ARM_SAI_DATA_SIZE_Msk) >> ARM_SAI_DATA_SIZE_Pos) {
-    case 12 - 1:
-      data_bits = 12;
-      if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= (RES_12_BIT << 2);
-      } else {
-        // Gate after 12 clock cycles
-        i2s->reg->I2S_CCR_b.SCLKG = RES_12_BIT;
-        // no of sclk cycles
-        i2s->reg->I2S_CCR_b.WSS = 0x0;
-      }
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_12_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_12_BIT;
-      break;
     case 16 - 1:
       data_bits = 16;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= (RES_16_BIT << 2);
+        MISC_SOFT_SET_REG_2 |= (PCM_RES_16_BIT << 2);
+        i2s->reg->I2S_CCR_b.SCLKG                               = PCM_RES_16_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x0;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_16_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_16_BIT;
       } else {
         i2s->reg->I2S_CCR_b.SCLKG = RES_16_BIT;
-        i2s->reg->I2S_CCR_b.WSS   = 0x0;
+        if (mic_transfer) { // Mic ICS43434 in dev-kit uses this configuration
+          i2s->reg->I2S_CCR_b.WSS = 0x02;
+        } else {
+          i2s->reg->I2S_CCR_b.WSS = 0x00;
+        }
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_16_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_16_BIT;
       }
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_16_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_16_BIT;
-      break;
-    case 20 - 1:
-      data_bits                                               = 20;
-      i2s->reg->I2S_CCR_b.SCLKG                               = RES_20_BIT;
-      i2s->reg->I2S_CCR_b.WSS                                 = 0x1;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_20_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_20_BIT;
       break;
     case 24 - 1:
       data_bits = 24;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= ((RES_24_BIT - 1) << 2);
+        MISC_SOFT_SET_REG_2 |= (PCM_RES_24_BIT << 2);
+        i2s->reg->I2S_CCR_b.SCLKG                               = PCM_RES_24_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x1;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_24_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_24_BIT;
       } else {
-        i2s->reg->I2S_CCR_b.SCLKG = RES_24_BIT;
-        i2s->reg->I2S_CCR_b.WSS   = 0x1;
+        i2s->reg->I2S_CCR_b.SCLKG                               = RES_24_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x1;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_24_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_24_BIT;
       }
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_24_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_24_BIT;
       break;
     case 32 - 1:
       data_bits = 32;
       if (i2s->protocol == PCM_PROTOCOL) {
-        MISC_SOFT_SET_REG_2 |= ((RES_32_BIT) << 2);
+        MISC_SOFT_SET_REG_2 |= ((PCM_RES_32_BIT) << 2);
+        i2s->reg->I2S_CCR_b.SCLKG                               = PCM_RES_32_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x2;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = PCM_RES_32_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = PCM_RES_32_BIT;
+      } else {
+        i2s->reg->I2S_CCR_b.SCLKG                               = RES_32_BIT;
+        i2s->reg->I2S_CCR_b.WSS                                 = 0x2;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_32_BIT;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_32_BIT;
       }
-      i2s->reg->I2S_CCR_b.SCLKG                               = 0x0;
-      i2s->reg->I2S_CCR_b.WSS                                 = 0x2;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN = RES_32_BIT;
-      i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN = RES_32_BIT;
+
       break;
     default:
       return ARM_SAI_ERROR_DATA_SIZE;
@@ -386,25 +389,15 @@ int32_t I2S_Control(uint32_t control,
     }
     if (i2s->reg == I2S1) {
       if (i2s->clk->clk_src == ULP_I2S_REF_CLK) {
-        val = 32000000 / bit_freq;
+        val = system_clocks.ulpss_ref_clk / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val / 2);
       }
       if (i2s->clk->clk_src == ULP_I2S_ULP_MHZ_RC_CLK) {
-        val = 32000000 / bit_freq;
+        val = system_clocks.rc_mhz_clock / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_MHZ_RC_CLK, (uint16_t)val / 2);
       }
-      if (i2s->clk->clk_src == ULP_I2S_ULP_20MHZ_RO_CLK) {
-        val = 20000000 / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_20MHZ_RO_CLK, (uint16_t)val);
-      }
-      if (i2s->clk->clk_src == ULP_I2S_SOC_CLK) {
-        // TODO: This source is not working
-        //freq = GetSOCClockFreq();
-        val = 32000000 / bit_freq;
-        //RSI_ULPSS_UlpI2sClkConfig(ULPCLK ,RTE_I2S1_CLK_SRC,val/2);
-      }
       if (i2s->clk->clk_src == ULP_I2S_PLL_CLK) {
-        val = 6250000 / bit_freq;
+        val = system_clocks.i2s_pll_clock / bit_freq;
         RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_PLL_CLK, (uint16_t)val / 2);
       }
     }
@@ -565,20 +558,81 @@ void I2S0_Chnl1_PinMux(I2S_RESOURCES *i2s)
 void I2S1_PinMux(I2S_RESOURCES *i2s)
 {
   // SCK
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.sclk->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, i2s->io.sclk->pin, i2s->io.sclk->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.sclk->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.sclk->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, (uint8_t)(i2s->io.sclk->pin - GPIO_MAX_PIN), i2s->io.sclk->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.sclk->port, i2s->io.sclk->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.sclk->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.sclk->pad_sel);
+    }
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, i2s->io.sclk->pin, 0);
+    if (i2s->io.sclk->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.sclk->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.sclk->pin - 38), i2s->io.sclk->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.sclk->pin - 8), i2s->io.sclk->mode);
+    }
+  }
 
   // WSCLK
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.wsclk->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, i2s->io.wsclk->pin, i2s->io.wsclk->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.wsclk->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.wsclk->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, (uint8_t)(i2s->io.wsclk->pin - GPIO_MAX_PIN), i2s->io.wsclk->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.wsclk->port, i2s->io.wsclk->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.wsclk->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.wsclk->pad_sel);
+    }
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, i2s->io.wsclk->pin, 0);
+    if (i2s->io.wsclk->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.wsclk->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.wsclk->pin - 38), i2s->io.wsclk->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.wsclk->pin - 6), i2s->io.wsclk->mode);
+    }
+  }
 
   // TX pin
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.dout0->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, i2s->io.dout0->pin, i2s->io.dout0->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.dout0->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.dout0->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, (uint8_t)(i2s->io.dout0->pin - GPIO_MAX_PIN), i2s->io.dout0->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.dout0->port, i2s->io.dout0->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.dout0->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.dout0->pad_sel);
+    }
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, i2s->io.dout0->pin, 0);
+    if (i2s->io.dout0->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.dout0->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.dout0->pin - 38), i2s->io.dout0->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.dout0->pin - 6), i2s->io.dout0->mode);
+    }
+  }
 
   // RX pin
-  RSI_EGPIO_UlpPadReceiverEnable(i2s->io.din0->pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, i2s->io.din0->pin, i2s->io.din0->mode);
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (i2s->io.din0->pin >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.din0->pin - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, (uint8_t)(i2s->io.din0->pin - GPIO_MAX_PIN), i2s->io.din0->mode);
+  } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, i2s->io.din0->port, i2s->io.din0->pin, EGPIO_PIN_MUX_MODE9);
+    if (i2s->io.din0->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(i2s->io.din0->pad_sel);
+    }
+    RSI_EGPIO_PadReceiverEnable(i2s->io.din0->pin);
+    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, i2s->io.din0->pin, 0);
+    if (i2s->io.din0->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && i2s->io.din0->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.din0->pin - 38), i2s->io.din0->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.din0->pin - 6), i2s->io.din0->mode);
+    }
+  }
 }
 
 /*==============================================*/

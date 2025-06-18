@@ -33,7 +33,7 @@
 #include "rsi_rom_egpio.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "sl_si91x_dma.h"
-#include "sl_si91x_peripheral_gpio.h"
+#include "sl_si91x_driver_gpio.h"
 #include "sl_si91x_peripheral_i2c.h"
 #include "rsi_power_save.h"
 #include "sl_si91x_clock_manager.h"
@@ -78,6 +78,8 @@
 #define DIVISION_FACTOR_180MHZ   4         // Division factor to get accurate ticks at 180 MHz
 #define DIVISION_FACTOR_90MHZ    3         // Division factor to get accurate ticks at 90 MHz
 #define DIVISION_FACTOR_32MHZ    2         // Division factor to get accurate ticks at 32 MHz
+#define SOC_PIN_MUX              6         // Pin mux to set the ulp gpio in soc mode
+#define I2C_PORT                 0         // Port used while configuring ulp gpio in soc mode
 
 /*******************************************************************************
  ***************************  Local TYPES  ********************************
@@ -939,64 +941,134 @@ sl_i2c_status_t sl_i2c_driver_deinit(sl_i2c_instance_t i2c_instance)
 }
 
 /*******************************************************************************
- * API to set the Pin configuration for I2C.
- * It configures the SDA and SCL pins.
+ * Initialize the I2C pins (SDA and SCL) based on the provided configuration.
+ *
+ * @param[in] pin_init Pointer to the structure containing the pin initialization parameters.
+ *
+ * @return
+ *   Returns the status of the pin initialization.
+ *   - SL_I2C_SUCCESS: Pin initialization was successful.
+ *   - SL_I2C_INVALID_PARAMETER: The provided pin_init parameter is NULL.
+ *
+ * @details
+ *   This function configures the SDA and SCL pins for the specified I2C instance.
+ *   It supports both high power (HP) and ultra low power (ULP) configurations.
+ *   If the high power instance wants to use the ulp gpio pins, then it validates using the scl_port
+ *   and changes the ulp_gpio to soc mode by configuring to specific mode. Now it can act as high power gpio.
+ *   If the low power instance wants to use the hp gpio pins, then it validates using the scl_port
+ *   and changes the hp gpio to ulp mode by configuring to specific mode. Now it can act as ulp gpio.
+ *   The function performs the following steps:
+ *   1. Validates the input parameter.
+ *   2. Checks if the I2C instance is high power or low power instance.
+ *   3. In case of high power instance the port is validated, whether it is ULP or HP.
+ *   4. If the port is ULP, it powers up the ULP I2C peripheral and enables the ULP GPIO clock.
+ *      - Configures the SCL and SDA pin according to the pinmux.
+ *   5. If the port is not ULP, it powers up the M4SS peripheral based on the defined macros.
+*      - Configures the SCL and SDA pin according to the pinmux.
+ *   6. If the I2C instance is not 0 or 1, it configures the pins for the ULP I2C instance.
+ *   7. If the port is ULP, It configures the SCL and SDA pin according to the pinmux.
+ *   8. If the port is not ULP, it configures the SCL and SDA pins to high power pins and then 
+ *      configures the mode according to the pinmux.
+ *
+ * @note
+ *   The function uses various helper functions to enable pad receivers, set pin modes,
+ *   enable pad selection, and select pad driver disable states.
  ******************************************************************************/
 sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init)
 {
   sl_i2c_status_t status;
+  sl_si91x_gpio_pin_config_t scl_gpio_config = { { pin_init->scl_port, pin_init->scl_pin }, OUTPUT };
+  sl_si91x_gpio_pin_config_t sda_gpio_config = { { pin_init->sda_port, pin_init->sda_pin }, OUTPUT };
+
   do {
     // Validates the null pointer, if true returns error code
     if (pin_init == NULL) {
       status = SL_I2C_INVALID_PARAMETER;
       break;
     }
-    // for ULP_I2C
-    if ((pin_init->sda_mux == ULP_I2C_MUX) && (pin_init->sda_pad == ULP_I2C_PAD)) {
+
+    // Power up and configure ULP GPIO clock if either pin is ULP
+    if (((pin_init->scl_port == SL_GPIO_ULP_PORT) || (pin_init->sda_port == SL_GPIO_ULP_PORT))) {
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_I2C);
-      // SCL
-      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->scl_pin));
-      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->scl_pin), pin_init->scl_mux, OUTPUT);
-      sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(pin_init->scl_pin), GPIO_PULLUP);
-      // SDA
-      RSI_EGPIO_UlpPadReceiverEnable(pin_init->sda_pin);
-      RSI_EGPIO_SetPinMux(EGPIO1, pin_init->sda_port, pin_init->sda_pin, pin_init->sda_mux);
-      sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(pin_init->sda_pin), GPIO_PULLUP);
+      // Power up ULP I2C peripheral and enable ULP GPIO clock
+      sl_si91x_gpio_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
     }
-    // for I2C0 and I2C1
-    else {
+
+    // Configure SCL pin
+    if (pin_init->scl_port == SL_GPIO_ULP_PORT) {
+      // Configure SCL pin if it is ULP
+      // Enable ULP pad receiver for SCL pin
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->scl_pin));
+      if (pin_init->instance == SL_I2C2) {
+        // Set pin mode for SCL pin on ULP GPIO port to act as I2C SCL
+        sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->scl_pin), pin_init->scl_mux, OUTPUT);
+      } else {
+        // Enable pad selection for SCL pin (HP pin)
+        sl_si91x_gpio_enable_pad_selection((uint8_t)(pin_init->scl_pad));
+        // Set pin mode for SCL pin on ULP GPIO port, Setting it to switch it from ulp pin to hp pin
+        sl_si91x_gpio_driver_set_soc_peri_on_ulp_pin_mode(&scl_gpio_config.port_pin, pin_init->scl_mux);
+      }
+      // Select ULP pad driver disable state for SCL pin, required to configure internal pull-up
+      sl_si91x_gpio_select_ulp_pad_driver_disable_state(pin_init->scl_pin, GPIO_PULLUP);
+    } else {
+      if (pin_init->instance == SL_I2C0 || pin_init->instance == SL_I2C1) {
 #if defined(SLI_SI917) || defined(SLI_SI915)
-      RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
+        // Power up M4SS peripheral based on the defined macros
+        RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
-      RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
+        RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
 #endif
-      if (pin_init->scl_pin >= MAX_GPIO) {
-        sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->scl_pin - MAX_GPIO));
-        sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->scl_pin - MAX_GPIO), ULP_MODE, OUTPUT);
-        sl_si91x_gpio_select_ulp_pad_driver_disable_state((pin_init->scl_pin) - MAX_GPIO, GPIO_PULLUP);
-      } else {
-        sl_si91x_gpio_enable_pad_receiver(pin_init->scl_pin);
-        sl_si91x_gpio_select_pad_driver_disable_state((uint8_t)(pin_init->scl_pin), GPIO_PULLUP);
       }
-      if (pin_init->scl_pin >= HOST_MIN && pin_init->scl_pin <= HOST_MAX) {
-        sl_si91x_gpio_enable_pad_selection(pin_init->scl_pin);
+      // Configure SCL pin if it is HP pin-set
+      // Sets the pin and pad configuration for the SCL pin
+      sl_gpio_set_configuration(scl_gpio_config);
+      if (pin_init->instance == SL_I2C0 || pin_init->instance == SL_I2C1) {
+        // Set pin mode for SCL pin on the specified port to act as I2C SCL
+        sl_gpio_set_pin_mode(pin_init->scl_port, pin_init->scl_pin, pin_init->scl_mux, OUTPUT);
       } else {
-        sl_si91x_gpio_enable_pad_selection(pin_init->scl_pad);
+        // Set pin mode for SCL pin on the specified port to act as I2C SCL
+        sl_si91x_gpio_driver_set_ulp_peri_on_soc_pin_mode(&scl_gpio_config.port_pin, pin_init->scl_mux);
       }
-      sl_gpio_set_pin_mode(pin_init->scl_port, pin_init->scl_pin, pin_init->scl_mux, OUTPUT);
-      // for sda
-      if (pin_init->sda_pin >= MAX_GPIO) {
-        sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->sda_pin - MAX_GPIO));
-        sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->sda_pin - MAX_GPIO), ULP_MODE, OUTPUT);
+      // Select pad driver disable state for SCL pin, required to configure internal pull-up
+      sl_si91x_gpio_select_pad_driver_disable_state((uint8_t)(pin_init->scl_pin), GPIO_PULLUP);
+    }
+
+    // Configure SDA pin
+    if (pin_init->sda_port == SL_GPIO_ULP_PORT) {
+      // Configure SDA pin if it is ULP
+      // Enable ULP pad receiver for SDA pin
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->sda_pin));
+      if (pin_init->instance == SL_I2C2) {
+        // Set pin mode for SCL pin on ULP GPIO port to act as I2C SDA
+        sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->sda_pin), pin_init->sda_mux, OUTPUT);
       } else {
-        sl_si91x_gpio_enable_pad_receiver(pin_init->sda_pin);
+        // Enable pad selection for SDA pin (HP pin)
+        sl_si91x_gpio_enable_pad_selection((uint8_t)(pin_init->sda_pad));
+        // Set pin mode for SDA pin on ULP GPIO port, Setting it to switch it from ulp pin to hp pin
+        sl_si91x_gpio_driver_set_soc_peri_on_ulp_pin_mode(&sda_gpio_config.port_pin, pin_init->scl_mux);
+      }
+      // Select ULP pad driver disable state for SDA pin, required to configure internal pull-up
+      sl_si91x_gpio_select_ulp_pad_driver_disable_state(pin_init->sda_pin, GPIO_PULLUP);
+    } else {
+      if (pin_init->instance == SL_I2C0 || pin_init->instance == SL_I2C1) {
+#if defined(SLI_SI917) || defined(SLI_SI915)
+        // Power up M4SS peripheral based on the defined macros
+        RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
+#else
+        RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
+#endif
+      }
+      // Configure SDA pin if it is not ULP
+      // Sets the pin and pad configuration for the SDA pin
+      sl_gpio_set_configuration(sda_gpio_config);
+      if (pin_init->instance == SL_I2C0 || pin_init->instance == SL_I2C1) {
+        // Set pin mode for SDA pin on the specified port to act as I2C SDA
         sl_gpio_set_pin_mode(pin_init->sda_port, pin_init->sda_pin, pin_init->sda_mux, OUTPUT);
-      }
-      if (pin_init->sda_pin >= HOST_MIN && pin_init->sda_pin <= HOST_MAX) {
-        sl_si91x_gpio_enable_pad_selection(pin_init->sda_pin);
       } else {
-        sl_si91x_gpio_enable_pad_selection(pin_init->sda_pad);
+        // Set pin mode for SCL pin on the specified port to act as I2C SCL
+        sl_si91x_gpio_driver_set_ulp_peri_on_soc_pin_mode(&sda_gpio_config.port_pin, pin_init->sda_mux);
       }
+      // Select pad driver disable state for SDA pin, required to configure internal pull-up
       sl_si91x_gpio_select_pad_driver_disable_state((uint8_t)(pin_init->sda_pin), GPIO_PULLUP);
     }
     status = SL_I2C_SUCCESS;

@@ -45,6 +45,7 @@ typedef struct {
   sl_wifi_client_configuration_t
     config; ///< Wi-Fi client configuration of type [sl_wifi_client_configuration_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-client-configuration-t)
   sl_net_ip_configuration_t ip; ///< Network IP configuration of type @ref sl_net_ip_configuration_t
+  uint8_t priority;             ///< Priority for auto-join (0 = highest, 255 = lowest)
 } sl_net_wifi_client_profile_t;
 
 /**

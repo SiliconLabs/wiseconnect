@@ -121,6 +121,9 @@ uint32_t package_type;
  */
 void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
 {
+  // Enables interrupts by clearing the PRIMASK register, allowing the processor to handle IRQs
+  __asm volatile("cpsie i" ::: "memory");
+
   const retention_boot_status_word_t *retention_reg = (const retention_boot_status_word_t *)MCURET_BOOTSTATUS;
 
   /*Updated the default SOC clock frequency*/
@@ -152,6 +155,11 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
 #endif
   /*Initialize IPMU and MCU FSM blocks */
   RSI_Ipmu_Init();
+
+  /*Configuring the ULP reference clock to 40MHz, as this frequency is required by the temperature sensor for chip supply mode configuration.*/
+  system_clocks.rf_ref_clock = DEFAULT_40MHZ_CLOCK;
+  RSI_ULPSS_RefClkConfig(ULPSS_40MHZ_CLK);
+
   /*configures chip supply mode */
   RSI_Configure_Ipmu_Mode();
 
@@ -297,7 +305,7 @@ void SystemInit(void)
   fpuInit();
 
   /* Enable REF Clock Control*/
-  //FIXME: This will be configured by boot-loader based on product mode
+  // This will be configured by boot-loader based on product mode
   *(volatile uint32_t *)0x41300004 = BIT(24);
 
   /*Moving to BG sampling mode */

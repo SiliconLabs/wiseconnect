@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include "sl_si91x_peripheral_gpio.h"
+#include "sl_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,6 +94,25 @@ typedef struct {
  *       For UULP (Ultra-Low Power) and M4 (High-Performance) GPIOs, it sets the pin direction, pin mode, and interrupt settings.
  *****************************************************************************/
 void sl_si91x_button_init(const sl_button_t *handle);
+
+/***************************************************************************/
+/**
+ * @brief Deinitialize the specified button and release associated resources.
+ * 
+ * @details This function deinitializes the specified button.
+ *          After deinitialization, the button is no longer functional until reinitialized.
+ * 
+ * @param[in] handle Pointer to an \ref sl_button_t structure containing the button configuration details.
+ *  
+ * @return sl_status_t Status of the operation:
+ *         - SL_STATUS_OK if the button was successfully deinitialized.
+ *         - SL_STATUS_INVALID_HANDLE if the button number is invalid.
+ * 
+ * @pre The button must have been previously initialized with \ref sl_si91x_button_init.
+ * 
+ * @note This function handles deinitialization for HP (High-Performance), ULP and UULP buttons.
+ *****************************************************************************/
+sl_status_t sl_si91x_button_deinit(const sl_button_t *handle);
 
 /***************************************************************************/
 /**

@@ -30,6 +30,10 @@
 #ifndef SL_SI91X_ERRNO_H
 #define SL_SI91X_ERRNO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*******************************************************************************
  * @addtogroup errno Errno
  * @details Errno contains the definition for errno and the defines for
@@ -196,4 +200,8 @@ int *sl_si91x_errno(void);
 #define EJUSTRETURN -2 /* don't modify regs, just return */
 #endif                 /* !_KERNEL */
 /** @} (end addtogroup errno) */
+#ifdef __cplusplus
+}
+#endif
+
 #endif // SL_SI91X_ERRNO_H

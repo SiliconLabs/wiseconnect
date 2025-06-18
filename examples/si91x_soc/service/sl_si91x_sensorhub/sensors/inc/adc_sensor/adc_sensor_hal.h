@@ -43,8 +43,8 @@ typedef int32_t sl_adc_error_t;
 
 /* Macros for sensor hub */
 #define SL_SH_ADC_CHANNEL0
-#define SL_SH_ADC_CHANNEL1
-#define SL_SH_ADC_CHANNEL2
+//#define SL_SH_ADC_CHANNEL1
+//#define SL_SH_ADC_CHANNEL2
 //#define SL_SH_ADC_CHANNEL3
 
 #ifdef SL_SH_ADC_CHANNEL0
@@ -98,7 +98,6 @@ typedef int32_t sl_adc_error_t;
 #define SL_SH_ADC_SENSOR1_NUM_OF_SAMPLES 1 ///< Number of samples for ADC sensor1
 #define SL_SH_ADC_SENSOR2_NUM_OF_SAMPLES 1 ///< Number of samples for ADC sensor2
 
-#define GY61_ADC_SENSOR
 /* ADC channel numbers used for sensors */
 #define JS_ADC_CHANNEL   0
 #define GUVA_ADC_CHANNEL 0

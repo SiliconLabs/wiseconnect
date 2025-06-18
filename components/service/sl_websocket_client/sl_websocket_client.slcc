@@ -13,12 +13,14 @@ provides:
 - name: sl_websocket_client
 source:
 - path: src/sl_websocket_client.c
+- path: src/sli_websocket_client_sync.c
 include:
 - path: inc
 - path: inc
   file_list:
     - path: sl_websocket_client.h
     - path: sl_websocket_client_types.h
+    - path: sli_websocket_client_sync.h
 
 requires:
 - name: sl_si91x_socket

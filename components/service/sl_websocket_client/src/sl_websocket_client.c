@@ -1,3 +1,31 @@
+/***************************************************************************/ /**
+ * @file  sl_websocket_client.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 #include "sl_websocket_client.h"
 #include "sl_websocket_client_types.h"
 #include "sl_constants.h"
@@ -11,20 +39,27 @@
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket.h"
+#ifndef __ZEPHYR__
 #include "socket.h"
-#include "sl_net_rsi_utility.h"
+#else
+#include <sys/socket.h>
+#endif
+#include "sli_net_utility.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 
 /******************************************************
- *               Variable Definitions
+ *               API Definitions
  ******************************************************/
 sl_websocket_error_t sl_websocket_init(sl_websocket_client_t *handle, const sl_websocket_config_t *config)
 {
   if (!handle || !config) {
     return SL_WEBSOCKET_ERR_INVALID_PARAMETER;
   }
+
+  // Clear the handle structure to ensure all fields are initialized to zero
+  memset(handle, 0, sizeof(sl_websocket_client_t));
 
   // Check if the WebSocket client is in a valid state to initialize
   if (handle->state != SL_WEBSOCKET_STATE_DISCONNECTED) {
@@ -110,9 +145,15 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
   server_address.sin6_family         = AF_INET6;
   server_address.sin6_port           = handle->server_port;
   client_address.sin6_port           = handle->client_port;
+#ifndef __ZEPHYR__
   memcpy(&server_address.sin6_addr.__u6_addr.__u6_addr32,
          &(handle->ip_address.ip.v6.value),
          sizeof(server_address.sin6_addr.__u6_addr.__u6_addr32));
+#else
+  memcpy(&server_address.sin6_addr.s6_addr32,
+         &(handle->ip_address.ip.v6.value),
+         sizeof(server_address.sin6_addr.s6_addr32));
+#endif
   client_socket = sl_si91x_socket_async(AF_INET6, SOCK_STREAM, IPPROTO_TCP, handle->data_cb);
 #else
   struct sockaddr_in server_address = { 0 };
@@ -153,14 +194,14 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
   }
 
   // Retrieve the socket using the socket index
-  sli_si91x_socket_t *si91x_socket = get_si91x_socket(client_socket);
+  sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(client_socket);
   if (!si91x_socket) {
     SL_DEBUG_LOG("\r\nFailed to retrieve si91x socket\r\n");
     close(client_socket);
     handle->state = SL_WEBSOCKET_STATE_DISCONNECTED;
     return SL_WEBSOCKET_ERR_SOCKET_CREATION;
   }
-  si91x_socket->ssl_bitmap |= SI91X_WEBSOCKET_FEAT;
+  si91x_socket->ssl_bitmap |= SLI_SI91X_WEBSOCKET_FEAT;
 
   // Copy the host name and resource name from handle to si91x_socket->websocket_info
   size_t host_length     = strlen(handle->host);
@@ -177,6 +218,9 @@ sl_websocket_error_t sl_websocket_connect(sl_websocket_client_t *handle)
     handle->state = SL_WEBSOCKET_STATE_DISCONNECTED;
     return SL_WEBSOCKET_ERR_SOCKET_CREATION;
   }
+
+  // Clear the websocket_info structure to ensure all fields are initialized to zero
+  memset(si91x_socket->websocket_info, 0, sizeof(sli_si91x_websocket_info_t) + host_length + resource_length);
 
   // Set the lengths
   si91x_socket->websocket_info->host_length     = host_length;
@@ -219,7 +263,7 @@ sl_websocket_error_t sl_websocket_send_frame(sl_websocket_client_t *handle,
   }
 
   // Retrieve the socket using the socket index
-  sli_si91x_socket_t *si91x_socket = get_si91x_socket(handle->socket_fd);
+  sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(handle->socket_fd);
   if (!si91x_socket) {
     SL_DEBUG_LOG("\r\nFailed to retrieve socket\r\n");
     return SL_WEBSOCKET_ERR_SOCKET_CREATION;
@@ -253,21 +297,6 @@ sl_websocket_error_t sl_websocket_close(sl_websocket_client_t *handle)
     SL_DEBUG_LOG("\r\nInvalid state for closing the WebSocket connection\r\n");
     return SL_WEBSOCKET_ERR_INVALID_PARAMETER;
   }
-
-  // Create a close frame request
-  sl_websocket_send_request_t close_request;
-  close_request.opcode = SL_WEBSOCKET_OPCODE_CLOSE | SL_WEBSOCKET_FIN_BIT;
-  close_request.buffer = NULL;
-  close_request.length = 0;
-
-  // Send the close frame
-  sl_websocket_error_t ws_error = sl_websocket_send_frame(handle, &close_request);
-  if (ws_error != SL_WEBSOCKET_SUCCESS) {
-    SL_DEBUG_LOG("\r\nError while sending close frame: %d\r\n", ws_error);
-    return ws_error;
-  }
-
-  SL_DEBUG_LOG("\r\nClose frame sent successfully\r\n");
 
   // Update state to closing
   handle->state = SL_WEBSOCKET_STATE_CLOSING;
@@ -304,7 +333,7 @@ sl_websocket_error_t sl_websocket_deinit(sl_websocket_client_t *handle)
   }
 
   // Free the allocated memory for websocket_info
-  sli_si91x_socket_t *si91x_socket = get_si91x_socket(handle->socket_fd);
+  sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(handle->socket_fd);
   if (si91x_socket && si91x_socket->websocket_info) {
     free(si91x_socket->websocket_info);
     si91x_socket->websocket_info = NULL;

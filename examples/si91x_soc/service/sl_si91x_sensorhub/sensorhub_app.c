@@ -121,11 +121,12 @@ void wireless_sleep(void);
  * @param[out]   sensor g output
  *
 ******************************************************************************/
+#ifdef GY61_ADC_SENSOR
 static long gy61_adc_raw_data_map(long x, long in_min, long in_max, long out_min, long out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
-
+#endif
 /**************************************************************************/ /**
  * @fn           void sl_si91x_sensor_event_handler()
  * @brief        This Sensor event handle to the Sensor HUB.
@@ -544,200 +545,203 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
                      (i + 1),
                      sdc_channel_id,
                      sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i]);
+#endif
           }
-        }
+
 #endif
+        } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
+          if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
+            for (uint32_t i = 0;
+                 i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
+                 i++) {
+              DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
-      } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
-        if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
-          for (uint32_t i = 0;
-               i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
-               i++) {
-            DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+            }
+          }
+          if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
+            for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
+              DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
+            }
+          }
+          if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
+            DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
 #if SH_AWS_ENABLE
             snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                      sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                     "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
+                     "SL_SENSOR_JOYSTICK_ID: %dmV    ",
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
+#endif
+          }
+        }
+#ifdef SH_ADC_ENABLE
+        vout =
+          (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
+           * SL_SH_ADC_VREF_VALUE);
+
+#if SH_AWS_ENABLE
+        snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                 sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                 "Single-ended output: %lfV    ",
+                 (double)vout);
+#endif
+#endif
+#ifdef SH_ADC_ENABLE
+        DEBUGOUT("Single ended input: %lfV \t", (double)vout);
+#endif
+      }
+
+      if (SL_SENSOR_ADC_GUVA_S12D_ID == sensor_id) {
+        float vout = 0;
+        if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
+          for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GUVA_ADC_CHANNEL]; i++) {
+            DEBUGOUT("%d \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
                      (i + 1),
                      sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
           }
-        }
-        if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
-          for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
-            DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+        } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
+          if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
+            for (uint32_t i = 0;
+                 i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
+                 i++) {
+              DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
+            }
+          }
+          if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
+            for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
+              DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
+            }
+          }
+          if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
+            DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
 #if SH_AWS_ENABLE
             snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                      sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                     "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
-                     (i + 1),
-                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+                     "SL_SENSOR_GUVA_S12D_ID: %dmV    ",
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
 #endif
           }
         }
-        if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
-          DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
-#if SH_AWS_ENABLE
-          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
-                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                   "SL_SENSOR_JOYSTICK_ID: %dmV    ",
-                   sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
-#endif
-        }
-      }
-#ifdef SH_ADC_ENABLE
-      vout =
-        (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
-         * SL_SH_ADC_VREF_VALUE);
-
-#if SH_AWS_ENABLE
-      snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
-               sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-               "Single-ended output: %lfV    ",
-               (double)vout);
-#endif
-#endif
-#ifdef SH_ADC_ENABLE
-      DEBUGOUT("Single ended input: %lfV \t", (double)vout);
-#endif
-  }
-
-  if (SL_SENSOR_ADC_GUVA_S12D_ID == sensor_id) {
-    float vout = 0;
-    if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
-      for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GUVA_ADC_CHANNEL]; i++) {
-        DEBUGOUT("%d \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+        vout =
+          (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
+           * SL_SH_ADC_VREF_VALUE);
 #if SH_AWS_ENABLE
         snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                  sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                 "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
-                 (i + 1),
-                 sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+                 "Single-ended output: %lfV    ",
+                 (double)vout);
 #endif
+        DEBUGOUT("Single ended input: %lfV \t", (double)vout);
       }
-    } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
-      if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
-        for (uint32_t i = 0;
-             i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
-             i++) {
-          DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
-#if SH_AWS_ENABLE
-          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
-                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                   "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
-                   (i + 1),
-                   sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
-#endif
-        }
-      }
-      if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
-        for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
-          DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
-#if SH_AWS_ENABLE
-          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
-                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                   "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
-                   (i + 1),
-                   sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
-#endif
-        }
-      }
-      if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
-        DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
-#if SH_AWS_ENABLE
-        snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
-                 sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                 "SL_SENSOR_GUVA_S12D_ID: %dmV    ",
-                 sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
-#endif
-      }
-    }
-    vout =
-      (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
-       * SL_SH_ADC_VREF_VALUE);
-#if SH_AWS_ENABLE
-    snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
-             sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-             "Single-ended output: %lfV    ",
-             (double)vout);
-#endif
-    DEBUGOUT("Single ended input: %lfV \t", (double)vout);
-  }
 
-  if (SL_SENSOR_ADC_GY_61_ID == sensor_id) {
+      if (SL_SENSOR_ADC_GY_61_ID == sensor_id) {
 #ifdef GY61_X_AXIS_ADC_CHANNEL
-    for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_X_AXIS_ADC_CHANNEL]; i++) {
-      double x_g = ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.x[i],
-                                                 GY61_X_RAW_MIN,
-                                                 GY61_X_RAW_MAX,
-                                                 GY61_G_SCALE_MIN,
-                                                 GY61_G_SCALE_MAX))
-                   / -100.0;
-      DEBUGOUT("X = %gg, \t", x_g);
-    }
+        for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_X_AXIS_ADC_CHANNEL]; i++) {
+          double x_g =
+            ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.x[i],
+                                          GY61_X_RAW_MIN,
+                                          GY61_X_RAW_MAX,
+                                          GY61_G_SCALE_MIN,
+                                          GY61_G_SCALE_MAX))
+            / -100.0;
+          DEBUGOUT("X = %gg, \t", x_g);
+        }
 #endif
 #ifdef GY61_Y_AXIS_ADC_CHANNEL
-    for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_Y_AXIS_ADC_CHANNEL]; i++) {
-      double y_g = ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.y[0],
-                                                 GY61_Y_RAW_MIN,
-                                                 GY61_Y_RAW_MAX,
-                                                 GY61_G_SCALE_MIN,
-                                                 GY61_G_SCALE_MAX))
-                   / -100.0;
-      DEBUGOUT("Y = %gg, \t", y_g);
-    }
+        for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_Y_AXIS_ADC_CHANNEL]; i++) {
+          double y_g =
+            ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.y[0],
+                                          GY61_Y_RAW_MIN,
+                                          GY61_Y_RAW_MAX,
+                                          GY61_G_SCALE_MIN,
+                                          GY61_G_SCALE_MAX))
+            / -100.0;
+          DEBUGOUT("Y = %gg, \t", y_g);
+        }
 #endif
 #ifdef GY61_Z_AXIS_ADC_CHANNEL
-    for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_Z_AXIS_ADC_CHANNEL]; i++) {
-      double z_g = ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.z[0],
-                                                 GY61_Z_RAW_MIN,
-                                                 GY61_Z_RAW_MAX,
-                                                 GY61_G_SCALE_MIN,
-                                                 GY61_G_SCALE_MAX))
-                   / -100.0;
-      DEBUGOUT("Z = %gg \t", z_g);
-    }
+        for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_Z_AXIS_ADC_CHANNEL]; i++) {
+          double z_g =
+            ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.z[0],
+                                          GY61_Z_RAW_MIN,
+                                          GY61_Z_RAW_MAX,
+                                          GY61_G_SCALE_MIN,
+                                          GY61_G_SCALE_MAX))
+            / -100.0;
+          DEBUGOUT("Z = %gg \t", z_g);
+        }
 #endif
-  }
+      }
 
-  DEBUGOUT(" data_deliver.mode:%d \r\n", sensor_hub_info_t[sens_ind].data_deliver.data_mode);
-  // Acknowledge data reception
-  event_ack = sensor_id;
+      DEBUGOUT(" data_deliver.mode:%d \r\n", sensor_hub_info_t[sens_ind].data_deliver.data_mode);
+      // Acknowledge data reception
+      event_ack = sensor_id;
 
 #if SH_AWS_ENABLE
-  sl_sem_status = osSemaphoreRelease(sl_semaphore_aws_task_id);
-  if (sl_sem_status != osOK) {
-    DEBUGOUT("\r\n event post osSemaphoreRelease failed :%d \r\n", sl_sem_status);
-  }
-  sl_sem_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
-  if (sl_sem_status != osOK) {
-    DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_sem_status);
-  }
+      sl_sem_status = osSemaphoreRelease(sl_semaphore_aws_task_id);
+      if (sl_sem_status != osOK) {
+        DEBUGOUT("\r\n event post osSemaphoreRelease failed :%d \r\n", sl_sem_status);
+      }
+      sl_sem_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
+      if (sl_sem_status != osOK) {
+        DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_sem_status);
+      }
 #endif
-  break;
+      break;
 
-  case SL_SENSOR_CNFG_INVALID:
-    DEBUGOUT(" SL_SENSOR_CNFG_INVALID:%u \r\n", sensor_id);
+    case SL_SENSOR_CNFG_INVALID:
+      DEBUGOUT(" SL_SENSOR_CNFG_INVALID:%u \r\n", sensor_id);
 
-    break;
-  case SL_SENSOR_START_FAILED:
-    DEBUGOUT("Sensor START failed:%u \r\n", sensor_id);
+      break;
+    case SL_SENSOR_START_FAILED:
+      DEBUGOUT("Sensor START failed:%u \r\n", sensor_id);
 
-    break;
-  case SL_SENSOR_STOP_FAILED:
-    DEBUGOUT("Sensor STOP failed:%u \r\n", sensor_id);
+      break;
+    case SL_SENSOR_STOP_FAILED:
+      DEBUGOUT("Sensor STOP failed:%u \r\n", sensor_id);
 
-    break;
-  case SL_SENSOR_DELETED:
-    DEBUGOUT("Sensor deleted:%u \r\n", sensor_id);
-    break;
+      break;
+    case SL_SENSOR_DELETED:
+      DEBUGOUT("Sensor deleted:%u \r\n", sensor_id);
+      break;
 
-  case SL_SENSOR_DELETE_FAILED:
-    DEBUGOUT("Sensor deleted failed:%u \r\n", sensor_id);
-    break;
-  default:
-    break;
-}
+    case SL_SENSOR_DELETE_FAILED:
+      DEBUGOUT("Sensor deleted failed:%u \r\n", sensor_id);
+      break;
+    default:
+      break;
+  }
 }
 #ifndef SH_AWS_ENABLE
 /*******************************************************************************
@@ -807,9 +811,9 @@ void wireless_sleep(void)
 {
   sl_status_t status;
   // Wifi Profile (TA Mode) is set to High Performance.
-  sl_wifi_performance_profile_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
+  sl_wifi_performance_profile_v2_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
 
-  status = sl_wifi_set_performance_profile(&ta_performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
@@ -819,7 +823,7 @@ void wireless_sleep(void)
   ta_performance_profile.profile = DEEP_SLEEP_WITH_RAM_RETENTION;
 
   // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
-  status = sl_wifi_set_performance_profile(&ta_performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);

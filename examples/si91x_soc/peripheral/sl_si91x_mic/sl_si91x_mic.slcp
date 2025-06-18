@@ -7,13 +7,12 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: mic_example.c
 include:
   - path: .
@@ -24,7 +23,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: sl_si91x_mic
     from: wiseconnect3_sdk
@@ -38,6 +37,7 @@ component:
       - i2s0
 other_file:
   - path: resources/readme/setupdiagram.png
+  - path: resources/readme/mic_console_logs.png
 define:
   - name: SYSCALLS_WRITE
 readme:

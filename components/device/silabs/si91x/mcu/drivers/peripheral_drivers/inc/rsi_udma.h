@@ -421,7 +421,7 @@ STATIC INLINE rsi_error_t RSI_UDMA_ChannelIsEnabled(RSI_UDMA_HANDLE_T pHandle, u
  */
 STATIC INLINE void *RSI_UDMA_GetControlBaseAddress(RSI_UDMA_HANDLE_T pHandle)
 {
-  RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
+  const RSI_UDMA_DATACONTEXT_T *pDrv = (const RSI_UDMA_DATACONTEXT_T *)pHandle;
   return ((void *)pDrv->base->CTRL_BASE_PTR);
 }
 
@@ -434,7 +434,7 @@ STATIC INLINE void *RSI_UDMA_GetControlBaseAddress(RSI_UDMA_HANDLE_T pHandle)
  */
 STATIC INLINE void *RSI_UDMA_GetControlAlternateBase(RSI_UDMA_HANDLE_T pHandle)
 {
-  RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
+  const RSI_UDMA_DATACONTEXT_T *pDrv = (const RSI_UDMA_DATACONTEXT_T *)pHandle;
   return ((void *)pDrv->base->ALT_CTRL_BASE_PTR);
 }
 
@@ -504,7 +504,7 @@ STATIC INLINE uint32_t RSI_UDMA_InterruptStatus(RSI_UDMA_HANDLE_T pHandle, uint8
  */
 STATIC INLINE uint8_t RSI_UDMA_GetControllerEnableStatus(RSI_UDMA_HANDLE_T pHandle)
 {
-  RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
+  const RSI_UDMA_DATACONTEXT_T *pDrv = (const RSI_UDMA_DATACONTEXT_T *)pHandle;
   return (pDrv->base->DMA_STATUS_b.MASTER_ENABLE);
 }
 

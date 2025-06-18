@@ -32,6 +32,11 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sl_ip_types.h"
+#include "sl_constants.h"
+
+#if defined(__CC_ARM)
+#pragma anon_unions
+#endif
 
 /** \addtogroup SL_NET_TYPES Types
  * @{ */
@@ -77,18 +82,83 @@ typedef struct {
  *
  * This structure holds the DHCP configuration parameters for the network manager.
  * It includes the minimum and maximum retry intervals for discovery and request,
- * as well as the minimum and maximum number of retries for discovery and request.
+ * as well as the maximum number of retries for discovery and request.
+ *
+ * ## Theory Behind the Retry Interval and Total Time Calculation
+ *
+ * When retrying a request (such as DHCP discovery or request), the retry interval increases exponentially,
+ * starting from the minimum retry interval (e.g., `min_discover_retry_interval` or `min_request_retry_interval`). 
+ * Each successive retry interval doubles, but it is capped by the maximum retry interval 
+ * (e.g., `max_discover_retry_interval` or `max_request_retry_interval`).
+ *
+ * - **Retry Interval Formula**:
+ *   ```c
+ *   R_n = min(max_retry_interval, min_retry_interval × 2^(n-1))
+ *   ```
+ *   Where:
+ *     - `R_n`: Retry interval for the nth attempt.
+ *     - `min_retry_interval`: Starting retry interval (e.g., `min_discover_retry_interval`).
+ *     - `max_retry_interval`: Upper limit for the retry interval (e.g., `max_discover_retry_interval`).
+ *     - `n`: Retry attempt number (1-based index).
+ *
+ * As retries progress, the interval continues to double until it reaches the `max_retry_interval`, 
+ * after which it remains constant.
+ *
+ * - **Total Retry Time Formula**:
+ *   ```c
+ *   T_total = sum(R_n) for n = 1 to N_max
+ *   ```
+ *   Where:
+ *     - `T_total`: Total retry time.
+ *     - `N_max`: Maximum number of retries (e.g., `max_discover_retries` or `max_request_retries`).
+ *
+ * ## Example
+ * Given the following configuration:
+ *   - `min_discover_retry_interval = 5` seconds
+ *   - `max_discover_retry_interval = 100` seconds
+ *   - `max_discover_retries = 10`
+ *
+ * The retry intervals will be:
+ *   `R = [5, 10, 20, 40, 80, 100, 100, 100, 100, 100]`
+ * Total retry time:
+ *   `T_total = 655 seconds`
+ *
+ * ## Reference Implementation
+ * Below is an example implementation to calculate the total retry time based on the retry parameters:
+ * 
+ * ```c
+ * uint16_t calculateTotalRetryTime(uint16_t min_interval, uint16_t max_interval, uint8_t max_retries) {
+ *     uint16_t total_time = 0, interval = min_interval;
+ *     for (uint8_t i = 1; i <= max_retries; i++) {
+ *         total_time += interval;  // Add the current retry interval to the total time
+ *         interval = (interval * 2 > max_interval) ? max_interval : interval * 2;  // Cap interval at max_interval
+ *     }
+ *     return total_time;
+ * }
+ *
+ * // Example usage:
+ * uint16_t total_time = calculateTotalRetryTime(5, 100, 10);
+ * printf("Total Retry Time: %d seconds\n", total_time); // Output: 655 seconds
+ * ```
  * 
  * @note
- * This configuration is not supported for IPv6 in SI91X_INTERNAL_STACK.
+ * - This configuration is not supported for IPv6 in SI91X_INTERNAL_STACK.
+ * - The retry interval formula and total retry time formula apply to both discovery 
+ *   (`min_discover_retry_interval`, `max_discover_retry_interval`, `max_discover_retries`) 
+ *   and request (`min_request_retry_interval`, `max_request_retry_interval`, `max_request_retries`).
+ * - The total wait time is the sum of the total discovery retry time and the total request retry time.
+ * - Moving forward, 'min_discover_retries' member variable will be deprecated. Instead, use the `max_discover_retries`. This is retained for backward compatibility.
  */
 typedef struct {
   uint16_t min_discover_retry_interval; ///< Minimum retry interval for discovery
   uint16_t max_discover_retry_interval; ///< Maximum retry interval for discovery
   uint16_t min_request_retry_interval;  ///< Minimum retry interval for request
   uint16_t max_request_retry_interval;  ///< Maximum retry interval for request
-  uint8_t min_discover_retries;         ///< Minimum number of retries for discovery
-  uint8_t max_request_retries;          ///< Maximum number of retries for request
+  union {
+    uint8_t min_discover_retries; ///< Deprecated. Use `max_discover_retries` instead.
+    uint8_t max_discover_retries; ///< Maximum number of retries for discovery
+  };
+  uint8_t max_request_retries; ///< Maximum number of retries for request
 } sl_net_dhcp_configuration_t;
 
 /// IP configuration for a network interface

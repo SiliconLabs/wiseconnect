@@ -318,7 +318,7 @@ typedef struct _ARM_DRIVER_USART {
   int32_t                (*Send)            (const void *data, uint32_t num);    ///< Pointer to \ref ARM_USART_Send : Start sending data to USART transmitter.
   int32_t                (*Receive)         (const void *data, uint32_t num);    ///< Pointer to \ref ARM_USART_Receive : Start receiving data from USART receiver.
   int32_t                (*Transfer)        (const void *data_out,
-                                                   void *data_in,
+                                             const void *data_in,
                                              uint32_t    num);                   ///< Pointer to \ref ARM_USART_Transfer : Start sending/receiving data to/from USART.
   uint32_t               (*GetTxCount)      (void);                              ///< Pointer to \ref ARM_USART_GetTxCount : Get transmitted data count.
   uint32_t               (*GetRxCount)      (void);                              ///< Pointer to \ref ARM_USART_GetRxCount : Get received data count.

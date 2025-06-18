@@ -624,7 +624,7 @@ rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, ui
   FCW   = (float)Fdco / (float)fref;
   M     = (uint16_t)FCW;
   frac  = (FCW - M);
-  FCW_F = (uint16_t)(frac * pow(2, 14));
+  FCW_F = (uint16_t)(frac * (1 << 14));
   if (Fdco == I2S_DCO_FREQ1) {
     FCW_F = (FCW_F + 1);
   }
@@ -1375,7 +1375,6 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
                                 uint32_t divFactor)
 {
   rsi_error_t errorCode = RSI_OK;
-
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > QSPI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
@@ -1383,7 +1382,6 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
 
   /*disabling the clocks*/
   clk_peripheral_clk_disable(pCLK, QSPI_CLK);
-
   /*Select clock MUX*/
   switch (clkSource) {
     case QSPI_ULPREFCLK:
@@ -1427,7 +1425,6 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
       errorCode = INVALID_PARAMETERS;
       break;
   }
-
   if (errorCode == RSI_OK) {
     /*wait for QSPI clock switched */
     while ((pCLK->PLL_STAT_REG_b.QSPI_CLK_SWITCHED) != true)
@@ -1442,7 +1439,6 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
     pCLK->CLK_CONFIG_REG2_b.QSPI_ODD_DIV_SEL     = OddDivEn ? ENABLE : DISABLE;
   }
   clk_peripheral_clk_enable(pCLK, QSPI_CLK, ENABLE_STATIC_CLK);
-
   return errorCode;
 }
 #if defined(SLI_SI917B0) || defined(SLI_SI915)
@@ -2818,33 +2814,28 @@ rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T c
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-
   switch (clkSource) {
     case ULP_MHZ_RC_BYP_CLK:
       MCU_FSM->MCU_FSM_REF_CLK_REG_b.M4SS_REF_CLK_SEL = clkSource;
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.byp_rc_ref_clock;
       break;
-
     case ULP_MHZ_RC_CLK:
       MCU_FSM->MCU_FSM_REF_CLK_REG_b.M4SS_REF_CLK_SEL = clkSource;
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.rc_mhz_clock;
       break;
-
     case EXT_40MHZ_CLK:
       MCU_FSM->MCU_FSM_REF_CLK_REG_b.M4SS_REF_CLK_SEL = clkSource;
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.rf_ref_clock;
       break;
-
     case MEMS_REF_CLK:
       TASS_PLL_CTRL_SET_REG(AFEPLLCTRLREG1)           = MEMS_REF_CLK_ENABLE;
       MCU_FSM->MCU_FSM_REF_CLK_REG_b.M4SS_REF_CLK_SEL = clkSource;
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.mems_ref_clock;
       break;
-
     case ULP_20MHZ_RINGOSC_CLK:
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
@@ -2852,7 +2843,6 @@ rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T c
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.ro_20mhz_clock;
       break;
-
     case ULP_DOUBLER_CLK:
       /*6: ulp_doubler_clk*/
       /*Enable clock*/
@@ -2861,15 +2851,12 @@ rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T c
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.doubler_clock;
       break;
-
     default:
       return INVALID_PARAMETERS;
   }
-
   /*wait for clock switched*/
   while ((pCLK->PLL_STAT_REG_b.ULP_REF_CLK_SWITCHED) != true)
     ;
-
   return RSI_OK;
 }
 

@@ -721,3 +721,5 @@ The HTTPs server configuration for Apache requires the Wamp server. If you have 
       ![Access the page and resources in HTTPS](resources/readme/image419.png)
 
     > **Note:** Make sure to check your HTTPS server from other local machines present in the same network. It should be accessible.
+
+    > **NOTE :** Support for the SNI extension has been added to the AWS SDK, ensuring it is set by the client when connecting to an AWS server using TLS 1.3. This is handled internally by the AWS SDK and does not affect compatibility with other TLS versions.

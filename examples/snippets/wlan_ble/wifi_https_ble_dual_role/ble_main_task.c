@@ -77,7 +77,7 @@ static uint8_t central_conn_id                             = 0xff;
 static uint8_t peripheral_conn_id                          = 0xff;
 static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 extern osMutexId_t power_cmd_mutex;
 extern bool powersave_cmd_given;
 #endif
@@ -1822,7 +1822,7 @@ static int32_t rsi_ble_dual_role(void)
   change_scan_param.scan_win      = LE_SCAN_WINDOW;   //! scan window 13.375ms
   change_scan_param.own_addr_type = LE_PUBLIC_ADDRESS;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
   if (!powersave_cmd_given) {
     status = rsi_initiate_power_save();

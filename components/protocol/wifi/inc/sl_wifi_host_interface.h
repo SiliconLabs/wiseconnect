@@ -35,6 +35,7 @@
 #include "sl_common.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include "sl_wifi_types.h"
 
 /** \addtogroup SL_WIFI_TYPES
   * @{ */
@@ -49,20 +50,6 @@ typedef enum {
   SL_WIFI_CONTROL_BUFFER,     ///< Buffer for sending command to NWP
   SL_WIFI_SCAN_RESULT_BUFFER, ///< Buffer for storing scan results
 } sl_wifi_buffer_type_t;
-
-/**
- * @struct sl_wifi_buffer_t
- * @brief Structure representing a Wi-Fi buffer.
- */
-typedef struct {
-  sl_slist_node_t node; ///< Pointer to the node of the list of which the buffer is part of
-  uint32_t length;      ///< Size of the buffer in bytes
-  uint8_t
-    type; ///< Indicates the buffer type (SL_WIFI_TX_FRAME_BUFFER, SL_WIFI_RX_FRAME_BUFFER, and so on) corresponding to the buffer.
-  uint8_t id;           ///< Buffer identifier. Can be used to uniquely identify a buffer. Loops every 256 packets.
-  uint8_t _reserved[2]; ///< Reserved.
-  uint8_t data[];       ///< Stores the data (header + payload) to be sent to NWP.
-} sl_wifi_buffer_t;
 
 /**
  * @struct sl_wifi_buffer_configuration_t

@@ -91,6 +91,19 @@ extern "C" {
 #define SL_SI91X_MIC_ENABLE_PORT RTE_MIC_ENABLE_PORT
 #define SL_SI91X_MIC_ENABLE_PIN  SL_MIC_ENABLE_PIN
 
+// <<< Use Configuration Wizard in Context Menu >>>
+// <e>MIC UC Configuration
+// <i> Default: 0
+#define MIC_UC 0
+
+// <o SL_MIC_DATA_SIZE> MIC Data size
+//   <16=> 16 bit
+//   <32=> 32 bit
+// <i> Default: 16
+#define SL_MIC_DATA_SIZE 16
+
+// </e>
+
 #ifdef __cplusplus
 }
 #endif

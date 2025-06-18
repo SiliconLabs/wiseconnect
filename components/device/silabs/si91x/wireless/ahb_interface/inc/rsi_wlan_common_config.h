@@ -284,12 +284,12 @@
 #define RSI_WLAN_CONFIG_ENABLE RSI_ENABLE
 #endif
 
-#ifndef CONFIG_RTSTHRESHOLD
-#define CONFIG_RTSTHRESHOLD 1
+#ifndef SLI_CONFIG_RTSTHRESHOLD
+#define SLI_CONFIG_RTSTHRESHOLD 1
 #endif
 
-#ifndef RSI_RTS_THRESHOLD
-#define RSI_RTS_THRESHOLD 2346
+#ifndef SLI_RTS_THRESHOLD
+#define SLI_RTS_THRESHOLD 2346
 #endif
 
 /*=======================================================================*/

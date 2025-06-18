@@ -47,98 +47,87 @@
 #endif // UNUSED_PARAMETER
 
 /**
- * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_TIME_PERIOD  RSI:RS1xxxx TIME PERIOD 
- *  @{
- *
- */
+  * \ingroup   RSI_SPECIFIC_DRIVERS
+  * \defgroup RSI_TIME_PERIOD  RSI:RS1xxxx TIME PERIOD 
+  *  @{
+  *
+  */
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
- *                                    uint32_t u32TimePeriodRefClk,
- *                                    uint32_t u32XtalSettle,
- *                                    uint16_t u16RcClkCnt,
- *                                    boolean_t bPeriodicCalibEn,
- *                                    uint8_t u8PeriodicCalibRate,
- *                                    boolean_t bTemperatureCalibEn,
- *                                    uint8_t u8TemperatureVal,
- *                                    uint8_t u8AverageFactor)
- * @brief     This API is calibrate the RC
- * @param[in] pstcTimePeriod       : pointer to the timperiod calibration registration instance
- * @param[in] u32TimePeriodRefClk  : timeperiod of reference clk with each bit corresponding to 10ps granularity
- * @param[in] u32XtalSettle        : no of 32khz clocks for xtal 40mhz clk to settle
- * @param[in] u16RcClkCnt          : 2^no_of_rc_clocks = no of rc clocks used in calibration
- * @param[in] bPeriodicCalibEn     : to enable the periodic calibration
- *            1 : periodic calibration mode enable
- *            0 : periodic calibration mode disable
- * @param[in] u8PeriodicCalibRate : periodic calibration rate
- *            0 : Every 30 secs
- *            1 : every 15 secs,
- *            2 : every 10 secs,
- *            3 : every 5  secs
- * @param[in] bTemperatureCalibEn : to enable the temperature based calibration
- *            1 : Temperature based calibration enable
- *            0 : Temperature based calibration disable
- * @param[in] u8TemperatureVal : maximum temperature change after which rc calibration must be trigger
- *            default 5 : 5 Degree C.
- * @param[in] u8AverageFactor : average factor
- * @return    RSI_OK on success
- *            Error code on failure
- */
+  * @fn        rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+  *                                    const rsi_timeperiod_calib_config_t rc_calib_config)
+  * @brief     This API is calibrate the RC
+  * @param[in] pstcTimePeriod       : pointer to the timeperiod calibration registration instance
+  * @param[in] rc_calib_config      : Pointer to calibration configuration structure (rsi_timeperiod_calib_config_t)
+  *            u32TimePeriodRefClk  : timeperiod of reference clk with each bit corresponding to 10ps granularity
+  *            u32XtalSettle        : no of 32khz clocks for xtal 40mhz clk to settle
+  *            u16ClkCnt            : 2^no_of_rc_clocks = no of rc clocks used in calibration
+  *            bPeriodicCalibEn     : to enable the periodic calibration
+  *              1 : periodic calibration mode enable
+  *              0 : periodic calibration mode disable
+  *            u8PeriodicCalibRate : periodic calibration rate
+  *              0 : Every 30 secs
+  *              1 : every 15 secs,
+  *              2 : every 10 secs,
+  *              3 : every 5  secs
+  *            bTemperatureCalibEn : to enable the temperature based calibration
+  *              1 : Temperature based calibration enable
+  *              0 : Temperature based calibration disable
+  *            u8TemperatureVal : maximum temperature change after which rc calibration must be trigger
+  *              default 5 : 5 Degree C.
+  *            u8AverageFactor : average factor
+  * @return    RSI_OK on success
+  *            Error code on failure
+  */
 
 rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                         uint32_t u32TimePeriodRefClk,
-                                         uint32_t u32XtalSettle,
-                                         uint16_t u16RcClkCnt,
-                                         boolean_t bPeriodicCalibEn,
-                                         uint8_t u8PeriodicCalibRate,
-                                         boolean_t bTemperatureCalibEn,
-                                         uint8_t u8TemperatureVal,
-                                         uint8_t u8AverageFactor)
+                                         const rsi_timeperiod_calib_config_t *rc_calib_config)
 {
   /*Parameter validation*/
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
   }
   /*Refernce clock time period*/
-  pstcTimePeriod->MCU_CAL_REF_CLK_TIEMPERIOD_REG_b.TIMEPERIOD_REF_CLK = (unsigned int)(u32TimePeriodRefClk & 0x0FFFFFF);
+  pstcTimePeriod->MCU_CAL_REF_CLK_TIEMPERIOD_REG_b.TIMEPERIOD_REF_CLK =
+    (unsigned int)(rc_calib_config->u32TimePeriodRefClk & 0x0FFFFFF);
   /*Clock settling time configuration */
-  pstcTimePeriod->MCU_CAL_REF_CLK_SETTLE_REG_b.XTAL_SETTLE = (unsigned int)(u32XtalSettle & 0x07);
+  pstcTimePeriod->MCU_CAL_REF_CLK_SETTLE_REG_b.XTAL_SETTLE = (unsigned int)(rc_calib_config->u32XtalSettle & 0x07);
   /*RC Calib MUX select*/
   pstcTimePeriod->MCU_CAL_START_REG_b.RC_XTAL_MUX_SEL = 0;
   /*Enable the RC calib*/
   pstcTimePeriod->MCU_CAL_START_REG_b.START_CALIB_RC = 1;
   /*average factor */
-  pstcTimePeriod->MCU_CAL_START_REG_b.ALPHA_RC = (unsigned int)(u8AverageFactor & 0x03);
+  pstcTimePeriod->MCU_CAL_START_REG_b.ALPHA_RC = (unsigned int)(rc_calib_config->u8AverageFactor & 0x03);
   /*Number of clock required for calibration */
-  pstcTimePeriod->MCU_CAL_START_REG_b.NO_OF_RC_CLKS = (unsigned int)(u16RcClkCnt & 0x03);
+  pstcTimePeriod->MCU_CAL_START_REG_b.NO_OF_RC_CLKS = (unsigned int)(rc_calib_config->u16ClkCnt & 0x03);
 
   /*Periodic calibration is selected */
-  if (bPeriodicCalibEn) {
+  if (rc_calib_config->bPeriodicCalibEn) {
     /*Periodic calibration enable*/
     pstcTimePeriod->MCU_CAL_START_REG_b.PERIODIC_RC_CALIB_EN = 1;
     /*Update periodic rate at which calibration has to happen */
-    pstcTimePeriod->MCU_CAL_START_REG_b.RC_TRIGGER_TIME_SEL = (unsigned int)(u8PeriodicCalibRate & 0x03);
+    pstcTimePeriod->MCU_CAL_START_REG_b.RC_TRIGGER_TIME_SEL =
+      (unsigned int)(rc_calib_config->u8PeriodicCalibRate & 0x03);
   }
 
   /*Periodic calibration is selected */
-  if (bTemperatureCalibEn) {
+  if (rc_calib_config->bTemperatureCalibEn) {
     /*Enable tempearature based calibrarion */
     pstcTimePeriod->MCU_CAL_TEMP_PROG_REG_b.PERIODIC_TEMP_CALIB_EN = 1;
     /*Update at which temperature calibration has to happen*/
-    pstcTimePeriod->MCU_CAL_TEMP_PROG_REG_b.MAX_TEMP_CHANGE = (unsigned int)(u8TemperatureVal & 0x03);
+    pstcTimePeriod->MCU_CAL_TEMP_PROG_REG_b.MAX_TEMP_CHANGE = (unsigned int)(rc_calib_config->u8TemperatureVal & 0x03);
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
- * @brief     This API is used to read calibrated timeperiod of RC
- * @param[in] pstcTimePeriod is pointer to the timperiod calibration registration instance
- * @return    Returns the time period on success
- */
+  * @fn        uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
+  * @brief     This API is used to read calibrated timeperiod of RC
+  * @param[in] pstcTimePeriod is pointer to the timperiod calibration registration instance
+  * @return    Returns the time period on success
+  */
 uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
 {
   if (pstcTimePeriod == NULL) {
@@ -153,11 +142,11 @@ uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePe
 
 /*==============================================*/
 /**
- * @fn        uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
- * @brief     This API is used to read calibrated timeperiod of RO
- * @param[in] pstcTimePeriod : pointer to the timperiod calibration registration instance
- * @return    Returns the time period on success
- */
+  * @fn        uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
+  * @brief     This API is used to read calibrated timeperiod of RO
+  * @param[in] pstcTimePeriod : pointer to the timperiod calibration registration instance
+  * @return    Returns the time period on success
+  */
 
 uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
 {
@@ -173,120 +162,105 @@ uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePe
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
- *                                           uint32_t u32TimePeriodRefClk,
- *                                           uint32_t u32XtalSettle,
- *                                           uint16_t u16RcClkCnt,
- *                                           boolean_t bPeriodicCalibEn,
- *                                           uint8_t u8PeriodicCalibRate,
- *                                           boolean_t bTemperatureCalibEn,
- *                                           uint8_t u8TemperatureVal,
- *                                           uint8_t u8AverageFactor)
- * @brief      This API is calibrate the External 32KHz oscilator
- * @param[in]  pstcTimePeriod      : pointer to the timperiod calibration registration instance
- * @param[in]  u32TimePeriodRefClk : timeperiod of reference clk with each bit corresponding to 10ps granularity
- * @param[in]  u32XtalSettle       : no of 32khz clocks for xtal 40mhz clk to settle
- * @param[in]  u16RcClkCnt         : 2^no_of_rc_clocks = no of rc clocks used in calibration
- * @param[in]  bPeriodicCalibEn    : to enable the periodic calibration
- *             1 : periodic calibration mode enable
- *             0 : periodic calibration mode disable
- * @param[in]  u8PeriodicCalibRate : periodic calibration rate
- *             0 : Every 30secs
- *             1 : every 15 secs,
- *             2 : every 10 secs,
- *             3 : every 5 secs
- * @param[in]  bTemperatureCalibEn : to enable the temperature based calibration
- *             1 : Temperature based calibration enable
- *             0 : Temperature based calibration disable
- * @param[in]  u8TemperatureVal : maximum temperature change after which rc calibration must be trigger
- *             default 5 : 5 Degree C.
- * @param[in]  u8AverageFactor : average factor
- * @return     RSI_OK on success
- */
+  * @fn        rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+  *                                           const rsi_timeperiod_calib_config_t *xtal32khz_calib_config)
+  * @brief      This API is calibrate the External 32KHz oscilator
+  * @param[in]  pstcTimePeriod         : pointer to the timperiod calibration registration instance
+  * @param[in]  xtal32khz_calib_config : Pointer to calibration configuration structure (rsi_timeperiod_calib_config_t)
+  *             u32TimePeriodRefClk : timeperiod of reference clk with each bit corresponding to 10ps granularity
+  *             u32XtalSettle       : Not used
+  *             u16ClkCnt           : 2^no_of_rc_clocks = no of rc clocks used in calibration
+  *             bPeriodicCalibEn    : to enable the periodic calibration
+  *              1 : periodic calibration mode enable
+  *              0 : periodic calibration mode disable
+  *             u8PeriodicCalibRate : periodic calibration rate
+  *              0 : Every 30secs
+  *              1 : every 15 secs,
+  *              2 : every 10 secs,
+  *              3 : every 5 secs
+  *             bTemperatureCalibEn : to enable the temperature based calibration
+  *              1 : Temperature based calibration enable
+  *              0 : Temperature based calibration disable
+  *             u8TemperatureVal : maximum temperature change after which rc calibration must be trigger
+  *              default 5 : 5 Degree C.
+  *             u8AverageFactor : average factor
+  * @return     RSI_OK on success
+  */
 
 rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                                uint32_t u32TimePeriodRefClk,
-                                                uint32_t u32XtalSettle,
-                                                uint16_t u16RcClkCnt,
-                                                boolean_t bPeriodicCalibEn,
-                                                uint8_t u8PeriodicCalibRate,
-                                                boolean_t bTemperatureCalibEn,
-                                                uint8_t u8TemperatureVal,
-                                                uint8_t u8AverageFactor)
+                                                const rsi_timeperiod_calib_config_t *xtal32khz_calib_config)
 
 {
-  UNUSED_PARAMETER(u32XtalSettle);
+  UNUSED_PARAMETER(xtal32khz_calib_config->u32XtalSettle);
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
   }
-  pstcTimePeriod->MCU_CAL_REF_CLK_TIEMPERIOD_REG_b.TIMEPERIOD_REF_CLK = (unsigned int)(u32TimePeriodRefClk & 0x0FFFFFF);
-  pstcTimePeriod->MCU_CAL_START_REG_b.ALPHA_RC                        = (unsigned int)(u8AverageFactor & 0x07);
-  pstcTimePeriod->MCU_CAL_START_REG_b.NO_OF_RC_CLKS                   = (unsigned int)(u16RcClkCnt & 0x07);
-  pstcTimePeriod->MCU_CAL_START_REG_b.RC_XTAL_MUX_SEL                 = 1;
-  pstcTimePeriod->MCU_CAL_START_REG_b.START_CALIB_RC                  = 1;
+  pstcTimePeriod->MCU_CAL_REF_CLK_TIEMPERIOD_REG_b.TIMEPERIOD_REF_CLK =
+    (unsigned int)(xtal32khz_calib_config->u32TimePeriodRefClk & 0x0FFFFFF);
+  pstcTimePeriod->MCU_CAL_START_REG_b.ALPHA_RC        = (unsigned int)(xtal32khz_calib_config->u8AverageFactor & 0x07);
+  pstcTimePeriod->MCU_CAL_START_REG_b.NO_OF_RC_CLKS   = (unsigned int)(xtal32khz_calib_config->u16ClkCnt & 0x07);
+  pstcTimePeriod->MCU_CAL_START_REG_b.RC_XTAL_MUX_SEL = 1;
+  pstcTimePeriod->MCU_CAL_START_REG_b.START_CALIB_RC  = 1;
 
   /*Periodic calibration is selected */
-  if (bPeriodicCalibEn) {
+  if (xtal32khz_calib_config->bPeriodicCalibEn) {
     /*Periodic calibration enable*/
     pstcTimePeriod->MCU_CAL_START_REG_b.PERIODIC_RC_CALIB_EN = 1;
     /*Update periodic rate at which calibration has to happen */
-    pstcTimePeriod->MCU_CAL_START_REG_b.RC_TRIGGER_TIME_SEL = (unsigned int)(u8PeriodicCalibRate & 0x07);
+    pstcTimePeriod->MCU_CAL_START_REG_b.RC_TRIGGER_TIME_SEL =
+      (unsigned int)(xtal32khz_calib_config->u8PeriodicCalibRate & 0x07);
   }
   /*Periodic calibration is selected */
-  if (bTemperatureCalibEn) {
+  if (xtal32khz_calib_config->bTemperatureCalibEn) {
     /*Enable tempearature based calibrarion */
     pstcTimePeriod->MCU_CAL_TEMP_PROG_REG_b.PERIODIC_TEMP_CALIB_EN = 1;
     /*Update at which temperature calibration has to happen*/
-    pstcTimePeriod->MCU_CAL_TEMP_PROG_REG_b.MAX_TEMP_CHANGE = (unsigned int)(u8TemperatureVal & 0x1F);
+    pstcTimePeriod->MCU_CAL_TEMP_PROG_REG_b.MAX_TEMP_CHANGE =
+      (unsigned int)(xtal32khz_calib_config->u8TemperatureVal & 0x1F);
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
- *                                    uint8_t u8RefClkSrc,
- *                                    uint32_t u32XtalSettle,
- *                                    uint16_t u16RoClkCnt,
- *                                    boolean_t bPeriodicCalibEn,
- *                                    uint8_t u8PeriodicCalibRate,
- *                                    uint8_t u8AverageFactor)
- * @brief      This API is calibrate the RO
- * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
- * @param[in]  u8RefClkSrc    : clock source selection
- *             0 - RC clock calibration happens
- *             1 - XTAL 32khz clock timeperiod calibration occurs with reference clock as 40mhz xtal
- *             This should not be changed in the middle of process. Must be changed only once.
- * @param[in]  u32XtalSettle    : no of clocks of RO for the RC clk to settle when enabled
- * @param[in]  u16RoClkCnt      : 2^no_of_ro_clks no of clocks of ro clock counts for no of rc clocks in that time to measure timeperiod
- * @param[in]  bPeriodicCalibEn : to enable the periodic calibration
- *             1 : periodic calibration mode enable
- *             0 : periodic calibration mode disable
- * @param[in]  u8PeriodicCalibRate : periodic calibration duration
- *             3 : 8 times in a second
- *             2 : 4 times in a second
- *             1 : 2 times in a second
- *             0 : 1 time in a second
- * @param[in]  u8AverageFactor : average factor
- * @return     RSI_OK on success
- *             Error code on failure
- */
+  * @fn         rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+  *                                    const rsi_timeperiod_calib_config_t *ro_calib_config)
+  * @brief      This API is calibrate the RO
+  * @param[in]  pstcTimePeriod  : pointer to the timperiod calibration registration instance
+  * @param[in]  ro_calib_config : Pointer to calibration configuration structure (rsi_timeperiod_calib_config_t)
+  *             u32TimePeriodRefClk    : clock source selection
+  *              0 - RC clock calibration happens
+  *              1 - XTAL 32khz clock timeperiod calibration occurs with reference clock as 40mhz xtal
+  *             This should not be changed in the middle of process. Must be changed only once.
+  *             u32XtalSettle    : no of clocks of RO for the RC clk to settle when enabled
+  *             u16ClkCnt        : 2^no_of_ro_clks no of clocks of ro clock counts for no of rc clocks in that time to measure timeperiod
+  *             bPeriodicCalibEn : to enable the periodic calibration
+  *              1 : periodic calibration mode enable
+  *              0 : periodic calibration mode disable
+  *             u8PeriodicCalibRate : periodic calibration duration
+  *              3 : 8 times in a second
+  *              2 : 4 times in a second
+  *              1 : 2 times in a second
+  *              0 : 1 time in a second
+  *             bTemperatureCalibEn : Not used
+  *             u8TemperatureVal : Not used
+  *             u8AverageFactor : average factor
+  * @return     RSI_OK on success
+  *             Error code on failure
+  */
 
 rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                         uint8_t u8RefClkSrc,
-                                         uint32_t u32XtalSettle,
-                                         uint16_t u16RoClkCnt,
-                                         boolean_t bPeriodicCalibEn,
-                                         uint8_t u8PeriodicCalibRate,
-                                         uint8_t u8AverageFactor
-
-)
+                                         const rsi_timeperiod_calib_config_t *ro_calib_config)
 {
   uint32_t u32ValidTimePeriodRc = 0;
 
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
   }
+
+  // Temperature based in not applicable
+  UNUSED_PARAMETER(ro_calib_config->bTemperatureCalibEn);
+  UNUSED_PARAMETER(ro_calib_config->u8TemperatureVal);
 
   /*Check RC calibration is done or not */
   u32ValidTimePeriodRc = RSI_TIMEPERIOD_RCCalibTimePeriodRead(pstcTimePeriod);
@@ -297,23 +271,24 @@ rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
     return ERROR_TIME_PERIOD_RC_CALIB_NOT_DONE;
   }
   /*Xtal 32Khz clock is used for calibration */
-  if (u8RefClkSrc) {
+  if (ro_calib_config->u32TimePeriodRefClk) {
     pstcTimePeriod->MCU_CAL_START_REG_b.RC_XTAL_MUX_SEL = 1;
   }
   /*RC 32Khz clock is used for calibration */
   else {
     pstcTimePeriod->MCU_CAL_START_REG_b.RC_XTAL_MUX_SEL = 0;
   }
-  pstcTimePeriod->MCU_CAL_START_REG_b.NO_OF_RO_CLKS  = (unsigned int)(u16RoClkCnt & 0x0F);
+  pstcTimePeriod->MCU_CAL_START_REG_b.NO_OF_RO_CLKS  = (unsigned int)(ro_calib_config->u16ClkCnt & 0x0F);
   pstcTimePeriod->MCU_CAL_START_REG_b.START_CALIB_RO = 1;
-  pstcTimePeriod->MCU_CAL_START_REG_b.ALPHA_RO       = (unsigned int)(u8AverageFactor & 0x07);
-  pstcTimePeriod->MCU_CAL_START_REG_b.RC_SETTLE_TIME = (unsigned int)(u32XtalSettle & 0x07);
+  pstcTimePeriod->MCU_CAL_START_REG_b.ALPHA_RO       = (unsigned int)(ro_calib_config->u8AverageFactor & 0x07);
+  pstcTimePeriod->MCU_CAL_START_REG_b.RC_SETTLE_TIME = (unsigned int)(ro_calib_config->u32XtalSettle & 0x07);
   /*Periodic calibration is selected */
-  if (bPeriodicCalibEn) {
+  if (ro_calib_config->bPeriodicCalibEn) {
     /*Periodic calibration enable*/
     pstcTimePeriod->MCU_CAL_START_REG_b.PERIODIC_RO_CALIB_EN = 1;
     /*Update periodic rate at which calibration has to happen */
-    pstcTimePeriod->MCU_CAL_START_REG_b.RO_TRIGGER_TIME_SEL = (unsigned int)(u8PeriodicCalibRate & 0x03);
+    pstcTimePeriod->MCU_CAL_START_REG_b.RO_TRIGGER_TIME_SEL =
+      (unsigned int)(ro_calib_config->u8PeriodicCalibRate & 0x03);
   } else {
     /*Periodic calibration enable*/
     pstcTimePeriod->MCU_CAL_START_REG_b.PERIODIC_RO_CALIB_EN = 0;
@@ -323,17 +298,18 @@ rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
- * @brief     This API is select the RTC clock
- * @param[in] pstcTimePeriod is pointer to the timperiod calibration registration instance
- * @param[in] u32TimePeriod is RTC time period in pico seconds as 32Khz as reference
- * @return    RSI_OK on success
- *            Error code on failure
- */
+  * @fn        rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
+  * @brief     This API is select the RTC clock
+  * @param[in] pstcTimePeriod is pointer to the timperiod calibration registration instance
+  * @param[in] u32TimePeriod is RTC time period in pico seconds as 32Khz as reference
+  * @return    RSI_OK on success
+  *            Error code on failure
+  */
 
 rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
 {
-  uint32_t rtc_time_period = 0, clock_type = 0;
+  uint32_t rtc_time_period = 0;
+  uint32_t clock_type      = 0;
 
   UNUSED_PARAMETER(u32TimePeriod);
   /*Check for the NULL parameter*/
@@ -360,14 +336,14 @@ rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_
 
 /*==============================================*/
 /**
- * @fn         rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
- * @brief      This API is select the low power trigger
- * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
- * @param[in]  bEn 1: seperate counter runs based 2^15 clocks of 32KHz clock = 1sec
- *                 0: rtc runs and triggers are generated based on rtc
- * @return     RSI_OK  on success
- *             Error code on failure
- */
+  * @fn         rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
+  * @brief      This API is select the low power trigger
+  * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
+  * @param[in]  bEn 1: seperate counter runs based 2^15 clocks of 32KHz clock = 1sec
+  *                 0: rtc runs and triggers are generated based on rtc
+  * @return     RSI_OK  on success
+  *             Error code on failure
+  */
 
 rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
 {
@@ -380,19 +356,19 @@ rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boo
 
 /*==============================================*/
 /**
- * @fn         rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
- * @brief      This API is select the vbat trigger selection
- * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
- * @param[in]  u8Time : time period
- *             0 : Every minute
- *             1 : Every 30secs
- *             2 : every 15 secs,
- *             3 : every 10 secs,
- *             4 : every 5 secs
- *             5 : every second
- * @return    RSI_OK  on success
- *            Error code on failure
- */
+  * @fn         rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
+  * @brief      This API is select the vbat trigger selection
+  * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
+  * @param[in]  u8Time : time period
+  *             0 : Every minute
+  *             1 : Every 30secs
+  *             2 : every 15 secs,
+  *             3 : every 10 secs,
+  *             4 : every 5 secs
+  *             5 : every second
+  * @return    RSI_OK  on success
+  *            Error code on failure
+  */
 
 rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
 {
@@ -404,6 +380,6 @@ rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t
 }
 
 /*
- * @}
- */
+  * @}
+  */
 /*End of file not truncated */

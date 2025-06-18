@@ -34,18 +34,20 @@
 #include "sl_status.h"
 #include "sl_constants.h"
 #include <stdbool.h>
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
+#endif /* SL_COMPONENT_CATALOG_PRESENT */
 #include "sl_board_configuration.h"
 #include "rsi_rom_clks.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "cmsis_os2.h"
-#include "FreeRTOSConfig.h"
+#include "sl_si91x_os.h"
 #endif
 
 sl_status_t sli_si91x_submit_rx_pkt(void);
 void sl_board_enable_vcom(void);
-sl_status_t si91x_bootup_firmware(const uint8_t select_option);
+sl_status_t sli_si91x_bootup_firmware(const uint8_t select_option, uint8_t image_number);
 
 void sli_si91x_platform_init(void)
 {
@@ -59,8 +61,8 @@ void sli_si91x_platform_init(void)
   CoreDebug->DEMCR |= 0x01000000;
   DWT->CTRL |= 0x1;
 
-#if (configUSE_TICKLESS_IDLE == 0)
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
+#if (SL_SI91X_TICKLESS_MODE == 0)
+  SysTick_Config(SystemCoreClock / SL_OS_SYSTEM_TICK_RATE);
   // Set P2P Intr priority
   NVIC_SetPriority(SysTick_IRQn, SYSTICK_INTR_PRI);
 #endif
@@ -75,7 +77,7 @@ void sl_board_enable_vcom(void)
   //empty function
 }
 
-sl_status_t si91x_bootup_firmware(const uint8_t select_option)
+sl_status_t sli_si91x_bootup_firmware(const uint8_t select_option, uint8_t image_number)
 {
   uint8_t skip_bootload_sequence = 0;
   si91x_status_t retval          = RSI_ERROR_NONE;
@@ -95,11 +97,11 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
         break;
       }
       if ((retval < 0) && (retval != RSI_ERROR_WAITING_FOR_BOARD_READY) && (retval != RSI_ERROR_IN_OS_OPERATION)) {
-        return convert_si91x_status_to_sl_status(retval);
+        return sli_convert_si91x_status_to_sl_status(retval);
       }
     } while ((retval == RSI_ERROR_WAITING_FOR_BOARD_READY) || (retval == RSI_ERROR_IN_OS_OPERATION));
-    retval = rsi_select_option(select_option);
-    VERIFY_STATUS_AND_RETURN(convert_si91x_status_to_sl_status(retval));
+    retval = rsi_select_option(select_option, image_number);
+    VERIFY_STATUS_AND_RETURN(sli_convert_si91x_status_to_sl_status(retval));
   }
 
   // Update TX & RX DMA descriptor address

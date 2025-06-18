@@ -8,19 +8,18 @@ quality: production
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: app.c
   - path: app.h
   - path: si70xx_example.c
   - path: si70xx_example.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: syscalls
     from: wiseconnect3_sdk
   - id: si91x_memory_default_config
@@ -56,6 +55,6 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -1,0 +1,116 @@
+upgrade:
+  - sdk:
+      id: wiseconnect3_sdk
+      version: "3.5.0"
+    component:
+      - trigger: debug_ulp_component
+        description: >
+                                
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: comparator_ulp_component
+        description: >
+                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: dac_ulp_component
+        description: >
+                  
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: timer_ulp_component
+        description: >
+                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: calender_ulp_component
+        description: >
+                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: bod_ulp_component
+        description: >
+                      
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: adc_ulp_component
+        description: >
+                       
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: cts_ulp_component
+        description: >
+                      
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: dma_ulp_component
+        description: >
+                          
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: gpio_npss_component
+        description: >
+                                
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: gpio_ulp_component
+        description: >
+                               
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: i2c_ulp_component
+        description: >
+                             
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: i2s_ulp_component
+        description: >
+                             
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: wdt_ulp_component
+        description: >
+                               
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: usart_ulp_component
+        description: >
+                                    
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: sysrtc_ulp_component
+        description: >
+                                
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: user_files
+        description: >
+                                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: ssi_ulp_component
+        description: >
+                                 
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - script: upgrade_script.lua
+        description: >
+                          

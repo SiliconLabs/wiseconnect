@@ -36,13 +36,13 @@
  */
 /*==============================================*/
 /**
- * @fn           void RSI_WWDT_Init(MCU_WDT_Type *pstcWDT)
+ * @fn           void RSI_WWDT_Init(const MCU_WDT_Type *pstcWDT)
  * @brief        This API is used to initialize the Watch dog timer
  * @param[in]    pstcWDT : pointer to the WDT register instance
  * @return       none
  */
 
-void RSI_WWDT_Init(MCU_WDT_Type *pstcWDT)
+void RSI_WWDT_Init(const MCU_WDT_Type *pstcWDT)
 {
   UNUSED_PARAMETER(pstcWDT);
   RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUWDT | SLPSS_PWRGATE_ULP_TIMEPERIOD);

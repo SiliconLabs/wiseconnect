@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_net_ping.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_net_ping.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 #include "sl_status.h"
 #include "sl_constants.h"
 #include "sl_net_ping.h"
@@ -23,13 +35,14 @@
 /******************************************************
  *                      Macros
  ******************************************************/
-// This macro must be used while sending ping timeout in sl_si91x_ping_request_t
-#define CONVERT_TO_SI91X_PING_TIMEOUT(timeout) (timeout / 100)
+
+// This macro must be used while sending ping timeout in sli_si91x_ping_request_t
+#define SLI_CONVERT_TO_SI91X_PING_TIMEOUT(timeout) (timeout / 100)
 
 /******************************************************
  *                    Constants
  ******************************************************/
-#define PING_RESPONSE_TIMEOUT_MS 1000 // timeout in ms
+#define SLI_PING_RESPONSE_TIMEOUT_MS 1000 // timeout in ms
 
 /******************************************************
  *               Static Function Declarations
@@ -50,8 +63,8 @@ extern bool device_initialized;
 
 sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_size)
 {
-  sl_status_t status              = SL_STATUS_OK;
-  sl_si91x_ping_request_t request = { 0 };
+  sl_status_t status               = SL_STATUS_OK;
+  sli_si91x_ping_request_t request = { 0 };
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -69,16 +82,16 @@ sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_size)
     memcpy(&request.ping_address.ipv4_address, &ip_address.ip.v4, SL_IPV4_ADDRESS_LENGTH); // Copy IPv4 address
   }
 
-  request.ping_size = ping_size;                                               // Copy Ping size
-  request.timeout   = CONVERT_TO_SI91X_PING_TIMEOUT(PING_RESPONSE_TIMEOUT_MS); // Copy Ping timeout
+  request.ping_size = ping_size;                                                       // Copy Ping size
+  request.timeout   = SLI_CONVERT_TO_SI91X_PING_TIMEOUT(SLI_PING_RESPONSE_TIMEOUT_MS); // Copy Ping timeout
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_PING_PACKET,
-                                        SI91X_NETWORK_CMD,
-                                        &request,
-                                        sizeof(sl_si91x_ping_request_t),
-                                        SL_SI91X_RETURN_IMMEDIATELY,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_PING_PACKET,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &request,
+                                         sizeof(sli_si91x_ping_request_t),
+                                         SLI_SI91X_RETURN_IMMEDIATELY,
+                                         NULL,
+                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
 
   return status;

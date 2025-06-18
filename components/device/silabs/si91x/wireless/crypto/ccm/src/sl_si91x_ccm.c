@@ -48,7 +48,7 @@ static sl_status_t sli_si91x_ccm_config_check(sl_si91x_ccm_config_t *config)
       return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if ((config->nonce_length < SL_SI91X_CCM_IV_MIN_SIZE) || (config->nonce_length > SL_SI91X_CCM_IV_MAX_SIZE)) {
+  if ((config->nonce_length < SLI_SI91X_CCM_IV_MIN_SIZE) || (config->nonce_length > SLI_SI91X_CCM_IV_MAX_SIZE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
@@ -56,7 +56,7 @@ static sl_status_t sli_si91x_ccm_config_check(sl_si91x_ccm_config_t *config)
 }
 
 #if defined(SLI_SI917B0) || defined(SLI_SI915)
-static void sli_si91x_ccm_get_key_info(sl_si91x_ccm_request_t *request, const sl_si91x_ccm_config_t *config)
+static void sli_si91x_ccm_get_key_info(sli_si91x_ccm_request_t *request, const sl_si91x_ccm_config_t *config)
 {
   request->key_info.key_type                         = config->key_config.b0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
@@ -78,10 +78,10 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
                                          uint8_t ccm_flags,
                                          uint8_t *output)
 {
-  sl_status_t status              = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer        = NULL;
-  sl_si91x_packet_t *packet       = NULL;
-  sl_si91x_ccm_request_t *request = (sl_si91x_ccm_request_t *)malloc(sizeof(sl_si91x_ccm_request_t));
+  sl_status_t status               = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer         = NULL;
+  sl_wifi_system_packet_t *packet  = NULL;
+  sli_si91x_ccm_request_t *request = (sli_si91x_ccm_request_t *)malloc(sizeof(sli_si91x_ccm_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -90,7 +90,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
     return status;
   }
 
-  memset(request, 0, sizeof(sl_si91x_ccm_request_t));
+  memset(request, 0, sizeof(sli_si91x_ccm_request_t));
 
   request->algorithm_type       = CCM;
   request->ccm_flags            = ccm_flags;
@@ -118,11 +118,11 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   request->key_length = config->key_config.a0.key_length;
 #endif
 
-  status = sl_si91x_driver_send_command(
-    RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sli_si91x_driver_send_command(
+    SLI_COMMON_REQ_ENCRYPT_CRYPTO,
     SI91X_COMMON_CMD,
     request,
-    (sizeof(sl_si91x_ccm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM + chunk_length),
+    (sizeof(sli_si91x_ccm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM + chunk_length),
     SL_SI91X_WAIT_FOR_RESPONSE(32000),
     NULL,
     &buffer);
@@ -130,7 +130,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -138,7 +138,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
 
   memcpy(output, packet->data, packet->length);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
   free(request);
   return status;
 }
@@ -147,8 +147,8 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
 static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_t *output)
 {
 
-  sl_status_t status              = SL_STATUS_FAIL;
-  sl_si91x_ccm_request_t *request = (sl_si91x_ccm_request_t *)malloc(sizeof(sl_si91x_ccm_request_t));
+  sl_status_t status               = SL_STATUS_FAIL;
+  sli_si91x_ccm_request_t *request = (sli_si91x_ccm_request_t *)malloc(sizeof(sli_si91x_ccm_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -157,7 +157,7 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
     return status;
   }
 
-  memset(request, 0, sizeof(sl_si91x_ccm_request_t));
+  memset(request, 0, sizeof(sli_si91x_ccm_request_t));
 
   request->algorithm_type     = CCM;
   request->total_msg_length   = config->msg_length;
@@ -178,9 +178,9 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
   sli_si91x_ccm_get_key_info(request, config);
   request->output = output;
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_ccm_request_t)),
+                                                 (sizeof(sli_si91x_ccm_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);

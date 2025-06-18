@@ -27,7 +27,6 @@
  *
  ******************************************************************************/
 
-#include "FreeRTOSConfig.h"
 #include "rsi_wisemcu_hardware_setup.h"
 #include "rsi_m4.h"
 #include "rsi_rom_egpio.h"
@@ -41,6 +40,7 @@
 #include <stdio.h>
 #include "cmsis_os2.h"
 #include "sl_rsi_utility.h"
+#include "sl_si91x_os.h"
 
 extern osEventFlagsId_t si91x_events;
 extern osEventFlagsId_t si91x_async_events;
@@ -118,7 +118,7 @@ void sl_si91x_hardware_setup(void)
 #ifndef SL_ULP_TIMER
     ULPSS_PWRGATE_ULP_MISC |
 #endif
-    ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_CAP | ULPSS_PWRGATE_ULP_VAD
+    ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_VAD
 #ifndef DEBUG_UART
     | ULPSS_PWRGATE_ULP_UART
 #endif
@@ -149,7 +149,7 @@ void sl_si91x_hardware_setup(void)
 #ifndef SL_ULP_TIMER
     ULPSS_PWRGATE_ULP_MISC |
 #endif
-    ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_CAP
+    ULPSS_PWRGATE_ULP_AUX
 #ifndef DEBUG_UART
     | ULPSS_PWRGATE_ULP_UART
 #endif
@@ -273,17 +273,17 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
   }
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
 
   if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_async_events))
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
       || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
 #endif
-      || ((sl_si91x_host_queue_status(&cmd_queues[SI91X_COMMON_CMD].tx_queue)
-           | sl_si91x_host_queue_status(&cmd_queues[SI91X_WLAN_CMD].tx_queue)
-           | sl_si91x_host_queue_status(&cmd_queues[SI91X_NETWORK_CMD].tx_queue)
-           | sl_si91x_host_queue_status(&cmd_queues[SI91X_SOCKET_CMD].tx_queue)
-           | sl_si91x_host_queue_status(&cmd_queues[SI91X_BT_CMD].tx_queue)))) {
+      || (sli_si91x_host_queue_status(&cmd_queues[SI91X_COMMON_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_WLAN_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_NETWORK_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_SOCKET_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_BT_CMD].tx_queue))) {
     return;
   }
   // Disabling the interrupts & clearing m4_is_active as m4 is going to sleep
@@ -313,7 +313,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   //!Clear RX_BUFFER_VALID
   M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
   M4SS_P2P_INTR_CLR_REG;
-#endif // configUSE_TICKLESS_IDLE == 0
+#endif // SL_SI91X_TICKLESS_MODE  == 0
 
 #ifndef ENABLE_DEBUG_MODULE
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
@@ -355,15 +355,15 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   }
 #endif
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   //!Indicate M4 is active and rx buffer valid
   P2P_STATUS_REG |= M4_is_active;
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
   __enable_irq();
 
   // Systick configuration upon Wake-up
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
-#endif // configUSE_TICKLESS_IDLE == 0
+  SysTick_Config(SystemCoreClock / SL_OS_SYSTEM_TICK_RATE);
+#endif // SL_SI91X_TICKLESS_MODE  == 0
 }
 
 /**

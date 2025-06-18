@@ -36,7 +36,7 @@ extern uint32_t dma_rom_buff0[30], dma_rom_buff1[30];     //we can keep wrapeers
 
 #define I2S0_CLK_SRC      ULP_I2S_PLL_CLK
 #define I2S0_CLK_DIV_FACT 0
-#define I2S1_CLK_SRC      ULP_I2S_ULP_MHZ_RC_CLK
+#define I2S1_CLK_SRC      ULP_I2S_REF_CLK
 #define I2S1_CLK_DIV_FACT 0
 
 /* IAR support */
@@ -249,10 +249,10 @@ static I2S_RESOURCES I2S0_Resources = {
 static I2S_INFO I2S1_Info = {0,{0},{0},{0}};
 static I2S_CLK  I2S1_Clk = {I2S1_CLK_SRC, I2S1_CLK_DIV_FACT};
 
-static I2S_PIN  i2s1_sclk = {RTE_I2S1_SCLK_PORT,RTE_I2S1_SCLK_PIN,RTE_I2S1_SCLK_MUX,0};
-static I2S_PIN  i2s1_wsclk = {RTE_I2S1_WSCLK_PORT,RTE_I2S1_WSCLK_PIN,RTE_I2S1_WSCLK_MUX,0};
-static I2S_PIN  i2s1_din0 = {RTE_I2S1_DIN0_PORT,RTE_I2S1_DIN0_PIN,RTE_I2S1_DIN0_MUX,0};
-static I2S_PIN  i2s1_dout0 = {RTE_I2S1_DOUT0_PORT,RTE_I2S1_DOUT0_PIN,RTE_I2S1_DOUT0_MUX,0};
+static I2S_PIN  i2s1_sclk = {RTE_I2S1_SCLK_PORT,RTE_I2S1_SCLK_PIN,RTE_I2S1_SCLK_MUX,RTE_I2S1_SCLK_PAD};
+static I2S_PIN  i2s1_wsclk = {RTE_I2S1_WSCLK_PORT,RTE_I2S1_WSCLK_PIN,RTE_I2S1_WSCLK_MUX,RTE_I2S1_WSCLK_PAD};
+static I2S_PIN  i2s1_din0 = {RTE_I2S1_DIN0_PORT,RTE_I2S1_DIN0_PIN,RTE_I2S1_DIN0_MUX,RTE_I2S1_DIN0_PAD};
+static I2S_PIN  i2s1_dout0 = {RTE_I2S1_DOUT0_PORT,RTE_I2S1_DOUT0_PIN,RTE_I2S1_DOUT0_MUX,RTE_I2S1_DOUT0_PAD};
 
 
 #if (RTE_I2S1_CHNL_UDMA_TX_EN == 1U)
@@ -521,7 +521,7 @@ static ARM_SAI_CAPABILITIES I2S1_GetCapabilities (void)
 
 static int32_t I2S1_Initialize (ARM_SAI_SignalEvent_t cb_event) 
 {
-#if defined(A11_ROM)
+#if defined(A11_ROM) && defined(I2S_ROMDRIVER_PRESENT)
 	return ROMAPI_I2S_API->I2S_Initialize (cb_event, &I2S1_Resources,&UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);
 #else
 	return I2S_Initialize (cb_event, &I2S1_Resources,&UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);

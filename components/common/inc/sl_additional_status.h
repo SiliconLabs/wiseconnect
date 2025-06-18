@@ -28,6 +28,7 @@
  ******************************************************************************/
 #pragma once
 
+// To do: Need to reserve the space in sl_status.h. Ranging from 0x10000 to 0x1FFFF.
 #define SL_STATUS_SI91X_SUBSPACE ((sl_status_t)0x00010000)
 
 /**
@@ -36,17 +37,19 @@
  */
 
 // Additional generic errors
-#define SL_STATUS_OS_OPERATION_FAILURE            ((sl_status_t)0x0051) ///< OS operation failed.
-#define SL_STATUS_BOOTUP_OPTIONS_NOT_SAVED        ((sl_status_t)0x0052) ///< Bootup options were not saved.
-#define SL_STATUS_BOOTUP_OPTIONS_CHECKSUM_FAILURE ((sl_status_t)0x0053) ///< Bootup options checksum validation failed.
+// Reserving the space in between SL_STATUS_SI91X_SUBSPACE to write the overlapping status codes.
+// Range of these status codes will be from 0x16000 to 0x16FFF.
+#define SL_STATUS_OS_OPERATION_FAILURE            ((sl_status_t)0x16051) ///< OS operation failed.
+#define SL_STATUS_BOOTUP_OPTIONS_NOT_SAVED        ((sl_status_t)0x16052) ///< Bootup options were not saved.
+#define SL_STATUS_BOOTUP_OPTIONS_CHECKSUM_FAILURE ((sl_status_t)0x16053) ///< Bootup options checksum validation failed.
 #define SL_STATUS_BOOTLOADER_VERSION_MISMATCH \
-  ((sl_status_t)0x0054) ///< Bootloader version does not match expected version.
-#define SL_STATUS_WAITING_FOR_BOARD_READY    ((sl_status_t)0x0055) ///< Waiting for the board to be ready.
-#define SL_STATUS_VALID_FIRMWARE_NOT_PRESENT ((sl_status_t)0x0056) ///< No valid firmware present.
-#define SL_STATUS_INVALID_OPTION             ((sl_status_t)0x0057) ///< Provided option is invalid.
-#define SL_STATUS_SPI_BUSY                   ((sl_status_t)0x0058) ///< SPI is currently busy.
-#define SL_STATUS_CARD_READY_TIMEOUT         ((sl_status_t)0x0059) ///< Timeout waiting for card to be ready.
-#define SL_STATUS_FW_LOAD_OR_UPGRADE_TIMEOUT ((sl_status_t)0x005A) ///< Firmware load or upgrade operation timed out.
+  ((sl_status_t)0x16054) ///< Bootloader version does not match expected version.
+#define SL_STATUS_WAITING_FOR_BOARD_READY    ((sl_status_t)0x16055) ///< Waiting for the board to be ready.
+#define SL_STATUS_VALID_FIRMWARE_NOT_PRESENT ((sl_status_t)0x16056) ///< No valid firmware present.
+#define SL_STATUS_INVALID_OPTION             ((sl_status_t)0x16057) ///< Provided option is invalid.
+#define SL_STATUS_SPI_BUSY                   ((sl_status_t)0x16058) ///< SPI is currently busy.
+#define SL_STATUS_CARD_READY_TIMEOUT         ((sl_status_t)0x16059) ///< Timeout waiting for card to be ready.
+#define SL_STATUS_FW_LOAD_OR_UPGRADE_TIMEOUT ((sl_status_t)0x1605A) ///< Firmware load or upgrade operation timed out.
 
 // Additional Wi-Fi errors
 #define SL_STATUS_WIFI_DOES_NOT_EXIST    ((sl_status_t)0x0B21) ///< WiFi network does not exist.
@@ -484,6 +487,26 @@
 #define SL_STATUS_SI91X_FW_UP_WRONG_PACKET_INFO ((sl_status_t)0x1DD40) ///< Wrong packet info.
 #define SL_STATUS_SI91X_INVALID_LENGTH \
   ((sl_status_t)0x1DD41) ///< All payload chunks length together can't be greater than total image size in header, during firmware upgradation.
+
+//FW fallback error codes
+#define SL_STATUS_SI91X_AB_FALLBACK_NOT_ENABLED ((sl_status_t)0x1DD0A) ///< AB fall-back feature is not enabled
+#define SL_STATUS_SI91X_INVALID_ERASE_LENGTH_OR_ADDRESS \
+  ((sl_status_t)0x1DD0C) ///< Invalid erase length or address specified for the operation
+#define SL_STATUS_SI91X_INVALID_READ_OR_WRITE_REQUEST \
+  ((sl_status_t)0x1DD0D) ///< The read or write request is invalid or not supported
+#define SL_STATUS_SI91X_INVALID_FLASH_RANGE \
+  ((sl_status_t)0x1DD0E) ///< The specified flash range is invalid or out of bounds
+#define SL_STATUS_SI91X_FLASH_ADDRESS_OUT_OF_BOUNDARY \
+  ((sl_status_t)0x1DD0F) ///< The flash address is out of the allowable boundary
+#define SL_STATUS_SI91X_INVALID_OPERATION_ON_NWP_ACTIVE_IMAGE \
+  ((sl_status_t)0x1DD10) ///< Operation attempted on an active NWP image which is not allowed
+#define SL_STATUS_SI91X_MAX_INPUT_LENGTH_EXCEED_1K_SIZE \
+  ((sl_status_t)0x1DD11) ///< The input length exceeds the maximum allowed size of 1KB
+#define SL_STATUS_SI91X_INVALID_FW_ROLLBACK_SUBCOMMAND \
+  ((sl_status_t)0x1DD12) ///< The sub-command for firmware fallback is invalid
+#define SL_STATUS_SI91X_INVALID_CONFIG_FOR_FW_ROLLBACK \
+  ((sl_status_t)0x1DD13) ///< The configuration for firmware fallback is invalid, applicable for 8MB SoC common-flash
+
 #define SL_STATUS_SI91X_FW_UP_CORRUPTED_RPS_HEADER \
   ((sl_status_t)0x1DD49) ///< Corrupted RPS header encountered or Received empty RPS file(no data) during firmware update.
 #define SL_STATUS_SI91X_SOCKET_NOT_CONNECTED \

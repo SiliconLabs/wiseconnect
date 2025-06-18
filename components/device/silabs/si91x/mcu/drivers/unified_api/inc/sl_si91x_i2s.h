@@ -102,8 +102,8 @@ typedef enum {
  *          is currently not supported in the driver.
  ******************************************************************************/
 typedef enum {
-  SL_I2S_PROTOCOL = ARM_SAI_PROTOCOL_I2S, ///< I2S protocol.
-  SL_PCM_PROTOCOL = 0                     ///< PCM protocol, currently not supported in the driver.
+  SL_I2S_PROTOCOL = ARM_SAI_PROTOCOL_I2S,      ///< I2S protocol.
+  SL_PCM_PROTOCOL = ARM_SAI_PROTOCOL_PCM_SHORT ///< PCM protocol.
 } sl_sai_protocol_t;
 
 /***************************************************************************/
@@ -127,10 +127,11 @@ typedef enum {
  *          ongoing transfers.
  ******************************************************************************/
 typedef enum {
-  SL_I2S_TRANSMIT      = ARM_SAI_CONFIGURE_TX, ///< I2S transmit.
-  SL_I2S_RECEIVE       = ARM_SAI_CONFIGURE_RX, ///< I2S receive.
-  SL_I2S_SEND_ABORT    = ARM_SAI_ABORT_SEND,   ///< I2S abort transmit.
-  SL_I2S_RECEIVE_ABORT = ARM_SAI_ABORT_RECEIVE ///< I2S abort receive.
+  SL_I2S_TRANSMIT         = ARM_SAI_CONFIGURE_TX,  ///< I2S transmit.
+  SL_I2S_RECEIVE          = ARM_SAI_CONFIGURE_RX,  ///< I2S receive.
+  SL_I2S_SEND_ABORT       = ARM_SAI_ABORT_SEND,    ///< I2S abort transmit.
+  SL_I2S_RECEIVE_ABORT    = ARM_SAI_ABORT_RECEIVE, ///< I2S abort receive.
+  SL_MIC_ICS43434_RECEIVE = ARM_SAI_CONFIGURE_MIC  ///< I2S MIC ICS43434 Configuration.
 } sl_i2s_xfer_type_t;
 
 /***************************************************************************/
@@ -154,9 +155,7 @@ typedef enum {
  *          It specifies the number of bits per audio sample that can be used.
  ******************************************************************************/
 typedef enum {
-  SL_I2S_RESOLUTION_12 = 12, ///< 12-bit resolution.
   SL_I2S_RESOLUTION_16 = 16, ///< 16-bit resolution.
-  SL_I2S_RESOLUTION_20 = 20, ///< 20-bit resolution.
   SL_I2S_RESOLUTION_24 = 24, ///< 24-bit resolution.
   SL_I2S_RESOLUTION_32 = 32  ///< 32-bit resolution.
 } sl_i2s_data_resolution_t;
@@ -540,7 +539,7 @@ sl_status_t sl_si91x_i2s_end_transfer(sl_i2s_handle_t i2s_handle, sl_i2s_xfer_ty
 * @section I2S_Config Configuration
 * 
 * I2S can be configured using several parameters:
-*  1. The I2S module supports 5 programmable audio resolutions @ref sl_i2s_data_resolution_t  
+*  1. The I2S module supports 3 programmable audio resolutions @ref sl_i2s_data_resolution_t  
 *  2. I2S also supports 11 audio sampling rates @ref sl_i2s_sampling_rate_t 
 * 
 * @li For more information on configuring available parameters, see the respective peripheral example readme document.

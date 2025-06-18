@@ -8,15 +8,14 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 readme:
   - path: readme.md
 source:
 - path: app.c
-- path: main.c
 - path: src/push_button_app.c
 - path: src/pwm_app.c
 - path: src/i2c_app.c
@@ -35,7 +34,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
@@ -92,3 +91,9 @@ ui_hints:
       focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/i2c_uc_screen.png
+  - path: resources/readme/image507d.png
+  - path: resources/readme/image507e.png
+  - path: resources/readme/output.png

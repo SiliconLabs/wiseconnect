@@ -58,7 +58,7 @@ typedef struct wifi_app_cb_s {
 /***************************************************************************/ /**
  * App ticking function.
  ******************************************************************************/
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 int32_t rsi_initiate_power_save(void);
 #endif
 void wifi_ble_send_data(void);

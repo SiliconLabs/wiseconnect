@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  sl_wifi_nvm_credentials.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file  sl_wifi_nvm_credentials.c
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 #include <string.h>
 #include "nvm3.h"
 #include "sl_wifi.h"
@@ -49,6 +61,8 @@ static sl_status_t save_credential_table(void)
 {
   Ecode_t ecode =
     nvm3_writeData(nvm3_defaultHandle, SL_NET_CREDENTIAL_TABLE_KEY, credential_table, credential_table_size);
+  VERIFY_ECODE_AND_RETURN(ecode);
+  return SL_STATUS_OK;
 }
 
 static sl_status_t load_credential_table(void)
@@ -60,7 +74,7 @@ static sl_status_t load_credential_table(void)
   uint32_t type = 0xFFFFFFFFU;
 
   if (nvm3_getObjectInfo(nvm3_defaultHandle, SL_NET_CREDENTIAL_TABLE_KEY, &type, &credential_table_size) != 0) {
-    credential_table_size = SL_WIFI_MAX_CREDENTIAL_COUNT;
+    credential_table_size = SL_WIFI_MAX_CREDENTIAL_COUNT * sizeof(sl_wifi_nvm_credential_entry_t);
   }
   credential_table = malloc(credential_table_size);
   if (credential_table == NULL) {
@@ -70,6 +84,7 @@ static sl_status_t load_credential_table(void)
   if (type != 0xFFFFFFFFU) {
     Ecode_t ecode =
       nvm3_readData(nvm3_defaultHandle, SL_NET_CREDENTIAL_TABLE_KEY, credential_table, credential_table_size);
+    VERIFY_ECODE_AND_RETURN(ecode);
   } else {
     memset(credential_table, 0, credential_table_size);
   }
@@ -85,7 +100,7 @@ static sl_status_t find_entry(sl_wifi_credential_id_t id, sl_wifi_nvm_credential
     load_credential_table();
   }
 
-  for (int a = 0; a < credential_table_size / sizeof(sl_wifi_nvm_credential_entry_t); ++a) {
+  for (size_t a = 0; a < credential_table_size / sizeof(sl_wifi_nvm_credential_entry_t); ++a) {
     if (credential_table[a].id == id) {
       *entry = &credential_table[a];
       return SL_STATUS_OK;

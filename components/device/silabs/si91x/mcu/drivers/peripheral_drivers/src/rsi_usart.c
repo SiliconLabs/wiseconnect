@@ -47,6 +47,18 @@ sl_dma_init_t dma_init;
 #define ULP_UART_DMA_INSTANCE 1
 #endif
 
+#define USART_CONFIGURE_CLOCK_GPIO_PIN (uint8_t)1
+#define USART_CONFIGURE_TX_GPIO_PIN    (uint8_t)2
+#define USART_CONFIGURE_RX_GPIO_PIN    (uint8_t)3
+#define USART_CONFIGURE_CTS_GPIO_PIN   (uint8_t)4
+#define USART_CONFIGURE_RTS_GPIO_PIN   (uint8_t)5
+#define USART_CONFIGURE_IR_TX_GPIO_PIN (uint8_t)6
+#define USART_CONFIGURE_IR_RX_GPIO_PIN (uint8_t)7
+#define UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN \
+  46 // Minimum pin number for specific range of HP pins to act as ULP pins
+#define UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
+  49 // Maximum pin number for specific range of HP pins to act as ULP pins
+
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -58,7 +70,7 @@ sl_dma_init_t dma_init;
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
-
+static void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t usart_pin_flag);
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
@@ -148,10 +160,26 @@ void UartIrqHandler(USART_RESOURCES *usart)
     }
   }
   if (((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) && (usart->info->cb_event)) {
-    //check if receiver contains atleast one char in RBR reg
+//check if receiver contains atleast one char in RBR reg
+#ifndef SLI_SI91X_MCU_RS485_DATA_BIT_9
     if (usart->pREGS->LSR_b.DR) {
-      usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
-      usart->info->xfer.rx_cnt++;
+#endif
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+      static bool is_address_frame = true;
+      if (is_address_frame) {
+        // First frame is an address frame (2 bytes)
+        usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint16_t)usart->pREGS->RBR;
+        usart->info->xfer.rx_cnt++; // Increment for address frame
+        is_address_frame = false;   // Switch to data frame for subsequent bytes
+      } else {
+        // Subsequent frames are data frames (1 byte)
+        usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
+        usart->info->xfer.rx_cnt++; // Increment by 1 for data frame
+      }
+#else
+    usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
+    usart->info->xfer.rx_cnt++;
+#endif
 
       // Check if requested amount of data is received
       if (usart->info->xfer.rx_cnt == usart->info->xfer.rx_num) {
@@ -181,7 +209,9 @@ void UartIrqHandler(USART_RESOURCES *usart)
         }
         usart->info->cb_event(event);
       }
+#ifndef SLI_SI91X_MCU_RS485_DATA_BIT_9
     }
+#endif
     //Check if requested amount of data is not received
     if ((usart->info->cb_event != NULL) && (usart->info->xfer.rx_cnt != usart->info->xfer.rx_num)) {
       // Update the event with rx tiemout
@@ -701,7 +731,12 @@ int32_t USART_Send_Data(const void *data,
   // Set Send active flag
   usart->info->xfer.send_active = 1U;
   // Save transmit buffer info
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+  usart->info->xfer.tx_buf = (uint16_t *)data;
+#else
   usart->info->xfer.tx_buf = (uint8_t *)data;
+#endif
+
   usart->info->xfer.tx_num = num;
   usart->info->xfer.tx_cnt = 0U;
   if (usart->dma_tx) {
@@ -714,81 +749,82 @@ int32_t USART_Send_Data(const void *data,
       chnl_cfg.periAck         = USART0_ACK;
       chnl_cfg.periphReq       = 1;
       chnl_cfg.reqMask         = 0;
-    }
-    if (usart->pREGS == UART1) {
+    } else if (usart->pREGS == UART1) {
       chnl_cfg.channelPrioHigh = UDMA0_CHNL_PRIO_LVL;
       chnl_cfg.dmaCh           = RTE_UART1_CHNL_UDMA_TX_CH;
       chnl_cfg.periAck         = UART1_ACK;
       chnl_cfg.periphReq       = 1;
       chnl_cfg.reqMask         = 0;
-    }
-    if (usart->pREGS == ULP_UART) {
+    } else if (usart->pREGS == ULP_UART) {
       chnl_cfg.channelPrioHigh = UDMA1_CHNL_PRIO_LVL;
       chnl_cfg.dmaCh           = RTE_ULPUART_CHNL_UDMA_TX_CH;
       chnl_cfg.periAck         = UART3_ACK;
       chnl_cfg.periphReq       = 1;
       chnl_cfg.reqMask         = 0;
-    }
-
-    // Configure DMA channel
-    if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1) || (usart->pREGS == ULP_UART)) {
-#ifdef SL_SI91X_USART_DMA
-      sl_dma_xfer_t dma_transfer_tx = { 0 };
-      uint32_t channel              = usart->dma_tx->channel + 1;
-      uint32_t channel_priority     = chnl_cfg.channelPrioHigh;
-      sl_dma_callback_t usart_tx_callback;
-      //Initialize sl_dma callback structure
-      usart_tx_callback.transfer_complete_cb = usart_transfer_complete_callback;
-      usart_tx_callback.error_cb             = usart_error_callback;
-      //Initialize sl_dma transfer structure
-      dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(usart->info->xfer.tx_buf));
-      dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (usart->pREGS->THR));
-      dma_transfer_tx.src_inc        = SRC_INC_8;
-      dma_transfer_tx.dst_inc        = DST_INC_NONE;
-      dma_transfer_tx.xfer_size      = SRC_SIZE_8;
-      dma_transfer_tx.transfer_count = num;
-      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
-      dma_transfer_tx.dma_mode       = UDMA_MODE_BASIC;
-      dma_transfer_tx.signal         = (uint8_t)chnl_cfg.periAck;
-
-      //Allocate DMA channel for Tx
-      status = sl_si91x_dma_allocate_channel(dma_init.dma_number, &channel, channel_priority);
-      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
-        return ARM_DRIVER_ERROR;
-      }
-      //Register transfer complete and error callback
-      if (sl_si91x_dma_register_callbacks(dma_init.dma_number, channel, &usart_tx_callback)) {
-        return ARM_DRIVER_ERROR;
-      }
-      //Configure the channel for DMA transfer
-      if (sl_si91x_dma_transfer(dma_init.dma_number, channel, &dma_transfer_tx)) {
-        return ARM_DRIVER_ERROR;
-      }
-#else
-      stat = UDMAx_ChannelConfigure(udma,
-                                    usart->dma_tx->channel,
-                                    (uint32_t)(usart->info->xfer.tx_buf),
-                                    (uint32_t) & (usart->pREGS->THR),
-                                    num,
-                                    usart->dma_tx->control,
-                                    &chnl_cfg,
-                                    usart->dma_tx->cb_event,
-                                    chnl_info,
-                                    udmaHandle);
-      if (stat == -1) {
-        return ARM_DRIVER_ERROR;
-      }
-#endif
-#ifdef SL_SI91X_USART_DMA
-      sl_si91x_dma_channel_enable(dma_init.dma_number, usart->dma_tx->channel + 1);
-      sl_si91x_dma_enable(dma_init.dma_number);
-#else
-      UDMAx_ChannelEnable(usart->dma_tx->channel, udma, udmaHandle);
-      UDMAx_DMAEnable(udma, udmaHandle);
-#endif
     } else {
       return ARM_DRIVER_ERROR;
     }
+
+    // Configure DMA channel for USART TX
+#ifdef SL_SI91X_USART_DMA
+    sl_dma_xfer_t dma_transfer_tx = { 0 };
+    uint32_t channel              = usart->dma_tx->channel + 1;
+    uint32_t channel_priority     = chnl_cfg.channelPrioHigh;
+    sl_dma_callback_t usart_tx_callback;
+    //Initialize sl_dma callback structure
+    usart_tx_callback.transfer_complete_cb = usart_transfer_complete_callback;
+    usart_tx_callback.error_cb             = usart_error_callback;
+    //Initialize sl_dma transfer structure
+    dma_transfer_tx.src_addr  = (uint32_t *)((uint32_t)(usart->info->xfer.tx_buf));
+    dma_transfer_tx.dest_addr = (uint32_t *)((uint32_t) & (usart->pREGS->THR));
+    dma_transfer_tx.dst_inc   = DST_INC_NONE;
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+    dma_transfer_tx.src_inc   = SRC_INC_16;
+    dma_transfer_tx.xfer_size = SRC_SIZE_16;
+#else
+    dma_transfer_tx.src_inc   = SRC_INC_8;
+    dma_transfer_tx.xfer_size = SRC_SIZE_8;
+#endif
+    dma_transfer_tx.transfer_count = num;
+    dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+    dma_transfer_tx.dma_mode       = UDMA_MODE_BASIC;
+    dma_transfer_tx.signal         = (uint8_t)chnl_cfg.periAck;
+
+    //Allocate DMA channel for Tx
+    status = sl_si91x_dma_allocate_channel(dma_init.dma_number, &channel, channel_priority);
+    if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Register transfer complete and error callback
+    if (sl_si91x_dma_register_callbacks(dma_init.dma_number, channel, &usart_tx_callback)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Configure the channel for DMA transfer
+    if (sl_si91x_dma_transfer(dma_init.dma_number, channel, &dma_transfer_tx)) {
+      return ARM_DRIVER_ERROR;
+    }
+#else
+    stat = UDMAx_ChannelConfigure(udma,
+                                  usart->dma_tx->channel,
+                                  (uint32_t)(usart->info->xfer.tx_buf),
+                                  (uint32_t) & (usart->pREGS->THR),
+                                  num,
+                                  usart->dma_tx->control,
+                                  &chnl_cfg,
+                                  usart->dma_tx->cb_event,
+                                  chnl_info,
+                                  udmaHandle);
+    if (stat == -1) {
+      return ARM_DRIVER_ERROR;
+    }
+#endif
+#ifdef SL_SI91X_USART_DMA
+    sl_si91x_dma_channel_enable(dma_init.dma_number, usart->dma_tx->channel + 1);
+    sl_si91x_dma_enable(dma_init.dma_number);
+#else
+    UDMAx_ChannelEnable(usart->dma_tx->channel, udma, udmaHandle);
+    UDMAx_DMAEnable(udma, udmaHandle);
+#endif
   } else {
     // Fill TX FIFO
     if (usart->pREGS->LSR & USART_LSR_THRE) {
@@ -859,7 +895,12 @@ int32_t USART_Receive_Data(const void *data,
   usart->info->rx_status.rx_parity_error  = 0U;
 
   // Save receive buffer info
-  usart->info->xfer.rx_buf = (uint8_t *)(const void *)data;
+
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+  usart->info->xfer.rx_buf = (uint16_t *)data;
+#else
+  usart->info->xfer.rx_buf = (uint8_t *)data;
+#endif
   usart->info->xfer.rx_cnt = 0U;
 
   // DMA mode
@@ -899,11 +940,16 @@ int32_t USART_Receive_Data(const void *data,
       usart_rx_callback.transfer_complete_cb = usart_transfer_complete_callback;
       usart_rx_callback.error_cb             = usart_error_callback;
       //Initialize sl_dma transfer structure
-      dma_transfer_rx.src_addr       = (uint32_t *)((uint32_t) & (usart->pREGS->RBR));
-      dma_transfer_rx.dest_addr      = (uint32_t *)((uint32_t)(usart->info->xfer.rx_buf));
-      dma_transfer_rx.src_inc        = SRC_INC_NONE;
-      dma_transfer_rx.dst_inc        = DST_INC_8;
-      dma_transfer_rx.xfer_size      = SRC_SIZE_8;
+      dma_transfer_rx.src_addr  = (uint32_t *)((uint32_t) & (usart->pREGS->RBR));
+      dma_transfer_rx.dest_addr = (uint32_t *)((uint32_t)(usart->info->xfer.rx_buf));
+      dma_transfer_rx.src_inc   = SRC_INC_NONE;
+#ifdef SLI_SI91X_MCU_RS485_DATA_BIT_9
+      dma_transfer_rx.dst_inc   = DST_INC_16;
+      dma_transfer_rx.xfer_size = SRC_SIZE_16;
+#else
+      dma_transfer_rx.dst_inc   = DST_INC_8;
+      dma_transfer_rx.xfer_size = SRC_SIZE_8;
+#endif
       dma_transfer_rx.transfer_count = num;
       dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
       dma_transfer_rx.dma_mode       = UDMA_MODE_BASIC;
@@ -1037,6 +1083,124 @@ uint32_t USART_GetRxCount(const USART_RESOURCES *usart)
   return cnt;
 }
 
+/*===================================================*/
+/**
+ * @fn          void configure_usart_gpio_pin(const USART_RESOURCES *usart, uint8_t usart_pin_flag)
+ * @brief       to configure usart flow control gpio pins
+ * @return      none
+ */
+STATIC INLINE void configure_usart_gpio_pin(const USART_RESOURCES *usart, uint8_t usart_pin_flag)
+{
+  USART_PIN *usart_gpio_pin;
+
+  // assign selected usart gpio pin
+  switch (usart_pin_flag) {
+    case USART_CONFIGURE_CLOCK_GPIO_PIN:
+      // clock pin is valid for USART0 instance only
+      usart_gpio_pin = usart->io.clock;
+      break;
+
+    case USART_CONFIGURE_TX_GPIO_PIN:
+      usart_gpio_pin = usart->io.tx;
+      break;
+
+    case USART_CONFIGURE_RX_GPIO_PIN:
+      usart_gpio_pin = usart->io.rx;
+      break;
+
+    case USART_CONFIGURE_CTS_GPIO_PIN:
+      usart_gpio_pin = usart->io.cts;
+      break;
+
+    case USART_CONFIGURE_RTS_GPIO_PIN:
+      usart_gpio_pin = usart->io.rts;
+      break;
+
+    case USART_CONFIGURE_IR_TX_GPIO_PIN:
+      // ir pins are valid for UART0 & USART0 instances only
+      usart_gpio_pin = usart->io.ir_tx;
+      break;
+
+    case USART_CONFIGURE_IR_RX_GPIO_PIN:
+      // ir pins are valid for UART0 & USART0 instances only
+      usart_gpio_pin = usart->io.ir_rx;
+      break;
+
+    default: // Invalid selection
+      return;
+  }
+
+  if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
+    if (usart_gpio_pin->pin > 63) {
+      if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+        RSI_EGPIO_UlpPadDriverDisableState((uint8_t)(usart_gpio_pin->pin - 64), ulp_Pullup);
+      }
+      RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart_gpio_pin->pin - 64));
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart_gpio_pin->pin - 64), 6);
+    }
+    if (usart_gpio_pin->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(usart_gpio_pin->pad_sel);
+    }
+    if (usart_gpio_pin->pin >= 25 && usart_gpio_pin->pin <= 30) {
+      RSI_EGPIO_HostPadsGpioModeEnable(usart_gpio_pin->pin);
+    }
+    if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+      RSI_EGPIO_PadDriverDisableState(usart_gpio_pin->pin, Pullup);
+    }
+    RSI_EGPIO_PadReceiverEnable(usart_gpio_pin->pin);
+    RSI_EGPIO_SetPinMux(EGPIO, usart_gpio_pin->port, usart_gpio_pin->pin, usart_gpio_pin->mode);
+  } else if (usart->pREGS == ULP_UART) {
+    configure_ulp_uart_gpio_pin(usart_gpio_pin, usart_pin_flag);
+  }
+}
+
+/*===================================================*/
+/**
+ * @fn          void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t usart_pin_flag)
+ * @brief       to configure ulp_uart pins basis of usart_pin_flag, which is passing CLOCK, RX, TX, CTS, 
+ *              RTS, IR_RX, IR_TX pin details.
+ * @return      none
+ */
+static void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t usart_pin_flag)
+{
+  if (usart_gpio_pin == NULL) {
+    return;
+  }
+
+  // Validate usart_pin_flag
+  if ((usart_pin_flag < USART_CONFIGURE_CLOCK_GPIO_PIN) || (usart_pin_flag > USART_CONFIGURE_IR_RX_GPIO_PIN)) {
+    // Invalid usart_pin_flag, return without configuring
+    return;
+  }
+  //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
+  if (usart_gpio_pin->pin >= GPIO_MAX_PIN) {
+    if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+      RSI_EGPIO_UlpPadDriverDisableState((uint8_t)(usart_gpio_pin->pin - GPIO_MAX_PIN), ulp_Pullup);
+    }
+    RSI_EGPIO_UlpPadReceiverEnable(usart_gpio_pin->pin - GPIO_MAX_PIN);
+    RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, (usart_gpio_pin->pin - GPIO_MAX_PIN), usart_gpio_pin->mode);
+  } else {
+    // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_SetPinMux(EGPIO, usart_gpio_pin->port, usart_gpio_pin->pin, EGPIO_PIN_MUX_MODE9);
+    if (usart_gpio_pin->pad_sel != 0) {
+      RSI_EGPIO_PadSelectionEnable(usart_gpio_pin->pad_sel);
+    }
+    if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
+      RSI_EGPIO_UlpPadDriverDisableState(usart_gpio_pin->pin, ulp_Pullup);
+    }
+    RSI_EGPIO_PadReceiverEnable(usart_gpio_pin->pin);
+    RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, usart_gpio_pin->pin, 0);
+    if (usart_gpio_pin->pin >= UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
+        && usart_gpio_pin->pin <= UART_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (usart_gpio_pin->pin - 38), usart_gpio_pin->mode);
+    } else if (usart_gpio_pin->pin == 15) {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (usart_gpio_pin->pin - 8), usart_gpio_pin->mode);
+    } else {
+      RSI_EGPIO_UlpSocGpioMode(ULPCLK, (usart_gpio_pin->pin - 6), usart_gpio_pin->mode);
+    }
+  }
+}
+
 /**
  * @fn          int32_t USART_Control (uint32_t  control, uint32_t  arg,uint32_t baseClk, USART_RESOURCES  *usart, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
  * @brief       Control USART Interface.
@@ -1071,26 +1235,7 @@ int32_t USART_Control(uint32_t control,
   switch (control & ARM_USART_CONTROL_Msk) {
     case ARM_USART_CONTROL_TX:
       if (arg) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          if (usart->io.tx->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.tx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.tx->pin - 64), 6);
-          }
-          if (usart->io.tx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.tx->pad_sel);
-          }
-          if (usart->io.tx->pin >= 25 && usart->io.tx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.tx->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.tx->pin);
-          //configure TX pin
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.tx->port, usart->io.tx->pin, usart->io.tx->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          //configure TX pin
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.tx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.tx->port, usart->io.tx->pin, usart->io.tx->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_TX_GPIO_PIN);
         usart->info->flags |= USART_FLAG_TX_ENABLED;
       } else {
         usart->info->flags &= (uint8_t)(~USART_FLAG_TX_ENABLED);
@@ -1098,30 +1243,8 @@ int32_t USART_Control(uint32_t control,
       return ARM_DRIVER_OK;
 
     case ARM_USART_CONTROL_RX:
-
       if (arg) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          if (usart->io.rx->pin > 63) {
-            RSI_EGPIO_UlpPadDriverDisableState((uint8_t)(usart->io.rx->pin - 64), ulp_Pullup);
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.rx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.rx->pin - 64), 6);
-          }
-          if (usart->io.rx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.rx->pad_sel);
-          }
-          if (usart->io.rx->pin >= 25 && usart->io.rx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rx->pin);
-          }
-          RSI_EGPIO_PadDriverDisableState(usart->io.rx->pin, Pullup);
-          RSI_EGPIO_PadReceiverEnable(usart->io.rx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.rx->port, usart->io.rx->pin, usart->io.rx->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          RSI_EGPIO_UlpPadDriverDisableState(usart->io.rx->pin, ulp_Pullup);
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.rx->pin);
-          //configure RX pin
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.rx->port, usart->io.rx->pin, usart->io.rx->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_RX_GPIO_PIN);
         usart->info->flags |= USART_FLAG_RX_ENABLED;
       } else {
         usart->info->flags &= (uint8_t)(~USART_FLAG_RX_ENABLED);
@@ -1262,20 +1385,7 @@ int32_t USART_Control(uint32_t control,
       if (usart->sync_mode.en_usart_mode) {
         if (usart->pREGS == USART0) {
           if (usart->capabilities.synchronous_master) {
-
-            if (usart->io.clock->pin > 63) {
-              RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.clock->pin - 64));
-              RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.clock->pin - 64), 6);
-            }
-            if (usart->io.clock->pad_sel != 0) {
-              RSI_EGPIO_PadSelectionEnable(usart->io.clock->pad_sel);
-            }
-            if (usart->io.clock->pin >= 25 && usart->io.clock->pin <= 30) {
-              RSI_EGPIO_HostPadsGpioModeEnable(usart->io.clock->pin);
-            }
-            RSI_EGPIO_PadReceiverEnable(usart->io.clock->pin);
-            //configure clock pin
-            RSI_EGPIO_SetPinMux(EGPIO, usart->io.clock->port, usart->io.clock->pin, usart->io.clock->mode);
+            configure_usart_gpio_pin(usart, USART_CONFIGURE_CLOCK_GPIO_PIN);
 
             //enable Sync mode
             usart->pREGS->SMCR_b.SYNC_MODE = 1;
@@ -1302,19 +1412,7 @@ int32_t USART_Control(uint32_t control,
       break;
     case ARM_USART_MODE_SYNCHRONOUS_SLAVE:
       if (usart->pREGS == USART0 && usart->capabilities.synchronous_slave) {
-        if (usart->io.clock->pin > 63) {
-          RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.clock->pin - 64));
-          RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.clock->pin - 64), 6);
-        }
-        if (usart->io.clock->pad_sel != 0) {
-          RSI_EGPIO_PadSelectionEnable(usart->io.clock->pad_sel);
-        }
-        if (usart->io.clock->pin >= 25 && usart->io.clock->pin <= 30) {
-          RSI_EGPIO_HostPadsGpioModeEnable(usart->io.clock->pin);
-        }
-        RSI_EGPIO_PadReceiverEnable(usart->io.clock->pin);
-        // Configure clock pin
-        RSI_EGPIO_SetPinMux(EGPIO, usart->io.clock->port, usart->io.clock->pin, usart->io.clock->mode);
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_CLOCK_GPIO_PIN);
 
         // Enable sync mode
         usart->pREGS->SMCR_b.SYNC_MODE = 1;
@@ -1352,34 +1450,11 @@ int32_t USART_Control(uint32_t control,
        parity with the Line Control Register (LCR) has no effect*/
       if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
         if (usart->capabilities.irda) {
-
           //IR TX PIN
-          if (usart->io.ir_tx->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.ir_tx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.ir_tx->pin - 64), 6);
-          }
-          if (usart->io.ir_tx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.ir_tx->pad_sel);
-          }
-          if (usart->io.ir_tx->pin >= 25 && usart->io.ir_tx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.ir_tx->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.ir_tx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.ir_tx->port, usart->io.ir_tx->pin, usart->io.ir_tx->mode);
+          configure_usart_gpio_pin(usart, USART_CONFIGURE_IR_TX_GPIO_PIN);
 
           //IR RX PIN
-          if (usart->io.ir_rx->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.ir_rx->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.ir_rx->pin - 64), 6);
-          }
-          if (usart->io.ir_rx->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.ir_rx->pad_sel);
-          }
-          if (usart->io.ir_rx->pin >= 25 && usart->io.ir_rx->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.ir_rx->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.ir_rx->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.ir_rx->port, usart->io.ir_rx->pin, usart->io.ir_rx->mode);
+          configure_usart_gpio_pin(usart, USART_CONFIGURE_IR_RX_GPIO_PIN);
         }
         if (usart->capabilities.irda == 1) {
           //Enable SIR mode
@@ -1519,25 +1594,7 @@ int32_t USART_Control(uint32_t control,
       break;
     case ARM_USART_FLOW_CONTROL_RTS:
       if (usart->capabilities.rts) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-
-          if (usart->io.rts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.rts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.rts->pin - 64), 6);
-          }
-          if (usart->io.rts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.rts->pad_sel);
-          }
-          if (usart->io.rts->pin >= 25 && usart->io.rts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_RTS_GPIO_PIN);
       }
       if (usart->capabilities.flow_control_rts) {
         usart->pREGS->MCR |= (USART_MODEM_AFCE_ENABLE | USART_MODEM_RTS_SET);
@@ -1546,26 +1603,8 @@ int32_t USART_Control(uint32_t control,
       }
       break;
     case ARM_USART_FLOW_CONTROL_CTS:
-
       if (usart->capabilities.cts) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          if (usart->io.cts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.cts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.cts->pin - 64), 6);
-          }
-          if (usart->io.cts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.cts->pad_sel);
-          }
-          if (usart->io.cts->pin >= 25 && usart->io.cts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.cts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_CTS_GPIO_PIN);
       }
       if (usart->capabilities.flow_control_cts) {
         usart->pREGS->MCR |= (USART_MODEM_AFCE_ENABLE);
@@ -1574,45 +1613,9 @@ int32_t USART_Control(uint32_t control,
       }
       break;
     case ARM_USART_FLOW_CONTROL_RTS_CTS:
-
       if (usart->capabilities.cts && usart->capabilities.rts) {
-        if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1)) {
-          //CTS
-          if (usart->io.cts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.cts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.cts->pin - 64), 6);
-          }
-          if (usart->io.cts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.cts->pad_sel);
-          }
-          if (usart->io.cts->pin >= 25 && usart->io.cts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.cts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-          //RTS
-          if (usart->io.rts->pin > 63) {
-            RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(usart->io.rts->pin - 64));
-            RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(usart->io.rts->pin - 64), 6);
-          }
-          if (usart->io.rts->pad_sel != 0) {
-            RSI_EGPIO_PadSelectionEnable(usart->io.rts->pad_sel);
-          }
-          if (usart->io.rts->pin >= 25 && usart->io.rts->pin <= 30) {
-            RSI_EGPIO_HostPadsGpioModeEnable(usart->io.rts->pin);
-          }
-          RSI_EGPIO_PadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-        }
-        if (usart->pREGS == ULP_UART) {
-          //RTS
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.rts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.rts->port, usart->io.rts->pin, usart->io.rts->mode);
-
-          //CTS
-          RSI_EGPIO_UlpPadReceiverEnable(usart->io.cts->pin);
-          RSI_EGPIO_SetPinMux(EGPIO1, usart->io.cts->port, usart->io.cts->pin, usart->io.cts->mode);
-        }
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_CTS_GPIO_PIN);
+        configure_usart_gpio_pin(usart, USART_CONFIGURE_RTS_GPIO_PIN);
       }
       if (usart->capabilities.flow_control_rts && usart->capabilities.flow_control_cts) {
         usart->pREGS->MCR |= (USART_MODEM_AFCE_ENABLE | USART_MODEM_RTS_SET);
@@ -1693,6 +1696,8 @@ ARM_USART_STATUS USART_GetStatus(const USART_RESOURCES *usart)
  */
 int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *usart)
 {
+  int32_t execution_status = ARM_DRIVER_ERROR_UNSUPPORTED;
+
   if ((usart->info->flags & USART_FLAG_CONFIGURED) == 0U) {
     // USART is not configured
     return ARM_DRIVER_ERROR;
@@ -1702,43 +1707,39 @@ int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *
     return ARM_DRIVER_ERROR_UNSUPPORTED;
   }
 
-  if (control == ARM_USART_RTS_CLEAR) {
-    if (usart->capabilities.rts) {
-      usart->pREGS->MCR &= (uint32_t)(~USART_MODEM_RTS_SET);
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
-  }
-  if (control == ARM_USART_RTS_SET) {
-    if (usart->capabilities.rts) {
-      usart->pREGS->MCR |= USART_MODEM_RTS_SET;
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
-  }
-  if (control == ARM_USART_DTR_CLEAR) {
-    if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-      if (usart->capabilities.dtr) {
+  switch (control) {
+    case ARM_USART_RTS_CLEAR:
+      if (usart->capabilities.rts) {
+        usart->pREGS->MCR &= (uint32_t)(~USART_MODEM_RTS_SET);
+        execution_status = ARM_DRIVER_OK;
+      }
+      break;
+
+    case ARM_USART_RTS_SET:
+      if (usart->capabilities.rts) {
+        usart->pREGS->MCR |= USART_MODEM_RTS_SET;
+        execution_status = ARM_DRIVER_OK;
+      }
+      break;
+
+    case ARM_USART_DTR_CLEAR:
+      if (((usart->pREGS == UART0) || (usart->pREGS == USART0)) && usart->capabilities.dtr) {
         usart->pREGS->MCR &= (uint32_t)(~USART_MODEM_DTR_SET);
-      } else {
-        return ARM_DRIVER_ERROR_UNSUPPORTED;
+        execution_status = ARM_DRIVER_OK;
       }
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
-  }
-  if (control == ARM_USART_DTR_SET) {
-    if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
-      if (usart->capabilities.dtr) {
+      break;
+
+    case ARM_USART_DTR_SET:
+      if (((usart->pREGS == UART0) || (usart->pREGS == USART0)) && usart->capabilities.dtr) {
         usart->pREGS->MCR |= USART_MODEM_DTR_SET;
-      } else {
-        return ARM_DRIVER_ERROR_UNSUPPORTED;
+        execution_status = ARM_DRIVER_OK;
       }
-    } else {
-      return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
+      break;
+
+    default:
+      break;
   }
-  return ARM_DRIVER_OK;
+  return execution_status;
 }
 
 /**
@@ -1749,53 +1750,24 @@ int32_t USART_SetModemControl(ARM_USART_MODEM_CONTROL control, USART_RESOURCES *
  */
 ARM_USART_MODEM_STATUS USART_GetModemStatus(const USART_RESOURCES *usart)
 {
-  ARM_USART_MODEM_STATUS modem_status;
+  ARM_USART_MODEM_STATUS modem_status = { 0U, 0U, 0U, 0U };
   uint32_t msr;
 
   if (usart->pREGS && (usart->info->flags & USART_FLAG_CONFIGURED)) {
     msr = usart->pREGS->MSR;
 
-    if (usart->capabilities.cts) {
-      if (msr & UART_MSR_CTS) {
-        modem_status.cts = 1U;
-      } else {
-        modem_status.cts = 0U;
-      }
-    } else {
-      modem_status.cts = 0U;
+    if ((usart->capabilities.cts) && (msr & UART_MSR_CTS)) {
+      modem_status.cts = 1U;
     }
-    if (usart->capabilities.dsr) {
-      if (msr & UART_MSR_DSR) {
-        modem_status.dsr = 1U;
-      } else {
-        modem_status.dsr = 0U;
-      }
-    } else {
-      modem_status.dsr = 0U;
+    if ((usart->capabilities.dsr) && (msr & UART_MSR_DSR)) {
+      modem_status.dsr = 1U;
     }
-    if (usart->capabilities.ri) {
-      if (msr & UART_MSR_RI) {
-        modem_status.ri = 1U;
-      } else {
-        modem_status.ri = 0U;
-      }
-    } else {
-      modem_status.ri = 0U;
+    if ((usart->capabilities.ri) && (msr & UART_MSR_RI)) {
+      modem_status.ri = 1U;
     }
-    if (usart->capabilities.dcd) {
-      if (msr & UART_MSR_DCD) {
-        modem_status.dcd = 1U;
-      } else {
-        modem_status.dcd = 0U;
-      }
-    } else {
-      modem_status.dcd = 0U;
+    if ((usart->capabilities.dcd) && (msr & UART_MSR_DCD)) {
+      modem_status.dcd = 1U;
     }
-  } else {
-    modem_status.cts = 0U;
-    modem_status.dsr = 0U;
-    modem_status.ri  = 0U;
-    modem_status.dcd = 0U;
   }
   return modem_status;
 }

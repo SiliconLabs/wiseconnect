@@ -1,0 +1,95 @@
+project_name: at_commands_soc
+package: wifi-ble
+quality: production
+label: at_commands_soc
+category: Example|Wi-Fi_BLE
+description: >
+  Demonstrates to run all commands individually
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi BLE
+  - name: Project Difficulty
+    value:
+      - Beginner
+sdk:
+  id: simplicity_sdk
+  version: "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.0
+source:
+  - path: demo.c
+  - path: at_command_parser.c
+  - path: wifi_commands.c
+  - path: network_commands.c
+  - path: bsd_socket_commands.c
+  - path: at_m4_power_save.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: at_utility.h
+define:
+  - name: SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT
+    value: 30
+  - name: SL_SI91X_PRINT_DBG_LOG
+  - name: SLI_SI91X_DBG_MIDDLEWARE_EN
+  - name: SLI_SI91X_MCU_INTR_BASED_RX_ON_UART
+  - name: SLI_AT_COMMAND_SUPPORT
+  - name: SLI_CONSOLE_SUPPRESS_AUTO_ECHO
+component:
+  - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: device_needs_ram_execution
+    from: wiseconnect3_sdk
+  - id: iot_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_soc_soft_reset
+    from: wiseconnect3_sdk
+  - id: sl_si91x_mem_pool_buffers_with_quota
+    from: wiseconnect3_sdk
+  - id: at_commands_auto_gen
+    from: wiseconnect3_sdk
+  - id: wifi_at_commands
+    from: wiseconnect3_sdk
+  - id: net_at_commands
+    from: wiseconnect3_sdk
+  - id: bsd_socket_at_commands
+    from: wiseconnect3_sdk
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/Ready.PNG
+  - path: resources/readme/sta.png
+  - path: resources/readme/at_power_save_comp.png
+
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -22,6 +22,8 @@ provides:
 template_contribution:
   - name: power_manager_ps2
     value: 1
+    condition:
+      - pm_ps2_component  
   - name: wdt_ps2
     value: sl_si91x_watchdog_timer.o
   - name: wdt_ps2

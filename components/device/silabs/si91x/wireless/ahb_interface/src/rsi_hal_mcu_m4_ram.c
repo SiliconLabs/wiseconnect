@@ -33,13 +33,13 @@
 
 /*==================================================*/
 /**
- * @fn          void sl_mv_m4_app_from_flash_to_ram(int option)
+ * @fn          void sli_mv_m4_app_from_flash_to_ram(int option)
  * @brief       Raise interrupt to NWP and poll for task done 
  * @param[in]   option
  * @param[out]  none  
  */
 
-void sl_mv_m4_app_from_flash_to_ram(int option)
+void sli_mv_m4_app_from_flash_to_ram(int option)
 {
 
   //! Disable all interrupts

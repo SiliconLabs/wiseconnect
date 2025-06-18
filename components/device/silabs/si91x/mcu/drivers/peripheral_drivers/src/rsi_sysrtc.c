@@ -145,20 +145,12 @@ void rsi_sysrtc_set_capture_reg(const uint32_t group)
  ******************************************************************************/
 void rsi_sysrtc_set_capture_gpio(const uint32_t group)
 {
-  uint8_t gpio_pin;
-  uint8_t gpio_mode;
-  switch (group) {
-    case 0:
-      gpio_pin  = SL_SI91X_SYSRTC_GROUP0_CAPTURE_PIN;
-      gpio_mode = SL_SI91X_SYSRTC_GROUP0_CAPTURE_MODE;
-      break;
-    case 1:
-      gpio_pin  = SL_SI91X_SYSRTC_GROUP1_CAPTURE_PIN;
-      gpio_mode = SL_SI91X_SYSRTC_GROUP1_CAPTURE_MODE;
-      break;
-    default:
+  uint8_t gpio_pin  = SL_SI91X_SYSRTC_GROUP0_CAPTURE_PIN;
+  uint8_t gpio_mode = SL_SI91X_SYSRTC_GROUP0_CAPTURE_MODE;
 
-      break;
+  if (group == 1) {
+    gpio_pin  = SL_SI91X_SYSRTC_GROUP1_CAPTURE_PIN;
+    gpio_mode = SL_SI91X_SYSRTC_GROUP1_CAPTURE_MODE;
   }
   if (group <= 1) {
     RSI_NPSSGPIO_InputBufferEn(gpio_pin, 1U);
@@ -172,28 +164,20 @@ void rsi_sysrtc_set_capture_gpio(const uint32_t group)
  ******************************************************************************/
 void rsi_sysrtc_set_compare_gpio(const uint32_t group, const uint32_t chan)
 {
-  uint8_t ch0_gpio_pin;
-  uint8_t ch1_gpio_pin;
-  uint8_t gpio_mode;
+  uint8_t ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN1;
+  uint8_t ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN2;
+  uint8_t gpio_mode    = SL_SI91X_SYSRTC_GROUP1_COMPARE_MODE;
 
-  switch (group) {
-    case 0:
+  if (group == 0) {
 #ifdef SYSRTC_CMP_DEF_PINS
-      ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN1;
-      ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN2;
-      gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_MODE;
+    ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN1;
+    ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_PIN2;
+    gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_MODE;
 #else
-      ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN1;
-      ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN2;
-      gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_MODE;
+    ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN1;
+    ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_PIN2;
+    gpio_mode    = SL_SI91X_SYSRTC_GROUP0_COMPARE_NDEF_MODE;
 #endif
-      break;
-    case 1:
-      ch0_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN1;
-      ch1_gpio_pin = SL_SI91X_SYSRTC_GROUP1_COMPARE_PIN2;
-      gpio_mode    = SL_SI91X_SYSRTC_GROUP1_COMPARE_MODE;
-
-      break;
   }
   if (group <= 1) {
     RSI_NPSSGPIO_InputBufferEn(ch0_gpio_pin, 1U);
@@ -206,7 +190,6 @@ void rsi_sysrtc_set_compare_gpio(const uint32_t group, const uint32_t chan)
       RSI_NPSSGPIO_SetDir(ch1_gpio_pin, 0U);
     }
   }
-  return;
 }
 
 /***************************************************************************/ /**

@@ -7,7 +7,7 @@ category: Device|Si91x|MCU|PSA Crypto
 quality: production
 metadata:
   sbom:
-   license: MSLA
+   license: Zlib
 component_root_path: ./components/device/silabs/si91x/wireless/crypto
 provides:
 - name: sl_si91x_psa_crypto
@@ -15,12 +15,12 @@ source:
 - path: src/sli_si91x_crypto_driver_functions.c
 include:
 - path: inc
-- path: inc
   file_list:
     - path: sli_si91x_crypto_driver_functions.h
 
 requires:
 - name: sl_si91x_crypto
+- name: psa_crypto
 
 template_contribution:
 - name: mbedtls_config

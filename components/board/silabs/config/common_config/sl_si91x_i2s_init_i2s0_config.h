@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
-* @file sl_si91x_i2s_init_12s0_config.h
+* @file sl_si91x_i2s_init_i2s0_config.h
 * @brief I2S0 driver configuration file.
 *******************************************************************************
 * # License
@@ -40,7 +40,6 @@ extern "C" {
 /******************************************************************************/
 /******************************* I2S Configuration **************************/
 // <<< Use Configuration Wizard in Context Menu >>>
-
 //  <e>I2S0 UC Configuration
 //  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
 //  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_i2s_config_transmit_receive API to modify the peripheral configuration.
@@ -48,9 +47,7 @@ extern "C" {
 #define I2S0_UC 0
 
 // <o SL_I2S0_RESOLUTION> I2S0 Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16

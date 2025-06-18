@@ -105,7 +105,7 @@ static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 
 //MQTT related variables
 uint8_t connected = 0, timeout = 0;
@@ -580,10 +580,10 @@ void wifi_app_task(void)
           LOG_PRINT("\r\nFailed to initiate power save in BLE mode\r\n");
         }
         //        uint32_t rc                                       = SL_STATUS_FAIL;
-        //        sl_wifi_performance_profile_t performance_profile = { .profile         = HIGH_PERFORMANCE,
+        //        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = HIGH_PERFORMANCE,
         //                                                              .listen_interval = 1000 };
         //
-        //        rc = sl_wifi_set_performance_profile(&performance_profile);
+        //        rc = sl_wifi_set_performance_profile_v2(&performance_profile);
         //        if (rc != SL_STATUS_OK) {
         //          printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
         //        }

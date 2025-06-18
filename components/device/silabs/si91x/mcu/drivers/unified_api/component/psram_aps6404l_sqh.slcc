@@ -17,5 +17,7 @@ provides:
   - name: psram_config
   - name: psram_aps6404l_sqh
 config_file:
-  - path: "config/psram_device_config/aps6404l_sqh/sl_si91x_psram_config.h"
+  - path: "config/psram_device_config/aps6404l_sqh/sl_si91x_psram_aps6404l_sqh_config.h"
     file_id: psram_config
+define:
+  - name: SLI_SI91X_MCU_PSRAM_APS6404L_SQH

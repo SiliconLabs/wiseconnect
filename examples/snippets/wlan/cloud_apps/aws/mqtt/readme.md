@@ -41,10 +41,9 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 After M4 processor wakes up via any of the above processes, the application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic.
 
-If macro **SL_SI91X_TICKLESS_MODE** is disabled, then M4 processor does not go to sleep. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes the **MQTT_PUBLISH_PAYLOAD** message on the **PUBLISH_ON_TOPIC** topic in the following cases:
+If the **SL_SI91X_TICKLESS_MODE** macro is disabled, for alarm-based wakeup, the PM (Power Manager) wakeup source uses the calendar wakeup to trigger the alarm. By default, the alarm is set to trigger after 30 seconds. Users can modify this setting as needed by adjusting the calendar wakeup configuration in the PM (Power Manager) wakeup source.
 
-1. Once in every **PUBLISH_PERIODICITY** time period.
-2. When an incoming publish is received by the application.
+![PM Wakeup Source Configuration](resources/readme/pm_wakeup_configuration.png)
 
 **NCP Mode**:
 
@@ -118,7 +117,7 @@ The application can be configured to suit your requirements and development envi
 
 ### Configure the Application
 
-#### Configure the follwoing parameters in `app.c`:
+#### Configure the following parameters in `app.c`:
 
 - The following parameters are common to SoC and NCP.
 
@@ -129,11 +128,15 @@ The application can be configured to suit your requirements and development envi
  #define SUBSCRIBE_QOS             QOS0              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
  #define PUBLISH_QOS               QOS0              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
  #define PUBLISH_PERIODICITY       30000             //! Publish periodicity in milliseconds
- #define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save
+ #define ENABLE_NWP_POWER_SAVE         1             //! Set this macro to 1 for enabling NWP power save
+ #define WRAP_PRIVATE_KEY              0             //! Enable this to wrap the private key
  ```
 
 - `SUBSCRIBE_TO_TOPIC` refers to the topic to which the device subscribes.
 - `PUBLISH_ON_TOPIC` refers to the topic to which the device publishes.
+- When `WRAP_PRIVATE_KEY` is enabled, the `aws_client_private_key` provided by the user will be wrapped using `sl_si91x_wrap()`. This `wrapped_private_key` will be loaded into the flash and used for the AWS connection.
+
+> Note: To use the `sl_si91x_wrap()` function, security must be enabled on the device. Follow the detailed instructions in **Section 5.4 and Section 5.5 - Enable Security Configurations in NWP and M4 Firmware Images** of the [UG574 SiWx917 SoC Manufacturing Utility User Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf).
 
 ### Configure the below parameters in `sl_net_default_values.h` present at `\<project>/config`
 
@@ -188,6 +191,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   ![SoC Application prints](resources/readme/application_prints_soc.png)
 
+  ![SoC Application prints](resources/readme/application_prints_soc1.png)
+
 - In this instance, the SiWx91x has established a secure connection with the AWS Cloud, subscribed to *aws_status* topic, and published a message "Hi from SiWx91x" on *siwx91x_status* topic.
 - The NWP processor is then set into associated power save mode.
 - Subsequently, the M4 processor is set into power save.
@@ -200,7 +205,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   - The button press triggers the M4 processor to wake from sleep. The application then performs a publish on *siwx91x_status* topic, and sets the M4 processor back to sleep.
 
   *case 3*: When ALARM-timer elapses
-  - By default, the ALARM-timer periodicity is 30 seconds (**ALARM_PERIODIC_TIME**). During every iteration, the ALARM triggers the M4 processor to wake from sleep. The application then performs a publish on *siwx91x_status* topic, and sets the M4 processor back to sleep.
+  - By default, the ALARM-timer periodicity is 30 seconds (**PUBLISH_PERIODICITY**). During every iteration, the ALARM triggers the M4 processor to wake from sleep. The application then performs a publish on *siwx91x_status* topic, and sets the M4 processor back to sleep.
 
 - **NCP Mode**:
 

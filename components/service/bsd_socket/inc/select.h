@@ -1,19 +1,31 @@
-/*******************************************************************************
-* @file  select.h
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+/***************************************************************************/ /**
+ * @file select.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #ifndef _SYS_SELECT_H
 #define _SYS_SELECT_H
@@ -30,17 +42,21 @@
 #include "sys.h"
 
 //typedef unsigned long long int __size_t ;
-
+#ifndef _TIMEVAL_DEFINED
+#define _TIMEVAL_DEFINED
 typedef struct timeval_t {
 	long		tv_sec;		/* seconds */
 	long long	tv_usec;	/* and microseconds */
 }timeval;
+#endif
 
-
+#ifndef _TIMESPEC_DEFINED
+#define _TIMESPEC_DEFINED
 typedef struct timespec_t {
 	long long	tv_sec;		/* seconds */
 	long	tv_nsec;	/* and nanoseconds */
 }timespec;
+#endif
 
 
 #if !defined(_SIGSET_T_DECLARED)
@@ -126,10 +142,18 @@ typedef	struct fd_set {
  * The select function modifies the sets passed to it, so if the function
  * is to be called again, the sets must be reinitialized.
  * The exceptfds parameter is not currently supported.
+ * @note 
+ * If the number of select requests is not configured, the select() API will fail and return -1, with the errno being set to EPERM (Operation not permitted).
+ * @note 
+ * The number of select operations the device can handle can be configured using the [SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-tcp-ip-feature-bitmap#sl-si91-x-ext-tcp-ip-total-selects).
  */
-
+#ifndef __ZEPHYR__
 int select(int __n, fd_set *__readfds, fd_set *__writefds,
 		 fd_set *__exceptfds, const struct timeval *__timeout);
+#else
+int select(int __n, sl_si91x_fdset_t *__readfds, sl_si91x_fdset_t *__writefds,
+		 sl_si91x_fdset_t *__exceptfds, const struct timeval *__timeout);
+#endif                 
 
 
 #endif /* !__INSIDE_CYGWIN_NET__ */

@@ -316,11 +316,12 @@
 #define RESOLVE_ENABLE                          0
 #define LOCAL_MTU_SIZE                          232
 
-#define PERIPHERAL1 0
-#define PERIPHERAL2 1
-#define PERIPHERAL3 2
-#define CENTRAL1    RSI_BLE_MAX_NBR_PERIPHERALS
-#define CENTRAL2    RSI_BLE_MAX_NBR_PERIPHERALS + 1
+#define PERIPHERAL1                     0
+#define PERIPHERAL2                     1
+#define PERIPHERAL3                     2
+#define CENTRAL1                        RSI_BLE_MAX_NBR_PERIPHERALS
+#define CENTRAL2                        RSI_BLE_MAX_NBR_PERIPHERALS + 1
+#define VARIABLE_LENGTH_CHARACTERISTICS 0
 
 /***********************************************************************************************************************************************/
 //! application events list

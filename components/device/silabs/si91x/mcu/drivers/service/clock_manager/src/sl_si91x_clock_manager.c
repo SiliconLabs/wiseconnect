@@ -99,12 +99,17 @@ sl_status_t sl_si91x_clock_manager_init(void)
   RSI_ULPSS_RefClkConfig(ULPSS_40MHZ_CLK);
 
   // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_FREQ);
+  status = sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_FREQ);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 
 #ifdef SL_SI91X_REQUIRES_INTF_PLL
   // Configuring the interface PLL clock to 160MHz used by the peripherals whose source clock is INTF_PLL
-  sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_FREQ, PLL_REF_CLK_VAL_XTAL);
-
+  status = sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_FREQ, PLL_REF_CLK_VAL_XTAL);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 // Configure QSPI clock with INTF PLL as input source
 #if defined(CLOCK_ROMDRIVER_PRESENT)
   ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(pCLK, QSPI_INTFPLLCLK, QSPI_SWALLO_EN, QSPI_ODD_DIV_EN, QSPI_DIV_FACTOR);
@@ -144,7 +149,7 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
   uint32_t pll_ref_clk = PLL_REF_CLK_VAL_XTAL;
 
   // Validating for correct Clock Source input
-  if (clk_source > M4_SLEEPCLK) {
+  if ((clk_source > M4_SLEEPCLK) || (pll_freq > MAX_PLL_FREQUENCY)) {
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
   }
@@ -182,9 +187,6 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
   // RSI API to set M4 SOC clock is called and the status is converted to the SL error code.
   error_status = RSI_CLK_M4SocClkConfig(pCLK, clk_source, div_factor);
   status       = convert_rsi_to_sl_error_code(error_status);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
 
   return status;
 }
@@ -205,10 +207,14 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
  ******************************************************************************/
 sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pll_freq, uint32_t pll_ref_clk)
 {
-  M4CLK_Type *pCLK         = M4CLK;
+  const M4CLK_Type *pCLK   = M4CLK;
   rsi_error_t error_status = RSI_OK;
   sl_status_t status;
 
+  //Return the error code if frequency is more than 180MHz
+  if (pll_freq > MAX_PLL_FREQUENCY) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
   // Configure the registers for clock more than 120MHz in PS4
   if (pll_freq >= PLL_PREFETCH_LIMIT) {
     RSI_PS_PS4SetRegisters();
@@ -258,7 +264,7 @@ sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pl
  ******************************************************************************/
 sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *m4_core_clk_freq)
 {
-  M4CLK_Type *pCLK = M4CLK;
+  const M4CLK_Type *pCLK = M4CLK;
   sl_si91x_m4_soc_clk_src_sel_t m4_core_clk_src;
 
   // return currently active core clock frequency via the pointer by reference

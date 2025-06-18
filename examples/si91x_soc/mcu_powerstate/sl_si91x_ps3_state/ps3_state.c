@@ -25,8 +25,7 @@
  ******************************************************************************/
 void low_power_configuration(void);
 
-#define ACTIVE_STATE    0 //Set the bit to enable the active state.
-#define NPSS_GPIO_PIN_3 3
+#define ACTIVE_STATE 0 //Set the bit to enable the active state.
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -34,8 +33,6 @@ void low_power_configuration(void);
 
 void ps3_state_init(void)
 {
-  // Reduces the RETN_LDO voltage by 0.05V.
-  RSI_IPMU_Retn_Voltage_Reduction();
   // change the TASS reference clock to MHz RC.
   RSI_ChangeTassRefClock();
   // Power downs the domains.
@@ -43,21 +40,13 @@ void ps3_state_init(void)
   // Shutdown Wireless NWP.
   ps_wireless_shutdown();
   DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
-  // Change the clock mode to performace mode(In ps3 clk frequency is 90MHz).
+  // Change the clock mode to performace mode(In ps3 clk frequency is 80MHz).
   sl_si91x_power_manager_set_clock_scaling(SL_SI91X_POWER_MANAGER_PERFORMANCE);
 
 #if ACTIVE_STATE
-  // Initialize the NPSS GPIO 3 for toggles.
-  RSI_NPSSGPIO_InputBufferEn(NPSS_GPIO_PIN_3, 1U);
-  RSI_NPSSGPIO_SetPinMux(NPSS_GPIO_PIN_3, 0);
-  RSI_NPSSGPIO_SetDir(NPSS_GPIO_PIN_3, NPSS_GPIO_DIR_OUTPUT);
-
   DEBUGOUT("PS%d Active State  \n", sl_si91x_power_manager_get_current_state());
   while (1) {
-    // Make GPIO-High
-    RSI_NPSSGPIO_SetPin(NPSS_GPIO_PIN_3, 1U);
-    // Make GPIO-High
-    RSI_NPSSGPIO_SetPin(NPSS_GPIO_PIN_3, 0U);
+    // Idle loop to measure active current consumption
   }
 #endif
   DEBUGOUT("PS%d Sleep State\n", sl_si91x_power_manager_get_current_state());
@@ -94,13 +83,12 @@ void low_power_configuration(void)
                            | M4SS_PWRGATE_ULP_EFUSE_PERI | M4SS_PWRGATE_ULP_QSPI_ICACHE);
 
   // Power gate the ULPSS peripherals
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_CAP |
+  RSI_PS_UlpssPeriPowerDown(
 #ifndef DEBUG_UART
-                            ULPSS_PWRGATE_ULP_UART |
+    ULPSS_PWRGATE_ULP_UART |
 #endif
-                            ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA
-                            | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
 
   // Disable the supply to some NPSS peripherals
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);

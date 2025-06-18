@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -33,17 +33,17 @@
 #include "sl_si91x_host_interface.h"
 #include "sl_constants.h"
 #include "cmsis_os2.h"
-#include "em_core.h"
+#include "sl_core.h"
 #include <string.h>
 #include "sl_rsi_utility.h"
 
-#define BUFFER_TYPE    4
-#define WATERMARKLEVEL 10
+#define SLI_BUFFER_TYPE    4
+#define SLI_WATERMARKLEVEL 10
 static sli_mem_pool_handle_t mem_pool;
 static const sl_wifi_buffer_configuration_t *configuration;
-void *allocated_wifi_buffer                   = NULL;
-static uint8_t buffer_allocation[BUFFER_TYPE] = { 0, 0, 0, 0 };
-static uint8_t quota[BUFFER_TYPE];
+void *allocated_wifi_buffer                       = NULL;
+static uint8_t buffer_allocation[SLI_BUFFER_TYPE] = { 0, 0, 0, 0 };
+static uint8_t quota[SLI_BUFFER_TYPE];
 
 #ifndef SL_WIFI_BUFFERS_FREE_WAIT_TIME
 #define SL_WIFI_BUFFERS_FREE_WAIT_TIME 1000 // wait for 1 second to free all the wi-fi buffer
@@ -58,7 +58,7 @@ static sl_status_t sl_si91x_check_for_buffer_availability(sl_wifi_buffer_type_t 
 static bool sl_si91x_check_for_buffer_empty(void);
 /*---------------------------------------------------------------------------------*/
 
-sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration_t *config)
+sl_status_t sli_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration_t *config)
 {
   SL_VERIFY_POINTER_OR_RETURN(config, SL_STATUS_NULL_POINTER);
   sl_si91x_convert_config_structure_to_array(config);
@@ -78,11 +78,11 @@ sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration
     pool_buffer = allocated_wifi_buffer;
   }
 
-  sli_mem_pool_create(&mem_pool, configuration->block_size, block_count, pool_buffer, buffer_size);
+  sli_mem_pool_create(&mem_pool, (uint16_t)configuration->block_size, block_count, pool_buffer, buffer_size);
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_host_deinit_buffer_manager(void)
+sl_status_t sli_si91x_host_deinit_buffer_manager(void)
 {
   // Get the current tick count to track elapsed time for deinit
   uint32_t start = osKernelGetTickCount();
@@ -113,37 +113,51 @@ sl_status_t sl_si91x_host_deinit_buffer_manager(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
-                                          sl_wifi_buffer_type_t type,
-                                          uint32_t buffer_size,
-                                          uint32_t wait_duration_ms)
+sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
+                                           sl_wifi_buffer_type_t type,
+                                           uint32_t buffer_size,
+                                           uint32_t wait_duration_ms)
 {
+  UNUSED_PARAMETER(buffer_size); // Unused parameter kept for consistency or future use
 
-  UNUSED_PARAMETER(buffer_size);
+  // Validate input parameter
+  if (buffer == NULL) {
+    return SL_STATUS_INVALID_PARAMETER; // Return error if buffer is a NULL pointer
+  }
+
+  uint32_t start_time = osKernelGetTickCount(); // Capture the current system tick count to measure elapsed time
+  uint32_t delay      = 2;                      // Initial delay duration in milliseconds
   sl_status_t result;
-  do {
-    // Ensuring that buffers are allocated as per the quota set.
-    result = sl_si91x_check_for_buffer_availability(type);
-  } while (result == SL_STATUS_FULL && osDelay(1) == 0);
-  uint32_t start = osKernelGetTickCount();
-  do {
-    *buffer = sli_mem_pool_alloc(&mem_pool);
-    if (*buffer != NULL) {
-      break;
-    } else {
-      osDelay(1);
-    }
-  } while ((osKernelGetTickCount() - start) < wait_duration_ms);
 
+  do {
+    // Check if buffer quota is available for the given type
+    result = sl_si91x_check_for_buffer_availability(type);
+    if (result == SL_STATUS_OK) {
+      // Try to allocate memory for the buffer from the memory pool
+      *buffer = sli_mem_pool_alloc(&mem_pool);
+      if (*buffer != NULL) {
+        break; // Exit the loop if allocation is successful
+      }
+    }
+
+    osDelay(delay);                        // Wait to give other tasks CPU time before retrying allocation
+    delay = (delay < 50) ? delay * 2 : 50; // Exponential backoff for delay with a maximum cap at 50 ms
+
+  } while (sl_si91x_host_elapsed_time(start_time) <= wait_duration_ms); // Continue until time expires
+
+  // If no buffer was allocated after the wait duration, return an error
   if (*buffer == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
-  (*buffer)->type = type;
-  // Increasing the count of current allocation of a buffer type
-  sl_si91x_buffer_type_allocation(type);
-  (*buffer)->node.node = NULL;
-  (*buffer)->length    = configuration->block_size - sizeof(sl_wifi_buffer_t);
-  return SL_STATUS_OK;
+
+  // Initialize allocated buffer fields for the caller's usage
+  (*buffer)->type      = (uint8_t)type;                                        // Assign buffer type
+  (*buffer)->node.node = NULL;                                                 // Set node pointer to NULL
+  (*buffer)->length    = configuration->block_size - sizeof(sl_wifi_buffer_t); // Set usable length
+
+  sl_si91x_buffer_type_allocation(type); // Update internal buffer allocation counter for the type
+
+  return SL_STATUS_OK; // Successfully allocated and initialized buffer
 }
 
 void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length)
@@ -157,7 +171,7 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
   return (void *)&buffer->data[offset];
 }
 
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
+void sli_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
   if (buffer == NULL) {
     return;
@@ -194,8 +208,8 @@ static sl_status_t sl_si91x_check_for_valid_config(const sl_wifi_buffer_configur
 {
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_CRITICAL();
-  if (config->control_buffer_quota < WATERMARKLEVEL || config->rx_buffer_quota < WATERMARKLEVEL
-      || config->tx_buffer_quota < WATERMARKLEVEL) {
+  if (config->control_buffer_quota < SLI_WATERMARKLEVEL || config->rx_buffer_quota < SLI_WATERMARKLEVEL
+      || config->tx_buffer_quota < SLI_WATERMARKLEVEL) {
     CORE_EXIT_CRITICAL();
     SL_DEBUG_LOG("Quota for buffer types should be atleast 10");
     return SL_STATUS_INVALID_PARAMETER;
@@ -228,7 +242,7 @@ static bool sl_si91x_check_for_buffer_empty(void)
 {
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_CRITICAL();
-  for (int i = 0; i < BUFFER_TYPE; i++) {
+  for (int i = 0; i < SLI_BUFFER_TYPE; i++) {
     if (buffer_allocation[i] != 0) {
       CORE_EXIT_CRITICAL();
       return false;

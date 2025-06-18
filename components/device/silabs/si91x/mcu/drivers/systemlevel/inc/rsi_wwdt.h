@@ -209,7 +209,7 @@ void RSI_WWDT_DeInit(MCU_WDT_Type *pstcWDT);
 
 void RSI_WWDT_Start(MCU_WDT_Type *pstcWDT);
 
-void RSI_WWDT_Init(MCU_WDT_Type *pstcWDT);
+void RSI_WWDT_Init(const MCU_WDT_Type *pstcWDT);
 void IRQ020_Handler(void);
 
 #ifdef __cplusplus

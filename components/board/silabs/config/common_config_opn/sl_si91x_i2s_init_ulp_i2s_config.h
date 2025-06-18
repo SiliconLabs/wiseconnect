@@ -49,9 +49,7 @@ extern "C" {
 #define ULP_I2S_UC 0
 
 // <o SL_ULP_I2S_RESOLUTION> ULP_I2S Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16
@@ -75,7 +73,7 @@ extern "C" {
 // </e>
 #if USER_CONFIGURATION_ENABLE
 // <<< sl:start pin_tool >>>
-// <i2s_ulp signal=DOUT0,DIN0> SL_ULP_I2S
+// <i2s_ulp signal=(SCLK),(WSCLK),DOUT0,DIN0> SL_ULP_I2S
 // $[I2S_ULP_SL_ULP_I2S]
 #ifndef SL_ULP_I2S_PERIPHERAL
 #define SL_ULP_I2S_PERIPHERAL ULP_I2S

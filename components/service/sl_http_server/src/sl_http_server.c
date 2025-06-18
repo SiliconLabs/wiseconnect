@@ -1,14 +1,29 @@
-/*******************************************************************************
+/***************************************************************************/ /**
+ * @file  sl_http_server.c
+ *******************************************************************************
  * # License
- * Copyright 2024 Silicon Laboratories Inc. www.silabs.com
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
 
@@ -25,7 +40,8 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket.h"
 #include "socket.h"
-#include "sl_net_rsi_utility.h"
+#include "sli_net_utility.h"
+#include "sl_wifi.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -298,15 +314,14 @@ static void sli_http_server(const void *arg)
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
-
-  // Indicate to HTTP Server start that http server thread started successfully.
-  osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_SUCCESS);
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
     SL_DEBUG_LOG("\r\nSocket creation failed with bsd error: %d\r\n", errno);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if socket call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
   SL_DEBUG_LOG("\r\nServer Socket ID : %d\r\n", server_socket);
 
@@ -318,7 +333,9 @@ static void sli_http_server(const void *arg)
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if setsockopt call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
 
   uint8_t ap_vap = 1;
@@ -327,7 +344,9 @@ static void sli_http_server(const void *arg)
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if setsockopt call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
 
   server_address.sin_family = AF_INET;
@@ -337,23 +356,30 @@ static void sli_http_server(const void *arg)
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSocket bind failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if bind call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
 
   socket_return_value = listen(server_socket, BACK_LOG);
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSocket listen failed with bsd error: %d\r\n", errno);
     close(server_socket);
-    return;
+    // Set flag HTTP_SERVER_START_FAILED if listen call fails
+    osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
+    osThreadExit(); // Exit thread on failure
   }
   SL_DEBUG_LOG("\r\nListening on Local Port : %d\r\n", server_address.sin_port);
 
   sl_si91x_time_value timeout = { 0 };
   timeout.tv_sec              = server_handle->config.client_idle_time;
 
+  // Indicate to HTTP server start API that HTTP server has started successfully.
+  osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_SUCCESS);
+
   while (1) {
     socket_return_value = sl_si91x_accept_async(server_socket, client_accept_callback);
-    if (socket_return_value != SI91X_NO_ERROR) {
+    if (socket_return_value != SLI_SI91X_NO_ERROR) {
       SL_DEBUG_LOG("\r\nSocket accept failed with bsd error: %d\r\n", errno);
     }
 
@@ -419,71 +445,92 @@ static int sli_process_socket_buffered_data(int fd, char *data, size_t data_leng
   return 0;
 }
 
-static int sli_send_response_headers(sl_http_server_t *server, sl_http_server_response_t *response, int window_size)
+static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_response_t *response, int window_size)
 {
-  char response_code[16]           = { 0 };
-  char content_length[32]          = { 0 };
-  char *http_version               = NULL;
-  static char http_status_line[16] = { 0 };
+  char response_code[16]     = { 0 };
+  char content_length[32]    = { 0 };
+  char *http_version         = NULL;
+  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->expected_data_length;
+  size_t buffer_length       = 0;
+  char *response_buffer      = (char *)malloc(max_response_length);
 
-  // Convert the response code to a string
+  // Check if memory allocation was successful
+  if (response_buffer == NULL) {
+    SL_DEBUG_LOG("\r\nMemory allocation failed for response buffer\r\n");
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  // Prepare response code
   sprintf(response_code, "%d", response->response_code);
 
+  // Prepare content length if available
   if (response->expected_data_length > 0) {
     sprintf(content_length, "%lu", response->expected_data_length);
   }
 
+  // Determine HTTP version
   if (SL_HTTP_VERSION_1_1 == server->request.version) {
     http_version = "HTTP/1.1 ";
   } else {
     http_version = "HTTP/1.0 ";
   }
 
-  strncpy(http_status_line, http_version, strlen(http_version) + 1); // +1 for null terminator
-  strncat(http_status_line, response_code, strlen(response_code));
-  strncat(http_status_line, "\r\n", 3); // +1 for null terminator
+  // Add HTTP status line to buffer
+  buffer_length += snprintf(response_buffer,
+                            strlen(http_version) + strlen(response_code) + 3,
+                            "%s%s\r\n",
+                            http_version,
+                            response_code);
 
-  sli_process_socket_buffered_data(server->client_socket, http_status_line, strlen(http_status_line), window_size);
-
+  // Add content-type if available
   if (NULL != response->content_type) {
-    sli_process_socket_buffered_data(server->client_socket, "Content-Type: ", strlen("Content-Type: "), window_size);
-    sli_process_socket_buffered_data(server->client_socket,
-                                     response->content_type,
-                                     strlen(response->content_type),
-                                     window_size);
-    sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+    buffer_length += snprintf(response_buffer + buffer_length,
+                              strlen("Content-Type: ") + strlen(response->content_type) + 3,
+                              "Content-Type: %s\r\n",
+                              response->content_type);
   }
 
+  // Add content-length if available
   if (response->expected_data_length > 0) {
-    sli_process_socket_buffered_data(server->client_socket,
-                                     "Content-Length: ",
-                                     strlen("Content-Length: "),
-                                     window_size);
-    sli_process_socket_buffered_data(server->client_socket, content_length, strlen(content_length), window_size);
-    sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+    buffer_length += snprintf(response_buffer + buffer_length,
+                              strlen("Content-Length: ") + strlen(content_length) + 3,
+                              "Content-Length: %s\r\n",
+                              content_length);
   }
 
-  // Append the headers to the response
+  // Add custom headers if available
   if ((response->header_count > 0) && (NULL != response->headers)) {
     for (int i = 0; i < response->header_count; i++) {
-      sli_process_socket_buffered_data(server->client_socket,
-                                       response->headers[i].key,
-                                       strlen(response->headers[i].key),
-                                       window_size);
-      sli_process_socket_buffered_data(server->client_socket, ": ", 2, window_size);
-      sli_process_socket_buffered_data(server->client_socket,
-                                       response->headers[i].value,
-                                       strlen(response->headers[i].value),
-                                       window_size);
-
-      sli_process_socket_buffered_data(server->client_socket, "\r\n", 2, window_size);
+      buffer_length += snprintf(response_buffer + buffer_length,
+                                strlen(response->headers[i].key) + strlen(response->headers[i].value) + 5,
+                                "%s: %s\r\n",
+                                response->headers[i].key,
+                                response->headers[i].value);
     }
   }
 
-  sli_process_socket_buffered_data(server->client_socket,
-                                   HTTP_CONNECTION_STATUS_HEADER,
-                                   strlen(HTTP_CONNECTION_STATUS_HEADER),
-                                   window_size);
+  // Add connection status header
+  buffer_length += snprintf(response_buffer + buffer_length,
+                            strlen(HTTP_CONNECTION_STATUS_HEADER) + 1,
+                            "%s",
+                            HTTP_CONNECTION_STATUS_HEADER);
+
+  // Add response data if available
+  if ((NULL != response->data) && (response->current_data_length > 0)) {
+    buffer_length +=
+      snprintf(response_buffer + buffer_length, strlen((const char *)response->data) + 1, "%s", (char *)response->data);
+  }
+
+  // Send all headers in a single call
+  if (sli_process_socket_buffered_data(server->client_socket, (char *)response_buffer, buffer_length, window_size)
+      != 0) {
+    SL_DEBUG_LOG("\r\nResponse buffer send failed.\r\n");
+    free(response_buffer);
+    return -1;
+  }
+
+  // Free the allocated memory
+  free(response_buffer);
 
   return 0;
 }
@@ -495,6 +542,16 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
 {
   if (!handle) {
     return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // In AP-only mode and concurrent mode, do not initialize HTTP server when AP interface is down
+  if (((sli_get_opermode() == SL_SI91X_ACCESS_POINT_MODE) || (sli_get_opermode() == SL_SI91X_CONCURRENT_MODE))
+      && (!sl_wifi_is_interface_up(SL_WIFI_AP_INTERFACE))) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+  // In STA-only mode, do not initialize HTTP server when STA interface is down
+  else if ((sli_get_opermode() == SL_SI91X_CLIENT_MODE) && (!sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE))) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
   // Initialize the server fields
@@ -556,6 +613,12 @@ sl_status_t sl_http_server_start(sl_http_server_t *handle)
                                      osWaitForever);
   if (result == (uint32_t)osErrorTimeout || result == (uint32_t)osErrorResource) {
     // TODO: Handle any required clean up
+    return SL_STATUS_FAIL;
+  }
+  // Check if the flag HTTP_SERVER_START_FAILED is set. If it is, clear the flag, de-initialize the HTTP server, and return a failure status.
+  else if (result & HTTP_SERVER_START_FAILED) {
+    osEventFlagsClear(handle->http_server_id, HTTP_SERVER_START_FAILED);
+    sl_http_server_deinit(handle);
     return SL_STATUS_FAIL;
   }
 
@@ -748,18 +811,9 @@ sl_status_t sl_http_server_send_response(sl_http_server_t *handle, sl_http_serve
 
   getsockopt(handle->client_socket, SOL_SOCKET, SO_SNDBUF, (char *)&buffersize, &buffersize_length);
 
-  sli_send_response_headers(handle, response, buffersize);
-
-  if ((NULL != response->data) && (response->current_data_length > 0)) {
-    if (sli_process_socket_buffered_data(handle->client_socket,
-                                         (char *)response->data,
-                                         response->current_data_length,
-                                         buffersize)
-        == -1) {
-      SL_DEBUG_LOG("Failed to send buffer");
-      // TODO: Free the response string
-      return SL_STATUS_FAIL;
-    }
+  if (sli_send_response_buffer(handle, response, buffersize) != 0) {
+    SL_DEBUG_LOG("Failed to send buffer");
+    return SL_STATUS_FAIL;
   }
 
   handle->rem_resp_length = response->expected_data_length - response->current_data_length;

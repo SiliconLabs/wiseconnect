@@ -110,7 +110,8 @@ void config_timer_example_init(void)
   version = sl_si91x_config_timer_get_version();
   DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
 #if (CT_PWM_MODE_USECASE == SET)
-  sl_config_timer_ocu_config_t ct_ocu_config;
+  // Initializing ct OCU parameters structure with default values
+  sl_config_timer_ocu_config_t ct_ocu_config = { 0 };
   // Initializing ct OCU configuration structure
   ct_ocu_config.is_counter0_ocu_output_enabled         = true;
   ct_ocu_config.is_counter1_ocu_output_enabled         = true;
@@ -322,7 +323,6 @@ static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq)
   if (freq != 0) {
     sl_si91x_config_timer_get_match_value(freq, &rate);
     ticks = (rate * percent) / HUNDRED;
-    DEBUGOUT("ticks:%ld, rate:%ld, percent:%d\n", ticks, rate, percent);
     return ticks;
   } else {
     return 0;

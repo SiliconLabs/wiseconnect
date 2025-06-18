@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
-* @file sl_si91x_i2c_init_inst_config.h
-* @brief I2c driver configuration file.
+* @file sl_si91x_i2s_init_inst_config.h
+* @brief I2S driver configuration file.
 *******************************************************************************
 * # License
 * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -52,9 +52,7 @@ extern "C" {
 #define INSTANCE_UC 0
 
 // <o SL_INSTANCE_RESOLUTION> INSTANCE Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16

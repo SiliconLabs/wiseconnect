@@ -78,14 +78,14 @@ uint8_t ble_acceptlist_addr1[BLE_ACCEPT_LIST_ADDR_LEN] = { 0xDA, 0x81, 0xE0, 0xB
 /*=======================================================================*/
 //!    Application powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 1 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 1 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 //! Application global parameters.
@@ -663,7 +663,7 @@ void rsi_ble_peripheral(void)
     LOG_PRINT("set ae adv enable success \n");
   }
 #endif
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -673,7 +673,7 @@ void rsi_ble_peripheral(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return;

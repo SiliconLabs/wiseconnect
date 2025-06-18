@@ -49,12 +49,9 @@
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
 sl_status_t status;
-static uint8_t gpio_initialised = false;
 uint8_t HP_intr[8] = { PIN_INTR_0, PIN_INTR_1, PIN_INTR_2, PIN_INTR_3, PIN_INTR_4, PIN_INTR_5, PIN_INTR_6, PIN_INTR_7 };
-uint8_t HP_button_index  = 0;
-uint8_t ULP_intr[8]      = { ULP_PIN_INTR_0, ULP_PIN_INTR_1, ULP_PIN_INTR_2, ULP_PIN_INTR_3,
-                             ULP_PIN_INTR_4, ULP_PIN_INTR_5, ULP_PIN_INTR_6, ULP_PIN_INTR_7 };
-uint8_t ULP_button_index = 0;
+uint8_t ULP_intr[8] = { ULP_PIN_INTR_0, ULP_PIN_INTR_1, ULP_PIN_INTR_2, ULP_PIN_INTR_3,
+                        ULP_PIN_INTR_4, ULP_PIN_INTR_5, ULP_PIN_INTR_6, ULP_PIN_INTR_7 };
 // This stores the button state so that IRQ ISRs know when to notify buttonIsrs.
 #if (SL_SI91x_BUTTON_COUNT > 0)
 static int8_t buttonState[SL_SI91x_BUTTON_COUNT];
@@ -70,6 +67,8 @@ void sl_si91x_button_internal_isr(const sl_button_t *handle);
 static void button_HP_IRQHandler(uint8_t intr_no);
 static void button_ULP_IRQHandler(uint8_t intr_no);
 static void button_UULP_IRQHandler(uint8_t intr_no);
+static int8_t button_get_free_ulp_context_index(void);
+static int8_t button_get_free_hp_context_index(void);
 
 /**
  * @brief New Interrupt handler for button
@@ -93,19 +92,33 @@ void button_UULP_IRQHandler(uint8_t intr_no)
   sl_si91x_button_internal_isr(UULP_button_context[index]);
 }
 
+int8_t button_get_free_ulp_context_index(void)
+{
+  for (int i = 0; i < MAX_ULP_BUTTON_COUNT; i++) {
+    if (ULP_button_context[i] == NULL) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int8_t button_get_free_hp_context_index(void)
+{
+  for (int i = 0; i < MAX_HP_BUTTON_COUNT; i++) {
+    if (HP_button_context[i] == NULL) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 void sl_si91x_button_init(const sl_button_t *handle)
 {
   sl_si91x_gpio_pin_config_t sl_button_pin_config = { { handle->port, handle->pin }, GPIO_INPUT };
   sl_gpio_t button_port_pin                       = { handle->port, handle->pin };
+  uint8_t button_context_index                    = 0;
 
   do {
-    // GPIO Driver initialization if not initialized.
-    if (!gpio_initialised) {
-      status = sl_gpio_driver_init();
-      if (status != SL_STATUS_OK) {
-        break;
-      }
-    }
 
     // Set button configuration
     status = sl_gpio_set_configuration(sl_button_pin_config);
@@ -121,28 +134,81 @@ void sl_si91x_button_init(const sl_button_t *handle)
                                                     handle->pin,
                                                     (void *)&button_UULP_IRQHandler);
     } else if (handle->port == ULP) {
-      ULP_button_context[ULP_button_index] = handle;
+      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO); // Enable GPIO ULP_CLK
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+      button_context_index                     = button_get_free_ulp_context_index();
+      ULP_button_context[button_context_index] = handle;
       // ULP_intr identifies the interrupt source and is passed to the ULP GPIO callback for processing.
       sl_gpio_driver_configure_interrupt(&button_port_pin,
-                                         ULP_intr[ULP_button_index],
+                                         ULP_intr[button_context_index],
                                          (sl_gpio_interrupt_flag_t)handle->interrupt_config,
                                          (void *)&button_ULP_IRQHandler,
                                          AVL_INTR_NO);
-      ULP_button_index++;
     } else {
-      HP_button_context[HP_button_index] = handle;
+      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO); // Enable GPIO M4_CLK
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+      button_context_index                    = button_get_free_hp_context_index();
+      HP_button_context[button_context_index] = handle;
       // HP_intr identifies the interrupt source and is passed to the HP GPIO callback for processing.
       sl_gpio_driver_configure_interrupt(&button_port_pin,
-                                         HP_intr[HP_button_index],
+                                         HP_intr[button_context_index],
                                          (sl_gpio_interrupt_flag_t)handle->interrupt_config,
                                          (void *)&button_HP_IRQHandler,
                                          AVL_INTR_NO);
-      HP_button_index++;
     }
 
-    gpio_initialised                   = true;
     buttonState[handle->button_number] = 1;
   } while (false);
+}
+
+sl_status_t sl_si91x_button_deinit(const sl_button_t *handle)
+{
+  sl_status_t status                      = SL_STATUS_OK;
+  sl_si91x_gpio_instances_t gpio_instance = M4_GPIO_INSTANCE;
+  uint8_t index                           = 0;
+  uint8_t intr_no                         = 0;
+  do {
+    if (handle->port == UULP_VBAT) {
+      intr_no       = handle->pin;
+      gpio_instance = UULP_GPIO_INSTANCE;
+      sl_si91x_gpio_configure_uulp_interrupt(SL_GPIO_INTERRUPT_NONE, intr_no);
+      UULP_button_context[handle->pin] = NULL;
+    } else if (handle->port == ULP) {
+      for (index = 0; index < MAX_ULP_BUTTON_COUNT; index++) {
+        if (ULP_button_context[index] == handle) {
+          ULP_button_context[index] = NULL;
+          break;
+        }
+      }
+      if (index == MAX_ULP_BUTTON_COUNT) {
+        status = SL_STATUS_INVALID_HANDLE;
+        break;
+      }
+      intr_no       = index;
+      gpio_instance = ULP_GPIO_INSTANCE;
+      sl_si91x_gpio_configure_ulp_pin_interrupt(intr_no, SL_GPIO_INTERRUPT_NONE, handle->pin);
+    } else {
+      for (index = 0; index < MAX_HP_BUTTON_COUNT; index++) {
+        if (HP_button_context[index] == handle) {
+          HP_button_context[index] = NULL;
+          break;
+        }
+      }
+      if (index == MAX_HP_BUTTON_COUNT) {
+        status = SL_STATUS_INVALID_HANDLE;
+        break;
+      }
+      intr_no       = index;
+      gpio_instance = M4_GPIO_INSTANCE;
+      sl_gpio_configure_interrupt(handle->port, handle->pin, intr_no, SL_GPIO_INTERRUPT_DISABLE);
+    }
+    sl_gpio_driver_unregister(gpio_instance, GPIO_PIN_INTERRUPT, intr_no);
+  } while (false);
+  return status;
 }
 
 uint8_t sl_si91x_button_get_state(uint8_t button_number)

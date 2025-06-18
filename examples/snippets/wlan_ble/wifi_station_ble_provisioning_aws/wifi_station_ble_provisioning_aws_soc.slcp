@@ -17,13 +17,12 @@ filter:
       - Intermediate
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 source:
   - path: app.c
-  - path: main.c
   - path: ble_app.c
   - path: wifi_app.c
   - path: i2c_leader_example.c
@@ -38,7 +37,7 @@ define:
   - name: SL_SI91X_PRINT_DBG_LOG
   - name: SLI_SI91X_SOCKETS
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: syscalls

@@ -14,10 +14,11 @@ provides:
 source:
 - path: src/sl_net_basic_certificate_store.c
 - path: src/sl_net.c
-- path: si91x/sl_net_si91x.c
-  condition: ["sl_si91x_internal_stack"]
+- path: src/sli_net_common_utility.c
 - path: src/sl_net_for_lwip.c
   condition: ["sl_si91x_lwip_stack"]
+- path: src/sl_net_for_dual_stack.c
+  condition: ["sl_si91x_network_dual_stack"]
 include:
 - path: inc
 - path: inc
@@ -28,11 +29,19 @@ include:
     - path: sl_net_types.h
     - path: sl_net_wifi_types.h
     - path: sl_net.h
+    - path: sli_net_common_utility.h
+    - path: sli_net_constants.h
+    - path: sli_net_types.h
 - path: inc
   file_list:
     - path: sl_net_for_lwip.h
   condition:
     - sl_si91x_lwip_stack
+- path: inc
+  file_list:
+    - path: sl_net_for_lwip.h
+  condition:
+    - sl_si91x_network_dual_stack
 
 define:
 - name: SL_NET_COMPONENT_INCLUDED
@@ -41,7 +50,6 @@ define:
 requires:
 - name: wifi
 - name: network_config_manager
-- name: credential_manager
 
 recommends:
 - id: "%extension-wiseconnect3_sdk%basic_network_config_manager"

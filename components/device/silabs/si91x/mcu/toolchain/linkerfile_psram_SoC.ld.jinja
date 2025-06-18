@@ -143,7 +143,7 @@ SECTIONS
 		. = ALIGN(32);
 		{% if (psram_present and psram_linker_config_enabled and ram_execution) %}
 		KEEP(*(.reset_handler))	
-        *(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *port.o *heap_*.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *UDMA.o *sl_rsi_utility.o *ipmu_apis.o *rsi_d_cache.o *sli_si91x_power_manager.o *sl_si91x_power_manager.o *sl_si91x_clock_manager.o	*sli_si91x_clock_manager.o *sl_platform.o) .text*)
+        *(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_wifi_command_engine.o *sli_si91x_wifi_event_handler.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *port.o *heap_*.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *UDMA.o *sl_rsi_utility.o *ipmu_apis.o *rsi_d_cache.o *sli_si91x_power_manager.o *sl_si91x_power_manager.o *sl_si91x_clock_manager.o *sli_si91x_clock_manager.o *sl_platform.o) .text*)
 		 {%- else %}
 			*(EXCLUDE_FILE(*UDMA.o *rsi_d_cache.o).text*)
 		{% endif %}        
@@ -242,7 +242,8 @@ SECTIONS
 		    *sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
 		    *rsi_sysrtc.o(.text*)
 		    *sl_si91x_low_power_tickless_mode.o(.text*)
-		    *sli_si91x_multithreaded.o(.text*)
+		    *sli_wifi_command_engine.o(text*)
+		    *sli_si91x_wifi_event_handler.o(text*)
 		    *croutine.o(.text*)
 		    *event_groups.o(.text*)
 		    *list.o(.text*)
@@ -260,12 +261,12 @@ SECTIONS
 		    *rsi_d_cache.o(.text*)
 		    *sl_si91x_power_manager.o(.text*)
 		    *sli_si91x_power_manager.o(.text*)
-				*sl_si91x_clock_manager.o(.text*)
-				*sli_si91x_clock_manager.o(.text*)
+		    *sl_si91x_clock_manager.o(.text*)
+		    *sli_si91x_clock_manager.o(.text*)
 		    *sl_si91x_power_manager.o(.data*)
 		    *sli_si91x_power_manager.o(.data*)
-				*sl_si91x_clock_manager.o(.data*)
-				*sli_si91x_clock_manager.o(.data*)
+		    *sl_si91x_clock_manager.o(.data*)
+		    *sli_si91x_clock_manager.o(.data*)
 		    *sl_platform.o(.text*)
 		    *UDMA.o(.text*) 
 		{% else %}
@@ -374,7 +375,8 @@ SECTIONS
 		    *sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
 		    *rsi_sysrtc.o(.text*)
 		    *sl_si91x_low_power_tickless_mode.o(.text*)
-		    *sli_si91x_multithreaded.o(.text*)
+		    *sli_wifi_command_engine.o(text*)
+		    *sli_si91x_wifi_event_handler.o(text*)
 		    *croutine.o(.text*)
 		    *event_groups.o(.text*)
 		    *list.o(.text*)
@@ -392,8 +394,8 @@ SECTIONS
 		    *sl_platform.o(.text*)
 		    *sl_si91x_power_manager.o(.text*)
 		    *sli_si91x_power_manager.o(.text*)
-				*sl_si91x_clock_manager.o(.text*)
-				*sli_si91x_clock_manager.o(.text*)
+		    *sl_si91x_clock_manager.o(.text*)
+		    *sli_si91x_clock_manager.o(.text*)
 	  		*(.data*)
 	  		/* ipmu calibration data */
 	  		*(.common_ipmu_ram*)

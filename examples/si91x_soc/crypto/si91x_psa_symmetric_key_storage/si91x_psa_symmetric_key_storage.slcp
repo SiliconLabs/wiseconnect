@@ -16,7 +16,6 @@ filter:
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: app.c
   - path: psa_symmetric_key_storage_app.c
 include:
@@ -26,14 +25,14 @@ include:
       - path: psa_symmetric_key_storage_app.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: psa_crypto
@@ -57,7 +56,7 @@ component:
     from: wiseconnect3_sdk
   - id: network_manager
     from: wiseconnect3_sdk
-  - id: basic_network_config_manager
+  - id: nvm3_network_config_manager
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk

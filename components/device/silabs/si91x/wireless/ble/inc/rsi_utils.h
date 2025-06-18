@@ -38,7 +38,7 @@
 #define BIT(a) ((uint32_t)1U << a)
 #endif
 
-//#define RSI_MIN(x, y) ((x) > (y) ? (y) : (x)) //This statement is modified to avoid compilation warning
+//This statement is modified to avoid compilation warning from RSI_MIN(x, y) ((x) > (y) ? (y) : (x))
 #define RSI_MIN(x, y) ((int32_t)(x) > (int32_t)(y) ? (int32_t)(y) : (int32_t)(x))
 
 #ifndef NULL

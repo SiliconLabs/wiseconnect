@@ -49,13 +49,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-Open `app.c` file and configure the following parameters accordingly
+Open `app.c` file and configure the following parameters accordingly:
 
 - The length of the input message/plain text can be configured by using the below macro
 
-```c
-#define BUFFER_SIZE 16
-```
+  ```c
+  #define BUFFER_SIZE 16
+  ```
 
 - *msg* refers to plain data which is passed to AES engine.
 - *key* is used for encryption/decryption of the 'msg' in AES engine.
@@ -63,18 +63,40 @@ Open `app.c` file and configure the following parameters accordingly
 
 - Based on the below macro, the given key can be wrapped by passing valid **sl_si91x_wrap_config_t** configuration to `sl_si91x_wrap()` and outputs the *wrapped_key*.
 
-```c
-#define USE_WRAPPED_KEYS 0
-```
+  ```c
+  #define USE_WRAPPED_KEYS 0
+  ```
+
 - According to NIST, the AES algorithm is capable of using cryptographic keys of 128, 192, and 256 bits to encrypt and decrypt data in block sizes of 128 bits (16 bytes). This means that each block of data processed by the AES algorithm should be aligned to 16-byte boundaries. 
 
 - The input message can be aligned to 16 bytes by enabling below macro.
 
-```c
-#define PKCS_7_PADDING 1
-```
+  ```c
+  #define PKCS_7_PADDING 1
+  ```
 
 - After filling the appropriate **sl_si91x_aes_config_t** configuration, `sl_si91x_aes()` stores the output in the provided encrypted_buffer/decrypted_buffer. 
+
+- To enable AES multipart support, set the macro USE_MULTIPART to 1.
+
+  ```c
+  #define USE_MULTIPART    1
+  ```
+
+- This AES multipart demonstrates how to split the encryption and decryption process into multiple chunks and handle each chunk separately. 
+
+- The function `sl_si91x_aes_multipart()` is used to perform AES encryption or decryption on large messages by splitting them into smaller chunks. The function allows you to define the size of each chunk by chunk_len bytes.
+
+  - chunk_len: Specifies the number of bytes per chunk.
+  - aes_flags: The flags (BIT(0), BIT(1), BIT(2)) indicate whether the chunk is the first, middle, or last chunk in the sequence respectively.
+
+- In AES multipart operation, data must be transmitted in 16-byte aligned chunks. Padding should not be applied to the first and middle chunks to preserve the original message. If the final chunk is not 16 bytes aligned, padding should only be added to the final chunk.
+
+- In Multipart API, while sending less than or equal to 1408 bytes of data to the NWP in a single transmission, the user should include both the first and last chunks in the AES flags.
+
+- Multipart support will not be available in the event of power loss. Operations will need to restart from the beginning.
+
+- When the user sends data by setting the first chunk, NWP treats it as the start of the data.
 
 ## Test the Application
 
@@ -92,3 +114,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Application Output
 
 ![AES Output](resources/readme/output.png)
+
+Multipart AES:
+
+![Multipart AES Output](resources/readme/multipart_output.png)

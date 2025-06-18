@@ -109,15 +109,15 @@
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #define MITM_REQ 0x01
@@ -169,7 +169,7 @@ sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_
 
 #define MIN_CONN_INTERVAL 36
 #define MAX_CONN_INTERVAL 36
-#define SLAVE_LATENCY     0
+#define CONN_LATENCY      0
 //! global parameters list
 static volatile uint32_t ble_app_event_map;
 static volatile uint32_t ble_app_event_map1;
@@ -1463,7 +1463,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   LOG_PRINT("\n Start scanning ...\n");
 #endif
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -1473,7 +1473,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
     return;
@@ -1488,7 +1488,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
     //! checking for events list
     event_id = rsi_ble_app_get_event();
     if (event_id == -1) {
-#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;
@@ -1536,7 +1536,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
           rsi_ble_app_clear_event(RSI_BLE_GATT_SEND_DATA);
         }
         LOG_PRINT("\r\n Module got disconnected\r\n");
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n keep module in to power save \r\n");
         //! initiating power save in BLE mode
         status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
@@ -1547,7 +1547,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
 
         //! initiating Active mode in WLAN mode
         wifi_profile.profile = HIGH_PERFORMANCE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
           return;
@@ -1577,7 +1577,7 @@ scan:
         }
         LOG_PRINT("\n Start scanning\n");
 #endif
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n keep module in to power save \r\n");
         //! initiating power save in BLE mode
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -1588,7 +1588,7 @@ scan:
 
         //! initiating power save in wlan mode
         wifi_profile.profile = ASSOCIATED_POWER_SAVE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
           return;
@@ -1748,6 +1748,7 @@ scan:
         app_state |= BIT(ENCRYPT_EN);
 #if (GATT_ROLE == CLIENT)
         //Get the HID service handles, if it exixts in remote device.
+        memset(&service_uuid, 0, sizeof(uuid_t));
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_HID_SERVICE_UUID;
         rsi_ble_get_profile_async(glbl_enc_enabled.dev_addr, service_uuid, NULL);
@@ -1886,7 +1887,7 @@ scan:
         status = rsi_ble_conn_params_update(conn_event_to_app.dev_addr,
                                             MIN_CONN_INTERVAL,
                                             MAX_CONN_INTERVAL,
-                                            SLAVE_LATENCY,
+                                            CONN_LATENCY,
                                             SUPERVISION_TIMEOUT);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nrsi_ble_conn_params_update Failed, Error Code : 0x%lX\r\n", status);

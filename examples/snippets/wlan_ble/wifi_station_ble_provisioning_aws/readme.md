@@ -157,7 +157,7 @@ For SoC Mode only:
    **Note:** You can change the topic names, which are `aws_status` and `si91x_status`.
 
 ```c
-#define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save.
+#define ENABLE_NWP_POWER_SAVE         1                 //! Set this macro to 1 for enabling NWP power save.
 
 #define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
 ```
@@ -423,6 +423,9 @@ For NCP mode, following defines have to enabled manually in preprocessor setting
 - Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
 
 - The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
+
+  > **NOTE :**
+  > Support for the SNI extension has been added to the AWS SDK, ensuring it is set by the client when connecting to an AWS server using TLS 1.3. This is handled internally by the AWS SDK and does not affect compatibility with other TLS versions.
 
   > **NOTE :**
   > Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/aws_starfield_ca.pem.h).

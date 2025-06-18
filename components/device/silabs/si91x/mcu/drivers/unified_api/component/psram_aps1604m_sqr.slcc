@@ -17,5 +17,7 @@ provides:
   - name: psram_config
   - name: psram_aps1604m_sqr
 config_file:
-  - path: "config/psram_device_config/aps1604m_sqr/sl_si91x_psram_config.h"
+  - path: "config/psram_device_config/aps1604m_sqr/sl_si91x_psram_aps1604m_sqr_config.h"
     file_id: psram_config
+define:
+  - name: SLI_SI91X_MCU_PSRAM_APS1604M_SQR

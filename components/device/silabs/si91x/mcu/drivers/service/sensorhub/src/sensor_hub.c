@@ -175,6 +175,7 @@ EventGroupHandle_t sl_event_group = NULL;   //< Event group handler
 
 osSemaphoreId_t sl_semaphore_power_task_id; //< Power task semaphore id
 osSemaphoreAttr_t sl_semaphore_attr_st;     //< Power task semaphore attributes
+
 /*******************************************************************************
  **************  Sensor Task Attributes structure for thread   *****************
  ******************************************************************************/

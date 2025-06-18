@@ -59,7 +59,7 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <dac0 signal=OUT> SL_DAC0
+// <dac0 signal=(OUT)> SL_DAC0
 // $[DAC0_SL_DAC0]
 #ifndef SL_DAC0_PERIPHERAL
 #define SL_DAC0_PERIPHERAL DAC0

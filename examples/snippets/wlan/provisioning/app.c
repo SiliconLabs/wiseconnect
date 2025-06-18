@@ -316,7 +316,7 @@ static void application_start(void *argument)
 
         // Connect to the provisioned access point
         sl_wifi_set_join_callback(join_callback_handler, NULL);
-        status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &provisioned_access_point, 18000);
+        status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &provisioned_access_point, 25000);
         if (status != SL_STATUS_OK) {
           printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
           // If scan failed retry again after 5 seconds

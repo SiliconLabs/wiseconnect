@@ -143,13 +143,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure UC from the slcp component.
 - Open the **sl_si91x_pwm.slcp** project file, select the **Software Component** tab, and search for **PWM** in the search bar.
-- By default, PWM has a channel 0 instance. If the base timer selection is selected as **Timer (All Channels)**, to select any other PWM channel, one should have PWM channel-0 as reference. If separate PWM channels are to be considered, change the base timer selection to **Timer (Each Channel)**.
+- By default, PWM has a channel 0 instance. If the base timer selection is selected as **Only one (0th) for All Channels**, to select any other PWM channel, one should have PWM channel-0 as reference. If separate PWM channels are to be considered, change the base timer selection to **One for Each Channel**.
 - You can use the configuration wizard to configure different parameters:
 
   - **Common Configuration for all PWM Channels**
     - **Base Timer Selection**: The application provides two base timer options: one for each channel individually and one shared across all channels.
-      - If you are using only Channel 0, select the **Timer (All Channels)** option and ensure PWM Channel 0 is installed.
-      - If you are using any channel other than Channel 0, select the **Timer (Each Channel)** option to configure individual timers per channel.
+      - If you are using only Channel 0, select the **Only one (0th) for All Channels** option and ensure PWM Channel 0 is installed.
+      - If you are using any channel other than Channel 0, select the **One for Each Channel** option to configure individual timers per channel.
 
   - **General Configuration for individual PWM Channel**
     - **Frequency**: Frequency changes from 500Hz to 200Khz. By default 25Khz is considered.

@@ -39,6 +39,10 @@
 #include "uio.h"
 #include "netinet_in.h"
 
+#ifdef __cplusplus
+extern "C" {	
+#endif
+
 #ifndef	_SOCKLEN_T_DEFINED_
 #define	_SOCKLEN_T_DEFINED_
 typedef	__socklen_t	socklen_t;	/* length type for network syscalls */
@@ -734,5 +738,9 @@ int close(int socket_id);
 
 /** @} */
 /* __END_DECLS */
+
+#ifdef __cplusplus
+}	
+#endif
 
 #endif /* !COMPONENTS_BSD_SOCKET_INC_SOCKET_H_ */

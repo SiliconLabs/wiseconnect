@@ -39,11 +39,6 @@ typedef enum {
 // Prototypes
 /***************************************************************************/ /**
  * USART example initialization function
- * Calendar clock is configured.
- * A deafult structure of datetime is builded and set as the current value of calendar
- * The value of calendar is fetched and displayed on serial console.
- * As per the macros are enabled, the example will run alarm, millisecond trigger
- * one second trigger, time conversion and clock calibration.
  * 
  * @param none
  * @return none

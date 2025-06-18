@@ -369,6 +369,8 @@ sl_adc_error_t sl_si91x_sensor_channel_sample(uint8_t channel)
 
 void update_adc_sensor_multi_channel_data(sl_sensor_data_group_t *data_group, uint8_t ch_no)
 {
+  (void)ch_no;
+  (void)data_group;
 #ifdef GY61_ADC_SENSOR
   if (ch_no == GY61_ADC_SENSOR_CHANNELS) {
 #ifdef GY61_X_AXIS_ADC_CHANNEL

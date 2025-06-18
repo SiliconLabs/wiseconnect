@@ -14,13 +14,12 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version:  "2024.12.2"
+   version:  "2025.6.0"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.4.2
+   version: 3.5.0
 source:
 -  path: app.c
--  path: main.c
 include:
 -  path: .
    file_list:
@@ -28,7 +27,7 @@ include:
 define:
 -  name: SL_SI91X_PRINT_DBG_LOG
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: device_init
@@ -57,6 +56,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+  - id: sl_si91x_wrap
+    from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -69,11 +70,14 @@ configuration:
    value: '51200'
 -  name: configTIMER_TASK_PRIORITY 
    value: '55'
+-  name: SL_SI91X_WRAP_KEY_BUFFER_SIZE
+   value: 1696
 readme:
 -  path: readme.md
 other_file:
 -  path: resources/readme/aws_choosing_policy.png
 -  path: resources/readme/application_prints_soc.png
+-  path: resources/readme/application_prints_soc1.png
 -  path: resources/readme/application_prints_ncp.png
 -  path: resources/readme/aws_create_policy.png
 -  path: resources/readme/aws_create_thing_attach_policy.png
@@ -92,6 +96,7 @@ other_file:
 -  path: resources/readme/setup_soc_ncp.png
 -  path: resources/readme/energy_profiler_step_6.png
 -  path: resources/readme/energy_profiler_step_7.png
+-  path: resources/readme/pm_wakeup_configuration.png
 ui_hints:
    highlight:
    -  path: readme.md

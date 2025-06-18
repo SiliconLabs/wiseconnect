@@ -48,14 +48,16 @@
 #include "ble_config.h"
 #include "ble_device_info.h"
 #include "FreeRTOSConfig.h"
-
-#if ENABLE_POWER_SAVE
+#ifdef SLI_SI91X_MCU_PSRAM_PRESENT
+#include "rsi_d_cache.h"
+#endif
+#if ENABLE_NWP_POWER_SAVE
 #define PSP_MODE RSI_SLEEP_MODE_2
 #define PSP_TYPE RSI_MAX_PSP
 extern volatile uint32_t ble_app_event_task_map[TOTAL_CONNECTIONS];
 extern volatile uint32_t ble_app_event_task_map1[TOTAL_CONNECTIONS];
 extern volatile uint32_t ble_temp_event_map[TOTAL_CONNECTIONS];
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
@@ -141,7 +143,7 @@ const osThreadAttr_t thread_attributes = {
 //   ! PROCEDURES
 /*=======================================================================*/
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 /*==============================================*/
 /**
  * @fn         rsi_initiate_power_save
@@ -164,7 +166,7 @@ int32_t rsi_initiate_power_save(void)
 
   //! initiating power save in wlan mode
   wifi_profile.profile = ASSOCIATED_POWER_SAVE;
-  status               = sl_wifi_set_performance_profile(&wifi_profile);
+  status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to keep module in power save \r\n");
     return status;
@@ -196,7 +198,7 @@ int32_t rsi_initiate_power_awake(void)
 
   //! initiating power save in wlan mode
   wifi_profile.profile = HIGH_PERFORMANCE;
-  status               = sl_wifi_set_performance_profile(&wifi_profile);
+  status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to keep module in HIGH_PERFORMANCE mode \r\n");
     return status;
@@ -204,7 +206,7 @@ int32_t rsi_initiate_power_awake(void)
   LOG_PRINT("\r\n Module is in power awake \r\n");
   return status;
 }
-#endif // #if ENABLE_POWER_SAVE
+#endif // #if ENABLE_NWP_POWER_SAVE
 
 /*==============================================*/
 /**
@@ -364,6 +366,12 @@ void rsi_common_app_task(void)
   sl_wifi_firmware_version_t version                         = { 0 };
   static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
   uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
+
+#ifdef SLI_SI91X_MCU_PSRAM_PRESENT
+  // Disabling and re-enabling the D-cache to avoid PSRAM data corruption issues
+  rsi_d_cache_disable();
+  rsi_d_cache_enable();
+#endif
 
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {

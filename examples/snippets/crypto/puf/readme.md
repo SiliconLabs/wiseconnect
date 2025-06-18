@@ -66,7 +66,7 @@ Adjust the following parameters in the `app.c` file:
       }
     }
     ```
-- **AES_KEY**: User Key (UK) is used to generate Key Code (KC). Modify the `AES_KEY` constant if a different key is needed.
+- **USER_KEY**: User Key (UK) is used to generate Key Code (KC). Modify the `USER_KEY` constant if a different key is needed.
     Key size can be either 16 or 32 bytes. Modify the `key_size` parameter accordingly in all APIs.
 
 - **AES_PLAIN_TXT**: Data to be encrypted/decrypted. Adjust the `AES_PLAIN_TXT` constant as required.
@@ -83,6 +83,12 @@ Adjust the following parameters in the `app.c` file:
   ```
   
   > **Example**: If the user wants to encrypt 512 bytes, increase the buffer size to 512.
+
+- The input message(`AES_PLAIN_TXT`) can be aligned to 16 bytes by enabling below macro.
+
+  ```c
+  #define PKCS_7_PADDING 1
+  ```
 
 - To retrieve the User Key (UK) using `sl_si91x_puf_get_key_req`, set the `key_index` in `sl_si91x_puf_set_key_req` to a non-zero value, i.e., between 1 and 15.
 
@@ -141,3 +147,4 @@ commander manufacturing init --mbr ta_mbr_SiWG917M111MGTBA.bin
 
 - **Success**: `0xa05a`
 - **Failure**: Try again
+

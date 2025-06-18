@@ -67,7 +67,8 @@ extern "C" {
   (*(volatile uint32_t *)(0x41300000 + 0x618)) ///< PAD selection (22 to 33) A value of 1 on this gives control to M4SS
 #define HOST_PADS_GPIO_MODE (*(volatile uint32_t *)(0x46008000 + 0x44)) ///< MISC host base address
 #define ULP_PAD_CONFIG_REG  (*(volatile uint32_t *)(0x2404A008))        ///< ULP PAD register
-
+#define NWP_MCUHP_GPIO_CTRL2 \
+  (*(volatile uint32_t *)(0x41300000 + 0x004)) ///<  Writing 1 to this enables NWP to configure the GPIO_25 to GPIO_30
 #define GPIO_NPSS_INTERRUPT_MASK_SET_REG \
   (*(volatile uint32_t *)(NPSS_INT_BASE + 0x00)) ///< NPSS mask set register base address
 #define GPIO_NPSS_INTERRUPT_MASK_CLR_REG \
@@ -176,13 +177,19 @@ extern "C" {
 #define PIN_INTR_6 6 ///< HP GPIO pin interrupt 6
 #define PIN_INTR_7 7 ///< HP GPIO pin interrupt 7
 
-#define UULP_MASK   0x00 ///< UULP GPIO pin mask
-#define ULP_STATUS  0x01 ///< ULP GPIO pin status
-#define UULP_INTR_1 0x01 ///< UULP GPIO pin interrupt 1
-#define UULP_INTR_2 0x02 ///< UULP GPIO pin interrupt 2
-#define UULP_INTR_3 0x04 ///< UULP GPIO pin interrupt 3
-#define UULP_INTR_4 0x08 ///< UULP GPIO pin interrupt 4
-#define UULP_INTR_5 0x10 ///< UULP GPIO pin interrupt 5
+#define UULP_MASK  0x00 ///< UULP GPIO pin mask
+#define ULP_STATUS 0x01 ///< ULP GPIO pin status
+//maintaining older macros for migration
+#define UULP_INTR_1            0x01 ///< UULP GPIO pin interrupt 1
+#define UULP_INTR_2            0x02 ///< UULP GPIO pin interrupt 2
+#define UULP_INTR_3            0x04 ///< UULP GPIO pin interrupt 3
+#define UULP_INTR_4            0x08 ///< UULP GPIO pin interrupt 4
+#define UULP_INTR_5            0x10 ///< UULP GPIO pin interrupt 5
+#define UULP_INTR_0_STATUS_BIT 0x01 ///< UULP GPIO pin interrupt 0
+#define UULP_INTR_1_STATUS_BIT 0x02 ///< UULP GPIO pin interrupt 1
+#define UULP_INTR_2_STATUS_BIT 0x04 ///< UULP GPIO pin interrupt 2
+#define UULP_INTR_3_STATUS_BIT 0x08 ///< UULP GPIO pin interrupt 3
+#define UULP_INTR_4_STATUS_BIT 0x10 ///< UULP GPIO pin interrupt 4
 
 #define ULP_PIN_INTR_0 0 ///< ULP GPIO pin interrupt 0
 #define ULP_PIN_INTR_1 1 ///< ULP GPIO pin interrupt 1

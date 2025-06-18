@@ -50,8 +50,8 @@ extern bool device_initialized;
 sl_status_t sl_si91x_bt_set_performance_profile(const sl_bt_performance_profile_t *profile)
 {
   sl_status_t status;
-  sl_si91x_performance_profile_t selected_coex_profile_mode = { 0 };
-  sl_bt_performance_profile_t current_bt_profile_mode       = { 0 };
+  sl_wifi_system_performance_profile_t selected_coex_profile_mode = { 0 };
+  sl_bt_performance_profile_t current_bt_profile_mode             = { 0 };
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -59,21 +59,21 @@ sl_status_t sl_si91x_bt_set_performance_profile(const sl_bt_performance_profile_
   SL_WIFI_ARGS_CHECK_NULL_POINTER(profile);
 
   // Take backup of current bt profile
-  get_bt_current_performance_profile(&current_bt_profile_mode);
+  sli_get_bt_current_performance_profile(&current_bt_profile_mode);
 
   // Send the power save command for the requested profile
   status = sli_si91x_send_power_save_request(NULL, profile);
   if (status != SL_STATUS_OK) {
-    save_bt_current_performance_profile(&current_bt_profile_mode);
+    sli_save_bt_current_performance_profile(&current_bt_profile_mode);
     return status;
   }
-  get_coex_performance_profile(&selected_coex_profile_mode);
+  sli_get_coex_performance_profile(&selected_coex_profile_mode);
 
   // Set device_initialized as false since RAM of module would not be retained
   // in ULTRA_POWER_SAVE and module needs to be started from init again.
   if (selected_coex_profile_mode == DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
     device_initialized = false;
-    reset_coex_current_performance_profile();
+    sli_reset_coex_current_performance_profile();
   }
   return SL_STATUS_OK;
 }
@@ -84,6 +84,6 @@ sl_status_t sl_si91x_bt_get_performance_profile(sl_bt_performance_profile_t *pro
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  get_bt_current_performance_profile(profile);
+  sli_get_bt_current_performance_profile(profile);
   return SL_STATUS_OK;
 }

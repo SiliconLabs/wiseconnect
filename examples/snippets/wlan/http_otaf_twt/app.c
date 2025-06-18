@@ -349,7 +349,7 @@ sl_status_t http_otaf_app()
   sl_status_t status = SL_STATUS_OK;
   uint8_t flags      = FLAGS;
   char server_ip[16];
-  sl_wifi_performance_profile_t performance_profile;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
 
 #if (FW_UPDATE_TYPE == TA_FW_UPDATE)
   sl_wifi_firmware_version_t version = { 0 };
@@ -418,7 +418,7 @@ sl_status_t http_otaf_app()
 
   if (power_save_enabled == 1) {
     performance_profile.profile = HIGH_PERFORMANCE;
-    status                      = sl_wifi_set_performance_profile(&performance_profile);
+    status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
     if (status != SL_STATUS_OK) {
       printf("\r\nPowersave Disabling Failed, Error Code : 0x%lX\r\n", status);
       return status;
@@ -435,17 +435,18 @@ sl_status_t http_otaf_app()
 #else
   printf("\r\nFirmware download from Local Apache Server is in progress...\r\n");
 #endif
-  status = sl_si91x_http_otaf(HTTP_OTAF,
-                              (uint8_t)flags,
-                              (uint8_t *)server_ip,
-                              (uint16_t)HTTP_PORT,
-                              (uint8_t *)HTTP_URL,
-                              (uint8_t *)hostname,
-                              (uint8_t *)HTTP_EXTENDED_HEADER,
-                              (uint8_t *)USERNAME,
-                              (uint8_t *)PASSWORD,
-                              NULL,
-                              0);
+  sl_si91x_http_otaf_params_t http_params = { 0 };
+
+  http_params.flags           = (uint8_t)flags;
+  http_params.ip_address      = (uint8_t *)server_ip;
+  http_params.port            = (uint16_t)HTTP_PORT;
+  http_params.resource        = (uint8_t *)HTTP_URL;
+  http_params.host_name       = (uint8_t *)hostname;
+  http_params.extended_header = (uint8_t *)HTTP_EXTENDED_HEADER;
+  http_params.user_name       = (uint8_t *)USERNAME;
+  http_params.password        = (uint8_t *)PASSWORD;
+
+  status = sl_si91x_http_otaf_v2(&http_params);
 
   printf("\r\nFirmware update status: 0x%lX\r\n", status);
   if (SL_STATUS_IN_PROGRESS == status) {
@@ -500,8 +501,8 @@ sl_status_t http_otaf_app()
 
 sl_status_t set_twt(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { 0 };
-  sl_status_t status                                = SL_STATUS_OK;
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
+  sl_status_t status                                   = SL_STATUS_OK;
 
   //! Set TWT Config
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
@@ -523,7 +524,7 @@ sl_status_t set_twt(void)
 
   //! Apply power save profile
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-  status                      = sl_wifi_set_performance_profile(&performance_profile);
+  status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
     return status;

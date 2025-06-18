@@ -3,15 +3,28 @@
 * @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
 *
 ******************************************************************************/
 
@@ -21,6 +34,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "rsi_ccp_user_config.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
+#include "sl_component_catalog.h"
+#endif /* SL_COMPONENT_CATALOG_PRESENT */
 #ifdef DEBUG_UART_UC
 #ifndef SL_SI91X_ULP_UART
 #include "sl_si91x_debug_uc_1_config.h"
@@ -28,7 +44,11 @@
 #include "sl_si91x_debug_uc_2_config.h"
 #endif
 #endif
-
+#ifdef SL_CATALOG_SI91X_IOSTREAM_PRINTS_PRESENT
+#include "sl_iostream.h"
+#include "sl_si91x_iostream_log.h"
+#include "sl_si91x_iostream_log_config.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,21 +60,31 @@ uint8_t Board_UARTGetChar(void);
 void Board_UARTPutChar(uint8_t ch);
 void dummy_printf(const char *fmt, ...);
 
-#ifndef IOSTREAM_USART
-#ifdef DEBUG_UART
+// Define debug macros based on configuration
+#if defined(IOSTREAM_USART) || SL_SI91X_IOSTREAM_LOG_PRINTS_ENABLE
+// SI91X IOStream prints configuration
+#if SL_SI91X_IOSTREAM_LOG_PRINTS_ENABLE
+#define DEBUGINIT() sl_si91x_iostream_log_init()
+#else
+#define DEBUGINIT()
+#endif
+#define DEBUGOUT(...) printf(__VA_ARGS__)
+#define DEBUGSTR(str) (void)str
+#define DEBUGIN()
+
+#elif defined(DEBUG_UART)
+// Debug over UART configuration
 #define DEBUGINIT()   Board_Debug_Init()
 #define DEBUGOUT(...) printf(__VA_ARGS__)
 #define DEBUGSTR(str) Board_UARTPutSTR(str)
 #define DEBUGIN()     Board_UARTGetChar()
+
 #else
+// No debug output configuration
 #define DEBUGINIT()
 #define DEBUGOUT(...) dummy_printf(__VA_ARGS__)
 #define DEBUGSTR(str) (void)str
 #define DEBUGIN()
-#endif
-#else
-#define DEBUGINIT()
-#define DEBUGOUT(...) printf(__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus

@@ -10,12 +10,11 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: simplicity_sdk, version:  "2024.12.2"}
+sdk: {id: simplicity_sdk, version:  "2025.6.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.2}
+- {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
-  - path: main.c
   - path: ble_app.c
   - path: wifi_app.c
 include:
@@ -63,7 +62,7 @@ requires:
 - name: sl_si91x_mcu
 - name: wiseconnect3_common
 - name: sl_i2c
-- name: sl_system
+- name: sl_main
 - name: aws_sdk
 - name: network_manager
 - name: wiseconnect3_common
@@ -74,6 +73,7 @@ requires:
 - name: sl_si91x_basic_buffers
 - name: wifi_resources
 - name: freertos
+- name: freertos_heap_4
 - name: slist
 - name: sl_si91x_asynchronous_socket
 - name: basic_network_config_manager

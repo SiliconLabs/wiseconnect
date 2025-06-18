@@ -77,7 +77,7 @@ extern "C" {
 /*ULPSS Peripheral power gate */
 /* ULPSS_PWRCTRL_SET_REG bits (NPSS MCU(MCU DM POWER CTRL FF's Domain))*/
 #define ULPSS_PWRGATE_ULP_MISC BIT(18)
-#define ULPSS_PWRGATE_ULP_CAP  BIT(19)
+#define ULPSS_PWRGATE_ULP_CAP  BIT(19) // DEPRECATED
 #if defined(CHIP_9118)
 #define ULPSS_PWRGATE_ULP_VAD BIT(20)
 #endif
@@ -582,9 +582,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps4tops2(ULP_MODE_T enCtxSel,
   if (socLdoEnable == 1) {
     MCU_FSM->MCU_FSM_POWER_CTRL_AND_DELAY_b.FSM_PERI_DCDC_EN = 1;
     MCU_FSM->MCU_FSM_PERI_CONFIG_REG_b.BGPMU_SAMPLING_EN_R   = 0;
-  }
-
-  else {
+  } else {
     MCU_FSM->MCU_FSM_POWER_CTRL_AND_DELAY_b.FSM_PERI_DCDC_EN = (unsigned int)(socLdoEnable & 0x1);
   }
 
@@ -678,7 +676,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
     ;
 
   /*Disable ulp mode isolation */
-  BATT_FF->M4_ULP_MODE_CONFIG &= ~(0x3F);
+  BATT_FF->M4_ULP_MODE_CONFIG &= ~0x3F;
 
 #if !defined(SLI_SI917) && !defined(SLI_SI915)
   /*Disables clock to ULP-M4SS AHB-AHB Bridge since the MCU is in PS2 state logically*/

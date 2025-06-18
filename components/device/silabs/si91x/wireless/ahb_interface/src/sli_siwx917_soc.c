@@ -26,8 +26,9 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
+#endif /* SL_COMPONENT_CATALOG_PRESENT */
 #include "system_si91x.h"
 #include "rsi_error.h"
 #include "rsi_ccp_common.h"
@@ -48,11 +49,11 @@
 
 #define RSI_HAL_MAX_WR_BUFF_LEN 4096
 
-#define SI91X_INTERFACE_OUT_REGISTER       (*(uint32_t *)(RSI_HOST_INTF_REG_OUT))
-#define SI91X_INTERFACE_IN_REGISTER        (*(uint32_t *)(RSI_HOST_INTF_REG_IN))
-#define SI91X_INTERFACE_STATUS_REGISTER    (*(uint32_t *)(RSI_HOST_INTF_STATUS_REG))
-#define SI91X_PING_BUFFER_ADDRESS_REGISTER (*(uint32_t *)(RSI_PING_BUFFER_ADDR))
-#define SI91X_PONG_BUFFER_ADDRESS_REGISTER (*(uint32_t *)(RSI_PONG_BUFFER_ADDR))
+#define SI91X_INTERFACE_OUT_REGISTER       (*(uint32_t *)(SLI_HOST_INTF_REG_OUT))
+#define SI91X_INTERFACE_IN_REGISTER        (*(uint32_t *)(SLI_HOST_INTF_REG_IN))
+#define SI91X_INTERFACE_STATUS_REGISTER    (*(uint32_t *)(SLI_HOST_INTF_STATUS_REG))
+#define SI91X_PING_BUFFER_ADDRESS_REGISTER (*(uint32_t *)(SLI_PING_BUFFER_ADDR))
+#define SI91X_PONG_BUFFER_ADDRESS_REGISTER (*(uint32_t *)(SLI_PONG_BUFFER_ADDR))
 
 typedef struct {
   uint8_t _[2048];
@@ -81,69 +82,69 @@ int16_t rsi_bl_select_option(uint8_t cmd)
   uint16_t boot_cmd   = 0;
   int16_t retval      = 0;
   uint16_t read_value = 0;
-  sl_si91x_timer_t timer_instance;
+  sli_si91x_timer_t timer_instance;
 
   SI91X_INTERFACE_OUT_REGISTER = boot_cmd;
 
   if (cmd == BURN_NWP_FW) {
-    boot_cmd = RSI_HOST_INTERACT_REG_VALID_FW | cmd;
+    boot_cmd = SLI_HOST_INTERACT_REG_VALID_FW | cmd;
   } else {
-    boot_cmd = RSI_HOST_INTERACT_REG_VALID | cmd;
+    boot_cmd = SLI_HOST_INTERACT_REG_VALID | cmd;
   }
-  retval = sli_si91x_send_boot_instruction(RSI_REG_WRITE, &boot_cmd);
+  retval = sli_si91x_send_boot_instruction(SLI_REG_WRITE, &boot_cmd);
   if (retval < 0) {
     return retval;
   }
 
-  sl_si91x_timer_init(&timer_instance, 300);
+  sli_si91x_timer_init(&timer_instance, 300);
 
   while ((cmd != LOAD_NWP_FW) && (cmd != LOAD_DEFAULT_NWP_FW_ACTIVE_LOW)) {
-    retval = sli_si91x_send_boot_instruction(RSI_REG_READ, &read_value);
+    retval = sli_si91x_send_boot_instruction(SLI_REG_READ, &read_value);
     if (retval < 0) {
       return retval;
     }
     if (cmd == BURN_NWP_FW) {
-      if (read_value == (RSI_HOST_INTERACT_REG_VALID | RSI_SEND_RPS_FILE)) {
+      if (read_value == (SLI_HOST_INTERACT_REG_VALID | SLI_SEND_RPS_FILE)) {
         break;
       }
     }
 
-    else if (read_value == (RSI_HOST_INTERACT_REG_VALID | cmd)) {
+    else if (read_value == (SLI_HOST_INTERACT_REG_VALID | cmd)) {
       break;
     }
-    if (sl_si91x_timer_expired(&timer_instance)) {
+    if (sli_si91x_timer_expired(&timer_instance)) {
       return RSI_ERROR_FW_LOAD_OR_UPGRADE_TIMEOUT;
     }
   }
   if ((cmd == LOAD_NWP_FW) || (cmd == LOAD_DEFAULT_NWP_FW_ACTIVE_LOW)) {
-    sl_si91x_timer_init(&timer_instance, 3000);
+    sli_si91x_timer_init(&timer_instance, 3000);
     do {
-      retval = sli_si91x_send_boot_instruction(RSI_REG_READ, &read_value);
+      retval = sli_si91x_send_boot_instruction(SLI_REG_READ, &read_value);
       if (retval < 0) {
         return retval;
       }
-      if ((read_value & 0xF000) == (RSI_HOST_INTERACT_REG_VALID_FW & 0xF000)) {
-        if ((read_value & 0xFF) == VALID_FIRMWARE_NOT_PRESENT) {
+      if ((read_value & 0xF000) == (SLI_HOST_INTERACT_REG_VALID_FW & 0xF000)) {
+        if ((read_value & 0xFF) == SLI_VALID_FIRMWARE_NOT_PRESENT) {
 #ifdef RSI_DEBUG_PRINT
-          RSI_DPRINT(RSI_PL4, "VALID_FIRMWARE_NOT_PRESENT\n");
+          RSI_DPRINT(RSI_PL4, "SLI_VALID_FIRMWARE_NOT_PRESENT\n");
 #endif
           return RSI_ERROR_VALID_FIRMWARE_NOT_PRESENT;
         }
-        if ((read_value & 0xFF) == RSI_INVALID_OPTION) {
+        if ((read_value & 0xFF) == SLI_INVALID_OPTION) {
 #ifdef RSI_DEBUG_PRINT
           RSI_DPRINT(RSI_PL4, "INVALID CMD\n");
 #endif
 
           return RSI_ERROR_INVALID_OPTION;
         }
-        if ((read_value & 0xFF) == RSI_CHECKSUM_SUCCESS) {
+        if ((read_value & 0xFF) == SLI_CHECKSUM_SUCCESS) {
 #ifdef RSI_DEBUG_PRINT
           RSI_DPRINT(RSI_PL4, "LOAD SUCCESS\n");
 #endif
           break;
         }
       }
-      if (sl_si91x_timer_expired(&timer_instance)) {
+      if (sli_si91x_timer_expired(&timer_instance)) {
         return RSI_ERROR_FW_LOAD_OR_UPGRADE_TIMEOUT;
       }
 
@@ -156,10 +157,10 @@ int16_t rsi_bl_select_option(uint8_t cmd)
  * @fn          int16_t sli_si91x_send_boot_instruction(uint8_t type, uint16_t *data)
  * @brief       Send boot instructions to module.
  * @param[in]   type - type of the insruction to perform \n
- *                     0xD1 - RSI_REG_READ \n
- *                     0xD2 - RSI_REG_WRITE \n
- *                     0xD5 - RSI_PING_WRITE \n
- *                     0xD4 - RSI_PONG_WRITE \n
+ *                     0xD1 - SLI_REG_READ \n
+ *                     0xD2 - SLI_REG_WRITE \n
+ *                     0xD5 - SLI_PING_WRITE \n
+ *                     0xD4 - SLI_PONG_WRITE \n
  *                     0x42 - BURN_NWP_FW \n
  *                     0x31 - LOAD_NWP_FW \n
  *                     0x71 - LOAD_DEFAULT_NWP_FW_ACTIVE_LOW
@@ -177,38 +178,38 @@ int16_t sli_si91x_send_boot_instruction(uint8_t type, uint16_t *data)
   int16_t retval     = 0;
   uint32_t cmd       = 0;
   uint16_t read_data = 0;
-  sl_si91x_timer_t timer_instance;
+  sli_si91x_timer_t timer_instance;
 
   switch (type) {
-    case RSI_REG_READ:
+    case SLI_REG_READ:
       *data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
       break;
 
-    case RSI_REG_WRITE:
+    case SLI_REG_WRITE:
       SI91X_INTERFACE_IN_REGISTER = *data;
       break;
 
     case BURN_NWP_FW:
-      cmd = BURN_NWP_FW | RSI_HOST_INTERACT_REG_VALID;
+      cmd = BURN_NWP_FW | SLI_HOST_INTERACT_REG_VALID;
 
       SI91X_INTERFACE_IN_REGISTER = cmd;
 
-      sl_si91x_timer_init(&timer_instance, 300);
+      sli_si91x_timer_init(&timer_instance, 300);
 
       do {
         read_data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
-        if (sl_si91x_timer_expired(&timer_instance)) {
+        if (sli_si91x_timer_expired(&timer_instance)) {
           return RSI_ERROR_FW_LOAD_OR_UPGRADE_TIMEOUT;
         }
-      } while (read_data != (RSI_SEND_RPS_FILE | RSI_HOST_INTERACT_REG_VALID));
+      } while (read_data != (SLI_SEND_RPS_FILE | SLI_HOST_INTERACT_REG_VALID));
       break;
 
     case LOAD_NWP_FW:
-      SI91X_INTERFACE_IN_REGISTER = LOAD_NWP_FW | RSI_HOST_INTERACT_REG_VALID;
+      SI91X_INTERFACE_IN_REGISTER = LOAD_NWP_FW | SLI_HOST_INTERACT_REG_VALID;
       break;
 
     case LOAD_DEFAULT_NWP_FW_ACTIVE_LOW:
-      SI91X_INTERFACE_IN_REGISTER = LOAD_DEFAULT_NWP_FW_ACTIVE_LOW | RSI_HOST_INTERACT_REG_VALID;
+      SI91X_INTERFACE_IN_REGISTER = LOAD_DEFAULT_NWP_FW_ACTIVE_LOW | SLI_HOST_INTERACT_REG_VALID;
       break;
 
     default:
@@ -248,12 +249,12 @@ int16_t rsi_waitfor_boardready(void)
     return RSI_ERROR_IN_OS_OPERATION;
   }
   if ((read_value & 0xFF00) == (HOST_INTERACT_REG_VALID_READ & 0xFF00)) {
-    if ((read_value & 0xFF) == RSI_BOOTUP_OPTIONS_LAST_CONFIG_NOT_SAVED) {
+    if ((read_value & 0xFF) == SLI_BOOTUP_OPTIONS_LAST_CONFIG_NOT_SAVED) {
 #ifdef RSI_DEBUG_PRINT
       RSI_DPRINT(RSI_PL3, "BOOTUP OPTIOINS LAST CONFIGURATION NOT SAVED\n");
 #endif
       return RSI_ERROR_BOOTUP_OPTIONS_NOT_SAVED;
-    } else if ((read_value & 0xFF) == RSI_BOOTUP_OPTIONS_CHECKSUM_FAIL) {
+    } else if ((read_value & 0xFF) == SLI_BOOTUP_OPTIONS_CHECKSUM_FAIL) {
 #ifdef RSI_DEBUG_PRINT
       RSI_DPRINT(RSI_PL3, "BOOTUP OPTIONS CHECKSUM FAIL\n");
 #endif
@@ -284,37 +285,50 @@ int16_t rsi_waitfor_boardready(void)
 #endif
   return RSI_ERROR_WAITING_FOR_BOARD_READY;
 }
-
 /**
- * @fn          int16 rsi_select_option(uint8 cmd)
- * @brief       Sends cmd to select option to load or update configuration
- * @param[in]   uint8 cmd, type of configuration to be saved
- * @param[out]  none
- * @return      errCode
-                < 0 = Command issue failed
- *              0  = SUCCESS
+ * @fn          int16_t rsi_select_option(uint8_t cmd, uint8_t fw_image_number)
+ * @brief       Sends a command to select an option to load or update configuration.
+ * @param[in]   cmd - Type of configuration to be saved or loaded.
+ *                    Possible values:
+ *                    - LOAD_NWP_FW (0x31)
+ *                    - LOAD_DEFAULT_NWP_FW_ACTIVE_LOW (0x71)
+ *                    - SL_SI91X_LOAD_NWP_FW_WITH_IMAGE_NUMBER (0x41)
+ * @param[in]   fw_image_number - Firmware image number to be loaded (used with SL_SI91X_LOAD_NWP_FW_WITH_IMAGE_NUMBER).
+ * @return      int16_t - Error code.
+ *                    - < 0 : Command issue failed.
+ *                    -   0 : SUCCESS.
+ *                    - -28 : Firmware Load or Upgrade timeout error.
+ *                    - -14 : Valid Firmware not present.
+ *                    - -15 : Invalid Option.
  * @section description
- * This API is used to send firmware load request to WiFi module or update default configurations.
+ * This API is used to send a firmware load request to the WiFi module or update default configurations.
  */
-int16_t rsi_select_option(uint8_t cmd)
+int16_t rsi_select_option(uint8_t cmd, uint8_t fw_image_number)
 {
   uint16_t boot_cmd             = 0;
   int16_t retval                = 0;
   uint16_t read_value           = 0;
-  uint8_t image_number          = 0;
   volatile int32_t loop_counter = 0;
 
   boot_cmd = HOST_INTERACT_REG_VALID | cmd;
   if (cmd == CHECK_NWP_INTEGRITY) {
     boot_cmd &= 0xF0FF;
-    boot_cmd = boot_cmd | (uint16_t)(image_number << 8);
+    boot_cmd = boot_cmd | (uint16_t)(fw_image_number << 8);
   }
+
+  // If command is 0x41, clear the lower nibble of the second byte and add firmware image number
+  if (cmd == SL_SI91X_LOAD_NWP_FW_WITH_IMAGE_NUMBER) {
+    boot_cmd &= 0xF0FF;                           // Clear the lower nibble of the second byte
+    boot_cmd |= (uint16_t)(fw_image_number << 8); // Add the firmware image number
+  }
+
   retval = rsi_boot_insn(REG_WRITE, &boot_cmd);
   if (retval < 0) {
     return retval;
   }
 
-  if ((cmd != LOAD_NWP_FW) && (cmd != LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) && (cmd != RSI_JUMP_TO_PC)) {
+  if ((cmd != LOAD_NWP_FW) && (cmd != LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) && (cmd != RSI_JUMP_TO_PC)
+      && (cmd != SL_SI91X_LOAD_NWP_FW_WITH_IMAGE_NUMBER)) {
     RSI_RESET_LOOP_COUNTER(loop_counter);
     RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_SELECT_OPTION)
     {
@@ -323,15 +337,15 @@ int16_t rsi_select_option(uint8_t cmd)
         return retval;
       }
       if (cmd == CHECK_NWP_INTEGRITY) {
-        if ((read_value & 0xFF) == RSI_CHECKSUM_SUCCESS) {
+        if ((read_value & 0xFF) == SLI_CHECKSUM_SUCCESS) {
 #ifdef RSI_DEBUG_PRINT
           RSI_DPRINT(RSI_PL3, "CHECKSUM SUCCESS\n");
 #endif
-        } else if (read_value == RSI_CHECKSUM_FAILURE) {
+        } else if (read_value == SLI_CHECKSUM_FAILURE) {
 #ifdef RSI_DEBUG_PRINT
           RSI_DPRINT(RSI_PL3, "CHECKSUM FAIL\n");
 #endif
-        } else if (read_value == RSI_CHECKSUM_INVALID_ADDRESS) {
+        } else if (read_value == SLI_CHECKSUM_INVALID_ADDRESS) {
 #ifdef RSI_DEBUG_PRINT
           RSI_DPRINT(RSI_PL3, "Invalid Address \n");
 #endif
@@ -342,18 +356,19 @@ int16_t rsi_select_option(uint8_t cmd)
       }
     }
     RSI_CHECK_LOOP_COUNTER(loop_counter, RSI_LOOP_COUNT_SELECT_OPTION);
-  } else if ((cmd == LOAD_NWP_FW) || (cmd == LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) || (cmd == RSI_JUMP_TO_PC)) {
+  } else if ((cmd == LOAD_NWP_FW) || (cmd == LOAD_DEFAULT_NWP_FW_ACTIVE_LOW) || (cmd == RSI_JUMP_TO_PC)
+             || (cmd == SL_SI91X_LOAD_NWP_FW_WITH_IMAGE_NUMBER)) {
     retval = rsi_boot_insn(REG_READ, &read_value);
     if (retval < 0) {
       return retval;
     }
-    if ((read_value & 0xFF) == VALID_FIRMWARE_NOT_PRESENT) {
+    if ((read_value & 0xFF) == SLI_VALID_FIRMWARE_NOT_PRESENT) {
 #ifdef RSI_DEBUG_PRINT
-      RSI_DPRINT(RSI_PL3, "VALID_FIRMWARE_NOT_PRESENT\n");
+      RSI_DPRINT(RSI_PL3, "SLI_VALID_FIRMWARE_NOT_PRESENT\n");
 #endif
       return RSI_ERROR_VALID_FIRMWARE_NOT_PRESENT;
     }
-    if ((read_value & 0xFF) == RSI_INVALID_OPTION) {
+    if ((read_value & 0xFF) == SLI_INVALID_OPTION) {
 #ifdef RSI_DEBUG_PRINT
       RSI_DPRINT(RSI_PL3, "INVALID CMD\n");
 #endif
@@ -412,7 +427,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
       RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_UPGRADE_IMAGE)
       {
         read_data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
-        if (read_data == (RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
+        if (read_data == (SLI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
           break;
         }
       }
@@ -431,7 +446,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
       RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_UPGRADE_IMAGE)
       {
         read_data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
-        if (read_data == (RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
+        if (read_data == (SLI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
           break;
         }
       }
@@ -476,7 +491,7 @@ void sli_m4_ta_interrupt_init(void)
   return;
 }
 
-void sl_si91x_ulp_wakeup_init(void)
+void sli_si91x_ulp_wakeup_init(void)
 {
   // for compilation
 }

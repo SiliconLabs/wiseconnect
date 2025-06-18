@@ -36,6 +36,8 @@
 /******************************* CT Configuration **************************/
 // <h> CT Configuration
 
+#define SL_CT_MODE_32BIT_ENABLE_MACRO SL_COUNTER_16BIT
+
 //  <e>Config Timer UC Configuration
 //  <i> Enable: Peripheral configuration is taken straight from the
 //  configuration set in the universal configuration (UC). <i> Disable: If the
@@ -43,12 +45,6 @@
 //  sl_si91x_config_timer_set_configuration API to modify the peripheral
 //  configuration. <i> Default: 1
 #define CONFIG_TIMER_UC 1
-
-// <o SL_CT_MODE_32BIT_ENABLE_MACRO> CT Mode
-//   <SL_COUNTER_16BIT=> 16-Bit Mode
-//   <SL_COUNTER_32BIT=> 32-Bit Mode
-// <i> Default: SL_COUNTER_16BIT
-#define SL_CT_MODE_32BIT_ENABLE_MACRO SL_COUNTER_16BIT
 
 // <o SL_COUNTER0_DIRECTION_MACRO> Counter-0 : Direction
 //   <SL_COUNTER0_UP=> Up Counter

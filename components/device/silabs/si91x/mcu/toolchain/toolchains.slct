@@ -83,7 +83,7 @@ schema:
     enum:
       - enabled
       - disabled
-  link_time_optimization:
+  wiseconnect_link_time_optimization:
     type: str
     enum:
       - enabled
@@ -429,7 +429,7 @@ exporter:
             action: append
             value: "-fno-builtin-sprintf"
         disabled: []
-      link_time_optimization:
+      wiseconnect_link_time_optimization:
         enabled:
           - tool: makefile.arm.gcc.compiler
             option: misc

@@ -30,7 +30,9 @@
 #include "sl_si91x_calendar.h"
 #include <stdlib.h>
 #include "rsi_time_period.h"
-
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED)
+#include "sli_si91x_32khz_rc_calibration.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -150,6 +152,9 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE) && (ENABLE_ALARM == DISABLE)
+    sli_si91x_restart_calibration_counter(config);
+#endif
     // It converts the RSI error code which is returned by the below API
     // to the SL error code
     error_status = RSI_RTC_SetDateTime(RTC, config);
@@ -160,6 +165,13 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
     // This API call sets the register bit to bypass the soft resets and retain the date and time
     // after it.
     RSI_RTC_BypassReset();
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE) && (ENABLE_ALARM == DISABLE)
+    if (sli_si91x_get_calendar_application_flag_status()) {
+      // set the alarm time for next calibration as per the next event returned by the event handler.
+      // In the calibration event handler we are passing DISABLE, indicating that initial adjustment is not required.
+      sli_si91x_set_periodic_alarm(sli_si91x_get_calib_next_event_time_handler(DISABLE));
+    }
+#endif
     // If everything is as required, and the date and time is successfully configured then,
     // it returns SL_STATUS_OK
     status = SL_STATUS_OK;
@@ -336,6 +348,12 @@ sl_status_t sl_si91x_calendar_set_alarm(sl_calendar_datetime_config_t *alarm)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE) && (ENABLE_ALARM == DISABLE)
+    sli_si91x_calibration_adjustment(alarm);
+    if (sli_si91x_get_calendar_application_flag_status()) {
+      return SL_STATUS_OK;
+    }
+#endif
     // It converts the RSI error code which is returned by the below API
     // to the SL error code
     error_status = RSI_RTC_SetAlarmDateTime(RTC, alarm);
@@ -950,7 +968,33 @@ void SLI_ALARM_IRQHandler(void)
   // and calls the callback function
   if (sl_si91x_calendar_is_alarm_trigger_enabled()) {
     sl_si91x_calendar_clear_alarm_trigger();
+#if (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED == ENABLE)
+    bool calibration_interrupt_flag = sli_si91x_get_calibration_interrupt_flag_status();
+    bool callback_trigger_flag      = sli_si91x_get_callback_trigger_flag_status();
+    if ((calibration_interrupt_flag == 1) && (callback_trigger_flag == 0)) {
+      // Apply the calibration.
+      sli_si91x_lf_fsm_rc_calibration();
+      // Calls the calibration event handler for the next event. Set the calendar alarm based on the return value of event handler.
+      // In the calibration event handler we are passing DISABLE, indicating that initial adjustment is not required.
+      sli_si91x_set_periodic_alarm(sli_si91x_get_calib_next_event_time_handler(DISABLE));
+    } else if ((calibration_interrupt_flag == 0) && (callback_trigger_flag == 1)) {
+      // Calls the calibration event handler for the next event. Set the calendar alarm based on the return value of event handler.
+      // In the calibration event handler we are passing DISABLE, indicating that initial adjustment is not required.
+      sli_si91x_set_periodic_alarm(sli_si91x_get_calib_next_event_time_handler(DISABLE));
+      // Call the callback.
+      alarm_callback();
+    } else if ((calibration_interrupt_flag == 1) && (callback_trigger_flag == 1)) {
+      // Apply the calibration.
+      sli_si91x_lf_fsm_rc_calibration();
+      // Calls the calibration event handler for the next event. Set the calendar alarm based on the return value of event handler.
+      // In the calibration event handler we are passing DISABLE, indicating that initial adjustment is not required.
+      sli_si91x_set_periodic_alarm(sli_si91x_get_calib_next_event_time_handler(DISABLE));
+      // Call the callback.
+      alarm_callback();
+    }
+#else
     alarm_callback();
+#endif
   }
 }
 

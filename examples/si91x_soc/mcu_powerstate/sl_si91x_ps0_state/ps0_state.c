@@ -31,8 +31,6 @@ void low_power_configuration(void);
 void ps0_state_init(void)
 {
   sl_status_t status;
-  // Reduces the RETN_LDO voltage by 0.05V.
-  RSI_IPMU_Retn_Voltage_Reduction();
   // change the TASS reference clock to MHz RC.
   RSI_ChangeTassRefClock();
   // Power downs the domains.

@@ -26,13 +26,12 @@ requires:
   - name: status
   - name: sl_si91x_wireless
   - name: network_manager
-  - name: basic_network_config_manager
   - name: wiseconnect3_common
   - name: wifi
   - name: sl_si91x_mcu
   - name: wifi_resources
   - name: freertos
-  - name: device_init_nvic
+  - name: freertos_heap_4
 include:
   - path: "inc"
     file_list:

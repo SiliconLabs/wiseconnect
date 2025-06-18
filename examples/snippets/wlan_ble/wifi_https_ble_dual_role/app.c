@@ -83,9 +83,9 @@ osSemaphoreId_t sync_coex_wlan_sem;
 bool rsi_ble_running, rsi_wlan_running;
 
 bool powersave_cmd_given;
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 osMutexId_t power_cmd_mutex;
-sl_wifi_performance_profile_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
 #endif
 
 const osThreadAttr_t thread_attributes = {
@@ -126,7 +126,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                                                   | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
 #if defined(SLI_SI917) || defined(SLI_SI915)
@@ -171,7 +171,7 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                       ),
                    .config_feature_bit_map = (
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                      SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
 #else
                      0
@@ -194,7 +194,7 @@ static const sl_wifi_device_configuration_t config = {
 //   ! PROCEDURES
 /*=======================================================================*/
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 /*==============================================*/
 /**
  * @fn         rsi_initiate_power_save
@@ -218,7 +218,7 @@ int32_t rsi_initiate_power_save(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return status;
@@ -408,7 +408,7 @@ void rsi_common_app_task(void)
   }
 #endif
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   //! create mutex
   power_cmd_mutex = osMutexNew(NULL);
   if (power_cmd_mutex == NULL) {

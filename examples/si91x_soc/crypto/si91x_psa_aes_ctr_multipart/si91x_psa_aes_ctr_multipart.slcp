@@ -1,0 +1,68 @@
+project_name: si91x_psa_aes_ctr_multipart
+label: SI91x - SoC PSA AES Cipher Multipart
+description: |
+  This example project demonstrates the PSA AES-CTR Multipart API in SI91x.
+category: example|crypto
+package: platform
+quality: production
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+readme:
+  - path: readme.md
+source:
+  - path: psa_aes_app.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_aes_app.h
+      - path: app.h
+component:
+  - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
+  - id: psa_crypto
+  - id: psa_driver
+  - id: psa_crypto_trng
+  - id: psa_crypto_cipher_ctr
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

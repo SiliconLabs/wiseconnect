@@ -2,18 +2,22 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
-version: "3.4.2"
+version: "3.5.0"
 sdk:
   id: simplicity_sdk
-  version: "2024.12.2"
+  version: "2025.6.0"
+upgrade_manifest:
+  - path: upgrade.slcu   
 documentation:
   - docset: wiseconnect
-    version: "3.4.2"
+    version: "3.5.0"
 component_path:
   - path: resources
   - path: components/board
   - path: components/common
+  - path: components/logger
   - path: components/device/silabs/si91x/wireless
+  - path: components/device/silabs/si91x/wireless/wc_device_configuration
   - path: components/device/silabs/si91x/wireless/ble
   - path: components/device/silabs/si91x/wireless/asynchronous_socket
   - path: components/device/silabs/si91x/wireless/ncp_interface
@@ -47,6 +51,11 @@ component_path:
   - path: components/service/mqtt
   - path: components/service/sntp
   - path: components/service/mdns
+  - path: components/sli_buffer_manager
+  - path: components/sli_queue_manager
+  - path: components/sli_routing_utility
+  - path: components/sli_wifi_command_engine
+  - path: components/sli_si91x_wifi_event_handler
   - path: components/protocol/wifi
   - path: components/wiseconnect3_common
   - path: components/device/silabs/si91x/mcu
@@ -76,25 +85,29 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/nvm3/component
   - path: components/device/silabs/si91x/mcu/drivers/service/sleeptimer/component
   - path: components/device/silabs/si91x/mcu/drivers/service/iostream/component
+  - path: components/device/silabs/si91x/mcu/drivers/debug/component    
   - path: components/device/silabs/si91x/mcu/drivers/service/power_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/clock_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/wdt_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/sl_si91x_etm/component
   - path: components/device/silabs/si91x/mcu/drivers/service/littlefs/component
   - path: components/device/silabs/si91x/mcu/drivers/service/cpc/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/component
   - path: components/device/silabs/si91x/mcu/core/chip/component
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/core/cmsis/component
   - path: components/device/silabs/si91x/mcu/core/config/component
-  - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/hal/component
   - path: components/segger_sysview
   - path: third_party/aws_sdk
+  - path: third_party/paho_mqtt_embedded
   - path: third_party/json_parser
+  - path: third_party/mbedtls
   - path: third_party/azure_freertos_middleware
   - path: third_party/azure_freertos_middleware/libraries/coreMQTT
   - path: third_party/iot_socket
   - path: third_party/unity/component
+  - path: third_party/wpa_supplicant
   - path: third_party/silicon_labs/freertos/component
   - path: utilities
   - path: components/console
@@ -102,3 +115,4 @@ component_path:
   - path: third_party/qcbor/component
   - path: third_party/tcose/component
   - path: third_party/littlefs/component
+  - path: components/at_commands_auto_gen

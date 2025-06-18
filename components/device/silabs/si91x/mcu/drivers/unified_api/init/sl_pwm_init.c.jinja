@@ -29,6 +29,7 @@
  ******************************************************************************/
 
 #include "sl_si91x_pwm.h"
+#include "sl_pwm_board.h"
 #include "sl_si91x_pwm_common_config.h"
 {% for inst in pwm_instances %}
 #include "sl_si91x_pwm_init_{{ inst }}_config.h"
@@ -71,6 +72,12 @@ sl_pwm_fault_init_t sl_pwm_{{ inst }}_event_init = {
   .pad = SL_PWM_{{ inst | upper }}_PAD,
 };
 {% endfor %}
+
+
+#if ((SL_PWM_COMMON_TIMER_SELECTION == SL_BASE_TIMER_ALL_CHANNEL_VAL) && (!defined SL_PWM_CHANNEL_0_AVAILABLE))
+    #warning "PWM Base Timer cannot be \"Only one (0th) for All Channels\" if channel_0 instance is not added"
+#endif
+
 
 
 void sl_pwm_init_instances(void)

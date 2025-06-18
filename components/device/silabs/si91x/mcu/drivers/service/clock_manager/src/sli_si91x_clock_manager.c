@@ -34,8 +34,18 @@
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_debug.h"
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-#include "sl_si91x_psram_config.h"
 #include "rsi_d_cache.h"
+
+#if defined(SLI_SI91X_MCU_PSRAM_APS1604M_SQR)
+#include "sl_si91x_psram_aps1604m_sqr_config.h"
+#elif defined(SLI_SI91X_MCU_PSRAM_APS6404L_SQH)
+#include "sl_si91x_psram_aps6404l_sqh_config.h"
+#elif defined(SLI_SI91X_MCU_PSRAM_APS6404L_SQRH)
+#include "sl_si91x_psram_aps6404l_sqrh_config.h"
+#else
+#error "No valid PSRAM configuration defined"
+#endif
+
 #endif
 /************************************************************************************
  *************************  DEFINES / MACROS  ***************************************

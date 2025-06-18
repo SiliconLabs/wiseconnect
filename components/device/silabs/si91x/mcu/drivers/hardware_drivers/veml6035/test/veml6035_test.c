@@ -20,7 +20,6 @@
 #include "sl_veml6035.h"
 #include "sl_i2cspm_instances.h"
 #include "sl_board_control.h"
-#include "sl_system_init.h"
 #include "sl_sleeptimer.h"
 #include "sl_simple_led.h"
 #include "sl_simple_led_instances.h"
@@ -44,7 +43,6 @@ void tearDown(void)
 
 int main(void)
 {
-  sl_system_init();
 
   sl_unity_start_test("VEML6035");
 

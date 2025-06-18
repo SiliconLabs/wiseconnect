@@ -98,7 +98,7 @@ extern osSemaphoreId_t ble_main_task_sem, ble_peripheral_conn_sem;
 extern osSemaphoreId_t sync_coex_ble_sem;
 #endif
 extern bool rsi_wlan_running;
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 extern bool powersave_cmd_given;
 extern osMutexId_t power_cmd_mutex;
 #endif
@@ -1860,7 +1860,7 @@ static int32_t rsi_ble_dual_role(void)
   change_scan_param.scan_win      = LE_SCAN_WINDOW;   //! scan window 13.375ms
   change_scan_param.own_addr_type = LE_PUBLIC_ADDRESS;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
   if (!powersave_cmd_given) {
     status = rsi_initiate_power_save();

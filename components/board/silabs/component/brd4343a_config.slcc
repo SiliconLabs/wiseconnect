@@ -233,6 +233,21 @@
       instance: comparator2
     path: common_config/sl_si91x_analog_comparator_comparator2_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%opamp_instance"
+      file_id: opamp_config
+      instance: opamp1
+    path: common_config/sl_si91x_opamp_opamp1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%opamp_instance"
+      file_id: opamp_config
+      instance: opamp2
+    path: common_config/sl_si91x_opamp_opamp2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%opamp_instance"
+      file_id: opamp_config
+      instance: opamp3
+    path: common_config/sl_si91x_opamp_opamp3_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%sl_si91x_button_917"
       file_id: button_config
       instance: btn0
@@ -260,3 +275,13 @@
       file_id: i2s_config
       instance: ulp_i2s
     path: common_config/sl_si91x_i2s_init_ulp_i2s_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pcm_instance"
+      file_id: pcm_config
+      instance: pcm0
+    path: common_config/sl_si91x_pcm_init_pcm0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pcm_instance"
+      file_id: pcm_config
+      instance: ulp_pcm
+    path: common_config/sl_si91x_pcm_init_ulp_pcm_config.h

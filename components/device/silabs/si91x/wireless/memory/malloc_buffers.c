@@ -34,16 +34,16 @@
 #include "cmsis_os2.h"
 #include <string.h>
 extern osMutexId_t malloc_free_mutex;
-sl_status_t sl_si91x_host_init_buffer_manager(void);
-sl_status_t sl_si91x_host_deinit_buffer_manager(void);
-sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
-                                          sl_wifi_buffer_type_t type,
-                                          uint32_t buffer_size,
-                                          uint32_t wait_duration_ms);
+sl_status_t sli_si91x_host_init_buffer_manager(void);
+sl_status_t sli_si91x_host_deinit_buffer_manager(void);
+sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
+                                           sl_wifi_buffer_type_t type,
+                                           uint32_t buffer_size,
+                                           uint32_t wait_duration_ms);
 void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length);
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer);
+void sli_si91x_host_free_buffer(sl_wifi_buffer_t *buffer);
 
-sl_status_t sl_si91x_host_init_buffer_manager(void)
+sl_status_t sli_si91x_host_init_buffer_manager(void)
 {
   if (malloc_free_mutex == NULL) {
     malloc_free_mutex = osMutexNew(NULL);
@@ -51,7 +51,7 @@ sl_status_t sl_si91x_host_init_buffer_manager(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_host_deinit_buffer_manager(void)
+sl_status_t sli_si91x_host_deinit_buffer_manager(void)
 {
   if (malloc_free_mutex != NULL) {
     osMutexDelete(malloc_free_mutex);
@@ -60,10 +60,10 @@ sl_status_t sl_si91x_host_deinit_buffer_manager(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
-                                          sl_wifi_buffer_type_t type,
-                                          uint32_t buffer_size,
-                                          uint32_t wait_duration_ms)
+sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
+                                           sl_wifi_buffer_type_t type,
+                                           uint32_t buffer_size,
+                                           uint32_t wait_duration_ms)
 {
   (void)type;
   osMutexAcquire(malloc_free_mutex, 0xFFFFFFFFUL);
@@ -99,7 +99,7 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
   return (void *)&buffer->data[offset];
 }
 
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
+void sli_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
   if (buffer == NULL) {
     return;

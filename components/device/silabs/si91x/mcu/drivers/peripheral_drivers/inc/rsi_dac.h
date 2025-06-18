@@ -67,9 +67,10 @@ typedef struct {
 #define DAC_INPUT_REG_ADDR        0x24043810
 
 // Define bit positions for ADC and DAC
-#define ADC_BIT_POS  0
-#define DAC_BIT_POS  1
-#define COMP_BIT_POS 2
+#define ADC_BIT_POS   0
+#define DAC_BIT_POS   1
+#define COMP_BIT_POS  2
+#define OPAMP_BIT_POS 3
 
 typedef union {
   uint8_t analog_power;
@@ -78,6 +79,7 @@ typedef union {
     uint8_t power_en_adc : 1;
     uint8_t power_en_dac : 1;
     uint8_t power_en_comp : 1;
+    uint8_t power_en_opamp : 1;
   } ap;
 } analog_power_control_t;
 
@@ -99,6 +101,9 @@ __STATIC_INLINE void analog_set_power_state(uint8_t bit_pos, bool power_en_state
       break;
     case COMP_BIT_POS:
       analog_power_ctrl.ap.power_en_comp = power_en_state;
+      break;
+    case OPAMP_BIT_POS:
+      analog_power_ctrl.ap.power_en_opamp = power_en_state;
       break;
     default:
       // Handle invalid bit position
@@ -143,11 +148,14 @@ rsi_error_t RSI_DAC_Config(AUX_ADC_DAC_COMP_Type *pstcDAC,
                            uint16_t aux_dac_out_mux_sel,
                            uint8_t prbs_sel);
 
-rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, int16_t *data, uint8_t static_fifo_mode, uint16_t len);
+rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
+                              const int16_t *data,
+                              uint8_t static_fifo_mode,
+                              uint16_t len);
 
 rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
                                          uint16_t channel,
-                                         uint16_t *data,
+                                         const uint16_t *data,
                                          uint32_t len);
 
 uint16_t RSI_DAC_DyanamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data);
@@ -165,7 +173,7 @@ rsi_error_t RSI_DAC_DynamicModeStart(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t ch
 
 rsi_error_t RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t fifo_threshold);
 
-uint16_t RSI_DAC_ReadData(AUX_ADC_DAC_COMP_Type *pstcDAC);
+uint16_t RSI_DAC_ReadData(const AUX_ADC_DAC_COMP_Type *pstcDAC);
 
 #ifdef CHIP_9118
 rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC);
@@ -176,7 +184,7 @@ rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC, uint8_t oper
 rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC, uint8_t oper_mode);
 #endif
 
-rsi_error_t RSI_DAC_InterruptClr(AUX_ADC_DAC_COMP_Type *pstcDAC);
+rsi_error_t RSI_DAC_InterruptClr(const AUX_ADC_DAC_COMP_Type *pstcDAC);
 
 void dac_udma_init(void);
 
@@ -184,7 +192,7 @@ void dac_udma_write(uint8_t ping_pong_write, uint16_t num_of_samples, int16_t *i
 
 void dac_udma_start(void);
 void dac_udma_stop(void);
-uint16_t RSI_DAC_DynamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data);
+uint16_t RSI_DAC_DynamicModeReadData(const AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data);
 rsi_error_t RSI_DAC_DynamicModeStop(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel);
 void dac_udmaTransferComplete(RSI_UDMA_HANDLE_T udmaHandle, RSI_UDMA_DESC_T *pTranDesc, uint32_t channel_no);
 void UDMA_DAC_Ping_Write(uint16_t num_of_samples, int16_t *input_buff, uint8_t pingreconfig);

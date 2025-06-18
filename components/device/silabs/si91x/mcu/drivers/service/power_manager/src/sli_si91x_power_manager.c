@@ -37,7 +37,6 @@
 #include "rsi_rom_power_save.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_ps_ram_func.h"
-#include "FreeRTOSConfig.h"
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
 #include "rsi_m4.h"
 #include "sl_si91x_types.h"
@@ -48,7 +47,9 @@
 #endif
 #include "rsi_debug.h"
 #include "sli_si91x_clock_manager.h"
-
+#if defined(SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED)
+#include "sli_si91x_32khz_rc_calibration.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -247,10 +248,13 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   }
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
   // Initializing and configuring the wakeup sources as per UC inputs, if available
-  sl_si91x_power_manager_wakeup_init();
+  status = sl_si91x_power_manager_wakeup_init();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
 #endif
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   rsi_p2p_intr_status_bkp_t p2p_intr_status_bkp;
   p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
@@ -266,8 +270,14 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   if (status != SL_STATUS_OK) {
     return status;
   }
+
+#if defined(SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED) && (SL_SI91X_32KHZ_RC_CALIBRATION_ENABLED)
+  // set the wakeup overhead flag.
+  sli_si91x_set_wakeup_overhead_flag();
+#endif
+
 // After waking up, setting the mcu status as active in P2P registers
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
   RSI_PS_SetMCUActiveStatus();
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   SysTick_Config(SystemCoreClock / 1000);
@@ -460,6 +470,7 @@ void sli_si91x_power_manager_init_hardware(void)
   RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP); //Enable Wake-On-Wireless Wakeup source
 #endif
 }
+
 /*******************************************************************************
  * Configures the hardware for low power mode.
  * Disables the components and clocks which are not required.
@@ -484,7 +495,6 @@ void sli_si91x_power_manager_low_power_hw_config(boolean_t is_sleep)
   RSI_PS_SocPllSpiDisable();
   // Power-Down QSPI-DLL Domain
   RSI_PS_QspiDllDomainDisable();
-
   // Enable first boot up
   RSI_PS_EnableFirstBootUp(1);
   // Configure PMU Start-up Time to be used on Wake-up
@@ -563,12 +573,17 @@ static void ps4_to_ps0_state_change(void)
   // Low power hardware configuration to switch off the components which are not required.
   sli_si91x_power_manager_low_power_hw_config(true);
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  sl_status_t status_ps4_to_ps0 = SL_STATUS_OK;
   // Initializing and configuring the wakeup sources as per UC inputs, if available
-  sl_si91x_power_manager_wakeup_init();
+  status_ps4_to_ps0 = sl_si91x_power_manager_wakeup_init();
+  if (status_ps4_to_ps0 != SL_STATUS_OK) {
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status_ps4_to_ps0);
+    return;
+  }
 #endif
   // Configuring the clocks as per the sleep state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_SLEEP, SL_SI91X_POWER_MANAGER_POWERSAVE);
-#if ((configUSE_TICKLESS_IDLE == 1) && (SL_SLEEP_TIMER == 1))
+#if ((SL_SI91X_TICKLESS_MODE == 1) && (SL_SLEEP_TIMER == 1))
   RSI_PS_ClrWkpSources(SYSRTC_BASED_WAKEUP);
 #endif
   // If any error code, it returns it otherwise goes to sleep without retention.
@@ -633,12 +648,17 @@ static void ps3_to_ps0_state_change(void)
   config.wakeup_callback_address = SL_SLEEP_WAKEUP_CALLBACK_ADDRESS;
   sli_si91x_power_manager_low_power_hw_config(true);
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  sl_status_t status_ps3_to_ps0 = SL_STATUS_OK;
   // Initializing and configuring the wakeup sources as per UC inputs, if available
-  sl_si91x_power_manager_wakeup_init();
+  status_ps3_to_ps0 = sl_si91x_power_manager_wakeup_init();
+  if (status_ps3_to_ps0 != SL_STATUS_OK) {
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status_ps3_to_ps0);
+    return;
+  }
 #endif
   // Configuring the clocks as per the sleep state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_SLEEP, SL_SI91X_POWER_MANAGER_POWERSAVE);
-#if ((configUSE_TICKLESS_IDLE == 1) && (SL_SLEEP_TIMER == 1))
+#if ((SL_SI91X_TICKLESS_MODE == 1) && (SL_SLEEP_TIMER == 1))
   RSI_PS_ClrWkpSources(SYSRTC_BASED_WAKEUP);
 #endif
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
@@ -651,7 +671,6 @@ static void ps3_to_ps0_state_change(void)
 static void ps2_to_ps4_state_change(void)
 {
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
-
   // Enable 40MHz XTAL clock
   RSI_ULPSS_EnableRefClks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS4,
@@ -701,6 +720,10 @@ static void ps2_to_ps1_state_change(void)
 
     // If any error code, it returns it otherwise goes to sleep with retention.
     trigger_sleep(&config, SLEEP_WITH_RETENTION);
+#if (SL_SI91X_TICKLESS_MODE == 0)
+    // Enable the NVIC interrupts.
+    __asm volatile("cpsie i" ::: "memory");
+#endif
   }
 }
 

@@ -10,12 +10,11 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version:  "2024.12.2"}
+sdk: {id: simplicity_sdk, version:  "2025.6.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.2}
+- {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -28,7 +27,7 @@ component:
   instance: [exp]
 
 requires:
-- name: sl_system
+- name: sl_main
 - name: bsd_socket
 - name: network_manager
 - name: basic_network_config_manager
@@ -40,6 +39,7 @@ requires:
 - name: sl_si91x_basic_buffers
 - name: wifi_resources
 - name: freertos
+- name: freertos_heap_4
 - name: slist
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]

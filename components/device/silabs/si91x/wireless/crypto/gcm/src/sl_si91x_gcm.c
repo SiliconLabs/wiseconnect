@@ -40,7 +40,7 @@
 #include <string.h>
 
 #if defined(SLI_SI917B0) || defined(SLI_SI915)
-static void sli_si91x_gcm_get_key_info(sl_si91x_gcm_request_t *request, const sl_si91x_gcm_config_t *config)
+static void sli_si91x_gcm_get_key_info(sli_si91x_gcm_request_t *request, const sl_si91x_gcm_config_t *config)
 {
   request->gcm_mode                                  = config->gcm_mode;
   request->key_info.key_type                         = config->key_config.b0.key_type;
@@ -61,10 +61,10 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
                                          uint8_t gcm_flags,
                                          uint8_t *output)
 {
-  sl_status_t status              = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer        = NULL;
-  sl_si91x_packet_t *packet       = NULL;
-  sl_si91x_gcm_request_t *request = (sl_si91x_gcm_request_t *)malloc(sizeof(sl_si91x_gcm_request_t));
+  sl_status_t status               = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer         = NULL;
+  sl_wifi_system_packet_t *packet  = NULL;
+  sli_si91x_gcm_request_t *request = (sli_si91x_gcm_request_t *)malloc(sizeof(sli_si91x_gcm_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -76,16 +76,16 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   }
 
 #if defined(SLI_SI917B0) || defined(SLI_SI915)
-  if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SL_SI91X_GCM_IV_SIZE) {
+  if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SLI_SI91X_GCM_IV_SIZE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 #else
-  if (config->nonce_length != SL_SI91X_GCM_IV_SIZE) {
+  if (config->nonce_length != SLI_SI91X_GCM_IV_SIZE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 #endif
 
-  memset(request, 0, sizeof(sl_si91x_gcm_request_t));
+  memset(request, 0, sizeof(sli_si91x_gcm_request_t));
 
   request->algorithm_type       = GCM;
   request->gcm_flags            = gcm_flags;
@@ -108,18 +108,18 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
 #endif
 
   status =
-    sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                 SI91X_COMMON_CMD,
-                                 request,
-                                 (sizeof(sl_si91x_gcm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
-                                 SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                 NULL,
-                                 &buffer);
+    sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                  SI91X_COMMON_CMD,
+                                  request,
+                                  (sizeof(sli_si91x_gcm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
+                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                  NULL,
+                                  &buffer);
 
   if ((status != SL_STATUS_OK)) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -132,7 +132,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   }
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
 
   return status;
 }
@@ -140,8 +140,8 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
 #else
 static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_t *output)
 {
-  sl_status_t status              = SL_STATUS_FAIL;
-  sl_si91x_gcm_request_t *request = (sl_si91x_gcm_request_t *)malloc(sizeof(sl_si91x_gcm_request_t));
+  sl_status_t status               = SL_STATUS_FAIL;
+  sli_si91x_gcm_request_t *request = (sli_si91x_gcm_request_t *)malloc(sizeof(sli_si91x_gcm_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -152,11 +152,11 @@ static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_
       return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SL_SI91X_GCM_IV_SIZE) {
+  if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SLI_SI91X_GCM_IV_SIZE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  memset(request, 0, sizeof(sl_si91x_gcm_request_t));
+  memset(request, 0, sizeof(sli_si91x_gcm_request_t));
 
   request->algorithm_type     = GCM;
   request->dma_use            = config->dma_use;
@@ -171,9 +171,9 @@ static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_
 
   sli_si91x_gcm_get_key_info(request, config);
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_gcm_request_t)),
+                                                 (sizeof(sli_si91x_gcm_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);

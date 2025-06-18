@@ -52,7 +52,7 @@
 //   ! MACROS
 /*=======================================================================*/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        18000
+#define TIMEOUT_MS        25000
 #define WIFI_SCAN_TIMEOUT 10000
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
@@ -66,19 +66,10 @@ volatile uint8_t data_recvd = 0;
 volatile uint64_t num_bytes = 0;
 
 //! HTTP/HTTPS headers
-#if HTTPS_DOWNLOAD
-const char httpreq[] = "GET /" DOWNLOAD_FILENAME " HTTPS/1.2\r\n"
+const char httpreq[] = "GET /" DOWNLOAD_FILENAME " HTTP/1.1\r\n"
                        "Host: " SERVER_IP_ADDRESS "\r\n"
                        "User-Agent: silabs/1.0.4a\r\n"
-                       "Accept: */*\r\n";
-
-#else
-const char httpreq[]          = "GET " DOWNLOAD_FILENAME " HTTP/1.1\r\n"
-                                "Host: " SERVER_IP_ADDRESS "\r\n"
-                                "User-Agent: silabs/1.0.4a\r\n"
-                                "Accept: */*\r\n";
-const char http_req_str_end[] = "\r\n";
-#endif
+                       "Accept: */*\r\n\r\n";
 
 #if USE_CONNECTION_CLOSE
 const char http_req_str_connection_close[] = "Connection: close\r\n";
@@ -97,7 +88,7 @@ extern osSemaphoreId_t sync_coex_wlan_sem;
 #endif
 #endif
 extern bool rsi_ble_running;
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 extern osMutexId_t power_cmd_mutex;
 extern bool powersave_cmd_given;
 #endif
@@ -269,7 +260,7 @@ int32_t rsi_app_wlan_socket_create()
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     status = close(client_socket);
     if (status != 0) {
-      LOG_PRINT("\r\nsocket close failed with status = %d and BSD error: %d\r\n", status, errno);
+      LOG_PRINT("\r\nsocket close failed with status = 0x%lX and BSD error: %d\r\n", status, errno);
     } else {
       LOG_PRINT("\r\nsocket close success\r\n");
     }
@@ -322,7 +313,7 @@ int32_t rsi_wlan_app_task(void)
         rsi_wlan_app_callbacks_init(); //! register callback to initialize WLAN
         rsi_wlan_app_cb.state = RSI_WLAN_SCAN_STATE;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
         if (!powersave_cmd_given) {
           status = rsi_initiate_power_save();
@@ -372,7 +363,7 @@ int32_t rsi_wlan_app_task(void)
           break;
         } else {
           rsi_wlan_app_cb.state = RSI_WLAN_JOIN_STATE; //! update WLAN application state to connected state
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
           LOG_PRINT("\r\n Module is in standby \r\n");
 #endif
           LOG_PRINT("\r\n wlan scan done \r\n");
@@ -514,31 +505,7 @@ int32_t rsi_wlan_app_task(void)
             LOG_PRINT("\r\n send failed\r\n");
             status = close(client_socket);
             if (status != 0) {
-              LOG_PRINT("\r\nsocket close failed with status = %d and BSD error: %d\r\n", status, errno);
-            } else {
-              LOG_PRINT("\r\nsocket close success\r\n");
-            }
-            rsi_wlan_app_cb.state = RSI_WLAN_IPCONFIG_DONE_STATE;
-            break;
-          }
-          bytes_cnt += status;
-        }
-#endif
-        /* Send last set of HTTP headers to server */
-#if !HTTPS_DOWNLOAD
-        bytes_cnt = 0;
-        while (bytes_cnt != strlen(http_req_str_end)) {
-          status = send(client_socket,
-                        (const int8_t *)(http_req_str_end + bytes_cnt),
-                        (strlen(http_req_str_end) - bytes_cnt),
-                        0);
-          if (status < 0) {
-            if (errno == ENOBUFS)
-              continue;
-            LOG_PRINT("send failed\n");
-            status = close(client_socket);
-            if (status != 0) {
-              LOG_PRINT("\r\nsocket close failed with status = %ld and BSD error: %d\r\n", status, errno);
+              LOG_PRINT("\r\nsocket close failed with status = 0x%lX and BSD error: %d\r\n", status, errno);
             } else {
               LOG_PRINT("\r\nsocket close success\r\n");
             }

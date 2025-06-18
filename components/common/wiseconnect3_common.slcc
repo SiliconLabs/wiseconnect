@@ -30,4 +30,8 @@ requires:
 - name: sl_string
 - name: atomic
 - name: cmsis_core
+- name: malloc_thread_safety
 
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror -Wno-error=deprecated-declarations

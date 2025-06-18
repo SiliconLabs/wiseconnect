@@ -71,7 +71,7 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <ulp_ssi signal=MOSI_,MISO_,SCK_,CS0_> SL_ULP_SSI
+// <ulp_ssi signal=MOSI_,MISO_,SCK_,(CS0_),(CS1_),(CS2_)> SL_ULP_SSI
 // $[ULP_SSI_SL_ULP_SSI]
 
 #ifndef SL_ULP_SSI_PERIPHERAL

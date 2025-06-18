@@ -37,10 +37,10 @@
 /******************************************************
  *               Function Declarations
  ******************************************************/
-sl_status_t sl_http_client_register_callback(sl_http_client_event_t event,
-                                             sl_http_client_t client_handle,
-                                             sl_http_client_event_handler_t function);
+sl_status_t sli_http_client_register_callback(sl_http_client_event_t event,
+                                              sl_http_client_t client_handle,
+                                              sl_http_client_event_handler_t function);
 
-sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
-                                                 sl_wifi_buffer_t *buffer,
-                                                 void *sdk_context);
+sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
+                                                  sl_wifi_buffer_t *buffer,
+                                                  void *sdk_context);

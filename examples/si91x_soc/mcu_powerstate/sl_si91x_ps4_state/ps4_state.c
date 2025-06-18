@@ -25,8 +25,7 @@
  ******************************************************************************/
 void low_power_configuration(void);
 
-#define ACTIVE_STATE    0 //Set the bit to enable the active state.
-#define NPSS_GPIO_PIN_3 3
+#define ACTIVE_STATE 0 //Set the bit to enable the active state.
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -34,8 +33,6 @@ void low_power_configuration(void);
 void ps4_state_init(void)
 {
   sl_status_t status;
-  // Reduces the RETN_LDO voltage by 0.05V.
-  RSI_IPMU_Retn_Voltage_Reduction();
   // change the TASS reference clock to MHz RC.
   RSI_ChangeTassRefClock();
   // Power downs the domains.
@@ -53,17 +50,9 @@ void ps4_state_init(void)
   sl_si91x_power_manager_set_clock_scaling(SL_SI91X_POWER_MANAGER_PERFORMANCE);
 
 #if ACTIVE_STATE
-  // Initialize the NPSS GPIO 3 for toggles.
-  RSI_NPSSGPIO_InputBufferEn(NPSS_GPIO_PIN_3, 1U);
-  RSI_NPSSGPIO_SetPinMux(NPSS_GPIO_PIN_3, 0);
-  RSI_NPSSGPIO_SetDir(NPSS_GPIO_PIN_3, NPSS_GPIO_DIR_OUTPUT);
-
   DEBUGOUT("PS%d Active State \n", sl_si91x_power_manager_get_current_state());
   while (1) {
-    // Make GPIO-High
-    RSI_NPSSGPIO_SetPin(NPSS_GPIO_PIN_3, 1U);
-    // Make GPIO-Low
-    RSI_NPSSGPIO_SetPin(NPSS_GPIO_PIN_3, 0U);
+    // Idle loop to measure active current consumption
   }
 #endif
   DEBUGOUT("PS%d Sleep State\n", sl_si91x_power_manager_get_current_state());
@@ -98,13 +87,12 @@ void low_power_configuration(void)
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_IID | M4SS_PWRGATE_ULP_SDIO_SPI | M4SS_PWRGATE_ULP_RPDMA
                            | M4SS_PWRGATE_ULP_EFUSE_PERI | M4SS_PWRGATE_ULP_QSPI_ICACHE);
   // Power gate the ULPSS peripherals
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_CAP |
+  RSI_PS_UlpssPeriPowerDown(
 #ifndef DEBUG_UART
-                            ULPSS_PWRGATE_ULP_UART |
+    ULPSS_PWRGATE_ULP_UART |
 #endif
-                            ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA
-                            | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
   // Disable the supply to some NPSS peripherals
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);
   // Power-Down High-Frequency PLL Domain

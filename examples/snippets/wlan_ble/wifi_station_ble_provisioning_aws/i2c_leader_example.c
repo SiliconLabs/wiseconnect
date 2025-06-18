@@ -35,7 +35,6 @@
 #define OFFSET_LENGTH     1    // Offset length
 #define FIFO_THRESHOLD    0x0  // FIFO threshold
 #define ZERO_FLAG         0    // Zero flag, No argument
-#define PINMUX_MODE       6    // I2C pinmux mode
 #define PORT_ZERO         0    // Port zero
 #define HP_MAX_GPIO       64   // High Power GPIO Maximum number
 #define LAST_DATA_COUNT   0    // Last read-write count
@@ -331,11 +330,11 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
 static void pin_configurations(void)
 {
   // SCL
-  RSI_EGPIO_UlpPadReceiverEnable(scl.pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, scl.port, scl.pin, scl.mode);
+  RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(scl.pin - HP_MAX_GPIO));
+  RSI_EGPIO_SetPinMux(EGPIO1, scl.port, (uint8_t)(scl.pin - HP_MAX_GPIO), scl.mode);
   // SDA
-  RSI_EGPIO_UlpPadReceiverEnable(sda.pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, sda.port, sda.pin, sda.mode);
+  RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(sda.pin - HP_MAX_GPIO));
+  RSI_EGPIO_SetPinMux(EGPIO1, sda.port, (uint8_t)(sda.pin - HP_MAX_GPIO), scl.mode);
 }
 
 /*******************************************************************************

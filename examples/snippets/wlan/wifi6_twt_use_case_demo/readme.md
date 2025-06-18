@@ -169,7 +169,7 @@ In general, it is advisable to start the server before the client since the clie
   - By default, the application is configured without power save. If user wants to run the application in power save, enable the below macro.
 
     ```c
-    #define ENABLE_POWER_SAVE 1
+    #define ENABLE_NWP_POWER_SAVE 1
     ```
 
   > **Note:**

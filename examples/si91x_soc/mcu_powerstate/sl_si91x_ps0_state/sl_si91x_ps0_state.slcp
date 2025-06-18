@@ -7,14 +7,13 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 readme:
   - path: readme.md
 source:
-  - path: main.c
   - path: app.c
   - path: app.h
   - path: ps0_state.c
@@ -23,7 +22,7 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
@@ -33,6 +32,8 @@ component:
     from: wiseconnect3_sdk
   - id: debug_ulp_component
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk    
 template_contribution:
   - name: user_files_ps2
     value: ps0_state.o
@@ -41,7 +42,7 @@ template_contribution:
   - name: user_files_ps2
     value: main.o
   - name: user_files_ps2
-    value: sl_system_process_action.o
+    value: sl_main_process_action.o
   - name: user_files_ps2
     value: sl_event_handler.o
 define:

@@ -16,6 +16,7 @@
 #include "sl_board_configuration.h"
 #include <stdint.h>
 #include <string.h>
+#include <sl_string.h>
 #include <stdbool.h>
 #include <stdio.h>
 #ifdef SL_UART
@@ -70,6 +71,16 @@
 static void print_command_database(const console_database_t *database, const char *prefix);
 static void post_uart_rx_handler(char character);
 
+#ifdef SLI_AT_COMMAND_SUPPORT
+sl_status_t console_process_at_command_buffer(const console_database_t *command_database,
+                                              console_args_t *args,
+                                              const console_descriptive_command_t **command);
+extern sl_status_t console_parse_at_command(char *command_line,
+                                            const console_database_t *db,
+                                            console_args_t *args,
+                                            const console_descriptive_command_t **output_command);
+#endif
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -89,6 +100,20 @@ static uint16_t uart_rx_read_iter  = 0;
 /******************************************************
  *               Function Definitions
  ******************************************************/
+
+#ifdef SLI_AT_COMMAND_SUPPORT
+sl_status_t console_process_at_command_buffer(const console_database_t *command_database,
+                                              console_args_t *args,
+                                              const console_descriptive_command_t **command)
+{
+  sl_status_t result = SL_STATUS_FAIL;
+  if (buffer_ready_index != INVALID_INDEX) {
+    result = console_parse_at_command((char *)user_rx_buffer[buffer_ready_index], command_database, args, command);
+    buffer_ready_index = INVALID_INDEX;
+  }
+  return result;
+}
+#endif
 
 sl_status_t console_process_buffer(const console_database_t *command_database,
                                    console_args_t *args,
@@ -267,7 +292,11 @@ sl_status_t default_help_command_handler(const console_args_t *arguments)
   const console_database_entry_t *entry;
   uint32_t starting_index = 0;
   char *group             = GET_OPTIONAL_COMMAND_ARG(arguments, 0, NULL, char *);
-  char *group_end         = group + strlen(group);
+  const char *group_end   = NULL;
+
+  if (group != NULL) {
+    group_end = group + sl_strlen(group);
+  }
 
   if (group != NULL && group_end != NULL) {
     sl_status_t status = console_find_command(&group, group_end, &console_command_database, &entry, &starting_index);

@@ -25,16 +25,21 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define I2S_INSTANCE                   0             // I2S instance
-#define DEFAULT_MIC_BUFFER_SIZE        2048          // Default receive buffer size
+#define I2S_INSTANCE               0     // I2S instance
+#define DEFAULT_MIC_BUFFER_SIZE    2048  // Default receive buffer size
+#define POWER_CALCULATION_CONSTANT 10.0f // Constant for dB conversion
+#if SL_MIC_DATA_SIZE == 16
+#define MAX_AMPLITUDE                  32767.0f // Maximum value for a 16-bit signed integer
+#define REFERENCE_SOUND_PRESSURE_LEVEL 140.0f   // Reference dBSPL level
+#elif SL_MIC_DATA_SIZE == 32
 #define MAX_AMPLITUDE                  2147483647.0f // Maximum value for a 32-bit signed integer
 #define REFERENCE_SOUND_PRESSURE_LEVEL 120.0f        // Reference dBSPL level
-#define POWER_CALCULATION_CONSTANT     10.0f         // Constant for dB conversion
+#endif
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 static sl_i2s_handle_t i2s_mic_driver_handle = NULL;
-static uint8_t mic_sample_receive_complete   = 0;
+static uint8_t mic_sample_receive_complete   = false;
 static sl_i2s_xfer_config_t mic_xfer_config  = { 0 };
 typedef enum { RECEIVE_DATA, WAIT_STATE, INVALID_STATE } transfer_state_t;
 
@@ -100,13 +105,18 @@ sl_status_t sl_si91x_mic_init(uint16_t mic_sampling_frequency, uint8_t n_channel
     mic_enable(true);
 
     /* Initialize I2S transfer structure with the required configurations */
-    mic_xfer_config.mode          = SL_I2S_MASTER;          /* Set I2S to master mode */
-    mic_xfer_config.protocol      = SL_I2S_PROTOCOL;        /* Set I2S protocol type */
-    mic_xfer_config.resolution    = SL_I2S_RESOLUTION_32;   /* Set 16-bit resolution for audio */
-    mic_xfer_config.sampling_rate = mic_sampling_frequency; /* Set sampling rate to 44.1 kHz */
-    mic_xfer_config.sync          = SL_I2S_ASYNC;           /* Set I2S mode to asynchronous */
-    mic_xfer_config.transfer_type = SL_I2S_RECEIVE;         /* Configure I2S for receive operation */
-    mic_xfer_config.data_size     = SL_I2S_DATA_SIZE32;     /* Set data size to 16 bits */
+    mic_xfer_config.mode          = SL_I2S_MASTER;           /* Set I2S to master mode */
+    mic_xfer_config.protocol      = SL_I2S_PROTOCOL;         /* Set I2S protocol type */
+    mic_xfer_config.sampling_rate = mic_sampling_frequency;  /* Set sampling rate */
+    mic_xfer_config.sync          = SL_I2S_ASYNC;            /* Set I2S mode to asynchronous */
+    mic_xfer_config.transfer_type = SL_MIC_ICS43434_RECEIVE; /* Configure I2S for receive operation */
+#if SL_MIC_DATA_SIZE == 16
+    mic_xfer_config.resolution = SL_I2S_RESOLUTION_16; /* Set 16-bit resolution for audio */
+    mic_xfer_config.data_size  = SL_I2S_DATA_SIZE16;   /* Set data size to 16 bits */
+#elif SL_MIC_DATA_SIZE == 32
+    mic_xfer_config.resolution = SL_I2S_RESOLUTION_32; /* Set 32-bit resolution for audio */
+    mic_xfer_config.data_size  = SL_I2S_DATA_SIZE32;   /* Set data size to 32 bits */
+#endif
 
     /* Validate the I2S transfer configuration */
     status = sl_si91x_i2s_config_transmit_receive(i2s_mic_driver_handle, &mic_xfer_config);
@@ -136,7 +146,7 @@ sl_status_t sl_si91x_mic_deinit(void)
 
   do {
     /* Deinitialize I2S microphone and clear the driver handle */
-    status = sl_si91x_i2s_deinit(&i2s_mic_driver_handle);
+    status = sl_si91x_i2s_deinit((sl_i2s_handle_t *)i2s_mic_driver_handle);
     if (status != SL_STATUS_OK) {
       break;
     }
@@ -299,7 +309,8 @@ sl_status_t sl_si91x_mic_stop(void)
 bool sl_si91x_mic_sample_buffer_ready(void)
 {
   if (mic_sample_receive_complete) {
-    return true; /* Buffer is ready if I2S receive operation is complete */
+    mic_sample_receive_complete = false; /* Reset the flag */
+    return true;                         /* Buffer is ready if I2S receive operation is complete */
   }
   return false; /* Buffer is not ready */
 }
@@ -321,17 +332,23 @@ sl_status_t sl_si91x_mic_calculate_sound_level(float *sound_level_dB,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
+#if SL_MIC_DATA_SIZE == 16
+  const int16_t *samples = (const int16_t *)audio_samples;
+#elif SL_MIC_DATA_SIZE == 32
+  const int32_t *samples = (const int32_t *)audio_samples;
+#endif
+
   /* Calculate mean of the audio samples in the buffer */
   mean_amplitude = 0.0f;
   for (sample_index = channel; sample_index < (n_frames * num_channels); sample_index++) {
-    mean_amplitude += (float)audio_samples[sample_index];
+    mean_amplitude += (float)samples[sample_index];
   }
   mean_amplitude /= (float)n_frames;
 
   /* Estimate variance (power) */
   power_variance = 0.0f;
   for (sample_index = channel; sample_index < (n_frames * num_channels); sample_index++) {
-    sample = ((float)audio_samples[sample_index] - mean_amplitude) / MAX_AMPLITUDE;
+    sample = ((float)samples[sample_index] - mean_amplitude) / MAX_AMPLITUDE;
     power_variance += sample * sample;
   }
   power_variance /= (float)n_frames;

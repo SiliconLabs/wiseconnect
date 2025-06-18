@@ -65,15 +65,15 @@
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for powersave mode
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 //! Power Save Profile Mode
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 //! Application global parameters.
@@ -441,7 +441,7 @@ void ble_central(void *argument)
   LOG_PRINT("\r\n Started scanning\r\n");
   LOG_PRINT("\r\n BLE remote device name : %s\r\n", RSI_REMOTE_DEVICE_NAME);
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n keep module in to power save \r\n");
 
   //! initiating power save in BLE mode
@@ -452,7 +452,7 @@ void ble_central(void *argument)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
     return;
@@ -465,7 +465,7 @@ void ble_central(void *argument)
     //! checking for received events
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
-#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_NWP_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;
@@ -512,7 +512,7 @@ void ble_central(void *argument)
         //! clear the disconnected event.
         rsi_ble_app_clear_event(RSI_APP_EVENT_DISCONNECTED);
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n Keep module in to active state \r\n");
         //! initiating Active mode in BT mode
         status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
@@ -523,7 +523,7 @@ void ble_central(void *argument)
 
         //! initiating power save in wlan mode
         wifi_profile.profile = HIGH_PERFORMANCE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to keep module in HIGH_PERFORMANCE mode \r\n");
           return;
@@ -536,7 +536,7 @@ void ble_central(void *argument)
           LOG_PRINT("\n start_scanning status: 0x%lX\r\n", status);
         }
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
         LOG_PRINT("\r\n Keep module in to power save \r\n");
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
         if (status != RSI_SUCCESS) {
@@ -545,7 +545,7 @@ void ble_central(void *argument)
 
         //! initiating power save in wlan mode
         wifi_profile.profile = ASSOCIATED_POWER_SAVE;
-        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\n Failed to keep module in power save \r\n");
           return;

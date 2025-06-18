@@ -3,19 +3,31 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
 
-#include "rsi_driver.h"
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
 #include "sl_constants.h"
@@ -35,26 +47,21 @@ static const uint8_t sha_digest_len_table[] = { [SL_SI91X_SHA_1]   = SL_SI91X_SH
                                                 [SL_SI91X_SHA_224] = SL_SI91X_SHA_224_DIGEST_LEN };
 
 static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
-                                         uint8_t *msg,
+                                         const uint8_t *msg,
                                          uint16_t msg_length,
                                          uint16_t chunk_len,
                                          uint8_t pending_flag,
                                          uint8_t *digest)
 {
-  // Input pointer check
-  if ((msg == NULL) && (msg_length != 0)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
   sl_status_t status = SL_STATUS_OK;
-  SL_PRINTF(SL_SHA_PEN_ENTRY, CRYPTO, LOG_INFO);
   uint16_t send_size = 0;
   sl_wifi_buffer_t *buffer;
-  sl_si91x_packet_t *packet;
-  sl_si91x_sha_request_t *request = (sl_si91x_sha_request_t *)malloc(sizeof(sl_si91x_sha_request_t));
+  const sl_wifi_system_packet_t *packet;
+  sli_si91x_sha_request_t *request = (sli_si91x_sha_request_t *)malloc(sizeof(sli_si91x_sha_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_sha_request_t));
+  memset(request, 0, sizeof(sli_si91x_sha_request_t));
 
   // Fill Algorithm type SHA - 4
   request->algorithm_type = SHA;
@@ -74,21 +81,23 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   memset(&request->msg[0], 0, SL_SI91X_MAX_DATA_SIZE_IN_BYTES);
 
   // Copy Data
-  memcpy(&request->msg[0], msg, chunk_len);
+  if ((msg != NULL) && (chunk_len != 0)) {
+    memcpy(&request->msg[0], msg, chunk_len);
+  }
 
-  send_size = sizeof(sl_si91x_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_len;
+  send_size = sizeof(sli_si91x_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_len;
 
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        send_size,
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         send_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -101,7 +110,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
 
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
 
   return status;
 }
@@ -113,14 +122,14 @@ static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint1
   if (msg == NULL) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  sl_status_t status              = SL_STATUS_OK;
-  sl_si91x_sha_request_t *request = (sl_si91x_sha_request_t *)malloc(sizeof(sl_si91x_sha_request_t));
+  sl_status_t status               = SL_STATUS_OK;
+  sli_si91x_sha_request_t *request = (sli_si91x_sha_request_t *)malloc(sizeof(sli_si91x_sha_request_t));
 
   if (request == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
 
-  memset(request, 0, sizeof(sl_si91x_sha_request_t));
+  memset(request, 0, sizeof(sli_si91x_sha_request_t));
 
   // Fill Algorithm type SHA - 4
   request->algorithm_type = SHA;
@@ -136,9 +145,9 @@ static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint1
   // Fill msg ptr
   request->output = digest;
 
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_sha_request_t)),
+                                                 (sizeof(sli_si91x_sha_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
@@ -146,10 +155,14 @@ static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint1
 }
 #endif
 
-sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
+sl_status_t sl_si91x_sha(uint8_t sha_mode, const uint8_t *msg, uint16_t msg_length, uint8_t *digest)
 {
+  // Input pointer check
+  if ((msg == NULL) != (msg_length == 0)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sl_status_t status = SL_STATUS_OK;
-  SL_PRINTF(SL_SHA_ENTRY, CRYPTO, LOG_INFO);
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_sha_mutex == NULL) {
@@ -159,7 +172,7 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 #endif
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = sli_si91x_sha_side_band(sha_mode, msg, msg_length, digest);
+  status = sli_si91x_sha_side_band(sha_mode, (uint8_t *)msg, msg_length, digest);
   return status;
 #else
   uint16_t total_len = 0;
@@ -196,7 +209,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
       status = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
 
       if (status != SL_STATUS_OK) {
-        SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
         mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
 #endif
@@ -214,7 +226,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
     sha_flags = LAST_CHUNK | FIRST_CHUNK;
     status    = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
     if (status != SL_STATUS_OK) {
-      SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
       mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
 #endif
@@ -226,7 +237,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
   mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
 #endif
 
-  SL_PRINTF(SL_SHA_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
   return status;
 #endif
 }

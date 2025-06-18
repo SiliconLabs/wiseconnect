@@ -424,7 +424,7 @@ static void application_start(void *argument)
 
     SL_DEBUG_LOG("SSID %s\n", access_point.ssid.value);
     do {
-      status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, 18000);
+      status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, 25000);
       if (status != SL_STATUS_OK) {
         printf("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
       } else {

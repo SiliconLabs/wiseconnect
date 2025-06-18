@@ -39,9 +39,9 @@
 /*=======================================================================*/
 //!	Powersave configurations
 /*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for power save mode
-#define PSP_MODE          RSI_SLEEP_MODE_2
-#define PSP_TYPE          RSI_MAX_PSP
+#define ENABLE_NWP_POWER_SAVE 0 //! Set to 1 for power save mode
+#define PSP_MODE              RSI_SLEEP_MODE_2
+#define PSP_TYPE              RSI_MAX_PSP
 
 /*=======================================================================*/
 //   ! Data type declarations
@@ -54,7 +54,6 @@ int32_t rsi_initiate_power_save(void);
 int32_t rsi_wlan_app_task(void);
 void rsi_ble_main_app_task(void);
 void rsi_ble_task_on_conn(void *parameters);
-void rsi_ble_slave_app_task(void);
 void rsi_ui_app_task(void);
 void rsi_common_app_task(void);
 #endif

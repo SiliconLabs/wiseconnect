@@ -1,0 +1,69 @@
+project_name: si91x_psa_gcm_large_data_example
+label: SI91x - SoC PSA GCM Large Data Example
+description: |
+  This example project demonstrates the PSA GCM API on large data in SI91x.
+category: example|crypto
+package: platform
+quality: production
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner
+readme:
+  - path: readme.md
+source:
+  - path: app.c
+  - path: psa_gcm_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: psa_gcm_app.h
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.0
+component:
+  - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
+  - id: psa_crypto
+  - id: psa_driver
+  - id: psa_crypto_gcm
+  - id: psa_crypto_trng
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/gcm_output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+define:
+  - name: SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
+    value: 1
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

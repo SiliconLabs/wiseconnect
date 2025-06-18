@@ -25,6 +25,7 @@ requires:
   # Adding mbedtls gcm for multipart gcm encryption(software fallback)
   - name: mbedtls_gcm
   - name: mbedtls_aes
+  - name: sl_si91x_psa_aes
 
 template_contribution:
   - name: event_handler

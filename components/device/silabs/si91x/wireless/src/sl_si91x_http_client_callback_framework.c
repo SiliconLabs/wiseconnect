@@ -36,10 +36,10 @@
  *                    Constants
  ******************************************************/
 //! HTTP OFFSET
-#define SI91X_HTTP_OFFSET 12
+#define SLI_SI91X_HTTP_OFFSET 12
 
 //! HTTP PUT OFFSET
-#define SI91X_HTTP_PUT_OFFSET 16
+#define SLI_SI91X_HTTP_PUT_OFFSET 16
 
 /******************************************************
  *                    Structures
@@ -60,18 +60,18 @@ static sl_http_client_callback_entry_t registered_callback[SL_HTTP_CLIENT_MAX_EV
 /******************************************************
  *               Function Declarations
  ******************************************************/
-static sl_http_client_callback_entry_t *get_http_client_callback_entry(sl_http_client_event_t event);
+static sl_http_client_callback_entry_t *sli_get_http_client_callback_entry(sl_http_client_event_t event);
 static sl_status_t sl_si91x_http_client_put_delete(void);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
-sl_status_t sl_http_client_register_callback(sl_http_client_event_t event,
-                                             sl_http_client_t client_handle,
-                                             sl_http_client_event_handler_t function)
+sl_status_t sli_http_client_register_callback(sl_http_client_event_t event,
+                                              sl_http_client_t client_handle,
+                                              sl_http_client_event_handler_t function)
 {
   // Get the callback entry associated with the specified event
-  sl_http_client_callback_entry_t *entry = get_http_client_callback_entry(event);
+  sl_http_client_callback_entry_t *entry = sli_get_http_client_callback_entry(event);
 
   // check if the entry is valid
   if (entry != NULL) {
@@ -92,16 +92,16 @@ static sl_status_t sl_si91x_http_client_put_delete(void)
     return SL_STATUS_ALLOCATION_FAILED;
   }
   memset(request, 0, sizeof(sl_si91x_http_client_put_request_t));
-  request->command_type = SI91X_HTTP_CLIENT_PUT_DELETE;
-  uint16_t packet_len   = sizeof(sl_si91x_http_client_put_request_t) - SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH;
+  request->command_type = SLI_SI91X_HTTP_CLIENT_PUT_DELETE;
+  uint16_t packet_len   = sizeof(sl_si91x_http_client_put_request_t) - SLI_SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_PUT,
-                                        SI91X_NETWORK_CMD,
-                                        request,
-                                        packet_len,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_HTTP_CLIENT_PUT,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         request,
+                                         packet_len,
+                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         NULL,
+                                         NULL);
   // Free the memory allocated
   free(request);
 
@@ -110,22 +110,22 @@ static sl_status_t sl_si91x_http_client_put_delete(void)
   return status;
 }
 
-static sl_http_client_callback_entry_t *get_http_client_callback_entry(sl_http_client_event_t event)
+static sl_http_client_callback_entry_t *sli_get_http_client_callback_entry(sl_http_client_event_t event)
 {
   return &registered_callback[event];
 }
 
-sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
-                                                 sl_wifi_buffer_t *buffer,
-                                                 void *sdk_context)
+sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
+                                                  sl_wifi_buffer_t *buffer,
+                                                  void *sdk_context)
 {
-  const sl_http_client_callback_entry_t *entry = get_http_client_callback_entry(event);
+  const sl_http_client_callback_entry_t *entry = sli_get_http_client_callback_entry(event);
 
   // Get the packet data from the buffer
-  sl_si91x_packet_t *packet = (sl_si91x_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
   // Convert the firmware status to a library status
-  sl_status_t status = convert_and_save_firmware_status(get_si91x_frame_status(packet));
+  sl_status_t status = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
 
   // Initialize an HTTP client response structure
   sl_http_client_response_t http_response = { 0 };
@@ -145,9 +145,9 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
 
   // Handle different HTTP client response types based on the packet's command
   switch (packet->command) {
-    case RSI_WLAN_RSP_HTTP_CLIENT_GET:
-    case RSI_WLAN_RSP_HTTP_CLIENT_POST:
-    case RSI_WLAN_RSP_HTTP_CLIENT_POST_DATA: {
+    case SLI_WLAN_RSP_HTTP_CLIENT_GET:
+    case SLI_WLAN_RSP_HTTP_CLIENT_POST:
+    case SLI_WLAN_RSP_HTTP_CLIENT_POST_DATA: {
       // Handle GET, POST, and POST_DATA responses
       if (status == SL_STATUS_OK) {
         // Extract http server response from packet
@@ -163,8 +163,8 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
           memcpy(&end_of_data, packet->data, sizeof(uint16_t));
 
           http_response.end_of_data = end_of_data;
-          http_response.data_buffer = &packet->data[SI91X_HTTP_OFFSET];
-          http_response.data_length = packet->length - SI91X_HTTP_OFFSET;
+          http_response.data_buffer = &packet->data[SLI_SI91X_HTTP_OFFSET];
+          http_response.data_length = packet->length - SLI_SI91X_HTTP_OFFSET;
         }
       } else if (status == SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS) {
         // Don't trigger the callback, If the HTTP GET execution is in progress
@@ -173,11 +173,11 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
       break;
     }
 
-    case RSI_WLAN_RSP_HTTP_CLIENT_PUT: {
+    case SLI_WLAN_RSP_HTTP_CLIENT_PUT: {
       // Handle PUT responses
-      uint8_t http_cmd_type                                = *packet->data;
-      const sl_si91x_http_client_put_pkt_rsp_t *response   = (sl_si91x_http_client_put_pkt_rsp_t *)&packet->data;
-      const sl_si91x_http_put_pkt_server_rsp_t *server_rsp = (sl_si91x_http_put_pkt_server_rsp_t *)&packet->data;
+      uint8_t http_cmd_type                                 = *packet->data;
+      const sli_si91x_http_client_put_pkt_rsp_t *response   = (sli_si91x_http_client_put_pkt_rsp_t *)&packet->data;
+      const sli_si91x_http_put_pkt_server_rsp_t *server_rsp = (sli_si91x_http_put_pkt_server_rsp_t *)&packet->data;
 
       // Delete HTTP PUT client if PUT request fails
       if (status != SL_STATUS_OK) {
@@ -186,17 +186,17 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
       }
 
       // Check for HTTP_CLIENT_PUT_PKT command
-      if (http_cmd_type == SI91X_HTTP_CLIENT_PUT_PKT) {
+      if (http_cmd_type == SLI_SI91X_HTTP_CLIENT_PUT_PKT) {
         http_response.data_length = 0;
         http_response.end_of_data = response->end_of_file;
       }
       // Check for HTTP Client PUT response from server
-      else if (http_cmd_type == SI91X_HTTP_CLIENT_PUT_OFFSET_PKT) {
+      else if (http_cmd_type == SLI_SI91X_HTTP_CLIENT_PUT_OFFSET_PKT) {
         http_response.data_length = (uint16_t)server_rsp->data_len;
         http_response.end_of_data = server_rsp->more;
       }
 
-      http_response.data_buffer = &packet->data[SI91X_HTTP_PUT_OFFSET];
+      http_response.data_buffer = &packet->data[SLI_SI91X_HTTP_PUT_OFFSET];
 
       // 917 does not support HTTP Server response for SL_HTTP_PUT request
       http_response.http_response_code = 0;

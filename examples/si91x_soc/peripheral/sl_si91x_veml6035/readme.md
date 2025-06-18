@@ -27,7 +27,7 @@ This example demonstrates the measurement of Lux for every 2 seconds. It also sh
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs SiWx917 Dev Kit [ BRD2605A ]
 
 ### Software Requirements
 
@@ -65,8 +65,29 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Pin Configuration
 
-- Tested on SWG917 Dev kit board.
-- The sensor is internally connected.
+- The sensor is internally connected on SiWG917 Dev kit board on ULP_I2C.
+- However, to use this sensor driver on Custom boards, the following pins are supported based on the instance selected in UC.
+
+**I2C0:**
+
+| PIN |  ULP GPIO PIN       |        Description          |
+| --- | ------------------- | --------------------------- |
+| SCL |  GPIO_7 [P20]       | Connect to Follower SCL pin |
+| SDA |  GPIO_6 [P19]       | Connect to Follower SDA pin |
+
+**I2C1:**
+
+| PIN |     GPIO PIN        |      Description            |
+| --- | ------------------- | --------------------------- |
+| SCL |   GPIO_50 [P32]     | Connect to Follower SCL pin |
+| SDA |   GPIO_51 [P34]     | Connect to Follower SDA pin |
+
+**ULP_I2C:**
+
+| PIN |        ULP GPIO PIN        |      Description            |
+| --- | -------------------------- | --------------------------- |
+| SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
+| SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
 ## Test the Application
 

@@ -701,18 +701,6 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../components/service/network_manager/si91x/sl_net_si91x.c</PathWithFileName>
-      <FilenameWithoutPath>sl_net_si91x.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>8</GroupNumber>
-      <FileNumber>40</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
       <PathWithFileName>../../../../components/service/network_manager/src/sl_net.c</PathWithFileName>
       <FilenameWithoutPath>sl_net.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
@@ -720,7 +708,7 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>41</FileNumber>
+      <FileNumber>40</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -732,7 +720,7 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>42</FileNumber>
+      <FileNumber>41</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -744,7 +732,7 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>43</FileNumber>
+      <FileNumber>42</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -756,13 +744,25 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>44</FileNumber>
+      <FileNumber>43</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>../../../../components/service/bsd_socket/si91x_socket/sl_si91x_bsd_socket.c</PathWithFileName>
       <FilenameWithoutPath>sl_si91x_bsd_socket.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>8</GroupNumber>
+      <FileNumber>44</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\components\service\network_manager\src\sli_net_common_utility.c</PathWithFileName>
+      <FilenameWithoutPath>sli_net_common_utility.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -933,18 +933,6 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_si91x_net_credentials.c</PathWithFileName>
-      <FilenameWithoutPath>sl_si91x_net_credentials.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>10</GroupNumber>
-      <FileNumber>58</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
       <PathWithFileName>../../../../components/device/silabs/si91x/wireless/sl_net/src/sl_si91x_net_internal_stack.c</PathWithFileName>
       <FilenameWithoutPath>sl_si91x_net_internal_stack.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
@@ -952,7 +940,7 @@
     </File>
     <File>
       <GroupNumber>10</GroupNumber>
-      <FileNumber>59</FileNumber>
+      <FileNumber>58</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -964,7 +952,7 @@
     </File>
     <File>
       <GroupNumber>10</GroupNumber>
-      <FileNumber>60</FileNumber>
+      <FileNumber>59</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -976,7 +964,7 @@
     </File>
     <File>
       <GroupNumber>10</GroupNumber>
-      <FileNumber>61</FileNumber>
+      <FileNumber>60</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -988,13 +976,25 @@
     </File>
     <File>
       <GroupNumber>10</GroupNumber>
+      <FileNumber>61</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\components\device\silabs\si91x\wireless\sl_net\src\sl_net_si91x.c</PathWithFileName>
+      <FilenameWithoutPath>sl_net_si91x.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>10</GroupNumber>
       <FileNumber>62</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../components/device/silabs/si91x/wireless/threading/sli_si91x_multithreaded.c</PathWithFileName>
-      <FilenameWithoutPath>sli_si91x_multithreaded.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\..\components\device\silabs\si91x\wireless\sl_net\src\sli_net_si91x_utility.c</PathWithFileName>
+      <FilenameWithoutPath>sli_net_si91x_utility.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1101,8 +1101,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\components\device\stm32\silabs_utility\common\src\m4_core.c</PathWithFileName>
-      <FilenameWithoutPath>m4_core.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\..\components\device\stm32\silabs_utility\common\src\sl_host_core.c</PathWithFileName>
+      <FilenameWithoutPath>sl_host_core.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1142,7 +1142,7 @@
 
   <Group>
     <GroupName>third_party/aws_sdk</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1623,6 +1623,70 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\..\third_party\aws_sdk\platform\silabs\inc\timer_platform.h</PathWithFileName>
       <FilenameWithoutPath>timer_platform.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+  </Group>
+
+  <Group>
+    <GroupName>components/sli_wifi_command_engine</GroupName>
+    <tvExp>0</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>16</GroupNumber>
+      <FileNumber>112</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\components\sli_wifi_command_engine\src\sli_wifi_command_engine.c</PathWithFileName>
+      <FilenameWithoutPath>sli_wifi_command_engine.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>16</GroupNumber>
+      <FileNumber>113</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\components\sli_wifi_command_engine\inc\sli_wifi_command_engine.h</PathWithFileName>
+      <FilenameWithoutPath>sli_wifi_command_engine.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>16</GroupNumber>
+      <FileNumber>114</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\components\sli_wifi_command_engine\inc\sli_wifi_event_handler.h</PathWithFileName>
+      <FilenameWithoutPath>sli_wifi_event_handler.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+  </Group>
+
+  <Group>
+    <GroupName>components/sli_si91x_wifi_event_handler</GroupName>
+    <tvExp>0</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>17</GroupNumber>
+      <FileNumber>115</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\components\sli_si91x_wifi_event_handler\src\sli_si91x_wifi_event_handler.c</PathWithFileName>
+      <FilenameWithoutPath>sli_si91x_wifi_event_handler.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

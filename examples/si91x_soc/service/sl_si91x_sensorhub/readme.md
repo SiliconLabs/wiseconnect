@@ -255,20 +255,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
           #define SL_SH_ADC_SAMPLING_RATE           100
           #define SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES  1
         ``` 
-      * **Example configurations for ADXL335 GY61 sensor**.
-        ```C
-          #define SL_SH_ADC_CH0_NUM_SAMPLES     1
-          #define SL_SH_ADC_CH1_NUM_SAMPLES     1
-          #define SL_SH_ADC_CH2_NUM_SAMPLES     1
-          #define SL_SH_ADC_SAMPLING_RATE       10
-		  
-          .sensor_name               = "GY61",
-          .sensor_id                 = SL_SENSOR_ADC_GY_61_ID,
-          .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL) | BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL),
-          .sensor_bus                = SL_SH_ADC,
-          .sensor_mode               = SL_SH_INTERRUPT_MODE,
-          .data_deliver.data_mode    = SL_SH_NO_DATA_MODE,
-        ``` 
  
       * ADC can read between 1 and 1023 samples at a time and generates interrupts when operating in FIFO mode.
 
@@ -357,13 +343,6 @@ AWS ONLY begins by implementing the modifications and settings listed below.
 | ---------- | ------------------ | ---------------------------------------------------- |
 | ADC Input  | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36) / GUVA sensor output| 
 
-| Sensor PIN |   ULP GPIO PIN      |         Description(for GY61 Sensor)        |
-| ---------  | ------------------- | -------------------------------------------- |
-|  ADC Input | ULP_GPIO_8 [ P15 ]  | Connect to ADXL335 GY61 X axis analog output |
-|  ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output |
-|  ADC Input | ULP_GPIO_1 [ P16 ]  | Connect to ADXL335 GY61 Z axis analog output | 
-
-- **Note: Due to limitations with the number of available ULP GPIO pins (maximum 3),choose either the GUVA sensor or the GY-61 sensor.  Both sensors won't fit at the same time.**
 
 ### SDC Sensor Pin Configurations
 
@@ -387,6 +366,7 @@ AWS ONLY begins by implementing the modifications and settings listed below.
   >- The GPIO based Interrupt Sensor Mode won't function in Sleep mode.
   >- SPI sensor only works in PS4 state.
   >- Disable ADC if using SPI sensor.
+  >- ADC Multi Channel is not supported
 >#### ADC
   >
   >- ADC static mode reads the data from the ADC registers and does not depends on ADC Interrupt.

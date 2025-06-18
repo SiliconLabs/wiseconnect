@@ -68,6 +68,14 @@ typedef __socklen_t socklen_t;
 
 #ifndef _KERNEL
 
+#ifndef __htobe16
+#define __htobe16(x) (x)
+#endif
+
+#ifndef __htobe32
+#define __htobe32(x) (x)
+#endif
+
 #ifndef htons
 #define htons(x)	__htobe16(x)
 #define htonl(x)	__htobe32(x)

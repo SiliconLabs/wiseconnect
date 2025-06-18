@@ -19,6 +19,8 @@ provides:
 template_contribution:
   - name: power_manager_ps2
     value: 1
+    condition:
+      - pm_ps2_component  
   - name: i2s_ps2
     value: sl_si91x_i2s.o
   - name: i2s_ps2

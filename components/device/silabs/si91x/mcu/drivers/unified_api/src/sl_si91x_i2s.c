@@ -204,11 +204,7 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
 {
   sl_status_t status = SL_STATUS_OK;
   int32_t error_status;
-  uint8_t i2s_resolution[I2S_RESOLUTION_COUNT]        = { SL_I2S_RESOLUTION_12,
-                                                          SL_I2S_RESOLUTION_16,
-                                                          SL_I2S_RESOLUTION_20,
-                                                          SL_I2S_RESOLUTION_24,
-                                                          SL_I2S_RESOLUTION_32 };
+  uint8_t i2s_resolution[I2S_RESOLUTION_COUNT] = { SL_I2S_RESOLUTION_16, SL_I2S_RESOLUTION_24, SL_I2S_RESOLUTION_32 };
   uint32_t i2s_sampling_rate[I2S_SAMPLING_RATE_COUNT] = {
     SL_I2S_SAMPLING_RATE_8000,  SL_I2S_SAMPLING_RATE_11025, SL_I2S_SAMPLING_RATE_16000, SL_I2S_SAMPLING_RATE_22050,
     SL_I2S_SAMPLING_RATE_24000, SL_I2S_SAMPLING_RATE_32000, SL_I2S_SAMPLING_RATE_44100, SL_I2S_SAMPLING_RATE_48000,
@@ -246,11 +242,6 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if (xfer_config->protocol != SL_I2S_PROTOCOL) {
-      //Invalid SAI protocol
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
     if ((xfer_config->sync != SL_I2S_SYNC) && (xfer_config->sync != SL_I2S_ASYNC)) {
       //Invalid SYNC mode
       status = SL_STATUS_INVALID_PARAMETER;
@@ -262,7 +253,8 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if ((xfer_config->transfer_type != SL_I2S_TRANSMIT) && (xfer_config->transfer_type != SL_I2S_RECEIVE)) {
+    if ((xfer_config->transfer_type != SL_I2S_TRANSMIT) && (xfer_config->transfer_type != SL_I2S_RECEIVE)
+        && (xfer_config->transfer_type != SL_MIC_ICS43434_RECEIVE)) {
       //Invalid transfer type
       status = SL_STATUS_INVALID_PARAMETER;
       break;
@@ -282,8 +274,8 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if (((xfer_config->resolution <= 16) && (xfer_config->data_size == 32))) {
-      //Invalid combination of resolution and data size. 16 and 12 bit resolutions should
+    if (((xfer_config->resolution == 16) && (xfer_config->data_size == 32))) {
+      //Invalid combination of resolution and data size. 16 bit resolution should
       //use uint16_t data types for transfer
       status = SL_STATUS_INVALID_PARAMETER;
       break;

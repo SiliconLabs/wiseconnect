@@ -505,7 +505,7 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
 sl_status_t mqtt_example()
 {
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile = { 0 };
+  sl_wifi_performance_profile_v2_t performance_profile = { 0 };
 
   //! Enable Broadcast data filter
   status = sl_wifi_filter_broadcast(5000, 1, 1);
@@ -593,7 +593,7 @@ sl_status_t mqtt_example()
 
   //! Apply power save profile
   performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-  status                      = sl_wifi_set_performance_profile(&performance_profile);
+  status                      = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
     return status;

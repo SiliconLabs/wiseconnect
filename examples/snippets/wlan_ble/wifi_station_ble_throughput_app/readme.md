@@ -236,6 +236,8 @@ The application can be configured to suit your requirements and development envi
 
     ![](resources/readme/remote_screen7.png)
 
+> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
+
 7. To measure **TLS Tx** throughput, configure module in TLS client and follow below steps to run TLS server in windows
 
    - Copy SSL_Server_throughput_d.py from release/resources/scripts/ to release/resources/certificates/

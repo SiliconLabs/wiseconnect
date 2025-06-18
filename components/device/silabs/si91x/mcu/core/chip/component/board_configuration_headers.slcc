@@ -45,3 +45,5 @@ config_file:
   unless: [rsilib_board]
 - path: config/sl_qei_board.h
   unless: [rsilib_board]
+- path: config/sl_rs485_board.h
+  unless: [rsilib_board]

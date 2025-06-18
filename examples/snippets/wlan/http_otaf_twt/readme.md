@@ -25,7 +25,7 @@ This application demonstrates how to update new firmware to SiWx91x using a loca
 
 In this application, the SiWx91x connects to an access point, configures an HTTP/HTTPS client, and establishes connection with the HTTP/HTTPS server (Apache server) or the cloud storage server (i.e., AWS S3 bucket/Azure Blob storage). After successful HTTP/HTTPS connection, the SiWx91x sends the firmware file request (HTTP GET Request) to the remote server, which responds with the firmware file.
 
-The server transferred firmware file gets loaded/updated in the SiWx91x flash memory. After successful firmware update, the [sl_si91x_http_otaf()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-fw-upgrade/service-firmware-upgrade-functions#sl-si91x-http-otaf) API returns a success response.
+The server transferred firmware file gets loaded/updated in the SiWx91x flash memory. After successful firmware update, the [sl_si91x_http_otaf_v2()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-fw-upgrade/service-firmware-upgrade-functions#sl-si91x-http-otaf-v2) API returns a success response.
 
 ## Prerequisites/Setup Requirements
 

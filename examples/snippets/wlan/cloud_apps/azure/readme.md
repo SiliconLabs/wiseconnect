@@ -49,6 +49,8 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 >
 > - Refer to [Setting up Security Certificates](#setting-up-security-certificates) for a complete end-to-end procedure on how to generate and use authentic certificates.
 
+> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
+
 ### Setup Diagram
 
 - **SoC:**

@@ -27,9 +27,6 @@
 #include "sl_si91x_led_config.h"
 #include "sl_si91x_led_instances.h"
 
-#if defined(SL_CATALOG_KERNEL_PRESENT)
-#include "sl_system_kernel.h"
-#endif // SL_CATALOG_KERNEL_PRESENT
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/

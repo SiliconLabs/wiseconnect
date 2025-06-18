@@ -22,7 +22,7 @@
  * *                      Macros
  * ******************************************************/
 //! Enable/Disable Powersave
-#define ENABLE_POWER_SAVE 1
+#define ENABLE_NWP_POWER_SAVE 1
 
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP

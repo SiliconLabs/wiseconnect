@@ -15,7 +15,6 @@ source:
 - path: src/sl_si91x_chachapoly.c
 include:
 - path: inc
-- path: inc
   file_list:
     - path: sl_si91x_chachapoly.h
 

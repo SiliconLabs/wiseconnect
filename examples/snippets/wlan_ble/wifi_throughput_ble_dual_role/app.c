@@ -93,10 +93,10 @@ osThreadId_t wlan_app_thread_id;
 osThreadId_t common_app_thread_id;
 bool rsi_wlan_running;
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 bool powersave_cmd_given;
 osMutexId_t power_cmd_mutex;
-sl_wifi_performance_profile_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
+sl_wifi_performance_profile_v2_t wifi_profile = { .profile = DEEP_SLEEP_WITH_RAM_RETENTION };
 #endif
 
 // TCP IP BYPASS feature check
@@ -123,7 +123,7 @@ static const sl_wifi_device_configuration_t config = {
 #if defined(SLI_SI917) || defined(SLI_SI915)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
                                                   | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
                                                   | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
@@ -212,7 +212,7 @@ const osThreadAttr_t wlan_thread_attributes = {
 //   ! PROCEDURES
 /*=======================================================================*/
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
 /*==============================================*/
 /**
  * @fn         rsi_initiate_power_save
@@ -236,7 +236,7 @@ int32_t rsi_initiate_power_save(void)
   }
 
   //! initiating power save in wlan mode
-  status = sl_wifi_set_performance_profile(&wifi_profile);
+  status = sl_wifi_set_performance_profile_v2(&wifi_profile);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return status;
@@ -426,7 +426,7 @@ void rsi_common_app_task(void)
   clear_and_load_certificates_in_flash();
 #endif
 
-#if ENABLE_POWER_SAVE
+#if ENABLE_NWP_POWER_SAVE
   powersave_cmd_given = false;
 
   //! create mutex

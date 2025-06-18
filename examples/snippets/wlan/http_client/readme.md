@@ -58,7 +58,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-- The application uses the default configurations as provided in the **default_wifi_ap_profile** in ``sl_net_default_values.h``, and you can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **default_wifi_client_profile** in ``sl_net_default_values.h``, and you can choose to configure these parameters as needed.
 - In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
   - STA instance related parameters
@@ -150,7 +150,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Steps to Setup HTTP server
 
 1. In a Windows PC, make sure python is installed.
-2. Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_http_server.py** script on port number 80 using the following command:
+2. Copy the **simple_http_server.py** script from the **`/<SDK>/resources/scripts/`** to **`/<SDK>/resources/certificates/`**.
+3. Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_http_server.py** script on port number 80 using the following command:
 
    `python simple_http_server.py 80`
 
@@ -159,11 +160,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Steps to Setup HTTPS server
 
 1. In a Windows PC, make sure python is installed.
-2. Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_https_server.py** script on port number 443 using the following command:
+2. Copy the **simple_https_server.py** script from the **`/<SDK>/resources/scripts/`** to **`/<SDK>/resources/certificates/`**.
+Navigate to **`/<SDK>/resources/scripts/`**. Run the **simple_https_server.py** script on port number 443 using the following command:
 
    `python simple_https_server.py 443`
 
-    **NOTE:** If python command is not working, replace the python with py.
+  > **NOTE:** If python command is not working, replace the python with py.
+  
+  > **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
 
 ## Troubleshooting
 

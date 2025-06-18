@@ -1,14 +1,13 @@
 # Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_cpc_secondary_sdio_freertos
-label: SI91x - SoC Peripheral CPC Secondary SDIO - FreeRTOS
+label: SI91x - SoC CPC Secondary SDIO - FreeRTOS
 description: |
   Start a CPC over SDIO interface
-category: Example|peripheral
+category: Example|Service
 package: platform
 quality: experimental
 source:
   - path: app.c
-  - path: main.c
   - path: cpc_app.c
 include:
   - path: .
@@ -17,13 +16,13 @@ include:
     - path: cpc_app.h
 sdk:
   id: simplicity_sdk
-  version: 2024.12.2
+  version: "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 toolchain_settings: []
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: enum
   - id: syscalls
@@ -43,6 +42,7 @@ component:
   - id: si91x_debug
     from: wiseconnect3_sdk
   - id: freertos
+  - id: freertos_heap_4
   - id: emlib_core
   - id: sl_assert
   - id: sl_common

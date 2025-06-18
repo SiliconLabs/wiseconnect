@@ -53,10 +53,11 @@ STATIC INLINE RSI_UDMA_HANDLE_T UDMAx_Initialize(const UDMA_RESOURCES *udma,
                                                  uint32_t *mem)
 {
 #if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
-  return udmaHandle = ROMAPI_UDMA_WRAPPER_API->uDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
+  udmaHandle = ROMAPI_UDMA_WRAPPER_API->uDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
 #else
-  return udmaHandle = uDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
+  udmaHandle = uDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
 #endif
+  return udmaHandle;
 }
 
 STATIC INLINE int32_t UDMAx_Uninitialize(const UDMA_RESOURCES *udma)

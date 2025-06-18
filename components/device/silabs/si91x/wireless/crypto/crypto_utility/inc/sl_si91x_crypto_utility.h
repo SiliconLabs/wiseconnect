@@ -56,7 +56,7 @@
  * @return
  *   Returns a pointer to the padded data.
  ******************************************************************************/
-uint8_t *pkcs7_padding(uint8_t *data, size_t data_length, size_t block_size, size_t *padded_data_length);
+uint8_t *pkcs7_padding(const uint8_t *data, size_t data_length, size_t block_size, size_t *padded_data_length);
 
 /***************************************************************************/
 /**
@@ -69,6 +69,6 @@ uint8_t *pkcs7_padding(uint8_t *data, size_t data_length, size_t block_size, siz
  * @return
  *   The length of the unpadded data, or -1, if the padding is invalid or data is empty.
  ******************************************************************************/
-int pkcs7_unpad(unsigned char *data, size_t data_length);
+int pkcs7_unpad(const unsigned char *data, size_t data_length);
 
 /** @} */

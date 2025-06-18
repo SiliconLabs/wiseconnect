@@ -88,9 +88,9 @@ sl_status_t sl_si91x_icm40627_init(sl_ssi_handle_t ssi_driver_handle)
     return status;
   }
 
-  /* Set clock select to automatic clock source selection and clear the sleep bit */
-  ssi_data = (uint8_t)SL_ICM40627_INT_SOURCE6_BIT_CLKSEL_SEL_PLL;
-  status   = icm40627_write_register(ssi_driver_handle, (uint8_t)SL_ICM40627_REG_INT_SOURCE6, &ssi_data, 1);
+  /* Set clock select to automatic clock source selection */
+  ssi_data = (uint8_t)SL_ICM40627_INT_CONFIG1_BIT_CLKSEL_SEL_PLL;
+  status   = icm40627_write_register(ssi_driver_handle, (uint8_t)SL_ICM40627_REG_INTF_CONFIG1, &ssi_data, 1);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -730,8 +730,8 @@ sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_hand
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
-  /* Read the GYRO_CONFIG_1 register */
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
+  /* Read the GYRO_ACCEL_CONFIG0 register */
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, ssi_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -740,8 +740,8 @@ sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_hand
   temp &= ~(SL_ICM40627_MASK_GYRO_UI_FILT_BW);
   temp |= (gyro_ODR & SL_ICM40627_MASK_GYRO_UI_FILT_BW);
 
-  /* Write the new bandwidth value to the gyro config register */
-  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &temp, ssi_data_length - 1);
+  /* Write the new bandwidth value to the GYRO_ACCEL_CONFIG0 register */
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -759,8 +759,8 @@ sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_han
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
-  /* Read the GYRO_CONFIG_1 register */
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  /* Read the GYRO_ACCEL_CONFIG0 register */
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, ssi_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -769,8 +769,8 @@ sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_han
   temp &= ~(SL_ICM40627_MASK_ACCEL_UI_FILT_BW);
   temp |= (accel_ODR & SL_ICM40627_MASK_ACCEL_UI_FILT_BW);
 
-  /* Write the new bandwidth value to the accel config register */
-  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  /* Write the new bandwidth value to the GYRO_ACCEL_CONFIG0 register */
+  status = icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -966,6 +966,7 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   uint8_t sensor_write_fifo         = 0x0F;
   fifo_count                        = 0;
   uint8_t sensor_disable_write_fifo = 0x00;
+  uint8_t offset_data[ssi_data_length];
 
   /* Disable all sensors */
   sl_si91x_icm40627_enable_sensor(ssi_driver_handle, false, false, false);
@@ -1077,12 +1078,10 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   gyro_bias[1] /= packet_count;
   gyro_bias[2] /= packet_count;
 
-  /* Accelerometer: add or remove (depending on the orientation of the chip) 1G (gravity) from the Z axis value */
-  if (accel_bias[ssi_data_length] > 0L) {
-    accel_bias[ssi_data_length] -= (int32_t)(1.0f / accel_res);
-  } else {
-    accel_bias[ssi_data_length] += (int32_t)(1.0f / accel_res);
-  }
+  /* Convert the values to G(gravity) for displaying */
+  accel_bias_scaled[0] = (float)accel_bias[0] * accel_res;
+  accel_bias_scaled[1] = (float)accel_bias[1] * accel_res;
+  accel_bias_scaled[2] = (float)accel_bias[2] * accel_res;
 
   /* Convert the values to degrees per sec for displaying */
   gyro_bias_scaled[0] = (float)gyro_bias[0] * gyro_res;
@@ -1090,84 +1089,83 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   gyro_bias_scaled[2] = (float)gyro_bias[2] * gyro_res;
 
   /* Read stored gyro trim values. After reset these values are all 0 */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, data, data_length);
-  gyro_bias_stored[0] = (int16_t)data[1];
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER0, offset_data, ssi_data_length);
+  gyro_bias_stored[0] = (int16_t)offset_data[1];
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER1, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  uint8_t temp = data[1];
+  uint8_t temp = offset_data[1];
   gyro_bias_stored[0] |= (int16_t)((temp & 0x0F) << 8);
   gyro_bias_stored[1] = (int16_t)((temp & 0xF0) << 4);
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER2, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  gyro_bias_stored[1] |= (int16_t)data[1];
+  gyro_bias_stored[1] |= (int16_t)offset_data[1];
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER3, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER3, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  gyro_bias_stored[2] = (int16_t)data[1];
+  gyro_bias_stored[2] = (int16_t)offset_data[1];
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER4, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER4, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  temp = data[1];
+  temp = offset_data[1];
   gyro_bias_stored[2] |= (int16_t)((temp & 0x0F) << 8);
 
-  /* The gyro bias should be stored in 1000dps full scaled format. We measured in 250dps to get */
-  /* the best sensitivity, so need to divide by 4 */
+  /* The gyro bias measured in 250dps full scaled format.*/
+  /* Max gyro offset is ±64 dps, with resolution of 1/32 dps. */
   /* Substract from the stored calibration value */
-  gyro_bias_stored[0] -= gyro_bias[0] / 4;
-  gyro_bias_stored[1] -= gyro_bias[1] / 4;
-  gyro_bias_stored[2] -= gyro_bias[2] / 4;
+  gyro_bias_stored[0] -= gyro_bias[0] * 32;
+  gyro_bias_stored[1] -= gyro_bias[1] * 32;
+  gyro_bias_stored[2] -= gyro_bias[2] * 32;
 
   /* Calculate the accelerometer bias values to store in the hardware accelerometer bias registers. These registers contain */
   /* factory trim values which must be added to the calculated accelerometer biases; on boot up these registers will hold */
-  /* non-zero values. In addition, bit 0 of the lower byte must be preserved since it is used for temperature */
-  /* compensation calculations(? the datasheet is not clear). Accelerometer bias registers expect bias input */
-  /* as 2048 LSB per g, so that the accelerometer biases calculated above must be divided by 8. */
+  /* non-zero values. */
 
   /* Construct total accelerometer bias, including calculated average accelerometer bias from above */
-  /* Scale the 2g full scale (most sensitive range) results to 16g full scale - divide by 8 */
+  /* Scale the 2g full scale (most sensitive range) */
+  /* Max accelerometer offset is ±1 g, with a resolution of 0.5mg. */
   /* Subtract from the factory calibration value */
 
   /* Read factory accelerometer trim values */
   accel_bias_factory[0] = (int16_t)((temp & 0xF0) << 4);
-  status                = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER5, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  accel_bias_factory[0] |= (int16_t)data[1];
+  accel_bias_factory[0] |= (int16_t)offset_data[1];
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER6, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER6, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  accel_bias_factory[1] |= (int16_t)data[1];
+  accel_bias_factory[1] |= (int16_t)offset_data[1];
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER7, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  temp = data[1];
+  temp = offset_data[1];
   accel_bias_factory[1] |= (int16_t)((temp & 0x0F) << 8);
   accel_bias_factory[2] = (int16_t)((temp & 0xF0) << 4);
 
-  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, data, data_length);
+  status = icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_OFFSET_USER8, offset_data, ssi_data_length);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  accel_bias_factory[2] |= (int16_t)data[1];
+  accel_bias_factory[2] |= (int16_t)offset_data[1];
 
-  accel_bias_factory[0] -= ((accel_bias[0] / 8) & ~1);
-  accel_bias_factory[1] -= ((accel_bias[1] / 8) & ~1);
-  accel_bias_factory[2] -= ((accel_bias[2] / 8) & ~1);
+  accel_bias_factory[0] -= ((float)accel_bias[0] / 0.0005);
+  accel_bias_factory[1] -= ((float)accel_bias[1] / 0.0005);
+  accel_bias_factory[2] -= ((float)accel_bias[2] / 0.0005);
 
   /* Split the values into two bytes */
   data[0] = gyro_bias_stored[0] & 0xFF;
@@ -1217,11 +1215,6 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
   if (status != SL_STATUS_OK) {
     return status;
   }
-
-  /* Convert the values to G for displaying */
-  accel_bias_scaled[0] = (float)accel_bias[0] * accel_res;
-  accel_bias_scaled[1] = (float)accel_bias[1] * accel_res;
-  accel_bias_scaled[2] = (float)accel_bias[2] * accel_res;
 
   /* Disable the FIFO */
   disable_fifo = 0x00;

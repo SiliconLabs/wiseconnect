@@ -52,6 +52,20 @@ void app_init(void)
 {
   // initialize LED for blinky functionality
   blinky_init();
+
+  // create a thread for LED ON functionality
+  tid_thread_led_on = osThreadNew((osThreadFunc_t)led_on_process_action, NULL, &led_on_thread_attributes);
+  if (tid_thread_led_on == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
+
+  // create a thread for LED OFF functionality
+  tid_thread_led_off = osThreadNew((osThreadFunc_t)led_off_process_action, NULL, &led_off_thread_attributes);
+  if (tid_thread_led_off == NULL) {
+    // Handle error - Thread creation
+    return;
+  }
 }
 
 /*******************************************************************************
@@ -59,14 +73,4 @@ void app_init(void)
  ******************************************************************************/
 void app_process_action(void)
 {
-  tid_thread_led_on = osThreadNew((osThreadFunc_t)led_on_process_action, NULL, &led_on_thread_attributes);
-  if (tid_thread_led_on == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
-  tid_thread_led_off = osThreadNew((osThreadFunc_t)led_off_process_action, NULL, &led_off_thread_attributes);
-  if (tid_thread_led_off == NULL) {
-    // Handle error - Thread creation
-    return;
-  }
 }

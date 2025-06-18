@@ -3,15 +3,28 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is distributed to you in Source Code format and is governed by the
- * sections of the MSLA applicable to Source Code.
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
 
@@ -32,7 +45,7 @@ uint32_t trng_key[TRNG_KEY_SIZE] = { 0x16157E2B, 0xA6D2AE28, 0x8815F7AB, 0x3C4FC
 #endif //SLI_TRNG_DEVICE_SI91X
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t sli_si91x_trng_send_command(sl_si91x_trng_request_t *request, sl_wifi_buffer_t **buffer)
+static sl_status_t sli_si91x_trng_send_command(sli_si91x_trng_request_t *request, sl_wifi_buffer_t **buffer)
 {
   sl_status_t status = SL_STATUS_OK;
 
@@ -43,17 +56,17 @@ static sl_status_t sli_si91x_trng_send_command(sl_si91x_trng_request_t *request,
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_trng_mutex);
 #endif
 
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        sizeof(sl_si91x_trng_request_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         sizeof(sli_si91x_trng_request_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (*buffer != NULL)
-      sl_si91x_host_free_buffer(*buffer);
+      sli_si91x_host_free_buffer(*buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
 #endif
@@ -64,11 +77,11 @@ static sl_status_t sli_si91x_trng_send_command(sl_si91x_trng_request_t *request,
 }
 #endif
 
-sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
+sl_status_t sl_si91x_trng_init(const sl_si91x_trng_config_t *config, uint32_t *output)
 {
   sl_wifi_buffer_t *buffer = NULL;
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  sl_si91x_packet_t *packet = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
 #endif
   sl_status_t status = SL_STATUS_OK;
 
@@ -76,23 +89,23 @@ sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  sl_si91x_trng_request_t *request = (sl_si91x_trng_request_t *)malloc(sizeof(sl_si91x_trng_request_t));
+  sli_si91x_trng_request_t *request = (sli_si91x_trng_request_t *)malloc(sizeof(sli_si91x_trng_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_trng_request_t));
+  memset(request, 0, sizeof(sli_si91x_trng_request_t));
 
   request->algorithm_type     = TRNG;
-  request->algorithm_sub_type = TRNG_INIT;
+  request->algorithm_sub_type = SLI_TRNG_INIT;
   request->total_msg_length   = config->input_length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   request->trng_key = (uint8_t *)config->trng_key;
   request->msg      = (uint8_t *)config->trng_test_data;
   request->output   = (uint8_t *)output;
-  status            = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status            = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_trng_request_t)),
+                                                 (sizeof(sli_si91x_trng_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
 #else
   memcpy(request->trng_key, config->trng_key, TRNG_KEY_SIZE * 4);
@@ -109,7 +122,7 @@ sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
 
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
 #endif
@@ -119,14 +132,14 @@ sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
 sl_status_t sl_si91x_trng_entropy(void)
 {
   sl_status_t status;
-  sl_si91x_trng_request_t *request = (sl_si91x_trng_request_t *)malloc(sizeof(sl_si91x_trng_request_t));
+  sli_si91x_trng_request_t *request = (sli_si91x_trng_request_t *)malloc(sizeof(sli_si91x_trng_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_trng_request_t));
+  memset(request, 0, sizeof(sli_si91x_trng_request_t));
 
   request->algorithm_type     = TRNG;
-  request->algorithm_sub_type = TRNG_ENTROPY;
+  request->algorithm_sub_type = SLI_TRNG_ENTROPY;
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_trng_mutex == NULL) {
@@ -135,19 +148,19 @@ sl_status_t sl_si91x_trng_entropy(void)
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_trng_mutex);
 #endif
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_trng_request_t)),
+                                                 (sizeof(sli_si91x_trng_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
 #else
 
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        sizeof(sl_si91x_trng_request_t),
-                                        SL_SI91X_WAIT_FOR(32000),
-                                        NULL,
-                                        NULL);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         sizeof(sli_si91x_trng_request_t),
+                                         SL_SI91X_WAIT_FOR(32000),
+                                         NULL,
+                                         NULL);
 #endif
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -161,28 +174,28 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
   sl_status_t status;
   sl_wifi_buffer_t *buffer = NULL;
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  sl_si91x_packet_t *packet = NULL;
+  const sl_wifi_system_packet_t *packet = NULL;
 #endif
 
   if ((trng_key == NULL) || (key_length != TRNG_KEY_SIZE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  sl_si91x_trng_request_t *request = (sl_si91x_trng_request_t *)malloc(sizeof(sl_si91x_trng_request_t));
+  sli_si91x_trng_request_t *request = (sli_si91x_trng_request_t *)malloc(sizeof(sli_si91x_trng_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_trng_request_t));
+  memset(request, 0, sizeof(sli_si91x_trng_request_t));
 
   request->algorithm_type     = TRNG;
-  request->algorithm_sub_type = TRNG_KEY;
+  request->algorithm_sub_type = SLI_TRNG_KEY;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   request->trng_key = (uint8_t *)trng_key;
   request->output   = (uint8_t *)trng_key;
-  status            = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status            = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_trng_request_t)),
+                                                 (sizeof(sli_si91x_trng_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
 #else
   memcpy(request->trng_key, trng_key, TRNG_KEY_SIZE * 4);
@@ -198,7 +211,7 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
 
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
 #endif
@@ -208,21 +221,21 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
 sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t length)
 {
   sl_status_t status;
-  sl_wifi_buffer_t *buffer  = NULL;
-  sl_si91x_packet_t *packet = NULL;
+  sl_wifi_buffer_t *buffer        = NULL;
+  sl_wifi_system_packet_t *packet = NULL;
 
   if ((random_number == NULL) || (length == 0) || (length > 1024)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  sl_si91x_trng_request_t *request = (sl_si91x_trng_request_t *)malloc(sizeof(sl_si91x_trng_request_t));
+  sli_si91x_trng_request_t *request = (sli_si91x_trng_request_t *)malloc(sizeof(sli_si91x_trng_request_t));
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  memset(request, 0, sizeof(sl_si91x_trng_request_t));
+  memset(request, 0, sizeof(sli_si91x_trng_request_t));
 
   request->algorithm_type     = TRNG;
-  request->algorithm_sub_type = TRNG_GENERATION;
+  request->algorithm_sub_type = SLI_TRNG_GENERATION;
   request->total_msg_length   = length;
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -233,23 +246,23 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
 #endif
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   request->output = (uint8_t *)random_number;
-  status          = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+  status          = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
-                                                 (sizeof(sl_si91x_trng_request_t)),
+                                                 (sizeof(sli_si91x_trng_request_t)),
                                                  SL_SI91X_WAIT_FOR_RESPONSE(32000));
 #else
 
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD,
-                                        request,
-                                        sizeof(sl_si91x_trng_request_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
+  status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                         SI91X_COMMON_CMD,
+                                         request,
+                                         sizeof(sli_si91x_trng_request_t),
+                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         NULL,
+                                         &buffer);
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
+      sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
 #endif
@@ -271,20 +284,19 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
 #endif // SLI_SI91X_TRNG_DUPLICATE_CHECK
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer);
+    sli_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
 #endif
   return status;
 }
 #if SLI_SI91X_TRNG_DUPLICATE_CHECK
-sl_status_t sl_si91x_duplicate_element(uint32_t *dword, uint32_t length_in_dwords)
+sl_status_t sl_si91x_duplicate_element(const uint32_t *dword, uint32_t length_in_dwords)
 {
   if (length_in_dwords == 0)
     return SL_STATUS_OK;
-  uint32_t i, j;
-  for (i = 0; i < (length_in_dwords - 1); i++) {
-    for (j = i + 1; j < length_in_dwords; j++) {
+  for (uint32_t i = 0; i < (length_in_dwords - 1); i++) {
+    for (uint32_t j = i + 1; j < length_in_dwords; j++) {
       if (dword[i] == dword[j]) {
         return SL_STATUS_TRNG_DUPLICATE_ENTROPY;
       }

@@ -130,12 +130,12 @@ typedef enum {
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
-                                         uint8_t *sx,
-                                         uint8_t *sy,
-                                         uint8_t *sz,
-                                         uint8_t *tx,
-                                         uint8_t *ty,
-                                         uint8_t *tz,
+                                         const uint8_t *sx,
+                                         const uint8_t *sy,
+                                         const uint8_t *sz,
+                                         const uint8_t *tx,
+                                         const uint8_t *ty,
+                                         const uint8_t *tz,
                                          uint8_t *rx,
                                          uint8_t *ry,
                                          uint8_t *rz);
@@ -170,12 +170,12 @@ sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
-                                            uint8_t *sx,
-                                            uint8_t *sy,
-                                            uint8_t *sz,
-                                            uint8_t *tx,
-                                            uint8_t *ty,
-                                            uint8_t *tz,
+                                            const uint8_t *sx,
+                                            const uint8_t *sy,
+                                            const uint8_t *sz,
+                                            const uint8_t *tx,
+                                            const uint8_t *ty,
+                                            const uint8_t *tz,
                                             uint8_t *rx,
                                             uint8_t *ry,
                                             uint8_t *rz);
@@ -214,10 +214,10 @@ sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
-                                               uint8_t *d,
-                                               uint8_t *sx,
-                                               uint8_t *sy,
-                                               uint8_t *sz,
+                                               const uint8_t *d,
+                                               const uint8_t *sx,
+                                               const uint8_t *sy,
+                                               const uint8_t *sz,
                                                uint32_t affinity,
                                                uint8_t *rx,
                                                uint8_t *ry,
@@ -248,9 +248,9 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
-                                       uint8_t *sx,
-                                       uint8_t *sy,
-                                       uint8_t *sz,
+                                       const uint8_t *sx,
+                                       const uint8_t *sy,
+                                       const uint8_t *sz,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz);
@@ -279,9 +279,9 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
-                                       uint8_t *sx,
-                                       uint8_t *sy,
-                                       uint8_t *sz,
+                                       const uint8_t *sx,
+                                       const uint8_t *sy,
+                                       const uint8_t *sz,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz);

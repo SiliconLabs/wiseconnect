@@ -39,47 +39,53 @@
 /******************************************************
  *               Socket Configurations
  ******************************************************/
-#define SI91X_NO_ERROR 0 // This is returned by socket functions after successful execution
-#define SI91X_UNDEFINED_ERROR \
+#define SLI_SI91X_NO_ERROR 0 // This is returned by socket functions after successful execution
+#define SLI_SI91X_UNDEFINED_ERROR \
   0 // This value is set to errno global variable when a socket API failed due to unknown error.
 
-#define NUMBER_OF_SOCKETS 20
+#define SLI_NUMBER_OF_SOCKETS 20
 
-#define SI91X_HOST_WAIT_FOR_SELECT_RSP 1000
+#define SLI_SI91X_HOST_WAIT_FOR_SELECT_RSP 1000
 
-#define TCP_RX_WINDOW_SIZE 10
+#define SLI_TCP_RX_WINDOW_SIZE 10
 
-#define DEFAULT_STREAM_MSS_SIZE_IPV4   1460
-#define DEFAULT_DATAGRAM_MSS_SIZE_IPV4 1472
+#define SLI_DEFAULT_STREAM_MSS_SIZE_IPV4   1460
+#define SLI_DEFAULT_DATAGRAM_MSS_SIZE_IPV4 1472
 
-#define DEFAULT_STREAM_MSS_SIZE_IPV6   1440
-#define DEFAULT_DATAGRAM_MSS_SIZE_IPV6 1452
+#define SLI_DEFAULT_STREAM_MSS_SIZE_IPV6   1440
+#define SLI_DEFAULT_DATAGRAM_MSS_SIZE_IPV6 1452
 
-#define MAX_TCP_RETRY_COUNT         10
-#define DEFAULT_TCP_KEEP_ALIVE_TIME 1200
+#define SLI_MAX_TCP_RETRY_COUNT         10
+#define SLI_DEFAULT_TCP_KEEP_ALIVE_TIME 1200
 
-#define SI91X_CERT_INDEX_0 0
-#define SI91X_CERT_INDEX_1 1
-#define SI91X_CERT_INDEX_2 2
+#define SLI_SI91X_CERT_INDEX_0 0
+#define SLI_SI91X_CERT_INDEX_1 1
+#define SLI_SI91X_CERT_INDEX_2 2
 
+/**
+ * @addtogroup SI91X_SOCKET_TLS_EXTENSION_TYPE SiWx91x Socket TLS Extension Type
+ * @ingroup SI91X_SOCKET_FUNCTIONS
+ * @{
+ */
 #define SL_SI91X_TLS_EXTENSION_SNI_TYPE  1 ///< TLS extension for SNI
 #define SL_SI91X_TLS_EXTENSION_ALPN_TYPE 2 ///< TLS extension for ALPN
+/** @} */
 
-#define SI91X_SOCKET_TCP_CLIENT 0x0000
-#define SI91X_SOCKET_UDP_CLIENT 0x0001
-#define SI91X_SOCKET_TCP_SERVER 0x0002
-#define SI91X_SOCKET_LUDP       0x0004
+#define SLI_SI91X_SOCKET_TCP_CLIENT 0x0000
+#define SLI_SI91X_SOCKET_UDP_CLIENT 0x0001
+#define SLI_SI91X_SOCKET_TCP_SERVER 0x0002
+#define SLI_SI91X_SOCKET_LUDP       0x0004
 
-#define SI91X_SOCKET_FEAT_SSL                BIT(0) // SAPI maps both SSL and synchronous to BIT(0)
-#define SI91X_SOCKET_FEAT_SYNCHRONOUS        BIT(0)
-#define SI91X_SOCKET_FEAT_LTCP_ACCEPT        BIT(1)
-#define SI91X_WEBSOCKET_FEAT                 BIT(1)
-#define SI91X_SOCKET_FEAT_TCP_ACK_INDICATION BIT(2)
-#define SI91X_SOCKET_FEAT_TCP_RX_WINDOW      BIT(4)
-#define SI91X_SOCKET_FEAT_CERT_INDEX         BIT(5)
-#define SI91X_HIGH_PERFORMANCE_SOCKET        BIT(7)
+#define SLI_SI91X_SOCKET_FEAT_SSL                BIT(0) // SAPI maps both SSL and synchronous to BIT(0)
+#define SLI_SI91X_SOCKET_FEAT_SYNCHRONOUS        BIT(0)
+#define SLI_SI91X_SOCKET_FEAT_LTCP_ACCEPT        BIT(1)
+#define SLI_SI91X_WEBSOCKET_FEAT                 BIT(1)
+#define SLI_SI91X_SOCKET_FEAT_TCP_ACK_INDICATION BIT(2)
+#define SLI_SI91X_SOCKET_FEAT_TCP_RX_WINDOW      BIT(4)
+#define SLI_SI91X_SOCKET_FEAT_CERT_INDEX         BIT(5)
+#define SLI_SI91X_HIGH_PERFORMANCE_SOCKET        BIT(7)
 
-#define MAX_RETRANSMISSION_TIME_VALUE 32
+#define SLI_MAX_RETRANSMISSION_TIME_VALUE 32
 
 /**
  * @addtogroup SI91X_SOCKET_OPTION_NAME SiWx91x Socket Option Name
@@ -103,10 +109,20 @@
 #define SL_SI91X_SO_SOCK_VAP_ID                      25 ///< To configure the socket VAP ID
 #define SL_SI91X_SO_TLS_SNI                          47 ///< To configure the TLS SNI extension
 #define SL_SI91X_SO_TLS_ALPN                         50 ///< To configure the TLS ALPN extension
+#define SL_SI91X_SO_DTLS_ENABLE                      51 ///< To enable DTLS
+#define SL_SI91X_SO_DTLS_V_1_0_ENABLE                52 ///< To enable DTLS 1.0
+#define SL_SI91X_SO_DTLS_V_1_2_ENABLE                53 ///< To enable DTLS 1.2
 /** @} */
 
-#define SHUTDOWN_BY_ID   0
-#define SHUTDOWN_BY_PORT 1
+/**
+ * @addtogroup SI91X_SOCKET_SHUTDOWN_OPTION SiWx91x Socket Shutdown Option
+ * @ingroup SI91X_SOCKET_FUNCTIONS
+ * @{ 
+ */
+#define SHUTDOWN_BY_ID   0 ///< Shutdown by ID
+#define SHUTDOWN_BY_PORT 1 ///< Shutdown by port
+/** @} */
+
 /******************************************************
  *                 SSL features
  ******************************************************/

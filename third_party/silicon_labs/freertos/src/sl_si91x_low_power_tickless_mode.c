@@ -17,7 +17,7 @@
 
 #include "sl_si91x_m4_ps.h"
 #include "cmsis_os2.h"
-#include "FreeRTOSConfig.h"
+#include "FreeRTOS.h"
 #include "sl_rsi_utility.h"
 #include "sl_sleeptimer.h"
 #include "sli_sleeptimer_hal.h"
@@ -28,7 +28,7 @@
 #include "rsi_sysrtc.h"
 #include "sli_si91x_clock_manager.h"
 
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
 /*******************************************************************************
  **************************** Local variables  *********************************
  ******************************************************************************/
@@ -133,8 +133,7 @@ void vPortSetupTimerInterrupt(void)
   sleeptimer_freq = sl_sleeptimer_get_timer_frequency();
 
   lfticks_per_os_ticks = (sleeptimer_freq + (configTICK_RATE_HZ - 1)) / configTICK_RATE_HZ;
-
-  max_sleep_os_ticks = (0xFFFFFFFF / lfticks_per_os_ticks) - 10;
+  max_sleep_os_ticks   = (0xFFFFFFFF / lfticks_per_os_ticks) - 10;
 
   last_update_lftick = sl_sleeptimer_get_tick_count();
 
@@ -233,6 +232,7 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
     configPOST_SLEEP_PROCESSING(total_slept_os_ticks);
 
     sl_atomic_store(is_sleeping, false);
+
     // Enable the NVIC interrupts.
     __asm volatile("cpsie i" ::: "memory");
 
@@ -260,10 +260,12 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
 
   (void)handle;
   (void)data;
+
   uint32_t originalMask = portSET_INTERRUPT_MASK_FROM_ISR();
   /* If system was not sleeping, update lfticks counter. */
 
   bool sched = false;
+
   if (!is_sleeping) {
     /* Increment the RTOS tick. */
     while ((current_tick_count - last_update_lftick) >= lfticks_per_os_ticks) {
@@ -277,6 +279,7 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
     }
     sli_os_schedule_wakeup(1);
   }
+
   portCLEAR_INTERRUPT_MASK_FROM_ISR(originalMask);
 }
 /***************************************************************************
@@ -284,7 +287,6 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
  *
  * @param os_ticks Delay, in os ticks, before next wakeup/tick.
  ******************************************************************************/
-
 static void sli_os_schedule_wakeup(TickType_t os_ticks)
 {
   sl_status_t status;
@@ -310,17 +312,15 @@ static void sli_os_schedule_wakeup(TickType_t os_ticks)
     lf_ticks_to_sleep -= (current_tick_count - last_update_lftick);
     lf_ticks_to_sleep += 1;
   }
+
   status = sl_sleeptimer_start_timer(&schedule_wakeup_timer_handle,
                                      lf_ticks_to_sleep,
                                      sli_schedule_wakeup_timer_expire_handler,
                                      0,
                                      0,
                                      0);
-  // configASSERT( status == SL_STATUS_OK );
 
-#if (configASSERT_DEFINED == 0)
   (void)status;
-#endif
 }
 
 /***************************************************************************
@@ -346,7 +346,6 @@ void sl_power_manager_sleep_on_isr_exit()
 {
   uint32_t slept_lf_ticks;
   uint32_t slept_os_ticks;
-
   /* Determine how long we slept. */
   slept_lf_ticks = (sl_sleeptimer_get_tick_count() - last_update_lftick);
 

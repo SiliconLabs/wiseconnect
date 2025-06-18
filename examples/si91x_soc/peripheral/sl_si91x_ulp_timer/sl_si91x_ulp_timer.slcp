@@ -9,22 +9,21 @@ readme:
   - path: readme.md
 source:
   - path: app.c
-  - path: main.c
   - path: ulp_timer_example.c
   - path: hardware_setup.c
   - path: ulp_timer_example.h
   - path: app.h
 sdk:
   id: simplicity_sdk
-  version:  "2024.12.2"
+  version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.4.2
+    version: 3.5.0
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 component:
-  - id: sl_system
+  - id: sl_main
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk
@@ -48,6 +47,8 @@ component:
     from: wiseconnect3_sdk
   - id: timer_ulp_component
     from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
 define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION 
   - name: SL_SI91X_ULP_STATE_ENABLE
@@ -60,6 +61,7 @@ template_contribution:
     value: main.o
   - name: user_files_ps2
     value: sl_system_process_action.o
+    condition: [sl_system]
   - name: user_files_ps2
     value: sl_event_handler.o
 other_file:

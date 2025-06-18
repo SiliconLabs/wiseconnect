@@ -207,6 +207,7 @@ typedef struct {
   uint8_t scl_pin;  ///< I2C SCL GPIO pin.
   uint8_t scl_mux;  ///< I2C SCL GPIO mux.
   uint8_t scl_pad;  ///< I2C SCL GPIO pad.
+  uint8_t instance; ///< I2C instance.
 } sl_i2c_pin_init_t;
 
 /**

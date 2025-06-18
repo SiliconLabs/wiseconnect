@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 #include <sl_si91x_si70xx.h>
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************   Defines / Macros   ******************************
@@ -46,16 +47,6 @@ static float si70xx_get_celcius_temperature(int32_t temp_data);
 static float si70xx_get_percent_relative_humidity(uint32_t rh_data);
 static void wait_till_i2c_gets_idle(sl_i2c_instance_t i2c_instance);
 static void *si70xx_get_i2c_base_address(sl_i2c_instance_t i2c_instance);
-
-/*******************************************************************************
- * Delay function for 1ms
- ******************************************************************************/
-static void delay(uint32_t idelay)
-{
-  for (uint32_t x = 0; x < 4600 * idelay; x++) {
-    __NOP();
-  }
-}
 
 /*******************************************************************************
  * Initializes the Si70xx - RHT sensor by reading electronic ID 1st byte (or)
@@ -81,7 +72,7 @@ sl_status_t sl_si91x_si70xx_get_firmware_revision(sl_i2c_instance_t i2c_instance
                                                   uint8_t addr,
                                                   uint8_t *firmware_revision)
 {
-  sl_status_t status;
+  sl_status_t status        = SL_STATUS_FAIL;
   uint8_t read_buffer_size  = RX_LEN;
   uint8_t write_buffer_size = TX_LEN;
   uint8_t i2c_read_data[read_buffer_size];
@@ -121,10 +112,10 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
                                                              sl_si70xx_measurement_type_t type,
                                                              uint32_t *data)
 {
-  sl_status_t status;
+  sl_status_t status             = SL_STATUS_FAIL;
   uint8_t i2c_read_data[RX_LEN]  = { 0 };
   uint8_t i2c_write_data[WR_BUF] = { 0 };
-  uint8_t cmd;
+  uint8_t cmd                    = 0;
   // Validate invalid parameters
   if ((i2c_instance >= SL_I2C_LAST) || (type >= SL_LAST_MEASUREMENT)) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -145,7 +136,7 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
   }
   wait_till_i2c_gets_idle(i2c_instance);
   // Adding delay as No-Hold sensor command requires some time to respond to the command sent.
-  delay(20);
+  sl_si91x_delay_ms(20);
   // Receive no hold master mode response from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, RX_LEN);
   if (status != SL_STATUS_OK) {
@@ -171,7 +162,7 @@ sl_status_t sl_si91x_si70xx_read_temp_from_rh(sl_i2c_instance_t i2c_instance,
                                               uint32_t *humid_data,
                                               int32_t *temp_data)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_FAIL;
   // Validate invalid parameters
   if (i2c_instance >= SL_I2C_LAST) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -202,7 +193,7 @@ sl_status_t sl_si91x_si70xx_read_temp_from_rh(sl_i2c_instance_t i2c_instance,
  *****************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_humidity(sl_i2c_instance_t i2c_instance, uint8_t addr, uint32_t *humid_data)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_FAIL;
   // Validate invalid parameters
   if (i2c_instance >= SL_I2C_LAST) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -226,7 +217,7 @@ sl_status_t sl_si91x_si70xx_measure_humidity(sl_i2c_instance_t i2c_instance, uin
  *****************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_temperature(sl_i2c_instance_t i2c_instance, uint8_t addr, int32_t *temp_data)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_FAIL;
   // Validate invalid parameters
   if (i2c_instance >= SL_I2C_LAST) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -251,7 +242,7 @@ sl_status_t sl_si91x_si70xx_measure_temperature(sl_i2c_instance_t i2c_instance, 
  *****************************************************************************/
 sl_status_t sl_si91x_si70xx_is_present(sl_i2c_instance_t i2c_instance, uint8_t addr, sl_si70xx_eid_type_t eid)
 {
-  sl_status_t status;
+  sl_status_t status        = SL_STATUS_FAIL;
   uint8_t read_buffer_size  = RD_BUF;
   uint8_t write_buffer_size = TX_LEN;
   uint8_t i2c_read_data[read_buffer_size];
@@ -294,7 +285,7 @@ sl_status_t sl_si91x_si70xx_measure_rh_and_temp(sl_i2c_instance_t i2c_instance,
                                                 uint32_t *humid_data,
                                                 int32_t *temp_data)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_FAIL;
   // Validate invalid parameters
   if (i2c_instance >= SL_I2C_LAST) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -330,7 +321,7 @@ sl_status_t sl_si91x_si70xx_measure_rh_and_temp(sl_i2c_instance_t i2c_instance,
  *****************************************************************************/
 static sl_status_t si70xx_send_command(sl_i2c_instance_t i2c_instance, uint8_t addr, uint32_t *data, uint8_t command)
 {
-  sl_status_t status;
+  sl_status_t status        = SL_STATUS_FAIL;
   uint8_t read_buffer_size  = RX_LEN;
   uint8_t write_buffer_size = WR_BUF;
   uint8_t i2c_read_data[read_buffer_size];
@@ -391,7 +382,7 @@ static float si70xx_get_celcius_temperature(int32_t temp_data)
  *****************************************************************************/
 sl_status_t sl_si91x_si70xx_reset(sl_i2c_instance_t i2c_instance, uint8_t addr)
 {
-  sl_status_t status;
+  sl_status_t status        = SL_STATUS_FAIL;
   uint8_t write_buffer_size = WR_BUF;
   uint8_t i2c_write_data[write_buffer_size];
   i2c_write_data[0] = SL_SI70XX_RESET;
@@ -416,8 +407,8 @@ sl_status_t sl_si91x_si70xx_read_control_register(sl_i2c_instance_t i2c_instance
                                                   sl_si70xx_registers_t reg,
                                                   uint8_t *data)
 {
-  sl_status_t status;
-  uint8_t cmd;
+  sl_status_t status        = SL_STATUS_FAIL;
+  uint8_t cmd               = 0;
   uint8_t read_buffer_size  = RX_LEN;
   uint8_t write_buffer_size = WR_BUF;
   uint8_t i2c_write_data[write_buffer_size];
@@ -461,8 +452,8 @@ sl_status_t sl_si91x_si70xx_write_control_register(sl_i2c_instance_t i2c_instanc
                                                    sl_si70xx_registers_t reg,
                                                    uint8_t value)
 {
-  uint8_t cmd;
-  sl_status_t status;
+  uint8_t cmd               = 0;
+  sl_status_t status        = SL_STATUS_FAIL;
   uint8_t write_buffer_size = TX_LEN;
   uint8_t i2c_write_data[write_buffer_size];
   // Validate invalid parameters

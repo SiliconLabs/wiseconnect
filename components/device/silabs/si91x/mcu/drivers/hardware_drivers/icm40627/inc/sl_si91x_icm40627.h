@@ -132,7 +132,11 @@ extern "C" {
 
 #define FIFO_SAMPLE_COUNT (12 * 42)
 
-#define SL_ICM40627_REG_INTF_CONFIG1 (SL_ICM40627_BANK_0 | 0x4D) /**< FIFO/Sense Configuration Register */
+#define SL_ICM40627_REG_INTF_CONFIG1 \
+  (SL_ICM40627_BANK_0                \
+   | 0x4D) /**< Configures the clock selection for the accelerometer low-power mode and clock source */
+
+#define SL_ICM40627_INT_CONFIG1_BIT_CLKSEL_SEL_PLL (0x01) /**< Select PLL when available, else select RC oscillator */
 
 #define SL_ICM40627_REG_PWR_MGMT0              (SL_ICM40627_BANK_0 | 0x4E) /**< Power Management Register */
 #define SL_ICM40627_PWR_MGMT0_SHIFT_ACCEL_MODE 0
@@ -459,7 +463,7 @@ sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_han
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_icm40627_enable_sleep_mode(sl_ssi_handle_t ssi_driver_handle, bool enable);
+sl_status_t sl_si91x_icm40627_enable_sleep_mode(sl_ssi_handle_t ssi_driver_handle, bool enable);
 
 /***************************************************************************/ /**
  * @brief

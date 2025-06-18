@@ -39,7 +39,6 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_rom_pwm.h"
 #include "rsi_rom_egpio.h"
-#include "sl_pwm_board.h"
 
 /***************************************************************************/
 /**
@@ -56,6 +55,10 @@ typedef RSI_MCPWM_SVT_CONFIG_T
   sl_si91x_pwm_svt_config_t; ///< PWM Special Event trigger configuration parameters structure
 typedef RSI_MCPWM_DT_CONFIG_T sl_si91x_pwm_dt_config_t; ///< PWM DeadTime configuration parameters structure
 typedef RSI_MCPWM_CALLBACK_T sl_si91x_pwm_callback_t;   ///< PWM Callback structure
+
+// macros to validate pre-processing conditions
+#define SL_BASE_TIMER_EACH_CHANNEL_VAL 0 ///< PWM each Base timer for each channel
+#define SL_BASE_TIMER_ALL_CHANNEL_VAL  1 ///< PWM only one Base timer (0th) for all channels
 /*******************************************************************************
  ********************************   Local Variables   **************************
  ******************************************************************************/
@@ -168,9 +171,9 @@ typedef enum {
  *          It includes options for using a separate timer for each channel or a single timer for all channels.
  */
 typedef enum {
-  SL_BASE_TIMER_EACH_CHANNEL, ///< PWM timer for each channel
-  SL_BASE_TIMER_ALL_CHANNEL,  ///< PWM timer for all channels
-  SL_BASE_TIMER_LAST,         ///< Last member of the enum for validation
+  SL_BASE_TIMER_EACH_CHANNEL = SL_BASE_TIMER_EACH_CHANNEL_VAL, ///< PWM timer for each channel
+  SL_BASE_TIMER_ALL_CHANNEL  = SL_BASE_TIMER_ALL_CHANNEL_VAL,  ///< PWM timer for all channels
+  SL_BASE_TIMER_LAST,                                          ///< Last member of the enum for validation
 } sl_pwm_timer_t;
 
 /***************************************************************************/
@@ -922,33 +925,23 @@ sl_status_t sl_si91x_pwm_get_counter_direction(uint8_t *counter_direction, sl_pw
  ***************************************************************************/
 sl_status_t sl_si91x_pwm_control_dead_time(sl_pwm_dead_time_t dead_time, uint32_t flag);
 
-/***************************************************************************/
-/**
- * @brief To control dead time insertion at the rise edge or fall edge of any four channels.
- * 
- * @details This API is used to control dead time insertion at the rise edge or fall edge of any four channels.
- *          Dead time applies only to PWM output pairs that are in complementary mode.
+/***************************************************************************/ /**
+ * @brief To clear the interrupts of Motor Control Pulse Width Modulation (MCPWM)
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
  *      - \ref sl_si91x_pwm_set_base_timer_mode
- * 
- * @param[in] dead_time Enum of type \ref sl_pwm_dead_time_t.
- * @param[in] flag ORing of the following values (in the range of 0 - 65535):
- *                  - DT_EN_CH0
- *                  - DT_EN_CH1
- *                  - DT_EN_CH2
- *                  - DT_EN_CH3
- * 
- * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK  - Success.
- *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
- *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
- * 
- * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- ***************************************************************************/
-sl_status_t sl_si91x_pwm_control_dead_time(sl_pwm_dead_time_t dead_time, uint32_t flag);
+ *      - \ref sl_si91x_pwm_control_period
+ *      - \ref sl_si91x_pwm_register_callback
+ *      - \ref sl_si91x_pwm_start
+ * @param[in] flag: The logical OR of different interrupts generated on multiple channels(in the range of 0-511).
+ * @return returns status 0 if successful,
+ *         else error code as follows:
+ *         - SL_STATUS_OK - Success
+ *         - SL_STATUS_NULL_POINTER - The parameter is a null pointer
+******************************************************************************/
+sl_status_t sl_si91x_pwm_clear_interrupt(uint32_t flag);
 
 /***************************************************************************/
 /**

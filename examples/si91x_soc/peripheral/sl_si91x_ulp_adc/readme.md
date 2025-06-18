@@ -173,17 +173,17 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    - Differential modeL the positive analog input to ULP_GPIO_1 and the negative input to GPIO_28. For Si915, the positive analog input to GPIO_27 and the negative input to GPIO_30.
 3. When the application runs, the ADC configures the settings as per the user and starts ADC conversion.
 4. After completion of conversion ADC input, it will print all the captured samples data in console by connecting serial console.
-5. After successful program execution, the prints in serial console looks as shown below when the input voltage provided is 3.25v(approx).
+5. After successful program execution, the prints in serial console looks as shown below when the input voltage provided is 3.3 v.
 
     ![Figure: Introduction](resources/readme/output.png)
 
 > **Note:**
 >
->- The user can configure the input selection GPIO in the example application if the default GPIO is work around
+>- The user can configure the input selection GPIO in the example application if the default GPIO is work around.
 >- ADC input selection rather than GPIO (like OP-AMP, DAC and Temperature sensor) user can create their own instances and configure them as per other input selection.
 >- In the sl_ulp_adc_example.c file, update the \ref sl_adc_channel_config_t channel parameter to reflect the installed channel number.
 >
- >Use the following formula to find equivalent input voltage of ADC
+ >Use the following formula to find equivalent input voltage of ADC:
 >
 > **Differential Ended Mode:**
 >
@@ -205,3 +205,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 >- Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+>
+> **Note:**
+>
+>- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, because the wireless shutdown scenario is not supported in the current SDK.

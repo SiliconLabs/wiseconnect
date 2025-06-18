@@ -88,6 +88,7 @@ typedef enum {
 } sl_si91x_uulp_gpio_interrupt_t;
 
 /// @brief UULP GPIO interrupt bit position
+/// @note The APIs which uses this enum is deprecated, new APIs use sl_si91x_uulp_gpio_interrupt_t instead
 typedef enum {
   UULP_GPIO_INTERRUPT_0_BIT = BIT(0), /// UULP GPIO 0 interrupt bit position
   UULP_GPIO_INTERRUPT_1_BIT = BIT(1), /// UULP GPIO 1 interrupt bit position
@@ -353,6 +354,24 @@ sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
                                       sl_si91x_gpio_intr_t gpio_intr,
                                       uint8_t flag);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Validate if the given pin is configured as SOC peripheral on ULP GPIO.
+ *   This function checks if the given pin is configured as a SOC Peripheral on ULP GPIO by
+ *   examining the `soc_peri_on_ulp_gpio_status` bit corresponding to the pin number.
+ *
+ * @param[in] pin
+ *   The pin number to validate.
+ *
+ * @return
+ *   Returns the status of the validation.
+ *   - SL_STATUS_OK: The pin is valid and configured as a ULP pin.
+ *   - SL_STATUS_INVALID_PARAMETER: The pin is not configured as a ULP pin.
+ * 
+ * * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_gpio_validate_soc_peri_on_ulp_gpio(uint8_t pin);
+
 /*******************************************************************************/
 /**
  * @brief Validates the port and pin of a GPIO.
@@ -381,7 +400,9 @@ STATIC __INLINE sl_status_t sl_gpio_validation(sl_gpio_t *gpio)
   //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
   if (gpio->port == SL_GPIO_PORT_A) {
     if (gpio->pin > PORTA_PIN_MAX_VALUE) {
-      return SL_STATUS_INVALID_PARAMETER;
+      // If the pin value exceeds the maximum allowable value, it checks if the pin is configured as
+      // SOC peripheral on ULP GPIO.
+      return sl_si91x_gpio_validate_soc_peri_on_ulp_gpio(gpio->pin);
     }
   }
   // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds

@@ -76,7 +76,7 @@ extern "C" {
 // <<< end of configuration section >>>
 #ifdef QEI_PINTOOL
 // <<< sl:start pin_tool >>>
-// <qei signal=DIR,IDX,PHA,PHB> SL_QEI
+// <qei signal=(DIR),(IDX),PHA,PHB> SL_QEI
 // $[QEI_SL_QEI]
 #ifndef SL_QEI_PERIPHERAL
 #define SL_QEI_PERIPHERAL QEI

@@ -109,4 +109,5 @@ sl_si91x_usart_control_config_t uart1_configuration = { .baudrate      = SL_UART
                                                         .usart_module  = UART1_MODULE };
 
 #endif //UART_UC
+
 #endif //SL_SI91X_UART_CONFIG_H

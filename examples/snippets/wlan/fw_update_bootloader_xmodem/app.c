@@ -181,7 +181,7 @@ void usart_init(void);
 void xmodem_data(uint8_t *data, uint32_t size);
 void XMODEM_download(uint32_t baseAddress, uint32_t endAddress);
 static void application_start(void *argument);
-int32_t sl_si91x_app_task_fw_update_via_xmodem(uint8_t *rx_data, uint32_t size);
+int32_t app_task_fw_update_via_xmodem(uint8_t *rx_data, uint32_t size);
 
 /******************************************************
  *               Function Definitions
@@ -211,7 +211,7 @@ static void application_start(void *argument)
       XMODEM_download(0, 0);
     } else {
       // print the firmware version
-      sl_si91x_app_task_fw_update_via_xmodem(NULL, 0);
+      app_task_fw_update_via_xmodem(NULL, 0);
     }
   }
 
@@ -289,19 +289,19 @@ void xmodem_data(uint8_t *data, uint32_t size)
       memset(&recv_buffer[remaining_bytes + FW_HEADER_SIZE], 0, (SI91X_CHUNK_SIZE - remaining_bytes - FW_HEADER_SIZE));
     }
 
-    sl_si91x_app_task_fw_update_via_xmodem(recv_buffer, SI91X_CHUNK_SIZE);
+    app_task_fw_update_via_xmodem(recv_buffer, SI91X_CHUNK_SIZE);
 
     remaining_bytes = remaining_bytes - SI91X_CHUNK_SIZE;
     offset_xmodem   = 0u;
   }
 }
 /*******************************************************************************
- * Name   : sl_si91x_app_task_fw_update_via_xmodem
- * Brief  : Its sends the firmware image packet chunk by chunk to RS module.
+ * Name   : app_task_fw_update_via_xmodem
+ * Brief  : Its sends the firmware image packet chunk by chunk to the device.
  * return : -1 if error
  * @return
  *******************************************************************************/
-int32_t sl_si91x_app_task_fw_update_via_xmodem(uint8_t *rx_data, uint32_t size)
+int32_t app_task_fw_update_via_xmodem(uint8_t *rx_data, uint32_t size)
 {
   UNUSED_PARAMETER(size);
   switch (si91x_wlan_app_cb.state) {
@@ -431,7 +431,8 @@ RAMFUNC_DECLARATOR uint16_t CRC_calc(uint8_t *start, uint8_t *end)
   return crc;
 }
 /**************************************************************************/ /**
- * @brief Verifies checksum, packet numbering and
+ * @brief Verifies checksum, packet numbering and CRC of a XMODEM packet.
+ *
  * @param pkt The packet to verify
  * @param sequenceNumber The current sequence number.
  * @returns -1 on packet error, 0 otherwise

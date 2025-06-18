@@ -28,10 +28,9 @@
 *
 ******************************************************************************/
 #include "sl_si91x_m4_ps.h"
-#include "FreeRTOSConfig.h"
 #include "cmsis_os2.h"
 #include "sl_rsi_utility.h"
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
 #include "sl_si91x_power_manager.h"
 #endif
 #ifdef SL_WIFI_COMPONENT_INCLUDED
@@ -98,7 +97,7 @@
 #define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
 #endif
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
 #if SL_SI91X_MCU_ALARM_BASED_WAKEUP
 static RTC_TIME_CONFIG_T rtc_configuration, alarm_configuration, rtc_get_time;
 static uint8_t m4_alarm_initialization_done;
@@ -112,7 +111,7 @@ uint32_t sl_rtc_ticks;
 void set_alarm_interrupt_timer(uint16_t interval);
 void wakeup_source_config(void);
 
-#if (configUSE_TICKLESS_IDLE == 0)
+#if (SL_SI91X_TICKLESS_MODE == 0)
 
 #if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
 
@@ -306,10 +305,9 @@ void initialize_m4_alarm(void)
   m4_alarm_initialization_done = 1;
 }
 #endif /* SL_SI91X_MCU_ALARM_BASED_WAKEUP */
+#endif // #if (SL_SI91X_TICKLESS_MODE  == 0)
 
-#endif // #if (configUSE_TICKLESS_IDLE == 0)
-
-#if (configUSE_TICKLESS_IDLE == 1)
+#if (SL_SI91X_TICKLESS_MODE == 1)
 /**************************************************************************
  * @fn           sl_si91x_get_rtc_ticks(void)
  * @brief        In this function convert the RTC time into the Ticks
@@ -413,5 +411,5 @@ void sli_si91x_m4_ta_wakeup_configurations(void)
   );
 #endif
 }
-#endif // #if (configUSE_TICKLESS_IDLE == 1)
+#endif // #if (SL_SI91X_TICKLESS_MODE  == 1)
 #endif

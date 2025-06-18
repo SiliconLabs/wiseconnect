@@ -42,12 +42,11 @@
 // [SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID]
 // [SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID]
 
-sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type);
-
 static int sli_si91x_check_cred_type(sl_net_credential_type_t type)
 {
   if ((SL_NET_CERTIFICATE == type) || (SL_NET_PUBLIC_KEY == type) || (SL_NET_PRIVATE_KEY == type)
-      || (SL_NET_SIGNING_CERTIFICATE == type) || (SL_NET_PACK_FILE == type)) {
+      || (SL_NET_SIGNING_CERTIFICATE == type) || (SL_NET_PACK_FILE == type) || (SL_NET_TLS_PRIVATE_KEY_CBC_WRAP == type)
+      || (SL_NET_TLS_PRIVATE_KEY_ECB_WRAP == type)) {
     return CRED_TYPE_CERT;
   }
 
@@ -146,6 +145,8 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
     case SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID:
     case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
     case SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID:
+    case SL_NET_WIFI_CLIENT_CREDENTIAL_ID_1:
+    case SL_NET_WIFI_AP_CREDENTIAL_ID_1:
       status = sli_si91x_get_wifi_credential_type(type, &cred_type);
       VERIFY_STATUS_AND_RETURN(status);
       break;
@@ -209,6 +210,8 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
     case SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID:
     case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
     case SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID:
+    case SL_NET_WIFI_CLIENT_CREDENTIAL_ID_1:
+    case SL_NET_WIFI_AP_CREDENTIAL_ID_1:
       sli_si91x_get_net_credential_type(cred_type, type);
       break;
     case SL_NET_USER_CREDENTIAL_ID:

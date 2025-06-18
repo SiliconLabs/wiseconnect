@@ -62,7 +62,7 @@
 //   ! MACROS
 /*=======================================================================*/
 #define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        18000
+#define TIMEOUT_MS        25000
 #define WIFI_SCAN_TIMEOUT 10000
 
 #define BYTES_TO_RECEIVE           (1 << 28) //256MB
@@ -468,7 +468,7 @@ void receive_data_from_tcp_client(void)
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
   sl_status_t status = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {

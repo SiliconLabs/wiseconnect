@@ -10,12 +10,11 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version:  "2024.12.2"}
+sdk: {id: simplicity_sdk, version:  "2025.6.0"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.4.2}
+- {id: wiseconnect3_sdk, version: 3.5.0}
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -28,7 +27,7 @@ component:
 - id: freertos
 - id: freertos_heap_4
 - id: slist
-- id: sl_system
+- id: sl_main
 - id: spidrv
   instance: [exp]
 - id: bsd_socket

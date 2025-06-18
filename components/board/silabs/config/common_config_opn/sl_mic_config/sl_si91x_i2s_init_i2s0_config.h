@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
-* @file sl_si91x_i2c_12c0_config.h
-* @brief I2c driver configuration file.
+* @file sl_si91x_i2s_i2s0_config.h
+* @brief I2S driver configuration file.
 *******************************************************************************
 * # License
 * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -48,9 +48,7 @@ extern "C" {
 #define I2S0_UC 0
 
 // <o SL_I2S0_RESOLUTION> I2S0 Resolution
-//   <12=> 12 bit
 //   <16=> 16 bit
-//   <20=> 20 bit
 //   <24=> 24 bit
 //   <32=> 32 bit
 // <i> Default: 16
