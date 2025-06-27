@@ -1,0 +1,58 @@
+project_name: sl_si91x_button_baremetal
+label: SI91x - Button Baremetal
+description: |
+  This application demonstrates how to configure and use a button as an input device. 
+  It includes initializing the GPIO peripheral, configuring the button pin as an input, 
+  and detecting button presses or releases to trigger specific actions.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+source:
+  - path: app.c
+  - path: button_baremetal.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: button_baremetal.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_main
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_si91x_button_917
+    instance:
+      - btn0
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance:
+      - led0
+    from: wiseconnect3_sdk
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/image600d.png
+  - path: resources/readme/image600a.png
+configuration:
+  - name: SL_BUTTON_CONFIG_BTN0_INTR
+    value: RISE_EDGE_AND_FALL_EDGE_INTERRUPT
+  - name: SL_BUTTON_CONFIG_BTN1_INTR
+    value: RISE_EDGE_AND_FALL_EDGE_INTERRUPT
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -1,0 +1,46 @@
+project_name: psram_driver_example
+label: SI91x - SoC Peripheral PSRAM Driver Example
+description: >
+  This application demonstrates the use of PSRAM Driver APIs through the QSPI interface. 
+  It includes writing and reading data to/from PSRAM using auto mode, manual blocking mode, 
+  and DMA mode. The example leverages the PSRAM device's default configurations, 
+  utilizing fast quad read and write operations in QPI (Quad IO) mode for efficient data handling.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+requires:
+  - name: wiseconnect_toolchain_psram_linker
+source:
+  - path: main.c
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: psram_core
+    from: wiseconnect3_sdk
+  - id: psram_aps6404l_sqh
+    from: wiseconnect3_sdk
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk   
+other_file:
+  - path: ./resources/readme/setupdiagram.png
+  - path: ./resources/readme/outputConsole_PSRAM_DRIVER_Example.png
+  - path: ./resources/readme/core_component.png
+  - path: ./resources/readme/device_config.png
+  - path: ./resources/readme/pin_configs.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

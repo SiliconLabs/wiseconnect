@@ -1,0 +1,67 @@
+project_name: si91x_psa_hmac
+label: SI91x - SoC PSA HMAC
+description: |
+  This example project demonstrates the PSA HMAC APIs in SI91x.
+category: example|crypto
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+source:
+  - path: psa_hmac_app.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_hmac_app.h
+      - path: app.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
+  - id: psa_crypto
+  - id: psa_driver
+  - id: psa_crypto_hmac
+  - id: psa_crypto_trng
+  - id: psa_crypto_sha256
+  - id: psa_crypto_sha384
+  - id: psa_crypto_sha512
+  - id: psa_crypto_sha1
+  - id: psa_crypto_sha224
+  - id: sl_si91x_psa_wrap
+    from: wiseconnect3_sdk
+  - id: mbedtls_hmac
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

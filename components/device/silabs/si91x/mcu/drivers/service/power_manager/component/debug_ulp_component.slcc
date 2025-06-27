@@ -1,0 +1,59 @@
+id: debug_ulp_component
+label: PM ULP Debug
+package: platform
+description: >
+  ULP DEBUG component will enable Debug in the low-power mode. 
+  It moves all the peripheral dependencies to RAM.
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+provides:
+  - name: debug_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+    condition:
+      - pm_ps2_component  
+  - name: debug_ps2
+    value: stdio.o
+  - name: debug_ps2
+    value: puts.o
+  - name: debug_ps2
+    value: wbuf.o
+  - name: debug_ps2
+    value: writer.o
+  - name: debug_ps2
+    value: memchr.o
+  - name: debug_ps2
+    value: memset.o
+  - name: debug_ps2
+    value: nano-vfprintf.o
+  - name: debug_ps2
+    value: nano-vfprintf_i.o
+  - name: debug_ps2
+    value: printf.o
+  - name: debug_ps2
+    value: lock.o
+  - name: debug_ps2
+    value: fflush.o
+  - name: debug_ps2
+    value: rsi_debug.o
+  - name: debug_ps2
+    value: rsi_usart.o
+  - name: debug_ps2
+    value: syscalls.o
+  - name: debug_ps2
+    value: USART.o
+  - name: debug_ps2
+    value: libm_a-s_ceil.o
+  - name: debug_ps2
+    value: '_arm_*.o'
+  - name: debug_ps2
+    value: 'libc_a*.o'
+  - name: debug_ps2
+    value: 'libm_a*.o'
+  - name: debug_ps2
+    value: 'sbrk.o*'

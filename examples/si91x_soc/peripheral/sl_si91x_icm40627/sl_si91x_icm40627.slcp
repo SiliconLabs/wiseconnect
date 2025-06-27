@@ -1,0 +1,56 @@
+project_name: sl_si91x_icm40627
+label: sl_si91x_icm40627
+description: |
+  This application demonstrates how to configure and use the ICM40627 motion sensor, a 6-axis sensor that combines a 3-axis accelerometer and a 3-axis gyroscope. 
+  The example covers how to initialize the sensor, configure its settings for various motion detection tasks, and retrieve sensor data for further processing, enabling motion-based applications.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+source:
+  - path: app.c
+  - path: app.h
+  - path: icm40627_example.c
+  - path: icm40627_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_main
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_icm40627
+    from: wiseconnect3_sdk
+  - id: sleeptimer
+  - id: sl_ssi
+    from: wiseconnect3_sdk
+  - id: sl_ssi_instance
+    instance: [ulp_primary]
+    from: wiseconnect3_sdk
+  - id: ssi_ulp_component
+    from: wiseconnect3_sdk
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output1.png
+configuration:
+  - name: SL_SSI_DEVICE_MODE
+    value: SL_SSI_ULP_MASTER_ACTIVE
+  - name: SL_SPI_BAUD
+    value: 5000000
+  - name: SL_ULP_TIMER_DIRECTION
+    value: "1"
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

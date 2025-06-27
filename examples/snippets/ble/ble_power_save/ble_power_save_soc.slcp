@@ -1,0 +1,94 @@
+project_name: ble_power_save_soc
+package: ble
+quality: production
+label: ble_power_save_soc
+category: Example|BLE
+description: >
+  This application demonstrates how to configure the device in power save 
+  profile with Advertising mode.
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Project Difficulty
+  value:
+  - Beginner
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.5.2
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+define:
+- name: SL_SI91X_PRINT_DBG_LOG
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+  from: wiseconnect3_sdk
+- id: si91x_memory_default_config
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: sl_power_manager
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: ble
+  from: wiseconnect3_sdk
+- id: sl_si91x_basic_buffers
+  from: wiseconnect3_sdk
+- id: wireless_wakeup_ulp_component
+  from: wiseconnect3_sdk
+requires:
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/ble_power_save_soc_ncp.png
+- path: resources/readme/blepowersavencpmeasurement.png
+- path: resources/readme/blepowersaveadvertising.png
+- path: resources/readme/blepowersavedeviceconnection.png
+- path: resources/readme/blepwlog.png
+- path: resources/readme/output1.png
+- path: resources/readme/blepowersavecurrentmeasurementpins.png
+- path: resources/readme/blepowersavencpmeasurement.png
+- path: resources/readme/blepwsocadv.png
+- path: resources/readme/ble_power_save_conn_soc.png
+- path: resources/readme/ble_ps_conn_adv_ncp.png
+- path: resources/readme/ble_ps_conn_adv_psram.png
+- path: resources/readme/ble_ps_conn_adv_soc.png
+- path: resources/readme/ble_ps_conn_soc.png
+- path: resources/readme/output2.png
+- path: resources/readme/blepowersavedeviceconnection1.png
+- path: resources/readme/blepowersavedeviceconnection2.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
