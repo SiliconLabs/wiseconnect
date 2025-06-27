@@ -1,0 +1,60 @@
+project_name: sl_si91x_si70xx
+label: sl_si91x_si70xx
+description: |
+  This application demonstrates how to configures and use si70xx sensor.
+category: example|peripheral
+package: platform
+quality: production
+readme:
+  - path: readme.md
+source:
+  - path: app.c
+  - path: app.h
+  - path: si70xx_example.c
+  - path: si70xx_example.h
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_main
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_si70xx
+    from: wiseconnect3_sdk
+  - id: sl_i2c
+    from: wiseconnect3_sdk
+  - id: sl_dma
+    from: wiseconnect3_sdk
+  - id: sleeptimer
+  - id: i2c_instance
+    instance: [i2c2]
+    condition: ["device_is_module"]
+    from: wiseconnect3_sdk
+  - id: i2c_instance
+    instance: [i2c2]
+    condition: ["device_has_chip"]
+    from: wiseconnect3_sdk
+  - id: i2c_instance
+    instance: [i2c0]
+    condition: ["device_has_915chip"]
+    from: wiseconnect3_sdk
+
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output1.png
+  - path: resources/readme/output2.png
+  - path: resources/uc_screen/si70xx_uc_screen.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.1
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

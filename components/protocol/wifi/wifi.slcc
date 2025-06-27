@@ -1,0 +1,36 @@
+id: wifi
+package: wiseconnect3_sdk
+description: >
+  The SL Wi-FI API implements the core Wi-Fi functionality
+label: Wi-Fi
+category: Protocol
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/protocol/wifi
+provides:
+- name: wifi
+source:
+- path: src/sl_wifi_callback_framework.c
+  condition: ["sl_si91x_wireless"]
+- path: si91x/sl_wifi.c
+  condition: ["sl_si91x_wireless"]
+include:
+- path: inc
+- path: inc
+  file_list:
+    - path: sl_wifi_callback_framework.h
+    - path: sl_wifi_constants.h
+    - path: sl_wifi_host_interface.h
+    - path: sl_wifi_types.h
+    - path: sl_wifi.h
+    - path: sli_wifi_constants.h
+
+define:
+- name: SL_WIFI_COMPONENT_INCLUDED
+
+requires:
+- name: wifi_driver
+- name: sli_wifi_command_engine
+
