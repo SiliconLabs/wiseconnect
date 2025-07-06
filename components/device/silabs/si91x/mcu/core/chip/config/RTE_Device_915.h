@@ -3879,6 +3879,376 @@
 
 //COMPARATOR END
 
+//OPAMP START
+
+//OPAMP1_P <0=>GPIO_27 <1=>ULP_GPIO_7 <2=>ULP_GPIO_0 <3=>ULP_GPIO_2 <4=>ULP_GPIO_6 <5=>ULP_GPIO_8
+#ifndef OPAMP1_P_LOC
+#define RTE_OPAMP1_P_PORT_ID 0
+#if (RTE_OPAMP1_P_PORT_ID == 0)
+#define RTE_OPAMP1_P_PIN      27
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 14
+#elif (RTE_OPAMP1_P_PORT_ID == 1)
+#define RTE_OPAMP1_P_PIN      71
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 7
+#elif (RTE_OPAMP1_P_PORT_ID == 2)
+#define RTE_OPAMP1_P_PIN      64
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 7
+#elif (RTE_OPAMP1_P_PORT_ID == 3)
+#define RTE_OPAMP1_P_PIN      66
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 7
+#elif (RTE_OPAMP1_P_PORT_ID == 4)
+#define RTE_OPAMP1_P_PIN      70
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 7
+#elif (RTE_OPAMP1_P_PORT_ID == 5)
+#define RTE_OPAMP1_P_PIN      72
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 7
+#else
+#error "Invalid OPAMP1_P_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP1_P_PORT HP
+#if (OPAMP1_P_LOC == 0)
+#define RTE_OPAMP1_P_PIN      OPAMP1_P_PIN
+#define RTE_OPAMP1_P_PORT_MUX 14
+#endif
+#if (OPAMP1_P_LOC == 4)
+#define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_P_PORT_MUX 7
+#endif
+#if (OPAMP1_P_LOC == 1)
+#define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_P_PORT_MUX 7
+#endif
+#if (OPAMP1_P_LOC == 2)
+#define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_P_PORT_MUX 7
+#endif
+#if (OPAMP1_P_LOC == 3)
+#define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_P_PORT_MUX 7
+#endif
+#if (OPAMP1_P_LOC == 5)
+#define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_P_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP1_N <0=>GPIO_27 <1=>ULP_GPIO_7
+#ifndef OPAMP1_N_LOC
+#define RTE_OPAMP1_N_PORT_ID 0
+#if (RTE_OPAMP1_N_PORT_ID == 0)
+#define RTE_OPAMP1_N_PIN      27
+#define RTE_OPAMP1_N_PORT     HP
+#define RTE_OPAMP1_N_PORT_MUX 14
+#elif (RTE_OPAMP1_N_PORT_ID == 1)
+#define RTE_OPAMP1_N_PIN      71
+#define RTE_OPAMP1_N_PORT     HP
+#define RTE_OPAMP1_N_PORT_MUX 7
+#else
+#error "Invalid OPAMP1_N_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP1_N_PORT HP
+#if (OPAMP1_N_LOC == 7)
+#define RTE_OPAMP1_N_PIN      OPAMP1_N_PIN
+#define RTE_OPAMP1_N_PORT_MUX 14
+#endif
+#if (OPAMP1_N_LOC == 8)
+#define RTE_OPAMP1_N_PIN      (OPAMP1_N_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_N_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP1_RES <0=>GPIO_27 <1=>ULP_GPIO_7 <2=>ULP_GPIO_0 <3=>ULP_GPIO_2 <4=>ULP_GPIO_6 <5=>ULP_GPIO_8
+#ifndef OPAMP1_RES_LOC
+#define RTE_OPAMP1_RES_PORT_ID 0
+#if (RTE_OPAMP1_RES_PORT_ID == 0)
+#define RTE_OPAMP1_RES_PIN      27
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 14
+#elif (RTE_OPAMP1_RES_PORT_ID == 1)
+#define RTE_OPAMP1_RES_PIN      71
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#elif (RTE_OPAMP1_RES_PORT_ID == 2)
+#define RTE_OPAMP1_RES_PIN      64
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#elif (RTE_OPAMP1_RES_PORT_ID == 3)
+#define RTE_OPAMP1_RES_PIN      66
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#elif (RTE_OPAMP1_RES_PORT_ID == 4)
+#define RTE_OPAMP1_RES_PIN      70
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#elif (RTE_OPAMP1_RES_PORT_ID == 5)
+#define RTE_OPAMP1_RES_PIN      72
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#else
+#error "Invalid OPAMP1_RES_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP1_RES_PORT HP
+#if (OPAMP1_RES_LOC == 9)
+#define RTE_OPAMP1_RES_PIN      OPAMP1_RES_PIN
+#define RTE_OPAMP1_RES_PORT_MUX 14
+#endif
+#if (OPAMP1_RES_LOC == 13)
+#define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#endif
+#if (OPAMP1_RES_LOC == 10)
+#define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#endif
+#if (OPAMP1_RES_LOC == 11)
+#define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#endif
+#if (OPAMP1_RES_LOC == 12)
+#define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#endif
+#if (OPAMP1_RES_LOC == 14)
+#define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP1_OUT <0=>ULP_GPIO_4 <1=>GPIO_30
+#ifndef OPAMP1_OUT_LOC
+#define RTE_OPAMP1_OUT_PORT_ID 0
+#if (RTE_OPAMP1_OUT_PORT_ID == 0)
+#define RTE_OPAMP1_OUT_PIN      68
+#define RTE_OPAMP1_OUT_PORT     HP
+#define RTE_OPAMP1_OUT_PORT_MUX 7
+#elif (RTE_OPAMP1_OUT_PORT_ID == 1)
+#define RTE_OPAMP1_OUT_PIN      30
+#define RTE_OPAMP1_OUT_PORT     HP
+#define RTE_OPAMP1_OUT_PORT_MUX 14
+#else
+#error "Invalid OPAMP1_OUT_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP1_OUT_PORT HP
+#if (OPAMP1_OUT_LOC == 15)
+#define RTE_OPAMP1_OUT_PIN      (OPAMP1_OUT_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_OUT_PORT_MUX 7
+#endif
+#if (OPAMP1_OUT_LOC == 16)
+#define RTE_OPAMP1_OUT_PIN      OPAMP1_OUT_PIN
+#define RTE_OPAMP1_OUT_PORT_MUX 14
+#endif
+//Pintool data
+#endif
+
+//OPAMP2_P <0=>ULP_GPIO_11 <1=>ULP_GPIO_5
+#ifndef OPAMP2_P_LOC
+#define RTE_OPAMP2_P_PORT_ID 0
+#if (RTE_OPAMP2_P_PORT_ID == 0)
+#define RTE_OPAMP2_P_PIN      75
+#define RTE_OPAMP2_P_PORT     HP
+#define RTE_OPAMP2_P_PORT_MUX 7
+#elif (RTE_OPAMP2_P_PORT_ID == 1)
+#define RTE_OPAMP2_P_PIN      69
+#define RTE_OPAMP2_P_PORT     HP
+#define RTE_OPAMP2_P_PORT_MUX 7
+#else
+#error "Invalid OPAMP2_P_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP2_P_PORT HP
+#if (OPAMP2_P_LOC == 0)
+#define RTE_OPAMP2_P_PIN      (OPAMP2_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP2_P_PORT_MUX 7
+#endif
+#if (OPAMP2_P_LOC == 1)
+#define RTE_OPAMP2_P_PIN      (OPAMP2_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP2_P_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP2_N <0=>ULP_GPIO_11
+#ifndef OPAMP2_N_LOC
+#define RTE_OPAMP2_N_PORT_ID 0
+#if (RTE_OPAMP2_N_PORT_ID == 0)
+#define RTE_OPAMP2_N_PIN      75
+#define RTE_OPAMP2_N_PORT     HP
+#define RTE_OPAMP2_N_PORT_MUX 7
+#else
+#error "Invalid OPAMP2_N_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP2_N_PORT HP
+#if (OPAMP2_N_LOC == 2)
+#define RTE_OPAMP2_N_PIN      (OPAMP2_N_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP2_N_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP2_RES <0=>ULP_GPIO_11 <1=>ULP_GPIO_5
+#ifndef OPAMP2_RES_LOC
+#define RTE_OPAMP2_RES_PORT_ID 0
+#if (RTE_OPAMP2_RES_PORT_ID == 0)
+#define RTE_OPAMP2_RES_PIN      75
+#define RTE_OPAMP2_RES_PORT     HP
+#define RTE_OPAMP2_RES_PORT_MUX 7
+#elif (RTE_OPAMP2_RES_PORT_ID == 1)
+#define RTE_OPAMP2_RES_PIN      69
+#define RTE_OPAMP2_RES_PORT     HP
+#define RTE_OPAMP2_RES_PORT_MUX 7
+#else
+#error "Invalid OPAMP2_RES_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP2_RES_PORT HP
+#if (OPAMP2_RES_LOC == 3)
+#define RTE_OPAMP2_RES_PIN      (OPAMP2_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP2_RES_PORT_MUX 7
+#endif
+#if (OPAMP2_RES_LOC == 4)
+#define RTE_OPAMP2_RES_PIN      (OPAMP2_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP2_RES_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP2_OUT <0=>ULP_GPIO_9
+#ifndef OPAMP2_OUT_LOC
+#define RTE_OPAMP2_OUT_PORT_ID 0
+#if (RTE_OPAMP2_OUT_PORT_ID == 0)
+#define RTE_OPAMP2_OUT_PIN      73
+#define RTE_OPAMP2_OUT_PORT     HP
+#define RTE_OPAMP2_OUT_PORT_MUX 7
+#else
+#error "Invalid OPAMP2_OUT_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP2_OUT_PORT HP
+#if (OPAMP2_OUT_LOC == 5)
+#define RTE_OPAMP2_OUT_PIN      (OPAMP2_OUT_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP2_OUT_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+//OPAMP3_P <0=>GPIO_29 <1=>ULP_GPIO_10
+#ifndef OPAMP3_P_LOC
+#define RTE_OPAMP3_P_PORT_ID 0
+#if (RTE_OPAMP3_P_PORT_ID == 0)
+#define RTE_OPAMP3_P_PIN      29
+#define RTE_OPAMP3_P_PORT     HP
+#define RTE_OPAMP3_P_PORT_MUX 14
+#elif (RTE_OPAMP3_P_PORT_ID == 1)
+#define RTE_OPAMP3_P_PIN      74
+#define RTE_OPAMP3_P_PORT     HP
+#define RTE_OPAMP3_P_PORT_MUX 7
+#else
+#error "Invalid OPAMP3_P_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP3_P_PORT HP
+#if (OPAMP3_P_LOC == 0)
+#define RTE_OPAMP3_P_PIN      OPAMP3_P_PIN
+#define RTE_OPAMP3_P_PORT_MUX 14
+#endif
+#if (OPAMP3_P_LOC == 1)
+#define RTE_OPAMP3_P_PIN      (OPAMP3_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP3_P_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP3_N <0=>ULP_GPIO_10
+#ifndef OPAMP3_N_LOC
+#define RTE_OPAMP3_N_PORT_ID 0
+#if (RTE_OPAMP3_N_PORT_ID == 0)
+#define RTE_OPAMP3_N_PIN      74
+#define RTE_OPAMP3_N_PORT     HP
+#define RTE_OPAMP3_N_PORT_MUX 7
+#else
+#error "Invalid OPAMP3_N_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP3_N_PORT HP
+#if (OPAMP3_N_LOC == 2)
+#define RTE_OPAMP3_N_PIN      (OPAMP3_N_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP3_N_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP3_RES <0=>GPIO_29 <1=>ULP_GPIO_10
+#ifndef OPAMP3_RES_LOC
+#define RTE_OPAMP3_RES_PORT_ID 0
+#if (RTE_OPAMP3_RES_PORT_ID == 0)
+#define RTE_OPAMP3_RES_PIN      29
+#define RTE_OPAMP3_RES_PORT     HP
+#define RTE_OPAMP3_RES_PORT_MUX 14
+#elif (RTE_OPAMP3_RES_PORT_ID == 1)
+#define RTE_OPAMP3_RES_PIN      74
+#define RTE_OPAMP3_RES_PORT     HP
+#define RTE_OPAMP3_RES_PORT_MUX 7
+#else
+#error "Invalid OPAMP3_RES_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP3_RES_PORT HP
+#if (OPAMP3_RES_LOC == 3)
+#define RTE_OPAMP3_RES_PIN      OPAMP3_RES_PIN
+#define RTE_OPAMP3_RES_PORT_MUX 14
+#endif
+#if (OPAMP3_RES_LOC == 4)
+#define RTE_OPAMP3_RES_PIN      (OPAMP3_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP3_RES_PORT_MUX 7
+#endif
+//Pintool data
+#endif
+
+//OPAMP3_OUT <0=>GPIO_27
+#ifndef OPAMP3_OUT_LOC
+#define RTE_OPAMP3_OUT_PORT_ID 0
+#if (RTE_OPAMP3_OUT_PORT_ID == 0)
+#define RTE_OPAMP3_OUT_PIN      27
+#define RTE_OPAMP3_OUT_PORT     HP
+#define RTE_OPAMP3_OUT_PORT_MUX 14
+#else
+#error "Invalid OPAMP3_OUT_PIN"
+#endif
+#else
+//Pintool data
+#define RTE_OPAMP3_OUT_PORT HP
+#if (OPAMP3_OUT_LOC == 5)
+#define RTE_OPAMP3_OUT_PIN      OPAMP3_OUT_PIN
+#define RTE_OPAMP3_OUT_PORT_MUX 14
+#endif
+//Pintool data
+#endif
+
+//OPAMP END
 #define RTE_GPIO_6_PORT HP
 #define RTE_GPIO_6_PAD  1
 #define RTE_GPIO_6_PIN  6

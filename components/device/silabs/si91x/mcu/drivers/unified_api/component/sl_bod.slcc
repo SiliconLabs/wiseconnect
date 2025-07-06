@@ -12,6 +12,8 @@ requires:
   - name: sl_dma 
 source:
   - path: "src/sl_si91x_bod.c"
+define:
+  - name: SL_BOD_COMPONENT_EN
 config_file:
   - path: config/sl_si91x_bod_config.h
 include:

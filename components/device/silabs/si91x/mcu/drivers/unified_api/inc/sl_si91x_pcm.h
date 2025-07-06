@@ -33,6 +33,22 @@
 // --------------------------------------------------------------------------
 /***************************************************************************/
 /**
+ * @brief PCM0 Instance Identifier
+ *
+ * @details Macro to select the PCM0 instance.
+ ******************************************************************************/
+#define SL_SI91X_PCM0_INSTANCE 0
+
+/***************************************************************************/
+/**
+ * @brief ULP_PCM Instance Identifier
+ *
+ * @details Macro to select the ULP_PCM instance.
+ ******************************************************************************/
+#define SL_SI91X_ULP_PCM_INSTANCE 1
+
+/***************************************************************************/
+/**
  * @brief Enumeration for PCM audio data resolutions.
  * 
  * @details This enumeration defines the various audio data resolutions for the PCM PCM peripheral.

@@ -40,8 +40,8 @@ extern "C" {
 #include "sl_status.h"
 #include "sl_qei_board.h"
 /***************************************************************************/ /**
- * @addtogroup QEI Quadrature Encoder Interface
- * @ingroup SI91X_DRIVER_APIS
+ * @addtogroup QEI Quadrature Encoder
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  * 
  ******************************************************************************/
@@ -651,7 +651,7 @@ sl_status_t sl_si91x_qei_set_position_match(uint32_t pos_match);
  *          which helps in understanding the QEI's tracking and event
  *          generation capabilities.
  *
- * @param[out]  Returns the current position match value.
+ * @return  Returns the current position match value.
  *
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
@@ -1014,14 +1014,14 @@ sl_qei_version_t sl_si91x_qei_get_version(void);
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 
-/**  @addtogroup QEI Quadrature Encoder Interface
+/**  @addtogroup QEI Quadrature Encoder
  * @{
  *
  * @details
  *
  * @section QEI_Intro Introduction
  *
- * A quadrature encoder (QE), also known as a 2-channel incremental encoder, converts angular displacement into
+ * A Quadrature Encoder (QE), also known as a 2-channel incremental encoder, converts angular displacement into
  * two pulse signals. These two pulses are positioned 90 degrees out of phase. By monitoring both the number of
  * pulses and the relative phase of the two signals, the user code can track the position, direction of rotation,
  * and velocity. The index signal can also be used to reset the position counter.

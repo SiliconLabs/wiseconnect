@@ -54,6 +54,13 @@ extern "C" {
 // <i> Selection of the SSI Master Mode.
 #define SL_SSI_CLOCK_MODE SL_SSI_PERIPHERAL_CPOL0_CPHA0
 
+// <o SL_SSI_PRIMARY_TRANSFER_MODE> Transfer Mode
+//   <SPI_TRANSFER_MODE_STANDARD=> Single Line Mode
+//   <SPI_TRANSFER_MODE_DUAL=> Dual Line Mode
+//   <SPI_TRANSFER_MODE_QUAD=> Quad Line Mode
+// <i> Selection of the SSI Master Tranfer Mode.
+#define SL_SSI_PRIMARY_TRANSFER_MODE SL_SSI_PRIMARY_SINGLE_LINE_MODE
+
 // <o SL_SPI_BAUD> Bit Rate (Bits/Second) <500000-40000000>
 // <i> Default: 10000000
 #define SL_SPI_BAUD 10000000 // speed at which data transmitted through SPI ; Max is 10000000
@@ -83,7 +90,8 @@ sl_ssi_control_config_t ssi_configuration = { .bit_width            = SL_SSI_BIT
                                               .device_mode          = SL_SSI_DEVICE_MODE,
                                               .clock_mode           = SL_SSI_CLOCK_MODE,
                                               .receive_sample_delay = SL_SSI_RECEIVE_SAMPLE_DELAY,
-                                              .baud_rate            = SL_SPI_BAUD };
+                                              .baud_rate            = SL_SPI_BAUD,
+                                              .transfer_mode        = SL_SSI_PRIMARY_TRANSFER_MODE };
 #endif
 
 #ifdef __cplusplus

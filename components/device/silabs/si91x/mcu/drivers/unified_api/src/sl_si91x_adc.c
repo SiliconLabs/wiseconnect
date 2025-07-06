@@ -84,7 +84,6 @@ static sl_status_t validate_adc_thrld_parameters(const sl_adc_fifo_thrld_config_
 static sl_status_t validate_adc_internal_parameters(const sl_adc_internal_config_t *adc_internal_config);
 static sl_status_t sl_si91x_adc_channel_interrupt_clear(sl_adc_config_t adc_config, uint8_t channel_num);
 static sl_status_t sl_si91x_adc_configure_reference_voltage(float vref_value, float chip_voltage);
-static float sl_si91x_adc_get_chip_voltage(void);
 static void callback_event_handler(uint8_t channel_no, uint8_t event);
 
 /*******************************************************************************
@@ -204,7 +203,7 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
  * from SCDC to HPLDO.
  * This function will return chip voltage.
  ******************************************************************************/
-static float sl_si91x_adc_get_chip_voltage(void)
+float sl_si91x_adc_get_chip_voltage(void)
 {
   volatile float chip_volt = 0;
   float max_ip_volt_scdc   = (float)2.4;

@@ -830,6 +830,18 @@ sl_status_t sl_si91x_adc_stop(sl_adc_config_t adc_config);
  ******************************************************************************/
 sl_adc_version_t sl_si91x_adc_get_version(void);
 
+/***************************************************************************/
+/**
+ * @brief To get chip voltage
+ * 
+ * @details  1. This API read the input supply of chip
+ *         2. If input supply to chip is less than 2.4V then switch input voltage supply
+ *           from SCDC to HPLDO.
+ *
+ * @return chip voltage
+ ***************************************************************************************/
+float sl_si91x_adc_get_chip_voltage(void);
+
 /// @} end group ADC ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************

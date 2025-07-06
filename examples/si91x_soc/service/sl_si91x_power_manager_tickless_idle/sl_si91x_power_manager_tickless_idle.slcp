@@ -10,7 +10,7 @@ sdk:
   version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.0
+    version: 3.5.1
 readme:
   - path: readme.md
 source:
@@ -85,7 +85,8 @@ define:
   - name: SL_SI91X_ULP_STATE_ENABLE
 other_file:
   - path: resources/readme/setupdiagram.png
-  - path: resources/readme/output.png
+  - path: resources/readme/output1.png
+  - path: resources/readme/output2.png
   - path: resources/power_manager_integration_guide/power_manager_integration.pdf
 ui_hints:
   highlight:

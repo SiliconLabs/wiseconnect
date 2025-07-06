@@ -42,8 +42,9 @@
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_timer.h"
 #include "rsi_rom_power_save.h"
+#ifndef _ZEPHYR_
 #include "sl_event_handler.h"
-
+#endif
 /*=======================================================================*/
 //! Power save command parameters
 /*=======================================================================*/
@@ -62,7 +63,7 @@
 void initialize_m4_alarm(void);
 void IRQ026_Handler();
 void vPortSetupTimerInterrupt(void);
-
+void sli_si91x_m4_ta_wakeup_configurations(void);
 void wakeup_source_config(void);
 #endif /* SLI_SI91X_MCU_INTERFACE */
 #endif /* SL_SI91X_M4_POWERSAVE_H_ */

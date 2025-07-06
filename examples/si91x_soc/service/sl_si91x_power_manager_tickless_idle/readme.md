@@ -16,13 +16,23 @@
 
 ## Purpose/Scope
 
- This application demonstrates the power manager service APIs, state transitions(PS4, PS3 and PS2) and sleep-wakeup (PS4, PS3 and PS2 sleep with RAM retention) with tick-less idle mode.
+ This application demonstrates the power manager service APIs, active state transitions(PS4, PS3 and PS2), standby state transitions (PS4, PS3 and PS2) and sleep-wakeup (PS4, PS3, PS2 and PS1 sleep with RAM retention) with tick-less idle mode.
 
 ## Overview
 
 - Tick-less Mode, a capability offered by the FreeRTOS real-time operating system (RTOS), enables the system to diminish power usage by transitioning into a low-power state during periods of task inactivity.
-- According to the configuration in power_manager_tickless_idle example application, it updates the power state in the requirement as per the user selection upon OS timer expiration. It then determines the highest attainable operating state and begins the transition. When application gets the idle time, Power manager initiates the sleep.
-- Sleep - Demonstrations of wake-up with RAM retention are showcased in PS4, PS3 and PS2 states, automatically adjusting to the attainable state.
+- According to the configuration in power_manager_tickless_idle example application, it updates the power state in the requirement as per the user selection upon OS timer expiration. It then determines the highest attainable operating state and begins the transition. When application gets the idle time, Power manager initiates the sleep or standby state based on the SL_SI91X_STANDBY macro value.
+- Sleep or Standby - Demonstrations of wake-up with RAM retention are showcased in PS4, PS3 and PS2 states, automatically adjusting to the attainable state.
+ 
+ **Note:** In this application, the Ultra-Low Power (ULP) Timer is configured as the wakeup source from the PS1. The Power Manager supports the following ULP peripherals as a wakeup sources during the PS1 state:
+  | **UlP Peripherals Supported** |
+  |---------------------| 
+  | *ULP GPIO*       | 
+  | *ULP Timer*      |
+  | *ULP ADC*        | 
+  | *ULP Comparator* | 
+  | *ULP UART*       | 
+> To configure the other peripheral in PS1 State, please refer to the [SiWx917 Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 
 ## About Example Code
 
@@ -32,7 +42,27 @@
 - Firstly wifi is initialized, M4-NWP secure handshake is established to send commands to NWP, NWP is switched to STANDBY_WITH_RAM_RETENTION mode.
 - All the possible events are `OR`'ed and passed to the `sl_si91x_power_manager_subscribe_ps_transition_event` along with the callback function address.
 - On OS timer expiry, it updates the requirement and changes the highest attainable operating state and performs sleep-wakeup operations.
-- Wake-up Source is selected as SysRTC and wireless wake-up by default. Application will go to sleep as per the idle time provided by scheduler and it will wake-up with either wireless wake-up or SysRTC.
+- By default, the System RTC (SysRTC) and wireless interface are configured as wake-up sources for PS4, PS3 and PS2 sleep. The application enters sleep based on the idle time determined by the scheduler and resumes operation upon receiving either a wireless wake-up event or a SysRTC interrupt. In the PS1 state, wake-up occurs exclusively through the ULP Timer.
+
+## Application Build Environment
+
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+
+To enable transitions from the active state to sleep or standby state, configure the parameters outlined below accordingly.
+
+  - By default, the SL_SI91X_STANDBY macro is configured with a value of 0, indicating that the application performs the following sequence of power state transitions:
+  - PS3 State => PS3 Sleep => PS3 State =>PS2 State => PS2 Sleep => PS2 State => PS1 Sleep => PS2 State => PS4 State => PS4 Sleep => PS4 State => PS3 State and repeat.
+
+    ```c
+    #define SL_SI91X_STANDBY                                      0 
+    ```
+
+  - To enable the Standby state transition, set the SL_SI91X_STANDBY macro to 1. With this configuration, the application performs the following sequence of power state transitions:
+  - PS3 State => PS3 Standby => PS3 State => PS2 State => PS2 Standby => PS2 State => PS4 State => PS4 Standby => PS4 State => PS3 State and repeat.
+
+    ```c
+    #define SL_SI91X_STANDBY                                      1
+    ```
 
 ## Prerequisites/Setup Requirements
 
@@ -74,5 +104,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 2. By default it initializes the wifi and switches NWP to standby with RAM retention mode, power manager service is initialized and callback is subscribed.
 3. After successful program execution, observe the prints in the serial console.
 
-     ### Output console
-     > ![Figure: Output](resources/readme/output.png) 
+     ### Output console if SL_SI91X_STANDBY is not set in appplication. 
+     > ![Figure: Sleep Output](resources/readme/output1.png) 
+     ### Output console if SL_SI91X_STANDBY is set in application. 
+     > ![Figure: Standby Output](resources/readme/output2.png) 

@@ -1,7 +1,7 @@
 project_name: sl_si91x_opamp
 label: SI91x - SL_OPAMP
 description: |
-  This application demonstrates the features of OPAMP about Unity Gain Buffer or Voltage follower by giving input .
+  This application demonstrates how to configure and use the OPAMP features on the Si91x SoC.
 category: example|peripheral
 package: platform
 quality: production
@@ -10,7 +10,7 @@ sdk:
   version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.0
+    version: 3.5.1
 source:
   - path: app.c
   - path: app.h
@@ -73,6 +73,9 @@ other_file:
   - path: resources/readme/non-inverting_pga.png
   - path: resources/readme/inverting_comp_hyst.png
   - path: resources/readme/noninverting_comp_hyst.png
+  - path: resources/readme/cascaded_inv_pga.png
+  - path: resources/readme/cascaded_noninv_pga.png
+  - path: resources/readme/two_opamps_diff.png
   - path: resources/uc_screen/opamp_uc_screen.png
   - path: resources/uc_screen/unity_gain_uc.png
   - path: resources/uc_screen/invt_pga_uc.png
@@ -80,6 +83,12 @@ other_file:
   - path: resources/uc_screen/invt_hys_uc.png
   - path: resources/uc_screen/noninvt_hys_uc.png
   - path: resources/uc_screen/unity_gain_dac_uc.png
+  - path: resources/uc_screen/cas_invt_uc_opamp1.png 
+  - path: resources/uc_screen/cas_invt_uc_opamp2.png    
+  - path: resources/uc_screen/cas_noninvt_uc_opamp1.png 
+  - path: resources/uc_screen/cas_noninvt_uc_opamp2.png  
+  - path: resources/uc_screen/two_opamps_uc_opamp1.png    
+  - path: resources/uc_screen/two_opamps_uc_opamp2.png   
 readme:
   - path: readme.md
 ui_hints:

@@ -559,7 +559,7 @@ __STATIC_INLINE sl_status_t sl_si91x_gspi_set_slave_number(uint8_t number)
 /// @} end group GSPI ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/** @addtogroup GSPI
+/** @addtogroup GSPI Generic SPI
  * @{
  * @details
  * @n @section GSPI_Intro Introduction

@@ -27,7 +27,9 @@
 #include "sl_core.h"
 #include "rsi_sysrtc.h"
 #include "sli_si91x_clock_manager.h"
-
+#ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+#include "sl_si91x_power_manager_wakeup_handler.h"
+#endif
 #if (SL_SI91X_TICKLESS_MODE == 1)
 /*******************************************************************************
  **************************** Local variables  *********************************
@@ -110,7 +112,6 @@ eSleepModeStatus eTaskConfirmSleepModeStatus(void);
  *******************************************************************************/
 BaseType_t xTaskIncrementTick(void);
 
-void sli_si91x_m4_ta_wakeup_configurations(void);
 extern uint32_t frontend_switch_control;
 sl_status_t sl_si91x_power_manager_sleep(void);
 boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
@@ -185,19 +186,22 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
     __asm volatile("cpsie i" ::: "memory");
 
     XTAL_SleepStart = rsi_sysrtc_get_counter();
-    // Switch Subsystems' Ref clocks to MHz RC,Set M4 SOC and QSPI/QSPI2 clock to Ref clock
-    sli_si91x_config_clocks_to_mhz_rc();
+    // Bypass clock reconfiguration and Xtal turn off request, when the system is in PS1 or standby state.
+    if (sl_si91x_power_manager_get_ps1_state_status() == false
+        && sl_si91x_power_manager_get_standby_state_status() == false) {
+      // Switch Subsystems' Ref clocks to MHz RC,Set M4 SOC and QSPI/QSPI2 clock to Ref clock
+      sli_si91x_config_clocks_to_mhz_rc();
 
 #if SL_WIFI_COMPONENT_INCLUDED
-    /* Check's if SOC is in PS2 state. If so, skip writing to PLL registers as they are unavailable in this state. */
-    if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
-      if (sl_si91x_is_device_initialized()) {
-        /* If M4 is using XTAL then request NWP to turn OFF XTAL as M4 is going to sleep */
-        sli_si91x_xtal_turn_off_request_from_m4_to_TA();
+      /* Check's if SOC is in PS2 state. If so, skip writing to PLL registers as they are unavailable in this state. */
+      if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+        if (sl_si91x_is_device_initialized()) {
+          /* If M4 is using XTAL then request NWP to turn OFF XTAL as M4 is going to sleep */
+          sli_si91x_xtal_turn_off_request_from_m4_to_TA();
+        }
       }
-    }
 #endif
-
+    }
     sl_atomic_store(is_sleeping, true);
 
     // Schedule a wakeup for expected idle end time.
@@ -225,7 +229,20 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
     expected_sleep_ticks = xExpectedIdleTime;
     total_slept_os_ticks = 0;
 
-    sl_si91x_power_manager_sleep();
+    if (sl_si91x_power_manager_get_ps1_state_status() && (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+      // Add the PS1 state requirement to the power manager.
+      sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS1);
+    } else if (sl_si91x_power_manager_get_standby_state_status()) {
+#ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+      // Initializing and configuring the wakeup sources as per UC inputs, if available
+      sl_si91x_power_manager_wakeup_init();
+#endif
+      // Call the API to enable the standby state.
+      sl_si91x_power_manager_standby();
+    } else {
+      // Call the API to enable the sleep state.
+      sl_si91x_power_manager_sleep();
+    }
 
     sl_power_manager_sleep_on_isr_exit();
 

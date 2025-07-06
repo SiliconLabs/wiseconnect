@@ -72,8 +72,8 @@ typedef enum {
  *
  *****************************************************************/
 typedef enum {
-  SL_OPAMP_UNITY_GAIN_FEATURES,                   ///< Unity gain - OPAMP operates as a buffer.
-  SL_OPAMP_TRANS_IMPEDANCE_AMPILIER,              ///< Trans-Impedance Amplifier - Converts current to voltage.
+  SL_OPAMP_UNITY_GAIN,                            ///< Unity gain - OPAMP operates as a buffer.
+  SL_OPAMP_TRANS_IMPEDANCE_AMPLIFIER,             ///< Trans-Impedance Amplifier - Converts current to voltage.
   SL_OPAMP_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER, ///< Inverting Programmable Gain Amplifier - Amplifies signal with inversion.
   SL_OPAMP_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER, ///< Non-inverting Programmable Gain Amplifier - Amplifies signal without inversion.
   SL_OPAMP_INVERTING_PROGRAMMABLE_HYST_COMP, ///< Inverting Programmable Hysteresis Comparator - Comparator with hysteresis.
@@ -209,6 +209,8 @@ sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config);
  *    - Unity Gain Buffer
  *    - Inverting and Non-Inverting Programmable Gain Amplifiers
  *    - Inverting and Non-Inverting with hysteresis comparators
+ *    - Cascaded Inverting and Non-Inverting Programmable Gain Amplifiers
+ *    - Two Opamps Differential Amplifier
  * 4. Provides programmable hysteresis for stable voltage comparison.
  * 5. Configurable GPIO pins for input and output signals.
  * 6. Provides flexible configuration through software APIs.
@@ -217,11 +219,13 @@ sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config);
  *
  * The OPAMP can be configured using several features, including:
  * - **Unity Gain Buffer**: Operates as a voltage follower with no amplification.
- * - **Inverting Programmable Gain Amplifier**: Support inverting programmable gain amplifier configurations.
- * - **Non-Inverting Programmable Gain Amplifier**: Support non-inverting  programmable gain amplifier configurations.
- * - **Inverting Programmable with Hysteresis Comparator**: Support inverting configurable with hysteresis for stable voltage comparison.
- * - **Non-Inverting Programmable with Hysteresis Comparator**: Support non-inverting configurable with hysteresis for stable voltage comparison.
- *
+ * - **Inverting Programmable Gain Amplifier**: Amplifies signal with inversion.
+ * - **Non-Inverting Programmable Gain Amplifier**: Amplifies signal without inversion.
+ * - **Inverting Programmable with Hysteresis Comparator**: The output switches when the input crosses a threshold, and hysteresis helps prevent noise-induced toggling.
+ * - **Non-Inverting Programmable with Hysteresis Comparator**: The output switches when the input exceeds a reference, with hysteresis for noise immunity.
+ * - **Cascaded Inverting Programmable Gain Amplifier**: Supports cascaded inverting amplifier stages for increased gain and signal inversion.
+ * - **Cascaded Non-Inverting Programmable Gain Amplifier**: Supports cascaded non-inverting amplifier stages for increased gain without signal inversion.
+ * - **Two Opamps Differential Amplifier**: Amplifies the difference between two input signals using two OPAMPs, providing high common-mode noise rejection. Useful for extracting small differential signals in the presence of large common-mode voltages.
  * These configurations are encapsulated in the @ref sl_opamp_config_t structure and initialized using the @ref sl_si91x_opamp_set_configuration API.
  *
  * For more details on configuration parameters, see the respective peripheral example readme document.

@@ -37,10 +37,10 @@ extern "C" {
 
 #include "sl_status.h"
 #include "rsi_ct.h"
-
+#include "sl_si91x_dma.h"
 /***************************************************************************/
 /**
- * @addtogroup CONFIG-TIMER Config Timer
+ * @addtogroup CONFIG-TIMER Configurable Timers
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{ 
  * 
@@ -49,14 +49,24 @@ extern "C" {
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define CT CT0 ///< pointer to CT base address
+#define CT                   CT0 ///< pointer to CT base address
+#define CT_DMA_CHANNEL_0     0   ///< DMA channel for Counter 0
+#define CT_DMA_CHANNEL_8     8   ///< DMA channel for Counter 1
+#define CT_DMA_NUMBER        0   ///< DMA number for Config Timer
+#define CT_CHANNEL_PRIORITY  1   ///< DMA Channel Priority
+#define CT_DMA_TRANSFER_SIZE 100 ///< DMA transfer size
 // -----------------------------------------------------------------------------
 // Data Types
 
 typedef OCU_PARAMS_T sl_config_timer_ocu_params_t; ///< Renaming OCU (Output Compare Unit) parameters structure type
 typedef WFG_PARAMS_T sl_config_timer_wfg_config_t; ///< Renaming WFG (Waveform Generator) parameters structure type
 typedef RSI_CT_CALLBACK_T sl_config_timer_pwm_callback_t; ///< Renaming MCPWM callback structure
-
+extern sl_dma_xfer_t ct_dma_transfer_channel_0;           ///< DMA transfer configuration for Channel 0
+extern sl_dma_xfer_t ct_dma_transfer_channel_1;           ///< DMA transfer configuration for Channel 1
+extern volatile uint8_t ct_dma_transfer_flag_channel_0;   ///< Transfer flag for Channel 0
+extern volatile uint8_t ct_dma_transfer_flag_channel_1;   ///< Transfer flag for Channel 1
+extern volatile uint32_t ct_dma_transfer_index_channel_0; ///< DMA transfer index Channel 0
+extern volatile uint32_t ct_dma_transfer_index_channel_1; ///< DMA transfer index Channel 1
 /***************************************************************************/ /**
  * Typedef for the function pointer of the interrupt callback function
  *
@@ -329,6 +339,62 @@ typedef struct {
  * @details Configures its output GPIO pins and clock to 16 MHz.
  *******************************************************************************/
 void sl_si91x_config_timer_init(void);
+
+/***************************************************************************/
+/**
+ * @brief Configures DMA for Config Timer.
+ * 
+ * @details This API performs the following operations:
+ *          - Initializes the DMA for Config Timer.
+ *          - Configures the DMA transfer parameters, including source and destination addresses.
+ *          - Registers DMA callback functions for transfer completion and error handling.
+ *          - Allocates a DMA channel for the transfer.
+ *          - Enables the DMA controller for operation.
+ * 
+ * @param[in] compare_values Pointer to the array containing compare values for DMA transfer.
+ *                           This array is used to transfer data to the Config Timer registers.
+ * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_1).
+ * 
+ * @return Status code indicating the result of the operation:
+ *         - SL_STATUS_OK - DMA configuration was successful.
+ *         - SL_STATUS_FAIL - DMA configuration failed.
+ * 
+ * @pre Pre-conditions:
+ *      - The Config Timer must be initialized using `sl_si91x_config_timer_init()`.
+ *      - DMA resources must be available for allocation.
+ * 
+ * @see For more information on status codes, refer to:
+ *      [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_config_timer_set_dma_configuration(uint32_t *compare_values, uint32_t channel);
+
+/***************************************************************************/
+/**
+ * @brief Starts DMA transfer for Config Timer and enables the DMA channel.
+ * 
+ * @details This API performs the following operations:
+ *          - Initiates the DMA transfer for the specified channel.
+ *          - Enables the DMA channel after the transfer is configured.
+ * 
+ * @param[in] compare_values Pointer to the array containing compare values for DMA transfer.
+ *                           This array is used to transfer data to the Config Timer registers.
+ * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_1).
+ * @param[in] dma_transfer Pointer to the DMA transfer configuration structure.
+ *                         This structure contains details such as source and destination addresses,
+ *                         transfer size, and transfer type.
+ * 
+ * @return Status code indicating the result of the operation:
+ *         - SL_STATUS_OK - DMA transfer and channel enable were successful.
+ *         - SL_STATUS_FAIL - DMA transfer or channel enable failed.
+ * 
+ * @pre Pre-conditions:
+ *      - DMA must be configured using `sl_si91x_config_timer_dma_configure()`.
+ *      - The Config Timer must be initialized using `sl_si91x_config_timer_init()`.
+ * 
+ * @see For more information on status codes, refer to:
+ *      [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_config_timer_dma_transfer(uint32_t *compare_values, uint32_t channel, sl_dma_xfer_t *dma_transfer);
 
 /***************************************************************************/
 /**
@@ -841,6 +907,22 @@ void sl_si91x_config_timer_deinit(void);
 
 /***************************************************************************/
 /**
+ * @brief To de-initialize the config-timer DMA.
+ * 
+ * @details This API de-initializes the config-timer DMA. 
+ * 
+ * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_1).
+ * @return Status code indicating the result of the operation:
+ *         - SL_STATUS_OK - DMA deinit success
+ *         - SL_STATUS_FAIL - DMA deinit failure
+ * 
+ * @see For more information on status codes, refer to:
+ *      [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_config_timer_dma_deinit(uint32_t channel);
+
+/***************************************************************************/
+/**
  * @brief To get the config timer API version.
  * 
  * @details This API retrieves the version information of the config timer API.
@@ -852,7 +934,7 @@ sl_config_timer_version_t sl_si91x_config_timer_get_version(void);
 /** @} end group CONFIG-TIMER */
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
-/** @addtogroup CONFIG-TIMER Config Timer
+/** @addtogroup CONFIG-TIMER Configurable Timers
  * @{
  *   @details
  *   @n @section CONFIG-TIMER_Intro Introduction

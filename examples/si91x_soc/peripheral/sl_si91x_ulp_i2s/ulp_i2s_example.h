@@ -39,13 +39,4 @@ void ulp_i2s_example_init(void);
  ******************************************************************************/
 void ulp_i2s_example_process_action(void);
 
-/***************************************************************************/ /**
- * Function will switch power state from PS4 to PS2
- *
- *
- * @param none
- * @return none
- ******************************************************************************/
-void hardware_setup(void);
-
 #endif /* I2S_LOWPOWER_EXAMPLE_H_ */

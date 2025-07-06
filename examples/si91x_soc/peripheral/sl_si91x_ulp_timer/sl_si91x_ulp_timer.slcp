@@ -10,7 +10,6 @@ readme:
 source:
   - path: app.c
   - path: ulp_timer_example.c
-  - path: hardware_setup.c
   - path: ulp_timer_example.h
   - path: app.h
 sdk:
@@ -18,7 +17,7 @@ sdk:
   version:  "2025.6.0"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.0
+    version: 3.5.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

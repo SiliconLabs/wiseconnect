@@ -35,6 +35,7 @@ config_file:
 provides:
   - name: sl_ssi
 define:
+  - name: SSI_DUAL_QUAD_COMPONENT
   - name: SSI_CONFIG
   - name: SL_SI91X_SSI_DMA
   - name: SL_SI91X_REQUIRES_INTF_PLL

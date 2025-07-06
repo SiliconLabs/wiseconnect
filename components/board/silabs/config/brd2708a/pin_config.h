@@ -142,6 +142,15 @@
 // $[HSPI_SECONDARY]
 // [HSPI_SECONDARY]$
 
+// $[OPAMP1]
+// [OPAMP1]$
+
+// $[OPAMP2]
+// [OPAMP2]$
+
+// $[OPAMP3]
+// [OPAMP3]$
+
 // $[CUSTOM_PIN_NAME]
 #ifndef _PORT
 #define _PORT 0

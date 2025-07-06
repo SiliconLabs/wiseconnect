@@ -31,12 +31,19 @@
 #include "sl_si91x_opamp.h"
 #include "sl_si91x_opamp_common_config.h"
 #include "sl_si91x_opamp_init.h"
+#include "sl_opamp_board.h"
 
 {% for inst in opamp_instances %}
 sl_opamp_pin_config_t sl_{{ inst }}_pin_config = {
+#ifdef SL_{{ inst | upper }}_P_PORT
         .vin_p_input    = SL_{{ inst | upper }}_P_PIN,
+#endif
+#ifdef SL_{{ inst | upper }}_N_PORT
         .vin_n_input    = SL_{{ inst | upper }}_N_PIN,
-        .vin_res_input  = SL_{{ inst | upper }}_RES_PIN,
+#endif
+#ifdef SL_{{ inst | upper }}_RES_PORT
+        .vin_res_input  = SL_{{ inst | upper }}_RES_PIN, 
+#endif		
         .vout_output    = SL_{{ inst | upper }}_OUT_PIN,
 };   
 sl_opamp_config_t sl_{{ inst }}_feature = {

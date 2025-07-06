@@ -22,15 +22,23 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define PCM_PRIMARY_BUFFER_SIZE 1024 // Transmit/Receive buffer size
-#define PCM_INSTANCE            0    // I2S instance
-#define FRAME_SIZE_ALIGNMENT    4    // Max frame offset
-#define FRAME_OFFSET            2    // Default frame offset
+#define PCM_PRIMARY_BUFFER_SIZE 1024                   // Transmit/Receive buffer size
+#define PCM_INSTANCE            SL_SI91X_PCM0_INSTANCE // PCM instance
+#define FRAME_SIZE_ALIGNMENT    4                      // Max frame offset
+#define FRAME_OFFSET            2                      // Default frame offset
+
+// PCM instance mapping
+#if PCM_INSTANCE == PCM0
+#define PCM_INSTANCE_CONFIG_(config) SL_PCM0##_##config
+#else
+#define PCM_INSTANCE_CONFIG_(config) SL_ULP_PCM##_##config
+#endif
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-uint16_t pcm_primary_data_in[PCM_PRIMARY_BUFFER_SIZE + FRAME_SIZE_ALIGNMENT];
-uint16_t pcm_primary_data_out[PCM_PRIMARY_BUFFER_SIZE];
+typedef uint16_t pcm_data_size_t;
+pcm_data_size_t pcm_primary_data_in[PCM_PRIMARY_BUFFER_SIZE + FRAME_SIZE_ALIGNMENT];
+pcm_data_size_t pcm_primary_data_out[PCM_PRIMARY_BUFFER_SIZE];
 static uint8_t pcm_primary_send_complete    = 0;
 static uint8_t pcm_primary_receive_complete = 0;
 typedef enum { SEND_DATA, RECEIVE_DATA, WAIT_STATE, INVALID_STATE } transfer_state_t;
@@ -44,7 +52,7 @@ static uint16_t mode;
 static int32_t clock_configuration_pll(void);
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
-static void remove_pcm_frame_offset(uint16_t data_buffer[PCM_PRIMARY_BUFFER_SIZE + FRAME_OFFSET]);
+static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_PRIMARY_BUFFER_SIZE + FRAME_OFFSET]);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -54,9 +62,9 @@ static void remove_pcm_frame_offset(uint16_t data_buffer[PCM_PRIMARY_BUFFER_SIZE
 void pcm_example_init(void)
 {
   sl_status_t status;
-  pcm_sampling_frequency = SL_PCM0_SAMPLING_RATE;
-  pcm_resolution         = SL_PCM0_RESOLUTION;
-  mode                   = SL_PCM0_MODE;
+  pcm_sampling_frequency = PCM_INSTANCE_CONFIG_(SAMPLING_RATE);
+  pcm_resolution         = PCM_INSTANCE_CONFIG_(RESOLUTION);
+  mode                   = PCM_INSTANCE_CONFIG_(MODE);
 
   // Filling the data out array with integer values
   for (uint16_t i = 0; i < PCM_PRIMARY_BUFFER_SIZE; i++) {
@@ -109,11 +117,11 @@ void pcm_example_process_action(void)
         if (sl_si91x_pcm_transmit_data(pcm_handle,
                                        pcm_primary_data_out,
                                        (PCM_PRIMARY_BUFFER_SIZE + FRAME_SIZE_ALIGNMENT))) {
-          DEBUGOUT("I2S transmit start fail\r\n");
+          DEBUGOUT("PCM transmit start fail\r\n");
           state = INVALID_STATE;
           break;
         } else {
-          DEBUGOUT("I2S transmit start success\r\n");
+          DEBUGOUT("PCM transmit start success\r\n");
         }
       } while (false);
       state = WAIT_STATE;
@@ -125,11 +133,11 @@ void pcm_example_process_action(void)
         if (sl_si91x_pcm_receive_data(pcm_handle,
                                       pcm_primary_data_in,
                                       (PCM_PRIMARY_BUFFER_SIZE + FRAME_SIZE_ALIGNMENT))) {
-          DEBUGOUT("I2S receive start fail\r\n");
+          DEBUGOUT("PCM receive start fail\r\n");
           state = INVALID_STATE;
           break;
         } else {
-          DEBUGOUT("I2S receive start success\r\n");
+          DEBUGOUT("PCM receive start success\r\n");
         }
       } while (false);
       state = WAIT_STATE;
@@ -227,7 +235,7 @@ static void callback_event(uint32_t event)
  * @param data_buffer - input receive buffer to remove data offset.
  * @return none
  ******************************************************************************/
-static void remove_pcm_frame_offset(uint16_t data_buffer[PCM_PRIMARY_BUFFER_SIZE + FRAME_OFFSET])
+static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_PRIMARY_BUFFER_SIZE + FRAME_OFFSET])
 {
   for (int i = 0; i < PCM_PRIMARY_BUFFER_SIZE; i++) {
     data_buffer[i] = data_buffer[i + FRAME_OFFSET];

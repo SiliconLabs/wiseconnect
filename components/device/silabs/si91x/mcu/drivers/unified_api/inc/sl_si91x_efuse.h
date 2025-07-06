@@ -42,7 +42,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup EFUSE E-Fuse
+ * @addtogroup EFUSE eFuse Controller
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  *
@@ -328,7 +328,7 @@ __STATIC_INLINE void sl_si91x_efuse_disable(void)
 /** @} end group EFUSE */
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/**  @addtogroup EFUSE
+/**  @addtogroup EFUSE eFuse Controller
 * @{
 *
 * @details

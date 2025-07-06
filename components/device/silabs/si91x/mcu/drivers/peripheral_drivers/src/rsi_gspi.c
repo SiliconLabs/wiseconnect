@@ -52,6 +52,7 @@
 #define DUMMY_DATA                       (0x5AA5)
 #define MAX_DATA_WIDTH                   16 // Maximum data width gspi supports
 #define DATA_WIDTH_8                     8  // Data width 8 for differentiating DMA Transfers
+#define DATA_WIDTH_16                    16 // Data width 16 for differentiating DMA Transfers
 
 typedef uint32_t __attribute__((__may_alias__)) aliased_uint32_t;
 
@@ -762,7 +763,11 @@ int32_t GSPI_Send(const void *data,
   gspi->xfer->tx_cnt            = 0U;
   gspi->xfer->tx_buf            = (uint8_t *)data;
 
+  // Read the number of data bits; if the value is 0, it means 16 bits are valid
   data_bits = gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+  if (data_bits == 0) {
+    data_bits = DATA_WIDTH_16; // 0 indicates all 16 bits are valid
+  }
 
   gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR      = ENABLE; //write enable
   gspi->reg->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH = true;
@@ -927,7 +932,11 @@ int32_t GSPI_Receive(void *data,
   gspi->xfer->rx_cnt = 0U;
   gspi->xfer->tx_cnt = 0U;
 
+  // Read the number of data bits; if the value is 0, it means 16 bits are valid
   data_bits = gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+  if (data_bits == 0) {
+    data_bits = DATA_WIDTH_16; // 0 indicates all 16 bits are valid
+  }
 
   gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR      = ENABLE; //write enable
   gspi->reg->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH = true;
@@ -1176,7 +1185,11 @@ int32_t GSPI_Transfer(const void *data_out,
   gspi->xfer->rx_cnt = 0U;
   gspi->xfer->tx_cnt = 0U;
 
+  // Read the number of data bits; if the value is 0, it means 16 bits are valid
   data_bits = gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+  if (data_bits == 0) {
+    data_bits = DATA_WIDTH_16; // 0 indicates all 16 bits are valid
+  }
 
   gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR      = ENABLE; //write enable
   gspi->reg->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH = true;
@@ -1523,10 +1536,10 @@ void GSPI_IRQHandler(const GSPI_RESOURCES *gspi)
  */
 static void GSPI_Convert_Data_Width_To_Bytes(uint16_t data_width)
 {
-  if (data_width <= 8U) {
+  if (data_width <= DATA_WIDTH_8) {
     // For 8-bit data frame number of bytes is 1
     data_width_in_bytes = 1;
-  } else if (data_width <= 16U) {
+  } else if (data_width <= DATA_WIDTH_16) {
     // For 16-bit data frame number of bytes is 2
     data_width_in_bytes = 2;
   }

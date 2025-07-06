@@ -142,6 +142,18 @@
 // $[HSPI_SECONDARY]
 // [HSPI_SECONDARY]$
 
+// $[SDC_CH1]
+// [SDC_CH1]$
+
+// $[SDC_CH2]
+// [SDC_CH2]$
+
+// $[SDC_CH3]
+// [SDC_CH3]$
+
+// $[SDC_CH4]
+// [SDC_CH4]$
+
 // $[CUSTOM_PIN_NAME]
 #ifndef _PORT
 #define _PORT 0

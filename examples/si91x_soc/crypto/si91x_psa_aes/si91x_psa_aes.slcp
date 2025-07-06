@@ -62,7 +62,7 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.0
+    version: 3.5.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

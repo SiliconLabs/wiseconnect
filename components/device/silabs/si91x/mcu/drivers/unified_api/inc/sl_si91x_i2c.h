@@ -40,7 +40,7 @@ extern "C" {
 #include "sl_i2c_board.h"
 
 /***************************************************************************/ /**
-* @addtogroup I2C
+* @addtogroup I2C I2C
 * @ingroup SI91X_PERIPHERAL_APIS
 * @{
 ******************************************************************************/
@@ -575,7 +575,7 @@ sl_i2c_status_t sl_si91x_i2c_wait_till_i2c_is_idle(sl_i2c_instance_t i2c_instanc
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /**
- * @addtogroup I2C
+ * @addtogroup I2C I2C
  * @{
  *
  * @details

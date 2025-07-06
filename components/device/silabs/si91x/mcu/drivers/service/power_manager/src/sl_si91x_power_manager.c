@@ -49,6 +49,13 @@ static boolean_t is_initialized                                = false;
 static sl_slist_node_t *power_manager_ps_transition_event_list = NULL;
 static sl_clock_scaling_t clock_scaling_mode                   = SL_SI91X_POWER_MANAGER_POWERSAVE;
 
+// Indicates whether the M4 core is ready to transition to the PS1 sleep state.
+// PS1 sleep will be triggered when the application is in the IDLE state and this flag is set.
+static bool sli_si91x_pm_ps1_state_active = false;
+// Indicates whether the M4 core is ready to transition to the standby state.
+// Standby state will be triggered when the application is in the IDLE state and this flag is set.
+static bool sli_si91x_pm_standby_state_active = false;
+
 // Table of power state counters. Each counter indicates the presence (not zero)
 // or absence (zero) of requirements on a given power state.
 static uint8_t requirement_ps_table[POWER_STATE_TABLE_SIZE] = {
@@ -419,6 +426,10 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
       return SL_STATUS_INVALID_STATE;
     }
 #endif
+    if (sl_si91x_power_manager_get_ps1_state_status() == true) {
+      // Notifies the state transition who has subscribed to it.
+      notify_power_state_transition(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_PS1);
+    }
     // It updates the power state using internal api.
     if (sli_si91x_power_manager_change_power_state(current_state, state) != SL_STATUS_OK) {
       return SL_STATUS_INVALID_PARAMETER;
@@ -430,8 +441,6 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
       notify_power_state_transition(SL_SI91X_POWER_MANAGER_PS1, SL_SI91X_POWER_MANAGER_PS2);
       // Clears the PS1 requirement
       requirement_ps_table[SL_SI91X_POWER_MANAGER_PS1] -= 1;
-      // Added the PS2 requirement
-      requirement_ps_table[SL_SI91X_POWER_MANAGER_PS2] += 1;
       return SL_STATUS_OK;
     }
 
@@ -585,4 +594,116 @@ sl_power_state_t sl_si91x_get_lowest_ps(void)
 __WEAK boolean_t sl_si91x_power_manager_sleep_on_isr_exit(void)
 {
   return false;
+}
+
+/*****************************************************************************
+ * @fn      sl_status_t sl_si91x_power_manager_request_ps1_state(void)
+ *
+ * @brief   Requests the PS1 state requirement during tickless idle mode.
+ * 
+ * @details This function requests the PS1 power state from the power manager during tickless idle mode. If the system is in the IDLE state, it transitions into the PS1 state.
+ *
+ * @return  Status code indicating the result:
+ *          - SL_STATUS_OK (0x0000) - PS1 state requirement successfully added.
+ ******************************************************************************/
+sl_status_t sl_si91x_power_manager_request_ps1_state(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+  if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+    // If the ULP mode is not enabled, then it is not possible to transition to the PS1 state.
+    return SL_STATUS_INVALID_STATE;
+  }
+  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, true);
+  if (status != SL_STATUS_OK) {
+    // Returns the error code.
+    return status;
+  }
+  sli_si91x_pm_ps1_state_active = true;
+  return status;
+}
+
+/******************************************************************************
+ * @fn      sl_status_t sl_si91x_power_manager_remove_ps1_state_request(void)
+ * 
+ * @brief   Remove the PS1 state request during tickless idle mode.
+ * 
+ * @details This function removes the PS1 state request from the power manager during tickless idle mode.
+ * 
+ * @return  Status code indicating the result:  
+ *          - SL_STATUS_OK (0x0000) - Ps1 state requirement successfully removed.
+ ******************************************************************************/
+sl_status_t sl_si91x_power_manager_remove_ps1_state_request(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+  status             = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, false);
+  if (status != SL_STATUS_OK) {
+    // Returns the error code.
+    return status;
+  }
+  sli_si91x_pm_ps1_state_active = false;
+  return status;
+}
+
+/******************************************************************************
+ * @fn      bool sl_si91x_power_manager_get_ps1_state_status(void)
+ * 
+ * @brief   Get the current ps1 state request status from the power manager during tickless idle mode.
+ * 
+ * @details This function indicates whether a PS1 state request has been added to the power manager during tickless idle mode.
+ *
+ * @return  Status code indicating the result:
+ *          - true - PS1 state requirement is added.
+ *          - false - PS1 state requirement is not added.
+ ******************************************************************************/
+bool sl_si91x_power_manager_get_ps1_state_status(void)
+{
+  return sli_si91x_pm_ps1_state_active;
+}
+
+/******************************************************************************
+ * @fn      sl_status_t sl_si91x_power_manager_request_standby_state(void)
+ * 
+ * @brief   Requests the standby state during tickless idle mode.
+ * 
+ * @details This function requests the standby power state from the power manager during tickless idle mode. If the system is in the IDLE state, it transitions into the standby state.
+ *
+ * @return  Status code indicating the result:
+ *          - SL_STATUS_OK (0x0000) - Standby state requirement successfully added.
+ ******************************************************************************/
+sl_status_t sl_si91x_power_manager_request_standby_state(void)
+{
+  sli_si91x_pm_standby_state_active = true;
+  return SL_STATUS_OK;
+}
+
+/*****************************************************************************
+ * @fn      sl_status_t sl_si91x_power_manager_remove_standby_state_request(void)
+ * 
+ * @brief   Remove the standby state request during tickless idle mode.
+ * 
+ * @details This function removes the standby state request from the power manager during tickless idle mode.
+ *
+ * @return  Status code indicating the result:
+ *          - SL_STATUS_OK (0x0000) : Standby state requirement successfully removed.
+ ******************************************************************************/
+sl_status_t sl_si91x_power_manager_remove_standby_state_request(void)
+{
+  sli_si91x_pm_standby_state_active = false;
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************
+ * @fn      bool sl_si91x_power_manager_get_standby_state_status(void)
+ * 
+ * @brief   Get the current standby state request status during tickless idle mode.
+ * 
+ * @details This function indicates whether a standby state request has been added to the power manager during tickless idle mode.
+ *
+ * @return  Status code indicating the result:
+ *          - true : Standby state requirement is added.
+ *          - false : Standby state requirement is not added.
+ ******************************************************************************/
+bool sl_si91x_power_manager_get_standby_state_status(void)
+{
+  return sli_si91x_pm_standby_state_active;
 }

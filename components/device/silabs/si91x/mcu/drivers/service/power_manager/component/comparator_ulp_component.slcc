@@ -22,3 +22,5 @@ template_contribution:
       - pm_ps2_component  
   - name: comparator_ps2
     value: rsi_comparator.o
+  - name: comparator_ps2
+    value: sl_si91x_analog_comparator.o

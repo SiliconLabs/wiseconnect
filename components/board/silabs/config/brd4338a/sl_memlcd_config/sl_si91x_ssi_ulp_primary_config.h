@@ -57,6 +57,8 @@ extern "C" {
 // <i> Default: 5000000
 #define SL_SSI_ULP_PRIMARY_BAUD 5000000 // SSI Speed ; Max is 5000000
 
+#define SL_SSI_ULP_PRIMARY_TRANSFER_MODE 0 // SSI ULP Primary is not NA
+
 // <o SL_SSI_ULP_PRIMARY_BIT_WIDTH> Data Width <4-16>
 // <i> Default: 8
 #define SL_SSI_ULP_PRIMARY_BIT_WIDTH 8
