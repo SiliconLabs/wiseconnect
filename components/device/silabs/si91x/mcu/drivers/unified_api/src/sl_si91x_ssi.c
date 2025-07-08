@@ -296,6 +296,10 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
     if (control_configuration->device_mode == SL_SSI_SLAVE_ACTIVE) {
       input_mode |= ARM_SPI_SS_SLAVE_HW;
       input_mode |= control_configuration->device_mode;
+    } else if ((control_configuration->transfer_mode != SPI_TRANSFER_MODE_STANDARD)
+               && (control_configuration->device_mode == SL_SSI_MASTER_ACTIVE)) {
+      input_mode |= ARM_SPI_SS_MASTER_SW;
+      input_mode |= SL_SSI_MASTER_ACTIVE;
     } else {
       input_mode |= ARM_SPI_SS_MASTER_HW_OUTPUT;
       input_mode |= SL_SSI_MASTER_ACTIVE;
@@ -316,23 +320,27 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
 }
 
 /**
- * @brief       Configure and initiate an SSI command phase (instruction, address, dummy cycles, etc.).
+ * @brief       Configure the SPI command phase for dual or quad mode operations.
  *
- * @param[in]   ssi_handle Pointer to the SSI driver handle.
- * @param[in]   sl_ssi_cmd Pointer to the command structure containing parameters for the command phase.
- * @return
- * *         returns status - SL_STATUS_OK if config operation was
- *           fine, error return code such as SL_STATUS_FAIL otherwise.
- *           ARM errors are converted to SL errors via convert_arm_to_sl_error_code
- *           function.
+ * @param[in]   ssi_handle  Pointer to the SSI driver handle (only master mode supported)
+ * @param[in]   inst_len    Instruction length
+ * @param[in]   addr_len    Address length
+ * @param[in]   spi_frf     SPI frame format (SSI_FRF_STANDARD, SSI_FRF_DUAL, SSI_FRF_QUAD)
+ * @param[in]   xfer_type   Transfer type (instruction and address phase configuration)
+ * @return      sl_status_t SL_STATUS_OK if configuration was successful, 
+ *                          error code otherwise (SL_STATUS_INVALID_PARAMETER, etc.)
  */
-sl_status_t sl_si91x_ssi_command(sl_ssi_handle_t ssi_handle, sl_ssi_command_t *sl_ssi_cmd)
+sl_status_t sl_si91x_ssi_command_config(sl_ssi_handle_t ssi_handle,
+                                        sl_ssi_inst_len_t inst_len,
+                                        sl_ssi_addr_len_t addr_len,
+                                        sl_ssi_frf_t spi_frf,
+                                        sl_ssi_xfer_type_t xfer_type)
 {
   sl_status_t status   = SL_STATUS_OK;
   int32_t error_status = 0;
   do {
     // validate input arguments
-    if (ssi_handle == NULL || sl_ssi_cmd == NULL) {
+    if (ssi_handle == NULL) {
       status = SL_STATUS_NULL_POINTER;
       break;
     }
@@ -347,23 +355,14 @@ sl_status_t sl_si91x_ssi_command(sl_ssi_handle_t ssi_handle, sl_ssi_command_t *s
       break;
     }
     // Validate command parameters
-    if (sl_ssi_cmd->frf >= SSI_FRF_LAST || sl_ssi_cmd->inst_len > SSI_INST_LEN_16_BITS
-        || sl_ssi_cmd->addr_len > SSI_ADDR_LEN_60_BITS || sl_ssi_cmd->inst_len == 0 || sl_ssi_cmd->wait_cycles > 15
-        || sl_ssi_cmd->xfer_type > SSI_XFER_TYPE_BOTH_ENH) {
+    if (spi_frf >= SSI_FRF_LAST || inst_len > SSI_INST_LEN_16_BITS || addr_len > SSI_ADDR_LEN_60_BITS
+        || inst_len == SSI_INST_LEN_0_BITS || xfer_type > SSI_XFER_TYPE_BOTH_ENH) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
 
-    if (sl_ssi_cmd->NbData == 0) {
-      // Assert the slave select line for the connected slave
-      error_status = ((sl_ssi_driver_t *)ssi_handle)->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
-      status       = convert_arm_to_sl_error_code(error_status);
-      if (status != SL_STATUS_OK) {
-        break;
-      }
-    }
     // Call the SSI command API to configure and send the command phase
-    error_status = SSI_Command_Configure(sl_ssi_cmd);
+    error_status = SSI_Command_Configure(inst_len, addr_len, spi_frf, xfer_type);
     status       = convert_arm_to_sl_error_code(error_status);
 
   } while (false);
@@ -413,6 +412,62 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
   return status;
 }
 
+/**
+ * @brief       Receive data over SSI in dual or quad mode from connected slave.
+ *
+ * @details     This function configures SSI Primary in dual/quad mode, sends the instruction
+ *              and address phase, then receives the specified amount of data.
+ *              It supports standard, dual and quad SPI modes depending on the
+ *              previously configured transfer mode.
+ *
+ * @param[in]   ssi_handle   Pointer to the SSI driver handle (must be master)
+ * @param[out]  data         Pointer to buffer for received data
+ * @param[in]   data_length  Number of bytes to receive
+ * @param[in]   instruction  Command/instruction byte
+ * @param[in]   address      Memory address to read from
+ * @param[in]   wait_cycles  Number of dummy/wait cycles between address and data phases 
+ * @note        The SPI frame format (standard/dual/quad) must be configured first
+ *              by calling sl_si91x_ssi_command_config()
+ *
+ * @return      sl_status_t  SL_STATUS_OK if successful, error code otherwise.
+ */
+sl_status_t sl_si91x_ssi_receive_command_data(sl_ssi_handle_t ssi_handle,
+                                              void *data,
+                                              uint32_t data_length,
+                                              uint8_t instruction,
+                                              uint32_t address,
+                                              uint8_t wait_cycles)
+{
+  sl_status_t status = SL_STATUS_OK;
+  int32_t error_status;
+
+  // Validate input arguments
+  if ((data == NULL) || (ssi_handle == NULL)) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  // Validate data length and ssi handle
+  if ((!validate_ssi_handle(ssi_handle)) || (!data_length)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Only master mode supports advanced commands
+  if (&Driver_SSI_MASTER != ssi_handle) {
+    return SL_STATUS_INVALID_HANDLE;
+  }
+
+  // Assert the slave select line for the connected slave
+  error_status = ((sl_ssi_driver_t *)ssi_handle)->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
+  if ((status = convert_arm_to_sl_error_code(error_status)) != SL_STATUS_OK) {
+    return status;
+  }
+
+  sl_si91x_ssi_set_fifo_threshold(ssi_handle);
+  error_status = SSI_MASTER_Receive_Command_Data(data, data_length, instruction, address, wait_cycles);
+  status       = convert_arm_to_sl_error_code(error_status);
+  return status;
+}
+
 /*******************************************************************************
  * SSI peripheral send with connected device. This makes use of half duplex
  *          transmission.
@@ -450,6 +505,66 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
     }
     sl_si91x_ssi_set_fifo_threshold(ssi_handle);
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Send(data, data_length);
+    status       = convert_arm_to_sl_error_code(error_status);
+  } while (false);
+  return status;
+}
+
+/**
+ * @brief       Send data using dual or quad SPI mode with command and address phases.
+ *
+ * @details     This function configures SSI in dual/quad mode, sends the instruction
+ *              and address phase, then Sends the data using the configured frame format.
+ *              It supports standard, dual, or quad SPI modes depending on the
+ *              previously configured transfer mode.
+ *
+ * @param[in]   ssi_handle   Pointer to the SSI driver handle (must be master mode)
+ * @param[in]   data         Pointer to buffer containing data to send
+ * @param[in]   data_length  Number of bytes to send
+ * @param[in]   instruction  Command/instruction byte to send
+ * @param[in]   address      Memory address to write
+ *
+ * @return      sl_status_t  SL_STATUS_OK if successful, error code otherwise
+ * 
+ * @note        The SPI frame format (standard/dual/quad) must be configured first
+ *              by calling sl_si91x_ssi_command_config()
+ */
+sl_status_t sl_si91x_ssi_send_command_data(sl_ssi_handle_t ssi_handle,
+                                           void *data,
+                                           uint32_t data_length,
+                                           uint8_t instruction,
+                                           uint32_t address)
+{
+  sl_status_t status;
+  int32_t error_status;
+  do {
+    // Validate input arguments
+    if (data == NULL || ssi_handle == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+
+    // Validate data length and ssi handle
+    if (!data_length || !validate_ssi_handle(ssi_handle)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    // Only master mode supports advanced commands
+    if (ssi_handle != &Driver_SSI_MASTER) {
+      status = SL_STATUS_INVALID_HANDLE;
+      break;
+    }
+
+    // Assert the slave select line for the connected slave
+    error_status = ((sl_ssi_driver_t *)ssi_handle)->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
+    status       = convert_arm_to_sl_error_code(error_status);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
+
+    sl_si91x_ssi_set_fifo_threshold(ssi_handle);
+    error_status = SSI_MASTER_Send_Command_Data(data, data_length, instruction, address);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
   return status;

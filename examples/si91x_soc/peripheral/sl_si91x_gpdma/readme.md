@@ -113,6 +113,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
+> - In non-simple transfer FIFO mode or memory fill configurations, direct buffer comparison may fail. As a result, the actual console output may differ from the example shown above.
+> - Max transfer size in non linked list mode is 4095.
 > - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
 > - Only memory-to-memory transfer is supported in GPDMA.
 > - By default, the FIFO size for each channel is allocated as 8 in allocate channel. The FIFO size should be higher than or equal to AHB burst size.

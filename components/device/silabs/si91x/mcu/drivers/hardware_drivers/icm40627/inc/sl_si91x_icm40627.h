@@ -1,10 +1,9 @@
-/***************************************************************************/ /**
- * @file
+/**
+ * @file sl_si91x_icm40627.h
  * @brief Driver for the Invensense ICM40627 6-axis motion sensor
- *******************************************************************************
+ *
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
+ * Copyright 2024 Silicon Laboratories Inc. www.silabs.com
  *
  * SPDX-License-Identifier: Zlib
  *
@@ -25,11 +24,10 @@
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+ */
 
-#ifndef SL_ICM40627_H
-#define SL_ICM40627_H
+#ifndef SL_SI91X_ICM40627_H
+#define SL_SI91X_ICM40627_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -40,25 +38,26 @@
 extern "C" {
 #endif
 
-/***************************************************************************/ /**
- * @addtogroup ICM40627 - Motion Sensor
- * @brief Driver for the Invensense ICM40627 6-axis motion sensor.
+/***************************************************************************/
+/**
+ * @addtogroup ICM40627 ICM40627 Motion Sensor
+ * @ingroup SI91X_HARDWARE_DRIVER_APIS
  * @{
+ * 
  ******************************************************************************/
-/***************************************************************************/ /**
- * @addtogroup icm40627_details Register definitions
- * @brief Register definitions.
- * @{
+/*******************************************************************************
+ ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-/**************************************************************************/  /**
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/**************************************************************************/ /**
 * @name ICM40627 Register banks
 * @{
 ******************************************************************************/
-#define SL_ICM40627_BANK_0 (0 << 7)                                           /**< Register bank 0 */
-#define SL_ICM40627_BANK_1 (1 << 7)                                           /**< Register bank 1 */
-#define SL_ICM40627_BANK_2 (2 << 7)                                           /**< Register bank 2 */
-#define SL_ICM40627_BANK_3 (3 << 7)                                           /**< Register bank 3 */
-#define SL_ICM40627_BANK_4 (4 << 7)                                           /**< Register bank 4 */
+#define SL_ICM40627_BANK_0 (0 << 7)                                          /**< Register bank 0 */
+#define SL_ICM40627_BANK_1 (1 << 7)                                          /**< Register bank 1 */
+#define SL_ICM40627_BANK_2 (2 << 7)                                          /**< Register bank 2 */
+#define SL_ICM40627_BANK_3 (3 << 7)                                          /**< Register bank 3 */
+#define SL_ICM40627_BANK_4 (4 << 7)                                          /**< Register bank 4 */
 /**@}*/
 
 /**************************************************************************/ /**
@@ -369,9 +368,7 @@ extern "C" {
 #define SL_ICM40627_REG_OFFSET_USER8 (SL_ICM40627_BANK_4 | 0x7F) /**< Lower Bits of Z-Accel Offset Register */
 
 #define ICM40627_DEVICE_ID (0x4E) /**< ICM40627 Device ID value    */
-
-/**@}*/
-/**@}*/ //icm40627_details
+/** @endcond */
 
 /***************************************************************************/ /**
  * @brief
@@ -583,7 +580,7 @@ sl_status_t sl_si91x_icm40627_get_gyro_data(sl_ssi_handle_t ssi_driver_handle, f
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[out] accelRes
+ * @param[out] accel_res
  *    The resolution in g/bit units
  *
  * @return sl_status_t Status code indicating the result:
@@ -602,7 +599,7 @@ sl_status_t sl_si91x_icm40627_get_accel_resolution(sl_ssi_handle_t ssi_driver_ha
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[out] gyroRes
+ * @param[out] gyro_res
  *    The actual resolution in (deg/sec)/bit units
  *
  * @return sl_status_t Status code indicating the result:
@@ -642,7 +639,7 @@ sl_status_t sl_si91x_icm40627_set_accel_full_scale(sl_ssi_handle_t ssi_driver_ha
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[in] gyroFs
+ * @param[in] accelFs
  *    The desired full scale value. Use the ICM40627_GYRO_FULLSCALE_yDPS
  *    macros, which are defined in the icm40627.h file. The value of y can be
  *    250, 500, 1000 or 2000.
@@ -663,10 +660,10 @@ sl_status_t sl_si91x_icm40627_set_gyro_full_scale(sl_ssi_handle_t ssi_driver_han
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[in] data_ready_enable
+ * @param[in] dataReadyEnable
  *    If true, enables the Raw Data Ready interrupt, otherwise disables.
  *
- * @param[in] wom_enable
+ * @param[in] womEnable
  *    If true, enables the Wake-up On Motion interrupt, otherwise disables.
  *
  * @return sl_status_t Status code indicating the result:
@@ -782,10 +779,10 @@ sl_status_t sl_si91x_icm40627_deinit(void);
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[out] accelBiasScaled
+ * @param[out] accel_bias_scaled
  *    The mesured acceleration sensor bias in mg
  *
- * @param[out] gyroBiasScaled
+ * @param[out] gyro_bias_scaled
  *    The mesured gyro sensor bias in deg/sec
  *
  * @return sl_status_t Status code indicating the result:
@@ -806,7 +803,7 @@ sl_status_t sl_si91x_icm40627_calibrate_accel_and_gyro(sl_ssi_handle_t ssi_drive
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[out] temperature
+ * @param[out] temp_data
  *    The mesured temperature in Celsius
  *
  * @return sl_status_t Status code indicating the result:
@@ -821,11 +818,11 @@ sl_status_t sl_si91x_icm40627_get_temperature_data(sl_ssi_handle_t ssi_driver_ha
 /***************************************************************************/ /**
  * @brief
  *    Read the device ID of the ICM40627.
- * 
+ *
  * @param[in] ssi_driver_handle
  *    The handle to the SSI driver used for communication with the ICM40627 sensor
  *
- * @param[out] devID
+ * @param[out] dev_id
  *    The ID of the device read from the WHO_AM_I Register. Expected value 0xE0.
  *
  * @return sl_status_t Status code indicating the result:
@@ -837,10 +834,47 @@ sl_status_t sl_si91x_icm40627_get_temperature_data(sl_ssi_handle_t ssi_driver_ha
  ******************************************************************************/
 sl_status_t sl_si91x_icm40627_get_device_id(sl_ssi_handle_t ssi_driver_handle, uint8_t *dev_id);
 
-/** @} */
+/// @} end group ICM40627 ********************************************************/
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/** @addtogroup ICM40627 ICM40627 Motion Sensor
+* @{
+*
+* @details
+*
+* @section ICM40627 Introduction
+*
+* The ICM40627 motion sensor driver provides a set of functions for interacting with the ICM40627 6-axis motion sensor over the SPI interface. It enables integration of the sensor by offering APIs for initialization, configuration, data acquisition, and calibration. The driver supports reading acceleration, gyroscope, and temperature data, as well as configuring output data rates, full-scale ranges, and interrupt handling.
+*
+* @section ICM40627_Use Usage
+*
+* After initializing the SSI (SPI) peripheral and configuring the ICM40627 sensor, the following common operations are available:
+*
+* 1. *Initialize the ICM40627 sensor:* @ref sl_si91x_icm40627_init
+* 2. *Read the device ID to verify sensor presence:* @ref sl_si91x_icm40627_get_device_id
+* 3. *Read acceleration data (in g):* @ref sl_si91x_icm40627_get_accel_data
+* 4. *Read gyroscope data (in deg/sec):* @ref sl_si91x_icm40627_get_gyro_data
+* 5. *Read temperature data (in Celsius):* @ref sl_si91x_icm40627_get_temperature_data
+* 6. *Set output data rates and bandwidths for accelerometer and gyroscope:* @ref sl_si91x_icm40627_set_sample_rate, @ref sl_si91x_icm40627_set_accel_bandwidth, @ref sl_si91x_icm40627_set_gyro_bandwidth
+* 7. *Configure full-scale ranges for accelerometer and gyroscope:* @ref sl_si91x_icm40627_set_accel_full_scale, @ref sl_si91x_icm40627_set_gyro_full_scale
+* 8. *Enable or disable sensor interrupts:* @ref sl_si91x_icm40627_enable_interrupt
+* 9. *Calibrate accelerometer and gyroscope biases:* @ref sl_si91x_icm40627_calibrate_accel_and_gyro
+*
+* @li Typical usage sequence:
+*   - *Initialize the sensor:* Use @ref sl_si91x_icm40627_init before other operations.
+*   - *Verify sensor presence:* Optionally read the device ID using @ref sl_si91x_icm40627_get_device_id.
+*   - *Configure sensor settings:* Set sample rates, bandwidths, and full-scale ranges as needed.
+*   - *Enable required interrupts:* Use @ref sl_si91x_icm40627_enable_interrupt to configure interrupt sources.
+*   - *Read sensor data:* Use @ref sl_si91x_icm40627_get_accel_data, @ref sl_si91x_icm40627_get_gyro_data, and @ref sl_si91x_icm40627_get_temperature_data to acquire measurements.
+*   - *Calibrate sensors if necessary:* Use @ref sl_si91x_icm40627_calibrate_accel_and_gyro for bias correction.
+*
+* @li See the Function Documentation for detailed usage information of all APIs.
+*
+*
+* @} (end addtogroup ICM40627 ICM40627 Motion Sensor) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // SL_ICM40627_H
+#endif /* SL_SI91X_ICM40627_H */

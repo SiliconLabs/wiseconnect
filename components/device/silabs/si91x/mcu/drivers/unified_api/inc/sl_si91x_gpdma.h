@@ -198,6 +198,7 @@ typedef struct {
 typedef struct {
   sl_gpdma_callback_t gpdma_callback[4];          ///< Structure holding the DMA channel callback functions.
   sl_si91x_gpdma_descriptor_t *descriptor_memory; ///< Pointer to the descriptor memory for the channel.
+  uint32_t link_list_mode_disable;                ///< Link list mode for the channel.
   uint32_t fifo_size;                             ///< FIFO size for the channel.
   uint32_t number_of_descriptors;                 ///< Number of descriptors allocated for the channel.
   uint32_t max_transfer_Size;                     ///< Maximum transfer size for the channel.

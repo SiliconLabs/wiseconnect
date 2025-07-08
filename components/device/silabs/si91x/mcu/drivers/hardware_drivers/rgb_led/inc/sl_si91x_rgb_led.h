@@ -1,7 +1,7 @@
 /***************************************************************************/
 /**
  * @file sl_si91x_rgb_led.h
- * @brief See @ref led for documentation.
+ * @brief See @ref RGB_LED for documentation.
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -25,26 +25,35 @@ extern "C" {
 #include "sl_si91x_rgb_led_config.h"
 #include <stdint.h>
 
-typedef struct {
-  uint8_t pin;
-  uint8_t port;
-  uint8_t led_number;
-  uint8_t pad;
-} sl_led_t;
-
-typedef struct {
-  sl_led_t *red;
-  sl_led_t *green;
-  sl_led_t *blue;
-} sl_rgb_led_t;
-
-/** @addtogroup RGB LED
+/** @addtogroup RGB_LED RGB LED
  *  @ingroup SI91X_HARDWARE_DRIVER_APIS
- *  @brief  Sample API functions for controlling RGB LEDs.
- *
- * See sl_si91x_led.c for source code.
  *@{
  */
+
+/**
+ * @brief Structure representing a single LED configuration.
+ *
+ * This structure holds the configuration parameters for an individual LED,
+ * including its pin number, port number, LED identifier, and pad.
+ */
+typedef struct {
+  uint8_t pin;        /**< Pin number associated with the LED. */
+  uint8_t port;       /**< Port number where the LED is connected. */
+  uint8_t led_number; /**< Identifier for the LED. */
+  uint8_t pad;        /**< Pad configuration for the LED. */
+} sl_led_t;
+
+/**
+ * @brief Structure representing an RGB LED configuration.
+ *
+ * This structure contains pointers to the configurations of the red, green,
+ * and blue LEDs that together form an RGB LED.
+ */
+typedef struct {
+  sl_led_t *red;   /**< Pointer to the red LED configuration. */
+  sl_led_t *green; /**< Pointer to the green LED configuration. */
+  sl_led_t *blue;  /**< Pointer to the blue LED configuration. */
+} sl_rgb_led_t;
 
 /***************************************************************************/
 /**
@@ -260,8 +269,32 @@ uint8_t sl_si91x_rgb_led_get_current_state(const sl_led_t *handle);
  ******************************************************************************/
 void sl_si91x_rgb_led_toggle(const sl_led_t *handle);
 
+/// @} end group RGB_LED ********************************************************/
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/** @addtogroup RGB_LED RGB LED
+ *  @{
+ *
+ *  @details
+ *  The RGB LED driver provides a set of functions for controlling RGB LEDs on the SI91x platform.
+ *  It allows initialization, turning on/off, toggling, setting colors, and reading the current state or color of the LED.
+ *
+ *  @section RGB_LED_Usage Usage
+ *  - Initialize the RGB LED: @ref sl_si91x_simple_rgb_led_init
+ *  - Turn the LED on/off: @ref sl_si91x_simple_rgb_led_on, @ref sl_si91x_simple_rgb_led_off
+ *  - Toggle the LED: @ref sl_si91x_simple_rgb_led_toggle
+ *  - Set the LED color: @ref sl_si91x_simple_rgb_led_set_colour
+ *  - Get the current state or color: @ref sl_si91x_simple_rgb_led_get_current_state, @ref sl_si91x_simple_rgb_led_get_colour
+ *
+ *  @note Deprecated APIs are provided for backward compatibility but new designs should use the `sl_si91x_simple_` series of APIs.
+ *
+ *  See the function documentation above for detailed usage information.
+ *
+ *  @} (end addtogroup RGB_LED RGB LED)
+ */
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __SL_SI91X_RGB_LED_H__
+#endif /* __SL_SI91X_RGB_LED_H__ */

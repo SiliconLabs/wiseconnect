@@ -464,4 +464,6 @@ typedef struct {
 void RSI_SPI_SetSlaveSelectNumber(uint8_t slavenumber);
 void RSI_SPI_Slave_Disable(void);
 void RSI_SPI_Slave_Set_CS_Init_State(void);
+int32_t SSI_MASTER_Receive_Command_Data (void *data, uint32_t num, uint32_t instruction, uint32_t address, uint32_t wait_cycle);
+int32_t SSI_MASTER_Send_Command_Data (void *data, uint32_t num, uint32_t instruction, uint32_t address);
 #endif /* __SPI_H */

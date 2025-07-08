@@ -41,7 +41,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup SI70XX Si70XX Sensor
+ * @addtogroup SI70XX Si70XX Humidity and Temperature Sensor
  * @ingroup SI91X_HARDWARE_DRIVER_APIS
  * @{
  *
@@ -366,7 +366,7 @@ sl_status_t sl_si91x_si70xx_write_control_register(sl_i2c_instance_t i2c_instanc
 /// @} end group SI70XX ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/** @addtogroup SI70XX Si70XX Sensor
+/** @addtogroup SI70XX Si70XX Humidity and Temperature Sensor
 * @{
 *
 * @details
