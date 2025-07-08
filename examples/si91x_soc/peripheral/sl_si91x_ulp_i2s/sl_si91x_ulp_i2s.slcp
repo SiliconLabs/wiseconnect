@@ -1,0 +1,72 @@
+project_name: sl_si91x_ulp_i2s
+label: SI91x - SL_ULP_I2S
+description: |
+  This application demonstrates how to use the I2S on the SI91x SoC device in Ultra Low Power mode.
+  This will execute in PS4 state then goes to PS2 and vice-versa. 
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.0"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.1
+source:
+  - path: app.c
+  - path: app.h
+  - path: ulp_i2s_example.c
+  - path: ulp_i2s_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_main
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sllib_wireless_shutdown
+    from: wiseconnect3_sdk
+  - id: i2s_instance
+    from: wiseconnect3_sdk
+    instance:
+      - ulp_i2s
+  - id: sl_power_manager
+    from: wiseconnect3_sdk
+  - id: debug_ulp_component
+    from: wiseconnect3_sdk
+  - id: i2s_ulp_component
+    from: wiseconnect3_sdk
+  - id: pm_ps2_component
+    from: wiseconnect3_sdk
+template_contribution:
+  - name: user_files_ps2
+    value: ulp_i2s_example.o
+  - name: user_files_ps2 
+    value: app.o
+  - name: user_files_ps2
+    value: main.o
+  - name: user_files_ps2
+    value: sl_system_process_action.o
+    condition: [sl_system]
+  - name: user_files_ps2
+    value: sl_event_handler.o   
+define:
+  - name: SYSCALLS_WRITE
+  - name: I2S_LOOP_BACK
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SL_SI91X_ULP_STATE_ENABLE
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/i2s_lowpower_uc_screen.png
+  - path: resources/readme/output.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
