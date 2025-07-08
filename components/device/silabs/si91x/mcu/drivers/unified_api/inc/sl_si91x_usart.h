@@ -1080,7 +1080,7 @@ sl_status_t sl_si91x_uart_rs485_deinit(usart_peripheral_t uart_instance);
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /**
-* @addtogroup USART USART
+* @addtogroup USART
 * @{
 *
 * @details

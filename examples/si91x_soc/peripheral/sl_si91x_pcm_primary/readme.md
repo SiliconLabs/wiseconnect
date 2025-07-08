@@ -99,20 +99,6 @@ Configure the following macros in `pcm_primary_example.c` file and update/modify
  #define PCM_PRIMARY_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
 ```
 
-- If the resolution is changed to 24-bit or 32-bit, update the typedef for `pcm_data_size_t` to `uint32_t` instead of `uint16_t` to accommodate the larger data size - 
- ```C
- typedef uint32_t pcm_data_size_t;
- ```
-
-### Using ULP_PCM Instance
-
-To use the ULP_PCM instance instead of the default PCM0 instance:
-
-- Change the `PCM_INSTANCE` macro value to `ULP_PCM` in pcm_primary_example.c:
-  ```C
-  #define PCM_INSTANCE ULP_PCM
-  ```
-
 ### Pin Configuration
 
 |   GPIO    | Breakout pin on WPK (4002A baseboard) | Breakout pin Explorer kit |  Description     |

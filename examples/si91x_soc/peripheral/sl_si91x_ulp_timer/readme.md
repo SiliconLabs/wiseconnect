@@ -44,6 +44,7 @@
 - Then, the timer is started again, and after five interrupts, it will stop and switch to ultra-low-power state by calling the API \ref sl_si91x_power_manager_add_ps_requirement. As the interrupt is initialized with 5, it will configure the set type, direction, count, and toggle the LED-0 5 times. 
 - Similarly, after toggling the LED-0 five times, it will stop the timer and switch back to high-power mode by calling \ref sl_si91x_power_manager_add_ps_requirement and configure the set type, direction, count, and toggle the LED0 5 times before stopping the timer. 
 - The callback is unregistered using the \ref sl_si91x_ulp_timer_stop API. Finally, the timer is deinitialized using the \ref sl_si91x_ulp_timer_deinit API. 
+- Before the above steps, the first timer power state is changed to ULP through \ref hardware_setup for using timers in ULP mode. 
 
 ## Prerequisites/Setup Requirements
 

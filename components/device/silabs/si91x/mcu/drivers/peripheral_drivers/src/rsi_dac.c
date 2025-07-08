@@ -216,9 +216,7 @@ rsi_error_t DAC_PingPongReconfig(int16_t *wr_buf, uint16_t length)
  */
 rsi_error_t DAC_Stop(void)
 {
-#ifdef DAC_FIFO_MODE_EN
   dac_udma_stop();
-#endif
   RSI_DAC_Stop(AUX_ADC_DAC_COMP);
   return RSI_OK;
 }

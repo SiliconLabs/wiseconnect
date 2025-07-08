@@ -1,6 +1,5 @@
 /******************************************************************************
 * @file  sl_si91x_gpdma.h
-* @brief GPDMA API header file
 *******************************************************************************
 * # License
 * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -43,7 +42,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
-* @addtogroup GPDMA GPDMA
+* @addtogroup GPDMA General Purpose Direct Memory Access
 * @ingroup SI91X_PERIPHERAL_APIS
 * @{
    ******************************************************************************/
@@ -52,7 +51,7 @@ extern "C" {
 /****************************************************************************************************************
 **************************************** Callback Functions typedefs ********************************************
 *****************************************************************************************************************/
-typedef void (*sl_gpdma_callback_t)(); ///< Callback function type
+typedef void (*sl_gpdma_callback_t)();
 
 /******************************************************************************************************************
 **************************************************    DEFINES   ***************************************************
@@ -82,85 +81,84 @@ typedef void (*sl_gpdma_callback_t)(); ///< Callback function type
 #define SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_NOT_SUFFICIENT \
   (sl_status_t)0x68 ///< Status code indicates that the descriptor memory buffer is not sufficient
 
-#define SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED \
-  (sl_status_t)0x69 ///< Status code indicates that the channel is not allocated for DMA transfer
+#define SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED (sl_status_t)0x69
 
 #define SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_NOT_ALLOCATED \
   (sl_status_t)0x6A ///< Status code indicates that Memory buffer is not allocated for the given channel
 
-#define SL_GPDMA_MAX_CHANNEL_PRIORITY 3 ///< Maximum GPDMA channel priority
+#define SL_GPDMA_MAX_CHANNEL_PRIORITY 3
 
-#define SL_GPDMA_DATA_WIDTH_8  0x0 ///< Data width 8 bits
-#define SL_GPDMA_DATA_WIDTH_16 0x1 ///< Data width 16 bits
-#define SL_GPDMA_DATA_WIDTH_32 0x2 ///< Data width 32 bits
+#define SL_GPDMA_DATA_WIDTH_8  0x0 //Data width 8 bits
+#define SL_GPDMA_DATA_WIDTH_16 0x1 //Data width 16 bits
+#define SL_GPDMA_DATA_WIDTH_32 0x2 //Data width 32 bits
 
-#define SL_GPDMACONTROLLER          0x0 ///< GPDMA controller
-#define SL_SOURCE_PERIPHERAL        0x1 ///< Source peripheral
-#define SL_DESTINATION_PERIPHERAL   0x2 ///< Destination peripheral
-#define SL_SRC_AND_DEST_PERIPHERALS 0x3 ///< Source and destination peripherals
+#define SL_GPDMACONTROLLER          0x0 // GPDMA controller
+#define SL_SOURCE_PERIPHERAL        0x1 // Source peripheral
+#define SL_DESTINATION_PERIPHERAL   0x2 // Destination peripheral
+#define SL_SRC_AND_DEST_PERIPHERALS 0x3 // Source and destination peripherals
 
-#define SL_GPDMA_MEMORY_TO_MEMORY         0x0 ///< Memory to memory transfer
-#define SL_GPDMA_MEMORY_TO_PERIPHERAL     0x1 ///< Memory to peripheral transfer
-#define SL_GPDMA_PERIPHERAL_TO_MEMORY     0x2 ///< Peripheral to memory transfer
-#define SL_GPDMA_PERIPHERAL_TO_PERIPHERAL 0x3 ///< Peripheral to peripheral transfer
+#define SL_GPDMA_MEMORY_TO_MEMORY         0x0 // Memory to memory transfer
+#define SL_GPDMA_MEMORY_TO_PERIPHERAL     0x1 // Memory to peripheral transfer
+#define SL_GPDMA_PERIPHERAL_TO_MEMORY     0x2 // Peripheral to memory transfer
+#define SL_GPDMA_PERIPHERAL_TO_PERIPHERAL 0x3 // Peripheral to peripheral transfer
 
-#define SL_GPDMA_MASTER_ZERO 0x0 ///< Master 0
-#define SL_GPDMA_MASTER_ONE  0x1 ///< Master 1
+#define SL_GPDMA_MASTER_ZERO 0x0 // Master 0
+#define SL_GPDMA_MASTER_ONE  0x1 // Master 1
 
-#define SL_GPDMA_AHBBURST_SIZE_1  0b000 ///< AHB burst size 1
-#define SL_GPDMA_AHBBURST_SIZE_4  0b001 ///< AHB burst size 4
-#define SL_GPDMA_AHBBURST_SIZE_8  0b010 ///< AHB burst size 8
-#define SL_GPDMA_AHBBURST_SIZE_16 0b011 ///< AHB burst size 16
-#define SL_GPDMA_AHBBURST_SIZE_20 0b100 ///< AHB burst size 20
-#define SL_GPDMA_AHBBURST_SIZE_24 0b101 ///< AHB burst size 24
-#define SL_GPDMA_AHBBURST_SIZE_28 0b110 ///< AHB burst size 28
-#define SL_GPDMA_AHBBURST_SIZE_32 0b111 ///< AHB burst size 32
+#define SL_GPDMA_AHBBURST_SIZE_1  0b000 // AHB burst size 1
+#define SL_GPDMA_AHBBURST_SIZE_4  0b001 // AHB burst size 4
+#define SL_GPDMA_AHBBURST_SIZE_8  0b010 // AHB burst size 8
+#define SL_GPDMA_AHBBURST_SIZE_16 0b011 // AHB burst size 16
+#define SL_GPDMA_AHBBURST_SIZE_20 0b100 // AHB burst size 20
+#define SL_GPDMA_AHBBURST_SIZE_24 0b101 // AHB burst size 24
+#define SL_GPDMA_AHBBURST_SIZE_28 0b110 // AHB burst size 28
+#define SL_GPDMA_AHBBURST_SIZE_32 0b111 // AHB burst size 32
 
-#define SL_GPDMA_DESTINATION_DATA_BURST 16 ///< Destination data burst size
-#define SL_GPDMA_SOURCE_DATA_BURST      16 ///< Source data burst size
+#define SL_GPDMA_DESTINATION_DATA_BURST 16 // Destination data burst size
+#define SL_GPDMA_SOURCE_DATA_BURST      16 // Source data burst size
 
-#define SL_LINK_LIST_INTERRUPT_ENABLE  1 ///< Enable link list fetch done interrupt
-#define SL_LINK_LIST_INTERRUPT_DISABLE 0 ///< Disable link list fetch done interrupt
+#define SL_LINK_LIST_INTERRUPT_ENABLE  1 // Enable link list fetch done interrupt
+#define SL_LINK_LIST_INTERRUPT_DISABLE 0 // Disable link list fetch done interrupt
 
-#define SL_GPDMAC_FL0W_CTRL                  0x0 ///< DMA controller controls flow control
-#define SL_SOURCE_PERIPHERAL_CTRL            0x1 ///< Source peripheral controls flow control
-#define SL_DESTINATION_PERIIPHERAL_CTRL      0x2 ///< Destination peripheral controls flow control
-#define SL_SOURCE_DESTIATION_PERIPHERAL_CTRL 0x3 ///< Source and destination peripheral controls flow control
+#define SL_GPDMAC_FL0W_CTRL                  0x0 // DMA controller controls flow control
+#define SL_SOURCE_PERIPHERAL_CTRL            0x1 // Source peripheral controls flow control
+#define SL_DESTINATION_PERIIPHERAL_CTRL      0x2 // Destination peripheral controls flow control
+#define SL_SOURCE_DESTIATION_PERIPHERAL_CTRL 0x3 // Source and destination peripheral controls flow control
 
-#define SL_LINK_LIST_MODE_ENABLE  1 ///< Enable link list mode
-#define SL_LINK_LIST_MODE_DISABLE 0 ///< Disable link list mode
+#define SL_LINK_LIST_MODE_ENABLE  1 // Enable link list mode
+#define SL_LINK_LIST_MODE_DISABLE 0 // Disable link list mode
 
-#define SL_SOURCE_FIFO_MODE_ENABLE  1 ///< Enable source FIFO mode
-#define SL_SOURCE_FIFO_MODE_DISABLE 0 ///< Disable source FIFO mode
+#define SL_SOURCE_FIFO_MODE_ENABLE  1 // Enable source FIFO mode
+#define SL_SOURCE_FIFO_MODE_DISABLE 0 // Disable source FIFO mode
 
-#define SL_DESTINATION_FIFO_MODE_ENABLE  1 ///< Enable destination FIFO mode
-#define SL_DESTINATION_FIFO_MODE_DISABLE 0 ///< Disable destination FIFO mode
+#define SL_DESTINATION_FIFO_MODE_ENABLE  1 // Enable destination FIFO mode
+#define SL_DESTINATION_FIFO_MODE_DISABLE 0 // Disable destination FIFO mode
 
-#define SL_MEMORY_FILL_ENABLE  1 ///< Enable memory fill
-#define SL_MEMORY_FILL_DISABLE 0 ///< Disable memory fill
+#define SL_MEMORY_FILL_ENABLE  1 // Enable memory fill
+#define SL_MEMORY_FILL_DISABLE 0 // Disable memory fill
 
-#define SL_MEMORY_ONE_FILL  1 ///< Memory one fill
-#define SL_MEMORY_ZERO_FILL 0 ///< Memory zero fill
+#define SL_MEMORY_ONE_FILL  1 // Memory one fill
+#define SL_MEMORY_ZERO_FILL 0 // Memory zero fill
 
-#define SL_DMA_PROTECTION_ENABLE  1 ///< Enable DMA protection
-#define SL_DMA_PROTECTION_DISABLE 0 ///< Disable DMA protection
+#define SL_DMA_PROTECTION_ENABLE  1 // Enable DMA protection
+#define SL_DMA_PROTECTION_DISABLE 0 // Disable DMA protection
 
-#define MAX_TRANSFER_PER_DESCRIPTOR 4095 ///< Maximum transfer size per descriptor
+#define MAX_TRANSFER_PER_DESCRIPTOR 4095 // Maximum transfer size per descriptor
 
-#define SL_GPDMA_MAX_FIFO_SIZE 64 ///< Maximum FIFO size
+#define SL_GPDMA_MAX_FIFO_SIZE 64 // Maximum FIFO size
 
-#define SL_GPDMA_MAX_CALLBACK_TYPE 3 ///< Maximum number of callback types
+#define SL_GPDMA_MAX_CALLBACK_TYPE 3
 
 /********************************************************************************************************************
  * **********************************************  typedefs *********************************************************
  ********************************************************************************************************************/
 
-typedef RSI_GPDMA_DESC_T sl_si91x_gpdma_descriptor_t;                   ///< GPDMA descriptor structure
-typedef GPDMA_DATACONTEXT_T sl_si91x_gpdma_data_context_t;              ///< GPDMA data context structure
-typedef sl_si91x_gpdma_descriptor_t sl_si91x_gpdma_descriptor_config_t; ///< GPDMA descriptor configuration structure
-typedef RSI_GPDMA_HANDLE_T sl_si91x_gpdma_handle_t;                     ///< GPDMA handle type
-typedef RSI_GPDMA_CHA_CFG_T sl_si91x_gpdma_channel_config_t;            ///< GPDMA channel configuration structure
-typedef RSI_GPDMA_INIT_T sl_si91x_gpdma_init_t;                         ///< GPDMA initialization structure
+typedef RSI_GPDMA_DESC_T sl_si91x_gpdma_descriptor_t;                   //< GPDMA descriptor structure
+typedef GPDMA_DATACONTEXT_T sl_si91x_gpdma_data_context_t;              //< GPDMA data context structure
+typedef sl_si91x_gpdma_descriptor_t sl_si91x_gpdma_descriptor_config_t; //< GPDMA descriptor configuration structure
+typedef RSI_GPDMA_HANDLE_T sl_si91x_gpdma_handle_t;                     //< GPDMA handle type
+typedef RSI_GPDMA_CHA_CFG_T sl_si91x_gpdma_channel_config_t;            //< GPDMA channel configuration structure
+typedef RSI_GPDMA_INIT_T sl_si91x_gpdma_init_t;                         //< GPDMA initialization structure
 typedef gpdmaTransferCompleteCB sl_si91x_gpdma_transfer_complete_cb;    ///< GPDMA transfer complete callback type
 
 /**
@@ -198,10 +196,9 @@ typedef struct {
 typedef struct {
   sl_gpdma_callback_t gpdma_callback[4];          ///< Structure holding the DMA channel callback functions.
   sl_si91x_gpdma_descriptor_t *descriptor_memory; ///< Pointer to the descriptor memory for the channel.
-  uint32_t link_list_mode_disable;                ///< Link list mode for the channel.
   uint32_t fifo_size;                             ///< FIFO size for the channel.
   uint32_t number_of_descriptors;                 ///< Number of descriptors allocated for the channel.
-  uint32_t max_transfer_Size;                     ///< Maximum transfer size for the channel.
+  uint32_t max_transfer_Size;
 } sl_gpdma_channel_data_t;
 
 /**
@@ -216,12 +213,15 @@ typedef struct {
  **/
 
 typedef struct {
-  uint32_t channel_allocation_bitmap; ///< Channel allocation bitmap
-  uint32_t top_fifo;                  ///< Top FIFO number
-  uint32_t no_of_allocated_channels;  ///< Number of allocated channels
-  const uint32_t max_fifo;            ///< Maximum FIFO size
+  uint32_t channel_allocation_bitmap; //< Channel allocation bitmap
+  uint32_t top_fifo;                  //< Top FIFO number
+  uint32_t no_of_allocated_channels;  //<Number of allocated channels
+  const uint32_t max_fifo;
 } sl_si91x_gpdma_resources_Data_t;
 
+/***Variable declarations*****/
+
+void sl_si91x_gpdma_irq_handler();
 /********************************************************************************************************************
  * *********************************** function prototypes **************************************************************/
 /***************************************************************************/
@@ -401,7 +401,7 @@ sl_status_t sl_si91x_gpdma_transfer(uint32_t channel, void *src, void *dest);
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gpdma_init must be called prior.
  *      - \ref sl_si91x_gpdma_allocate_channel must be called prior.
- *      - \ref sl_si91x_gpdma_transfer must be called prior.
+ *      - \ref sl_si91x_gpdma_simple_transfer or \ref sl_si91x_gpdma_transfer must be called prior.
  * 
  * @param[in] channel_no Channel number:
  *                       - 0-7 for GPDMA.
@@ -548,56 +548,6 @@ sl_status_t sl_si91x_get_channel_fifo_size(uint32_t channel_no, uint32_t *fifo_s
  */
 sl_status_t sl_si91x_gpdma_get_channel_status(uint32_t channel_number);
 /// @} end group GPDMA ********************************************************/
-
-// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
-/*******************************************************************************/
-/**
- * @addtogroup GPDMA GPDMA
- * @{
- *
- * @details
- *
- * @section GPDMA_Intro Introduction
- *
- * The GPDMA (General Purpose Direct Memory Access) peripheral enables efficient data transfers between memory and peripherals or between memory regions without CPU intervention. This offloads the CPU, reduces latency, and improves overall system performance.
- *
- * **Key Features**:
- * 1. Supports multiple independent DMA channels.
- * 2. Configurable channel priorities.
- * 3. Supports memory-to-memory, memory-to-peripheral, peripheral-to-memory, and peripheral-to-peripheral transfers.
- * 4. Flexible data width and burst size configuration.
- * 5. Linked list (descriptor-based) transfer support for complex or large data moves.
- * 6. FIFO buffer allocation for optimized throughput.
- * 7. Callback support for transfer completion and error handling.
- * 8. Hardware flow control options.
- *
- * @section GPDMA_Config Configuration
- *
- * The GPDMA can be configured for various transfer types and operational modes, including:
- * - **Memory-to-Memory**: Direct transfer between two memory locations.
- * - **Memory-to-Peripheral**: Transfer from memory to a peripheral register.
- * - **Peripheral-to-Memory**: Transfer from a peripheral register to memory.
- * - **Peripheral-to-Peripheral**: Transfer between two peripheral registers.
- * - **Linked List Mode**: Use descriptors for chained or scatter-gather transfers.
- * - **FIFO Allocation**: Assign FIFO buffers to channels for burst transfers.
- * - **Callback Registration**: Register callbacks for transfer complete, descriptor fetch, and error events.
- * These configurations are encapsulated in the @ref sl_si91x_gpdma_channel_config_t and related structures, and initialized using the provided GPDMA APIs.
- *
- * For more details on configuration parameters, see the respective peripheral example readme document.
- *
- * @section GPDMA_Usage Usage
- *
- * After defining the GPDMA configuration structures and passing the appropriate parameters, the following functions can be used to initialize and operate the GPDMA peripheral. The typical flow for implementation is as follows:
- * 1. Initialize the GPDMA driver: @ref sl_si91x_gpdma_init
- * 2. Allocate a DMA channel: @ref sl_si91x_gpdma_allocate_channel
- * 3. Register callbacks for transfer and error events: @ref sl_si91x_gpdma_register_callbacks
- * 4. Allocate and configure descriptors as needed: @ref sl_si91x_gpdma_allocate_descriptor, @ref sl_si91x_gpdma_build_descriptor
- * 5. Start a transfer: @ref sl_si91x_gpdma_transfer
- * 6. Optionally allocate FIFO buffers: @ref sl_si91x_gpdma_allocate_fifo
- * 7. Stop or deallocate the channel when done: @ref sl_si91x_gpdma_stop_transfer, @ref sl_si91x_gpdma_deallocate_channel
- *
- */
-/** @} end group GPDMA */
 
 #ifdef __cplusplus
 }

@@ -27,20 +27,14 @@
  * Here it will generate 2 PWM outputs, Counter-1 will generate square wave
  * output (50%-duty cycle) and counter-0 will generates PWM output whose duty
  * cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1%.
- * CT DMA mode Use-case :
- * Here it will generate 2 PWM outputs, Counter-0 and Counter-1 will generate
- * PWM output with varied duty cycle.
- * CT input event mode Use-case :
- * It will capture the input event on GPIO pin and store the captured value in
- * capture_value variable.
  =============================================================================*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "config_timer_example.h"
 #include "rsi_debug.h"
+#include "rsi_rom_egpio.h"
 #include "sl_si91x_config_timer.h"
-#include "sl_si91x_driver_gpio.h"
-#include "sl_gpio_board.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -59,9 +53,6 @@
 #define CLEAR                 0            // for clearing any value
 #define DELAY_COUNT           10           // delay count value
 #define TIME_PERIOD_VALUE     1000         // Time period in microseconds
-#define STEP_SIZE_COUNTER_0   400          // Step size for counter0 increments
-#define STEP_SIZE_COUNTER_1   400          // Step size for counter1 increments
-#define ARRAY_SIZE            100          // Array size for DMA mode
 /*******************************************************************************
  **********************  GLOBAL variables   ***************************
  ******************************************************************************/
@@ -79,20 +70,6 @@ static void on_config_timer_callback(void *callback_flag);
  ******************************************************************************/
 static sl_status_t status;
 static void *callback_flag_data;
-#if (CT_COUNTER_DMA_MODE_USECASE == SET)
-uint32_t ct1_compare_values[ARRAY_SIZE] = { 0 }; // Array to store counter1 values in DMA mode
-uint32_t ct0_compare_values[ARRAY_SIZE] = { 0 }; // Array to store counter0 values in DMA mode
-volatile boolean_t interrupt_dma_flag   = 0;
-uint8_t counter1_flag                   = 0;
-#endif
-#if (CT_COUNTER_INPUT_EVENT_USECASE == SET)
-uint16_t capture_value              = 0;
-uint32_t event_interrupt_flag_value = 0;
-boolean_t capture_flag              = 0;
-#endif
-#if ((CT_COUNTER_MODE_USECASE == SET) || CT_COUNTER_INPUT_EVENT_USECASE == SET)
-sl_counter_number_t counter_used = CT_COUNTER_USED;
-#endif
 #if (CT_PWM_MODE_USECASE == SET)
 static uint32_t delay = INITIAL_VALUE;
 static int pwm_out_0, duty_p = INITIAL_VALUE, incr = ONE;
@@ -102,14 +79,11 @@ static sl_config_timer_ocu_params_t vsOCUparams = { INITIAL_VALUE };
 #endif
 static sl_config_timer_interrupt_flags_t ct_interrupt_flags;
 #if (CT_COUNTER_MODE_USECASE == SET)
+sl_counter_number_t counter_used       = CT_COUNTER_USED;
 static uint32_t interrupt_count        = INITIAL_VALUE;
 static uint32_t counter0_initial_value = 0;
 static uint32_t counter1_initial_value = 0;
 volatile boolean_t interrupt_flag      = 0;
-// Define a configuration structure for GPIO pins that are required, specifying its port and pin number.
-// Below configurations are for ULP GPIO 1.
-static sl_si91x_gpio_pin_config_t sl_ulp_gpio_pin_config = { { SL_SI91X_ULP_GPIO_1_PORT, SL_SI91X_ULP_GPIO_1_PIN },
-                                                             GPIO_OUTPUT };
 #endif
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
@@ -124,31 +98,14 @@ void config_timer_example_init(void)
   static uint32_t match_value;
 
   // Initializing ct configuration structure
-  ct_config.is_counter_mode_32bit_enabled = SL_COUNTER_16BIT;
-  ct_config.counter0_direction            = SL_COUNTER0_UP;
-  ct_config.is_counter0_periodic_enabled  = true;
-  // This macro enables input event capture mode.
-#if (CT_COUNTER_INPUT_EVENT_USECASE == SET)
-  // Enable this for counter0 to get increment/decrement, counter should be active and hit with selected event.
-  ct_config.is_counter0_trigger_enabled = true;
-#endif
+  ct_config.is_counter_mode_32bit_enabled    = SL_COUNTER_16BIT;
+  ct_config.counter0_direction               = SL_COUNTER0_UP;
+  ct_config.is_counter0_periodic_enabled     = false;
   ct_config.is_counter0_sync_trigger_enabled = true;
   ct_config.counter1_direction               = SL_COUNTER0_UP;
   ct_config.is_counter1_periodic_enabled     = true;
-#if (CT_COUNTER_INPUT_EVENT_USECASE == SET)
-  // Enable this for counter1 to get increment/decrement, counter should be active and hit with selected event.
-  ct_config.is_counter1_trigger_enabled = true;
-#endif
   ct_config.is_counter1_sync_trigger_enabled = true;
-  // This macro enables DMA mode for varied PWM duty cycle.
-#if (CT_COUNTER_DMA_MODE_USECASE == SET)
-  for (uint32_t i = 0; i < (sizeof(ct0_compare_values) / sizeof(ct0_compare_values[0])); i++) {
-    ct0_compare_values[i] = i * STEP_SIZE_COUNTER_0; // Populate array with increments of STEP_SIZE_COUNTER_0
-  }
-  for (uint32_t i = 0; i < (sizeof(ct1_compare_values) / sizeof(ct1_compare_values[0])); i++) {
-    ct1_compare_values[i] = i * STEP_SIZE_COUNTER_1; // Populate array with increments of STEP_SIZE_COUNTER_1
-  }
-#endif
+
   //Version information of config timer
   version = sl_si91x_config_timer_get_version();
   DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
@@ -251,19 +208,11 @@ void config_timer_example_init(void)
   } while (false);
 #endif
 #if (CT_COUNTER_MODE_USECASE == SET)
+  // Setting ULP-GPIO-1 mode
+  RSI_EGPIO_SetPinMux(EGPIO1, PORT_0, PIN_1, EGPIO_PIN_MUX_MODE0);
+  // Setting ULP-GPIO-1 output direction
+  RSI_EGPIO_SetDir(EGPIO1, PORT_0, PIN_1, EGPIO_CONFIG_DIR_OUTPUT);
   do {
-    // Initialize the GPIOs by clearing all interrupts initially
-    status = sl_gpio_driver_init();
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_gpio_driver_init, Error code: %lu\r\n", status);
-      break;
-    }
-    // Configure ULP GPIO pin 1 using driver pin configuration API.
-    status = sl_gpio_set_configuration(sl_ulp_gpio_pin_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
-      break;
-    }
     // Initializing CT
     sl_si91x_config_timer_init();
     DEBUGOUT("CT initialized successfully \n");
@@ -319,200 +268,10 @@ void config_timer_example_init(void)
     DEBUGOUT("CT started successfully on software trigger \n");
   } while (false);
 #endif
-
-#if (CT_COUNTER_DMA_MODE_USECASE == SET)
-  do {
-    // Initializing CT
-    sl_si91x_config_timer_init();
-    DEBUGOUT("CT initialized successfully \n");
-    // Configuring CT parameters from UC values
-    status = sl_si91x_config_timer_set_configuration(&ct_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_configuration, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("CT configuration is set successfully \n");
-    // Get the match value of the timer
-    status = sl_si91x_config_timer_get_match_value(TIME_PERIOD_VALUE, &match_value);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_get_match_value, Error code: %lu", status);
-      break;
-    }
-    DEBUGOUT("CT match value get is successful \n");
-    // Setting match value
-    status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, SL_COUNTER_0, match_value);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("CT Match Count is set successfully\n");
-    // Setting match value in DMA mode
-    status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, SL_COUNTER_1, match_value);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu\n", status);
-      break;
-    }
-    sl_config_timer_ocu_config_t ct_ocu_config = { 0 };
-    // Initializing CT OCU configuration structure
-    ct_ocu_config.is_counter0_ocu_output_enabled         = true;
-    ct_ocu_config.is_counter0_ocu_dma_enabled            = true;
-    ct_ocu_config.is_counter0_toggle_output_high_enabled = true;
-    ct_ocu_config.is_counter0_toggle_output_low_enabled  = true;
-    ct_ocu_config.is_counter1_ocu_output_enabled         = true;
-    ct_ocu_config.is_counter1_ocu_dma_enabled            = true;
-    ct_ocu_config.is_counter1_toggle_output_high_enabled = true;
-    ct_ocu_config.is_counter1_toggle_output_low_enabled  = true;
-    // Setting OCU configurations
-    status = sl_si91x_config_timer_set_ocu_configuration(&ct_ocu_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_ocu_configuration, Error code: %lu\n", status);
-      break;
-    }
-    // Enabling interrupt at match value for counter-used
-    ct_interrupt_flags.is_counter0_hit_peak_interrupt_enabled = true;
-    ct_interrupt_flags.is_counter1_hit_peak_interrupt_enabled = true;
-    // Un-registering callback
-    status = sl_si91x_config_timer_unregister_callback(&ct_interrupt_flags);
-    // Registering callback
-    status = sl_si91x_config_timer_register_callback(on_config_timer_callback, callback_flag_data, &ct_interrupt_flags);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("CT callback registered successfully \n");
-    // DMA configure for CT counter-0
-    status = sl_si91x_config_timer_set_dma_configuration(ct0_compare_values, CT_DMA_CHANNEL_0);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_dma_configure, Error code: %lu\n", status);
-      break;
-    }
-    // DMA transfer for CT counter-0
-    status = sl_si91x_config_timer_dma_transfer(ct0_compare_values, CT_DMA_CHANNEL_0, &ct_dma_transfer_channel_0);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_dma_transfer, Error code: %lu\n", status);
-      break;
-    }
-    // Starting CT counter0 on software trigger
-    status = sl_si91x_config_timer_start_on_software_trigger(SL_COUNTER_0);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu\n", status);
-      break;
-    }
-    // DMA configure for CT counter-1
-    status = sl_si91x_config_timer_set_dma_configuration(ct1_compare_values, CT_DMA_CHANNEL_8);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_dma_configure, Error code: %lu\n", status);
-      break;
-    }
-    // DMA transfer for CT counter-1
-    status = sl_si91x_config_timer_dma_transfer(ct1_compare_values, CT_DMA_CHANNEL_8, &ct_dma_transfer_channel_1);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_dma_transfer, Error code: %lu\n", status);
-      break;
-    }
-    // Starting CT counter1 on software trigger
-    status = sl_si91x_config_timer_start_on_software_trigger(SL_COUNTER_1);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("CT started successfully on software trigger \n");
-  } while (false);
-#endif
-#if (CT_COUNTER_INPUT_EVENT_USECASE == SET)
-  do {
-    // Initializing CT
-    sl_si91x_config_timer_init();
-    DEBUGOUT("CT initialized successfully \n");
-    // Configuring CT parameters from UC values
-    status = sl_si91x_config_timer_set_configuration(&ct_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_configuration, Error code: %lu\n", status);
-      break;
-    }
-    // Get the match value of the timer
-    status = sl_si91x_config_timer_get_match_value(TIME_PERIOD_VALUE, &match_value);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_get_match_value, Error code: %lu", status);
-      break;
-    }
-    DEBUGOUT("CT match value get is successful \n");
-    // Setting match value
-    status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, counter_used, match_value);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("CT Match Count is set successfully\n");
-    status = sl_si91x_config_timer_select_action_event(START, SL_EVENT0_LEVEL0, SL_NO_EVENT);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_select_action_event, Error code: %lu\n", status);
-      break;
-    }
-    status = sl_si91x_config_timer_select_action_event(CAPTURE, SL_EVENT0_RISING_EDGE, SL_NO_EVENT);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_select_action_event, Error code: %lu\n", status);
-      break;
-    }
-    status = sl_si91x_config_timer_select_action_event(INTERRUPT, SL_EVENT0_RISING_EDGE, SL_NO_EVENT);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_select_action_event, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("Config timer action event capture done successfully \n");
-    if (counter_used == SL_COUNTER_0) {
-      ct_interrupt_flags.is_counter0_event_interrupt_enabled = true;
-    } else {
-      ct_interrupt_flags.is_counter1_event_interrupt_enabled = true;
-    }
-    // Un-registering callback
-    status = sl_si91x_config_timer_unregister_callback(&ct_interrupt_flags);
-    // Registering callback
-    status = sl_si91x_config_timer_register_callback(on_config_timer_callback, callback_flag_data, &ct_interrupt_flags);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu\n", status);
-      break;
-    }
-    DEBUGOUT("CT callback registered successfully \n");
-  } while (false);
-#endif
 }
 
 void config_timer_example_process_action(void)
 {
-
-#if (CT_COUNTER_INPUT_EVENT_USECASE == SET)
-  if (capture_flag == 1) {
-    status = sl_si91x_config_timer_read_capture(counter_used, &capture_value);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_read_capture, Error code: %lu\n", status);
-    }
-    DEBUGOUT("capture_value:%d\n", capture_value);
-  }
-#endif
-#if (CT_COUNTER_DMA_MODE_USECASE == SET)
-  do {
-    if (interrupt_dma_flag) {
-      interrupt_dma_flag = 0;
-      if (ct_dma_transfer_flag_channel_0) {
-        ct_dma_transfer_flag_channel_0 = 0;
-        status = sl_si91x_config_timer_dma_transfer(ct0_compare_values, CT_DMA_CHANNEL_0, &ct_dma_transfer_channel_0);
-        if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_config_timer_dma_transfer, Error code: %lu\n", status);
-          break;
-        }
-      }
-      if (ct_dma_transfer_flag_channel_1) {
-        ct_dma_transfer_flag_channel_1 = 0;
-        status = sl_si91x_config_timer_dma_transfer(ct1_compare_values, CT_DMA_CHANNEL_8, &ct_dma_transfer_channel_1);
-        if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_config_timer_dma_transfer, Error code: %lu\n", status);
-          break;
-        }
-      }
-    }
-  } while (false);
-#endif
 #if (CT_COUNTER_MODE_USECASE == SET)
   // interrupt_flag is set when interrupt count is greater than TENTH_INTERRUPT_COUNT
   if (interrupt_flag) {
@@ -592,39 +351,14 @@ void on_config_timer_callback(void *callback_flag)
     // Incrementing interrupt count
     interrupt_count++;
     // Toggles ULP_GPIO_1 on every interrupt
-    status = sl_gpio_driver_set_pin(&sl_ulp_gpio_pin_config.port_pin); // Set ULP GPIO pin 1
-    if (status != SL_STATUS_OK) {
-      return;
-    }
-    status = sl_gpio_driver_clear_pin(&sl_ulp_gpio_pin_config.port_pin); // Clear ULP GPIO pin 1
-    if (status != SL_STATUS_OK) {
-      return;
-    }
+    RSI_EGPIO_SetPin(EGPIO1, PORT_0, PIN_1, SET);
+    RSI_EGPIO_SetPin(EGPIO1, PORT_0, PIN_1, CLEAR);
   }
   // Checking interrupt count
   if (interrupt_count >= TENTH_INTERRUPT_COUNT) {
     interrupt_flag = 1;
     // De-initializing config-timer
     sl_si91x_config_timer_deinit();
-  }
-#endif
-
-#if (CT_COUNTER_DMA_MODE_USECASE == SET)
-  interrupt_dma_flag = 1;
-  (void)callback_flag;
-#endif
-
-#if (CT_COUNTER_INPUT_EVENT_USECASE == SET)
-  (void)callback_flag;
-  // Updating expected interrupt flag value as per enabled interrupt and counter used
-  if (counter_used == SL_COUNTER_0) {
-    event_interrupt_flag_value = SL_CT_EVENT_INTR_0_FLAG;
-  } else {
-    event_interrupt_flag_value = SL_CT_EVENT_INTR_1_FLAG;
-  }
-  // Checking interrupt flag value
-  if (*(uint32_t *)callback_flag == event_interrupt_flag_value) {
-    capture_flag = 1;
   }
 #endif
 }

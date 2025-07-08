@@ -119,17 +119,6 @@ typedef enum {
 
 /***************************************************************************/
 /**
- * @brief Enumeration for different SSI peripheral transfer line modes.
- */
-typedef enum {
-  SL_SSI_PRIMARY_SINGLE_LINE_MODE = SPI_TRANSFER_MODE_STANDARD, ///< Single line (standard SPI) mode.
-  SL_SSI_PRIMARY_DUAL_LINE_MODE   = SPI_TRANSFER_MODE_DUAL,     ///< Dual line mode.
-  SL_SSI_PRIMARY_QUAD_LINE_MODE   = SPI_TRANSFER_MODE_QUAD,     ///< Quad line mode.
-  SL_SSI_PRIMARY_MODE_LAST                                      ///< Last member of enum for validation.
-} sl_ssi_transfer_mode_t;
-
-/***************************************************************************/
-/**
  * @brief Enumeration for different SSI peripheral device modes.
  */
 typedef enum {
@@ -152,7 +141,6 @@ typedef struct {
   uint32_t clock_mode;           ///< Clock mode such as CPOL0 CPHA1.
   uint32_t baud_rate;            ///< Baud rate for SSI.
   uint32_t receive_sample_delay; ///< Delay for the receive input signal.
-  uint32_t transfer_mode;        ///< Transfer mode: single, dual, or quad line.
 } sl_ssi_control_config_t;
 
 /***************************************************************************/
@@ -180,61 +168,6 @@ typedef enum {
   SSI_SLAVE_3,                ///< Secondary No. 4.
   SSI_SLAVE_NUMBER_LAST_ENUM, ///< Last member of enum for validation.
 } sl_ssi_slave_number_t;
-
-/***************************************************************************/
-/**
- * @brief Enumeration for different SSI frame formats.
- */
-typedef enum {
-  SSI_FRF_STANDARD = 0x0, ///< Standard SPI frame format
-  SSI_FRF_DUAL     = 0x1, ///< Dual SPI frame format
-  SSI_FRF_QUAD     = 0x2, ///< Quad SPI frame format
-  SSI_FRF_LAST     = 0x3, ///< Last value for validation
-} sl_ssi_frf_t;
-
-/***************************************************************************/
-/**
- * @brief Enumeration for different SSI transfer types.
- */
-typedef enum {
-  SSI_XFER_TYPE_INST_ADDR_STD = 0x0, ///< Both instruction and address in standard SPI
-  SSI_XFER_TYPE_ADDR_ENH      = 0x1, ///< Instruction in standard, address in enhanced (Dual/Quad)
-  SSI_XFER_TYPE_BOTH_ENH      = 0x2, ///< Both instruction and address in enhanced (Dual/Quad)
-} sl_ssi_xfer_type_t;
-
-/***************************************************************************/
-/**
- * @brief Enumeration for different SSI instance types.
- */
-typedef enum {
-  SSI_INST_LEN_0_BITS  = 0x0, ///< 0-bit (No instruction)
-  SSI_INST_LEN_4_BITS  = 0x1, ///< 4-bit instruction
-  SSI_INST_LEN_8_BITS  = 0x2, ///< 8-bit instruction
-  SSI_INST_LEN_16_BITS = 0x3  ///< 16-bit instruction
-} sl_ssi_inst_len_t;
-
-/***************************************************************************/
-/**
- * @brief Enumeration for different SSI address lengths.
- */
-typedef enum {
-  SSI_ADDR_LEN_0_BITS  = 0x0, ///< 0-bit Address Width
-  SSI_ADDR_LEN_4_BITS  = 0x1, ///< 4-bit Address Width
-  SSI_ADDR_LEN_8_BITS  = 0x2, ///< 8-bit Address Width
-  SSI_ADDR_LEN_12_BITS = 0x3, ///< 12-bit Address Width
-  SSI_ADDR_LEN_16_BITS = 0x4, ///< 16-bit Address Width
-  SSI_ADDR_LEN_20_BITS = 0x5, ///< 20-bit Address Width
-  SSI_ADDR_LEN_24_BITS = 0x6, ///< 24-bit Address Width
-  SSI_ADDR_LEN_28_BITS = 0x7, ///< 28-bit Address Width
-  SSI_ADDR_LEN_32_BITS = 0x8, ///< 32-bit Address Width
-  SSI_ADDR_LEN_36_BITS = 0x9, ///< 36-bit Address Width
-  SSI_ADDR_LEN_40_BITS = 0xA, ///< 40-bit Address Width
-  SSI_ADDR_LEN_44_BITS = 0xB, ///< 44-bit Address Width
-  SSI_ADDR_LEN_48_BITS = 0xC, ///< 48-bit Address Width
-  SSI_ADDR_LEN_52_BITS = 0xD, ///< 52-bit Address Width
-  SSI_ADDR_LEN_56_BITS = 0xE, ///< 56-bit Address Width
-  SSI_ADDR_LEN_60_BITS = 0xF  ///< 60-bit Address Width
-} sl_ssi_addr_len_t;
 
 /***************************************************************************/
 /**
@@ -335,40 +268,6 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
 
 /***************************************************************************/
 /**
- * @brief Configure the SSI command phase parameters for dual/quad mode operations.
- * 
- * @details This API sets up the command phase parameters for the SSI peripheral, configuring
- *          how instructions and addresses will be transmitted in subsequent operations.
- *          It allows selection of instruction length, address length, frame format (standard/dual/quad),
- *          and transfer type. This function must be called before using advanced send/receive functions
- *          that require specific command formatting.
- * 
- * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
- * @param[in] inst_len   Instruction length - use \ref sl_ssi_inst_len_t values.
- * @param[in] addr_len   Address length - use \ref sl_ssi_addr_len_t values.
- * @param[in] spi_frf    Frame format (standard/dual/quad) - use \ref sl_ssi_frf_t values.
- * @param[in] xfer_type  Transfer type for instruction/address phases - use \ref sl_ssi_xfer_type_t values.
- * 
- * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Success.
- *         - SL_STATUS_FAIL               - Function failed.
- *         - SL_STATUS_BUSY               - Driver is busy.
- *         - SL_STATUS_NOT_SUPPORTED      - Parameter is not supported.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_HANDLE     - SSI handle is invalid.
- *         - SL_STATUS_INVALID_TYPE       - SPI frame format or transfer type is not valid.
- * 
- * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- ******************************************************************************/
-sl_status_t sl_si91x_ssi_command_config(sl_ssi_handle_t ssi_handle,
-                                        sl_ssi_inst_len_t inst_len,
-                                        sl_ssi_addr_len_t addr_len,
-                                        sl_ssi_frf_t spi_frf,
-                                        sl_ssi_xfer_type_t xfer_type);
-
-/***************************************************************************/
-/**
  * @brief To receive data from the secondary device.
  * 
  * @details This API will receive data from the secondary device. If DMA is enabled, it configures the DMA channel and required parameters.
@@ -396,45 +295,6 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
 
 /***************************************************************************/
 /**
- * @brief To receive data from the secondary device in advanced mode (dual/quad).
- *
- * @details This API will receive data from the secondary device using dual or quad mode operations.
- *          It first sends the command phase (instruction and address) and then receives the specified amount of data.
- *          When the received data is equal to the data_length, a callback event is generated which can be registered
- *          using \ref sl_si91x_ssi_register_event_callback.
- *
- * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init
- *      - \ref sl_si91x_ssi_set_configuration with appropriate transfer mode (dual/quad)
- *      - \ref sl_si91x_ssi_set_slave_number
- *      - \ref sl_si91x_ssi_command_config (recommended to configure the command phase format)
- *
- * @param[in] ssi_handle   Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
- * @param[out] data        Pointer to the buffer that will store the received data.
- * @param[in] data_length  Number of data bytes to receive.
- * @param[in] instruction  Command byte to send.
- * @param[in] address      Memory address to read.
- * @param[in] wait_cycles  Number of dummy/wait cycles between address and data phases (0-15).
- *
- * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Success.
- *         - SL_STATUS_FAIL               - Function failed.
- *         - SL_STATUS_BUSY               - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_HANDLE     - Only master mode supports this operation.
- *
- * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- ******************************************************************************/
-sl_status_t sl_si91x_ssi_receive_command_data(sl_ssi_handle_t ssi_handle,
-                                              void *data,
-                                              uint32_t data_length,
-                                              uint8_t instruction,
-                                              uint32_t address,
-                                              uint8_t wait_cycles);
-
-/***************************************************************************/
-/**
  * @brief To send data to the secondary device.
  * 
  * @details This API will send data to the secondary device. If DMA is enabled, it configures the DMA channel and required parameters.
@@ -459,43 +319,6 @@ sl_status_t sl_si91x_ssi_receive_command_data(sl_ssi_handle_t ssi_handle,
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data, uint32_t data_length);
-
-/***************************************************************************/
-/**
- * @brief To send data to the secondary device in advanced mode (dual/quad).
- * 
- * @details This API sends data to the secondary device using dual or quad mode operations.
- *          It first sends the command phase (instruction and address) and then transmits the specified data.
- *          When all data is sent, a callback event is generated which can be registered 
- *          using \ref sl_si91x_ssi_register_event_callback.
- * 
- * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init 
- *      - \ref sl_si91x_ssi_set_configuration with appropriate transfer mode (dual/quad)
- *      - \ref sl_si91x_ssi_set_slave_number
- *      - \ref sl_si91x_ssi_command_config (recommended to configure the command phase format)
- * 
- * @param[in] ssi_handle   Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
- * @param[in] data         Pointer to the data buffer to be transmitted.
- * @param[in] data_length  Number of data bytes to transmit.
- * @param[in] instruction  Command byte to send (such as page program command).
- * @param[in] address      Memory address to write to (up to 32-bit address).
- * 
- * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Success.
- *         - SL_STATUS_FAIL               - Function failed.
- *         - SL_STATUS_BUSY               - Driver is busy.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_HANDLE     - Only master mode supports this operation.
- * 
- * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
- ******************************************************************************/
-sl_status_t sl_si91x_ssi_send_command_data(sl_ssi_handle_t ssi_handle,
-                                           void *data,
-                                           uint32_t data_length,
-                                           uint8_t instruction,
-                                           uint32_t address);
 
 /***************************************************************************/
 /**
@@ -737,7 +560,7 @@ __STATIC_INLINE sl_status_t sl_si91x_ssi_set_slave_number(uint8_t number)
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
 /** 
-* @addtogroup SSI Synchronous Serial Interface
+* @addtogroup SSI
 * @{
 *   @details
 *

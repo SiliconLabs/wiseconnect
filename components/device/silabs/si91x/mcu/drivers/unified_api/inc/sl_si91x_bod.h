@@ -41,7 +41,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
-  * @addtogroup BOD BOD
+  * @addtogroup BOD Brown-Out Detection and Blackout Monitoring
   * @ingroup SI91X_PERIPHERAL_APIS
   * @{
   *
@@ -118,16 +118,7 @@ extern "C" {
 #define SL_BOD_NVIC_BUTTON                   NPSS_TO_MCU_BUTTON_INTR_IRQn ///< BOD NVIC button interrupt
 #define SL_BOD_NPSS_TO_MCU_BUTTON_IRQHandler IRQ024_Handler               ///< BOD NPSS to MCU button interrupt handler
 
-#define SL_BOD_CMP_MUX_SEL_EN              4     ///< BOD comparator multiplexer selection enable value
-#define SL_BOD_MAX_BUFF_SIZE               39    ///< Maximum buffer size for BOD array
-#define SL_BOD_MIN_BUFF_SIZE               0     ///< Minimum buffer size for BOD array
-#define SL_BOD_VBATT_STATUS_MIN            0.0f  ///< Minimum VBATT status value
-#define SL_BOD_BUTTON_ONE                  1     ///< BOD button one
-#define SL_BOD_BUTTON_TWO                  2     ///< BOD button two
-#define SL_BOD_BUTTON_THREE                3     ///< BOD button three
-#define SL_BOD_BUTTON_TOTAL_NUM_OF_BUTTONS 3     ///<Total number of buttons can configured
-#define SL_BOD_BUTTON_MIN_VAL              1.08f ///< BOD button minimum value
-#define SL_BOD_BUTTON_MAX_VAL              2.27f ///< BOD button maximum value
+#define SL_BOD_CMP_MUX_SEL_EN 4 ///< BOD comparator multiplexer selection enable value
 
 // BOD status codes
 #define SL_STATUS_BOD_NOT_ENABLED ((sl_status_t)0x0C1F) ///< Status code indicating that the BOD is not enabled
@@ -142,36 +133,10 @@ extern "C" {
 typedef void (*bod_callback_t)(void); ///< BOD callback function type
 
 // Define button callback function type
-typedef void (*bod_button_callback_t)(void); ///< Button callback function type
+typedef void (*bod_button_callback_t)(uint8_t button); ///< Button callback function type
 
 // Define button enable type
 typedef uint8_t sl_button_en_t; ///< Button enable type
-
-// Define a struct for voltage percentage configuration
-/**
-  * @struct sl_bod_button_uc_config_param_t
-  * @brief Structure to configure voltage percentage thresholds for multiple buttons.
-  *
-  * This structure is used to define the minimum and maximum voltage percentages
-  * for up to three buttons. These thresholds can be used for percentage-based
-  * button detection or monitoring.
-  *
-  * @note The supported percentage range for button thresholds is 33% to 66%.
-  *       For example, with a maximum battery voltage (VBATT) of 3.3V, valid threshold
-  *       voltages for button configuration range from approximately 1.1V (33%) to 2.17V (66%).
-  *       Values outside this range are not supported by the hardware.
-  *       This structure is useful for applications where button activation
-  *       is based on battery voltage levels rather than fixed voltage thresholds.
-  */
-typedef struct {
-  boolean_t button_wakeup_enable;        ///< Enable or disable button wakeup functionality.
-  float button_1_min_voltage_percentage; ///< Minimum voltage percentage for Button 1.
-  float button_1_max_voltage_percentage; ///< Maximum voltage percentage for Button 1.
-  float button_2_min_voltage_percentage; ///< Minimum voltage percentage for Button 2.
-  float button_2_max_voltage_percentage; ///< Maximum voltage percentage for Button 2.
-  float button_3_min_voltage_percentage; ///< Minimum voltage percentage for Button 3.
-  float button_3_max_voltage_percentage; ///< Maximum voltage percentage for Button 3.
-} sl_bod_button_uc_config_param_t;       ///< Structure for voltage percentage configuration
 
 // Define a structure for BOD UC parameters
 /**
@@ -275,6 +240,16 @@ sl_status_t sl_si91x_bod_deinit(void);
 sl_status_t sl_si91x_bod_get_threshold(float *vbatt_threshold);
 
 /*******************************************************************/
+/**
+  * @brief Enable the BOD interrupt in the NVIC.
+  *
+  * This function enables the interrupt for the BOD in the NVIC, allowing the
+  * system to handle BOD-related interrupts.
+  *
+  *****************************************************************/
+void sl_si91x_bod_NVIC_enable_irq(void);
+
+/*******************************************************************/
 /** @brief sl_si91x_bod_get_blackout_status
   *
   *  This function is used to get the blackout status.
@@ -324,39 +299,21 @@ void sl_si91x_bod_button_configuration(uint16_t button_max_value,
                                        uint16_t button2_min_value,
                                        uint16_t button3_min_value);
 
-/*******************************************************************/
 /**
-  * @brief Disables the button wakeup functionality for the BOD (Brown-Out Detector).
-  *
-  * This function disables the button wakeup feature for the BOD. 
-  * When disabled, the system cannot wake up from a low-power state using a button press.
-  *
-  * @return Status of the button wakeup operation.
-  *         - SL_STATUS_OK if the operation completed successfully.
-  *         - SL_STATUS_FAIL if the operation was unsuccessful.
-  *****************************************************************/
-sl_status_t sl_si91x_bod_button_wakeup_disable(void);
-
-/*******************************************************************/
-/**
-  * @brief Enable button wakeup functionality for the BOD (Brown-Out Detector).
+  * @brief Enable or disable button wakeup functionality for the BOD (Brown-Out Detector).
   *
   * This function allows the user to enable or disable the button wakeup feature
   * for the BOD. When enabled, the system can wake up from a low-power state
   * using a button press.
-  * @param[in] bod_button_enable 
-  *      - 1: Enable button wakeup functionality.
-  *      - 0: Disable button wakeup functionality.
-  * @pre Pre-conditions:
-  *   - The BOD module must be initialized using @ref sl_si91x_bod_init()
-  * @return Status of the callback registration operation.
-  *         - SL_STATUS_OK if the operation was successful.
-  *         - SL_STATUS_FAIL if the operation failed.
   *
-  * For more information on status codes, see [SL STATUS DOCUMENTATION](
-  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
-  * *****************************************************************/
-sl_status_t sl_si91x_bod_button_wakeup_enable(boolean_t bod_button_enable);
+  * @pre Pre-conditions:
+  *   - The BOD module must be initialized using @ref sl_si91x_bod_init() and
+  *   - The BOD button must be initialized using @ref sl_si91x_bod_button_wakeup_enable().
+  * @param[in] enable 
+  *            - 1: Enable button wakeup functionality.
+  *            - 0: Disable button wakeup functionality.
+  */
+void sl_si91x_bod_button_wakeup_enable(uint8_t enable);
 
 /*******************************************************************/
 /**
@@ -408,6 +365,14 @@ sl_status_t sl_si91x_bod_button_register_callback(bod_button_callback_t callback
   * This function unregisters the callback function for BOD interrupts.
   *****************************************************************/
 void sl_si91x_bod_unregister_callback(void);
+
+/*******************************************************************/
+/**
+  * @brief Handle BOD interrupts.
+  *
+  * This function handles BOD interrupts.
+  */
+void sl_si91x_bod_interrupt_handler(void);
 
 /*******************************************************************/
 /**
@@ -463,19 +428,6 @@ void sl_si91x_bod_enable_interrupt(void);
 
 /*******************************************************************/
 /**
- * @brief Enable the interrupt for the BOD (Brown-Out Detection) button.
- *
- * This function configures and enables the interrupt associated with the
- * BOD button, allowing the system to respond to brown-out detection events.
- *
- * @note Ensure that the BOD button hardware and related configurations
- *       are properly initialized before calling this function.
- *****************************************************************/
-
-void sl_si91x_bod_button_enable_interrupt(void);
-
-/*******************************************************************/
-/**
   * @brief Disable BOD interrupt.
   *
   * This function disables the BOD interrupt.
@@ -489,21 +441,6 @@ void sl_si91x_bod_disable_interrupt(void);
 
 /*******************************************************************/
 /**
- * @brief Disable the interrupt for the BOD button.
- * This function disables the interrupt associated with the BOD button.
- * @pre Pre-conditions:
- * - The BOD module must be initialized using @ref sl_si91x_bod_init().
- * - BOD button interrupt must be enabled using @ref sl_si91x_bod_button_enable_interrupt().
- * @note This function is typically used when the BOD button is no longer needed
- *      or when the system needs to disable the button interrupt for any reason.
- * @note Ensure that the BOD button hardware and related configurations
- *       are properly initialized before calling this function.
- *
- *****************************************************************/
-void sl_si91x_bod_button_disable_interrupt(void);
-
-/*******************************************************************/
-/**
   * @brief Clear BOD interrupt.
   *
   * This function clears the BOD interrupt flag.
@@ -511,56 +448,6 @@ void sl_si91x_bod_button_disable_interrupt(void);
   *****************************************************************/
 void sl_si91x_bod_clear_interrupt(void);
 
-/*******************************************************************/
-/**
-  * @brief Read the value of the BOD button.
-  *
-  * This function reads the value of the BOD button.
-  *
-  * @return The value of the BOD button.
-  *
-  *****************************************************************/
-uint8_t sl_si91x_bod_button_value_read(void);
-
-/*******************************************************************/
-/**
-  * @brief Clear the BOD button interrupt.
-  *
-  * This function clears the interrupt flag for the BOD button.
-  *
-  * @pre Pre-conditions:
-  * - The BOD module must be initialized using @ref sl_si91x_bod_init().
-  * - BOD button interrupt must be enabled using @ref sl_si91x_bod_button_enable_interrupt().
-  *
-  *****************************************************************/
-void sl_si91x_bod_button_clear_interrupt(void);
-
-/*******************************************************************/
-/**
-  * @brief Configure the voltage percentage thresholds for the BOD buttons.
-  *
-  * This function configures the voltage percentage thresholds for up to three BOD buttons,
-  * based on the provided configuration structure. It calculates and outputs the corresponding
-  * button values for the maximum and minimum voltage percentages for each button.
-  *
-  * @param[in] uc_config_param The voltage percentage configuration structure for the buttons.
-  * @param[out] button_max_value Pointer to store the calculated maximum button value.
-  * @param[out] button_1_min_value Pointer to store the calculated minimum value for button 1.
-  * @param[out] button_2_min_value Pointer to store the calculated minimum value for button 2.
-  * @param[out] button_3_min_value Pointer to store the calculated minimum value for button 3.
-  *
-  * @return Status of the configuration operation.
-  *         - SL_STATUS_OK if the configuration was successful.
-  *         - SL_STATUS_INVALID_PARAMETER if any pointer is NULL or configuration is invalid.
-  *
-  * @note The voltage percentages in the configuration structure should be between 0.0 and 100.0.
-  *       The calculated button values are based on the battery voltage range and the specified percentages.
-  *****************************************************************/
-sl_status_t sl_si91x_bod_button_set_configuration(sl_bod_button_uc_config_param_t uc_config_param,
-                                                  uint8_t *button_max_value,
-                                                  uint8_t *button_1_min_value,
-                                                  uint8_t *button_2_min_value,
-                                                  uint8_t *button_3_min_value);
 /*******************************************************************/
 /**
   * @brief Calculate the battery percentage based on the given voltage.
@@ -644,7 +531,7 @@ void sl_si91x_bod_disable_blackout_in_sleep_mode(void);
 /***************************************************************************/
 /***************************************************************************/
 /** 
-  * @addtogroup BOD BOD
+  * @addtogroup BOD Brown-Out Detection and Blackout Monitoring
   * @{
   *
   * @details

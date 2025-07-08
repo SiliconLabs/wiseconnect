@@ -35,9 +35,6 @@
 
 #include "SPI.h"
 #include "rsi_udma_wrapper.h"
-#ifdef SSI_DUAL_QUAD_COMPONENT
-#include "sl_si91x_ssi.h"
-#endif
 
 #ifndef RSI_GSPI_H
 #define RSI_GSPI_H
@@ -60,29 +57,12 @@ int32_t SPI_Send(const void *data,
                  UDMA_RESOURCES *udma,
                  UDMA_Channel_Info *chnl_info,
                  RSI_UDMA_HANDLE_T udmaHandle);
-int32_t SPI_Send_Command_Data(const void *data,
-                              uint32_t num,
-                              uint32_t instruction,
-                              uint32_t address,
-                              const SPI_RESOURCES *spi,
-                              UDMA_RESOURCES *udma,
-                              UDMA_Channel_Info *chnl_info,
-                              RSI_UDMA_HANDLE_T udmaHandle);
 int32_t SPI_Receive(void *data,
                     uint32_t num,
                     const SPI_RESOURCES *spi,
                     UDMA_RESOURCES *udma,
                     UDMA_Channel_Info *chnl_info,
                     RSI_UDMA_HANDLE_T udmaHandle);
-int32_t SPI_Receive_Command_Data(void *data,
-                                 uint32_t num,
-                                 uint32_t instruction,
-                                 uint32_t address,
-                                 uint32_t wait_cycles,
-                                 const SPI_RESOURCES *spi,
-                                 UDMA_RESOURCES *udma,
-                                 UDMA_Channel_Info *chnl_info,
-                                 RSI_UDMA_HANDLE_T udmaHandle);
 int32_t SPI_Transfer(const void *data_out,
                      void *data_in,
                      uint32_t num,
@@ -109,15 +89,6 @@ void SSI_SetRxSamplingDelay(uint8_t ssi_instance, uint32_t sample_delay);
 uint32_t SSI_GetReceiveSampleDelay(uint8_t ssi_instance);
 uint32_t SSI_GetTxFifoThreshold(uint8_t ssi_instance);
 uint32_t SSI_GetRxFifoThreshold(uint8_t ssi_instance);
-#ifdef SSI_DUAL_QUAD_COMPONENT
-int32_t SPI_Command_Configure(const SPI_RESOURCES *spi,
-                              uint32_t inst_len,
-                              uint32_t addr_len,
-                              sl_ssi_frf_t spi_frf,
-                              sl_ssi_xfer_type_t xfer_type);
-int32_t SSI_Command_Configure(uint32_t inst_len, uint32_t addr_len, sl_ssi_frf_t spi_frf, sl_ssi_xfer_type_t xfer_type);
-int32_t SPI_Command_Send(const SPI_RESOURCES *spi, uint32_t instruction, uint32_t address);
-#endif
 uint8_t RSI_SPI_GetSlaveSelectNumber(void);
 void SPI_Clear_SSI_Enable_State(const SPI_RESOURCES *spi);
 void SPI_Slave_Set_CS_Init_State(const SPI_RESOURCES *spi);

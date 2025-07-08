@@ -127,15 +127,6 @@
 // $[DAC1]
 // [DAC1]$
 
-// $[OPAMP1]
-// [OPAMP1]$
-
-// $[OPAMP2]
-// [OPAMP2]$
-
-// $[OPAMP3]
-// [OPAMP3]$
-
 // $[SYSRTC]
 // [SYSRTC]$
 

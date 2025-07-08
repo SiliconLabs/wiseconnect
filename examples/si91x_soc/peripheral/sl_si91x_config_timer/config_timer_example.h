@@ -18,10 +18,8 @@
 #ifndef SL_SI91X_CONFIG_TIMER_EXAMPLE_H_
 #define SL_SI91X_CONFIG_TIMER_EXAMPLE_H_
 
-#define CT_PWM_MODE_USECASE            CLEAR //< To run PWM output code
-#define CT_COUNTER_MODE_USECASE        SET   //< To run normal counter code
-#define CT_COUNTER_DMA_MODE_USECASE    CLEAR //< To run DMA counter mode
-#define CT_COUNTER_INPUT_EVENT_USECASE CLEAR //< To run input event mode
+#define CT_PWM_MODE_USECASE     CLEAR //< To run PWM output code
+#define CT_COUNTER_MODE_USECASE SET   //< To run normal counter code
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**

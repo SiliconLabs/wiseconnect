@@ -1,6 +1,6 @@
 /******************************************************************************
 * @file sl_si91x_ulp_timer.h
-* @brief ULP Timers API implementation
+* @brief ULP TIMER API implementation
 *******************************************************************************
 * # License
 * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -43,7 +43,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup ULP-TIMER ULP Timers
+ * @addtogroup ULP-TIMER Ultra Low-Power Timer
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  * 
@@ -651,7 +651,7 @@ sl_ulp_timer_version_t sl_si91x_ulp_timer_get_version(void);
 /// @} end group ULP-TIMER ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
-/** @addtogroup ULP-TIMER ULP Timers
+/** @addtogroup ULP-TIMER Ultra Low-Power Timer
 * @{
 * @details
 *

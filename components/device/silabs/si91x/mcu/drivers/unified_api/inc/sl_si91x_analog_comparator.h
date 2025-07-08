@@ -41,7 +41,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup ANALOGCOMP Analog Comparators
+ * @addtogroup ANALOGCOMP Analog Comparator
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{ 
  * 
@@ -329,7 +329,7 @@ void sl_si91x_analog_comparator_deinit(void);
 /*******************************************************************************/
 /**
  *
- * @addtogroup ANALOGCOMP Analog Comparators
+ * @addtogroup ANALOGCOMP
  * @{
  *
  * @details

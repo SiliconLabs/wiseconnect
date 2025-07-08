@@ -37,7 +37,7 @@
 
 /***************************************************************************/
 /**
- * @addtogroup CRC CRC Accelerator
+ * @addtogroup CRC Cyclic Redundancy Check
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  *
@@ -338,7 +338,7 @@ sl_status_t sl_si91x_crc_disable(void);
 /******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************/
 /***************************************************************************/
 /** 
- * @addtogroup CRC CRC Accelerator
+ * @addtogroup CRC Cyclic Redundancy Check
  * @{
  *
  * @details

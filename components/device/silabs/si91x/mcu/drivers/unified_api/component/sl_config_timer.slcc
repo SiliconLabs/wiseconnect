@@ -30,7 +30,6 @@ provides:
 requires:
   - name: udma_linker_config
   - name: rsilib_ct
-  - name: sl_dma
 define:
   - name: SL_SI91X_REQUIRES_INTF_PLL
 documentation:

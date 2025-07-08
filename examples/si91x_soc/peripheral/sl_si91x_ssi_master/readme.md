@@ -136,7 +136,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
       - Mode 3: Clock Polarity is one and Clock Phase is one.
       - Mode-4: TEXAS_INSTRUMENTS SSI.
       - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
-    - Transfer Mode: SSI Transfer Mode will be `Single Line Mode` in this application.
     - Bit Rate: The speed of transfer is configurable. The configuration range is from 500Kbps to 40Mbps in high-power mode.
     - Data Width: The size of data packet. The configuration range from 4 to 16.
     - Mode: SSI mode/instance can be configurable. It can be configured Primary.

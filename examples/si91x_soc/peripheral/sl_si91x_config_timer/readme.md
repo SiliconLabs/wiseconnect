@@ -11,8 +11,7 @@
   - [Setup Diagram](#setup-diagram)
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration-for-pwm-and-dma-mode-use-case)
-  - [Pin Configuration](#pin-configuration-for-input-event-mode-use-case)
+  - [Pin Configuration](#pin-configuration-for-pwm-mode-use-case)
   - [Macros for CT Configurations:](#macros-for-ct-configurations)
 - [Test the Application](#test-the-application)
   - [Run the application in counter mode](#run-the-application-in-counter-mode)
@@ -20,12 +19,9 @@
 
 ## Purpose/Scope
 
-- This Config Timer example demonstrates 4 use cases of a timer:
+- This Config Timer example demonstrates two use cases of a timer:
   - First as free-running timer with GPIO toggle functionality. Counter-0 is configured to generate interrupts every millisecond and toggles GPIO.
   - Second as a waveform generator producing two PWM outputs: counter-1 generates a square wave (50%-duty cycle) and counter-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1%.
-  - Third as a CT DMA used to generate varied PWM waveform. counter-0 and counter-1 will generate PWM output with varied duty cycle.
-  - Fourth as a input capture event. Here it captures the input event on GPIO pin and store the captured value in
-  capture_value variable.
 
 ## Overview
 
@@ -70,27 +66,6 @@
   - **Callback Function**
     - ULP_GPIO_1 pin gets toggled on every interrupt occurring at every millisecond and increments interrupt count.
     - When the interrupt count is greater than ten, then timer is de-initialized, callback is unregistered and disables interrupt through \ref sl_si91x_config_timer_deinit() API.
-  - If **CT_COUNTER_DMA_MODE_USECASE** is enabled:
-    - CT_COUNTER_DMA_MODE_USECASE is used to generate varied PWM waveform.
-    - Both counter0 and counter1 compare value arrays are initialized with step increments.
-    - The Config Timer is initialized using sl_si91x_config_timer_init() API.
-    - Counter parameters are configured using sl_si91x_config_timer_set_configuration() API.
-    - Match count for both counters is set using sl_si91x_config_timer_set_match_count() API.
-    - OCU (Output Compare Unit) configuration is set for both counters, enabling DMA and output toggling    using sl_si91x_config_timer_set_ocu_configuration() API.
-    - DMA is configured for counter0 and counter1 using sl_si91x_config_timer_dma_configure() API.
-    - Callback is registered for DMA transfer completion using sl_si91x_config_timer_register_callback() API.
-    - Both counters are started using sl_si91x_config_timer_start_on_software_trigger() API.
-    - On DMA interrupt, the DMA transfer index for each counter is incremented.
-    - When the end of the compare value array is reached, the index wraps around to repeat the sequence.
-    - The next DMA transfer is triggered for each counter using sl_si91x_config_timer_dma_transfer() API.
-    - CT Output-0 and Output-1 will produce a continuous varied PWM using DMA.
-  - If **CT_COUNTER_INPUT_EVENT_USECASE** is enabled:
-    - The Config Timer is initialized using sl_si91x_config_timer_init() API.
-    - Counter parameters are configured using sl_si91x_config_timer_set_configuration() API.
-    - Action events are selected for start and capture using sl_si91x_config_timer_select_action_event() API.
-    - Callback is registered for the capture event using sl_si91x_config_timer_register_callback() API.
-    - Captured values are read using sl_si91x_config_timer_read_capture() API.
-    - The captured value is printed or processed as needed.
   
 ## Prerequisites/Setup Requirements
 
@@ -129,17 +104,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   ```C
     #define CT_PWM_MODE_USECASE           1      -  To run PWM output code
     #define CT_COUNTER_MODE_USECASE       1      -  To run normal counter code
-    #define CT_COUNTER_DMA_MODE_USECASE   1      -  To run DMA counter mode
-    #define CT_COUNTER_INPUT_EVENT_USECASE 1     -  To run input event mode
   ```
 
 - Also enable the CT-configuration for using PWM mode use case.
-- In the `config_timer_example.c` file, configure the "TIME_PERIOD_VALUE" macro to facilitate user-defined adjustments of the time period value for a counter-mode use case. Modify or update the following macro as necessary to allow flexible customization of the timer's period and compare value.
+- In the `config_timer_example.c` file, configure the "TIME_PERIOD_VALUE" macro to facilitate user-defined adjustments of the time period value for a counter-mode use case. Modify or update the following macro as necessary to allow flexible customization of the timer's period.
 
   ```C
    #define TIME_PERIOD_VALUE     1000         // Time period in microseconds
-   #define STEP_SIZE_COUNTER_0   400          // Step size for counter0 increments
-   #define STEP_SIZE_COUNTER_1   400        // Step size for counter1 increments
   ```
 
   ![Figure: Time Period Configuration](resources/readme/time_period_config.png)
@@ -150,9 +121,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   - Change following macros in config_timer_example.c file to change counter-number used for counter-mode use case, by default application is using counter-0 to use counter-1 change it to 'SL_COUNTER_1'.
 
-  ```C
-  #define CT_COUNTER_USED            SL_COUNTER_0  -  For using counter-0
-  ```
+    ```C
+    #define CT_COUNTER_USED            SL_COUNTER_0  -  For using counter-0
+    ```
 
 - Use following CT configurations to run the application in PWM mode use case.
 
@@ -161,7 +132,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
    **Note:**
   > The Config Timer supports only 16-bit counter mode, with a maximum match value of 65,535.
  
-### Pin Configuration for pwm and DMA mode use case
+### Pin Configuration for pwm-mode use case
 
 |  Discription  | GPIO    | Breakout pin  | Explorer kit Breakout pin|
 | ------------- | ------- | ------------- | ------------------------ |
@@ -169,12 +140,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |    output-1   | GPIO_30 |     P35       |        [RST]             |
 
 > ![Figure: Pin configuration](resources/readme/image502e.png)
-
-### Pin Configuration for INPUT EVENT mode use case
-
-|  Discription  | GPIO    | Breakout pin  | 
-| ------------- | ------- | ------------- |
-|    input-0    | GPIO_25 |     P25       | 
 
 ### Macros for CT Configurations
 
@@ -204,25 +169,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Following prints will be observed on the console:
 
   > ![Figure: Result](resources/readme/outputConsoleI_CT_OCU.png)
-
-### Run the application in DMA mode
-
-- Both CT Output-0 and CT Output-1 will generate waveforms using DMA, with compare values automatically updated from pre-defined arrays.
-- The outputs will continuously repeat their waveform patterns as the DMA cycles through the arrays.
-- CT Output-0 and Output-1 will produce a continuous varied PWM using DMA.
-- Connect a logic analyzer to the Evaluation Kit board's GPIO-29 & GPIO-30 for output-0 and output-1 respectively to observe the DMA-driven waveforms.
-- Following prints will be observed on the console:
-
-  > ![Figure: Result](resources/readme/outputConsole_CT_OCU_DMA.png)
-
-### Run the application in INPUT EVENT mode
-
-- The Config Timer will capture external events (such as rising edge) on the configured input pin.
-- Each captured event's capture value will be read and printed to the console.
-- Connect the IN0 input pin to any toggled GPIO pin. For every rising edge event, observe capture functionality.
-- Following prints will be observed on the console:
-
-  > ![Figure: Result](resources/readme/outputConsole_CT_OCU_INPUT_EVENT.png)
 
 > **Note:**
 >

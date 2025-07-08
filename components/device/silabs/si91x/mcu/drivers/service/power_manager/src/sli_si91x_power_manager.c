@@ -485,15 +485,10 @@ void sli_si91x_power_manager_low_power_hw_config(boolean_t is_sleep)
 #endif
   if (is_sleep) {
     RSI_PS_AnalogPeriPtatDisable();
-#if !defined(SL_BOD_COMPONENT_EN)
     RSI_PS_BodClksPtatDisable();
-#endif
-
   } else {
     RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2);
-#if !defined(SL_BOD_COMPONENT_EN)
     RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config2);
-#endif
   }
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);
   // Power-Down High-Frequency PLL Domain
@@ -716,8 +711,8 @@ static void ps2_to_ps1_state_change(void)
       || (get_wakeup_sources & SL_SI91X_POWER_MANAGER_SDCSS_WAKEUP)) {
 
     sli_power_sleep_config_t config;
-    // Configuring MCU-ULP Reference Clock source to be used for AHB Interface in ULP Mode
-    config.low_freq_clock          = SLI_SI91X_POWER_MANAGER_DISABLE_LF_MODE;
+    // Changed low frequency clock for ulp based wakeup sources
+    config.low_freq_clock          = SLI_SI91X_POWER_MANAGER_LF_32_KHZ_RC;
     config.stack_address           = SL_SLEEP_RAM_USAGE_ADDRESS;
     config.vector_offset           = SL_SLEEP_VECTOR_OFFSET_WITH_RETENTION;
     config.wakeup_callback_address = JUMP_CB_ADDRESS;

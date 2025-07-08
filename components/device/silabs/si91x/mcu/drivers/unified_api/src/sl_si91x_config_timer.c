@@ -47,29 +47,24 @@
 #define COUNTER_0_UP_DOWN_MASK       0x00000030     // Mask to isolate bits 4 and 5
 #define COUNTER_1_UP_DOWN_MASK       0x00300000     // Mask to extract bits 21-20 (2 bits)
 #define BIT_0_MASK                   0x1            // Mask to extract bit 0
+
 /*******************************************************************************
  ***************************  Local TYPES  ********************************
  ******************************************************************************/
-static sl_dma_callback_t ct_dma_callback; // DMA callback structure
+
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 static sl_config_timer_callback_t callback_function_ptr = NULL;
 static void *callback_flags                             = NULL;
-sl_dma_xfer_t ct_dma_transfer_channel_0;               // DMA transfer configuration for Channel 0
-sl_dma_xfer_t ct_dma_transfer_channel_1;               // DMA transfer configuration for Channel 1
-volatile uint8_t ct_dma_transfer_flag_channel_0   = 0; // Transfer flag for Channel 0
-volatile uint8_t ct_dma_transfer_flag_channel_1   = 0; // Transfer flag for Channel 1
-volatile uint32_t ct_dma_transfer_index_channel_0 = 0; // DMA transfer index Channel 0
-volatile uint32_t ct_dma_transfer_index_channel_1 = 0; // DMA transfer index Channel 1
+
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t evaluate_config_params(sl_config_timer_config_t *config_handle_ptr, uint32_t *config_value);
 static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_handle_ptr, uint32_t *ocu_config_value);
 static sl_status_t validate_counter_configuration(sl_counter_number_t counter_number);
-static void ct_dma_transfer_complete_callback(uint32_t channel, void *data);
-static void ct_dma_error_callback(uint32_t channel, void *data);
+
 /*******************************************************************************
  **********************  Local Function Definition****************************
  ******************************************************************************/
@@ -93,102 +88,6 @@ void sl_si91x_config_timer_init(void)
 {
   // Configures config timer output pins and enables clock
   RSI_CT_Init();
-}
-
-/*****************************************************************************
- * Initialize and configures DMA transfer
- * Registers DMA callback & allocates channel
- ******************************************************************************/
-sl_status_t sl_si91x_config_timer_set_dma_configuration(uint32_t *compare_values, uint32_t channel)
-{
-  sl_status_t status        = SL_STATUS_FAIL;
-  sl_dma_init_t ct_dma_init = { .dma_number = CT_DMA_NUMBER };
-  sl_dma_xfer_t *p_transfer = NULL;
-  // Initialize DMA
-  status = sl_si91x_dma_init(&ct_dma_init);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-
-  // Register DMA callbacks
-  ct_dma_callback.transfer_complete_cb = ct_dma_transfer_complete_callback;
-  ct_dma_callback.error_cb             = ct_dma_error_callback;
-
-  // Select which transfer structure to use based on the channel
-  if (channel == CT_DMA_CHANNEL_0) {
-    p_transfer = &ct_dma_transfer_channel_0;
-
-    // Configure DMA transfer for Channel 0
-    p_transfer->src_addr  = (uint32_t *)((uint32_t)&compare_values[ct_dma_transfer_index_channel_0]);
-    p_transfer->dest_addr = (uint32_t *)((uint32_t)&CT->CT_OCU_COMPARE_NXT_REG);
-  } else if (channel == CT_DMA_CHANNEL_8) {
-    channel    = (CT_DMA_CHANNEL_8 + 1);
-    p_transfer = &ct_dma_transfer_channel_1;
-
-    // Configure DMA transfer for Channel 1
-    p_transfer->src_addr  = (uint32_t *)((uint32_t)&compare_values[ct_dma_transfer_index_channel_1]);
-    p_transfer->dest_addr = (uint32_t *)((uint32_t)&CT->CT_OCU_COMPARE2_NXT_REG);
-  }
-
-  // Configure common DMA transfer parameters
-  p_transfer->src_inc        = SL_TRANSFER_SRC_INC_32;      // Increment source address
-  p_transfer->dst_inc        = SL_TRANSFER_DST_INC_NONE;    // Fixed destination address
-  p_transfer->xfer_size      = SL_TRANSFER_SIZE_32;         // Transfer size: 32 bits
-  p_transfer->transfer_count = CT_DMA_TRANSFER_SIZE;        // Number of transfers
-  p_transfer->transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL; // Memory to peripheral transfer
-  p_transfer->dma_mode       = SL_DMA_BASIC_MODE;           // Basic DMA mode
-  p_transfer->signal         = 0;                           // No signal required
-
-  // Allocate DMA channel
-  status = sl_si91x_dma_allocate_channel(CT_DMA_NUMBER, &channel, CT_CHANNEL_PRIORITY);
-  if (status != SL_STATUS_OK && status != SL_STATUS_DMA_CHANNEL_ALLOCATED) {
-    return status;
-  }
-  // Register callbacks
-  status = sl_si91x_dma_register_callbacks(CT_DMA_NUMBER, channel, &ct_dma_callback);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // Enable DMA controller
-  status = sl_si91x_dma_enable(CT_DMA_NUMBER);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  return status;
-}
-
-/*****************************************************************************
- * Registers DMA callback & allocates channel
- ******************************************************************************/
-sl_status_t sl_si91x_config_timer_dma_transfer(uint32_t *compare_values, uint32_t channel, sl_dma_xfer_t *dma_transfer)
-{
-  sl_status_t status = SL_STATUS_FAIL;
-  if (channel == CT_DMA_CHANNEL_0) {
-    channel                         = (CT_DMA_CHANNEL_0 + 1);
-    ct_dma_transfer_index_channel_0 = 0;
-    // Configure DMA to start with the next value
-    dma_transfer->src_addr = (uint32_t *)&compare_values[0];
-    // This ensures the first duty cycle is correct before DMA begins
-    CT->CT_OCU_COMPARE_NXT_REG = compare_values[0];
-  } else if (channel == CT_DMA_CHANNEL_8) {
-    channel                         = (CT_DMA_CHANNEL_8 + 1);
-    ct_dma_transfer_index_channel_1 = 0;
-    // Configure DMA to start with the next value
-    dma_transfer->src_addr = (uint32_t *)&compare_values[0];
-    // This ensures the first duty cycle is correct before DMA begins
-    CT->CT_OCU_COMPARE2_NXT_REG = compare_values[0];
-  }
-  // Start DMA transfer
-  status = sl_si91x_dma_transfer(CT_DMA_NUMBER, channel, dma_transfer);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // Enable DMA channel
-  status = sl_si91x_dma_channel_enable(CT_DMA_NUMBER, channel);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  return status;
 }
 
 /*******************************************************************************
@@ -886,19 +785,21 @@ sl_status_t sl_si91x_config_timer_resume_halt_event(sl_counter_number_t counter_
 sl_status_t sl_si91x_config_timer_read_capture(sl_counter_number_t counter_number, uint16_t *capture_value)
 {
   sl_status_t status;
-  // Validating the 'callback function pointer' parameter and pointer to interrupt_flag,
-  // if they are NULL will return an error code
-  if (capture_value == NULL) {
-    status = SL_STATUS_NULL_POINTER;
-    return status;
-  }
-  // Validating counter number
-  if (counter_number >= SL_COUNTER_NUMBER_LAST) {
-    status = SL_STATUS_INVALID_PARAMETER;
-    return status;
-  }
-  *capture_value = RSI_CT_CaptureRead(CT, counter_number);
-  status         = SL_STATUS_OK;
+  do {
+    // Validating the 'callback function pointer' parameter and pointer to interrupt_flag,
+    // if they are NULL will return an error code
+    if (capture_value == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // Validating counter number
+    if (counter_number >= SL_COUNTER_NUMBER_LAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+    } else {
+      RSI_CT_CaptureRead(CT, (boolean_t)counter_number);
+      status = SL_STATUS_OK;
+    }
+  } while (false);
   return status;
 }
 
@@ -1045,36 +946,6 @@ void sl_si91x_config_timer_deinit(void)
   // Disabling peripheral clock
   RSI_CLK_PeripheralClkDisable(M4CLK, CT_CLK);
 }
-
-/*****************************************************************************
- * De-initializes CT DMA
- ******************************************************************************/
-sl_status_t sl_si91x_config_timer_dma_deinit(uint32_t channel)
-{
-  sl_status_t status = SL_STATUS_FAIL;
-  if (channel == CT_DMA_CHANNEL_0) {
-    channel = (CT_DMA_CHANNEL_0 + 1);
-  } else if (channel == CT_DMA_CHANNEL_8) {
-    channel = (CT_DMA_CHANNEL_8 + 1);
-  }
-  // Stop DMA transfer
-  status = sl_si91x_dma_stop_transfer(CT_DMA_NUMBER, channel);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // De-init DMA
-  status = sl_si91x_dma_deinit(CT_DMA_NUMBER);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  // Disables DMA
-  status = sl_si91x_dma_channel_disable(CT_DMA_NUMBER, channel);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-  return status;
-}
-
 /*******************************************************************************
 * Interrupt handler for config-timer
 *
@@ -1263,33 +1134,4 @@ static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_
     }
   } while (false);
   return status;
-}
-
-/*******************************************************************************
- * CT DMA transfer complete callback function
- ******************************************************************************/
-static void ct_dma_transfer_complete_callback(uint32_t channel, void *data)
-{
-  (void)data;
-  // Handle Channel 0
-  if (channel == CT_DMA_CHANNEL_0) {
-    uint32_t ct_processed_data_channel_0 = *(uint32_t *)ct_dma_transfer_channel_0.dest_addr;
-    ct_dma_transfer_flag_channel_0       = 1; // Set flag for Channel 0
-    callback_function_ptr(&ct_processed_data_channel_0);
-  }
-  // Handle Channel 1
-  if (channel == (CT_DMA_CHANNEL_8)) {
-    uint32_t ct_processed_data_channel_1 = *(uint32_t *)ct_dma_transfer_channel_1.dest_addr;
-    ct_dma_transfer_flag_channel_1       = 1; // Set flag for Channel 1
-    callback_function_ptr(&ct_processed_data_channel_1);
-  }
-}
-
-/*******************************************************************************
- * CT DMA error callback function
- ******************************************************************************/
-static void ct_dma_error_callback(uint32_t channel, void *data)
-{
-  (void)data;
-  callback_function_ptr((uint32_t *)(channel));
 }
