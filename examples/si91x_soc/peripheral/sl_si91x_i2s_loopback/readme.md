@@ -32,17 +32,17 @@ This application demonstrates the I2S transfer using loopback mechanism.
 
 ## About Example Code
 
-- This example fetches current I2S version using sl_si91x_i2s_get_version().
-- Initializes I2S peripheral and store driver handle in i2s_driver_handle using sl_si91x_i2s_init().
-- Get the transfer status of I2S peripheral using sl_si91x_i2s_get_status().
-- Configure ARM power mode to full power using sl_si91x_i2s_configure_power_mode().
-- Register user callback using sl_si91x_i2s_register_event_callback().
-- Configure transmitter and receiver transfer parameters for i2s using sl_si91x_i2s_transmit_receive_config().
+- This example fetches current I2S version using [sl_si91x_i2s_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-get-version)().
+- Initializes I2S peripheral and store driver handle in i2s_driver_handle using [sl_si91x_i2s_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-init)().
+- Get the transfer status of I2S peripheral using [sl_si91x_i2s_get_status](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-get-status)().
+- Configure ARM power mode to full power using [sl_si91x_i2s_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-configure-power-mode)().
+- Register user callback using [sl_si91x_i2s_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-register-event-callback)().
+- Configure transmitter and receiver transfer parameters for i2s using [sl_si91x_i2s_transmit_receive_config](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-transmit-receive-config)().
 - Configure receive DMA channel and prepare I2S for data receiving.
 - Configure transmit DMA channel and send data.
 - When send data is received by receiver channel, it compares the data received with transferred data
 - Loopback test will be pass after successful data comparison.
-- After comparison, the send and receive operations are terminated using sl_si91x_i2s_end_transfer() API.
+- After comparison, the send and receive operations are terminated using [sl_si91x_i2s_end_transfer](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-end-transfer)() API.
 
 **Note!**
 
@@ -115,7 +115,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - **SL_I2S0_SAMPLING_RATE**: I2S0 sampling rates can be configured through this macro. Valid sampling rate values are 8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz, 32kHz, 44.1kHz, 48kHz, 88.2kHz, 96kHz and 192kHz.
     - **SL_I2S0_CHANNEL**: I2S0 channel number (0-channel no 0, 1-channel no 1)
     - Configuration files are generated in **config folder**. If not changed, the code will run on default UC values.
-    - Configure the following macros in i2s_loopback_example.c file and update/modify following macros if required.
+    - Configure the following macros in [`i2s_loopback_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_i2s_loopback/i2s_loopback_example.c) file and update/modify following macros if required.
 
       ```C
       #define I2S_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size

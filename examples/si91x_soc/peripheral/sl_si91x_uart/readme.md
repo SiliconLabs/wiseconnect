@@ -36,12 +36,11 @@
 
 ## About Example Code
 
-- \ref uart_example.c - This example code demonstrates how to configure the UART to send and receive data.
-- In this example, first UART get initialized if it is not initialized already with clock and DMA configurations if DMA is
-  enabled using \ref sl_si91x_usart_init.
-- After UART initialization, the UART power mode is set using \ref sl_si91x_usart_set_power_mode(). Then UART is configured with the default configurations from UC along with the UART transmit and receive lines using \ref sl_si91x_usart_set_configuration().
-- The register user event callback for send and receive complete notification is set using \ref sl_si91x_usart_register_event_callback().
-- After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_send_data() and \ref sl_si91x_usart_receive_data() respectively.
+- [`uart_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_uart/uart_example.c) - This example code demonstrates how to configure the UART to send and receive data.
+- In this example, first UART gets initialized if it is not initialized already with clock and DMA configurations if DMA is enabled using [sl_si91x_usart_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init).
+- After UART initialization, the UART power mode is set using [sl_si91x_usart_set_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-power-mode). Then UART is configured with the default configurations from UC along with the UART transmit and receive lines using [sl_si91x_usart_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-configuration).
+- The register user event callback for send and receive complete notification is set using [sl_si91x_usart_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-register-event-callback).
+- After setting the user event callback, the data send and receive can happen through [sl_si91x_usart_send_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-send-data) and [sl_si91x_usart_receive_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-receive-data) respectively.
 - Once the receive data event is triggered, the transmitted and received buffer data is compared to confirm that the received data is the same.
 
 ## Prerequisites/Setup Requirements

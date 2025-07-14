@@ -56,8 +56,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Application Configuration Parameters
 
  * Wrapped key support is provided for AES,Chachapoly,HMAC,GCM with CBC/ECB mode. This example demonstrate the use of wrapped key with AES-CCM using wrap CBC mode.
- * To wrap the input key and use it, set WRAP_INPUT_KEYS macro to 1 in `psa_ccm_app.c`
- * To use a wrapped key directly, set IMPORT_WRAPPED_KEYS macro to 1 in `psa_ccm_app.c`
+ * To wrap the input key and use it, set WRAP_INPUT_KEYS macro to 1 in [`psa_ccm_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_ccm/psa_ccm_app.c)
+ * To use a wrapped key directly, set IMPORT_WRAPPED_KEYS macro to 1 in [`psa_ccm_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_ccm/psa_ccm_app.c)
  * To use software fallback instead of hardware accelerators for plain key:
   - Add mbedtls_ccm in component section of slcp file
   - Undefine the macro SLI_AEAD_DEVICE_SI91X

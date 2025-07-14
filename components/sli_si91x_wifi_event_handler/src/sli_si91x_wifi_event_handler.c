@@ -452,12 +452,18 @@ static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socke
       RESET,
       (int16_t)(socket_create_response->socket_type[0] | (socket_create_response->socket_type[1] << 8)));
   } else if (socket_packet->command == SLI_WLAN_RSP_SOCKET_ACCEPT) {
-    const sli_si91x_socket_t *si91x_socket = sli_si91x_get_socket_from_id(socket_id, RESET, -1);
-    return sli_get_si91x_socket(si91x_socket->client_id);
+    const uint16_t port = ((sli_si91x_rsp_ltcp_est_t *)socket_packet->data)->src_port_num;
+    for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+      if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+          && sli_si91x_sockets[i]->state == LISTEN) {
+        return sli_si91x_sockets[sli_si91x_sockets[i]->client_id];
+      }
+    }
+    return NULL;
   } else if (socket_packet->command == SLI_WLAN_RSP_SOCKET_CLOSE) {
     if (((sl_si91x_socket_close_response_t *)socket_packet->data)->socket_id == 0) {
       const uint16_t port = ((sl_si91x_socket_close_response_t *)socket_packet->data)->port_number;
-      for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+      for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
         if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
             && sli_si91x_sockets[i]->state == LISTEN) {
           return sli_si91x_sockets[i];
@@ -966,7 +972,8 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case SLI_WLAN_RSP_EMB_MQTT_CLIENT:
           case SLI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT:
           case SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE:
-          case SLI_WLAN_RSP_MDNSD: {
+          case SLI_WLAN_RSP_MDNSD:
+          case SLI_WLAN_RSP_NAT: {
             // Increment the received frame counter for network commands
             ++cmd_queues[SLI_SI91X_NETWORK_CMD].rx_counter;
 
@@ -1468,7 +1475,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 {
   if (*event & SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS) {
     // This condition is checked before writing frames to the bus
-    for (int i = 0; i < SI91X_CMD_MAX; i++) {
+    for (uint8_t i = 0; i < SI91X_CMD_MAX; i++) {
       if (!(*event & (SL_SI91X_TX_PENDING_FLAG(i)))) {
         continue;
       }
@@ -1494,7 +1501,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
   if (tx_socket_command_queues_status & (~tx_command_queues_command_in_flight_status)) {
-    for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; i++) {
+    for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; i++) {
       if (sli_si91x_sockets[i] != NULL
           && !sli_si91x_buffer_queue_empty(&sli_si91x_sockets[i]->command_queue.tx_queue)) {
         if (sli_si91x_sockets[i]->command_queue.command_in_flight == true) {
@@ -1527,7 +1534,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
   if (*event & SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT) {
     bool all_socket_data_sent = true;
     // Check each socket if it has something to send
-    for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+    for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
       if (sli_si91x_sockets[i] != NULL && !sli_si91x_buffer_queue_empty(&sli_si91x_sockets[i]->tx_data_queue)) {
         all_socket_data_sent = false;
 
@@ -1793,7 +1800,7 @@ void sli_si91x_process_socket_data_events()
   sl_wifi_buffer_t *buffer = NULL;
 
   // Process data packet for each socket if a data queue is present
-  for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+  for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
     if (sli_si91x_sockets[i] != NULL) {
       // If data is available in the RX queue, remove and process it
       if (sli_si91x_remove_from_queue(&sli_si91x_sockets[i]->rx_data_queue, &buffer) == SL_STATUS_OK) {

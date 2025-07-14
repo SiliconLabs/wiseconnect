@@ -35,7 +35,7 @@ This application demonstrates the use of the Sensor Data Collector (SDC) periphe
 
 - This example demonstrates SDC operation in PS1 mode, reading sampled data and converting it to the corresponding input voltage.
 - Parameters such as the number of channels, SDC operation mode, sampling interval, and sample threshold are configurable via UC.
-- Common SDC configurations are defined in `sl_si91x_sdc_common_config.h`, while channel-specific settings are in `sl_si91x_sdc_init_inst_config.h`.
+- Common SDC configurations are defined in [`sl_si91x_sdc_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_sdc_common_config.h), while channel-specific settings are in [`sl_si91x_sdc_init_inst_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_sdc_init_inst_config.h).
 - Initialize SDC using the `sl_si91x_sdc_driver_init` API, providing the reference voltage.
 - Configure SDC parameters with `sl_si91x_sdc_driver_config`, passing a `sl_si91x_sdc_config_t` structure.
 - Channel parameters are set using `sl_si91x_sdc_driver_channel_config`, which expects pointers to `sl_si91x_sdc_adc_config_t`, `sl_si91x_sdc_channel_info_t`, and `sl_si91x_sdc_channel_misc_config_t`.
@@ -103,6 +103,10 @@ Configure UC from the slcp component:
 - The application prints the sampled voltages to the UART console.
 - Apply different voltages (1.8V to Vref) to the SDC input and observe the console output.
 - Input voltage and console output should match.
+> **Notes:**
+>
+> - Ensure that the number of channel instances matches the number of channels selected in UC.
+> - The number of channels must be set to 1, 2, or 4. Selecting 3 channels is not supported.
 
 ## Pin Configuration
 
@@ -152,7 +156,6 @@ Refer to the [Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/
 
 > **Notes:**
 >
-> - Pintool is not supported for SDC.
 > - Input selection GPIO can be configured in `sl_si91x_sdc_init_channel_1_config.h` for channel 1, or the respective config for other channels.
 > - In `sdc_example.c`, update the `sl_adc_channel_config_t` channel parameter to match the installed channel number.
 > - When using a single channel, only channel 1 is available; for two channels, channels 1 and 2, and so on.

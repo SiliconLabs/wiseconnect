@@ -52,7 +52,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-- Configure the following macros in `veml6035_example.c` file. .Update or  modify the following macros, if required.
+- Configure the following macros in [`veml6035_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_veml6035/veml6035_example.c) file. .Update or  modify the following macros, if required.
 
   - `DELAY_PERIODIC_MS1` : Select the delay for data display. By default, the delay is kept as 2 seconds.
 

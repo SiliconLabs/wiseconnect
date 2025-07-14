@@ -305,6 +305,21 @@ void wifi_app_task(void *unused)
           printf("\r\n");
         }
 #if WIFI_CONNECTION_ONLY
+#if ENABLE_NWP_POWER_SAVE
+        IoT_Error_t rc                                    = FAILURE;
+        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                              .listen_interval = 1000 };
+        if (!powersave_given) {
+          osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
+          rc = sl_wifi_set_performance_profile(&performance_profile);
+          if (rc != SL_STATUS_OK) {
+            printf("\r\nPower save configuration Failed, Error Code : %d\r\n", rc);
+          }
+          printf("\r\nAssociated Power Save is enabled\r\n");
+          osMutexRelease(power_cmd_mutex);
+          powersave_given = 1;
+        }
+#endif
         osThreadSuspend(osThreadGetId());
 #endif
       } break;

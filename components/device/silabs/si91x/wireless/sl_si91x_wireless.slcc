@@ -182,6 +182,8 @@ template_contribution:
       worldwide: 'SL_WIFI_REGION_WORLD_DOMAIN'
       korea: 'SL_WIFI_REGION_KR'
       singapore: 'SL_WIFI_REGION_SG'
+      china: 'SL_WIFI_REGION_CN'
+      ignore: 'SL_WIFI_IGNORE_REGION'
     operating_band:
       2.4g: 0
       5g: 1

@@ -28,7 +28,6 @@
  *
  ******************************************************************************/
 #include "rsi_wwdt.h"
-#include "cmsis_os2.h"
 #include "sl_si91x_hal_soc_soft_reset.h"
 
 /*

@@ -80,6 +80,8 @@ In the application (`app.c`), the following parameters can be configured:
   - When set to 1, it enables sector erase, allowing erasure of multiples of 4 KB of data.
   - When set to 0, it disables sector erase, allowing normal write operations onto flash without erasing sectors.
 
+  **Note**: Before performing a write operation, ensure that the flash memory is erased by setting `FLASH_SECTOR_ERASE_ENABLE` to `1`.
+
 Modify these values in the `app.c` file as per the application requirements.
 
 > **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).

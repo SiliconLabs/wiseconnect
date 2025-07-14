@@ -51,35 +51,52 @@ static void sli_si91x_sdc_pin_mux(uint8_t pos_input_pinsel, uint8_t neg_input_pi
 */
 static void sli_si91x_sdc_pin_mux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type)
 {
-  if (pos_input_pinsel == 0) {
-    RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO0);
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO0, ANALOG_MODE);
-  }
-  if (pos_input_pinsel == POS1) {
-    RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO2);
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO2, ANALOG_MODE);
-  }
-  if (pos_input_pinsel == POS2) {
-    RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO4);
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO4, ANALOG_MODE);
-  }
-  if (pos_input_pinsel == POS3) {
-    RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO6);
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO6, ANALOG_MODE);
-  }
-  if (pos_input_pinsel == POS4) {
-    RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO8);
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO8, ANALOG_MODE);
-  }
-  if (pos_input_pinsel == 5) {
-    RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO10);
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO10, ANALOG_MODE);
-  }
-  if (pos_input_pinsel == POS6) {
-    *(volatile uint32_t *)(SDIO_HOST_CONTROL_IN_M4) = BIT(5);
-    RSI_EGPIO_PadReceiverDisable(ADC_TOPGPIO25);
-    RSI_EGPIO_HostPadsGpioModeDisable(ADC_TOPGPIO25);
-    RSI_EGPIO_SetPinMux(EGPIO, 0, ADC_TOPGPIO25, TGPIO_ANALOG_MODE);
+  switch (pos_input_pinsel) {
+    case 0:
+      RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO0);
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO0, ANALOG_MODE);
+      break;
+    case POS1:
+      RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO2);
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO2, ANALOG_MODE);
+      break;
+    case POS2:
+      RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO4);
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO4, ANALOG_MODE);
+      break;
+    case POS3:
+      RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO6);
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO6, ANALOG_MODE);
+      break;
+    case POS4:
+      RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO8);
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO8, ANALOG_MODE);
+      break;
+    case 5:
+      RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO10);
+      RSI_EGPIO_SetPinMux(EGPIO1, 0, ADCGPIO10, ANALOG_MODE);
+      break;
+    case POS6:
+      *(volatile uint32_t *)(SDIO_HOST_CONTROL_IN_M4) = BIT(5);
+      RSI_EGPIO_PadReceiverDisable(ADC_TOPGPIO25);
+      RSI_EGPIO_HostPadsGpioModeDisable(ADC_TOPGPIO25);
+      RSI_EGPIO_SetPinMux(EGPIO, 0, ADC_TOPGPIO25, TGPIO_ANALOG_MODE);
+      break;
+    case POS7:
+      *(volatile uint32_t *)(SDIO_HOST_CONTROL_IN_M4) = BIT(5);
+      RSI_EGPIO_PadReceiverDisable(ADC_TOPGPIO27);
+      RSI_EGPIO_HostPadsGpioModeDisable(ADC_TOPGPIO27);
+      RSI_EGPIO_SetPinMux(EGPIO, 0, ADC_TOPGPIO27, TGPIO_ANALOG_MODE);
+      break;
+    case POS8:
+      *(volatile uint32_t *)(SDIO_HOST_CONTROL_IN_M4) = BIT(5);
+      RSI_EGPIO_PadReceiverDisable(ADC_TOPGPIO29);
+      RSI_EGPIO_HostPadsGpioModeDisable(ADC_TOPGPIO29);
+      RSI_EGPIO_SetPinMux(EGPIO, 0, ADC_TOPGPIO29, TGPIO_ANALOG_MODE);
+      break;
+    default:
+      // No action for other values
+      break;
   }
   if ((pos_input_pinsel == POS10) || ((neg_input_pinsel == POS0) && (input_type == POS1))) {
     RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO1);
@@ -123,12 +140,6 @@ static void sli_si91x_sdc_pin_mux(uint8_t pos_input_pinsel, uint8_t neg_input_pi
     RSI_EGPIO_HostPadsGpioModeDisable(ADC_TOPGPIO30);
     RSI_EGPIO_SetPinMux(EGPIO, 0, ADC_TOPGPIO30, TGPIO_ANALOG_MODE);
   }
-#ifdef CHIP_9118
-  if ((pos_input_pinsel == POS19) || ((neg_input_pinsel == POS9) && (input_type == POS1))) {
-    RSI_EGPIO_PadReceiverDisable(ADC_TOPGPIO24);
-    RSI_EGPIO_SetPinMux(EGPIO, 0, ADC_TOPGPIO24, TGPIO_ANALOG_MODE);
-  }
-#endif
 }
 
 /**

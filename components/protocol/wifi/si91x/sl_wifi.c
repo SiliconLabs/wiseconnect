@@ -2438,29 +2438,31 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uin
     free(su_tb_payload);
     return status;
   }
-  sli_si91x_gain_table_info_t *sl_gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + su_tb_payload_length);
-  if (sl_gain_table_info == NULL) {
+  sli_si91x_gain_table_info_t *gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + su_tb_payload_length);
+  if (gain_table_info == NULL) {
     free(su_tb_payload);
     return SL_STATUS_ALLOCATION_FAILED;
   }
-  sl_gain_table_info->band      = band;
-  sl_gain_table_info->bandwidth = bandwidth;
-  sl_gain_table_info->size      = su_tb_payload_length;
-  sl_gain_table_info->x_offset  = 0;
-  sl_gain_table_info->y_offset  = 0;
-  sl_gain_table_info->reserved  = 0;
+  memset(gain_table_info, 0, sizeof(sli_si91x_gain_table_info_t) + su_tb_payload_length);
+  gain_table_info->band               = band;
+  gain_table_info->bandwidth          = bandwidth;
+  gain_table_info->size               = su_tb_payload_length;
+  gain_table_info->x_offset           = 0;
+  gain_table_info->y_offset           = 0;
+  gain_table_info->gain_table_version = 1;
+  gain_table_info->reserved           = 0;
 
-  memcpy(sl_gain_table_info->gain_table, su_tb_payload, su_tb_payload_length);
+  memcpy(gain_table_info->gain_table, su_tb_payload, su_tb_payload_length);
 
   status = sli_si91x_driver_send_command(SLI_WLAN_REQ_GAIN_TABLE,
                                          SLI_SI91X_WLAN_CMD,
-                                         sl_gain_table_info,
-                                         sizeof(sli_si91x_gain_table_info_t) + (sl_gain_table_info->size),
+                                         gain_table_info,
+                                         sizeof(sli_si91x_gain_table_info_t) + (gain_table_info->size),
                                          SL_SI91X_WAIT_FOR(30100),
                                          NULL,
                                          NULL);
   free(su_tb_payload);
-  free(sl_gain_table_info);
+  free(gain_table_info);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }
@@ -2487,27 +2489,28 @@ sl_status_t sl_wifi_update_su_gain_table(uint8_t band,
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  sli_si91x_gain_table_info_t *sl_gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + payload_length);
-  if (sl_gain_table_info == NULL) {
+  sli_si91x_gain_table_info_t *gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + payload_length);
+  if (gain_table_info == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
+  memset(gain_table_info, 0, sizeof(sli_si91x_gain_table_info_t) + payload_length);
+  gain_table_info->band               = band;
+  gain_table_info->bandwidth          = bandwidth;
+  gain_table_info->size               = payload_length;
+  gain_table_info->x_offset           = x_offset;
+  gain_table_info->y_offset           = y_offset;
+  gain_table_info->gain_table_version = 1;
+  gain_table_info->reserved           = 0;
 
-  sl_gain_table_info->band      = band;
-  sl_gain_table_info->bandwidth = bandwidth;
-  sl_gain_table_info->size      = payload_length;
-  sl_gain_table_info->x_offset  = x_offset;
-  sl_gain_table_info->y_offset  = y_offset;
-  sl_gain_table_info->reserved  = 0;
-
-  memcpy(sl_gain_table_info->gain_table, payload, payload_length);
+  memcpy(gain_table_info->gain_table, payload, payload_length);
   status = sli_si91x_driver_send_command(SLI_WLAN_REQ_GAIN_TABLE,
                                          SLI_SI91X_WLAN_CMD,
-                                         sl_gain_table_info,
-                                         sizeof(sli_si91x_gain_table_info_t) + (sl_gain_table_info->size),
+                                         gain_table_info,
+                                         sizeof(sli_si91x_gain_table_info_t) + (gain_table_info->size),
                                          SL_SI91X_WAIT_FOR(30100),
                                          NULL,
                                          NULL);
-  free(sl_gain_table_info);
+  free(gain_table_info);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }

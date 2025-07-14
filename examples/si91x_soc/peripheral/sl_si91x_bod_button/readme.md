@@ -17,7 +17,7 @@
 
  - This application demonstrates how to set up and use the Brown Out Detection (BOD) feature with button voltage monitoring. It allows users to configure voltage ranges for multiple buttons and monitor the voltage levels on the `VBAT_UULP_GPIO_2 (F12)` pin. When the voltage for a button falls within its configured range, a BOD interrupt will be triggered.
 
- - The voltage ranges for the buttons are mapped and defined in the `sl_si91x_bod.c` file. Users can refer to this file to set appropriate ranges for their application needs.
+ - The voltage ranges for the buttons are mapped and defined in the [`sl_si91x_bod.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/src/sl_si91x_bod.c) file. Users can refer to this file to set appropriate ranges for their application needs.
 
 
 ## Prerequisites/Setup Requirements

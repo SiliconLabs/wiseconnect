@@ -55,6 +55,7 @@ typedef void *sl_i2c_bus_handle_t;  //i2c bus handle
 /* Acceptable device IDs */
 #define SL_ID_1_9960 0xAB
 #define SL_ID_2_9960 0x9C
+#define SL_ID_3_9960 0XA8
 
 /* Misc parameters */
 #define SL_FIFO_PAUSE_TIME 30 // Wait period (ms) between FIFO reads

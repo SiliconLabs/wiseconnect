@@ -125,7 +125,7 @@ extern "C" {
 // <<< sl:end pin_tool >>>
 
 // <<< sl:start pin_tool >>>
-// <pwm signal=FAULTA,FAULTB,TMR_EXT_TRIG_1,TMR_EXT_TRIG_2> SL_PWM_CHANNEL1
+// <pwm signal=(FAULTA),(FAULTB),(TMR_EXT_TRIG_1),(TMR_EXT_TRIG_2)> SL_PWM_CHANNEL1
 // $[PWM_SL_PWM_CHANNEL1]
 #ifndef SL_PWM_CHANNEL1_PERIPHERAL
 #define SL_PWM_CHANNEL1_PERIPHERAL PWM

@@ -61,7 +61,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following macros in the `si70xx_example.c` file and update/modify following macros, if required.
+- Configure the following macros in the [`si70xx_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_si70xx/si70xx_example.c) file and update/modify following macros, if required.
 
 - `I2C instance`: Select I2C instance for communication through UC from the Si70xx Humidity and Temperature Sensor slcp component.
  By default I2C2 is selected.

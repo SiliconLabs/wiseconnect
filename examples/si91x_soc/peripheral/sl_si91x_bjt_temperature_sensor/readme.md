@@ -65,7 +65,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Configure the following parameters in `sl_si91x_bjt_temperature_sensor.c` (components\device\silabs\si91x\mcu\drivers\unified_api\src) file and update/modify following macros, if required.
+- Configure the following parameters in [`sl_si91x_bjt_temperature_sensor.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/src/sl_si91x_bjt_temperature_sensor.c) (components\device\silabs\si91x\mcu\drivers\unified_api\src) file and update/modify following macros, if required.
 
   ```c
   #define CHANNEL_NUMBER             0       // channel number for adc
@@ -99,3 +99,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+
+// Change below macro value to change input selection, for possible values refer [sl_adc_input_selection_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-input-selection-t) present in [`sl_si91x_adc.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/inc/sl_si91x_adc.h) file.
+#define INPUT_SELECTION

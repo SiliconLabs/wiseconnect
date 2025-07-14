@@ -30,6 +30,7 @@
 #pragma once
 #include "sl_status.h"
 #include "sl_net_types.h"
+#include "sli_net_types.h"
 #include "sl_net_wifi_types.h"
 
 /**
@@ -120,3 +121,21 @@ void sli_cleanup_auto_join(void);
  * network status through registered event handlers.
  */
 void sli_network_manager_event_handler(const void *arg);
+
+/**
+ * @brief Configures Network Address Translation (NAT) for the Wi-Fi interfaces.
+ *
+ * @param[in] sli_nat_config Pointer to a NAT configuration structure.
+ * 
+ * @details
+ * This function enables or disables NAT for the Wi-Fi interfaces based on the
+ * configuration provided in the sli_nat_config structure. It checks if both the STA
+ * (Station) and AP (Access Point) interfaces are up before sending the NAT
+ * configuration command to the driver.
+ * 
+ * @return Status of the operation.
+ *        - SL_STATUS_OK: NAT configured successfully.
+ *        - SL_STATUS_FAIL: Failed to configure NAT.
+ *        - SL_STATUS_INVALID_PARAMETER: If the sli_nat_config parameter is NULL.
+ */
+sl_status_t sli_net_nat_configure(const sli_net_nat_config_t *sli_nat_config);

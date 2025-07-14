@@ -54,7 +54,7 @@ extern "C" {
 #define CT_DMA_CHANNEL_8     8   ///< DMA channel for Counter 1
 #define CT_DMA_NUMBER        0   ///< DMA number for Config Timer
 #define CT_CHANNEL_PRIORITY  1   ///< DMA Channel Priority
-#define CT_DMA_TRANSFER_SIZE 100 ///< DMA transfer size
+#define CT_DMA_TRANSFER_SIZE 1   ///< DMA transfer size
 // -----------------------------------------------------------------------------
 // Data Types
 

@@ -447,10 +447,6 @@ typedef struct {
   uint32_t eap_flags; ///< EAP Flags of type @ref sl_wifi_eap_client_flag_t
 } sl_wifi_eap_credential_t;
 
-#if defined(__Keil)
-#pragma anon_unions
-#endif
-
 /**
  * @struct sl_wifi_credential_t
  * @brief Wi-Fi security credentials structure.

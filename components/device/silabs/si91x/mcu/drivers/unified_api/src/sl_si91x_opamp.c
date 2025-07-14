@@ -159,7 +159,7 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
   }
   if ((opamp_config_ptr->vin_p_input == TGPIO_PIN2) || (opamp_config_ptr->vin_p_input == TGPIO_PIN4)) {
     // Set pin mode to TGPIO mode for specific pins
-    status = sl_gpio_driver_set_pin_mode(&gpio_vinn, tgpio_mode, 0);
+    status = sl_gpio_driver_set_pin_mode(&gpio_vinp, tgpio_mode, 0);
     if (status != SL_STATUS_OK) {
       return SL_STATUS_FAIL;
     }
@@ -193,7 +193,7 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
   }
-  if ((opamp_config_ptr->vin_n_input == TGPIO_PIN2) || (opamp_config_ptr->vin_n_input == TGPIO_PIN4)) {
+  if ((opamp_config_ptr->vin_res_input == TGPIO_PIN2) || (opamp_config_ptr->vin_res_input == TGPIO_PIN4)) {
     // Set pin mode to TGPIO mode for specific pins
     status = sl_gpio_driver_set_pin_mode(&gpio_vinres, tgpio_mode, 0);
     if (status != SL_STATUS_OK) {

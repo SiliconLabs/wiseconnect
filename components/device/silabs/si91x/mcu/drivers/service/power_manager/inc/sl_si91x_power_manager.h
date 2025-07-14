@@ -784,6 +784,9 @@ uint8_t *sl_si91x_power_manager_get_requirement_table(void);
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) - PS1 state requirement successfully added.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to add PS1 state.
+ *          - SL_STATUS_NOT_INITIALIZED (0x0011) - Power manager service is not initialized.
+ *          - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_request_ps1_state(void);
 
@@ -797,6 +800,9 @@ sl_status_t sl_si91x_power_manager_request_ps1_state(void);
  * 
  * @return  Status code indicating the result:  
  *          - SL_STATUS_OK (0x0000) - Ps1 state requirement successfully removed.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to remove PS1 state.
+ *          - SL_STATUS_NOT_INITIALIZED (0x0011) - Power manager service is not initialized.
+ *          - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_ps1_state_request(void);
 
@@ -824,6 +830,7 @@ bool sl_si91x_power_manager_get_ps1_state_status(void);
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) - Standby state requirement successfully added.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to add standby state.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_request_standby_state(void);
 
@@ -837,6 +844,7 @@ sl_status_t sl_si91x_power_manager_request_standby_state(void);
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) : Standby state requirement successfully removed.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to remove standby state.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_standby_state_request(void);
 
@@ -853,6 +861,24 @@ sl_status_t sl_si91x_power_manager_remove_standby_state_request(void);
  *          - false : Standby state requirement is not added.
  ******************************************************************************/
 bool sl_si91x_power_manager_get_standby_state_status(void);
+
+/***************************************************************************/
+/**
+ * @brief Check if a TX command is currently in progress.
+ * 
+ * @details This function is used to check the TX command status. It returns true if
+ *          a TX command is currently in progress, false otherwise.
+ *
+ * @pre Pre-conditions:
+ * - WiFi component should be added to the project for this function to work properly.
+ *   If WiFi component is not included, this function will always return false.
+ *
+ * @return  bool - true if TX command is in progress, false otherwise.
+ *
+ * @note    This function is useful for power management decisions and determining
+ *          when the system is ready for sleep or other power state transitions.
+ ******************************************************************************/
+bool sl_si91x_power_manager_is_tx_command_in_progress(void);
 
 /***************************************************************************/
 /**

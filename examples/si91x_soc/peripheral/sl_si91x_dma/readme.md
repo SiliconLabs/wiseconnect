@@ -32,13 +32,13 @@ This example used both a simple DMA transfer API and a generic API for performin
 
 ## About Example Code
 
-- \ref dma_example.c file demonstrates how to use DMA peipheral to perform memory-to-memory transfers.
-- In this example, the first DMA initialization is done using \ref sl_si91x_dma_init.
-- Then \ref sl_si91x_dma_allocate_channel is used to allocate DMA_CHANNEL for transfer.
-- After configuring the channel, callbacks are registered using \ref sl_si91x_dma_register_callbacks
+- [`dma_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_dma/dma_example.c) file demonstrates how to use DMA peripheral to perform memory-to-memory transfers.
+- In this example, the first DMA initialization is done using [sl_si91x_dma_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-init).
+- Then [sl_si91x_dma_allocate_channel](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-allocate-channel) is used to allocate DMA_CHANNEL for transfer.
+- After configuring the channel, callbacks are registered using [sl_si91x_dma_register_callbacks](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-register-callbacks).
 - In this example DMA transfer can be initiated by two methods:
-  1. Using \ref sl_si91x_dma_simple_transfer, the user can quickly perform DMA transfer using bare minimum configurations.
-  2. Using \ref sl_si91x_dma_transfer, the user can configure more DMA parameters for transfer.
+  1. Using [sl_si91x_dma_simple_transfer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-simple-transfer), the user can quickly perform DMA transfer using bare minimum configurations.
+  2. Using [sl_si91x_dma_transfer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-transfer), the user can configure more DMA parameters for transfer.
 - The user can either use any of above functions for performing DMA transfer.
 
 ## Prerequisites/Setup Requirements
@@ -78,7 +78,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   > ![Figure: ucScreenDMA](resources/uc_screen/ucScreenDMA.png)
 
 - Configure SL_DMA0_CHANNEL_COUNT(0 - 32) - Number of available channels for UDMA0
-- Configure the following macros in the `dma_example.c` file and update/modify following macros, if required.
+- Configure the following macros in the [`dma_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_dma/dma_example.c) file and update/modify following macros, if required.
 
     ```C
     #define DMA_SIMPLE_TRANSFER 1    ///< Enable/Disable simple transfer

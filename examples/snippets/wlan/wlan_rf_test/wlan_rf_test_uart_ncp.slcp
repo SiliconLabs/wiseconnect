@@ -1,7 +1,7 @@
 project_name: wlan_rf_test_uart_ncp
 package: wifi
 quality: production
-label: Wlan RF TEST
+label: Wi-Fi - Wlan RF Test (UART NCP)
 category: Example|Wi-Fi
 description: |
   Configure the SiWx91x to transmit Wi-Fi packets at varying data rates and power levels

@@ -32,13 +32,13 @@
 
 ## About Example Code
 
-- \ref ulp_dma_example.c file demonstrates how to use DMA peripheral to perform memory to memory transfers
-- In this example first dma initialization is done using \ref sl_si91x_dma_init
-- Then \ref sl_si91x_dma_allocate_channel is used to allocate ULP_DMA_CHANNEL for transfer.
-- After configuring channel, callbacks are registered using \ref sl_si91x_dma_register_callbacks
+- [`ulp_dma_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_dma/ulp_dma_example.c) file demonstrates how to use DMA peripheral to perform memory to memory transfers
+- In this example first dma initialization is done using [sl_si91x_dma_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-init)
+- Then [sl_si91x_dma_allocate_channel](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-allocate-channel) is used to allocate ULP_DMA_CHANNEL for transfer.
+- After configuring channel, callbacks are registered using [sl_si91x_dma_register_callbacks](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-register-callbacks)
 - In this example DMA transfer can be initiated by two methods,
-  1.  Using \ref sl_si91x_dma_simple_transfer, user can quickly perform DMA transfer using bare minimum configurations.
-  2.  Using \ref sl_si91x_dma_transfer, user can configure more DMA parameters for transfer
+  1.  Using [sl_si91x_dma_simple_transfer](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-simple-transfer), user can quickly perform DMA transfer using bare minimum configurations.
+  2.  Using [sl_si91x_dma_transfer](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/dma#sl-si91x-dma-transfer), user can configure more DMA parameters for transfer
 - User can either use any of above functions for performing DMA transfer.
 > **Note:** When utilizing the ULP_DMA instance in high power mode, it is advisable to allocate buffers in the ULP Memory block.
 
@@ -83,7 +83,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Open **sl_si91x_ulp_dma.slcp** project file select **software component** tab and search for **SL_DMA** in search bar.
 - Configure SL_ULP_DMA_CHANNEL_COUNT(0 - 12) - Number of available channels for ULP_DMA
-- Configure the following macros in ulp_dma_example.c file and update/modify following macros if required.
+- Configure the following macros in [`ulp_dma_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_dma/ulp_dma_example.c) file and update/modify following macros if required.
 
 ```C
 #define ULP_DMA_SIMPLE_TRANSFER 1    ///< Enable/Disable simple transfer

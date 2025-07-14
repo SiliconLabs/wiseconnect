@@ -51,9 +51,6 @@
 #ifdef SLI_SI91X_ENABLE_BLE
 #include "rsi_common_apis.h"
 #endif
-#ifdef SL_WDT_MANAGER_PRESENT
-#include "sl_si91x_wdt_config.h"
-#endif
 
 #include "sl_wifi_region_db_config.h"
 
@@ -496,13 +493,13 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
                                          NULL,
                                          NULL);
   VERIFY_STATUS_AND_RETURN(status);
-#if (SL_WDT_MANAGER_PRESENT_NWP == 1)
+#ifdef SL_WDT_MANAGER_PRESENT
   sl_si91x_nwp_configuration_t nwp_config;
 
   // NWP WDT configuration
   memset(&nwp_config, 0, sizeof(sl_si91x_nwp_configuration_t));
   nwp_config.code                    = SL_SI91X_ENABLE_NWP_WDT_FROM_HOST;
-  nwp_config.values.wdt_timer_val    = SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD_NWP;
+  nwp_config.values.wdt_timer_val    = 0x20;
   nwp_config.values.wdt_enable_in_ps = 0;
   status                             = sl_si91x_set_nwp_config_request(nwp_config);
   VERIFY_STATUS_AND_RETURN(status);

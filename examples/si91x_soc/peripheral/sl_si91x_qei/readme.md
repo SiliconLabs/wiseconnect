@@ -105,7 +105,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - 1: Enable - Activates velocity calculation.
   - Delta Time: Defines the time interval used for velocity calculations.
 
-- Configure the following macros in qei_example.h file and update/modify following macros if required.
+- Configure the following macros in [`qei_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_qei/qei_example.h) file and update/modify following macros if required.
 
   ```C
     # define BLINK_RATE       1000     // 1000 ticks per second

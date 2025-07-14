@@ -54,7 +54,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - SHA 256
 - SHA 384
 - SHA 512
-- Enable the desired SHA algorithm in psa_sha_app.h by enabling corresponding macro
+- Enable the desired SHA algorithm in [`psa_sha_app.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_sha/psa_sha_app.h) by enabling the corresponding macro
 - By defauit SHA 256 is enabled
 * To use software fallback instead of hardware accelerators:
   - Add mbedtls_shaxxx in component section of slcp file

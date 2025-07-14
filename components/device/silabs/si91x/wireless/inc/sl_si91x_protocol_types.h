@@ -1280,13 +1280,14 @@ typedef struct {
 
 //! user configurable gain table structure
 typedef struct {
-  uint8_t band;         ///< band value
-  uint8_t bandwidth;    ///< bandwidth value
-  uint16_t size;        ///< payload size
-  uint8_t x_offset;     ///< X: bump up offset for 52 tone RU
-  uint8_t y_offset;     ///< Y: bump up offset for 106 tone RU
-  uint16_t reserved;    ///< Reserved
-  uint8_t gain_table[]; ///< payload
+  uint8_t band;               ///< band value
+  uint8_t bandwidth;          ///< bandwidth value
+  uint16_t size;              ///< payload size
+  uint8_t x_offset;           ///< X: bump up offset for 52 tone RU
+  uint8_t y_offset;           ///< Y: bump up offset for 106 tone RU
+  uint8_t gain_table_version; ///< 0: Old gain table, 1:New gain table
+  uint8_t reserved;           ///< Reserved
+  uint8_t gain_table[];       ///< payload
 } sli_si91x_gain_table_info_t;
 
 /// Si91x specific 11AX configuration parameters

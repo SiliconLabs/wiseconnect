@@ -116,4 +116,19 @@ typedef struct {
  */
 typedef sl_net_ping_response_t sl_si91x_ping_response_t;
 
+/**
+ * @struct sl_net_nat_config_t
+ * @brief NAT session configuration structure.
+ * 
+ * @details
+ * This structure defines session timeout values for Network Address Translation (NAT)
+ * on a network interface. It allows configuration of separate timeout durations for
+ * TCP and non-TCP sessions, as well as specifying the network interface to which
+ * these settings apply.
+ */
+typedef struct {
+  uint32_t tcp_session_timeout;     ///< NAT TCP session timeout in seconds
+  uint32_t non_tcp_session_timeout; ///< NAT non-TCP session timeout in seconds
+  sl_net_interface_t interface;     ///< Network interface to apply NAT settings
+} sl_net_nat_config_t;
 /** @} */

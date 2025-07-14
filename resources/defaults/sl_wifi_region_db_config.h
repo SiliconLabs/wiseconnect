@@ -134,8 +134,3 @@ const sli_si91x_set_region_ap_request_t default_CN_region_5GHZ_configurations = 
   .channel_info[0]               = { .first_channel = 36, .no_of_channels = 9, .max_tx_power = 20 },
   .channel_info[4]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 33 }
 };
-
-#if defined(__GNUC__)
-// Restore GCC diagnostics
-#pragma GCC diagnostic pop
-#endif

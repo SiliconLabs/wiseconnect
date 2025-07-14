@@ -572,6 +572,7 @@ typedef enum {
 
   // Network commands
   SLI_WLAN_REQ_PING_PACKET           = 0x29,
+  SLI_WLAN_REQ_NAT                   = 0x2A,
   SLI_WLAN_REQ_IPCONFV4              = 0x41,
   SLI_WLAN_REQ_DNS_QUERY             = 0x44,
   SLI_WLAN_REQ_HTTP_CLIENT_GET       = 0x51,
@@ -694,6 +695,7 @@ typedef enum {
 
   // Network command response
   SLI_WLAN_RSP_PING_PACKET           = 0x29,
+  SLI_WLAN_RSP_NAT                   = 0x2A,
   SLI_WLAN_RSP_IPCONFV4              = 0x41,
   SLI_WLAN_RSP_DNS_QUERY             = 0x44,
   SLI_WLAN_RSP_HTTP_CLIENT_GET       = 0x51,

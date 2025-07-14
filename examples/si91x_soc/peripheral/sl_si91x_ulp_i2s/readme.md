@@ -36,12 +36,12 @@ The data received should match the transmitted data.
 
 ## About Example Code
 
-- This example fetches current I2S version using `sl_si91x_i2s_get_version()`.
-- Initializes I2S peripheral and stores driver handle in i2s_driver_handle using `sl_si91x_i2s_init()`.
-- Gets the transfer status of I2S peripheral using `sl_si91x_i2s_get_status()`.
-- Configures ARM power mode to full power using `sl_si91x_i2s_configure_power_mode()`.
-- Registers the user callback using `sl_si91x_i2s_register_event_callback()`.
-- Configures transmitter and receiver transfer parameters for i2s using `sl_si91x_i2s_transmit_receive_config()`.
+- This example fetches current I2S version using [sl_si91x_i2s_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-get-version).
+- Initializes I2S peripheral and stores driver handle in i2s_driver_handle using [sl_si91x_i2s_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-init).
+- Gets the transfer status of I2S peripheral using [sl_si91x_i2s_get_status](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-get-status).
+- Configures ARM power mode to full power using [sl_si91x_i2s_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-configure-power-mode).
+- Registers the user callback using [sl_si91x_i2s_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-register-event-callback).
+- Configures transmitter and receiver transfer parameters for i2s using [sl_si91x_i2s_transmit_receive_config](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-transmit-receive-config).
 - Configures receive DMA channel and prepares I2S for data receivings.
 - Configures transmit DMA channel and sends data.
 - When send data is received by the receiver channel, it compares the data received with transferred data.
@@ -119,7 +119,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - SL_ULP_I2S_RESOLUTION: ULP_I2S resolution can be configured through this macro. Valid resolution values are 16-, 24-, and 32-bit.
     - SL_ULP_I2S_SAMPLING_RATE: ULP_I2S sampling rate can be configured through this macro. Valid sampling rate values are 8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz, 32kHz, 44.1kHz, 48kHz, 88.2kHz, 96kHz, and 192kHz.
     - Configuration files are generated in **config folder**. If not changed, the code will run on default UC values.
-    - Configure the following macros in the `ulp_i2s_example.c` file and update/modify following macros, if required.
+    - Configure the following macros in the [`ulp_i2s_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_i2s/ulp_i2s_example.c) file and update/modify following macros, if required.
 
       ```C
       #define I2S_LOWPOWER_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size

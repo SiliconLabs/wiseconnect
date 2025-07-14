@@ -38,17 +38,17 @@
 ## About Example Code
 
 - This example code demonstrates I2C data transfer between leader and follower using transfer API.
-- In example code, first i2c instance is initialized using \ref sl_i2c_driver_init to configure various init structure parameters
+- In example code, first i2c instance is initialized using [sl_i2c_driver_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-init) to configure various init structure parameters
 - This structure includes:
-  - \ref sl_i2c_operating_mode_t bus speed, it can be Standard, Fast, Fast plus or High speed.
-  - \ref sl_i2c_mode_t mode, it should be leader mode for leader application.
-  - \ref sl_i2c_transfer_type_t, using NON-DMA.
-  - \ref sl_i2c_callback_t , I2C callback
+  - [sl_i2c_operating_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-operating-mode-t) bus speed, it can be Standard, Fast, Fast plus or High speed.
+  - [sl_i2c_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-mode-t) mode, it should be leader mode for leader application.
+  - [sl_i2c_transfer_type_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-transfer-type-t), using NON-DMA.
+  - [sl_i2c_callback_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-callback-t) , I2C callback
 - It also initializes I2C clock and configures I2C SDA & SCL pins.
-- Now transmit and receive FIFO threshold values are configured using \ref sl_i2c_driver_configure_fifo_threshold API.
-- Now repeated start is enabled for data transfer using \ref sl_i2c_driver_enable_repeated_start API. So that master continue read operation after write operation without releasing line.
+- Now transmit and receive FIFO threshold values are configured using [sl_i2c_driver_configure_fifo_threshold](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-configure-fifo-threshold) API.
+- Now repeated start is enabled for data transfer using [sl_i2c_driver_enable_repeated_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-enable-repeated-start) API. So that master continue read operation after write operation without releasing line.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
-- Current_mode enum is set to I2C_TRANSFER_DATA and it calls transfer_data API to send data to follower & configures follower address through \ref sl_i2c_driver_transfer_data (first sends & then receives data in blocking mode).
+- Current_mode enum is set to I2C_TRANSFER_DATA and it calls transfer_data API to send data to follower & configures follower address through [sl_i2c_driver_transfer_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-transfer-data) (first sends & then receives data in blocking mode).
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the send & receive data is same, it will print Test Case Passed on the console.
 - When all bytes are received then mode changes to I2C_TRANSMISSION_COMPLETED (API won't update any transfer complete flag, as control will be blocked until all bytes are received).
@@ -149,7 +149,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ![Figure: Pin Configuration I2C](resources/readme/image507e.png)
 
 > **Note- In case of sleep-wakeup :**
->- As GPIO configurations will be lost after going to sleep state, user has to initialize I2C pins and driver again after wakeup, by using \ref sl_i2c_driver_init API for initializing driver and \ref sl_si91x_i2c_pin_init API for initializing pins.
+- As GPIO configurations will be lost after going to sleep state, user has to initialize I2C pins and driver again after wakeup, by using [sl_i2c_driver_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-init) API for initializing driver and [sl_si91x_i2c_pin_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-si91x-i2c-pin-init) API for initializing pins.
 
 > **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 

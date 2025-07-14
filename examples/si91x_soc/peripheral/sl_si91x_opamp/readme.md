@@ -39,9 +39,9 @@ The following configurations are used in this example:
 
 ## About Example Code
 
-- \ref opamp_example.c - This example file initializes the OPAMP peripheral and configure the OPAMP instances by giving input on non-inverting terminal and inverting terminal of the OPAMP and checking output.
-- In this example, first the OPAMP is initialized by enabling clocks and BOD through \ref sl_si91x_opamp_init API.
-- Sets OPAMP instance and OPAMP feature configuration \ref sl_si91x_opamp_set_configuration API (inputs are configured as per the usecase macros enabled).
+- [`opamp_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_opamp/opamp_example.c) - This example file initializes the OPAMP peripheral and configure the OPAMP instances by giving input on non-inverting terminal and inverting terminal of the OPAMP and checking output.
+- In this example, first the OPAMP is initialized by enabling clocks and BOD through [`sl_si91x_opamp_init`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/opamp#sl-si91x-opamp-init) API.
+- Sets OPAMP instance and OPAMP feature configuration [`sl_si91x_opamp_set_configuration`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/opamp#sl-si91x-opamp-set-configuration) API (inputs are configured as per the usecase macros enabled).
 - Optional integration with DAC for external voltage comparison.
 
 
@@ -89,7 +89,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Configure the following macros in `opamp_example.c` file and update/modify following macros if required.
+- Configure the following macros in [`opamp_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_opamp/opamp_example.c) file and update/modify following macros if required.
 1. Select OPAMP Reference Voltage   
     - 2500: 2.5 V
     - 3300: 3.3 V

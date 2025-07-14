@@ -39,25 +39,25 @@
 ## About Example Code
 
 - This example code demonstrates I2C data transfer between leader and follower using Blocking APIs.
-- In this example i2c instance is first initialized using \ref sl_i2c_driver_init to configure various init structure parameters
+- In this example i2c instance is first initialized using [sl_i2c_driver_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-init) to configure various init structure parameters
 - This structure includes:
-  - \ref sl_i2c_operating_mode_t bus speed, it can be Standard, Fast, Fast plus or High speed.
-  - \ref sl_i2c_mode_t mode, it should be leader mode for leader application.
-  - \ref sl_i2c_transfer_type_t, using NON-DMA.
-  - \ref sl_i2c_callback_t , I2C callback
+  - [sl_i2c_operating_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-operating-mode-t) bus speed, it can be Standard, Fast, Fast plus or High speed.
+  - [sl_i2c_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-mode-t) mode, it should be leader mode for leader application.
+  - [sl_i2c_transfer_type_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-transfer-type-t), using NON-DMA.
+  - [sl_i2c_callback_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-callback-t) , I2C callback
 - It also initializes I2C clock and configures I2C SDA & SCL pins.
-- Now transmit and receive FIFO threshold values are configured using \ref sl_i2c_driver_configure_fifo_threshold API.
+- Now transmit and receive FIFO threshold values are configured using [sl_i2c_driver_configure_fifo_threshold](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-configure-fifo-threshold) API.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
-- Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking for blocking Application.
+- Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through [sl_i2c_driver_send_data_blocking](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-send-data-blocking) for blocking Application.
 - For Blocking usecase : When all bytes are sent then mode changes to I2C_RECEIVE_DATA (Blocking API won't update any transfer complete flag, as control will be blocked until all bytes are sent).
-- Then it receives data from follower through \ref sl_i2c_driver_receive_data_blocking for blocking Application.
+- Then it receives data from follower through [sl_i2c_driver_receive_data_blocking](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-receive-data-blocking) for blocking Application.
 - For Blocking usecase : When all bytes are recieved then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked until all bytes are received).
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the data is same, it will print Test Case Passed on the console.
-- After this first cycle of data transfer application switches to ULP mode using sl_si91x_power_manager_add_ps_requirement API and reconfig I2C leader params as per ULP mode through \ref sl_i2c_driver_leader_reconfig_on_power_mode_change API.
+- After this first cycle of data transfer application switches to ULP mode using sl_si91x_power_manager_add_ps_requirement API and reconfig I2C leader params as per ULP mode through [sl_i2c_driver_leader_reconfig_on_power_mode_change](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-leader-reconfig-on-power-mode-change) API.
 - Then current_mode enum changed to I2C_SEND_DATA & application waits for 10 seconds so that user can reset follower application
 - Once Follower gets reset then whole data transfer cycle repeats once again and compares data again.
-- After second cycle of data transfer application switches to HP mode using sl_si91x_power_manager_add_ps_requirement API and reconfig I2C leader params as per HP mode using \ref sl_i2c_driver_leader_reconfig_on_power_mode_change API.
+- After second cycle of data transfer application switches to HP mode using sl_si91x_power_manager_add_ps_requirement API and reconfig I2C leader params as per HP mode using [sl_i2c_driver_leader_reconfig_on_power_mode_change](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-leader-reconfig-on-power-mode-change) API.
 - Then current_mode enum changed to I2C_SEND_DATA & application waits for 10 seconds so that user can reset follower application
 - Once Follower gets reset then whole data transfer cycle repeats once again and compares data again.
 - After third cycle of data tranfer I2c gets de-initialized.
@@ -112,7 +112,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - If project built without selecting configurations, it will take default values from UC.
 - Configure mode, operating-mode and transfer-type of I2C instance using respective instance UC.
 - Change 'Operating Mode' as per bus-speed requirement.
-- After above UC configurations also configure following macros in i2c_leader_example.c file and update/modify following macros if required.
+- After above UC configurations also configure following macros in [`i2c_leader_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_i2c_driver_leader/i2c_leader_example.c) file and update/modify following macros if required.
 
   ```C
     #define FOLLOWER_I2C_ADDR        // Update I2C follower address

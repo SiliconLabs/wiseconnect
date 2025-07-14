@@ -85,6 +85,8 @@ toolchain_settings:
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'
+- name: NVM3_DEFAULT_MAX_OBJECT_SIZE
+  value: '280'
 readme:
 - path: readme.md
 other_file:

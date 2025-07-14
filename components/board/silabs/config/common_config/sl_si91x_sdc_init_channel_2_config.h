@@ -83,12 +83,18 @@ extern "C" {
    : (SL_SDC_CH2_P_PIN == 6)  ? 3           \
    : (SL_SDC_CH2_P_PIN == 8)  ? 4           \
    : (SL_SDC_CH2_P_PIN == 10) ? 5           \
+   : (SL_SDC_CH2_P_PIN == 25) ? 6           \
+   : (SL_SDC_CH2_P_PIN == 27) ? 7           \
+   : (SL_SDC_CH2_P_PIN == 29) ? 8           \
    : (SL_SDC_CH2_P_PIN == 1)  ? 10          \
    : (SL_SDC_CH2_P_PIN == 3)  ? 11          \
    : (SL_SDC_CH2_P_PIN == 5)  ? 12          \
    : (SL_SDC_CH2_P_PIN == 11) ? 13          \
    : (SL_SDC_CH2_P_PIN == 9)  ? 14          \
    : (SL_SDC_CH2_P_PIN == 7)  ? 15          \
+   : (SL_SDC_CH2_P_PIN == 26) ? 16          \
+   : (SL_SDC_CH2_P_PIN == 28) ? 17          \
+   : (SL_SDC_CH2_P_PIN == 30) ? 18          \
                               : -1)
 #else
 #define SL_SDC_CHANNEL_2_POS_INPUT_CHNL_SEL 3
@@ -102,6 +108,9 @@ extern "C" {
    : (SL_SDC_CH2_N_PIN == 11) ? 3           \
    : (SL_SDC_CH2_N_PIN == 9)  ? 4           \
    : (SL_SDC_CH2_N_PIN == 7)  ? 5           \
+   : (SL_SDC_CH2_N_PIN == 26) ? 6           \
+   : (SL_SDC_CH2_N_PIN == 28) ? 7           \
+   : (SL_SDC_CH2_N_PIN == 30) ? 8           \
                               : -1)
 #else
 #define SL_SDC_CHANNEL_2_NEG_INPUT_CHNL_SEL 1

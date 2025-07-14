@@ -36,9 +36,9 @@ This application demonstrates the Pulse Code Modulation (PCM) primary device dat
 
 ## About Example Code
 
-- Initialize the PCM peripheral (via I2S) and stores the driver handle in pcm_handle using `sl_si91x_pcm_init()`.
-- Register user callback using `sl_si91x_pcm_register_event_callback()`.
-- Configure transmitter transfer parameters for PCM using `sl_si91x_pcm_set_configuration()`.
+- Initialize the PCM peripheral (via I2S) and stores the driver handle in pcm_handle using [sl_si91x_pcm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pcm#sl-si91x-pcm-init).
+- Register user callback using [sl_si91x_pcm_register_event_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pcm#sl-si91x-pcm-register-event-callback).
+- Configure transmitter transfer parameters for PCM using [sl_si91x_pcm_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pcm#sl-si91x-pcm-set-configuration).
 - Configure receive DMA channel and wait for data to be received from the secondary device.
 - When data is received by the receiver channel, it compares the data received with the transferred data.
 - Configure transmit DMA channel and send data.
@@ -99,7 +99,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 Configuration files are generated in **config** folder. If not changed, the code will run on default UC values.
 
-Configure the following macros in `pcm_primary_example.c` file and update/modify the following macros if required.
+Configure the following macros in [`pcm_primary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_pcm_primary/pcm_primary_example.c) file and update/modify the following macros if required.
 
 ```C
  #define PCM_PRIMARY_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
@@ -114,7 +114,7 @@ Configure the following macros in `pcm_primary_example.c` file and update/modify
 
 To use the ULP_PCM instance instead of the default PCM0 instance:
 
-- Change the `PCM_INSTANCE` macro value to `ULP_PCM` in pcm_primary_example.c:
+- Change the `PCM_INSTANCE` macro value to `ULP_PCM` in [`pcm_primary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_pcm_primary/pcm_primary_example.c):
   ```C
   #define PCM_INSTANCE ULP_PCM
   ```

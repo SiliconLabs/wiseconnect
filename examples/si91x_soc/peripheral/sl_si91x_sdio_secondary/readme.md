@@ -23,9 +23,9 @@ The SDIO Secondary application shows how to read and write data in SDIO Secondar
 
 This example demonstrates about the SOC clock setting, SDIO secondary initialization, and transmitting and receiving the data to and from the SDIO master.
 
-- To initialize the SDIO using \ref sl_si91x_sdio_secondary_init API.
-- To register SDIO and DMA callback using \ref sl_si91x_sdio_secondary_register_event_callback API.
-- To transfer and receive data to and from the master using the \ref  sl_si91x_sdio_secondary_send and \ref sl_si91x_sdio_secondary_receive APIs.   Send and receive APIs will configure all DMA descriptors and trigger the DMA to send and receive the data.
+- To initialize the SDIO using [sl_si91x_sdio_secondary_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sdio#sl-si91x-sdio-secondary-init) API.
+- To register SDIO and DMA callback using [sl_si91x_sdio_secondary_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sdio#sl-si91x-sdio-secondary-register-event-callback) API.
+- To transfer and receive data to and from the master using the [sl_si91x_sdio_secondary_send](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sdio#sl-si91x-sdio-secondary-send) and [sl_si91x_sdio_secondary_receive](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sdio#sl-si91x-sdio-secondary-receive) APIs. Send and receive APIs will configure all DMA descriptors and trigger the DMA to send and receive the data.
 - Data will be received continuously after two seconds throughput will be calculated and printed over the console.
 
 ## Prerequisites/Setup Requirements
@@ -65,7 +65,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   >![Figure: sdio_secondary](resources/uc_screen/sdio_secondary.png)
 
-- Modify current_mode in the `sdio_secondary_example.c` file to configure current_mode for SDIO Secondary.
+- Modify current_mode in the [`sdio_secondary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sdio_secondary/sdio_secondary_example.c) file to configure current_mode for SDIO Secondary.
   By default current mode is in RECEIVE_DATA.
 
   ```c
@@ -78,7 +78,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   current_mode = RECEIVE_DATA /*Default is receive mode, i.e., RX_PATH*/
   ```
 
-- Modify BLOCK_LEN and NO_OF_BLOCKS in the `sdio_secondary.c` file to configure size for application buffer:
+- Modify BLOCK_LEN and NO_OF_BLOCKS in the [`sdio_secondary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sdio_secondary/sdio_secondary_example.c) file to configure size for application buffer:
 
   ```c
   #define BLOCK_LEN         256

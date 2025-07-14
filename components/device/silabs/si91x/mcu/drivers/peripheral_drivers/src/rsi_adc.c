@@ -36,7 +36,6 @@
 #include "rsi_dac.h"
 #include "rsi_rom_egpio.h"
 #include "aux_reference_volt_config.h"
-#include <math.h>
 #include <string.h>
 #include "sl_si91x_dma.h"
 #include "clock_update.h"
@@ -299,7 +298,7 @@ STATIC INLINE void config_ch_freq(adc_ch_config_t adcChConfig, adc_config_t adcC
 
   // Configure channel frequency value for channel0
   adcInterConfig.ch_sampling_factor[*sampl_rate_index] =
-    (uint16_t)ceil(fs_adc / adcChConfig.sampling_rate[*sampl_rate_index]);
+    (uint16_t)adc_dac_ceil((float)fs_adc / (float)adcChConfig.sampling_rate[*sampl_rate_index]);
 
   if (adcInterConfig.ch_sampling_factor[*sampl_rate_index] < 2) {
     adcInterConfig.ch_sampling_factor[*sampl_rate_index] = 2;
@@ -312,9 +311,9 @@ STATIC INLINE void config_ch_freq(adc_ch_config_t adcChConfig, adc_config_t adcC
     if (ch_num > 0) {
       // Get channel frequency value
       // Configure channel frequency value
-      adcInterConfig.ch_sampling_factor[ch_num] =
-        adcInterConfig.ch_sampling_factor[ch_num - 1]
-        * (uint16_t)ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num]);
+      adcInterConfig.ch_sampling_factor[ch_num] = adcInterConfig.ch_sampling_factor[ch_num - 1]
+                                                  * (uint16_t)adc_dac_ceil((float)adcChConfig.sampling_rate[ch_num - 1]
+                                                                           / (float)adcChConfig.sampling_rate[ch_num]);
     }
 
     /* Check configured channel frequency value is power of 2 or not,
@@ -370,18 +369,19 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
   f_sample_rate_achive = max_sample_rate_achive(min_sampl_time); // Need to implement   Step2
 
   // Find out total number of ADC cycle
-  total_clk = (uint16_t)ceil((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src));
+  total_clk = (uint16_t)adc_dac_ceil((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src));
 
   // Find out number of ON cycles in total ADC cycle
-  on_clk = (uint16_t)ceil(min_sampl_time / (1 / (float)adc_commn_config.adc_clk_src));
+  on_clk = (uint16_t)adc_dac_ceil(min_sampl_time / (1 / (float)adc_commn_config.adc_clk_src));
 
   if (total_clk == on_clk) {
     total_clk += 1;
   }
 
   // modify the total cycle number for ADC static mode operation
-  if (adcConfig.operation_mode && (total_clk < ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[0]))) {
-    total_clk = (uint16_t)ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[0]);
+  if (adcConfig.operation_mode
+      && (total_clk < adc_dac_ceil((float)adc_commn_config.adc_clk_src / (float)adcChConfig.sampling_rate[0]))) {
+    total_clk = (uint16_t)adc_dac_ceil((float)adc_commn_config.adc_clk_src / (float)adcChConfig.sampling_rate[0]);
   }
 
   adc_commn_config.on_clk    = on_clk;
@@ -542,10 +542,10 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
   f_sample_rate_achive = max_sample_rate_achive(min_sampl_time); // Need to implement   Step2
 
   // Find out total number of ADC cycle
-  total_clk = (uint16_t)ceil((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src));
+  total_clk = (uint16_t)adc_dac_ceil((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src));
 
   // Find out number of ON cycles in total ADC cycle
-  on_clk = (uint16_t)ceil((min_sampl_time / (1 / (float)adc_commn_config.adc_clk_src)));
+  on_clk = (uint16_t)adc_dac_ceil(min_sampl_time * (float)adc_commn_config.adc_clk_src);
 
   if (total_clk == on_clk) {
     total_clk = total_clk + 1;
@@ -553,8 +553,10 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
 
   // modify the total cycle number for ADC static mode operation
   if ((adcConfig.operation_mode)
-      && (total_clk < ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[adc_channel]))) {
-    total_clk = (uint16_t)ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[adc_channel]);
+      && (total_clk
+          < adc_dac_ceil((float)adc_commn_config.adc_clk_src / (float)adcChConfig.sampling_rate[adc_channel]))) {
+    total_clk =
+      (uint16_t)adc_dac_ceil((float)adc_commn_config.adc_clk_src / (float)adcChConfig.sampling_rate[adc_channel]);
   }
 
   adc_commn_config.on_clk    = on_clk;

@@ -53,7 +53,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Configure UC from the slcp component to enable or disable the DMA.
 
   >![Figure: hspi_secondary_uc](resources/uc_screen/hspi_secondary_uc.png)
- - To change the buffer size do modify the below macros in `sl_si91x_hspi_secondary_drv_config.h file`  under config drop down
+ - To change the buffer size do modify the below macros in [`sl_si91x_hspi_secondary_drv_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_hspi_secondary_drv_config.h) file under config drop down
   
       ```c
       #define SL_HSPI_TX_BUFFER_SIZE 1024    ///< TX buffer Size

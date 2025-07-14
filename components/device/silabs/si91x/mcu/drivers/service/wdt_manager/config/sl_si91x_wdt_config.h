@@ -36,16 +36,16 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> WatchDog Timer UC Configuration
-
-// <e> Watchdog Timer Configuration for M4
-// <i> Enable: Peripheral configuration is taken straight from the
-// configuration set in the universal configuration (UC).
-// <i> Disable: If the application demands it to be modified during runtime, use the
-// sl_si91x_watchdog_set_configuration API to modify the peripheral
-// configuration.
-// <i> Default: 1
+//  <e> WatchDog Timer UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the
+//  configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the
+//  sl_si91x_watchdog_set_configuration API to modify the peripheral
+//  configuration.
+//  <i> Default: 1
 #define WDT_UC 1
+
+// <h> Watchdog Timer Configuration
 
 // <o SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD> WDT Timeout Interval
 //   <SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_1=> 0.0625 ms
@@ -82,20 +82,8 @@
 // <i> Selection of Interrupt Time
 #define SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_20
 
-// </e>
-
-// <e>Watchdog Timer Configuration for NWP
-// <i> Default: 1
-#define SL_WDT_MANAGER_PRESENT_NWP 1
-
-// <o SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD_NWP> Watchdog Timer Timeout Value in seconds<20-255>
-// <i> Specify the timeout value for the watchdog timer in seconds.
-// <i> Default: 32
-#define SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD_NWP 32
-
-// </e>
-
 // </h>
+// </e>
 // <<< end of configuration section >>>
 
 #endif // SL_SI91X_WDT_CONFIG_H

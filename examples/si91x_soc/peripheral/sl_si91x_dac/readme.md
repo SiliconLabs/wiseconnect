@@ -134,7 +134,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
->- In the `sl_ulp_dac_example.c file`, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
+- In the [`sl_ulp_dac_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_dac/sl_ulp_dac_example.c) file, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
 >- Buffer length should be '1' for DAC static mode.
 >
  Use following formula to find equivalent output analog voltage of DAC

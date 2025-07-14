@@ -1760,6 +1760,15 @@
 #define SL_SI91X_EXT_TCP_MAX_RECV_LENGTH BIT(20)
 
 /**
+ * @def SL_SI91X_EXT_TCP_NAT_SUPPORT
+ * @brief Enable NAT support.
+ * @details
+ * This feature enables Network Address Translation (NAT) support, allowing
+ * stations connected to SiWx91x to access the internet through a third-party AP.
+ */
+#define SL_SI91X_EXT_TCP_NAT_SUPPORT BIT(21)
+
+/**
  * @def SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS
  * @brief Enable three SSL/TLS sockets.
  * @details

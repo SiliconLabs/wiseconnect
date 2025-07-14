@@ -46,7 +46,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following parameters in mic_example.c file, update/modify following macro if required.
+- Configure the following parameters in [`mic_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_mic/mic_example.c) file, update/modify following macro if required.
 
   ```C
     #define MIC_N_CHANNELS         2  // Number of Mic channels

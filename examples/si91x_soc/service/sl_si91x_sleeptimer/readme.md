@@ -58,7 +58,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Si91x only uses si91x SYSRTC peripheral for sleeptimer. No UC is present for si91x sleeptimer component.
 
-- Configure the following parameter in sleeptimer.c file, update/modify following macro if required
+- Configure the following parameter in [`sleeptimer.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_sleeptimer/sleeptimer.c) file, update/modify following macro if required
 
   ```C
     #define TOOGLE_DELAY_MS1_ONESHOT //  configured for 5000 ms

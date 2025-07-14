@@ -1263,6 +1263,7 @@ void sli_flush_tx_packet(sli_si91x_command_queue_t *queue,
     }
   } else {
     // Handle asynchronous packets by freeing them
+    sli_si91x_host_free_buffer(queue_node->host_packet);
     sli_si91x_host_free_buffer(current_packet);
   }
 }
@@ -1492,12 +1493,16 @@ void sli_handle_frame_type(sli_si91x_queue_packet_t *queue_node,
                            sli_si91x_socket_t *socket,
                            sl_wifi_buffer_t *current_packet)
 {
-  if (frame_type == SLI_WLAN_RSP_SOCKET_CLOSE) {
-    sli_process_socket_close(queue_node, socket);
-  } else if (frame_type == SLI_WLAN_RSP_SOCKET_READ_DATA) {
-    sli_process_socket_read_data(queue_node, frame_status, socket);
-  } else {
-    sli_si91x_add_to_queue(&socket->command_queue.rx_queue, current_packet);
+  switch (frame_type) {
+    case SLI_WLAN_RSP_SOCKET_READ_DATA:
+      sli_process_socket_read_data(queue_node, frame_status, socket);
+      break;
+    case SLI_WLAN_RSP_SOCKET_CLOSE:
+      sli_process_socket_close(queue_node, socket);
+      __attribute__((fallthrough));
+    default:
+      sli_si91x_add_to_queue(&socket->command_queue.rx_queue, current_packet);
+      break;
   }
 
   return;
@@ -1657,6 +1662,7 @@ sl_status_t sli_si91x_flush_socket_command_queues_based_on_queue_type(uint8_t in
 
     } else {
       // Handle asynchronous packets by freeing the buffer
+      sli_si91x_host_free_buffer(queue_node->host_packet);
       sli_si91x_host_free_buffer(current_packet);
     }
 

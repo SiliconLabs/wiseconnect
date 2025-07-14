@@ -43,7 +43,7 @@ sl_si91x_sdc_adc_config_t sl_sdc_pin_config[SDC_NUMBER_OF_CHANNELS] = {
   .sdc_adc_mode    = SL_SDC_{{ inst | upper }}_INPUT_TYPE,
   .sdc_adc_p_input_pinsel    = SL_SDC_{{ inst | upper }}_POS_INPUT_CHNL_SEL,
   .sdc_adc_n_input_pinsel    = SL_SDC_{{ inst | upper }}_NEG_INPUT_CHNL_SEL,
-  }  
+  },  
 {% endfor %}
 };
 
@@ -51,6 +51,6 @@ sl_si91x_sdc_channel_misc_config_t sl_sdc_channel_misc_config[SDC_NUMBER_OF_CHAN
 {% for inst in sdc_instances %}
   {
    .buffer_auto_reset = SL_SDC_{{ inst | upper }}_AUTO_BUFFER_RESET_ENABLE,
-  }  
+  },  
 {% endfor %}
 };

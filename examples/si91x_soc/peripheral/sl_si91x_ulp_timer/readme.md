@@ -31,19 +31,19 @@
 
 ## About Example Code
 
-- The \ref ulp_timer_example.c example file demonstrates how to use a ULP-timer instance to toggle the onboard LED at a 1-second periodic rate. 
-- In this example, first, timer is configured with default high-power configuration values from UC through the \ref sl_si91x_ulp_timer_init and \ref sl_si91x_ulp_timer_set_configuration APIs respectively.  
-- Match value is fetched based on timer type and TIME_IN_MICROSECONDS(Time in microseconds for which the match value needs to be calculated) using \ref sl_si91x_ulp_timer_get_match_value API respectively. 
-- Then, a callback is registered for the timer instance through the \ref sl_si91x_ulp_timer_register_timeout_callback API.  
-- Next, the timer instance is started using the \ref sl_si91x_ulp_timer_start API.  
-- The onboard LED-0 is then toggled on every interrupt (timeout value 1 second), and after toggling the LED five times, the timer is stopped using the \ref sl_si91x_ulp_timer_stop API. 
+- The [`ulp_timer_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_timer/ulp_timer_example.c) example file demonstrates how to use a ULP-timer instance to toggle the onboard LED at a 1-second periodic rate. 
+- In this example, first, timer is configured with default high-power configuration values from UC through the [sl_si91x_ulp_timer_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-init) and [sl_si91x_ulp_timer_set_configurations](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-configurations) APIs respectively.  
+- Match value is fetched based on timer type and TIME_IN_MICROSECONDS(Time in microseconds for which the match value needs to be calculated) using [sl_si91x_ulp_timer_get_match_value](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-get-match-value) API respectively. 
+- Then, a callback is registered for the timer instance through the [sl_si91x_ulp_timer_register_timeout_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-register-timeout-callback) API.  
+- Next, the timer instance is started using the [sl_si91x_ulp_timer_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-start) API.  
+- The onboard LED-0 is then toggled on every interrupt (timeout value 1 second), and after toggling the LED five times, the timer is stopped using the [sl_si91x_ulp_timer_stop](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-stop) API. 
 - After that, the timer is configured with new parameters using the following APIs: 
-- \ref sl_si91x_ulp_timer_set_type to change the timer type to 256US type (time in microseconds/256) 
-- \ref sl_si91x_ulp_timer_set_direction to change the timer direction to up-counting 
-- \ref sl_si91x_ulp_timer_set_count to change the match value equal to the number of ticks required for a 1-second timeout in 256US type 
-- Then, the timer is started again, and after five interrupts, it will stop and switch to ultra-low-power state by calling the API \ref sl_si91x_power_manager_add_ps_requirement. As the interrupt is initialized with 5, it will configure the set type, direction, count, and toggle the LED-0 5 times. 
-- Similarly, after toggling the LED-0 five times, it will stop the timer and switch back to high-power mode by calling \ref sl_si91x_power_manager_add_ps_requirement and configure the set type, direction, count, and toggle the LED0 5 times before stopping the timer. 
-- The callback is unregistered using the \ref sl_si91x_ulp_timer_stop API. Finally, the timer is deinitialized using the \ref sl_si91x_ulp_timer_deinit API. 
+- [sl_si91x_ulp_timer_set_type](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-type) to change the timer type to 256US type (time in microseconds/256) 
+- [sl_si91x_ulp_timer_set_direction](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-direction) to change the timer direction to up-counting 
+- [sl_si91x_ulp_timer_set_count](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-count) to change the match value equal to the number of ticks required for a 1-second timeout in 256US type 
+- Then, the timer is started again, and after five interrupts, it will stop and switch to ultra-low-power state by calling the API [sl_si91x_power_manager_add_ps_requirement](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-power-manager-add-ps-requirement). As the interrupt is initialized with 5, it will configure the set type, direction, count, and toggle the LED-0 5 times. 
+- Similarly, after toggling the LED-0 five times, it will stop the timer and switch back to high-power mode by calling [sl_si91x_power_manager_add_ps_requirement](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-power-manager-add-ps-requirement) and configure the set type, direction, count, and toggle the LED0 5 times before stopping the timer. 
+- The callback is unregistered using the [sl_si91x_ulp_timer_stop](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-stop) API. Finally, the timer is deinitialized using the [sl_si91x_ulp_timer_deinit](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-deinit) API. 
 
 ## Prerequisites/Setup Requirements
 
@@ -87,18 +87,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ![Figure: ulp_timer_uc_screen](resources/uc_screen/ulp_timer_uc_screen.png)
 
-- Configure timer using following macros, defined in \ref sl_si91x_ulp_timer_inst_config.h file and update/modify following macros if required:
+- Configure timer using following macros, defined in [`sl_si91x_ulp_timer_inst_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ulp_timer_inst_config.h) file and update/modify following macros if required:
 
 ### Macros for Timer Configurations
 
-- \ref SL_ULP_TIMER_DEFAULT (number): for possible values \ref ulp_timer_instance_t 
-- \ref SL_ULP_TIMER_MODE (periodic and oneshot): for possible values \ref ulp_timer_mode_t 
-- \ref SL_ULP_TIMER_TYP (1-microseconds, 256-microseconds & down-counter): for possible values \ref ulp_timer_type_t 
-- \ref SL_ULP_TIMER_DIRECTION (up & down): for possible values \ref ulp_timer_direction_t 
-- Also, configure the following macros in ulp_timer_example.c file: 
-- Update \ref ULP_TIMER_INSTANCE macro value to change the timer instance to be used for the application. 
-- Update \ref SL_TIMER_MATCH_VALUE macro before calling \ref sl_si91x_ulp_timer_set_configurations API to change the timer match value. Update this macro as per the clock source and timer-type selected. 
-- After configuring the above macros, their values are passed to \ref ulp_timer_config_t structure type variable \ref sl_timer_handle which is used to configure the timer using the API-\ref sl_si91x_ulp_timer_set_configurations.
+- SL_ULP_TIMER_DEFAULT (number): for possible values [ulp_timer_instance_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#ulp-timer-instance-t) 
+- SL_ULP_TIMER_MODE (periodic and oneshot): for possible values [ulp_timer_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#ulp-timer-mode-t) 
+- SL_ULP_TIMER_TYP (1-microseconds, 256-microseconds & down-counter): for possible values [ulp_timer_type_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#ulp-timer-type-t) 
+- SL_ULP_TIMER_DIRECTION (up & down): for possible values [ulp_timer_direction_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#ulp-timer-direction-t) 
+- Also, configure the following macros in [`ulp_timer_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_timer/ulp_timer_example.c) file: 
+- Update ULP_TIMER_INSTANCE macro value to change the timer instance to be used for the application. 
+- Update SL_TIMER_MATCH_VALUE macro before calling [sl_si91x_ulp_timer_set_configurations](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-configurations) API to change the timer match value. Update this macro as per the clock source and timer-type selected. 
+- After configuring the above macros, their values are passed to [ulp_timer_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#ulp-timer-config-t) structure type variable sl_timer_handle which is used to configure the timer using the API - [sl_si91x_ulp_timer_set_configurations](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-configurations).
 
 > **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 

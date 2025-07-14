@@ -54,12 +54,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ## Application Build Environment
 
 ### Application Configuration Parameters
-  - The threshold and slot values can be configured in `bod_example.h`. Alternatively, the slot value and blackout feature can be updated through the UC configuration.
+  - The threshold and slot values can be configured in [`bod_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_bod/bod_example.h). Alternatively, the slot value and blackout feature can be updated through the UC configuration.
     ```
     #define SL_BOD_DEFAULT_SLOT_VALUE 2  ///< Default BOD Slot value
     #define SL_BOD_DEFAULT_THRESHOLD 2.7f ///< Default BOD threshold value
     ```
-  - Battery voltage ranges can be customized for improved battery status monitoring by modifying the configurations in `sl_si91x_bod.h`.
+  - Battery voltage ranges can be customized for improved battery status monitoring by modifying the configurations in [`sl_si91x_bod.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/inc/sl_si91x_bod.h`).
 
     ```
     #define SL_BOD_MAX_BATTERY_VOLTAGE 3.3f ///< Maximum battery voltage for Brown-Out Detector (BOD)

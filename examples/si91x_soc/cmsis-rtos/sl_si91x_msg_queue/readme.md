@@ -105,7 +105,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- After the above UC configurations, also configure following macros in `i2c_follower_app.c` file and update/modify following macros, if required.
+- After the above UC configurations, also configure following macros in [`i2c_follower_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/cmsis-rtos/sl_si91x_msg_queue/src/i2c_follower_app.c) file and update/modify following macros, if required.
 
   ```C
     #define I2C_INSTANCE_USED        // Update it with i2c instance number used for this application: 0 for i2c0, 1 for i2c1 and 2 for i2c2

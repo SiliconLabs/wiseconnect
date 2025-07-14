@@ -60,7 +60,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 -  Default ecc curve is SEP256R1.
 -  Default key size is 256
--  To change the ecc curve and key size, set secpr1_key_size_select variable to the correct key_size in app.c
+-  To change the ecc curve and key size, set secpr1_key_size_select variable to the correct key_size in [`app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_ecdh/app.c)
 
 ## Test the Application
 

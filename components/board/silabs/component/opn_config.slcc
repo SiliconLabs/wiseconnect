@@ -65,6 +65,30 @@
     path: common_config_opn/sl_si91x_usart_common_config.h
     unless: [rsilib_board]
   - override:
+      component: "%extension-wiseconnect3_sdk%sdc_instance"
+      file_id: sdc_config
+      instance: channel_1
+    path: common_config_opn/sl_si91x_sdc_init_channel_1_config.h
+    unless: [rsilib_board]
+  - override:
+      component: "%extension-wiseconnect3_sdk%sdc_instance"
+      file_id: sdc_config
+      instance: channel_2
+    path: common_config_opn/sl_si91x_sdc_init_channel_2_config.h
+    unless: [rsilib_board]
+  - override:
+      component: "%extension-wiseconnect3_sdk%sdc_instance"
+      file_id: sdc_config
+      instance: channel_3
+    path: common_config_opn/sl_si91x_sdc_init_channel_3_config.h
+    unless: [rsilib_board]
+  - override:
+      component: "%extension-wiseconnect3_sdk%sdc_instance"
+      file_id: sdc_config
+      instance: channel_4
+    path: common_config_opn/sl_si91x_sdc_init_channel_4_config.h
+    unless: [rsilib_board]    
+  - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_1

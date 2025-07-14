@@ -34,12 +34,12 @@
 
 ## About Example Code
 
-- This example fetches current I2S version using sl_si91x_i2s_get_version()
-- Initializes I2S peripheral and store driver handle in i2s_driver_handle using sl_si91x_i2s_init()
-- Get the transfer status of I2S peripheral using sl_si91x_i2s_get_status()
-- Configure ARM power mode to full power using sl_si91x_i2s_configure_power_mode()
-- Register user callback using sl_si91x_i2s_register_event_callback()
-- Configure transmitter transfer parameters for i2s using sl_si91x_i2s_transmit_receive_config()
+- This example fetches current I2S version using [sl_si91x_i2s_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-get-version)()
+- Initializes I2S peripheral and store driver handle in i2s_driver_handle using [sl_si91x_i2s_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-init)()
+- Get the transfer status of I2S peripheral using [sl_si91x_i2s_get_status](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-get-status)()
+- Configure ARM power mode to full power using [sl_si91x_i2s_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-configure-power-mode)()
+- Register user callback using [sl_si91x_i2s_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-register-event-callback)()
+- Configure transmitter transfer parameters for i2s using [sl_si91x_i2s_transmit_receive_config()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-s#sl-si91x-i2s-transmit-receive-config)
 - Configure receive DMA channel and wait for data to be received from secondary device.
 - When data is received by receiver channel, it compares the data received with transferred data
 - Configure transmit DMA channel and send data
@@ -114,7 +114,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - SL_I2S0_CHANNEL: I2S0 channel number (0-channel no 0, 1-channel no 1)
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
-- Configure the following macros in i2s_primary_example.c file and update/modify following macros if required.
+- Configure the following macros in [`i2s_primary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_i2s_primary/i2s_primary_example.c) file and update/modify following macros if required.
 
 ```C
 #define I2S_PRIMARY_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size

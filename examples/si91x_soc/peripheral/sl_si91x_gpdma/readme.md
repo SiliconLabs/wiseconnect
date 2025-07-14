@@ -31,7 +31,7 @@ This example does both a Generic DMA transfer with a predefined config and a use
 
 ## About Example Code
 
-- \ref gpdma_example.c file demonstrates how to use GPDMA peipheral to perform memory-to-memory transfers.
+- [`gpdma_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_gpdma/gpdma_example.c) demonstrates how to use GPDMA peripheral to perform memory-to-memory transfers.
 - In this example, the first GPDMA initialization is done in \ref sl_event_handler.c.
 - Then \ref sl_si91x_gpdma_allocate_channel is used to allocate GPDMA_CHANNEL for transfer.
 - After configuring the channel, callbacks are registered using \ref sl_si91x_gpdma_register_callbacks
@@ -117,6 +117,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
+> - In non-simple transfer FIFO mode or memory fill configurations, direct buffer comparison may fail. As a result, the actual console output may differ from the example shown above.
+> - Max transfer size in non linked list mode is 4095.
 > - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
 > - Only memory-to-memory transfer is supported in GPDMA.
 > - By default, the FIFO size for each channel is allocated as 8 in allocate channel. The FIFO size should be higher than or equal to AHB burst size.

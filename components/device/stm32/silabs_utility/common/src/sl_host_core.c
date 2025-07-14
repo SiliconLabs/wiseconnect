@@ -29,11 +29,12 @@
  ******************************************************************************/
 
 #include "sl_core.h"
+#include <stdio.h>
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
-#include "cmsis_armcc.h" // For ARM Compiler
+#include "cmsis_armclang.h" // For ARM Compiler
 CORE_irqState_t CORE_EnterAtomic(void)
   {
     CORE_irqState_t irqState = __get_PRIMASK();

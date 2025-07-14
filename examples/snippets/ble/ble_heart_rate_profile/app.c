@@ -812,9 +812,6 @@ void ble_heart_rate_gatt_server(void *argument)
 #if (GATT_ROLE == CLIENT)
   uuid_t service_uuid = { 0 };
   uint8_t ix;
-  uint8_t data1[2] = { 1, 0 };
-  uint8_t i;
-  uint16_t notification_handle;
 #else
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
@@ -1138,21 +1135,6 @@ adv:
           }
         }
 
-        //!CCCD indication to remote device
-        for (i = 0; i < char_servs.num_of_services; i++) {
-
-          if (char_servs.char_services[i].char_data.char_property == 0x10
-              || char_servs.char_services[i].char_data.char_property == 0x20) {
-            notification_handle = char_servs.char_services[i].char_data.char_handle + 1;
-            status              = rsi_ble_set_att_value_async(remote_dev_bd_addr, notification_handle, 2, data1);
-            if (status != RSI_SUCCESS) {
-              LOG_PRINT("\r\n rsi_ble_set_att_value_async : error status 0x%lx \n", status);
-            } else {
-              LOG_PRINT("\r\n rsi_ble_set_att_value_async : successful \n");
-            }
-          }
-        }
-
       } break;
 
       case RSI_BLE_GATT_CHAR_DESC_RESP_EVENT:
@@ -1165,10 +1147,10 @@ adv:
           if (attr_desc_list.att_desc[ix].att_type_uuid.val.val16 == 0x2902) {
             data[0] = 0x01;
             data[1] = 0x00;
-            status  = rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
-                                               *((uint16_t *)attr_desc_list.att_desc[ix].handle),
-                                               2,
-                                               (uint8_t *)data);
+            status  = rsi_ble_set_att_value_async(conn_event_to_app.dev_addr,
+                                                 *((uint16_t *)attr_desc_list.att_desc[ix].handle),
+                                                 2,
+                                                 (uint8_t *)data);
             if (status != RSI_SUCCESS) {
               LOG_PRINT("\r\n rsi_ble_set_att_cmd_async : error status 0x%lx \n", status);
             } else {

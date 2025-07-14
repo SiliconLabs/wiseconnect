@@ -31,6 +31,7 @@
 #include "sl_net_constants.h"
 #include "sl_wifi_device.h"
 #include "sl_net_default_values.h"
+#include "sli_net_common_utility.h"
 #ifdef SL_SI91X_NVM3_CONFIG_MANAGER
 #include "nvm3_default.h"
 #endif
@@ -260,4 +261,31 @@ sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value)
   *value |= (uint32_t)(ip_bytes[3] << 24);
 
   return SL_STATUS_OK;
+}
+
+sl_status_t sl_net_nat_enable(const sl_net_nat_config_t *nat_config)
+{
+  if (nat_config == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sli_net_nat_config_t sli_nat_config = {
+    .enable                  = 1,
+    .tcp_session_timeout     = nat_config->tcp_session_timeout,
+    .non_tcp_session_timeout = nat_config->non_tcp_session_timeout,
+    .interface               = nat_config->interface,
+  };
+
+  return sli_net_nat_configure(&sli_nat_config);
+}
+
+sl_status_t sl_net_nat_disable(const sl_net_interface_t interface)
+{
+
+  sli_net_nat_config_t sli_nat_config = {
+    .enable    = 0,
+    .interface = interface,
+  };
+
+  return sli_net_nat_configure(&sli_nat_config);
 }

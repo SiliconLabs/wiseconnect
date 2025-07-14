@@ -31,20 +31,20 @@
 
 ## About Example Code
 
-- sl_efuse_example.c this example code demonstrates how to program the efuse to write and read the data in various modes.
+- [`efuse_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_efuse/efuse_example.c) demonstrates how to program the efuse to write and read the data in various modes.
 - In this example, first version information of efuse is checked.
-- Initialize the efuse if it's not initialized already using \ref sl_si91x_efuse_init, in efuse initialization the efuse and efuse clock is enabled.
+- Initialize the efuse if it's not initialized already using [sl_si91x_efuse_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-init), in efuse initialization the efuse and efuse clock is enabled.
 - After efuse initialization, we will set and get the address and then read the data from the efuse address after writing the data into the efuse.
-- Set the address1 to write and read using \ref sl_si91x_efuse_set_address.
-- Get the address1 which we have set to write and read from efuse using \ref sl_si91x_efuse_get_address. If read address matches with the expected address, console prints MATCH else UNMATCH.
-- Write the bit location 1, 3 and 5 of address1 using \ref sl_si91x_efuse_write_bit.
-- Set the address2 to write and read using \ref sl_si91x_efuse_set_address.
-- Get the address2 which we have set to write and read from efuse using \ref sl_si91x_efuse_get_address. If read address matches with the expected address, console prints MATCH else UNMATCH.
-- Write the bit location 0 and 1 of address2 using \ref sl_si91x_efuse_write_bit.
-- Read the 1 byte of data in FSM Read Mode(Indirect Read Mode) from address1 using \ref sl_si91x_efuse_fsm_read_byte. If read data matches with the expected data, console prints MATCH else UNMATCH.
-- Read the 1 byte of data in Memory mapped mode from address1 using \ref sl_si91x_efuse_memory_mapped_read_byte. If read data matches with the expected data, console prints MATCH else UNMATCH.
-- Read the 1 word of data in Memory mapped mode from address1 and address2 using \ref sl_si91x_efuse_memory_mapped_read_word. If read data matches with the expected data, console prints MATCH else UNMATCH.
-- Un-Initialize the efuse using \ref sl_si91x_efuse_deinit, in efuse Un-Initialize the efuse and efuse clock is disabled.
+- Set the address1 to write and read using [sl_si91x_efuse_set_address](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-set-address).
+- Get the address1 which we have set to write and read from efuse using [sl_si91x_efuse_get_address](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-get-address). If read address matches with the expected address, console prints MATCH else UNMATCH.
+- Write the bit location 1, 3 and 5 of address1 using [sl_si91x_efuse_write_bit](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-write-bit).
+- Set the address2 to write and read using [sl_si91x_efuse_set_address](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-set-address).
+- Get the address2 which we have set to write and read from efuse using [sl_si91x_efuse_get_address](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-get-address). If read address matches with the expected address, console prints MATCH else UNMATCH.
+- Write the bit location 0 and 1 of address2 using [sl_si91x_efuse_write_bit](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-write-bit).
+- Read the 1 byte of data in FSM Read Mode(Indirect Read Mode) from address1 using [sl_si91x_efuse_fsm_read_byte](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-fsm-read-byte). If read data matches with the expected data, console prints MATCH else UNMATCH.
+- Read the 1 byte of data in Memory mapped mode from address1 using [sl_si91x_efuse_memory_mapped_read_byte](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-memory-mapped-read-byte). If read data matches with the expected data, console prints MATCH else UNMATCH.
+- Read the 1 word of data in Memory mapped mode from address1 and address2 using [sl_si91x_efuse_memory_mapped_read_word](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-memory-mapped-read-word). If read data matches with the expected data, console prints MATCH else UNMATCH.
+- Un-Initialize the efuse using [sl_si91x_efuse_deinit](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/efuse#sl-si91x-efuse-deinit), in efuse Un-Initialize the efuse and efuse clock is disabled.
 
 ## Prerequisites/Setup Requirements
 
@@ -80,7 +80,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Configure the following macros in efuse_example.c file and update/modify following macros if required. The chip set provides 256 efuse bits as one-time programmable memory location. These bits are 32-bit addressing with each address containing 8-bits. The 255th efuse bit is reserved with a default value to '1'.
+- Configure the following macros in [`efuse_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_efuse/efuse_example.c) file and update/modify following macros if required. The chip set provides 256 efuse bits as one-time programmable memory location. These bits are 32-bit addressing with each address containing 8-bits. The 255th efuse bit is reserved with a default value to '1'.
 
   ```C
     #define WRITE_ADD_1         0x00001        // efuse address 1

@@ -1789,7 +1789,7 @@ sl_status_t sl_wifi_update_gain_table_command_handler(console_args_t *arguments)
         2,0x22,
            13,  34,  38,  36,  36,      24,
            14,  38,   0,   0,   0,       0,
-        3, 0x25,
+        5, 0x25,
            1,   32,  22,  22,  20,      14,
            2,   32,  26,  26,  24,      20,
            11,  32,  22,  22,  20,      14,

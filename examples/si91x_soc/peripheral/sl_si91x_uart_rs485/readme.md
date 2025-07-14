@@ -35,18 +35,18 @@
 
 ## About Example Code
 
-- The UART is initialized using the API \ref sl_si91x_usart_init.
-- After initialization, the UART is configured with default settings from the Universal Configuration (UC), including the UART transmit and receive lines, using the API \ref sl_si91x_usart_set_configuration.
-- RS485 mode is initialized and configured using the APIs \ref sl_si91x_uart_rs485_init and \ref sl_si91x_uart_rs485_set_configuration.
-- The Driver Enable (DE) and Receiver Enable (~RE) signals are activated using the APIs \ref sl_si91x_uart_rs485_de_enable and \ref sl_si91x_uart_rs485_re_enable.
-- User-defined event callbacks for send and receive completion notifications are registered using the API \ref sl_si91x_usart_register_event_callback.
+- The UART is initialized using the API [sl_si91x_usart_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init).
+- After initialization, the UART is configured with default settings from the Universal Configuration (UC), including the UART transmit and receive lines, using the API [sl_si91x_usart_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-configuration).
+- RS485 mode is initialized and configured using the APIs [sl_si91x_uart_rs485_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-init) and [sl_si91x_uart_rs485_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-set-configuration).
+- The Driver Enable (DE) and Receiver Enable (~RE) signals are activated using the APIs [sl_si91x_uart_rs485_de_enable](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-de-enable) and [sl_si91x_uart_rs485_re_enable](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-re-enable).
+- User-defined event callbacks for send and receive completion notifications are registered using the API [sl_si91x_usart_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-register-event-callback).
 - For hardware-controlled half-duplex mode:
-  - The address is sent using \ref sl_si91x_uart_rs485_transfer_hardware_address in send mode.
-  - The address is set using \ref sl_si91x_uart_rs485_rx_hardware_address_set in receive mode.
-  - Data transmission and reception are performed using \ref sl_si91x_usart_send_data and \ref sl_si91x_usart_receive_data, respectively.
+  - The address is sent using [sl_si91x_uart_rs485_transfer_hardware_address](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-transfer-hardware-address) in send mode.
+  - The address is set using [sl_si91x_uart_rs485_rx_hardware_address_set](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-rx-hardware-address-set) in receive mode.
+  - Data transmission and reception are performed using [sl_si91x_usart_send_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-send-data) and [sl_si91x_usart_receive_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-receive-data), respectively.
 - For software-controlled half-duplex mode:
-  - Address and data transmission are performed using \ref sl_si91x_usart_send_data.
-  - Address and data reception are performed using \ref sl_si91x_usart_receive_data.
+  - Address and data transmission are performed using [sl_si91x_usart_send_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-send-data).
+  - Address and data reception are performed using [sl_si91x_usart_receive_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-receive-data).
 - Once the receive data event is triggered, the transmitted and received buffer data are compared to ensure data integrity.
 - Two UC configurations are available for UART1 and UART0. By default, UART1 is installed. To operate on UART0, the UART0 UC must be installed.
 - This example provides a comprehensive demonstration of RS485 communication using UART, supporting both hardware-controlled and software-controlled half-duplex modes and full-dulpex mode with RS422.
@@ -130,15 +130,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - This example demonstrates RS485 multi-slave communication using three Simplicity Studio projects: one master (sending) and two slaves (receiving). Below are the necessary configurations and changes required in the application code.
 
   - Master Project: 
-    - Set `current_mode = SL_UART_RS485_SEND` and `current_slave = RS485_SLAVE1`in `uart_rs485_example.c` application.
+    - Set `current_mode = SL_UART_RS485_SEND` and `current_slave = RS485_SLAVE1`in [`uart_rs485_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_uart_rs485/uart_rs485_example.c) application.
     - This configures the master to transmit data to RS485_SLAVE1 in half-duplex mode, once SLAVE1 data transfer is done, current slave is changed to RS485_SLAVE2 and sends data to RS485_SLAVE2 in one direction(master sends, SLAVE2 receives).
 
   - Slave Project 1:
-    - Set `current_mode = SL_UART_RS485_RECEIVE` and `current_slave = RS485_SLAVE1` in `uart_rs485_example.c` application.
+    - Set `current_mode = SL_UART_RS485_RECEIVE` and `current_slave = RS485_SLAVE1` in [`uart_rs485_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_uart_rs485/uart_rs485_example.c) application.
     - This configures the slave to listen for and process messages addressed to `RS485_HW_SLAVE1_ADDRESS`.
 
   - Slave Project 2:
-    - Set `current_mode = SL_UART_RS485_RECEIVE` and `current_slave = RS485_SLAVE2` in `uart_rs485_example.c` application.
+    - Set `current_mode = SL_UART_RS485_RECEIVE` and `current_slave = RS485_SLAVE2` in [`uart_rs485_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_uart_rs485/uart_rs485_example.c) application.
     - This configures the slave to handle messages directed to `RS485_HW_SLAVE2_ADDRESS`.
 
 - This setup enables the master project to transmit data to two distinct slave projects, using RS485 addressing. The same steps apply to software-controlled half-duplex mode.

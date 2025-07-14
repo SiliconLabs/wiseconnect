@@ -47,7 +47,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-Configure the following parameter in blinky.c file. Update or modify following macro if required.
+Configure the following parameter in [`blinky.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_blinky/blinky.c) file. Update or modify following macro if required.
 
   ```C
     #define TOGGLE_DELAY_MS 500//  configured for 500 ms   

@@ -557,4 +557,3 @@ bool extractVersionNumber(const char *pJsonDocument, void *pJsonHandler, int32_t
 #ifdef __cplusplus
 }
 #endif
-
