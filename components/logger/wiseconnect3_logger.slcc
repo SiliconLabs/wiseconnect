@@ -11,10 +11,8 @@ metadata:
 component_root_path: ./components/logger
 provides:
 - name: wiseconnect3_logger
-source:
 requires:
 - name: cmsis_core
-
 include:
 - path: inc
   file_list:

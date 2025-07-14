@@ -107,6 +107,7 @@ sl_status_t sl_si91x_opamp_init(void)
  *******************************************************************************/
 static sl_status_t get_battery_status(float *battery_status)
 {
+
   if (battery_status == NULL) {
     return SL_STATUS_NULL_POINTER; // Return error if pointer is NULL
   }
@@ -157,8 +158,19 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
   }
+
   if ((opamp_config_ptr->vin_p_input == TGPIO_PIN2) || (opamp_config_ptr->vin_p_input == TGPIO_PIN4)) {
     // Set pin mode to TGPIO mode for specific pins
+    status = sl_si91x_gpio_driver_select_pad_driver_disable_state(sl_gpio_pin_vinp.port_pin.pin,
+                                                                  (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
+    // Set pad driver disable state
+    status = sl_si91x_gpio_driver_disable_pad_receiver(sl_gpio_pin_vinp.port_pin.pin); // Disable pad receiver
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
     status = sl_gpio_driver_set_pin_mode(&gpio_vinp, tgpio_mode, 0);
     if (status != SL_STATUS_OK) {
       return SL_STATUS_FAIL;
@@ -177,6 +189,16 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
   }
   if ((opamp_config_ptr->vin_n_input == TGPIO_PIN2) || (opamp_config_ptr->vin_n_input == TGPIO_PIN4)) {
     // Set pin mode to TGPIO mode for specific pins
+    status = sl_si91x_gpio_driver_select_pad_driver_disable_state(sl_gpio_pin_vinn.port_pin.pin,
+                                                                  (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
+    // Set pad driver disable state
+    status = sl_si91x_gpio_driver_disable_pad_receiver(sl_gpio_pin_vinn.port_pin.pin); // Disable pad receiver
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
     status = sl_gpio_driver_set_pin_mode(&gpio_vinn, tgpio_mode, 0);
     if (status != SL_STATUS_OK) {
       return SL_STATUS_FAIL;
@@ -195,6 +217,16 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
   }
   if ((opamp_config_ptr->vin_res_input == TGPIO_PIN2) || (opamp_config_ptr->vin_res_input == TGPIO_PIN4)) {
     // Set pin mode to TGPIO mode for specific pins
+    status = sl_si91x_gpio_driver_select_pad_driver_disable_state(sl_gpio_pin_vinres.port_pin.pin,
+                                                                  (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
+    // Set pad driver disable state
+    status = sl_si91x_gpio_driver_disable_pad_receiver(sl_gpio_pin_vinres.port_pin.pin); // Disable pad receiver
+    if (status != SL_STATUS_OK) {
+      return SL_STATUS_FAIL;
+    }
     status = sl_gpio_driver_set_pin_mode(&gpio_vinres, tgpio_mode, 0);
     if (status != SL_STATUS_OK) {
       return SL_STATUS_FAIL;
@@ -234,7 +266,6 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
       return SL_STATUS_FAIL;
     }
   }
-
   return status; // Return success status
 }
 
@@ -585,8 +616,10 @@ static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_conf
 sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
+#if defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2) && defined(SL_OPAMP_OPAMP3) // All OPAMPs enabled,
+  return SL_STATUS_INVALID_PARAMETER;
   // Configure OPAMP1 and OPAMP2 for cascaded inverting pga if macros are defined
-#if defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)
+#elif defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)
   Configure_OPAMP1_OPAMP2_t config_cas_invt = { 0 };
 
   config_cas_invt.vin1_p_sel    = SL_OPAMP1_VINP_SEL;
@@ -608,7 +641,31 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
   config_cas_invt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
 
-  RSI_OPAMP_CascInvtPGAmp(&config_cas_invt, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  RSI_OPAMP1_OPAMP2_CascInvtPGAmp(&config_cas_invt, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  return SL_STATUS_OK;
+  // Configure OPAMP2 and OPAMP3 for cascaded inverting pga if macros are defined
+#elif defined(SL_OPAMP_OPAMP2) && defined(SL_OPAMP_OPAMP3)
+  Configure_OPAMP2_OPAMP3_t config_cas_invt = { 0 };
+
+  config_cas_invt.vin2_p_sel    = SL_OPAMP2_VINP_SEL;
+  config_cas_invt.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
+  config_cas_invt.vref2_sel     = SL_OPAMP2_VREF_SEL;
+  config_cas_invt.enable        = ENABLE;
+  config_cas_invt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_invt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
+  config_cas_invt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
+  config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+  config_cas_invt.vin3_p_sel    = SL_OPAMP3_VINP_SEL;
+  config_cas_invt.vin3_n_sel    = SL_OPAMP3_VINN_SEL;
+  config_cas_invt.vref3_sel     = SL_OPAMP3_VREF_SEL;
+  config_cas_invt.enable        = ENABLE;
+  config_cas_invt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_invt.opamp3_r1_sel = SL_OPAMP3_R1_SELECT;
+  config_cas_invt.opamp3_r2_sel = SL_OPAMP3_R2_SELECT;
+  config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+  RSI_OPAMP2_OPAMP3_CascInvtPGAmp(&config_cas_invt, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
   return SL_STATUS_OK;
 #else
   return SL_STATUS_INVALID_PARAMETER;
@@ -622,8 +679,10 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
 sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
+#if defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2) && defined(SL_OPAMP_OPAMP3) // All OPAMPs enabled,
+  return SL_STATUS_INVALID_PARAMETER;
   // Configure OPAMP1 and OPAMP2 for cascaded non-inverting pga if macros are defined
-#if defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)
+#elif defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)
   Configure_OPAMP1_OPAMP2_t config_cas_noninvt = { 0 };
 
   config_cas_noninvt.vin1_p_sel    = SL_OPAMP1_VINP_SEL;
@@ -644,7 +703,30 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
   config_cas_noninvt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
   config_cas_noninvt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
-  RSI_OPAMP_CascNonInvtPGAmp(&config_cas_noninvt, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  RSI_OPAMP1_OPAMP2_CascNonInvtPGAmp(&config_cas_noninvt, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  return SL_STATUS_OK;
+  // Configure OPAMP2 and OPAMP3 for cascaded non-inverting pga if macros are defined
+#elif defined(SL_OPAMP_OPAMP2) && defined(SL_OPAMP_OPAMP3)
+  Configure_OPAMP2_OPAMP3_t config_cas_noninvt = { 0 };
+
+  config_cas_noninvt.vin2_p_sel    = SL_OPAMP2_VINP_SEL;
+  config_cas_noninvt.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
+  config_cas_noninvt.vref2_sel     = SL_OPAMP2_VREF_SEL;
+  config_cas_noninvt.enable        = ENABLE;
+  config_cas_noninvt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_noninvt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
+  config_cas_noninvt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
+  config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+  config_cas_noninvt.vin3_p_sel    = SL_OPAMP3_VINP_SEL;
+  config_cas_noninvt.vin3_n_sel    = SL_OPAMP3_VINN_SEL;
+  config_cas_noninvt.vref3_sel     = SL_OPAMP3_VREF_SEL;
+  config_cas_noninvt.enable        = ENABLE;
+  config_cas_noninvt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_noninvt.opamp3_r1_sel = SL_OPAMP3_R1_SELECT;
+  config_cas_noninvt.opamp3_r2_sel = SL_OPAMP3_R2_SELECT;
+  config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
+  RSI_OPAMP2_OPAMP3_CascNonInvtPGAmp(&config_cas_noninvt, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
   return SL_STATUS_OK;
 #else
   return SL_STATUS_INVALID_PARAMETER;
@@ -658,8 +740,10 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
 sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
+#if defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2) && defined(SL_OPAMP_OPAMP3) // All OPAMPs enabled,
+  return SL_STATUS_INVALID_PARAMETER;
   // Configure OPAMP1 and OPAMP2 for two opamps differential amplifier if macros are defined
-#if defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)
+#elif defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)
   Configure_OPAMP1_OPAMP2_t config_two_opamps = { 0 };
 
   config_two_opamps.vin1_p_sel  = SL_OPAMP1_VINP_SEL;
@@ -679,7 +763,29 @@ sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_
   config_two_opamps.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_two_opamps.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
 
-  RSI_OPAMP_TwoOpampsDiffAmp(&config_two_opamps, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  RSI_OPAMP1_OPAMP2_TwoOpampsDiffAmp(&config_two_opamps, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  return SL_STATUS_OK;
+  // Configure OPAMP2 and OPAMP3 for two opamps differential amplifier if macros are defined
+#elif defined(SL_OPAMP_OPAMP2) && defined(SL_OPAMP_OPAMP3)
+  Configure_OPAMP2_OPAMP3_t config_two_opamps = { 0 };
+
+  config_two_opamps.vin2_p_sel = SL_OPAMP2_VINP_SEL;
+  config_two_opamps.vin2_n_sel = SL_OPAMP2_VINN_SEL;
+  config_two_opamps.vref2_sel  = SL_OPAMP2_VREF_SEL;
+  config_two_opamps.enable     = ENABLE;
+  config_two_opamps.lp_mode    = SL_OPAMP_LP_MODE;
+  config_two_opamps.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+  config_two_opamps.vin3_p_sel    = SL_OPAMP3_VINP_SEL;
+  config_two_opamps.vin3_n_sel    = SL_OPAMP3_VINN_SEL;
+  config_two_opamps.vref3_sel     = SL_OPAMP3_VREF_SEL;
+  config_two_opamps.enable        = ENABLE;
+  config_two_opamps.lp_mode       = SL_OPAMP_LP_MODE;
+  config_two_opamps.opamp3_r1_sel = SL_OPAMP3_R1_SELECT;
+  config_two_opamps.opamp3_r2_sel = SL_OPAMP3_R2_SELECT;
+  config_two_opamps.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
+
+  RSI_OPAMP2_OPAMP3_TwoOpampsDiffAmp(&config_two_opamps, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
   return SL_STATUS_OK;
 #else
   return SL_STATUS_INVALID_PARAMETER;

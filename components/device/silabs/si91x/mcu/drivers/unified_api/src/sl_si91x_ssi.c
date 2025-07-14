@@ -863,6 +863,58 @@ uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle)
 }
 
 /*******************************************************************************
+ * To set the frame length i.e., bit width
+ * @param[in] ssi_handle  Handle to the SSI instance
+ * @param[in] frame_length Frame length (bit width) to set (4-16 bits)
+ * @return
+ * *      SL_STATUS_OK if successful, error code otherwise
+ ******************************************************************************/
+sl_status_t sl_si91x_ssi_set_frame_length(sl_ssi_handle_t ssi_handle, uint8_t frame_length)
+{
+  sl_status_t status = SL_STATUS_OK;
+  int32_t result     = 0;
+  do {
+    // Validate input parameters
+    if (ssi_handle == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+
+    if (!validate_ssi_handle(ssi_handle)) {
+      status = SL_STATUS_INVALID_HANDLE;
+      break;
+    }
+
+    // Validate frame length range (4-16 bits)
+    if (frame_length < 4 || frame_length > 16) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    // Set frame length based on SSI instance
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      result = SSI_SetFrameLength(SPI_MASTER_MODE, frame_length);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      result = SSI_SetFrameLength(SPI_SLAVE_MODE, frame_length);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      result = SSI_SetFrameLength(SPI_ULP_MASTER_MODE, frame_length);
+      break;
+    }
+  } while (false);
+
+  // Convert any error codes from the lower-level API
+  if (result != 0 && status == SL_STATUS_OK) {
+    status = convert_arm_to_sl_error_code(result);
+  }
+
+  return status;
+}
+
+/*******************************************************************************
  * To fetch the transfer fifo threshold
  * @param[in] ssi_handle
  * @return

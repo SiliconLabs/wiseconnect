@@ -1,15 +1,9 @@
 id: opamp_instance
 label: OPAMP Instance
 package: platform
-description: Opamp application to verify features Unity Gain Buffer or Voltage follower by giving input on the the SiWx917 SoC device.
-
-Note:
-  For Configuring, Configurable Features of OPAMP, Open the configuration wizard and configure, Below are the Configurable Features of OPAMP
-    - Unity Gain
-    - Inverting PGA
-    - Non-Inverting PGA
-    - Inverting hysteresis 
-    - Non-inverting hysteresis 
+description: Operational Amplifier (OPAMP) peripheral features for the SiWx917 SoC device.This component provides a configurable OPAMP features that enables analog signal 
+  amplification and conditioning. Each features can be independently configured with specific gain settings, input and output configurations, and operational modes to support
+  various analog applications including signal buffering.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 metadata:

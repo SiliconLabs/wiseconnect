@@ -277,6 +277,7 @@ void power_manager_example_process_action(void)
               DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
             }
 #if !SL_SI91X_STANDBY
+            // Closing bracket for removing the PS1 state request. This should only be active when Standby mode is disabled.
           }
 #endif
         } else if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS4) {

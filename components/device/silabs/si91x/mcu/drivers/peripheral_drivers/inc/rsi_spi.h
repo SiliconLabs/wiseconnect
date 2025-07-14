@@ -102,6 +102,7 @@ void SPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi);
 void SPI_IRQHandler(const SPI_RESOURCES *spi);
 uint32_t SSI_GetClockDivisionFactor(uint8_t ssi_instance);
 uint32_t SSI_GetFrameLength(uint8_t ssi_instance);
+int32_t SSI_SetFrameLength(uint8_t ssi_instance, uint8_t frame_length);
 uint8_t SSI_GetInitState(uint8_t ssi_instance);
 uint32_t SSI_GetTxCount(uint8_t ssi_instance);
 void SSI_SetFifoThreshold(uint8_t ssi_instance);

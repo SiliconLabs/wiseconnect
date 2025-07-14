@@ -670,6 +670,27 @@ uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/
 /**
+ * @brief To set the frame length (bit width) of the SSI.
+ * 
+ * @details This API sets the frame length, which can be configured between 4 and 16 bits.
+ * 
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
+ * @param[in] frame_length The desired frame length (bit width) in the range of 4 - 16 bits.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_ssi_init
+ *      - \ref sl_si91x_ssi_set_configuration
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Frame length is not in range.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ * 
+ ******************************************************************************/
+sl_status_t sl_si91x_ssi_set_frame_length(sl_ssi_handle_t ssi_handle, uint8_t frame_length);
+
+/***************************************************************************/
+/**
  * @brief To fetch the transmit FIFO threshold value.
  * 
  * @details This API retrieves the transmit FIFO threshold value, which controls the level of

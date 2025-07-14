@@ -103,6 +103,10 @@ Configure UC from the slcp component:
 - The application prints the sampled voltages to the UART console.
 - Apply different voltages (1.8V to Vref) to the SDC input and observe the console output.
 - Input voltage and console output should match.
+> **Notes:**
+>
+> - Ensure that the number of channel instances matches the number of channels selected in UC.
+> - The number of channels must be set to 1, 2, or 4. Selecting 3 channels is not supported.
 
 ## Pin Configuration
 
@@ -152,7 +156,6 @@ Refer to the [Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/
 
 > **Notes:**
 >
-> - Pintool is not supported for SDC.
 > - Input selection GPIO can be configured in `sl_si91x_sdc_init_channel_1_config.h` for channel 1, or the respective config for other channels.
 > - In `sdc_example.c`, update the `sl_adc_channel_config_t` channel parameter to match the installed channel number.
 > - When using a single channel, only channel 1 is available; for two channels, channels 1 and 2, and so on.

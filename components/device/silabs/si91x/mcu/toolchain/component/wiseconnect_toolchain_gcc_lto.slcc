@@ -11,11 +11,6 @@ provides:
   - name: wiseconnect_toolchain_gcc_lto
 define:
   - name: SL_SI91X_ENABLE_GCC_LTO
-toolchain_settings:
-  - option: wiseconnect_link_time_optimization
-    value: "enabled"
-    unless:
-      - wiseconnect_toolchain_gcc_lto_disable
 template_contribution:
   - name: component_catalog
     value: wiseconnect_toolchain_gcc_lto

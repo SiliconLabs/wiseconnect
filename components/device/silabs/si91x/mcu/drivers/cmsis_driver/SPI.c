@@ -1219,6 +1219,44 @@ uint32_t SSI_GetFrameLength(uint8_t ssi_instance)
      1 is substracted from the original value, so while returning adding 1 to the register value*/ 
   return frame_length + LENGTH_OFFSET;
 }
+
+// To set the frame length
+int32_t SSI_SetFrameLength(uint8_t ssi_instance, uint8_t frame_length)
+{
+  int32_t status = ARM_DRIVER_OK;
+
+  do {
+    if (frame_length < 4U || frame_length > 16U) {
+      status = ARM_SPI_ERROR_DATA_BITS;
+      break;
+    }
+    if (ssi_instance == SPI_MASTER_MODE) {
+      // For Dual/Quad SPI, the frame length should be a multiple of 2 or 4.
+      if(SSI_MASTER_Resources.reg->CTRLR0_b.SPI_FRF != STANDARD_SPI_FORMAT) {
+        if ((frame_length % 2 != 0) || (frame_length % 4 != 0)) {
+          status = ARM_SPI_ERROR_DATA_BITS;
+          break;
+        }
+      }
+      SSI_MASTER_Resources.reg->CTRLR0_b.DFS_32 = (frame_length - LENGTH_OFFSET);
+      break;
+    }
+    if (ssi_instance == SPI_SLAVE_MODE) {
+      if (frame_length < 4U || frame_length > 16U) {
+        status = ARM_SPI_ERROR_DATA_BITS;
+        break;
+      }
+      SSI_SLAVE_Resources.reg->CTRLR0_b.DFS = (frame_length - LENGTH_OFFSET);
+      break;
+    }
+    if (ssi_instance == SPI_ULP_MASTER_MODE) {
+      SSI_ULP_MASTER_Resources.reg->CTRLR0_b.DFS_32 = (frame_length - LENGTH_OFFSET);
+      break;
+    }
+  } while (false);
+  return status;
+}
+
 // Get SSI Init state
 uint8_t SSI_GetInitState(uint8_t ssi_instance)
 {

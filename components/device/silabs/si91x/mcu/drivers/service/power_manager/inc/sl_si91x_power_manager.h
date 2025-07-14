@@ -784,6 +784,9 @@ uint8_t *sl_si91x_power_manager_get_requirement_table(void);
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) - PS1 state requirement successfully added.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to add PS1 state.
+ *          - SL_STATUS_NOT_INITIALIZED (0x0011) - Power manager service is not initialized.
+ *          - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_request_ps1_state(void);
 
@@ -797,6 +800,9 @@ sl_status_t sl_si91x_power_manager_request_ps1_state(void);
  * 
  * @return  Status code indicating the result:  
  *          - SL_STATUS_OK (0x0000) - Ps1 state requirement successfully removed.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to remove PS1 state.
+ *          - SL_STATUS_NOT_INITIALIZED (0x0011) - Power manager service is not initialized.
+ *          - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_ps1_state_request(void);
 
@@ -824,6 +830,7 @@ bool sl_si91x_power_manager_get_ps1_state_status(void);
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) - Standby state requirement successfully added.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to add standby state.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_request_standby_state(void);
 
@@ -837,6 +844,7 @@ sl_status_t sl_si91x_power_manager_request_standby_state(void);
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) : Standby state requirement successfully removed.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to remove standby state.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_standby_state_request(void);
 

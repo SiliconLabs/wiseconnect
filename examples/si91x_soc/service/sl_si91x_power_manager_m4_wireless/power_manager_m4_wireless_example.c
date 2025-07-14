@@ -375,7 +375,7 @@ void power_manager_example_process_action(void)
       if (change_state) {
         power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_SLEEP);
         change_state = false;
-        // Next transition is from PS2 to PS3 state.
+        // Next transition is from PS2 to PS1 state.
         transition = PS1;
       }
       break;

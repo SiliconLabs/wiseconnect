@@ -1024,14 +1024,33 @@ set_speed:
       return ARM_SPI_ERROR_FRAME_FORMAT;
   }
 
+  if ((spi->info->mode & ARM_SPI_CONTROL_Msk) == ARM_SPI_MODE_MASTER) {
+    switch (control & SPI_TRANSFER_MODE_Msk) {
+      case SPI_TRANSFER_MODE_STANDARD:
+        spi->reg->CTRLR0_b.SPI_FRF = STANDARD_SPI_FORMAT;
+        break;
+      case SPI_TRANSFER_MODE_DUAL:
+        spi->reg->CTRLR0_b.SPI_FRF = DUAL_SPI_FORMAT;
+        break;
+      case SPI_TRANSFER_MODE_QUAD:
+        spi->reg->CTRLR0_b.SPI_FRF = QUAD_SPI_FORMAT;
+        break;
+    }
+  } else {
+    spi->reg->CTRLR0_b.SPI_FRF = STANDARD_SPI_FORMAT;
+  }
+
   // Configure Number of Data Bits
   data_bits = ((control & ARM_SPI_DATA_BITS_Msk) >> ARM_SPI_DATA_BITS_Pos);
+  if ((data_bits < 4U) && (data_bits > 16U)) {
+    return ARM_SPI_ERROR_DATA_BITS;
+  }
   if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
-    if ((data_bits >= 4U) && (data_bits <= 32U)) {
-      spi->reg->CTRLR0_b.DFS_32 = (unsigned int)((data_bits - 1U) & 0x1F);
-    } else {
+    // For Dual/Quad SPI, the frame length should be a multiple of 2 or 4.
+    if ((spi->reg->CTRLR0_b.SPI_FRF != STANDARD_SPI_FORMAT) && ((data_bits % 2U != 0U) || (data_bits % 4U != 0U))) {
       return ARM_SPI_ERROR_DATA_BITS;
     }
+    spi->reg->CTRLR0_b.DFS_32 = (unsigned int)((data_bits - 1U) & 0x1F);
   } else {
     if ((data_bits >= 4U) && (data_bits <= 16U)) {
       spi->reg->CTRLR0_b.DFS = (unsigned int)((data_bits - 1U) & 0x0F);
@@ -1048,22 +1067,6 @@ set_speed:
   spi->reg->CTRLR0_b.FRF = MOTOROLA_SPI;
   spi->reg->TXFTLR_b.TFT = 0;
   spi->reg->RXFTLR_b.RFT = 0;
-
-  if ((spi->info->mode & ARM_SPI_CONTROL_Msk) == ARM_SPI_MODE_MASTER) {
-    switch (control & SPI_TRANSFER_MODE_Msk) {
-      case SPI_TRANSFER_MODE_STANDARD:
-        spi->reg->CTRLR0_b.SPI_FRF = STANDARD_SPI_FORMAT;
-        break;
-      case SPI_TRANSFER_MODE_DUAL:
-        spi->reg->CTRLR0_b.SPI_FRF = DUAL_SPI_FORMAT;
-        break;
-      case SPI_TRANSFER_MODE_QUAD:
-        spi->reg->CTRLR0_b.SPI_FRF = QUAD_SPI_FORMAT;
-        break;
-    }
-  } else {
-    spi->reg->CTRLR0_b.SPI_FRF = STANDARD_SPI_FORMAT;
-  }
 
   if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
     spi->reg->IMR &= (uint32_t)(~(0x3F)); // Disable SPI interrupts

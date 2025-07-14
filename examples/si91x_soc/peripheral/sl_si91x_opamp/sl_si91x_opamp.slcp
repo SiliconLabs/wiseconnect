@@ -84,11 +84,17 @@ other_file:
   - path: resources/uc_screen/noninvt_hys_uc.png
   - path: resources/uc_screen/unity_gain_dac_uc.png
   - path: resources/uc_screen/cas_invt_uc_opamp1.png 
-  - path: resources/uc_screen/cas_invt_uc_opamp2.png    
+  - path: resources/uc_screen/cas_invt_uc_opamp2.png 
+  - path: resources/uc_screen/cas_invt_uc_opamp2_1.png
+  - path: resources/uc_screen/cas_invt_uc_opamp3.png 
   - path: resources/uc_screen/cas_noninvt_uc_opamp1.png 
-  - path: resources/uc_screen/cas_noninvt_uc_opamp2.png  
+  - path: resources/uc_screen/cas_noninvt_uc_opamp2.png 
+  - path: resources/uc_screen/cas_noninvt_uc_opamp2_1.png 
+  - path: resources/uc_screen/cas_noninvt_uc_opamp3.png   
   - path: resources/uc_screen/two_opamps_uc_opamp1.png    
-  - path: resources/uc_screen/two_opamps_uc_opamp2.png   
+  - path: resources/uc_screen/two_opamps_uc_opamp2.png 
+  - path: resources/uc_screen/two_opamps_uc_opamp2_1.png
+  - path: resources/uc_screen/two_opamps_uc_opamp3.png  
 readme:
   - path: readme.md
 ui_hints:

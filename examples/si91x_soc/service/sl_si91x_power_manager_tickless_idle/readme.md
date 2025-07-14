@@ -7,6 +7,7 @@
   - [Purpose/Scope](#purposescope)
   - [Overview](#overview)
   - [About Example Code](#about-example-code)
+  - [Application Build Environment](#application-build-environment)
   - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
     - [Hardware Requirements](#hardware-requirements)
     - [Software Requirements](#software-requirements)
@@ -16,7 +17,7 @@
 
 ## Purpose/Scope
 
- This application demonstrates the power manager service APIs, active state transitions(PS4, PS3 and PS2), standby state transitions (PS4, PS3 and PS2) and sleep-wakeup (PS4, PS3, PS2 and PS1 sleep with RAM retention) with tick-less idle mode.
+ This application demonstrates the power manager service APIs, active state transitions(PS4, PS3 and PS2), standby state transitions (PS4, PS3 and PS2) and sleep-wakeup (PS4, PS3, PS2 and PS1 State with RAM retention) with tick-less idle mode.
 
 ## Overview
 
@@ -25,7 +26,7 @@
 - Sleep or Standby - Demonstrations of wake-up with RAM retention are showcased in PS4, PS3 and PS2 states, automatically adjusting to the attainable state.
  
  **Note:** In this application, the Ultra-Low Power (ULP) Timer is configured as the wakeup source from the PS1. The Power Manager supports the following ULP peripherals as a wakeup sources during the PS1 state:
-  | **UlP Peripherals Supported** |
+  | **ULP Peripherals Supported** |
   |---------------------| 
   | *ULP GPIO*       | 
   | *ULP Timer*      |
@@ -51,7 +52,7 @@ The application can be configured to suit user requirements and development envi
 To enable transitions from the active state to sleep or standby state, configure the parameters outlined below accordingly.
 
   - By default, the SL_SI91X_STANDBY macro is configured with a value of 0, indicating that the application performs the following sequence of power state transitions:
-  - PS3 State => PS3 Sleep => PS3 State =>PS2 State => PS2 Sleep => PS2 State => PS1 Sleep => PS2 State => PS4 State => PS4 Sleep => PS4 State => PS3 State and repeat.
+  - PS3 State => PS3 Sleep => PS3 State =>PS2 State => PS2 Sleep => PS2 State => PS1 State => PS2 State => PS4 State => PS4 Sleep => PS4 State => PS3 State and repeat.
 
     ```c
     #define SL_SI91X_STANDBY                                      0 

@@ -409,7 +409,7 @@ The following table describes the front-end switch selection for the SiWx917.
 - The PS1 state does not support the UULP wakeup source.
 - The following ULP peripherals are supported in the PS1 state:
 
-  | **UlP Peripherals Supported** |
+  | **ULP Peripherals Supported** |
   |---------------------| 
   | **ULP GPIO**        | 
   | **ULP Timer**       |

@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Test the Application](#test-the-application)
+- [SL POWER MANAGER M4 WIRELESS](#sl-power-manager-m4-wireless)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -19,7 +21,7 @@
 ## Overview
 
 - According to the macros configured in power_manager_example.h file, it executes the state transition and sleep-wakeup with RAM retention on button press, sleep-wakeup without RAM retention using second trigger as wakeup source.
-- By default, the system is configured to the PS3 state. The application will switch to the PS4 state as required. The state transitions occur upon button press. State transitions demonstrated are as follows: PS4 -> PS2, PS2 -> PS4, PS4 -> PS4 Sleep -> PS4, PS4 -> PS3, PS3 -> PS3 Sleep -> PS3, PS3 -> PS2, PS2 -> PS2 Sleep -> PS2, PS2 -> PS1 -> PS2, PS2 -> PS3, PS3 -> PS4. It switches the state at the time of button press.
+- By default, the system is configured to the PS3 state. The application switches to the PS4 state as required. The state transitions occurs when the button is pressed. State transition is demonstrated in the following manner: PS4 -> PS2, PS2 -> PS4, PS4 -> PS4 Sleep -> PS4, PS4 -> PS3, PS3 -> PS3 Sleep -> PS3, PS3 -> PS2, PS2 -> PS2 Sleep -> PS2, PS2 -> PS1 -> PS2, PS2 -> PS3, PS3 -> PS4. It switches the states when the button is pressed.
 - Sleep - wakeup without RAM retention is demonstrated as follows: PS4 -> PS0 -> wakeup -> restart the controller.
 - For the integration of power manager in other projects, refer the instructions at the given path: **examples/si91x_soc/service/power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf** 
 

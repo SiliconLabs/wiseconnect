@@ -605,10 +605,17 @@ __WEAK boolean_t sl_si91x_power_manager_sleep_on_isr_exit(void)
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) - PS1 state requirement successfully added.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to add PS1 state.
+ *          - SL_STATUS_NOT_INITIALIZED (0x0011) - Power manager service is not initialized.
+ *          - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_request_ps1_state(void)
 {
   sl_status_t status = SL_STATUS_OK;
+  if (sli_si91x_pm_standby_state_active) {
+    // If the standby state is requested, then it is not possible to add the PS1 state request.
+    return SL_STATUS_INVALID_STATE;
+  }
   if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
     // If the ULP mode is not enabled, then it is not possible to transition to the PS1 state.
     return SL_STATUS_INVALID_STATE;
@@ -631,11 +638,18 @@ sl_status_t sl_si91x_power_manager_request_ps1_state(void)
  * 
  * @return  Status code indicating the result:  
  *          - SL_STATUS_OK (0x0000) - Ps1 state requirement successfully removed.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid re quest to remove PS1 state.
+ *          - SL_STATUS_NOT_INITIALIZED (0x0011) - Power manager service is not initialized.
+ *          - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_ps1_state_request(void)
 {
   sl_status_t status = SL_STATUS_OK;
-  status             = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, false);
+  if (!sli_si91x_pm_ps1_state_active) {
+    // If the PS1 state is not requested, then it is not possible to remove the PS1 state request.
+    return SL_STATUS_INVALID_STATE;
+  }
+  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, false);
   if (status != SL_STATUS_OK) {
     // Returns the error code.
     return status;
@@ -669,9 +683,14 @@ bool sl_si91x_power_manager_get_ps1_state_status(void)
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) - Standby state requirement successfully added.
+ *          - SL_STATUS_INVALID_STATE (0x0002) - Invalid request to add standby state.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_request_standby_state(void)
 {
+  if (sli_si91x_pm_ps1_state_active) {
+    // If the PS1 state is requested, then it is not possible to add the standby state request.
+    return SL_STATUS_INVALID_STATE;
+  }
   sli_si91x_pm_standby_state_active = true;
   return SL_STATUS_OK;
 }
@@ -685,9 +704,14 @@ sl_status_t sl_si91x_power_manager_request_standby_state(void)
  *
  * @return  Status code indicating the result:
  *          - SL_STATUS_OK (0x0000) : Standby state requirement successfully removed.
+ *          - SL_STATUS_INVALID_STATE (0x0001) - Invalid request to remove standby state.
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_standby_state_request(void)
 {
+  if (!sli_si91x_pm_standby_state_active) {
+    // If the standby state is not requested, then it is not possible to remove the standby state request.
+    return SL_STATUS_INVALID_STATE;
+  }
   sli_si91x_pm_standby_state_active = false;
   return SL_STATUS_OK;
 }

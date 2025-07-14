@@ -36,7 +36,7 @@ component:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
-  - path: resources/readme/si91x_nvm3_uc_screen.png
+  - path: resources/uc_screen/si91x_nvm3_uc_screen.png
 template_contribution:
   - name: NVM3_DUAL_FLASH
     value: 1
