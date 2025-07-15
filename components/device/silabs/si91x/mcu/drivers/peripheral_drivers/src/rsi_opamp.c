@@ -1260,7 +1260,7 @@ void RSI_OPAMP_InstrAMP_v2(const Configure_OPAMP_t *params, uint8_t dyn_en, uint
 
 /*==============================================*/
 /**
- * @fn          void RSI_OPAMP1_OPAMP2_CascInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
+ * @fn          void RSI_OPAMP_CascInvtPGA(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
  * @brief       This API is used to configuration of opamp as cascaded inverting pga
  * @param[in]   vin1_p_sel   : input selection (0 - GPIO_27,1 - ULP_GPIO_7,2 - ULP_GPIO_0,3 -ULP_GPIO_2,4 -ULP_GPIO_6,5 -ULP_GPIO_8)
  * @param[in]   vin1_n_sel   : input selection (0 - GPIO_27,1 - ULP_GPIO_7)
@@ -1279,9 +1279,10 @@ void RSI_OPAMP_InstrAMP_v2(const Configure_OPAMP_t *params, uint8_t dyn_en, uint
  * @param[in]   channel      : channel no to set in dynamic mode
  * @return      none
  */
-void RSI_OPAMP1_OPAMP2_CascInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
+void RSI_OPAMP_CascInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
 {
   OPAMP_CONFIG_T Config;
+
   Configure_OPAMP_t params1 = {
     .vin_p_sel   = params->vin1_p_sel,
     .vin_n_sel   = params->vin1_n_sel,
@@ -1314,60 +1315,7 @@ void RSI_OPAMP1_OPAMP2_CascInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, ui
 
 /*==============================================*/
 /**
- * @fn          void RSI_OPAMP2_OPAMP3_CascInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel)
- * @brief       This API is used to configuration of opamp as cascaded inverting pga
- * @param[in]   vin2_p_sel   : input selection (0 - ULP_GPIO_11,1 - ULP_GPIO_5)
- * @param[in]   vin2_n_sel   : input selection (0 - ULP_GPIO_11)
- * @param[in]   vref2_sel    : input selection (0 - ULP_GPIO_11,1 - ULP_GPIO_5)
- * @param[in]   vin3_p_sel   : input selection (0 - ULP_GPIO_10,1 - GPIO_29)
- * @param[in]   vin3_n_sel   : input selection (0 - ULP_GPIO_10)
- * @param[in]   vref3_sel    : input selection (0 - ULP_GPIO_10,1 - GPIO_29)
- * @param[in]   enable       : opamp1 enable (1 - enable ,0 - disable)
- * @param[in]   lp_mode      : opamp1 low power mode(1 - enable ,0 - disable)
- * @param[in]   opamp2_r1_sel: selection of resistor r1(0 - 0kohm,1 - 20kohm,2 - 60kohm,3- 140kohm)
- * @param[in]   opamp2_r2_sel: selection of resistor r2(0 - 20kohm,1 - 30kohm,2 - 40kohm,3- 60kohm,4 - 120kohm,5 - 250kohm,6 - 500kohm,7 - 1000kohm)
- * @param[in]   opamp3_r1_sel: selection of resistor r1(0 - 0kohm,1 - 20kohm,2 - 60kohm,3- 140kohm)
- * @param[in]   opamp3_r2_sel: selection of resistor r2(0 - 20kohm,1 - 30kohm,2 - 40kohm,3- 60kohm,4 - 120kohm,5 - 250kohm,6 - 500kohm,7 - 1000kohm)
- * @param[in]   out_mux_en   : opamp output mux enable(1 - enable ,0 - disable opamp3 output on GPIO_27)
- * @param[in]   dyn_en       : opamp dynamic mode enable(1 - enable ,0 - disable)
- * @param[in]   channel      : channel no to set in dynamic mode
- * @return      none
- */
-void RSI_OPAMP2_OPAMP3_CascInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel)
-{
-  OPAMP_CONFIG_T Config;
-  Configure_OPAMP_t params1 = {
-    .vin_p_sel  = params->vin2_p_sel,
-    .vin_n_sel  = params->vin2_n_sel,
-    .vref_sel   = params->vref2_sel,
-    .enable     = params->enable,
-    .lp_mode    = params->lp_mode,
-    .r1_sel     = params->opamp2_r1_sel,
-    .r2_sel     = params->opamp2_r2_sel,
-    .out_mux_en = params->out_mux_en,
-  };
-
-  rsi_configure_OPAMP2(&Config, &params1, 1, dyn_en);
-
-  Configure_OPAMP_t params2 = {
-    .vin_p_sel  = params->vin3_p_sel,
-    .vin_n_sel  = params->vin3_n_sel,
-    .vref_sel   = params->vref3_sel,
-    .enable     = params->enable,
-    .lp_mode    = params->lp_mode,
-    .r1_sel     = params->opamp3_r1_sel,
-    .r2_sel     = params->opamp3_r2_sel,
-    .out_mux_en = params->out_mux_en,
-  };
-  rsi_configure_OPAMP3(&Config, &params2, 1, dyn_en);
-
-  RSI_OPAMP2_Config(OPAMP, channel, &Config);
-  RSI_OPAMP3_Config(OPAMP, channel, &Config);
-}
-
-/*==============================================*/
-/**
- * @fn          void RSI_OPAMP1_OPAMP2_CascNonInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
+ * @fn          void RSI_OPAMP_CascNonInvtPGA(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
  * @brief       This API is used to configuration of opamp as cascaded inverting pga
  * @param[in]   vin1_p_sel   : input selection (0 - GPIO_27,1 - ULP_GPIO_7,2 - ULP_GPIO_0,3 -ULP_GPIO_2,4 -ULP_GPIO_6,5 -ULP_GPIO_8)
  * @param[in]   vin1_n_sel   : input selection (0 - GPIO_27,1 - ULP_GPIO_7)
@@ -1386,9 +1334,10 @@ void RSI_OPAMP2_OPAMP3_CascInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, ui
  * @param[in]   channel      : channel no to set in dynamic mode
  * @return      none
  */
-void RSI_OPAMP1_OPAMP2_CascNonInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
+void RSI_OPAMP_CascNonInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
 {
   OPAMP_CONFIG_T Config;
+
   Configure_OPAMP_t params1 = {
     .vin_p_sel   = params->vin1_p_sel,
     .vin_n_sel   = params->vin1_n_sel,
@@ -1421,60 +1370,7 @@ void RSI_OPAMP1_OPAMP2_CascNonInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params,
 
 /*==============================================*/
 /**
- * @fn          void RSI_OPAMP2_OPAMP3_CascNonInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel)
- * @brief       This API is used to configuration of opamp as cascaded inverting pga
- * @param[in]   vin2_p_sel   : input selection (0 - ULP_GPIO_11,1 - ULP_GPIO_5)
- * @param[in]   vin2_n_sel   : input selection (0 - ULP_GPIO_11)
- * @param[in]   vref2_sel    : input selection (0 - ULP_GPIO_11,1 - ULP_GPIO_5)
- * @param[in]   vin3_p_sel   : input selection (0 - ULP_GPIO_10,1 - GPIO_29)
- * @param[in]   vin3_n_sel   : input selection (0 - ULP_GPIO_10)
- * @param[in]   vref3_sel    : input selection (0 - ULP_GPIO_10,1 - GPIO_29)
- * @param[in]   enable       : opamp1 enable (1 - enable ,0 - disable)
- * @param[in]   lp_mode      : opamp1 low power mode(1 - enable ,0 - disable)
- * @param[in]   opamp2_r1_sel: selection of resistor r1(0 - 0kohm,1 - 20kohm,2 - 60kohm,3- 140kohm)
- * @param[in]   opamp2_r2_sel: selection of resistor r2(0 - 20kohm,1 - 30kohm,2 - 40kohm,3- 60kohm,4 - 120kohm,5 - 250kohm,6 - 500kohm,7 - 1000kohm)
- * @param[in]   opamp3_r1_sel: selection of resistor r1(0 - 0kohm,1 - 20kohm,2 - 60kohm,3- 140kohm)
- * @param[in]   opamp3_r2_sel: selection of resistor r2(0 - 20kohm,1 - 30kohm,2 - 40kohm,3- 60kohm,4 - 120kohm,5 - 250kohm,6 - 500kohm,7 - 1000kohm)
- * @param[in]   out_mux_en   : opamp output mux enable(1 - enable ,0 - disable opamp3 output on GPIO_27)
- * @param[in]   dyn_en       : opamp dynamic mode enable(1 - enable ,0 - disable)
- * @param[in]   channel      : channel no to set in dynamic mode
- * @return      none
- */
-void RSI_OPAMP2_OPAMP3_CascNonInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel)
-{
-  OPAMP_CONFIG_T Config;
-  Configure_OPAMP_t params1 = {
-    .vin_p_sel  = params->vin2_p_sel,
-    .vin_n_sel  = params->vin2_n_sel,
-    .vref_sel   = params->vref2_sel,
-    .enable     = params->enable,
-    .lp_mode    = params->lp_mode,
-    .r1_sel     = params->opamp2_r1_sel,
-    .r2_sel     = params->opamp2_r2_sel,
-    .out_mux_en = params->out_mux_en,
-  };
-
-  rsi_configure_OPAMP2(&Config, &params1, 1, dyn_en);
-
-  Configure_OPAMP_t params2 = {
-    .vin_p_sel  = params->vin3_p_sel,
-    .vin_n_sel  = params->vin3_n_sel,
-    .vref_sel   = params->vref3_sel,
-    .enable     = params->enable,
-    .lp_mode    = params->lp_mode,
-    .r1_sel     = params->opamp3_r1_sel,
-    .r2_sel     = params->opamp3_r2_sel,
-    .out_mux_en = params->out_mux_en,
-  };
-  rsi_configure_OPAMP3(&Config, &params2, 1, dyn_en);
-
-  RSI_OPAMP2_Config(OPAMP, channel, &Config);
-  RSI_OPAMP3_Config(OPAMP, channel, &Config);
-}
-
-/*==============================================*/
-/**
- * @fn          void RSI_OPAMP1_OPAMP2_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
+ * @fn          void RSI_OPAMP_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
  * @brief       This API is used to configuration of opamp as two opamps differential amp
  * @param[in]   vin1_p_sel   : input selection (0 - GPIO_27,1 - ULP_GPIO_7,2 - ULP_GPIO_0,3 -ULP_GPIO_2,4 -ULP_GPIO_6,5 -ULP_GPIO_8)
  * @param[in]   vin1_n_sel   : input selection (0 - GPIO_27,1 - ULP_GPIO_7)
@@ -1491,7 +1387,7 @@ void RSI_OPAMP2_OPAMP3_CascNonInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params,
  * @param[in]   channel      : channel no to set in dynamic mode
  * @return      none
  */
-void RSI_OPAMP1_OPAMP2_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
+void RSI_OPAMP_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel)
 {
   OPAMP_CONFIG_T Config;
   Configure_OPAMP_t params1 = {
@@ -1520,55 +1416,6 @@ void RSI_OPAMP1_OPAMP2_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params,
 
   RSI_OPAMP1_Config(OPAMP, channel, &Config);
   RSI_OPAMP2_Config(OPAMP, channel, &Config);
-}
-
-/*==============================================*/
-/**
- * @fn          void RSI_OPAMP2_OPAMP3_TwoOpampsDiffAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel)
- * @brief       This API is used to configuration of opamp as two opamps differential amp
- * @param[in]   vin2_p_sel   : input selection (0 - ULP_GPIO_11,1 - ULP_GPIO_5)
- * @param[in]   vin2_n_sel   : input selection (0 - ULP_GPIO_11)
- * @param[in]   vref2_sel    : input selection (0 - ULP_GPIO_11,1 - ULP_GPIO_5)
- * @param[in]   vin3_p_sel   : input selection (0 - ULP_GPIO_10,1 - GPIO_29)
- * @param[in]   vin3_n_sel   : input selection (0 - ULP_GPIO_10)
- * @param[in]   vref3_sel    : input selection (0 - ULP_GPIO_10,1 - GPIO_29)
- * @param[in]   enable       : opamp1 enable (1 - enable ,0 - disable)
- * @param[in]   lp_mode      : opamp1 low power mode(1 - enable ,0 - disable)
- * @param[in]   opamp3_r1_sel: selection of resistor r1(0 - 0kohm,1 - 20kohm,2 - 60kohm,3- 140kohm)
- * @param[in]   opamp3_r2_sel: selection of resistor r2(0 - 20kohm,1 - 30kohm,2 - 40kohm,3- 60kohm,4 - 120kohm,5 - 250kohm,6 - 500kohm,7 - 1000kohm)
- * @param[in]   out_mux_en   : opamp output mux enable(1 - enable ,0 - disable opamp2 output on GPIO_27)
- * @param[in]   dyn_en       : opamp dynamic mode enable(1 - enable ,0 - disable)
- * @param[in]   channel      : channel no to set in dynamic mode
- * @return      none
- */
-void RSI_OPAMP2_OPAMP3_TwoOpampsDiffAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel)
-{
-  OPAMP_CONFIG_T Config;
-  Configure_OPAMP_t params1 = {
-    .vin_p_sel  = params->vin2_p_sel,
-    .vin_n_sel  = params->vin2_n_sel,
-    .vref_sel   = params->vref2_sel,
-    .enable     = params->enable,
-    .lp_mode    = params->lp_mode,
-    .out_mux_en = params->out_mux_en,
-  };
-  rsi_configure_OPAMP2(&Config, &params1, 0, dyn_en);
-
-  Configure_OPAMP_t params2 = {
-    .vin_p_sel  = params->vin3_p_sel,
-    .vin_n_sel  = params->vin3_n_sel,
-    .vref_sel   = params->vref3_sel,
-    .enable     = params->enable,
-    .lp_mode    = params->lp_mode,
-    .r1_sel     = params->opamp3_r1_sel,
-    .r2_sel     = params->opamp3_r2_sel,
-    .out_mux_en = params->out_mux_en,
-  };
-
-  rsi_configure_OPAMP3(&Config, &params2, 1, dyn_en);
-
-  RSI_OPAMP2_Config(OPAMP, channel, &Config);
-  RSI_OPAMP3_Config(OPAMP, channel, &Config);
 }
 
 /** @} */
