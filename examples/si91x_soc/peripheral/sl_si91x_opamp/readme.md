@@ -128,7 +128,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration of the WPK[BRD4002A] Base Board, and with Radio Board
 
-The following table lists the mentioned pin numbers for the radio board. If you want to use a different radio board other than BRD4338A and BRD4343A, see the board user guide.
+The following table lists the pin numbers for the radio board. If you want to use a radio board other than BRD4338A, BRD4343A, or BRD4342A, refer to the board user guide.
 
   | GPIO        | BRD4338A | BRD4343A  |
   | ----------  | -------- | --------  |

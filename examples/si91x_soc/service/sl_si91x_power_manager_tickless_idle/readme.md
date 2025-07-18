@@ -17,13 +17,13 @@
 
 ## Purpose/Scope
 
- This application demonstrates the power manager service APIs, active state transitions(PS4, PS3 and PS2), standby state transitions (PS4, PS3 and PS2) and sleep-wakeup (PS4, PS3, PS2 and PS1 State with RAM retention) with tick-less idle mode.
+ This application demonstrates the power manager service APIs, active state transitions (PS4, PS3, and PS2), standby state transitions (PS4, PS3, and PS2) and sleep-wakeup (PS4, PS3, PS2, and PS1 sleep with RAM retention) with tick-less idle mode.
 
 ## Overview
 
 - Tick-less Mode, a capability offered by the FreeRTOS real-time operating system (RTOS), enables the system to diminish power usage by transitioning into a low-power state during periods of task inactivity.
-- According to the configuration in power_manager_tickless_idle example application, it updates the power state in the requirement as per the user selection upon OS timer expiration. It then determines the highest attainable operating state and begins the transition. When application gets the idle time, Power manager initiates the sleep or standby state based on the SL_SI91X_STANDBY macro value.
-- Sleep or Standby - Demonstrations of wake-up with RAM retention are showcased in PS4, PS3 and PS2 states, automatically adjusting to the attainable state.
+- The power_manager_tickless_idle example application updates the power state based on the user's selection when the OS timer expires. It then identifies the highest attainable operating state and initiates the transition. When the application becomes idle, the power manager triggers either sleep or standby mode, depending on the value of the SL_SI91X_STANDBY macro.
+- Sleep or Standby - Demonstrations of wake-up with RAM retention are showcased in PS4, PS3, and PS2 states, automatically adjusting to the attainable state.
  
  **Note:** In this application, the Ultra-Low Power (ULP) Timer is configured as the wakeup source from the PS1. The Power Manager supports the following ULP peripherals as a wakeup sources during the PS1 state:
   | **ULP Peripherals Supported** |
@@ -33,7 +33,7 @@
   | *ULP ADC*        | 
   | *ULP Comparator* | 
   | *ULP UART*       | 
-> To configure the other peripheral in PS1 State, please refer to the [SiWx917 Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
+> To configure the other peripheral in PS1 State, refer to the [SiWx917 Software Reference Manual](https://github.com/SiliconLabs/wiseconnect/blob/v3.3.1/docs/software-reference/manuals/siwx91x-software-reference-manual.md).
 
 ## About Example Code
 
@@ -47,7 +47,7 @@
 
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+You can configure the application to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
 To enable transitions from the active state to sleep or standby state, configure the parameters outlined below accordingly.
 

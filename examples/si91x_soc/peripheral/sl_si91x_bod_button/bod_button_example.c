@@ -85,7 +85,7 @@ void bod_button_example_init(void)
 
     // Enable wakeup on button press if configured
     if (sl_bod_button_uc_config_param.button_wakeup_enable == ENABLE) {
-      status = sl_si91x_bod_button_wakeup_enable(sl_bod_button_uc_config_param.button_wakeup_enable);
+      status = sl_si91x_bod_button_wakeup_enable_v2(sl_bod_button_uc_config_param.button_wakeup_enable);
       if (status == SL_STATUS_OK)
         DEBUGOUT("BOD Button Wakeup enabled successful \r\n");
       else {
@@ -130,7 +130,7 @@ void bod_button_process_action(void)
 
     // Enable wakeup on button press if configured
 
-    status = sl_si91x_bod_button_wakeup_enable(sl_bod_button_uc_config_param.button_wakeup_enable);
+    status = sl_si91x_bod_button_wakeup_enable_v2(sl_bod_button_uc_config_param.button_wakeup_enable);
     if (status == SL_STATUS_OK)
       DEBUGOUT("BOD Button Wakeup enabled successful \r\n");
     else

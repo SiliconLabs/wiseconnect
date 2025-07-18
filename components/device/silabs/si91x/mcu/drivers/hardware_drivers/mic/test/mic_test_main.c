@@ -44,7 +44,7 @@ void test_sl_si91x_mic_calculate_sound_level(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("MIC");
 

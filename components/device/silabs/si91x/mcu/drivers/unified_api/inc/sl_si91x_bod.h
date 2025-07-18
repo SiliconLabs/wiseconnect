@@ -38,6 +38,7 @@ extern "C" {
 
 #include "si91x_device.h"
 #include "sl_status.h"
+#include "base_types.h"
 
 /***************************************************************************/
 /**
@@ -194,8 +195,10 @@ typedef struct {
   * @pre Pre-conditions:
   *      - The BOD module must be initialized using @ref sl_si91x_bod_init().
   *
-  * @return Status of the operation.
+  * @return sl_status_t Status of the operation.
   *         - SL_STATUS_OK if the operation was successful.
+  *         - SL_STATUS_INVALID_PARAMETER if the mode is invalid.
+  *         - SL_STATUS_NOT_INITIALIZED if the BOD is not enabled. 
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -215,8 +218,11 @@ sl_status_t sl_si91x_bod_set_mode(uint8_t mode);
   *     - The BOD module must be initialized using @ref sl_si91x_bod_init().
   *     - The BOD mode must be set using @ref sl_si91x_bod_set_mode() As `SL_BOD_MODE_AUTOMATIC`.
   *
-  * @return Status of the operation.
+  * @return sl_status_t Status of the operation.
   *         - SL_STATUS_OK if the operation was successful.
+  *         - SL_STATUS_INVALID_PARAMETER if the slot value is out of range.
+  *         - SL_STATUS_NOT_INITIALIZED if the BOD is not enabled.
+  *         - SL_STATUS_FAIL if the slot value could not be configured.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -230,7 +236,7 @@ sl_status_t sl_si91x_bod_config_slot_value(uint16_t slot_value);
   * This function initializes the BOD module with the specified battery voltage
   * threshold.
   *
-  * @return Status of the BOD initialization operation.
+  * @return sl_status_t Status of the BOD initialization operation.
   *         - SL_STATUS_OK if the initialization was successful.
   *         - SL_STATUS_FAIL if the initialization failed.
   *
@@ -248,8 +254,9 @@ sl_status_t sl_si91x_bod_init(void);
   *  @pre Pre-conditions:
   *     - The BOD module must be initialized using @ref sl_si91x_bod_init().
   *
-  * @return Status of the BOD deinitialization operation.
+  * @return sl_status_t Status of the BOD deinitialization operation.
   *         - SL_STATUS_OK if the deinitialization was successful.
+  *         - SL_STATUS_FAIL if the deinitialization failed.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -266,8 +273,9 @@ sl_status_t sl_si91x_bod_deinit(void);
   *    - The BOD module must be initialized using @ref sl_si91x_bod_init().
   * 
   * @param[out] vbatt_threshold to store the current threshold value
-  * @return Status of the BOD configuration operation.
+  * @return sl_status_t Status of the BOD configuration operation.
   *         - SL_STATUS_OK if the configuration was successful.
+  *         - SL_STATUS_INVALID_PARAMETER if the provided pointer is NULL.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -275,11 +283,23 @@ sl_status_t sl_si91x_bod_deinit(void);
 sl_status_t sl_si91x_bod_get_threshold(float *vbatt_threshold);
 
 /*******************************************************************/
+/**
+  * @brief Enable the BOD interrupt in the NVIC.
+  *
+  * This function enables the interrupt for the BOD in the NVIC, allowing the
+  * system to handle BOD-related interrupts.
+  *
+  *****************************************************************/
+void sl_si91x_bod_NVIC_enable_irq(void) SL_DEPRECATED_API_WISECONNECT_3_5;
+
+/*******************************************************************/
 /** @brief sl_si91x_bod_get_blackout_status
   *
   *  This function is used to get the blackout status.
   *
-  *  @return Returns the blackout enable status.
+  *  @return en_t Returns the blackout status.
+  *         - Enable if blackout is enabled.
+  *         - Disable if blackout is disabled.
   *
   *******************************************************************/
 en_t sl_si91x_bod_get_blackout_status(void);
@@ -293,8 +313,9 @@ en_t sl_si91x_bod_get_blackout_status(void);
   * @pre Pre-conditions:
   *   - The BOD module must be initialized using @ref sl_si91x_bod_init().
   *
-  * @return Status of the BOD configuration operation.
+  * @return sl_status_t Status of the BOD configuration operation.
   *         - SL_STATUS_OK if the configuration was successful.
+  *         - SL_STATUS_INVALID_PARAMETER if the provided parameters are invalid.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -307,8 +328,7 @@ sl_status_t sl_si91x_bod_set_configuration(sl_bod_uc_param_t usr_config_params);
   * 
   * @pre Pre-conditions:
   *    - The BOD module must be initialized using @ref sl_si91x_bod_init() and 
-  *    - The BOD button must be initialized using @ref sl_si91x_bod_button_wakeup_enable().
-  * 
+  *    - The BOD button must be enabled using @ref sl_si91x_bod_button_wakeup_enable_v2().
   *
   * This function sets the maximum value for the button and the minimum values
   * for three different buttons.
@@ -331,11 +351,28 @@ void sl_si91x_bod_button_configuration(uint16_t button_max_value,
   * This function disables the button wakeup feature for the BOD. 
   * When disabled, the system cannot wake up from a low-power state using a button press.
   *
-  * @return Status of the button wakeup operation.
+  * @return sl_status_t Status of the button wakeup operation.
   *         - SL_STATUS_OK if the operation completed successfully.
   *         - SL_STATUS_FAIL if the operation was unsuccessful.
   *****************************************************************/
 sl_status_t sl_si91x_bod_button_wakeup_disable(void);
+
+/*******************************************************************/
+/**
+  * @brief Enable or disable button wakeup functionality for the BOD (Brown-Out Detector).
+  *
+  * This function allows the user to enable or disable the button wakeup feature
+  * for the BOD. When enabled, the system can wake up from a low-power state
+  * using a button press.
+  *
+  * @pre Pre-conditions:
+  *   - The BOD module must be initialized using @ref sl_si91x_bod_init().
+  *
+  * @param[in] enable
+  *            - 1: Enable button wakeup functionality.
+  *            - 0: Disable button wakeup functionality.
+  */
+void sl_si91x_bod_button_wakeup_enable(uint8_t enable) SL_DEPRECATED_API_WISECONNECT_3_5;
 
 /*******************************************************************/
 /**
@@ -344,19 +381,22 @@ sl_status_t sl_si91x_bod_button_wakeup_disable(void);
   * This function allows the user to enable or disable the button wakeup feature
   * for the BOD. When enabled, the system can wake up from a low-power state
   * using a button press.
+  *
   * @param[in] bod_button_enable 
   *      - 1: Enable button wakeup functionality.
   *      - 0: Disable button wakeup functionality.
+  * 
   * @pre Pre-conditions:
-  *   - The BOD module must be initialized using @ref sl_si91x_bod_init()
-  * @return Status of the callback registration operation.
+  *   - The BOD module must be initialized using @ref sl_si91x_bod_init().
+  * 
+  * @return sl_status_t Status of the callback registration operation.
   *         - SL_STATUS_OK if the operation was successful.
   *         - SL_STATUS_FAIL if the operation failed.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   * *****************************************************************/
-sl_status_t sl_si91x_bod_button_wakeup_enable(boolean_t bod_button_enable);
+sl_status_t sl_si91x_bod_button_wakeup_enable_v2(boolean_t bod_button_enable);
 
 /*******************************************************************/
 /**
@@ -369,8 +409,10 @@ sl_status_t sl_si91x_bod_button_wakeup_enable(boolean_t bod_button_enable);
   *
   * @param[in] callback The callback function to register.
   *
-  * @return Status of the callback registration operation.
+  * @return sl_status_t Status of the callback registration operation.
   *         - SL_STATUS_OK if the operation was successful.
+  *         - SL_STATUS_NULL_POINTER if the provided callback is NULL.
+  *         - SL_STATUS_BUSY if a callback is already registered.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
   * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -386,11 +428,11 @@ sl_status_t sl_si91x_bod_register_callback(bod_callback_t callback);
   * 
   * @pre Pre-conditions:
   *  - The BOD module must be initialized using @ref sl_si91x_bod_init().and
-  *  - The BOD button must be initialized using @ref sl_si91x_bod_button_wakeup_enable().
+  *  - The BOD button must be enabled using @ref sl_si91x_bod_button_wakeup_enable_v2().
   *
   * @param[in] callback The callback function to register.
   *
-  * @return Status of the callback registration operation.
+  * @return sl_status_t Status of the callback registration operation.
   *         - SL_STATUS_OK if the operation was successful.
   *
   * For more information on status codes, see [SL STATUS DOCUMENTATION](
@@ -420,7 +462,7 @@ void sl_si91x_bod_unregister_callback(void);
   *
   * @param[out] battery_status Pointer to store the battery status.
   *
-  * @return Status of the battery status retrieval operation.
+  * @return sl_status_t Status of the battery status retrieval operation.
   *         - SL_STATUS_OK if the operation was successful.
   *         - SL_STATUS_INVALID_PARAMETER if the battery_status pointer is NULL.
   *
@@ -440,7 +482,7 @@ sl_status_t sl_si91x_bod_get_battery_status(float *battery_status);
   *
   * @param[in] threshold The BOD voltage threshold to set.
   *
-  * @return Status of the BOD threshold setting operation.
+  * @return sl_status_t Status of the BOD threshold setting operation.
   *         - SL_STATUS_OK if the setting was successful.
   *         - SL_STATUS_INVALID_PARAMETER if the threshold is out of range.
   *
@@ -467,7 +509,9 @@ void sl_si91x_bod_enable_interrupt(void);
  *
  * This function configures and enables the interrupt associated with the
  * BOD button, allowing the system to respond to brown-out detection events.
- *
+ * @pre Pre-conditions:
+ * - The BOD module must be initialized using @ref sl_si91x_bod_init().
+ * - The BOD button must be enabled using @ref sl_si91x_bod_button_wakeup_enable_v2().
  * @note Ensure that the BOD button hardware and related configurations
  *       are properly initialized before calling this function.
  *****************************************************************/
@@ -505,7 +549,9 @@ void sl_si91x_bod_button_disable_interrupt(void);
 /*******************************************************************/
 /**
   * @brief Clear BOD interrupt.
-  *
+  * @pre Pre-conditions:
+  * - The BOD module must be initialized using @ref sl_si91x_bod_init().
+  * - BOD interrupt must be enabled using @ref sl_si91x_bod_enable_interrupt().
   * This function clears the BOD interrupt flag.
   *
   *****************************************************************/
@@ -514,10 +560,11 @@ void sl_si91x_bod_clear_interrupt(void);
 /*******************************************************************/
 /**
   * @brief Read the value of the BOD button.
-  *
+  * @pre Pre-conditions:
+  * - The BOD module must be initialized using @ref sl_si91x_bod_init().
   * This function reads the value of the BOD button.
   *
-  * @return The value of the BOD button.
+  * @return The current value of the BOD button, which can be 1, 2, or 3.
   *
   *****************************************************************/
 uint8_t sl_si91x_bod_button_value_read(void);
@@ -542,14 +589,16 @@ void sl_si91x_bod_button_clear_interrupt(void);
   * This function configures the voltage percentage thresholds for up to three BOD buttons,
   * based on the provided configuration structure. It calculates and outputs the corresponding
   * button values for the maximum and minimum voltage percentages for each button.
-  *
+  * @pre Pre-conditions:
+  * - The BOD module must be initialized using @ref sl_si91x_bod_init().
+  * 
   * @param[in] uc_config_param The voltage percentage configuration structure for the buttons.
   * @param[out] button_max_value Pointer to store the calculated maximum button value.
   * @param[out] button_1_min_value Pointer to store the calculated minimum value for button 1.
   * @param[out] button_2_min_value Pointer to store the calculated minimum value for button 2.
   * @param[out] button_3_min_value Pointer to store the calculated minimum value for button 3.
   *
-  * @return Status of the configuration operation.
+  * @return sl_status_t Status of the configuration operation.
   *         - SL_STATUS_OK if the configuration was successful.
   *         - SL_STATUS_INVALID_PARAMETER if any pointer is NULL or configuration is invalid.
   *
@@ -585,9 +634,9 @@ sl_status_t sl_si91x_bod_battery_percentage(float voltage, float *vbat_per);
 
 /*******************************************************************/
 /**
-  * @brief Controls the Black Out Detector (BOD) reset functionality.
+  * @brief Controls the Black Out Monitor reset functionality.
   *
-  * This function enables or disables the Black Out Detector (BOD) reset.
+  * This function enables or disables the Black Out Monitor reset functionality.
   * The BOD reset is used to reset the system when the supply voltage drops
   * below a certain threshold, ensuring the system does not operate under
   * unsafe conditions.
@@ -618,6 +667,9 @@ void sl_si91x_bod_button_interrupt_clear(void);
   * This API is used to enable the blackout reset functionality when the device
   * is in sleep mode. Blackout reset helps in protecting the device from
   * unexpected power failures by resetting the device.
+  * @pre Pre-conditions:
+  *  - The BOD module must be initialized using @ref sl_si91x_bod_init().
+  * - The BOD module must be configured to enable blackout reset using @ref sl_si91x_bod_black_out_reset().
   *
   *****************************************************************/
 void sl_si91x_bod_enable_blackout_in_sleep_mode(void);
@@ -727,7 +779,7 @@ void sl_si91x_bod_disable_blackout_in_sleep_mode(void);
   *
   * - **Button Configuration**:
   *   - @ref sl_si91x_bod_button_configuration
-  *   - @ref sl_si91x_bod_button_wakeup_enable
+  *   - @ref sl_si91x_bod_button_wakeup_enable_v2
   *   - @ref sl_si91x_bod_button_interrupt_clear
   *
   * @section BOD_Example Example

@@ -65,10 +65,10 @@ extern "C" {
 #define SDC_CHANNEL3_AUTO_BUFFER_RESET \
   (0X1 << 2) << SDC_AUTO_BUFFER_RESET_POS ///< Channel 3 buffer auto reset enable flag
 #define SDC_CHANNEL4_AUTO_BUFFER_RESET \
-  (0X1 << 3) << SDC_AUTO_BUFFER_RESET_POS ///< Channel 4 buffer auto reset enable falg
+  (0X1 << 3) << SDC_AUTO_BUFFER_RESET_POS ///< Channel 4 buffer auto reset enable flag
 
 #define SDC_DIFFERENTIAL_MODE_MASK     0xF0000                                 ///< Mask for differential mode
-#define SDC_DIFFERENTIAL_MODE_POS      16                                      ///<  Position for differeantial mode
+#define SDC_DIFFERENTIAL_MODE_POS      16                                      ///<  Position for differential mode
 #define SDC_CHANNEL1_DIFFERENTIAL_MODE (0X1 << 0) << SDC_DIFFERENTIAL_MODE_POS ///< Channel 1 differential mode flag
 #define SDC_CHANNEL2_DIFFERENTIAL_MODE (0X1 << 1) << SDC_DIFFERENTIAL_MODE_POS ///< Channel 2 differential mode flag
 #define SDC_CHANNEL3_DIFFERENTIAL_MODE (0X1 << 2) << SDC_DIFFERENTIAL_MODE_POS ///< Channel 3 differential mode flag
@@ -77,17 +77,17 @@ extern "C" {
 // Status codes for SDC operations
 
 #define SL_SDC_BUFFER_RESET \
-  0x75 ///< Status code indicating that buffer has been reset after succesfully reading the data
+  0x75 ///< Status code indicating that buffer has been reset after successfully reading the data
 #define SL_SDC_BUFFER_FULL 0x76 ///< Status code indicating buffer is full
 
 // SDC Configuration Macros
 
-#define SL_SDC_SINGLE_ENDED_MODE 0 ///< Single Ended Mode
+#define SL_SDC_SINGLE_ENDED_MODE 0 ///< Single-ended Mode
 #define SL_SDC_DIFFERENTIAL_MODE 1 ///< Differential Mode
 
-#define SDC_MAX_VALUE 4095 ///< maximum value of the SDC in single ended mode
-#define SDC_MIN_VALUE 0    ///< minimum value of the SDC
-#define SDC_MID_VALUE 2048 ///< mid value of the SDC.
+#define SDC_MAX_VALUE 4095 ///< Maximum value of the SDC in single-ended mode
+#define SDC_MIN_VALUE 0    ///< Minimum value of the SDC
+#define SDC_MID_VALUE 2048 ///< Mid value of the SDC
 
 #define SDC_ONE_CH_MAX_FIFO_TH 16 ///< Maximum FIFO threshold per channel when only using one channel
 
@@ -104,7 +104,7 @@ extern "C" {
 typedef enum {
   SDC_EVENT_SAMPLE_COMPLETE, ///< Sample complete event
   SDC_EVENT_ERROR,           ///< Error event
-  SDC_EVENT_DATA_READY,      ///< SDC Data ready
+  SDC_EVENT_DATA_READY,      ///< SDC data ready
   SDC_EVENT_BUFFER_FULL,     ///< Buffer is full
   SDC_EVENT_BUFFER_RESET     ///< Buffer reset
 } sl_sdc_event_t;
@@ -114,7 +114,7 @@ typedef enum {
 ********************************************************************************************************************************* */
 
 /**
-   * @brief Callback function type for SDC (Sensor Data Controller) events
+   * @brief Callback function type for Sensor Data Controller (SDC) events
    *
    * This typedef defines a function pointer for SDC event callbacks. The callback function
    * is invoked when SDC events occur.
@@ -135,15 +135,15 @@ typedef void (*sl_sdc_callback_t)(uint8_t channel, sl_sdc_event_t event);
 */
 
 typedef struct {
-  sl_sdc_callback_t callback_event;                ///< Callback function for SDC events.
+  sl_sdc_callback_t callback_event;                ///< Callback function for SDC events
   uint32_t channel_info_bit_field;                 ///<Bit field for tracking transfer complete and auto buffer reset
-  uint32_t transfer_count[SDC_NUMBER_OF_CHANNELS]; ///< Transfer count for each channel.
-  uint32_t sample_length[SDC_NUMBER_OF_CHANNELS];  ///< Transfer length for each channel.
-  int16_t *recieve_buffer[SDC_NUMBER_OF_CHANNELS]; ///< Pointer to the receive buffer for SDC data.
+  uint32_t transfer_count[SDC_NUMBER_OF_CHANNELS]; ///< Transfer count for each channel
+  uint32_t sample_length[SDC_NUMBER_OF_CHANNELS];  ///< Transfer length for each channel
+  int16_t *recieve_buffer[SDC_NUMBER_OF_CHANNELS]; ///< Pointer to the receive buffer for SDC data
 } sl_si91x_sdc_channel_info_t;
 
 /**
- * @brief Strcuture for holding channel misc configurations
+ * @brief Structure for holding channel misc configurations
  * 
  */
 
@@ -159,7 +159,14 @@ typedef struct {
 /**
  * @brief Initialize the SDC driver.
  *
- * @details This API initializes the SDC by configuring the reference voltage and preparing the SDC hardware for operation.
+ * @details   * This function initializes the SDC driver by performing the following steps:
+ *             1. Initializes the RTC block.
+ *             2. Starts the RTC.   
+ *             3. Initializes the SDC peripheral.
+ *             4. Gets the chip voltage and update input voltage if required.
+ *             5. Calibrates the ADC.
+ *             6. Calculates the offset and gain values and stores them.
+ *             7. Configures the SDC LDO voltage based on the reference voltage.
  *
  * @param[in] vref Reference voltage for SDC.
  *
@@ -177,7 +184,13 @@ sl_status_t sl_si91x_sdc_driver_init(float vref);
 /**
  * @brief Deinitialize the SDC driver.
  *
- * @details This API deinitializes the SDC, releasing any resources and disabling the SDC hardware.
+ * @details  * This function performs the following steps:
+ *            1. Stops the RTC to ensure no further operations are performed on it.
+ *            2. Disables the SDC NVIC interrupt to prevent further interrupts.
+ *            3. Deinitializes the SDC peripheral.
+ *            4. Disables the SDC LDO to save power.
+ *            5. Resets the global variable sdc_channel_info to zero.
+ *            6. Resets the global variable sdc_calibration_data to zero.
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sdc_driver_init
@@ -194,7 +207,11 @@ sl_status_t sl_si91x_sdc_driver_deinit(void);
 /**
  * @brief Configure the SDC driver with channel and pin configuration.
  *
- * @details This API configures the SDC channel and SDC ADC pin settings.
+ * @details  * This function performs the following steps:
+ *           1. Checks if the provided configuration pointer is NULL and returns an error if it is.
+ *           2. Decrements the sample threshold and trigger event select values in the configuration to match the expected values in the SDC register.
+ *           3. Configures the SDC with the provided configuration using the `sl_si91x_sdc_config` function.
+ *           4. Returns the status of the configuration operation.
  *
  * @param[in] sl_sdc_config Pointer to SDC configuration structure.
  *
@@ -214,17 +231,23 @@ sl_status_t sl_si91x_sdc_driver_config(sl_si91x_sdc_config_t *sl_sdc_config);
 /**
  * @brief Configures an SDC channel with the specified settings.
  *
- * @details This api initializes and configures the SDC channel using the provided SDC pin configuration
- *  channel information structures and misc configuration structure.
+ * @details   * This function performs the following steps:
+ *             1. Checks if the provided pin configuration and channel configuration pointers are NULL and returns an error if they are.
+ *             2. Configures the SDC ADC pins using the `sl_si91x_sdc_adc_pin_config` function with the provided pin configuration and the number of channels.
+ *             3. Iterates through each channel and initializes the channel information structure with the provided settings:
+ *                - Sets the sample length for each channel.
+ *                - Sets the receive buffer for each channel.
+ *                - Sets the differential mode and auto buffer reset bits in the channel info bit field.
+ *             4. Returns the status of the configuration operation.
  *
  * @param[in] pin_config Pointer to a structure containing the ADC pin configuration parameters.
  * @param[in] sdc_channel_config Pointer to a structure containing the SDC channel configuration parameters.
- * @param[in] misc_config Pointer to a struture containing misc config of SDC channel
+ * @param[in] misc_config Pointer to a structure containing misc config of SDC channel
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sdc_driver_init
  * @note 
-      1.pin_config strcuture is auogenerated when instance is created in the application user can directly use that structure.
+      1. pin_config structure is auto-generated when instance is created in the application user can directly use that structure.
  * @return
  *   - SL_STATUS_OK on success.
  *   - SL_STATUS_FAIL on failure.
@@ -265,6 +288,7 @@ sl_status_t sl_si91x_sdc_driver_register_callback(sl_sdc_callback_t callback_eve
  * @details This API unregisters the callback function registered for SDC events.
  *
  * @pre Pre-conditions:
+ *      - \ref sl_si91x_sdc_driver_init
  *      - \ref sl_si91x_sdc_driver_register_callback
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK            - Successfully unregistered the callback.
@@ -284,6 +308,8 @@ sl_status_t sl_si91x_sdc_driver_unregister_callback(void);
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sdc_driver_init
+ *      - \ref sl_si91x_sdc_driver_config
+ *      - \ref sl_si91x_sdc_driver_channel_config
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Successfully started data read.
  *
@@ -302,6 +328,8 @@ sl_status_t sl_si91x_sdc_driver_read_data_start(void);
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sdc_driver_init
+ *      - \ref sl_si91x_sdc_driver_config
+ *      - \ref sl_si91x_sdc_driver_channel_config 
  *      - \ref sl_si91x_sdc_driver_read_data_start
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Successfully stopped the SDC.
@@ -316,22 +344,29 @@ sl_status_t sl_si91x_sdc_driver_stop(void);
 /**
  * @brief Store the data from SDC FIFO registers.
  * 
- * @details This Apis is used for storing the data in the user provided buffer by
- *      1. Reading the data from the SDC FIFO
- *      2. Processing the read data with offset and gain calibration data.
- *      3. Storing the data in the buffer user registered during channel configuration.
+ * @details This API performs the following steps:
+ *             1. Reads the data from the SDC FIFO.
+ *             2. channel_id is decremented by 1 to match the zero-based index.
+ *             3. Checks if the channel is in differential mode and processes the data accordingly.
+ *             4. Stores the processed data in the channel's receive buffer.
+ *             5. Increments the transfer count for the channel.
+ *             6. Checks if the transfer count has reached the sample length for the channel.
+ *                If it has, it calls the callback function with the SDC_EVENT_SAMPLE_COMPLETE event for that channel.
+ *             7. If the channel is set to auto buffer reset, it resets the transfer count for the channel and clears the transfer complete bit in the channel info bit field.
+
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sdc_driver_init
+ *      - \ref sl_si91x_sdc_driver_config
+ *      - \ref sl_si91x_sdc_driver_channel_config 
  *      - \ref sl_si91x_sdc_driver_read_data_start
- *      - \ref sl_si91x_sdc_driver_channel_config
  *      - \ref sl_si91x_sdc_driver_register_callback
  *
- * @note 1. This API should be called only after the SDC is started.
- *      2. This API should be called everytime system wakes up from PS1 mode.
- *      3. When this api is called after  buffer full condition, it will reset the buffer and start storing data from the beginning. if auto buffer reset is enabled.
+ * @note   1. This API should be called only after the SDC is started.
+ *         2. If auto buffer reset is enabled, the write pointer wraps around to the start of the buffer when it reaches the end,
+ *            allowing new data to overwrite the oldest data.
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Successfully read the data the SDC.
+ *         - SL_STATUS_OK                 - Successfully reads the SDC data.
  *
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -341,13 +376,19 @@ sl_status_t sl_si91x_sdc_driver_store_data(void);
 /***************************************************************************/
 
 /**
- * @brief Reads data from the SDC (Sensor Data Collector) driver for the specified channel.
+ * @brief Reads data from the SDC driver for the specified channel.
  *
  * This function reads data of specified length from the given SDC channel and stores it in the provided buffer.
  *
  * @param[in]  channel  The SDC channel number to read data from.
  * @param[out] buffer   Pointer to the buffer where the read data will be stored.
  * @param[in]  length   The number of samples to read from the SDC channel.
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_sdc_driver_init
+ *      - \ref sl_si91x_sdc_driver_config
+ *      - \ref sl_si91x_sdc_driver_channel_config
+ *      - \ref sl_si91x_sdc_driver_read_data_start
+ *
  *
  * @return
  *   - SL_STATUS_OK if the data was read successfully.
@@ -371,7 +412,7 @@ sl_status_t sl_si91x_sdc_driver_read_data(uint32_t channel, int16_t *buffer, uin
  *
  * @section SDC_Intro Introduction
  *
- * The Sensor Data Collector (SDC) is a low power peripheral that internally uses ADC, enabling the conversion of analog signals (continuous voltage levels) into digital data (discrete binary values). This conversion allows microcontrollers to interface with analog sensors, such as temperature sensors, light sensors, or joysticks, effectively translating real-world analog signals into data that can be processed by digital systems.
+ * The Sensor Data Collector (SDC) is a low-power peripheral that internally uses ADC, enabling the conversion of analog signals (continuous voltage levels) into digital data (discrete binary values). This conversion allows microcontrollers to interface with analog sensors, such as temperature sensors, light sensors, or joysticks, effectively translating real-world analog signals into data that can be processed by digital systems.
  *
  * @image html sdc_blockDiagram.png "SDC Block Diagram"
  * 
@@ -380,15 +421,15 @@ sl_status_t sl_si91x_sdc_driver_read_data(uint32_t channel, int16_t *buffer, uin
  * @li Multiple channels: SDC supports upto 4 channels.
  * @li Sampling Interval: The SDC can be configured to sample data at different intervals from 1 to 1024 units of seconds or milli seconds.
  * @li Sampling threshold: The SDC can be configured with a sampling threshold ranging from 1 to 16. device wakeups after reaching the threshold.
- * @li Sinfle Ended and Differential Mode: SDC supports both single-ended and differential modes of operation.
+ * @li Single Ended and Differential Mode: SDC supports both single-ended and differential modes of operation.
  *
  * @section SDC_Config Configuration
  *
  * Configuring the SDC involves several key steps to ensure accurate and efficient operation. These steps vary based on the specific hardware and application requirements. Below are some essential configuration tasks:
  *
- * - **SDC Common Configurations**: . Define Number of samples, sampling interval(1-1024), sampling threshold(1-16), Clock division factor and milli second or second selection in the `sl_si91x_sdc_config_t` structure. After configuring this structure, call `sl_si91x_sdc_driver_config()` to set the SDC parameters.
+ * - **SDC Common Configurations**: Define number of samples, sampling interval (1-1024), sampling threshold (1-16), clock division factor, and millisecond or second selection in the `sl_si91x_sdc_config_t` structure. After configuring this structure, call `sl_si91x_sdc_driver_config()` to set the SDC parameters.
  *
- * - **Channel-Specific Settings**:Define transfer count , buffer in the `sl_si91x_sdc_channel_info_t` structure Auto buffer reset in `sl_si91x_sdc_channel_misc_config_t` Input type and input pins in `sl_si91x_sdc_adc_config_t`. After configuring this structure, call `sl_sdc_driver_channel_config()` to set the channel parameters.
+ * - **Channel-Specific Settings**: Define transfer count, buffer in the `sl_si91x_sdc_channel_info_t` structure, Auto buffer reset in `sl_si91x_sdc_channel_misc_config_t`, Input type and input pins in `sl_si91x_sdc_adc_config_t`. After configuring this structure, call `sl_sdc_driver_channel_config()` to set the channel parameters.
  *
  * For more detailed configuration information, see the specific peripheral example README documents.
  *

@@ -59,9 +59,9 @@ extern "C" {
 
 // </h>
 
-//  <e>Black-Out Detection
-//  <i> Enable: BOD configuration enable
-//  <i> Disable: BOD configuration disable
+//  <e>Black-Out Monitor
+//  <i> Enable: Black-Out Monitor enable
+//  <i> Disable: Black-Out Monitor disable
 //  <i> Default: 0
 #define BLACK_OUT_EN 0
 // </e>

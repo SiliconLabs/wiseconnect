@@ -10,7 +10,7 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: simplicity_sdk, version:  "2025.6.0"}
+sdk: {id: simplicity_sdk, version:  "2025.6.1"}
 sdk_extension: 
 - {id: wiseconnect3_sdk, version: 3.5.1}
 source:

@@ -20,7 +20,7 @@
 ## Overview
 
 - Supports programmable audio data resolutions of 16, 24, and 32 bits.
-- Supported audio sampling rates are 8, 11.025, 16, 22.05, snf 24 Khz.
+- Supported audio sampling rates are 8, 11.025, 16, 22.05, snf 24 kHz.
 - Supports Master and Slave modes.
 - Full duplex communication with independent transmitter and receiver.
 - Programmable FIFO thresholds with a maximum FIFO depth of 8 and support for DMA.
@@ -79,10 +79,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### General Configuration
 
-Using the configuration wizard, configure parameters like:
+Using the configuration wizard, configure parameters as follows:
 
 - `SL_PCM0_RESOLUTION`: PCM resolution can be configured through this macro. Valid resolution values are 16, 24, and 32 bits.
-- `SL_PCM0_SAMPLING_RATE`: PCM sampling rate can be configured through this macro. Valid sampling rate values are 8kHz, 11.025, 16, 22.05, and 24 kHz.
+- `SL_PCM0_SAMPLING_RATE`: PCM sampling rate can be configured through this macro. Valid sampling rate values are 8 kHz, 11.025, 16, 22.05, and 24 kHz.
 
 Configuration files are generated in the **config** folder. If not changed, the code will run on default UC values.
 

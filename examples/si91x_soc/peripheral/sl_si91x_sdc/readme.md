@@ -44,7 +44,7 @@ This application demonstrates the use of the Sensor Data Collector (SDC) periphe
 - Start SDC sampling with `sl_si91x_sdc_driver_read_data_start`.
 - The system then enters PS2 using `sl_si91x_wireless_shutdown` , `sl_si91x_power_manager_add_ps_requirement` and `configuring_ps2_power_state`.
 - SDC is configured as a wakeup source using `sl_si91x_power_manager_set_wakeup_sources` to return to PS1.
-- Systen then Enters PS1 and starts sampling data. After sample threshold is reached system ISR calls the callback with the event `SDC_EVENT_DATA_READY` in which data ready flag is set.
+- System then Enters PS1 and starts sampling data. After sample threshold is reached system ISR calls the callback with the event `SDC_EVENT_DATA_READY` in which data ready flag is set.
 - Then application copies data using `sl_si91x_sdc_driver_store_data` into user provided buffer during channel configuration in `sl_si91x_sdc_channel_info_t`.
 - After copying is done system goes back to PS1 , this process continues until enitr buffer is filled.
 - After buffer is filled `sl_si91x_sdc_driver_store_data` calls callback with event `SDC_EVENT_BUFFER_RESET`.
@@ -89,8 +89,8 @@ Configure UC from the slcp component:
 
   - **SDC Peripheral Common Configuration**
     - Number of channels (default: 1). When changing this, ensure you create the corresponding channel instances.
-    - SDC sampling interval(default: 100ms). set the time (1–1024 seconds or milliseconds) between samples.
-    - SDC sampling threshold(default: 15). number of samples before waking from PS1.
+    - SDC sampling interval (default: 100 ms). set the time (1–1024 seconds or milliseconds) between samples.
+    - SDC sampling threshold (default: 15). number of samples before waking from PS1.
     - Enable millisecond interval for finer sampling control.
 
   - **SDC Channel Configuration**
@@ -101,12 +101,12 @@ Configure UC from the slcp component:
 
 - After running the application, sampled data is stored in the user buffer until the transfer length is reached.
 - The application prints the sampled voltages to the UART console.
-- Apply different voltages (1.8V to Vref) to the SDC input and observe the console output.
+- Apply different voltages (1.8 V to Vref) to the SDC input and observe the console output.
 - Input voltage and console output should match.
 > **Notes:**
 >
 > - Ensure that the number of channel instances matches the number of channels selected in UC.
-> - The number of channels must be set to 1, 2, or 4. Selecting 3 channels is not supported.
+> - The number of channels must be set to 1, 2, or 4. Selecting three channels is not supported.
 
 ## Pin Configuration
 
@@ -115,29 +115,27 @@ Configure UC from the slcp component:
 - The following tables list the supported ULP GPIO pins for SDC. For other radio boards, refer to the board-specific user guide.
 - Channels can be reconfigured to any SDC-supported pins.
 
-| PIN TO SDCP    |
-| -------------- |
-| ULP_GPIO_0     |
-| ULP_GPIO_1     |
-| ULP_GPIO_2     |
-| ULP_GPIO_3     |
-| ULP_GPIO_4     |
-| ULP_GPIO_5     |
-| ULP_GPIO_6     |
-| ULP_GPIO_7     |
-| ULP_GPIO_8     |
-| ULP_GPIO_9     |
-| ULP_GPIO_10    |
-| ULP_GPIO_11    |
+| PIN TO SDCP    | BRD4338A/4342A+BRD4002A | BRD4343A+BRD4002A | BRD2708A  |
+| ----------------------- | ------------------------------------ | ------------------------- | -------------- | 
+| ULP_GPIO_0     |  NA                     |   NA             | Breakout 6  |
+| ULP_GPIO_1     |  P16                     |   P16             | Breakout 5 |
+| ULP_GPIO_2     |  F10                     |   P37             | NA        |
+| ULP_GPIO_4     |  NA                     |   P17             | Breakout 7 |
+| ULP_GPIO_5     |  NA                     |   P18             | Breakout 9 |
+| ULP_GPIO_6     |  EXP 16                 |   P13             | NA        |
+| ULP_GPIO_7     |  EXP 15                 |   P12             | NA        |
+| ULP_GPIO_8     |  P15                    |    P15             | Breakout 2 |
+| ULP_GPIO_9     |  F7                     |   NA              | NA       |
+| ULP_GPIO_10    |  P17                     |   NA             | NA        |
+| ULP_GPIO_11    |  F6                     |   NA              | NA       |
 
-| PIN TO SDCN    |
-| -------------- |
-| ULP_GPIO_1     |
-| ULP_GPIO_3     |
-| ULP_GPIO_5     |
-| ULP_GPIO_7     |
-| ULP_GPIO_9     |
-| ULP_GPIO_11    |
+| PIN TO SDCN   | BRD4338A/4342A+BRD4002A | BRD4343A+BRD4002A | BRD2708A  |
+| ----------------------- | ---------------------------------- | ---------------------------| -------------- | 
+| ULP_GPIO_1     |  P16                    |  P16              | Breakout 5 |
+| ULP_GPIO_5     |  NA                    |  P18              | Breakout 9 |
+| ULP_GPIO_7     |  EXP15                 |  P12              | NA        |
+| ULP_GPIO_9     |  F7                    |  NA              | NA        |
+| ULP_GPIO_11    |   F6                   |  NA              |  NA        |
 
 ## Testing the Application
 
@@ -149,7 +147,7 @@ Refer to the [Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/
    - Differential mode: positive input to ULP_GPIO_8, negative input to ULP_GPIO_1.
 3. When running, SDC applies the user configuration and starts conversion.
 4. After conversion, sampled data is stored in the user buffer, converted to voltage values, and printed to the serial console.
-5. Example serial output for a 3.3V input:
+5. Example serial output for a 3.3 V input:
 
 
     ![Sample Output](resources/readme/output.png)
@@ -170,7 +168,7 @@ Refer to the [Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/
 > vout = ((((float)SDC_output / 4095.0f) * Vref) - (Vref / 2.0f));
 > ```
 >
-> *Example:* If the positive input is 2.4V and the negative input is 1.5V, the SDC output corresponds to 0.9V.
+> *Example:* If the positive input is 2.4 V and the negative input is 1.5 V, the SDC output corresponds to 0.9 V.
 >
 > **Single-Ended Mode:**
 >
