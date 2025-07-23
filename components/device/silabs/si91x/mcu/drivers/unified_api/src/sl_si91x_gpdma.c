@@ -37,6 +37,11 @@ extern "C" {
 #include <core_cm4.h>
 #include "rsi_rom_clks.h"
 
+/*******************************************************************************
+ ***********************  Global function Prototypes *************************
+ ******************************************************************************/
+void sl_si91x_gpdma_irq_handler(void);
+
 /****************************************************************************************************
 *********************************** Variable declarations *******************************************
 *****************************************************************************************************/
@@ -54,6 +59,12 @@ static sl_si91x_gpdma_resources_Data_t gpdma_resource_data = {
   .channel_allocation_bitmap = 0X00000FF //all the channels are unallocated by default
 };
 
+/*******************************************************************************
+ * GPDMA IRQ Handler
+ * 
+ * @param none
+ * @return none
+ ******************************************************************************/
 void sl_si91x_gpdma_irq_handler(void)
 {          //GPDMA interrupt handler
   __DMB(); //Ensure all memory accesses are complete before proceeding for global variable update.
@@ -666,10 +677,11 @@ sl_status_t sl_si91x_gpdma_transfer(uint32_t channel_number, void *pSource, void
     descriptors[i].src  = (void *)((uintptr_t)pSource + i * MAX_TRANSFER_PER_DESCRIPTOR);
     descriptors[i].dest = (void *)((uintptr_t)pDestination + i * MAX_TRANSFER_PER_DESCRIPTOR);
   }
+  if (sl_gpdma_channel_allocation_data_t[channel_number].link_list_mode_disable == false) {
+    RSI_GPDMA_Enable_Link_List_Mode((void *)pDrv, channel_number);
 
-  RSI_GPDMA_Enable_Link_List_Mode((void *)pDrv, channel_number);
-
-  RSI_GPDMA_Link_List_Pointer_Register((void *)pDrv, descriptors, channel_number);
+    RSI_GPDMA_Link_List_Pointer_Register((void *)pDrv, descriptors, channel_number);
+  }
   RSI_GPDMA_DMAChannelTrigger((void *)pDrv, channel_number);
 
   return SL_STATUS_OK;
@@ -725,6 +737,20 @@ sl_status_t sl_si91x_gpdma_build_descriptor(sl_si91x_gpdma_descriptor_t *pDescri
   if (pRes->channel_allocation_bitmap & (1 << channel_number)) {
     return SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED;
   }
+  if (pDesc_config->chnlCtrlConfig.linkListOn == false) {
+    if (transfer_size > 4095) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+    error_status = RSI_GPDMA_SetupChannelTransfer((void *)pDrv, channel_number, pDesc_config);
+    status       = convert_arm_to_sl_error_code(error_status);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    sl_gpdma_channel_allocation_data_t[channel_number].link_list_mode_disable = true;
+    return SL_STATUS_OK;
+  }
+  sl_gpdma_channel_allocation_data_t[channel_number].link_list_mode_disable = false;
+
   if (sl_gpdma_channel_allocation_data_t[channel_number].descriptor_memory == NULL) {
     sl_gpdma_channel_allocation_data_t[channel_number].descriptor_memory = pDescriptor_memory;
   } else if (sl_gpdma_channel_allocation_data_t[channel_number].descriptor_memory != pDescriptor_memory) {
@@ -732,8 +758,7 @@ sl_status_t sl_si91x_gpdma_build_descriptor(sl_si91x_gpdma_descriptor_t *pDescri
   }
   error_status = RSI_GPDMA_BuildDescriptors((void *)pDrv, pDesc_config, pDesc, NULL);
   status       = convert_arm_to_sl_error_code(error_status);
-  convert_arm_to_sl_error_code(error_status);
-  if (error_status != SL_STATUS_OK) {
+  if (status != SL_STATUS_OK) {
     return status;
   }
   sli_si91x_gpdma_build_descriptor_list(pDesc, pDescriptor_memory, transfer_size);

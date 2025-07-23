@@ -115,7 +115,7 @@ void opamp_example_init(void)
     // Initialize the OPAMP
     status = sl_si91x_opamp_init();
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_opamp_init: Error code: %lu", status);
+      DEBUGOUT("sl_si91x_opamp_init: Error code: %lu \n", status);
       break;
     }
     DEBUGOUT("\r\n SL OPAMP Initialization is Successful\r\n");
@@ -123,27 +123,30 @@ void opamp_example_init(void)
     // Configure the OPAMP instance from UC
 #ifdef SL_OPAMP_OPAMP1
 
+    // Configure the OPAMP1 instance from UC
     status = sl_si91x_opamp_set_configuration(&sl_opamp1_feature);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu", status);
+      DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu \n", status);
       break;
     } else {
       DEBUGOUT("\r\n SL OPAMP1 configuration are set successfully  \n");
     }
 #endif
 #ifdef SL_OPAMP_OPAMP2
+    // Configure the OPAMP2 instance from UC
     status = sl_si91x_opamp_set_configuration(&sl_opamp2_feature);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu", status);
+      DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu \n", status);
       break;
     } else {
       DEBUGOUT("\r\n SL OPAMP2 configuration are set successfully  \n");
     }
 #endif
 #ifdef SL_OPAMP_OPAMP3
+    // Configure the OPAMP3 instance from UC
     status = sl_si91x_opamp_set_configuration(&sl_opamp3_feature);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu", status);
+      DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu \n", status);
       break;
     } else {
       DEBUGOUT("\r\n SL OPAMP3 configuration are set successfully  \n");
@@ -168,6 +171,7 @@ void opamp_example_process_action(void)
       dac_static_intr_flag = false;
       DEBUGOUT("Data successfully sampled \n");
       DEBUGOUT("SL OPAMP DAC input sample = %d\n", dac_input_sample_data[0]);
+      // DAC output
       float dac_output = ((float)dac_input_sample_data[0] / (float)(MAX_DAC_INPUT_SAMPLE_VALUE + 1)) * (vref_value);
       DEBUGOUT("SL OPAMP DAC output voltage = %f\n", dac_output);
     }

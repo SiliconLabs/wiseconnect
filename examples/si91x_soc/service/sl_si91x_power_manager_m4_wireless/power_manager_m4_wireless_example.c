@@ -375,6 +375,14 @@ void power_manager_example_process_action(void)
       if (change_state) {
         power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_SLEEP);
         change_state = false;
+        // Next transition is from PS2 to PS1 state.
+        transition = PS1;
+      }
+      break;
+    case PS1:
+      if (change_state) {
+        power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_PS1);
+        change_state = false;
         // Next transition is from PS2 to PS3 state.
         transition = PS2_TO_PS3;
       }
@@ -579,12 +587,6 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
         break;
 
       case SL_SI91X_POWER_MANAGER_PS3:
-        // PS2 state requirement is removed as it was previously added.
-        status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
-        if (status != SL_STATUS_OK) {
-          // If status is not OK, display the error info.
-          DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
-        }
         // PS3 state requirement is added, it transits to PS3 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
         if (status != SL_STATUS_OK) {
@@ -768,6 +770,8 @@ static void clear_npss_wakeup_source(uint32_t wakeup_source)
 static void set_ulp_timer_wakeup_source(void)
 {
   sl_status_t status;
+  // Changing the ULP timer clock to MHz RC.
+  sl_timer_clk_handle.ulp_timer_clk_input_src = ULP_TIMER_MHZ_RC_CLK_SRC;
   // ULP Timer initialization, the values are fetched from the UC.
   status = sl_si91x_ulp_timer_init(&sl_timer_clk_handle);
   if (status != SL_STATUS_OK) {

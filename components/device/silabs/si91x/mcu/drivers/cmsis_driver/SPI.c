@@ -104,6 +104,14 @@ static SPI_PIN SSI_MASTER_mosi = {SSI_MASTER_MOSI_PORT, SSI_MASTER_MOSI_PIN, SSI
 #ifdef SSI_MASTER_MISO_SEL
 static SPI_PIN SSI_MASTER_miso = {SSI_MASTER_MISO_PORT, SSI_MASTER_MISO_PIN, SSI_MASTER_MISO_MODE, SSI_MASTER_MISO_PADSEL};
 #endif
+#if (defined(SPI_QUAD_MODE) && (SPI_QUAD_MODE == 1))
+#ifdef SSI_MASTER_DATA2_SEL
+static SPI_PIN SSI_MASTER_data2 = {SSI_MASTER_DATA2__PORT, SSI_MASTER_DATA2__PIN, SSI_MASTER_DATA2_MODE, SSI_MASTER_DATA2_PADSEL};
+#endif
+#ifdef SSI_MASTER_DATA3_SEL
+static SPI_PIN SSI_MASTER_data3 = {SSI_MASTER_DATA3__PORT, SSI_MASTER_DATA3__PIN, SSI_MASTER_DATA3_MODE, SSI_MASTER_DATA3_PADSEL};
+#endif
+#endif
 #ifdef SSI_MASTER_SCK_SEL
 static SPI_PIN SSI_MASTER_sck  = {SSI_MASTER_SCK_PORT,  SSI_MASTER_SCK_PIN, SSI_MASTER_SCK_MODE, SSI_MASTER_SCK_PADSEL};
 #endif
@@ -168,6 +176,18 @@ static const SPI_RESOURCES SSI_MASTER_Resources = {
 				&SSI_MASTER_miso,
 #else
 				NULL,
+#endif
+#if (defined(SPI_QUAD_MODE) && (SPI_QUAD_MODE == 1))
+#ifdef SSI_MASTER_DATA2_SEL
+        &SSI_MASTER_data2,
+#else
+        NULL,
+#endif
+#ifdef SSI_MASTER_DATA3_SEL
+        &SSI_MASTER_data3,
+#else
+        NULL,
+#endif
 #endif
 #ifdef SSI_MASTER_SCK_SEL
 				&SSI_MASTER_sck,
@@ -288,6 +308,10 @@ static const SPI_RESOURCES SSI_SLAVE_Resources = {
 				&SSI_SLAVE_miso,
 #else
 				NULL,
+#endif
+#if (defined(SPI_QUAD_MODE) && (SPI_QUAD_MODE == 1))
+        NULL,
+        NULL,
 #endif
 #ifdef SSI_SLAVE_SCK_SEL
 				&SSI_SLAVE_sck,
@@ -423,6 +447,10 @@ static const SPI_RESOURCES SSI_ULP_MASTER_Resources = {
 #else
 				NULL,
 #endif
+#if (defined(SPI_QUAD_MODE) && (SPI_QUAD_MODE == 1))
+        NULL,
+        NULL,
+#endif
 #ifdef SSI_ULP_MASTER_SCK_SEL
 				&SSI_ULP_MASTER_sck,
 #else
@@ -545,6 +573,14 @@ return SPI_Send (data, num, &SSI_MASTER_Resources,&UDMA0_Resources,
                         udmaHandle0); 
 	#endif
 }
+
+int32_t SSI_MASTER_Send_Command_Data (void *data, uint32_t num, uint32_t instruction, uint32_t address)
+{
+  return SPI_Send_Command_Data (data, num, instruction, address, &SSI_MASTER_Resources,&UDMA0_Resources,
+                      udma0_chnl_info,
+                      udmaHandle0);
+}
+
 static int32_t SSI_MASTER_Receive (void *data, uint32_t num)
 { 
 			 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
@@ -557,6 +593,14 @@ static int32_t SSI_MASTER_Receive (void *data, uint32_t num)
                         udmaHandle0); 
 	#endif
 }
+
+int32_t SSI_MASTER_Receive_Command_Data (void *data, uint32_t num, uint32_t instruction, uint32_t address, uint32_t wait_cycle)
+{
+  return SPI_Receive_Command_Data (data, num, instruction, address, wait_cycle, &SSI_MASTER_Resources,&UDMA0_Resources,
+                      udma0_chnl_info,
+                      udmaHandle0);
+}
+
 static int32_t SSI_MASTER_Transfer(const void *data_out, void *data_in, uint32_t num)
  {
 	 		 #if ( (defined(A11_ROM)) && (defined(SSI_ROMDRIVER_PRESENT)) && (defined(SLI_SI917) || defined(SLI_SI915)) )
@@ -1081,6 +1125,16 @@ void SSI_SetFifoThreshold(uint8_t ssi_instance)
     }
   } while (false);
 }
+
+#ifdef SSI_DUAL_QUAD_COMPONENT
+// Configure and send an SSI command for the master instance.
+int32_t SSI_Command_Configure(uint32_t inst_len, uint32_t addr_len, sl_ssi_frf_t spi_frf, sl_ssi_xfer_type_t xfer_type)
+{
+  // Configure the command phase of the SPI transaction
+  return SPI_Command_Configure(&SSI_MASTER_Resources, inst_len, addr_len, spi_frf, xfer_type);
+}
+#endif
+
 // To get the Tx fifo threshold value
 uint32_t SSI_GetTxFifoThreshold(uint8_t ssi_instance)
 {
@@ -1165,6 +1219,44 @@ uint32_t SSI_GetFrameLength(uint8_t ssi_instance)
      1 is substracted from the original value, so while returning adding 1 to the register value*/ 
   return frame_length + LENGTH_OFFSET;
 }
+
+// To set the frame length
+int32_t SSI_SetFrameLength(uint8_t ssi_instance, uint8_t frame_length)
+{
+  int32_t status = ARM_DRIVER_OK;
+
+  do {
+    if (frame_length < 4U || frame_length > 16U) {
+      status = ARM_SPI_ERROR_DATA_BITS;
+      break;
+    }
+    if (ssi_instance == SPI_MASTER_MODE) {
+      // For Dual/Quad SPI, the frame length should be a multiple of 2 or 4.
+      if(SSI_MASTER_Resources.reg->CTRLR0_b.SPI_FRF != STANDARD_SPI_FORMAT) {
+        if ((frame_length % 2 != 0) || (frame_length % 4 != 0)) {
+          status = ARM_SPI_ERROR_DATA_BITS;
+          break;
+        }
+      }
+      SSI_MASTER_Resources.reg->CTRLR0_b.DFS_32 = (frame_length - LENGTH_OFFSET);
+      break;
+    }
+    if (ssi_instance == SPI_SLAVE_MODE) {
+      if (frame_length < 4U || frame_length > 16U) {
+        status = ARM_SPI_ERROR_DATA_BITS;
+        break;
+      }
+      SSI_SLAVE_Resources.reg->CTRLR0_b.DFS = (frame_length - LENGTH_OFFSET);
+      break;
+    }
+    if (ssi_instance == SPI_ULP_MASTER_MODE) {
+      SSI_ULP_MASTER_Resources.reg->CTRLR0_b.DFS_32 = (frame_length - LENGTH_OFFSET);
+      break;
+    }
+  } while (false);
+  return status;
+}
+
 // Get SSI Init state
 uint8_t SSI_GetInitState(uint8_t ssi_instance)
 {

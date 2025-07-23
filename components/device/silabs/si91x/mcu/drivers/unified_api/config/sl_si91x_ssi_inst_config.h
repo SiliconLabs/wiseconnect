@@ -60,6 +60,13 @@ extern "C" {
 // <i> Selection of the SSI Master Mode.
 #define SL_SSI_INSTANCE_CLOCK_MODE SL_SSI_PERIPHERAL_CPOL0_CPHA0
 
+// <o SL_SSI_INSTANCE_TRANSFER_MODE> Transfer Mode
+//   <SL_SSI_PRIMARY_SINGLE_LINE_MODE=> Single Line Mode
+//   <SL_SSI_PRIMARY_DUAL_MODE=> Dual Line Mode
+//   <SL_SSI_PRIMARY_QUAD_MODE=> Quad Line Mode
+// <i> Selection of the SSI Master Tranfer Mode.
+#define SL_SSI_PRIMARY_TRANSFER_MODE SL_SSI_PRIMARY_SINGLE_LINE_MODE
+
 // <o SL_SSI_INSTANCE_BAUD> Bit Rate (Bits/Second) <500000-40000000>
 // <i> Default: 10000000
 #define SL_SSI_INSTANCE_BAUD 10000000 // SPI Speed ; Max is 40000000

@@ -53,7 +53,9 @@ extern "C" {
 // <i> Selection of the SSI Master Mode.
 #define SL_SSI_SECONDARY_CLOCK_MODE SL_SSI_PERIPHERAL_CPOL0_CPHA0
 
-#define SL_SSI_SECONDARY_BAUD 0 // SPI Speed is 0;
+#define SL_SSI_SECONDARY_BAUD 0 // SPI Speed is 0
+
+#define SL_SSI_SECONDARY_TRANSFER_MODE 0 // SPI Secondary transfer mode is NA
 
 // <o SL_SSI_SECONDARY_BIT_WIDTH> Data Width <4-16>
 // <i> Default: 8

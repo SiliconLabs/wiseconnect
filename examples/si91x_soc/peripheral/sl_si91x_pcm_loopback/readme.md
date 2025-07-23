@@ -20,7 +20,7 @@
 ## Overview
 
 - Supports programmable audio data resolutions of 16, 24, and 32 bits.
-- Supported audio sampling rates are 8, 11.025, 16, 22.05, snf 24 Khz.
+- Supported audio sampling rates are 8, 11.025, 16, 22.05, snf 24 kHz.
 - Supports Master and Slave modes.
 - Full duplex communication with independent transmitter and receiver.
 - Programmable FIFO thresholds with a maximum FIFO depth of 8 and support for DMA.
@@ -79,10 +79,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### General Configuration
 
-Using the configuration wizard, configure parameters like:
+Using the configuration wizard, configure parameters as follows:
 
 - `SL_PCM0_RESOLUTION`: PCM resolution can be configured through this macro. Valid resolution values are 16, 24, and 32 bits.
-- `SL_PCM0_SAMPLING_RATE`: PCM sampling rate can be configured through this macro. Valid sampling rate values are 8kHz, 11.025, 16, 22.05, and 24 kHz.
+- `SL_PCM0_SAMPLING_RATE`: PCM sampling rate can be configured through this macro. Valid sampling rate values are 8 kHz, 11.025, 16, 22.05, and 24 kHz.
 
 Configuration files are generated in the **config** folder. If not changed, the code will run on default UC values.
 
@@ -90,6 +90,20 @@ Configure the following macros in `pcm_loopback_example.c` file and update/modif
 
   ```C
   #define PCM_LOOPBACK_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
+  ```
+
+- If the resolution is changed to 24-bit or 32-bit, update the typedef for `pcm_data_size_t` to `uint32_t` instead of `uint16_t` to accommodate the larger data size - 
+ ```C
+ typedef uint32_t pcm_data_size_t;
+ ```
+
+### Using ULP_PCM Instance
+
+To use the ULP_PCM instance instead of the default PCM0 instance:
+
+- Change the `PCM_INSTANCE` macro value to `ULP_PCM` in pcm_loopback_exmaple.c:
+  ```C
+  #define PCM_INSTANCE ULP_PCM
   ```
 
 ### Pin Configuration

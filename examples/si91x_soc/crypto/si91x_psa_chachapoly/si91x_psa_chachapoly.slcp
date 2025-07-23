@@ -24,10 +24,10 @@ include:
       - path: psa_chachapoly_app.h
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.0
+    version: 3.5.1
 component:
   - id: sl_main
   - id: freertos

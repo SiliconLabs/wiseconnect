@@ -269,7 +269,7 @@ The power states available in different power modes (PS0, PS1, PS2, PS3, PS4) ar
 
 After reset, the processor starts in PS4 state which is the highest activity state where the full functionality is available. The other Active
 states (PS2/PS3) will have limited functionality or Processing power.
->**Note:** PS1 is not supported
+
 #### Sleep Wakeup Sequence
 
 **MCU Sleep Wakeup**
@@ -402,6 +402,33 @@ The following table describes the front-end switch selection for the SiWx917.
 
 ### Notes
 - After reset, the processor starts in PS4 state which is the highest activity state where the full functionality is available. The other Active states (PS2/PS3) will have limited functionality or processing power.
+
+## Configuring M4 PS1 State in FreeRTOS Tickless Idle Mode
+- The SiWx917 SoC supports the M4 PS1 state in FreeRTOS Tickless Idle mode. 
+- To enable this functionality, the user must integrate the Power Manager component along with the appropriate ULP peripheral component into the application. 
+- The PS1 state does not support the UULP wakeup source.
+- The following ULP peripherals are supported in the PS1 state:
+
+  | **ULP Peripherals Supported** |
+  |---------------------| 
+  | **ULP GPIO**        | 
+  | **ULP Timer**       |
+  | **ULP ADC**         | 
+  | **ULP Comparator**  | 
+  | **ULP UART**        | 
+
+### Sequence to Configure M4 PS1 State in FreeRTOS Tickless Idle Mode
+
+![ PS1 State Sequence](./resources/PS1_Sequence.png)
+
+## Configuring M4 Standby State in FreeRTOS Tickless Idle Mode
+- The SiWx917 SoC supports the M4 Standby state in Tickless Idle mode.  
+- To enable this functionality, the user must integrate the Power Manager component into the application.  
+- The Standby state also supports the UULP wakeup source through UC.  
+
+### Sequence to Configure M4 Standby State in FreeRTOS Tickless Idle Mode
+
+![ Standby State Sequence](./resources/Standby_Sequence.png)
 
 ## Chip/Module Programming
 

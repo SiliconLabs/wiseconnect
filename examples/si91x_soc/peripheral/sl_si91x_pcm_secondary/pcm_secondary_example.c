@@ -21,15 +21,23 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define PCM_SECONDARY_BUFFER_SIZE 1024 // Transmit/Receive buffer size
-#define PCM_INSTANCE              0    // PCM instance
-#define FRAME_SIZE_ALIGNMENT      4    // Max frame offset
+#define PCM_SECONDARY_BUFFER_SIZE 1024                   // Transmit/Receive buffer size
+#define PCM_INSTANCE              SL_SI91X_PCM0_INSTANCE // PCM instance
+#define FRAME_SIZE_ALIGNMENT      4                      // Max frame offset
 #define FRAME_OFFSET              1
+
+// PCM instance mapping
+#if PCM_INSTANCE == PCM0
+#define PCM_INSTANCE_CONFIG_(config) SL_PCM0##_##config
+#else
+#define PCM_INSTANCE_CONFIG_(config) SL_ULP_PCM##_##config
+#endif
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-uint16_t pcm_secondary_data_in[PCM_SECONDARY_BUFFER_SIZE + FRAME_SIZE_ALIGNMENT];
-uint16_t pcm_secondary_data_out[PCM_SECONDARY_BUFFER_SIZE];
+typedef uint16_t pcm_data_size_t;
+pcm_data_size_t pcm_secondary_data_in[PCM_SECONDARY_BUFFER_SIZE + FRAME_SIZE_ALIGNMENT];
+pcm_data_size_t pcm_secondary_data_out[PCM_SECONDARY_BUFFER_SIZE];
 static sl_i2s_handle_t pcm_handle             = NULL;
 static uint8_t pcm_secondary_send_complete    = 0;
 static uint8_t pcm_secondary_receive_complete = 0;
@@ -43,7 +51,7 @@ static uint16_t mode;
 static int32_t clock_configuration_pll(void);
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
-static void remove_pcm_frame_offset(uint16_t data_buffer[PCM_SECONDARY_BUFFER_SIZE + FRAME_OFFSET]);
+static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_SECONDARY_BUFFER_SIZE + FRAME_OFFSET]);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -53,9 +61,9 @@ static void remove_pcm_frame_offset(uint16_t data_buffer[PCM_SECONDARY_BUFFER_SI
 void pcm_example_init(void)
 {
   sl_status_t status;
-  pcm_sampling_frequency = SL_PCM0_SAMPLING_RATE;
-  pcm_resolution         = SL_PCM0_RESOLUTION;
-  mode                   = SL_PCM0_MODE;
+  pcm_sampling_frequency = PCM_INSTANCE_CONFIG_(SAMPLING_RATE);
+  pcm_resolution         = PCM_INSTANCE_CONFIG_(RESOLUTION);
+  mode                   = PCM_INSTANCE_CONFIG_(MODE);
 
   // Filling the data out array with integer values
   for (uint16_t i = 0; i < PCM_SECONDARY_BUFFER_SIZE; i++) {
@@ -226,7 +234,7 @@ static void callback_event(uint32_t event)
  * @param data_buffer - input receive buffer to remove data offset.
  * @return none
  ******************************************************************************/
-static void remove_pcm_frame_offset(uint16_t data_buffer[PCM_SECONDARY_BUFFER_SIZE + FRAME_OFFSET])
+static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_SECONDARY_BUFFER_SIZE + FRAME_OFFSET])
 {
   for (int i = 0; i < PCM_SECONDARY_BUFFER_SIZE; i++) {
     data_buffer[i] = data_buffer[i + FRAME_OFFSET];

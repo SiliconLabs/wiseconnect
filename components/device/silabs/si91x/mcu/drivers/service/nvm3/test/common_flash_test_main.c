@@ -114,7 +114,7 @@ void test_nvm3_countDeletedObjects(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("Common Flash Interface");
 

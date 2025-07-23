@@ -71,7 +71,7 @@ void test_icm40627_select_register_bank(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
 
 #if defined(SENSOR_ENABLE_GPIO_MAPPED_TO_UULP)

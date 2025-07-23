@@ -56,7 +56,7 @@ void test_iostream_printf(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("IOStream USART");
 

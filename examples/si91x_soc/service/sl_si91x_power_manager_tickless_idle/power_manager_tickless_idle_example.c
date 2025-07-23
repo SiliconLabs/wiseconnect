@@ -25,17 +25,23 @@
 #include "sl_si91x_button_instances.h"
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "sl_ulp_timer_instances.h"
+#include "sl_si91x_ulp_timer_common_config.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
+// Set SL_SI91X_STANDBY to 0 to enable active to sleep state transition.
+// Set SL_SI91X_STANDBY to 1 to enable active to standby transition.
+#define SL_SI91X_STANDBY 0
+
 #define PS_EVENT_MASK                                                                                           \
   (SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS4   \
    | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS3 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS3 \
    | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS2 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS2 \
    | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_SLEEP) // Ored value of event for which callback is subscribed
 
-#define ULP_TIMER_MATCH_VALUE 40000000 // Timer match value for down-counter type with 20mhz clock for 2 seconds
+#define ULP_TIMER_MATCH_VALUE 10000000 // Timer match value for down-counter type with 20mhz clock for 500 ms.
 #define ULP_TIMER_INSTANCE \
   SL_ULP_TIMER_TIMER0 // ulp-timer instance to be used, user can pass selected timer-number in place of '0'
 
@@ -48,7 +54,7 @@ typedef enum {
   ADD_REQ,
   REM_REQ,
 } ps_transition;
-
+TimerHandle_t PM_timer_handle;
 static ps_transition transition = ADD_REQ;
 static boolean_t change_state   = false;
 osSemaphoreId_t timer_semaphore;
@@ -73,6 +79,12 @@ static sl_status_t initialize_wireless(void);
 static void wireless_sleep(boolean_t sleep_with_retention);
 static void transition_callback(sl_power_state_t from, sl_power_state_t to);
 void pm_timer_callback(TimerHandle_t xTimer);
+
+#if !SL_SI91X_STANDBY
+static void set_ulp_timer_configuration(void);
+static void clear_ulp_timer_configuration(void);
+static void ulp_timer_callback(void);
+#endif
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -101,7 +113,6 @@ static void application_start(void *argument)
   sl_power_manager_ps_transition_event_handle_t handle;
   sl_power_manager_ps_transition_event_info_t info = { .event_mask = PS_EVENT_MASK, .on_event = transition_callback };
   sl_status_t status;
-  TimerHandle_t PM_timer_handle;
   osStatus_t timer_status;
   // Initialize the wireless interface and put the NWP in Standby with RAM retention mode.
   status = initialize_wireless();
@@ -236,11 +247,39 @@ void power_manager_example_process_action(void)
       if (change_state) {
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
         if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS2) {
-          status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
-          if (status != SL_STATUS_OK) {
-            // If status is not OK, display the error info.
-            DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+#if !SL_SI91X_STANDBY
+          if (sl_si91x_power_manager_get_ps1_state_status() == false) {
+            // Stop the PM timer.
+            xTimerStop(PM_timer_handle, portMAX_DELAY);
+            // Add the PS1 state request in the power manager.
+            status = sl_si91x_power_manager_request_ps1_state();
+            if (status != SL_STATUS_OK) {
+              // If status is not OK, display the error info.
+              DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+            }
+            // Configure the ULP timer to wake up from PS1.
+            set_ulp_timer_configuration();
+          } else {
+            // Start the PM timer.
+            xTimerStart(PM_timer_handle, portMAX_DELAY);
+            // Remove the PS1 state request in the power manager.
+            status = sl_si91x_power_manager_remove_ps1_state_request();
+            if (status != SL_STATUS_OK) {
+              // If status is not OK, display the error info.
+              DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+            }
+            // Clear the ULP timer wakeup source.
+            clear_ulp_timer_configuration();
+#endif
+            status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+            if (status != SL_STATUS_OK) {
+              // If status is not OK, display the error info.
+              DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+            }
+#if !SL_SI91X_STANDBY
+            // Closing bracket for removing the PS1 state request. This should only be active when Standby mode is disabled.
           }
+#endif
         } else if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS4) {
           status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
           if (status != SL_STATUS_OK) {
@@ -275,10 +314,26 @@ void power_manager_example_process_action(void)
     default:
       break;
   }
+#if SL_SI91X_STANDBY
+  // Add the standby state request in the power manager.
+  status = sl_si91x_power_manager_request_standby_state();
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+  }
+#endif
   sl_sem_status = osSemaphoreAcquire(timer_semaphore, osWaitForever);
   if (sl_sem_status != osOK) {
     DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_sem_status);
   }
+#if SL_SI91X_STANDBY
+  // Remove the standby state request in the power manager.
+  status = sl_si91x_power_manager_remove_standby_state_request();
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+  }
+#endif
 }
 
 /*******************************************************************************
@@ -333,6 +388,10 @@ static void transition_callback(sl_power_state_t from, sl_power_state_t to)
       // Current state is PS2
       DEBUGOUT("Entering PS2 State \n");
       break;
+    case SL_SI91X_POWER_MANAGER_PS1:
+      // Current state is PS2
+      DEBUGOUT("Entering PS1 State \n");
+      break;
     default:
       break;
   }
@@ -352,3 +411,94 @@ void pm_timer_callback(TimerHandle_t xTimer)
     DEBUGOUT("\r\nosSemaphoreRelease failed :%d \r\n", sl_sem_status);
   }
 }
+
+#if !SL_SI91X_STANDBY
+/*******************************************************************************
+ * Configure and initialize the ulp timer wakeup source.
+ * ULP timer interrupt is used to wakeup from PS1.
+ * ULP timer is initialzed and configured for 2 seconds.
+ * Callback is registered for ULP Timer interrupt.
+ ******************************************************************************/
+static void set_ulp_timer_configuration(void)
+{
+  sl_status_t status;
+  sl_timer_clk_handle.ulp_timer_clk_input_src = ULP_TIMER_MHZ_RC_CLK_SRC;
+
+  // ULP Timer initialization, the values are fetched from the UC.
+  status = sl_si91x_ulp_timer_init(&sl_timer_clk_handle);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_ulp_timer_init failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+  // Match value is set to 2 seconds.
+  sl_timer_handle_timer0.timer_match_value = ULP_TIMER_MATCH_VALUE;
+  // ULP timer configurations are set, the values are fetched from the UC.
+  status = sl_si91x_ulp_timer_set_configuration(&sl_timer_handle_timer0);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_ulp_timer_set_configuration failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+  // Callback is registered to enable the timer interrupt.
+  status = sl_si91x_ulp_timer_register_timeout_callback(ULP_TIMER_INSTANCE, ulp_timer_callback);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_ulp_timer_register_timeout_callback failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+  // ULP Timer is started for timer 0.
+  status = sl_si91x_ulp_timer_start(ULP_TIMER_INSTANCE);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_ulp_timer_start failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+}
+/*******************************************************************************
+ * Clears ulp timer wakeup source.
+ * ULP timer is stopped here.
+ * Callback is unregistered for ULP Timer interrupt.
+ ******************************************************************************/
+static void clear_ulp_timer_configuration(void)
+{
+  sl_status_t status;
+  // After waking up, ulp timer is stopped.
+  status = sl_si91x_ulp_timer_stop(ULP_TIMER_INSTANCE);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_ulp_timer_stop failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+  // After waking up, ulp timer callback is unregistered.
+  status = sl_si91x_ulp_timer_unregister_timeout_callback(ULP_TIMER_INSTANCE);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_ulp_timer_unregister_timeout_callback failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+  // Once the sleep-wakeup is completed, ulp based wakeup source is removed.
+  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP, false);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, display the error info.
+    DEBUGOUT("sl_si91x_power_manager_set_wakeup_sources failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+}
+
+/*******************************************************************************
+ * ULP Timer callback.
+ * Interrupt Clearing is handled in driver layer, so this function is defined
+ * to avoid undefined function while registering callback.
+ ******************************************************************************/
+static void ulp_timer_callback(void)
+{
+  osStatus_t sl_sem_status;
+  change_state  = true;
+  transition    = ADD_REQ;
+  sl_sem_status = osSemaphoreRelease(timer_semaphore);
+  if (sl_sem_status != osOK) {
+    DEBUGOUT("\r\nosSemaphoreRelease failed :%d \r\n", sl_sem_status);
+  }
+}
+#endif

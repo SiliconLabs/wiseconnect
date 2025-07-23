@@ -1,5 +1,6 @@
 /******************************************************************************
 * @file  sl_si91x_hspi_secondary.h
+* @brief High Speed SPI Secondary API implementation
 *******************************************************************************
 * # License
 * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -41,7 +42,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup HSPI HSPI Secondary
+ * @addtogroup HSPI High Speed SPI Secondary
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  *
@@ -160,7 +161,9 @@ sl_status_t sl_si91x_hspi_secondary_receive_non_blocking(void *data_buf);
  ******************************************************************************/
 uint32_t sl_si91x_hspi_secondary_send_blocking(const void *data);
 
-/*******************************************************************************
+/*******************************************************************************/
+/**
+ * 
  * @brief Receives data from SPI FIFO in blocking mode.
  *
  * @pre Pre-condition:
@@ -211,11 +214,11 @@ void sl_si91x_hspi_secondary_unregister_event_callback(uint32_t flag);
  ******************************************************************************/
 sl_hspi_secondary_version_t sl_si91x_hspi_secondary_get_version(void);
 
-/** @} (end addtogroup HSPI Secondary) */
+/** @} (end addtogroup High Speed SPI Secondary) */
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /** 
-* @addtogroup  HSPI HSPI Secondary
+* @addtogroup  HSPI High Speed SPI Secondary
 * @{
 *   @details
 *
@@ -226,15 +229,15 @@ sl_hspi_secondary_version_t sl_si91x_hspi_secondary_get_version(void);
 *
 * @section HSPI_Config Configuration
 *
-* - Most HSPI configurations take place on the primary side, where it enables read, write, and read-write operations.
+* - The HSPI primary side drives the majority of HSPI configurations, specifically initialization, speed mode, and all data transfer operations (read, write, read-write).
 *
-* - For more information on configuring available parameters, see the respective peripheral example readme document.
+* - For more information on configuring available parameters, see the respective HSPI Primary example.
 *
 * @section HSPI_Usage Usage
 *
-* The initialization and configuration of the HSPI Secondary will be completed, transitioning it to a waiting state.
-* It will remain in this state until an interrupt is triggered from the primary. Subsequently, the send and receive APIs will
-* configure all GPDMA descriptors and initiate the GPDMA to transmit and receive data.
+* - The HSPI Secondary undergoes initialization and configuration, and then enters a waiting state. 
+*  It remains in this state until an interrupt from the primary triggers data transfer,
+*  at which point the send and receive APIs configure the GPDMA descriptors for further transmissions.
 *
 * The HSPI can be initialized by multiple functions:
 *

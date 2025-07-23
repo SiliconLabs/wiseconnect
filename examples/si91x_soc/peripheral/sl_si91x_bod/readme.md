@@ -75,7 +75,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - **Slot Value:** Sets how often the comparator checks the BOD value. In automatic mode, up to six voltage comparisons (cmp_[1-5]_en and button_wakeup_en) are performed in sequence during each slot interval. Adjust this option to control the comparison frequency and interval.
       - Slot value effects are only observable in low-power (sleep) modes. In active mode, power consumption differences are minimal. For noticeable results, test with higher slot values to further reduce sleep current.
 
-    - **Enable Black-Out Detection:** When enabled, the system will automatically reset if the VMCU voltage falls below 1.65V.
+    - **Enable Black-Out Monitor:** When enabled, the system will automatically reset if the VMCU voltage falls below 1.65V.
 
     - **Automatic Mode:** In this mode, up to six voltage comparisons can be performed consecutively within each slot interval. All enabled comparisons (cmp_[1-5]_en and button_wakeup_en) are checked in sequence during each slot.
 

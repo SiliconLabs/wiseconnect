@@ -72,10 +72,32 @@ extern "C" {
 // </e>
 
 // <<< sl:start pin_tool >>>
-// <i2s_ulp signal=DOUT0,DIN0> SL_ULP_I2S
+// <i2s_ulp signal=(SCLK),(WSCLK),DOUT0,DIN0> SL_ULP_I2S
 // $[I2S_ULP_SL_ULP_I2S]
 #ifndef SL_ULP_I2S_PERIPHERAL
 #define SL_ULP_I2S_PERIPHERAL ULP_I2S
+#endif
+
+// ULP_I2S SCLK on ULP_GPIO_7/GPIO_71
+#ifndef SL_ULP_I2S_SCLK_PORT
+#define SL_ULP_I2S_SCLK_PORT ULP
+#endif
+#ifndef SL_ULP_I2S_SCLK_PIN
+#define SL_ULP_I2S_SCLK_PIN 7
+#endif
+#ifndef SL_ULP_I2S_SCLK_LOC
+#define SL_ULP_I2S_SCLK_LOC 0
+#endif
+
+// ULP_I2S WSCLK on ULP_GPIO_10/GPIO_74
+#ifndef SL_ULP_I2S_WSCLK_PORT
+#define SL_ULP_I2S_WSCLK_PORT ULP
+#endif
+#ifndef SL_ULP_I2S_WSCLK_PIN
+#define SL_ULP_I2S_WSCLK_PIN 10
+#endif
+#ifndef SL_ULP_I2S_WSCLK_LOC
+#define SL_ULP_I2S_WSCLK_LOC 3
 #endif
 
 // ULP_I2S DOUT0 on ULP_GPIO_1/GPIO_65

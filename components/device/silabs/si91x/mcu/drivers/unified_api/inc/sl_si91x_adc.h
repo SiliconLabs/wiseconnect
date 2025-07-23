@@ -830,6 +830,19 @@ sl_status_t sl_si91x_adc_stop(sl_adc_config_t adc_config);
  ******************************************************************************/
 sl_adc_version_t sl_si91x_adc_get_version(void);
 
+/***************************************************************************/
+/**
+ * @brief To get chip operating voltage (VBATT).
+ * 
+ * @details  1. This API reads the operating voltage of chip i.e vbatt voltage.
+ *           2. If the operating voltage is less than 2.4V then this api switches the input voltage supply
+ *              from SCDC to HPLDO.
+ *           3. then returns the chip operating voltage (VBATT) in volts.
+ *
+ * @return chip operating voltage(VBATT) in volts.
+ ***************************************************************************************/
+float sl_si91x_adc_get_chip_voltage(void);
+
 /// @} end group ADC ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************

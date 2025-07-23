@@ -53,6 +53,13 @@ extern "C" {
 // <i> Selection of the SSI Master Mode.
 #define SL_SSI_PRIMARY_CLOCK_MODE SL_SSI_PERIPHERAL_CPOL0_CPHA0
 
+// <o SL_SSI_PRIMARY_TRANSFER_MODE> Transfer Mode
+//   <SPI_TRANSFER_MODE_STANDARD=> Single Line Mode
+//   <SPI_TRANSFER_MODE_DUAL=> Dual Line Mode
+//   <SPI_TRANSFER_MODE_QUAD=> Quad Line Mode
+// <i> Selection of the SSI Master Tranfer Mode.
+#define SL_SSI_PRIMARY_TRANSFER_MODE SPI_TRANSFER_MODE_STANDARD
+
 // <o SL_SSI_PRIMARY_BAUD> Bit Rate (Bits/Second) <500000-40000000>
 // <i> Default: 10000000
 #define SL_SSI_PRIMARY_BAUD 10000000 // SPI Speed ; Max is 40000000
@@ -71,7 +78,7 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <ssi_master signal=MOSI_DATA0,MISO_DATA1,SCK_,(CS0_),(CS1_),(CS2_),(CS3_)> SL_SSI_MASTER
+// <ssi_master signal=MOSI_DATA0,MISO_DATA1,(DATA2),(DATA3),SCK_,(CS0_),(CS1_),(CS2_),(CS3_)> SL_SSI_MASTER
 // $[SSI_MASTER_SL_SSI_MASTER]
 #ifndef SL_SSI_MASTER_PERIPHERAL
 #define SL_SSI_MASTER_PERIPHERAL SSI_MASTER
@@ -122,6 +129,24 @@ extern "C" {
 #endif
 // [SSI_MASTER_SL_SSI_MASTER]$
 // <<< sl:end pin_tool >>>
+
+#if (defined(SL_SSI_PRIMARY_TRANSFER_MODE) && (SL_SSI_PRIMARY_TRANSFER_MODE == SPI_TRANSFER_MODE_QUAD))
+#if (SPI_QUAD_MODE != 1)
+#warning \
+  "SSI Quad Line Mode is configured, please add Preprocessor symbol SPI_QUAD_MODE with Value 1 in Project properties."
+#endif
+#if !(defined(SL_SSI_MASTER_DATA2_PORT) && defined(SL_SSI_MASTER_DATA3_PORT))
+#warning "DATA2 or DATA3 pin is not configured while SSI Primary Transfer Mode is Quad Line Mode."
+#endif
+#endif
+
+#if (defined(SL_SSI_PRIMARY_TRANSFER_MODE)                        \
+     && ((SL_SSI_PRIMARY_TRANSFER_MODE == SPI_TRANSFER_MODE_DUAL) \
+         || (SL_SSI_PRIMARY_TRANSFER_MODE == SPI_TRANSFER_MODE_STANDARD)))
+#if (defined(SL_SSI_MASTER_DATA2_PORT) || defined(SL_SSI_MASTER_DATA3_PORT))
+#warning "DATA2 or DATA3 pin is configured while SSI Primary Transfer Mode is not Quad Line Mode."
+#endif
+#endif
 
 #ifdef __cplusplus
 }

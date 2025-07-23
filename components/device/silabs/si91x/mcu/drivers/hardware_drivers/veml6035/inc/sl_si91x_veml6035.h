@@ -1,11 +1,10 @@
 /***************************************************************************/ /**
- * @file
+ * @file sl_si91x_veml6035.h
  * @brief Driver for the VEML6035 ambient light sensor
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * Copyright 2024 Silicon Laboratories Inc. www.silabs.com
  *******************************************************************************
- *
  * SPDX-License-Identifier: Zlib
  *
  * The licensor of this software is Silicon Laboratories Inc.
@@ -25,7 +24,6 @@
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
  ******************************************************************************/
 
 #ifndef SL_SI91X_VEML6035_H
@@ -40,6 +38,13 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+/**
+ * @addtogroup VEML6035 VEML6035 Ambient Light Sensor
+ * @ingroup SI91X_HARDWARE_DRIVER_APIS
+ * @{
+ *
+ ******************************************************************************/
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -49,6 +54,7 @@ extern "C" {
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /////@brief Enum for User, VEML6035 command registers
 typedef enum sl_veml6035_registers {
   SL_VEML6035_ALS_CONF, ///< Enumerator for ALS gain, integration time, interrupt, and shut down
@@ -59,13 +65,7 @@ typedef enum sl_veml6035_registers {
   SL_VEML6035_WHITE,    ///< Enumerator for White channel output data
   SL_VEML6035_IF        ///< Last enum for Interrupt Status
 } sl_veml6035_registers_t;
-/**************************************************************************/ /**
-* @addtogroup veml6035 VEML6035 - Ambient Light Sensor
-* @brief Driver for the Vishay VEML6025 ambient light sensor
-* @{
-******************************************************************************/
 
-/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #define SL_VEML6035_SENS_SHIFT 12
 #define SL_VEML6035_SENS_MASK  0x1000
 #define SL_VEML6035_SENS_HIGH  (0x0000 << SL_VEML6035_SENS_SHIFT)
@@ -162,10 +162,12 @@ SL_ENUM_GENERIC(sl_veml6035_als_pers_t, uint16_t){
  * @note This function configures the sensor to a default integration time of
  * 100 ms and the lowest possible sensitivity configuration in order to achieve
  * maximum illumination range. If the lux count is too low, consider configuring
- * sensitivity settings with @ref sl_veml6035_configure_sensitivity.
+ * sensitivity settings.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] white_enable
  *    Set to true to enable WHITE channel sensor readings in addition to the ALS
  *    channel.
@@ -179,9 +181,10 @@ sl_status_t sl_si91x_veml6035_init(sl_i2c_instance_t i2c_instance, uint8_t addr,
  * @brief Retrieve the sample counts from the ALS channel and calculate the
  * lux value.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[out] lux
  *    The measured ambient light illuminance in lux.
  *
@@ -195,9 +198,10 @@ sl_status_t sl_si91x_veml6035_get_als_lux(sl_i2c_instance_t i2c_instance, uint8_
  * @brief Retrieve the sample counts from the WHITE channel and calculate the
  * lux vaule.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[out] lux
  *    The measured white light illuminance in lux.
  *
@@ -213,8 +217,10 @@ sl_status_t sl_si91x_veml6035_get_white_lux(sl_i2c_instance_t i2c_instance, uint
  * @note Disabling the sensor does not make sensor lose its configuration and
  * last measurement values.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] enable
  *    Set to true to enable sensor, set to false to disable sensor.
  *
@@ -229,8 +235,10 @@ sl_status_t sl_si91x_veml6035_enable_sensor(sl_i2c_instance_t i2c_instance, uint
  * @note This function does not clear data output registers, or interrupt status
  * register.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
+ * @param[in] addr
+ *    I2C address of the sensor.
  *
  * @retval SL_STATUS_OK Success
  * @retval SL_STATUS_TRANSMIT I2C transmit failure
@@ -243,12 +251,12 @@ sl_status_t sl_si91x_veml6035_reset(sl_i2c_instance_t i2c_instance, uint8_t addr
  * @note A low sensitivity results in a larger light sensing range, while a high
  *    sensitivity yields a higher resolution at low illumination levels.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] low_sensitivity
- *    Set to true for low sensitivity (1/8th of normal), false for normal sensitiviy.
- *
+ *    Set to true for low sensitivity (1/8th of normal), false for normal sensitivity.
  * @param[in] gain
  *    Sensitivity gain, possible values: 1, 2, 4
  *
@@ -267,8 +275,10 @@ sl_status_t sl_si91x_veml6035_configure_sensitivity(sl_i2c_instance_t i2c_instan
  * @note The default integration time is 100ms. This can be increased to achieve
  *   a higher resolution, or decreased to achieve a faster measurement rate.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] integration_time
  *    Integration time
  *
@@ -282,12 +292,12 @@ sl_status_t sl_si91x_veml6035_configure_integration_time(sl_i2c_instance_t i2c_i
 /***************************************************************************/ /**
  * @brief Enable power save mode, with a defined wait time between measurements.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] psm_wait
  *    The desired interval between measurements
- *
  * @param[in] enable
  *    Set to true to enable power save mode, false to disable power save mode.
  *
@@ -302,22 +312,19 @@ sl_status_t sl_si91x_veml6035_configure_psm(sl_i2c_instance_t i2c_instance,
 /***************************************************************************/ /**
  * @brief Configure interrupt mode.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] high_threshold
  *    Threshold for interrupt to trigger when lux value above
- *
  * @param[in] low_threshold
  *    Interrupt should trigger when lux count below this value
- *
  * @param[in] persistence
  *    How many sensor reads out of threshold window before interrupt triggers
- *
  * @param[in] white_enable
  *    Selection for which channel the interrupt should trigger. True for WHITE
  *    channel, false for ALS channel.
- *
  * @param[in] enable
  *    Set to true to enable interrupts, false to disable interrupts
  *
@@ -335,9 +342,10 @@ sl_status_t sl_si91x_veml6035_configure_interrupt_mode(sl_i2c_instance_t i2c_ins
 /***************************************************************************/ /**
  * @brief Enable or disable threshold interrupts.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use.
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[in] enable
  *    Set to true to enable interrupt mode, false to disable interrupt mode
  *
@@ -350,12 +358,12 @@ sl_status_t sl_si91x_veml6035_enable_interrupt_mode(sl_i2c_instance_t i2c_instan
  * @brief Read threshold interrupt status register and return interrupt status
  * for high and low threshold.
  *
- * @param[in] i2cspm
+ * @param[in] i2c_instance
  *    The I2C peripheral to use
- *
+ * @param[in] addr
+ *    I2C address of the sensor.
  * @param[out] threshold_low
  *    True if crossing low threshold interrupt was triggered
- *
  * @param[out] threshold_high
  *    True if crossing high threshold interrupt was triggered
  *
@@ -367,10 +375,49 @@ sl_status_t sl_si91x_veml6035_read_interrupt_status(sl_i2c_instance_t i2c_instan
                                                     bool *threshold_low,
                                                     bool *threshold_high);
 
-/** @} (end addtogroup veml6035) */
+/// @} end group VEML6035 ********************************************************/
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/** @addtogroup VEML6035 VEML6035 Ambient Light Sensor
+* @{
+*
+* @details
+*
+* @section VEML6035 Introduction
+*
+* The VEML6035 driver provides a set of functions for interacting with the VEML6035 ambient light sensor over the I2C bus.
+* It enables integration of the sensor by providing access to features such as ambient light and white light measurements,
+* configuration of sensitivity, integration time, power save mode, and interrupt handling.
+*
+* @section VEML6035_Use Usage
+*
+* Once the I2C peripheral is initialized and configured, the VEML6035 sensor will be ready for use. The common functions include the following:
+*
+* 1. *Initialize the VEML6035 sensor:* @ref sl_si91x_veml6035_init
+* 2. *Enable or disable the sensor:* @ref sl_si91x_veml6035_enable_sensor
+* 3. *Measure ambient light (ALS) in lux:* @ref sl_si91x_veml6035_get_als_lux
+* 4. *Measure white light in lux:* @ref sl_si91x_veml6035_get_white_lux
+* 5. *Configure sensitivity and gain:* @ref sl_si91x_veml6035_configure_sensitivity
+* 6. *Set integration time:* @ref sl_si91x_veml6035_configure_integration_time
+* 7. *Configure power save mode:* @ref sl_si91x_veml6035_configure_psm
+* 8. *Configure and enable interrupts:* @ref sl_si91x_veml6035_configure_interrupt_mode, @ref sl_si91x_veml6035_enable_interrupt_mode
+* 9. *Read interrupt status:* @ref sl_si91x_veml6035_read_interrupt_status
+* 10. *Reset the sensor configuration:* @ref sl_si91x_veml6035_reset
+*
+* @li The following sequence should be followed when using the VEML6035 sensor:
+*   - *Initialize the VEML6035 sensor:* Use @ref sl_si91x_veml6035_init before using the other functions.
+*   - *Enable or disable the sensor as needed:* Use @ref sl_si91x_veml6035_enable_sensor.
+*   - *Configure sensitivity, integration time, or power save mode as required.*
+*   - *Measure ambient or white light:* Use @ref sl_si91x_veml6035_get_als_lux or @ref sl_si91x_veml6035_get_white_lux.
+*   - *Configure and handle interrupts if threshold-based events are needed.*
+*   - *Reset the sensor if necessary using @ref sl_si91x_veml6035_reset.*
+*
+* @li See the Function Documentation for detailed usage information of all APIs.
+*
+* @} (end addtogroup VEML6035 VEML6035 Sensor) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //SL_SI91X_VEML6035_H
+#endif /* SL_SI91X_VEML6035_H */

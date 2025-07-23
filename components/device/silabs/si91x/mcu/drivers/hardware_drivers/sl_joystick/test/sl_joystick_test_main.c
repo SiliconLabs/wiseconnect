@@ -30,7 +30,7 @@ void test_joystick_stop(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("JOYSTICK");
   RUN_TEST(test_joystick_init, __LINE__);

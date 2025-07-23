@@ -20,7 +20,7 @@ void test_sl_memlcd_get(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("MEMLCD");
 

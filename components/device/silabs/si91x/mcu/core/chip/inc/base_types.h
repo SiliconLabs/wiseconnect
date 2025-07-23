@@ -44,6 +44,24 @@ extern "C" {
 /*****************************************************************************/
 /* Global pre-processor symbols/macros                                       */
 /*****************************************************************************/
+/** @brief
+ *    Macro for marking deprecated functions
+ *
+ *  @details
+ *    SL_DEPRECATED_API_WISECONNECT_<RELEASE> is used to mark functions that are
+ *    deprecated and should not be used from a given version of WiSeConnect SDK.
+ *    The accompanying SL_SUPPRESS_DEPRECATION_WARNINGS_WISECONNECT_<RELEASE>
+ *    define can be set to suppress warnings generated when using
+ *    deprecated APIs.
+ */
+#ifndef SL_DEPRECATED_API_WISECONNECT_3_5
+#ifdef SL_SUPPRESS_DEPRECATION_WARNINGS_WISECONNECT_3_5
+#define SL_DEPRECATED_API_WISECONNECT_3_5
+#else
+#define SL_DEPRECATED_API_WISECONNECT_3_5 __attribute__((deprecated))
+#endif
+#endif
+
 #ifndef TRUE
 /** Value is true (boolean_t type) */
 #define TRUE 1

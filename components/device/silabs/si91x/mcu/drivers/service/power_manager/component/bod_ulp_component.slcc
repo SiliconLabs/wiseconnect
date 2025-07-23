@@ -22,4 +22,6 @@ template_contribution:
       - pm_ps2_component  
   - name: bod_ps2
     value: rsi_bod.o
+  - name: bod_ps2
+    value: sl_si91x_bod.o
 

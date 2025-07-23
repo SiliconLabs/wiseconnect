@@ -42,7 +42,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup PWM Pulse Width Modulation
+ * @addtogroup PWM Motor Control PWM
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  *
@@ -1327,7 +1327,7 @@ sl_status_t sl_si91x_pwm_reset_counter_disable(sl_pwm_channel_t channel);
 /// @} end group PWM ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/**  @addtogroup PWM Pulse Width Modulation
+/**  @addtogroup PWM Motor Control PWM
 * @{
 *
 * @details

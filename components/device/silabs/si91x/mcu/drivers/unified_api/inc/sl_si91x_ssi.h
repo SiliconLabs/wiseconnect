@@ -119,6 +119,17 @@ typedef enum {
 
 /***************************************************************************/
 /**
+ * @brief Enumeration for different SSI peripheral transfer line modes.
+ */
+typedef enum {
+  SL_SSI_PRIMARY_SINGLE_LINE_MODE = SPI_TRANSFER_MODE_STANDARD, ///< Single line (standard SPI) mode.
+  SL_SSI_PRIMARY_DUAL_LINE_MODE   = SPI_TRANSFER_MODE_DUAL,     ///< Dual line mode.
+  SL_SSI_PRIMARY_QUAD_LINE_MODE   = SPI_TRANSFER_MODE_QUAD,     ///< Quad line mode.
+  SL_SSI_PRIMARY_MODE_LAST                                      ///< Last member of enum for validation.
+} sl_ssi_transfer_mode_t;
+
+/***************************************************************************/
+/**
  * @brief Enumeration for different SSI peripheral device modes.
  */
 typedef enum {
@@ -141,6 +152,7 @@ typedef struct {
   uint32_t clock_mode;           ///< Clock mode such as CPOL0 CPHA1.
   uint32_t baud_rate;            ///< Baud rate for SSI.
   uint32_t receive_sample_delay; ///< Delay for the receive input signal.
+  uint32_t transfer_mode;        ///< Transfer mode: single, dual, or quad line.
 } sl_ssi_control_config_t;
 
 /***************************************************************************/
@@ -168,6 +180,61 @@ typedef enum {
   SSI_SLAVE_3,                ///< Secondary No. 4.
   SSI_SLAVE_NUMBER_LAST_ENUM, ///< Last member of enum for validation.
 } sl_ssi_slave_number_t;
+
+/***************************************************************************/
+/**
+ * @brief Enumeration for different SSI frame formats.
+ */
+typedef enum {
+  SSI_FRF_STANDARD = 0x0, ///< Standard SPI frame format
+  SSI_FRF_DUAL     = 0x1, ///< Dual SPI frame format
+  SSI_FRF_QUAD     = 0x2, ///< Quad SPI frame format
+  SSI_FRF_LAST     = 0x3, ///< Last value for validation
+} sl_ssi_frf_t;
+
+/***************************************************************************/
+/**
+ * @brief Enumeration for different SSI transfer types.
+ */
+typedef enum {
+  SSI_XFER_TYPE_INST_ADDR_STD = 0x0, ///< Both instruction and address in standard SPI
+  SSI_XFER_TYPE_ADDR_ENH      = 0x1, ///< Instruction in standard, address in enhanced (Dual/Quad)
+  SSI_XFER_TYPE_BOTH_ENH      = 0x2, ///< Both instruction and address in enhanced (Dual/Quad)
+} sl_ssi_xfer_type_t;
+
+/***************************************************************************/
+/**
+ * @brief Enumeration for different SSI instance types.
+ */
+typedef enum {
+  SSI_INST_LEN_0_BITS  = 0x0, ///< 0-bit (No instruction)
+  SSI_INST_LEN_4_BITS  = 0x1, ///< 4-bit instruction
+  SSI_INST_LEN_8_BITS  = 0x2, ///< 8-bit instruction
+  SSI_INST_LEN_16_BITS = 0x3  ///< 16-bit instruction
+} sl_ssi_inst_len_t;
+
+/***************************************************************************/
+/**
+ * @brief Enumeration for different SSI address lengths.
+ */
+typedef enum {
+  SSI_ADDR_LEN_0_BITS  = 0x0, ///< 0-bit Address Width
+  SSI_ADDR_LEN_4_BITS  = 0x1, ///< 4-bit Address Width
+  SSI_ADDR_LEN_8_BITS  = 0x2, ///< 8-bit Address Width
+  SSI_ADDR_LEN_12_BITS = 0x3, ///< 12-bit Address Width
+  SSI_ADDR_LEN_16_BITS = 0x4, ///< 16-bit Address Width
+  SSI_ADDR_LEN_20_BITS = 0x5, ///< 20-bit Address Width
+  SSI_ADDR_LEN_24_BITS = 0x6, ///< 24-bit Address Width
+  SSI_ADDR_LEN_28_BITS = 0x7, ///< 28-bit Address Width
+  SSI_ADDR_LEN_32_BITS = 0x8, ///< 32-bit Address Width
+  SSI_ADDR_LEN_36_BITS = 0x9, ///< 36-bit Address Width
+  SSI_ADDR_LEN_40_BITS = 0xA, ///< 40-bit Address Width
+  SSI_ADDR_LEN_44_BITS = 0xB, ///< 44-bit Address Width
+  SSI_ADDR_LEN_48_BITS = 0xC, ///< 48-bit Address Width
+  SSI_ADDR_LEN_52_BITS = 0xD, ///< 52-bit Address Width
+  SSI_ADDR_LEN_56_BITS = 0xE, ///< 56-bit Address Width
+  SSI_ADDR_LEN_60_BITS = 0xF  ///< 60-bit Address Width
+} sl_ssi_addr_len_t;
 
 /***************************************************************************/
 /**
@@ -216,7 +283,7 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
  *
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Success.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *
@@ -255,7 +322,7 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
  *         - SL_STATUS_BUSY               - Driver is busy.
  *         - SL_STATUS_NOT_SUPPORTED      - Parameter is not supported.
  *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
  *         - SL_STATUS_INVALID_MODE       - Slave select mode is invalid.
  *         - SL_STATUS_INVALID_TYPE       - SPI frame format is not valid.
  *         - SL_STATUS_INVALID_RANGE      - Data bits (frame length) are not in range.
@@ -268,15 +335,51 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
 
 /***************************************************************************/
 /**
+ * @brief Configure the SSI command phase parameters for dual/quad mode operations.
+ * 
+ * @details This API sets up the command phase parameters for the SSI peripheral, configuring
+ *          how instructions and addresses will be transmitted in subsequent operations.
+ *          It allows selection of instruction length, address length, frame format (standard/dual/quad),
+ *          and transfer type. 
+ * 
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
+ * @param[in] inst_len   Instruction length - use \ref sl_ssi_inst_len_t values.
+ * @param[in] addr_len   Address length - use \ref sl_ssi_addr_len_t values.
+ * @param[in] spi_frf    Frame format (standard/dual/quad) - use \ref sl_ssi_frf_t values.
+ * @param[in] xfer_type  Transfer type for instruction/address phases - use \ref sl_ssi_xfer_type_t values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_NOT_SUPPORTED      - Parameter is not supported.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
+ *         - SL_STATUS_INVALID_HANDLE     - SSI handle is invalid.
+ *         - SL_STATUS_INVALID_TYPE       - SPI frame format or transfer type is not valid.
+ * 
+ * @note This function must be called before using sl_si91x_ssi_send_command_data and 
+ *       sl_si91x_ssi_receive_command_data functions that require specific command formatting.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_ssi_command_config(sl_ssi_handle_t ssi_handle,
+                                        sl_ssi_inst_len_t inst_len,
+                                        sl_ssi_addr_len_t addr_len,
+                                        sl_ssi_frf_t spi_frf,
+                                        sl_ssi_xfer_type_t xfer_type);
+
+/***************************************************************************/
+/**
  * @brief To receive data from the secondary device.
  * 
  * @details This API will receive data from the secondary device. If DMA is enabled, it configures the DMA channel and required parameters.
  *          When the received data is equal to the data_length passed in this function, a callback event is generated which can be registered using \ref sl_si91x_ssi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init 
- *      - \ref sl_si91x_ssi_set_configuration 
- *      - \ref sl_si91x_ssi_set_slave_number
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
+ *      - A slave device must be selected using \ref sl_si91x_ssi_set_slave_number
  * 
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] data Pointer to the variable which will store the received data.
@@ -287,11 +390,50 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
  *         - SL_STATUS_FAIL               - Function failed.
  *         - SL_STATUS_BUSY               - Driver is busy.
  *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, uint32_t data_length);
+
+/***************************************************************************/
+/**
+ * @brief To receive data from the secondary device in dual or quad mode.
+ *
+ * @details This API will receive data from the secondary device in dual or quad mode operations.
+ *          It first sends the command phase (instruction and address) and then receives the specified amount of data.
+ *          When the received data is equal to the data_length, a callback event is generated which can be registered
+ *          using \ref sl_si91x_ssi_register_event_callback.
+ *
+ * @pre Pre-conditions:
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
+ *      - A slave device must be selected using \ref sl_si91x_ssi_set_slave_number
+ *      - The command phase must be configured using \ref sl_si91x_ssi_command_config
+ *
+ * @param[in] ssi_handle   Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
+ * @param[out] data        Pointer to the buffer that will store the received data.
+ * @param[in] data_length  Number of data bytes to receive.
+ * @param[in] instruction  Command byte to send.
+ * @param[in] address      Memory address to read.
+ * @param[in] wait_cycles  Number of dummy/wait cycles between address and data phases (0-15).
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
+ *         - SL_STATUS_INVALID_HANDLE     - Only master mode supports this operation.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_ssi_receive_command_data(sl_ssi_handle_t ssi_handle,
+                                              void *data,
+                                              uint32_t data_length,
+                                              uint8_t instruction,
+                                              uint32_t address,
+                                              uint8_t wait_cycles);
 
 /***************************************************************************/
 /**
@@ -301,9 +443,9 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
  *          When the sent data is equal to the data_length passed in this function, a callback event is generated which can be registered using \ref sl_si91x_ssi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init 
- *      - \ref sl_si91x_ssi_set_configuration 
- *      - \ref sl_si91x_ssi_set_slave_number
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
+ *      - A slave device must be selected using \ref sl_si91x_ssi_set_slave_number
  * 
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] data Pointer to the variable which will store the data to be sent.
@@ -314,11 +456,48 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
  *         - SL_STATUS_FAIL               - Function failed.
  *         - SL_STATUS_BUSY               - Driver is busy.
  *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data, uint32_t data_length);
+
+/***************************************************************************/
+/**
+ * @brief To send data to the secondary device in dual or quad mode.
+ * 
+ * @details This API sends data to the secondary device in dual or quad mode operations.
+ *          It first sends the command phase (instruction and address) and then transmits the specified data.
+ *          When all data is sent, a callback event is generated which can be registered 
+ *          using \ref sl_si91x_ssi_register_event_callback.
+ * 
+ * @pre Pre-conditions:
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
+ *      - A slave device must be selected using \ref sl_si91x_ssi_set_slave_number
+ *      - The command phase must be configured using \ref sl_si91x_ssi_command_config
+ * 
+ * @param[in] ssi_handle   Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
+ * @param[in] data         Pointer to the data buffer to be transmitted.
+ * @param[in] data_length  Number of data bytes to transmit.
+ * @param[in] instruction  Command byte to send (such as page program command).
+ * @param[in] address      Memory address to write to (up to 32-bit address).
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_FAIL               - Function failed.
+ *         - SL_STATUS_BUSY               - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
+ *         - SL_STATUS_INVALID_HANDLE     - Only master mode supports this operation.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_ssi_send_command_data(sl_ssi_handle_t ssi_handle,
+                                           void *data,
+                                           uint32_t data_length,
+                                           uint8_t instruction,
+                                           uint32_t address);
 
 /***************************************************************************/
 /**
@@ -329,9 +508,9 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
  *          a callback event is generated which can be registered using \ref sl_si91x_ssi_register_event_callback.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init 
- *      - \ref sl_si91x_ssi_set_configuration 
- *      - \ref sl_si91x_ssi_set_slave_number
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
+ *      - A slave device must be selected using \ref sl_si91x_ssi_set_slave_number
  * 
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * @param[in] data_out Const pointer to the variable that has data which needs to be sent.
@@ -343,7 +522,7 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
  *         - SL_STATUS_FAIL               - Function failed.
  *         - SL_STATUS_BUSY               - Driver is busy.
  *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -374,8 +553,8 @@ sl_ssi_version_t sl_si91x_ssi_get_version(void);
  *          It is generally used to poll the busy status of SSI Master/ULP Master.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init
- *      - \ref sl_si91x_ssi_set_configuration
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
  * 
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
@@ -391,8 +570,8 @@ sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
  *          data items received at the time of the function call.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init 
- *      - \ref sl_si91x_ssi_set_configuration 
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
  *  
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
@@ -408,8 +587,8 @@ uint32_t sl_si91x_ssi_get_rx_data_count(sl_ssi_handle_t ssi_handle);
  *          data items transmitted at the time of the function call.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_init 
- *      - \ref sl_si91x_ssi_set_configuration 
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration 
  * 
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
  * 
@@ -433,7 +612,7 @@ uint32_t sl_si91x_ssi_get_tx_data_count(sl_ssi_handle_t ssi_handle);
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK            - Success.
  *         - SL_STATUS_BUSY          - The callback is already registered, unregister the previous callback before registering a new one.
- *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_NULL_POINTER  - Parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -447,7 +626,7 @@ sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_
  *          and passes a NULL value to the variable.
  * 
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_register_event_callback
+ *      - The callback must be previously registered using \ref sl_si91x_ssi_register_event_callback
  ******************************************************************************/
 void sl_si91x_ssi_unregister_event_callback(void);
 
@@ -460,7 +639,7 @@ void sl_si91x_ssi_unregister_event_callback(void);
  *          function pointer of instance.
  *
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ssi_register_event_callback
+ *      - The callback must be previously registered using \ref sl_si91x_ssi_register_event_callback
  *
  * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
 *******************************************************************************/
@@ -490,6 +669,27 @@ uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle);
  * @return uint32_t The value of the frame length.
  ******************************************************************************/
 uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle);
+
+/***************************************************************************/
+/**
+ * @brief To set the frame length (bit width) of the SSI.
+ * 
+ * @details This API sets the frame length, which can be configured between 4 and 16 bits.
+ * 
+ * @param[in] ssi_handle Pointer to the SSI driver handle (\ref sl_ssi_handle_t).
+ * @param[in] frame_length The desired frame length (bit width) in the range of 4 - 16 bits.
+ * 
+ * @pre Pre-conditions:
+ *      - The SSI module must be initialized using \ref sl_si91x_ssi_init
+ *      - The SSI must be configured using \ref sl_si91x_ssi_set_configuration
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK                 - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - Frame length is not in range.
+ *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
+ * 
+ ******************************************************************************/
+sl_status_t sl_si91x_ssi_set_frame_length(sl_ssi_handle_t ssi_handle, uint8_t frame_length);
 
 /***************************************************************************/
 /**
@@ -560,7 +760,7 @@ __STATIC_INLINE sl_status_t sl_si91x_ssi_set_slave_number(uint8_t number)
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
 /** 
-* @addtogroup SSI
+* @addtogroup SSI Synchronous Serial Interface
 * @{
 *   @details
 *

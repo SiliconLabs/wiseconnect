@@ -2,15 +2,15 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
-version: "3.5.0"
+version: "3.5.1"
 sdk:
   id: simplicity_sdk
-  version: "2025.6.0"
+  version: "2025.6.1"
 upgrade_manifest:
   - path: upgrade.slcu   
 documentation:
   - docset: wiseconnect
-    version: "3.5.0"
+    version: "3.5.1"
 component_path:
   - path: resources
   - path: components/board

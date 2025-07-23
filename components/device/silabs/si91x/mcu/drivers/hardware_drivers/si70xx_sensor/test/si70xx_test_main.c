@@ -61,7 +61,7 @@ void test_si70xx_write_control_register(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   test_i2c_configuration_t test_i2c_config;
   test_i2c_config.mode           = SL_I2C_LEADER_MODE;

@@ -79,6 +79,29 @@ extern "C" {
 #define SL_ULP_I2S_PERIPHERAL ULP_I2S
 #endif
 #warning "I2S peripheral is not configured. Please configure the I2S pins according to the board connections."
+
+// ULP_I2S SCLK on ULP_GPIO_7/GPIO_71
+#ifndef SL_ULP_I2S_SCLK_PORT
+#define SL_ULP_I2S_SCLK_PORT ULP
+#endif
+#ifndef SL_ULP_I2S_SCLK_PIN
+#define SL_ULP_I2S_SCLK_PIN 7
+#endif
+#ifndef SL_ULP_I2S_SCLK_LOC
+#define SL_ULP_I2S_SCLK_LOC 0
+#endif
+
+// ULP_I2S WSCLK on ULP_GPIO_10/GPIO_74
+#ifndef SL_ULP_I2S_WSCLK_PORT
+#define SL_ULP_I2S_WSCLK_PORT ULP
+#endif
+#ifndef SL_ULP_I2S_WSCLK_PIN
+#define SL_ULP_I2S_WSCLK_PIN 10
+#endif
+#ifndef SL_ULP_I2S_WSCLK_LOC
+#define SL_ULP_I2S_WSCLK_LOC 3
+#endif
+
 // ULP_I2S DOUT0 on ULP_GPIO_1/GPIO_65
 #ifndef SL_ULP_I2S_DOUT0_PORT
 #define SL_ULP_I2S_DOUT0_PORT ULP

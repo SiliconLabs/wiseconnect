@@ -47,6 +47,8 @@
 #define  TRANSMIT_ONLY												0x01
 #define  RECEIVE_ONLY													0x02
 #define  STANDARD_SPI_FORMAT  		 						0x00
+#define  DUAL_SPI_FORMAT                      0x01
+#define  QUAD_SPI_FORMAT                      0x02
 #define  MOTOROLA_SPI		   			   						0x00
 #define  TEXAS_INSTRUMENTS_SSP 			   				0x01
 #define  NATIONAL_SEMICONDUCTORS_MICROWIRE 		0x02
@@ -65,6 +67,13 @@
 #define  SPI_ISR_RX_FIFO_OVERFLOW							BIT(3)
 #define  SPI_ISR_RX_FIFO_FULL									BIT(4)
 
+/*----- SPI Control Codes: Mode Parameters: Transfer mode ------*/
+#define SPI_TRANSFER_MODE_Pos      24
+#define SPI_TRANSFER_MODE_Msk      (3UL << SPI_TRANSFER_MODE_Pos)
+#define SPI_TRANSFER_MODE_STANDARD (0UL << SPI_TRANSFER_MODE_Pos)   // Standard SPI Format
+#define SPI_TRANSFER_MODE_DUAL     (1UL << SPI_TRANSFER_MODE_Pos)   // Dual SPI Format
+#define SPI_TRANSFER_MODE_QUAD     (2UL << SPI_TRANSFER_MODE_Pos)   // Quad SPI Format
+#define SPI_TRANSFER_MODE_RESERVED (3UL << SPI_TRANSFER_MODE_Pos)   // Reserved
 
 ARM_DRIVER_VERSION SPI_GetVersion(void);
 ARM_SPI_CAPABILITIES SPI_GetCapabilities(void);
@@ -143,6 +152,24 @@ void mySPI_callback(uint32_t event);
 #define  SSI_MASTER_MOSI_PIN             RTE_SSI_MASTER_MOSI_PIN
 #define  SSI_MASTER_MOSI_MODE            RTE_SSI_MASTER_MOSI_MODE
 #define  SSI_MASTER_MOSI_PADSEL          RTE_SSI_MASTER_MOSI_PADSEL
+#endif
+
+#if (defined(SPI_QUAD_MODE) && (SPI_QUAD_MODE == 1))
+#if defined(RTE_SSI_MASTER_DATA2) && (RTE_SSI_MASTER_DATA2 == 1)
+#define  SSI_MASTER_DATA2_SEL             1U
+#define  SSI_MASTER_DATA2__PORT            RTE_SSI_MASTER_DATA2_PORT
+#define  SSI_MASTER_DATA2__PIN             RTE_SSI_MASTER_DATA2_PIN
+#define  SSI_MASTER_DATA2_MODE            RTE_SSI_MASTER_DATA2_MODE
+#define  SSI_MASTER_DATA2_PADSEL          RTE_SSI_MASTER_DATA2_PADSEL
+#endif
+
+#if defined(RTE_SSI_MASTER_DATA3) && (RTE_SSI_MASTER_DATA3 == 1)
+#define  SSI_MASTER_DATA3_SEL             1U
+#define  SSI_MASTER_DATA3__PORT            RTE_SSI_MASTER_DATA3_PORT
+#define  SSI_MASTER_DATA3__PIN             RTE_SSI_MASTER_DATA3_PIN
+#define  SSI_MASTER_DATA3_MODE            RTE_SSI_MASTER_DATA3_MODE
+#define  SSI_MASTER_DATA3_PADSEL          RTE_SSI_MASTER_DATA3_PADSEL
+#endif
 #endif
 
 #if defined(RTE_SSI_MASTER_SCK) && (RTE_SSI_MASTER_SCK == 1)
@@ -357,22 +384,26 @@ void mySPI_callback(uint32_t event);
 
 /* SPI Pins Configuration */
 typedef const struct _SPI_PIN {
-	uint8_t port;                                        ///< SPI GPIO port
-	uint8_t pin;                                         ///< SPI GPIO pin
-	uint8_t mode;                                        ///< SPI GPIO mode
-	uint8_t pad_sel;                                     ///< SPI GPIO pad selection
+	uint8_t port;                                        // SPI GPIO port
+	uint8_t pin;                                         // SPI GPIO pin
+	uint8_t mode;                                        // SPI GPIO mode
+	uint8_t pad_sel;                                     // SPI GPIO pad selection
 }SPI_PIN;
 
 // SPI Input/Output Configuration
 typedef const struct _SPI_IO {
-	SPI_PIN              *mosi;           // Pointer to MOSI pin configuration
-	SPI_PIN              *miso;           // Pointer to MISO pin configuration
-	SPI_PIN              *sck;            // Pointer to SCK pin configuration
-	SPI_PIN              *cs0;             // Pointer to CS(CHIP SELECT) pin configuration
+	SPI_PIN              *mosi;          // Pointer to MOSI pin configuration
+	SPI_PIN              *miso;          // Pointer to MISO pin configuration
+#if (defined(SPI_QUAD_MODE) && (SPI_QUAD_MODE == 1))
+    SPI_PIN              *data2;         // Pointer to DATA2 pin configuration
+    SPI_PIN              *data3;         // Pointer to DATA3 pin configuration
+#endif
+	SPI_PIN              *sck;           // Pointer to SCK pin configuration
+	SPI_PIN              *cs0;           // Pointer to CS(CHIP SELECT) pin configuration
 #ifdef SPI_MULTI_SLAVE
-  SPI_PIN              *cs1;             // Pointer to CS(CHIP SELECT) pin configuration
-  SPI_PIN              *cs2;             // Pointer to CS(CHIP SELECT) pin configuration
-  SPI_PIN              *cs3;             // Pointer to CS(CHIP SELECT) pin configuration
+    SPI_PIN              *cs1;           // Pointer to CS(CHIP SELECT) pin configuration
+    SPI_PIN              *cs2;           // Pointer to CS(CHIP SELECT) pin configuration
+    SPI_PIN              *cs3;           // Pointer to CS(CHIP SELECT) pin configuration
 #endif
 } SPI_IO;
 
@@ -428,10 +459,11 @@ typedef struct {
 	SPI_TRANSFER_INFO    *xfer;                                  // SPI transfer information
 	uint8_t 		       	 instance_mode;
 	SPI_CLOCK            clock;
-
 } const SPI_RESOURCES;
 
 void RSI_SPI_SetSlaveSelectNumber(uint8_t slavenumber);
 void RSI_SPI_Slave_Disable(void);
 void RSI_SPI_Slave_Set_CS_Init_State(void);
+int32_t SSI_MASTER_Receive_Command_Data (void *data, uint32_t num, uint32_t instruction, uint32_t address, uint32_t wait_cycle);
+int32_t SSI_MASTER_Send_Command_Data (void *data, uint32_t num, uint32_t instruction, uint32_t address);
 #endif /* __SPI_H */

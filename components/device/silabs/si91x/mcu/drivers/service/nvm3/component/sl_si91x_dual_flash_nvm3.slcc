@@ -30,7 +30,7 @@ include:
 requires:
   - name: romdriver_qspi
   - name: romdriver_gpdma
-  - name: sl_system
+  - name: sl_main
   - name: emlib_core
   - name: sl_assert
   - name: sl_common

@@ -59,7 +59,7 @@ void test_sl_si91x_veml6035_read_interrupt_status(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
 #if defined(SENSOR_ENABLE_GPIO_MAPPED_TO_UULP)
   if (sl_si91x_gpio_driver_get_uulp_npss_pin(SENSOR_ENABLE_GPIO_PIN) != 1) {

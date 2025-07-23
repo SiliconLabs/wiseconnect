@@ -231,6 +231,33 @@ rsi_error_t ct_wfg_comapre_value_set(RSI_CT_T *pCT, boolean_t counterNum, OCU_PA
  */
 void RSI_CT_Init(void)
 {
+  // CT IN0 pin configuration
+  // RTE_SCT_IN_0_PIN is the pin number for the Config Timer input 0 (CT IN0).
+  // The following code configures the pin for use as a CT input, handling different pin ranges and pad types.
+
+  // If the pin is between 25 and 30, enable host pad GPIO mode (these are special high-numbered GPIOs).
+  if (RTE_SCT_IN_0_PIN >= 25 && RTE_SCT_IN_0_PIN <= 30) {
+    RSI_EGPIO_HostPadsGpioModeEnable(RTE_SCT_IN_0_PIN);
+  }
+
+  // If the pin number is greater than 63, it is an ULP (Ultra Low Power) pad.
+  // Enable the ULP pad receiver and set the pin mux for ULP pads.
+  if (RTE_SCT_IN_0_PIN > 63) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SCT_IN_0_PIN - 64));
+    RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(RTE_SCT_IN_0_PIN - 64), 6);
+  } else {
+    // For regular pads (pin number 0-63), enable the pad receiver.
+    RSI_EGPIO_PadReceiverEnable(RTE_SCT_IN_0_PIN);
+  }
+
+  // If a specific pad selection is required (non-zero), enable pad selection for the given pad.
+  if (RTE_SCT_IN_0_PAD != 0) {
+    RSI_EGPIO_PadSelectionEnable(RTE_SCT_IN_0_PAD);
+  }
+
+  // Finally, set the pin mux for the CT IN0 pin to the required function (RTE_SCT_IN_0_MUX).
+  RSI_EGPIO_SetPinMux(EGPIO, 0, RTE_SCT_IN_0_PIN, RTE_SCT_IN_0_MUX);
+
   // CT OUT0
   if (RTE_SCT_OUT_0_PIN >= 25 && RTE_SCT_OUT_0_PIN <= 30) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SCT_OUT_0_PIN);

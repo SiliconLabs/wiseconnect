@@ -46,7 +46,8 @@ sl_ssi_control_config_t ssi_{{ inst }}_configuration = {
     .device_mode = SL_SSI_{{ inst | upper }}_DEVICE_MODE,
     .clock_mode = SL_SSI_{{ inst | upper }}_CLOCK_MODE,
     .receive_sample_delay = SL_SSI_{{ inst | upper }}_RECEIVE_SAMPLE_DELAY,
-    .baud_rate = SL_SSI_{{ inst | upper }}_BAUD
+    .baud_rate = SL_SSI_{{ inst | upper }}_BAUD,
+    .transfer_mode = SL_SSI_{{ inst | upper }}_TRANSFER_MODE,
 };
 {% endfor %}
 

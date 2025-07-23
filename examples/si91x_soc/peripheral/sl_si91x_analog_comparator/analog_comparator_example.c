@@ -226,6 +226,16 @@ void analog_comparator_example_init(void)
     }
     DEBUGOUT("Analog Comparator scale factor is set successfully \n");
 #endif
+#if (ANALOG_COMPARATOR_USED == INSTANCE_ONE)
+    // Registering comparator callback and enabling interrupts
+    status = sl_si91x_analog_comparator_register_callback(ANALOG_COMPARATOR_USED, on_comparator1_callback);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_analog_comparator_register_callback, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("Analog Comparator callback is registered successfully \n");
+#endif
+#if (ANALOG_COMPARATOR_USED == INSTANCE_TWO)
     // Registering comparator callback and enabling interrupts
     status = sl_si91x_analog_comparator_register_callback(ANALOG_COMPARATOR_USED, on_comparator2_callback);
     if (status != SL_STATUS_OK) {
@@ -233,6 +243,7 @@ void analog_comparator_example_init(void)
       break;
     }
     DEBUGOUT("Analog Comparator callback is registered successfully \n");
+#endif
   } while (false);
 }
 

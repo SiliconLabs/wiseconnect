@@ -35,7 +35,7 @@
 #include "sl_status.h"
 
 /***************************************************************************/ /**
-* @addtogroup HRNG
+* @addtogroup HRNG Hardware Random Number Generator
 * @ingroup SI91X_PERIPHERAL_APIS
 * @{
 ******************************************************************************/
@@ -197,7 +197,7 @@ sl_status_t sl_si91x_hrng_deinit(void);
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /**
- * @addtogroup HRNG
+ * @addtogroup HRNG Hardware Random Number Generator
  * @{
  *
  *   @details
