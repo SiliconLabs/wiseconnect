@@ -27,7 +27,7 @@
 - These threads run in parallel but are synchronized by using above mentioned CMSIS-RTOS concepts
 - This application deals with low level driver example and demonstrates the I2C will be configured in follower mode. The SCL and SDA lines of leader controller are connected to Follower's SCL and SDA pins.
 After transmission the data is compared and result is printed on the console.
-- This application demonstrates how to configure ULP USART In asynchronous mode, it will send and receive data in loopback mode.
+- This application demonstrates how to configure USART In asynchronous mode, it will send and receive data in loopback mode.
 
 > **Note:** 
 >
@@ -61,7 +61,7 @@ After transmission the data is compared and result is printed on the console.
   - Support for Clock synchronization and Bus Clear
 
 **2. USART**
-- ULP USART is used in communication through wired medium in Asynchronous fashion. It enables the device to communicate using serial protocols
+- USART is used in communication through wired medium in Asynchronous fashion. It enables the device to communicate using serial protocols
 - This application is configured with following configs
   - Tx and Rx enabled
   - Asynchronous mode
@@ -126,8 +126,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 | PIN |   GPIO PIN        |    Description            |
 | --- | ----------------- | ------------------------- |
-| SCL |   GPIO_54 [P32]   | Connect to Leader SCL pin |
-| SDA |   GPIO_55 [P34]   | Connect to Leader SDA pin |
+| SCL |   GPIO_50[P32]   | Connect to Leader SCL pin |
+| SDA |   GPIO_51[P34]   | Connect to Leader SDA pin |
 
 **ULP_I2C:**
 
@@ -141,11 +141,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ![Figure: Pin Configuration I2C](resources/readme/image506e.png)
 
 - Configuration of USART at UC.
-  > ![Figure: Selecting UC](resources/uc_screen/usart_uc_screen.png)
+![Figure: Selecting UC](resources/uc_screen/usart_uc_screen.png)
 
 ## USART Pin Configuration
 
-  | USART PINS     | GPIO    | Breakout pin     | USART-TTL cable |
+  | USART PINS     | GPIO    | Breakout pin     | UART-TTL cable |
   | -------------- | ------- | ------------- | -------------- |
   | USART0_TX_PIN  | GPIO_30 |     P35       | RX pin         |
   | USART0_RX_PIN  | GPIO_29 |     P33       | TX Pin         | 

@@ -157,7 +157,10 @@ sl_status_t sl_si91x_config_timer_set_dma_configuration(uint32_t *compare_values
 }
 
 /*****************************************************************************
- * Registers DMA callback & allocates channel
+ * This API configures and starts a DMA transfer to automatically update
+ * the OCU compare values for a specified Config Timer channel. The API handles
+ * the selection of the appropriate DMA channel based on input parameters,
+ * initializes the transfer parameters, and enables the DMA channel to begin the transfer.
  ******************************************************************************/
 sl_status_t sl_si91x_config_timer_dma_transfer(uint32_t *compare_values, uint32_t channel, sl_dma_xfer_t *dma_transfer)
 {

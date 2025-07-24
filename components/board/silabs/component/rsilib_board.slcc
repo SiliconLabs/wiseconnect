@@ -18,7 +18,6 @@ include:
     file_list:
     - path: "rsi_board.h"
     - path: "rsi_board_configuration.h"
-    - path: "sl_gpio_board.h"
     - path: "sl_i2c_board.h"
     - path: "sl_pwm_board.h"
     - path: "sl_sio_board.h"

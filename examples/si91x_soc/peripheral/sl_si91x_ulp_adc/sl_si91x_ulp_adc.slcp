@@ -1,25 +1,17 @@
 project_name: sl_si91x_ulp_adc
-label: SI91x - SL_ULP ADC
+package: platform
 description: >
   This application demonstrates the how to configure and use the ULP ADC peripheral on
   the the SiWx917 SoC device.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SL_ULP ADC
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-source:
-  - path: sl_ulp_adc_example.c
-  - path: app.c
-  - path: app.h
-  - path: sl_ulp_adc_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -53,6 +45,17 @@ component:
     from: wiseconnect3_sdk
   - id: dma_ulp_component
     from: wiseconnect3_sdk
+source:
+  - path: sl_ulp_adc_example.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: sl_ulp_adc_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 define:
   - name: GAIN_OFFSET_CAL_EN
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION 
@@ -76,11 +79,11 @@ other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
   - path: resources/uc_screen/sl_adc_channel_uc_screen.png
-readme:
-  - path: readme.md
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

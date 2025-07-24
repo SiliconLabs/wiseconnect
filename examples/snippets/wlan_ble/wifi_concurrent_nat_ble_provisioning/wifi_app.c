@@ -74,10 +74,9 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
 static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 typedef void socket_handler(void *);
 void create_tcp_server(void);
+void create_udp_server(void);
 
-const osThreadAttr_t tcp_server_thread_attr = { .name       = "tcp_server",
-                                                .stack_size = 2048,
-                                                .priority   = osPriorityNormal };
+const osThreadAttr_t server_thread_attr = { .name = "server_thread", .stack_size = 3072, .priority = osPriorityNormal };
 
 extern rsi_ble_event_conn_status_t conn_event_to_app;
 
@@ -143,7 +142,7 @@ static sl_wifi_ap_configuration_t wifi_ap_profile = {
   .beacon_interval     = 100,
   .client_idle_timeout = 0xFF,
   .dtim_beacon_count   = 3,
-  .maximum_clients     = 4,
+  .maximum_clients     = WIFI_MAX_CLIENTS,
   .beacon_stop         = 0
 };
 
@@ -156,6 +155,7 @@ static sl_net_ip_configuration_t ip_add = {
                  .v4.netmask.value    = DEFAULT_WIFI_SN_MASK_ADDRESS },
 };
 
+#if (THROUGHPUT_TYPE == TCP_TX)
 static sl_si91x_socket_config_t socket_config = {
   TOTAL_SOCKETS,                   // Total sockets
   TOTAL_TCP_SOCKETS,               // Total TCP sockets
@@ -168,12 +168,19 @@ static sl_si91x_socket_config_t socket_config = {
   TCP_RX_WINDOW_SIZE_CAP,          // TCP RX window size
   TCP_RX_WINDOW_DIV_FACTOR         // TCP RX window division factor
 };
+#endif
 
 sl_net_nat_config_t nat_config = {
   .tcp_session_timeout     = 60,
   .non_tcp_session_timeout = 60,
   .interface               = SL_NET_WIFI_CLIENT_1_INTERFACE,
 };
+
+typedef struct {
+  int server_sock;
+  struct sockaddr_in client_addr;
+  socklen_t client_addr_len;
+} client_data_t;
 
 /*
  *********************************************************************************************************
@@ -328,6 +335,7 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   return SL_STATUS_OK;
 }
 
+#if (THROUGHPUT_TYPE == TCP_TX) || (THROUGHPUT_TYPE == UDP_TX)
 static void measure_and_print_throughput(size_t total_num_of_bytes, uint32_t test_timeout)
 {
   float duration = (test_timeout / 1000);                      // ms to sec
@@ -335,6 +343,7 @@ static void measure_and_print_throughput(size_t total_num_of_bytes, uint32_t tes
   result         = (result / 1000000);                         // bps to Mbps
   LOG_PRINT("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
+#endif
 
 void wifi_app_task(void)
 {
@@ -555,6 +564,13 @@ void wifi_app_task(void)
           print_sl_ip_address(&ip_address);
           LOG_PRINT("\r\n");
         }
+
+        status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID, &wifi_ap_profile);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\nFailed to set profile: 0x%lx\r\n", status);
+          break;
+        }
+
         status = sl_wifi_start_ap(SL_WIFI_AP_2_4GHZ_INTERFACE, &wifi_ap_profile);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
@@ -562,9 +578,15 @@ void wifi_app_task(void)
         }
         LOG_PRINT("\r\nAP started\r\n");
 
-        if (osThreadNew((osThreadFunc_t)create_tcp_server, NULL, &tcp_server_thread_attr) == NULL) {
+#if (THROUGHPUT_TYPE == TCP_TX)
+        if (osThreadNew((osThreadFunc_t)create_tcp_server, NULL, &server_thread_attr) == NULL) {
           LOG_PRINT("Failed to create TCP server thread\r\n");
         }
+#elif (THROUGHPUT_TYPE == UDP_TX)
+        if (osThreadNew((osThreadFunc_t)create_udp_server, NULL, &server_thread_attr) == NULL) {
+          LOG_PRINT("Failed to create UDP server thread\r\n");
+        }
+#endif
 
 #if !AP_ONLY_MODE
         wifi_app_set_event(WIFI_ENABLE_NAT);
@@ -639,7 +661,8 @@ static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *da
   return SL_STATUS_OK;
 }
 
-void client_handler(void *arg)
+#if (THROUGHPUT_TYPE == TCP_TX)
+void tcp_client_handler(void *arg)
 {
   int client_sock = (int)(intptr_t)arg;
   char buffer[BUFFER_SIZE];
@@ -733,7 +756,7 @@ void create_tcp_server(void)
     osThreadAttr_t attr = { 0 };
     attr.stack_size     = 3072;
     attr.priority       = osPriorityLow;
-    osThreadId_t tid    = osThreadNew(client_handler, (void *)(intptr_t)client_sock, &attr);
+    osThreadId_t tid    = osThreadNew(tcp_client_handler, (void *)(intptr_t)client_sock, &attr);
     if (tid == NULL) {
       LOG_PRINT("\r\nFailed to create thread for client socket %d\r\n", client_sock);
       close(client_sock);
@@ -741,3 +764,107 @@ void create_tcp_server(void)
   }
   close(server_sock);
 }
+
+#elif (THROUGHPUT_TYPE == UDP_TX)
+void udp_client_handler(void *arg)
+{
+  client_data_t *client_data = (client_data_t *)arg;
+  char buffer[BUFFER_SIZE];
+  ssize_t sent_bytes = 0;
+  size_t total_bytes_sent = 0;
+  LOG_PRINT("\r\nUDP_TX Throughput test start\r\n");
+  uint32_t start = osKernelGetTickCount();
+  uint32_t now = start;
+
+  while (total_bytes_sent < BYTES_TO_SEND) {
+    sent_bytes = sendto(client_data->server_sock,
+                        buffer,
+                        sizeof(buffer),
+                        0,
+                        (struct sockaddr *)&client_data->client_addr,
+                        client_data->client_addr_len);
+
+    if (sent_bytes < 0) {
+      if (errno == ENOBUFS)
+        continue;
+      LOG_PRINT("\r\nSocket operation failed with bsd error: %d\r\n", errno);
+      break;
+    }
+    total_bytes_sent += sent_bytes;
+    now = osKernelGetTickCount();
+
+    if ((now - start) > TEST_TIMEOUT) {
+      LOG_PRINT("\r\nTest Time Out: %ld ms\r\n", (now - start));
+      break;
+    }
+  }
+
+  LOG_PRINT("\r\nTotal bytes transferred: %d\r\n", total_bytes_sent);
+
+  measure_and_print_throughput(total_bytes_sent, (now - start));
+
+  free(client_data);
+  LOG_PRINT("Exiting from client handler\n");
+  osThreadTerminate(osThreadGetId());
+}
+
+void create_udp_server(void)
+{
+  int socket_return_value = 0;
+  int server_sock = -1;
+  struct sockaddr_in server_addr = { 0 };
+
+  server_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+  if (server_sock < 0) {
+    LOG_PRINT("\r\nSocket creation failed with bsd error: %d\r\n", errno);
+    return;
+  }
+  LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_sock);
+
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_port = htons(LISTENING_PORT);
+
+  socket_return_value = bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
+  if (socket_return_value < 0) {
+    LOG_PRINT("\r\nSocket bind failed with bsd error: %d\r\n", errno);
+    close(server_sock);
+    return;
+  }
+  LOG_PRINT("\r\nUDP server listening on port : %d\r\n", LISTENING_PORT);
+
+  while (1) {
+    client_data_t *client_data = malloc(sizeof(client_data_t));
+    if (!client_data) {
+      printf("Failed to allocate memory for client data\n");
+      continue;
+    }
+
+    client_data->server_sock = server_sock;
+    memset(&client_data->client_addr, 0, sizeof(client_data->client_addr));
+    client_data->client_addr_len = sizeof(client_data->client_addr);
+
+    char buffer[BUFFER_SIZE];
+    ssize_t received_bytes = recvfrom(server_sock,
+                                      buffer,
+                                      sizeof(buffer),
+                                      0,
+                                      (struct sockaddr *)&client_data->client_addr,
+                                      &client_data->client_addr_len);
+    if (received_bytes < 0) {
+      printf("Socket receive failed with error: %d\n", errno);
+      free(client_data);
+      continue;
+    }
+
+    osThreadAttr_t attr = { 0 };
+    attr.stack_size = 3072;
+    attr.priority = osPriorityLow;
+    osThreadId_t tid = osThreadNew(udp_client_handler, (void *)client_data, &attr);
+    if (tid == NULL) {
+      LOG_PRINT("\r\nFailed to create thread for client\r\n");
+    }
+  }
+  close(server_sock);
+}
+#endif

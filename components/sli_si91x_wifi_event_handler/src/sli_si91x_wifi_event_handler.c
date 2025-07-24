@@ -1379,9 +1379,10 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
         data[1] &= 0xF;
         if (frame_type == SLI_RECEIVE_RAW_DATA) {
           // If the frame type is raw data reception
-
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
           SL_DEBUG_LOG("Raw Data\n");
+
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && !defined(SLI_SI91X_NETWORK_DUAL_STACK)
+          // Offload only mode is not enabled
           sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
           sli_si91x_socket_t *socket             = NULL;
           int socket_id                          = sli_si91x_get_socket_id(socket_packet);
@@ -1412,8 +1413,47 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             socket->command_queue.command_tickcount = 0;
             socket->command_queue.command_timeout   = 0;
           }
+#elif defined(SLI_SI91X_NETWORK_DUAL_STACK)
+          extern bool bypass_mode_enabled;
+
+          if (!bypass_mode_enabled) {
+            sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
+            sli_si91x_socket_t *socket             = NULL;
+            int socket_id                          = sli_si91x_get_socket_id(socket_packet);
+            socket                                 = sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
+
+            // Check if we found a matching socket
+            if (socket != NULL) {
+              buffer->id = (uint8_t)(socket->command_queue.packet_id);
+              // Check if command has timed out
+              if (socket->command_queue.command_tickcount == 0
+                  || (sl_si91x_host_elapsed_time(socket->command_queue.command_tickcount)
+                      <= (socket->command_queue.command_timeout))) {
+                if (((socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_READ_DATA)
+                     || (socket->command_queue.frame_type == socket_packet->command))
+                    && socket->command_queue.command_in_flight
+                    && socket->command_queue.flags & SI91X_PACKET_RESPONSE_PACKET) {
+                  socket->command_queue.command_in_flight = false;
+                  sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
+                  sli_si91x_set_socket_event(1 << socket->index);
+                } else {
+                  sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
+                  set_async_event(NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT);
+                }
+              } else {
+                sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
+                set_async_event(NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT);
+              }
+              socket->command_queue.command_tickcount = 0;
+              socket->command_queue.command_timeout   = 0;
+            }
+          } else {
+            // If SLI_SI91X_OFFLOAD_NETWORK_STACK is defined and dual stack mode is enabled, process the raw data frame.
+            sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
+            sli_si91x_host_free_buffer(buffer);
+          }
 #else
-          // If SLI_SI91X_OFFLOAD_NETWORK_STACK is not defined, process the data frame and free the buffer.
+          // In bypass mode, process the data frame and free the buffer.
           sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
           sli_si91x_host_free_buffer(buffer);
 #endif

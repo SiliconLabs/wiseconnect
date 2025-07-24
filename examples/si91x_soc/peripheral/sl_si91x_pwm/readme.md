@@ -219,5 +219,5 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    ![Figure: output2](resources/readme/output2.png)
 
 > **Note:**
->
+> - Use [sl_si91x_clock_manager_m4_set_core_clk()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-services/clock-manager#sl-si91x-clock-manager-m4-set-core-clk) API to set system core clock  to 32MHz to achieve PWM frequency between 500Hz to 2700Hz.
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

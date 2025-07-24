@@ -1,24 +1,16 @@
 project_name: sl_si91x_ulp_ssi_master
-label: SI91x - SL_ULP_SSI_MASTER
+package: platform
 description: |
   This application demonstrates how to  configure and use ULP SSI protocol.
 category: example|peripheral
-package: platform
 quality: production
-source:
-  - path: app.c
-  - path: app.h
-  - path: ulp_ssi_master_example.c
-  - path: ulp_ssi_master_example.h
+label: SI91x - SL_ULP_SSI_MASTER
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -49,14 +41,17 @@ component:
     from: wiseconnect3_sdk
   - id: pm_ps2_component
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: ulp_ssi_master_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ulp_ssi_master_example.h
 define:
- - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
- - name: SL_SI91X_ULP_STATE_ENABLE
-other_file:
-  - path: resources/readme/setupdiagram.png
-  - path: resources/uc_screen/ssi_uc_screen.png
-  - path: resources/readme/output_ulp_ssi.png
-  - path: resources/readme/output_ssi_slave.png
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SL_SI91X_ULP_STATE_ENABLE
 template_contribution:
   - name: user_files_ps2
     value: ulp_ssi_master_example.o
@@ -69,6 +64,9 @@ template_contribution:
     condition: [sl_system]
   - name: user_files_ps2
     value: sl_event_handler.o
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 configuration:
   - name: SL_ULP_TIMER_TIMER0_DIRECTION
     value: "UP_COUNTER"
@@ -76,11 +74,16 @@ configuration:
     value: '5000000'
   - name: SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE
     value: '1'
-readme:
-  - path: readme.md
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/ssi_uc_screen.png
+  - path: resources/readme/output_ulp_ssi.png
+  - path: resources/readme/output_ssi_slave.png
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

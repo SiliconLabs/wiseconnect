@@ -54,7 +54,7 @@ void test_sl_si91x_led_init(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("LED");
 

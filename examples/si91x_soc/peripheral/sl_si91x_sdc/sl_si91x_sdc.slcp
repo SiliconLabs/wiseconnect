@@ -1,25 +1,17 @@
 project_name: sl_si91x_sdc
-label: SI91x - SDC
+package: platform
 description: >
   This application demonstrates the how to configure and use the SDC peripheral on
   the the SiWx917 SoC device.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SDC
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-source:
-  - path: sdc_example.c
-  - path: app.c
-  - path: app.h
-  - path: sdc_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -47,6 +39,14 @@ component:
     from: wiseconnect3_sdk
   - id: sdc_component
     from: wiseconnect3_sdk  
+source:
+  - path: sdc_example.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: sdc_example.h
 define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION 
   - name: SL_SI91X_ULP_STATE_ENABLE
@@ -65,15 +65,18 @@ template_contribution:
     condition: [sl_system]
   - name: user_files_ps2
     value: sl_event_handler.o
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png  
   - path: resources/uc_screen/sl_sdc_channel_uc_screen.png
-readme:
-  - path: readme.md
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

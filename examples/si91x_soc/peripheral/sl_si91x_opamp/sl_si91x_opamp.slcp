@@ -1,24 +1,16 @@
 project_name: sl_si91x_opamp
-label: SI91x - SL_OPAMP
+package: platform
 description: |
   This application demonstrates how to configure and use the OPAMP features on the Si91x SoC.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SL_OPAMP
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-source:
-  - path: app.c
-  - path: app.h
-  - path: opamp_example.c
-  - path: opamp_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -58,6 +50,17 @@ component:
     from: wiseconnect3_sdk
   - id: sl_bod
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: opamp_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: opamp_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 define:
   - name: SLI_SI91X_MCU_COMMON_FLASH_MODE
   - name: SL_SI91X_OPAMP
@@ -84,15 +87,21 @@ other_file:
   - path: resources/uc_screen/noninvt_hys_uc.png
   - path: resources/uc_screen/unity_gain_dac_uc.png
   - path: resources/uc_screen/cas_invt_uc_opamp1.png 
-  - path: resources/uc_screen/cas_invt_uc_opamp2.png    
+  - path: resources/uc_screen/cas_invt_uc_opamp2.png 
+  - path: resources/uc_screen/cas_invt_uc_opamp2_1.png
+  - path: resources/uc_screen/cas_invt_uc_opamp3.png 
   - path: resources/uc_screen/cas_noninvt_uc_opamp1.png 
-  - path: resources/uc_screen/cas_noninvt_uc_opamp2.png  
+  - path: resources/uc_screen/cas_noninvt_uc_opamp2.png 
+  - path: resources/uc_screen/cas_noninvt_uc_opamp2_1.png 
+  - path: resources/uc_screen/cas_noninvt_uc_opamp3.png   
   - path: resources/uc_screen/two_opamps_uc_opamp1.png    
-  - path: resources/uc_screen/two_opamps_uc_opamp2.png   
+  - path: resources/uc_screen/two_opamps_uc_opamp2.png 
+  - path: resources/uc_screen/two_opamps_uc_opamp2_1.png
+  - path: resources/uc_screen/two_opamps_uc_opamp3.png  
 readme:
   - path: readme.md
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
 post_build:

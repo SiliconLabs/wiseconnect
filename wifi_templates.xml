@@ -289,7 +289,7 @@
 <descriptors name="ble_gatt_long_read_ncp" label="BLE - Gatt Long Read (NCP)" description="Demonstrates how a GATT client device accesses a GATT server device for long read">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/gatt_long_read_ncp.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/ble_gatt_long_read_ncp.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
     <properties key="partCompatibility" value=" mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* mcu.arm.efr32.mg24.* mcu.arm.efr32.fg25.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
@@ -304,7 +304,7 @@
 <descriptors name="ble_gatt_long_read_psram" label="BLE - Gatt Long Read (PSRAM)" description="Demonstrates how a GATT client device accesses a GATT server device for long read">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/gatt_long_read_psram.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/ble_gatt_long_read_psram.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4340a brd4342a brd4339a brd4343q"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m110lgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
@@ -319,7 +319,7 @@
 <descriptors name="ble_gatt_long_read_soc" label="BLE - Gatt Long Read (SoC)" description="Demonstrates how a GATT client device accesses a GATT server device for long read">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/gatt_long_read_soc.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/gatt_long_read/ble_gatt_long_read_soc.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q brd2708a brd2911a"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
@@ -3290,7 +3290,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan_ble/wifi_concurrent_nat_ble_provisioning/wifi_concurrent_nat_ble_provisioning_soc.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4339a brd4339b brd4340b brd4344a brd4344b brd4343a brd4343q"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4339a brd4339b brd4340b brd4343a brd4343q"/>
     <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -3359,6 +3359,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/dtls_client/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_dual_network_mode" label="Wi-Fi - Dual Network Stack Mode" description="This application demonstrates the configuration of dual network stack mode and showcases the station ping functionality for dual network stacks.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/wifi_dual_network_mode/wifi_dual_network_mode.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/wifi_dual_network_mode/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_embedded_mqtt_client_ncp" label="Wi-Fi - Embedded MQTT Client (NCP)" description="Demonstrates how to build an MQTT client and connects with an MQTT broker">
@@ -3990,6 +4005,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/multithreading_application/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_net_dual_stack_nwp_m4" label="Wi-Fi - Network Dual Stack NWP M4(SoC)" description="WiFi Network Dual Stack Example">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/wifi_net_dual_stack_nwp_m4/wifi_net_dual_stack_nwp_m4.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/wifi_net_dual_stack_nwp_m4/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Advanced"/>
   </descriptors>
 <descriptors name="wifi_power_save_deep_sleep_ncp" label="Wi-Fi - Powersave Deep Sleep (NCP)" description="Enable power save deep sleep profile with SiWx91x in Low Power mode">
     <properties key="namespace" value="template.uc"/>

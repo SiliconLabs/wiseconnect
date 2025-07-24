@@ -1,27 +1,19 @@
 project_name: sl_si91x_bjt_temperature_sensor
-label: SL_BJT_TEMPERATURE_SENSOR
+package: platform
 description: >
   This application demonstrates the configuration and usage of the BJT Temperature Sensor 
   peripheral on the SiWx917 SoC. It showcases how to measure temperature using the on-chip 
   bipolar junction transistor (BJT) sensor, offering an efficient solution 
   for thermal monitoring in embedded applications.
 category: example|peripheral
-package: platform
 quality: production
+label: SL_BJT_TEMPERATURE_SENSOR
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-source:
-  - path: bjt_temperature_sensor_example.c
-  - path: app.c
-  - path: app.h
-  - path: bjt_temperature_sensor_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -37,16 +29,27 @@ component:
     instance:
       - channel_1
     from: wiseconnect3_sdk
+source:
+  - path: bjt_temperature_sensor_example.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: bjt_temperature_sensor_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 define:
   - name: GAIN_OFFSET_CAL_EN
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
-readme:
-  - path: readme.md
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

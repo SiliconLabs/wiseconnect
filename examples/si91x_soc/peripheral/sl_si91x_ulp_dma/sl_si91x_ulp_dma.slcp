@@ -1,26 +1,16 @@
 project_name: sl_si91x_ulp_dma
-label: SI91x - SL_ULP_DMA
+package: platform
 description: |
   This application demonstrates UDMA functionality.
 category: example|peripheral
-package: platform
 quality: production
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: ulp_dma_example.c
-  - path: ulp_dma_example.h
-  - path: app.h
+label: SI91x - SL_ULP_DMA
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -40,6 +30,19 @@ component:
     from: wiseconnect3_sdk
   - id: pm_ps2_component
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: ulp_dma_example.c
+include:
+  - path: .
+    file_list:
+      - path: ulp_dma_example.h
+      - path: app.h
+define:
+  - name: __STATIC_INLINE
+    value: static inline
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SL_SI91X_ULP_STATE_ENABLE
 template_contribution:
   - name: user_files_ps2
     value: ulp_dma_example.o
@@ -52,18 +55,18 @@ template_contribution:
     condition: [sl_system]
   - name: user_files_ps2
     value: sl_event_handler.o
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/ulp_dma_uc_screen.png
   - path: resources/readme/output_ulp_dma.png
-define:
-  - name: __STATIC_INLINE
-    value: static inline
-  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
-  - name: SL_SI91X_ULP_STATE_ENABLE
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

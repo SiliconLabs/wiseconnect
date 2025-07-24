@@ -108,7 +108,7 @@ extern osMutexId_t side_band_crypto_mutex;
 // Private Key Password is required for encrypted private key, format is like "\"12345678\""
 #define SL_DEFAULT_PRIVATE_KEY_PASSWORD ""
 
-// Internal Wi-Fi transceiver mode configurations
+// Internal Wi-Fi transceiver mode configurations are currently not supported.
 #define SLI_EIA_BIT_IN_CTRL_FLAG         BIT(6) //< Extended Information Available bit in Control Flags
 #define SLI_EIA_BIT_IN_HOST_DESC         BIT(4) //< Extended Information Available bit in Host Descriptor
 #define SLI_IMMEDIATE_TRF_CTRL_FLAGS     BIT(7) //< Immediate Transfer bit in Control Flags
@@ -2463,6 +2463,7 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   ext_desc_size = TRANSCEIVER_TX_DATA_EXT_DESC_SIZE;
 
   // Check if the control flags indicate an EIA packet
+  // Note: Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
   if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
     // If it is an EIA packet, add 5 bytes for the following fields: channel, tx_power, is_last_packet, reserved1, reserved2
     ext_desc_size += SLI_EXT_DESC_SIZE_IF_EIA_PKT;
@@ -2538,6 +2539,7 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   //! Initialize extended desc
   memcpy(&host_desc[16], &control->token, TRANSCEIVER_TX_DATA_EXT_DESC_SIZE);
 
+  // Note: Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
   //! If it is an EIA packet, update extended descriptor fields
   if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
     host_desc[7] |= SLI_EIA_BIT_IN_HOST_DESC; //! EIA Enable

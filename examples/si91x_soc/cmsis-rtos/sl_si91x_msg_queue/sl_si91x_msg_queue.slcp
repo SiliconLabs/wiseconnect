@@ -1,35 +1,18 @@
 # Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_si91x_msg_queue
-label: Si91x - SL_RTOS_MSG_QUEUE
+package: platform
 description: |
   This application demonstrates how to use RTOS concept Message Queue 
   in an application.
 category: example|cmsis-rtos
-package: platform
 quality: production
+label: Si91x - SL_RTOS_MSG_QUEUE
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: src/i2c_follower_app.c
-  - path: src/usart_app.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-  - path: src/inc
-    file_list:
-      - path: i2c_follower_app.h
-      - path: usart_app.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -59,6 +42,33 @@ component:
     from: wiseconnect3_sdk
   - id: sl_gpio
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: src/i2c_follower_app.c
+  - path: src/usart_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+  - path: src/inc
+    file_list:
+      - path: i2c_follower_app.h
+      - path: usart_app.h
+define:
+  - name: USART_CONFIG
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+  - name: SL_SI91X_USART_DMA
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/readme/msg_queue_example_overview.png
+  - path: resources/uc_screen/usart_uc_screen.png
+  - path: resources/readme/image513d.png
+  - path: resources/readme/image506d.png
+  - path: resources/readme/image506e.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output.png
 configuration:
   - name: SL_USART_MODE
     value: SL_USART_MODE_ASYNCHRONOUS
@@ -68,21 +78,11 @@ configuration:
     value: SL_I2C_FOLLOWER_MODE
   - name: SL_I2C_I2C0_MODE
     value: SL_I2C_FOLLOWER_MODE
-other_file:
-  - path: resources/readme/msg_queue_example_overview.png
-  - path: resources/uc_screen/usart_uc_screen.png
-  - path: resources/readme/image513d.png
-  - path: resources/readme/image506d.png
-  - path: resources/readme/image506e.png
-  - path: resources/readme/setupdiagram.png
-  - path: resources/readme/output.png
-define:
-  - name: USART_CONFIG
-  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  - name: SL_SI91X_USART_DMA
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

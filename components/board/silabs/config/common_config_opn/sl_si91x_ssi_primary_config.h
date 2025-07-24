@@ -132,7 +132,10 @@ extern "C" {
 #endif
 
 #if (defined(SL_SSI_PRIMARY_TRANSFER_MODE) && (SL_SSI_PRIMARY_TRANSFER_MODE == SPI_TRANSFER_MODE_QUAD))
-#warning "SSI Quad Line Mode is configured, make sure to add Preprossecor Macro SPI_QUAD_MODE with Value 1"
+#if (SPI_QUAD_MODE != 1)
+#warning \
+  "SSI Quad Line Mode is configured, please add Preprocessor symbol SPI_QUAD_MODE with Value 1 in Project properties."
+#endif
 #if !(defined(SL_SSI_MASTER_DATA2_PORT) && defined(SL_SSI_MASTER_DATA3_PORT))
 #warning "DATA2 or DATA3 pin is not configured while SSI Primary Transfer Mode is Quad Line Mode."
 #endif

@@ -5117,7 +5117,7 @@
 
 //OPAMP START
 
-//OPAMP1_P <0=>GPIO_27 <1=>ULP_GPIO_7 <2=>ULP_GPIO_0 <3=>ULP_GPIO_6 <4=>ULP_GPIO_8
+//OPAMP1_P <0=>GPIO_27 <1=>ULP_GPIO_7 <2=>ULP_GPIO_0 <3=>ULP_GPIO_2 <4=>ULP_GPIO_6 <5=>ULP_GPIO_8
 #ifndef OPAMP1_P_LOC
 #define RTE_OPAMP1_P_PORT_ID 0
 #if (RTE_OPAMP1_P_PORT_ID == 0)
@@ -5133,10 +5133,14 @@
 #define RTE_OPAMP1_P_PORT     HP
 #define RTE_OPAMP1_P_PORT_MUX 7
 #elif (RTE_OPAMP1_P_PORT_ID == 3)
-#define RTE_OPAMP1_P_PIN      70
+#define RTE_OPAMP1_P_PIN      66
 #define RTE_OPAMP1_P_PORT     HP
 #define RTE_OPAMP1_P_PORT_MUX 7
 #elif (RTE_OPAMP1_P_PORT_ID == 4)
+#define RTE_OPAMP1_P_PIN      70
+#define RTE_OPAMP1_P_PORT     HP
+#define RTE_OPAMP1_P_PORT_MUX 7
+#elif (RTE_OPAMP1_P_PORT_ID == 5)
 #define RTE_OPAMP1_P_PIN      72
 #define RTE_OPAMP1_P_PORT     HP
 #define RTE_OPAMP1_P_PORT_MUX 7
@@ -5155,6 +5159,10 @@
 #define RTE_OPAMP1_P_PORT_MUX 7
 #endif
 #if (OPAMP1_P_LOC == 1)
+#define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_P_PORT_MUX 7
+#endif
+#if (OPAMP1_P_LOC == 2)
 #define RTE_OPAMP1_P_PIN      (OPAMP1_P_PIN + GPIO_MAX_PIN)
 #define RTE_OPAMP1_P_PORT_MUX 7
 #endif
@@ -5197,7 +5205,7 @@
 //Pintool data
 #endif
 
-//OPAMP1_RES <0=>GPIO_27 <1=>ULP_GPIO_7 <2=>ULP_GPIO_0 <3=>ULP_GPIO_6 <4=>ULP_GPIO_8
+//OPAMP1_RES <0=>GPIO_27 <1=>ULP_GPIO_7 <2=>ULP_GPIO_0 <3=>ULP_GPIO_2 <4=>ULP_GPIO_6 <5=>ULP_GPIO_8
 #ifndef OPAMP1_RES_LOC
 #define RTE_OPAMP1_RES_PORT_ID 0
 #if (RTE_OPAMP1_RES_PORT_ID == 0)
@@ -5213,10 +5221,14 @@
 #define RTE_OPAMP1_RES_PORT     HP
 #define RTE_OPAMP1_RES_PORT_MUX 7
 #elif (RTE_OPAMP1_RES_PORT_ID == 3)
-#define RTE_OPAMP1_RES_PIN      70
+#define RTE_OPAMP1_RES_PIN      66
 #define RTE_OPAMP1_RES_PORT     HP
 #define RTE_OPAMP1_RES_PORT_MUX 7
 #elif (RTE_OPAMP1_RES_PORT_ID == 4)
+#define RTE_OPAMP1_RES_PIN      70
+#define RTE_OPAMP1_RES_PORT     HP
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#elif (RTE_OPAMP1_RES_PORT_ID == 5)
 #define RTE_OPAMP1_RES_PIN      72
 #define RTE_OPAMP1_RES_PORT     HP
 #define RTE_OPAMP1_RES_PORT_MUX 7
@@ -5235,6 +5247,10 @@
 #define RTE_OPAMP1_RES_PORT_MUX 7
 #endif
 #if (OPAMP1_RES_LOC == 10)
+#define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
+#define RTE_OPAMP1_RES_PORT_MUX 7
+#endif
+#if (OPAMP1_RES_LOC == 11)
 #define RTE_OPAMP1_RES_PIN      (OPAMP1_RES_PIN + GPIO_MAX_PIN)
 #define RTE_OPAMP1_RES_PORT_MUX 7
 #endif
@@ -5636,16 +5652,6 @@
 #error "Invalid  RTE_ULP_GPIO_2_PIN Pin Configuration!"
 #endif
 
-#define RTE_ULP_GPIO_3_PORT_ID 1
-
-#if (RTE_ULP_GPIO_3_PORT_ID == 1)
-#define RTE_ULP_GPIO_3_PORT ULP
-#define RTE_ULP_GPIO_3_PIN  3
-#define RTE_ULP_GPIO_3_MODE 0
-#else
-#error "Invalid  RTE_ULP_GPIO_3_PIN Pin Configuration!"
-#endif
-
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_ULP_GPIO_4_PORT_ID 1
 #else
@@ -5760,16 +5766,6 @@
 #error "Invalid  RTE_ULP_GPIO_9_PIN Pin Configuration!"
 #endif
 
-#define RTE_ULP_GPIO_10_PORT_ID 0
-
-#if (RTE_ULP_GPIO_10_PORT_ID == 0)
-#define RTE_ULP_GPIO_10_PORT ULP
-#define RTE_ULP_GPIO_10_PIN  10
-#define RTE_ULP_GPIO_10_MODE 0
-#else
-#error "Invalid  RTE_ULP_GPIO_10_PIN Pin Configuration!"
-#endif
-
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_ULP_GPIO_11_PORT_ID 1
 #else
@@ -5794,10 +5790,6 @@
 #define RTE_UULP_GPIO_0_PIN  0
 #define RTE_UULP_GPIO_0_MODE 0
 
-#define RTE_UULP_GPIO_1_PORT UULP_VBAT
-#define RTE_UULP_GPIO_1_PIN  1
-#define RTE_UULP_GPIO_1_MODE 0
-
 #define RTE_UULP_GPIO_2_PORT UULP_VBAT
 #define RTE_UULP_GPIO_2_PIN  2
 #define RTE_UULP_GPIO_2_MODE 0
@@ -5805,13 +5797,6 @@
 #define RTE_UULP_GPIO_3_PORT UULP_VBAT
 #define RTE_UULP_GPIO_3_PIN  3
 #define RTE_UULP_GPIO_3_MODE 0
-
-#define RTE_UULP_GPIO_4_PORT UULP_VBAT
-#define RTE_UULP_GPIO_4_PIN  4
-#define RTE_UULP_GPIO_4_MODE 0
-
-#define RTE_UULP_GPIO_5_PIN  5
-#define RTE_UULP_GPIO_5_MODE 0
 
 // ULP GPIO as enable pin for sensors
 #define SENSOR_ENABLE_GPIO_MAPPED_TO_ULP

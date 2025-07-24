@@ -1,25 +1,17 @@
 project_name: sl_si91x_ulp_uart
-label: SI91x - SL_ulp_uart
+package: platform
 description: >
   This application demonstrates how to configure the ULP USART (Ultra Low Power Universal Asynchronous Receiver-Transmitter) to operate in full-duplex mode, enabling the transmission and reception of data simultaneously. 
   It showcases how to use ULP peripherals for efficient data communication while maintaining low power consumption on the Si91x SoC.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SL_ulp_uart
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-source:
-  - path: app.c
-  - path: app.h
-  - path: ulp_uart_example.c
-  - path: ulp_uart_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -45,11 +37,18 @@ component:
     from: wiseconnect3_sdk
   - id: pm_ps2_component
     from: wiseconnect3_sdk
-other_file:
-  - path: resources/readme/setupdiagram.png
-  - path: resources/readme/ulp_uart_gpio_toggle.png
-  - path: resources/readme/ulpuart_uc.png
-  - path: resources/readme/ulp_uart_continuous_toggling.png
+source:
+  - path: app.c
+  - path: ulp_uart_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ulp_uart_example.h
+define:
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SL_SI91X_ULP_STATE_ENABLE
 template_contribution:
   - name: user_files_ps2
     value: ulp_uart_example.o
@@ -62,15 +61,19 @@ template_contribution:
     condition: [sl_system]
   - name: user_files_ps2  
     value: sl_event_handler.o
-define:
-  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
-  - name: SL_SI91X_ULP_STATE_ENABLE
-readme:
-  - path: readme.md
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/ulp_uart_gpio_toggle.png
+  - path: resources/readme/ulpuart_uc.png
+  - path: resources/readme/ulp_uart_continuous_toggling.png
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

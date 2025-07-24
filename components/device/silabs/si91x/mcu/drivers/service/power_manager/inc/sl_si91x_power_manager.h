@@ -1115,7 +1115,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *   // Initialize wakeup source
 *   // Replace the wakeup source peripheral macro defined in sl_si91x_power_manager.h file
 *   // It sets the below peripheral as wakeup source
-*   sl_si91x_power_manager_set_wakeup_source(WAKEUP_SOURCE, true);
+*   sl_si91x_power_manager_set_wakeup_sources(WAKEUP_SOURCE, true);
 *   sl_si91x_power_manager_sleep();
 *   }
 *

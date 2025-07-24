@@ -1,13 +1,9 @@
 id: opamp_instance
 label: OPAMP Instance
 package: platform
-description: >
-  Operational Amplifier (OPAMP) peripheral driver instance for the SiWx917 SoC device.
-  This component provides a configurable OPAMP instance that enables analog signal 
-  amplification and conditioning. Each instance can be independently configured with 
-  specific gain settings, input/output configurations, and operational modes to support
-  various analog applications including signal buffering, voltage following, and 
-  amplification operations.
+description: Operational Amplifier (OPAMP) peripheral features for the SiWx917 SoC device.This component provides a configurable OPAMP features that enables analog signal 
+  amplification and conditioning. Each features can be independently configured with specific gain settings, input and output configurations, and operational modes to support
+  various analog applications including signal buffering.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 metadata:

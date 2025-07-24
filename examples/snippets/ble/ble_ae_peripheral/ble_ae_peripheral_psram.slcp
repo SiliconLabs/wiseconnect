@@ -1,7 +1,7 @@
 project_name: ble_ae_peripheral_psram
 package: ble
 quality: production
-label: ble_ae_peripheral_psram
+label: BLE - AE Peripheral (PSRAM)
 category: Example|BLE
 description: |
   Start a BLE device in Extended Advertising Peripheral mode.
@@ -14,7 +14,7 @@ filter:
   - Advanced
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
   version: 3.5.2

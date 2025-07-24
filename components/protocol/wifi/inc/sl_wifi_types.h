@@ -914,6 +914,8 @@ typedef struct {
  *
  * Contains control flags and other metadata for the payload.
  * The control flags specify various options for the packet, such as whether it is a 4-address packet, a QoS packet, or if a fixed data rate should be used.
+ * @note
+ * Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
  */
 typedef struct {
   /// Control flags bit description:
@@ -925,14 +927,14 @@ typedef struct {
   /// | 3            | Should be set to enable To DS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                               |
   /// | 4            | Should be set to enable From DS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                             |
   /// | 5            | Should be set if host requires TX data status report. Token is used for synchronization between data packets sent and reports received.         |
-  /// | 6            | Should be set if the extended descriptor contains channel, tx_power and is_last_packet information                                              |
-  /// | 7            | Should be set if immediate transfer is enabled.                                                                                                 |
+  /// | 6            | Should be set if the extended descriptor contains channel, tx_power and is_last_packet information. This is currently not supported.            |
+  /// | 7            | Should be set if immediate transfer is enabled. This is currently not supported.                                                                |
   /// @note If addr1 is multicast/broadcast, ctrl_flags bit 1 is ignored, and the frame is sent as a non-QoS frame, that is, QoS control field should not be present in the MAC header.
   uint8_t ctrl_flags;
   /// ctrl_flags1 bit description:
   /// | Bit position | flags bit description
   /// |--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-  /// | 0            | Should be set if it is the last packet of that channel.                                                                                                           |
+  /// | 0            | Should be set if it is the last packet of that channel. This is currently not supported.                                                       |
   /// | 1:7          | Reserved.                                                                                                                                      |
   uint8_t ctrl_flags1;
   uint8_t reserved2; ///< Reserved
@@ -946,8 +948,8 @@ typedef struct {
   uint8_t addr2[6]; ///< Transmitter MAC address
   uint8_t addr3[6]; ///< Destination MAC address
   uint8_t addr4[6]; ///< Source MAC address. Initialization of addr4 is optional
-  uint8_t channel;  ///< Channel
-  uint8_t tx_power; ///< Transmission power
+  uint8_t channel;  ///< Channel is currently not supported.
+  uint8_t tx_power; ///< Transmission power is currently not supported.
 } sl_wifi_transceiver_tx_data_control_t;
 
 /**

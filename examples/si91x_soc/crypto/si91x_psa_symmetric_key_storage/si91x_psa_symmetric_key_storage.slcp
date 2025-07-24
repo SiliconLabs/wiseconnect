@@ -1,36 +1,17 @@
 project_name: si91x_psa_symmetric_key_storage
-label: SI91x - SoC PSA symmetric key storage
+package: platform
 description: >
   This application demonstrates Key generate, import, export and PSA ITS write, read
   and erase functions for PERSISTENT PLAINTEXT and VOLATILE PLAINTEXT.
 category: example|crypto
-package: platform
 quality: production
-filter:
-  - name: Wireless Technology
-    value:
-      - Wi-Fi
-  - name: Project Difficulty
-    value:
-      - Beginner
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: psa_symmetric_key_storage_app.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-      - path: psa_symmetric_key_storage_app.h
+label: SI91x - SoC PSA symmetric key storage
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-define:
-  - name: SL_SI91X_PRINT_DBG_LOG
 component:
   - id: sl_main
   - id: freertos
@@ -60,6 +41,19 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: psa_symmetric_key_storage_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: psa_symmetric_key_storage_app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+toolchain_settings:
+  - option: nano_c_libs
+    value: enabled
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/output.png
@@ -67,8 +61,14 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
-toolchain_settings:
-  - option: nano_c_libs
-    value: enabled
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner

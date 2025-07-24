@@ -5680,16 +5680,6 @@
 #error "Invalid  RTE_ULP_GPIO_2_PIN Pin Configuration!"
 #endif
 
-#define RTE_ULP_GPIO_3_PORT_ID 1
-
-#if (RTE_ULP_GPIO_3_PORT_ID == 1)
-#define RTE_ULP_GPIO_3_PORT ULP
-#define RTE_ULP_GPIO_3_PIN  3
-#define RTE_ULP_GPIO_3_MODE 0
-#else
-#error "Invalid  RTE_ULP_GPIO_3_PIN Pin Configuration!"
-#endif
-
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_ULP_GPIO_4_PORT_ID 1
 #else
@@ -5804,16 +5794,6 @@
 #error "Invalid  RTE_ULP_GPIO_9_PIN Pin Configuration!"
 #endif
 
-#define RTE_ULP_GPIO_10_PORT_ID 0
-
-#if (RTE_ULP_GPIO_10_PORT_ID == 0)
-#define RTE_ULP_GPIO_10_PORT ULP
-#define RTE_ULP_GPIO_10_PIN  10
-#define RTE_ULP_GPIO_10_MODE 0
-#else
-#error "Invalid  RTE_ULP_GPIO_10_PIN Pin Configuration!"
-#endif
-
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_ULP_GPIO_11_PORT_ID 1
 #else
@@ -5838,10 +5818,6 @@
 #define RTE_UULP_GPIO_0_PIN  0
 #define RTE_UULP_GPIO_0_MODE 0
 
-#define RTE_UULP_GPIO_1_PORT UULP_VBAT
-#define RTE_UULP_GPIO_1_PIN  1
-#define RTE_UULP_GPIO_1_MODE 0
-
 #define RTE_UULP_GPIO_2_PORT UULP_VBAT
 #define RTE_UULP_GPIO_2_PIN  2
 #define RTE_UULP_GPIO_2_MODE 0
@@ -5849,13 +5825,6 @@
 #define RTE_UULP_GPIO_3_PORT UULP_VBAT
 #define RTE_UULP_GPIO_3_PIN  3
 #define RTE_UULP_GPIO_3_MODE 0
-
-#define RTE_UULP_GPIO_4_PORT UULP_VBAT
-#define RTE_UULP_GPIO_4_PIN  4
-#define RTE_UULP_GPIO_4_MODE 0
-
-#define RTE_UULP_GPIO_5_PIN  5
-#define RTE_UULP_GPIO_5_MODE 0
 
 // ULP GPIO as enable pin for sensors
 #define SENSOR_ENABLE_GPIO_MAPPED_TO_ULP

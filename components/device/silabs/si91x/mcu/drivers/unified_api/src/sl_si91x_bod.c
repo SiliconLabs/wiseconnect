@@ -191,7 +191,53 @@ void sl_si91x_bod_button_configuration(uint16_t button_max_value_,
 /*******************************************************************************
  * Function to enable button wakeup
  ******************************************************************************/
-sl_status_t sl_si91x_bod_button_wakeup_enable(boolean_t bod_button_enable)
+void sl_si91x_bod_button_wakeup_enable(uint8_t enable)
+{
+  volatile uint32_t delay_button = 0, button_loop = 0;
+  if (enable == ENABLE) {
+    // Calculate delay based on clock selection
+    if (SL_BOD_ULP_PROC_CLK_SEL == 0) {
+      delay_button = (16 / SL_BOD_CLOCK_DIVISON_FACTOR) + 1;
+    } else {
+      delay_button = 16;
+    }
+    // Enable the button wake up for the calculated delay
+    for (button_loop = 0; button_loop <= delay_button; button_loop++) {
+      BOD->BOD_COMP_SEL_REG_b.BUTTON_WAKEUP_EN = Enable;
+    }
+
+    // Selecting and fixing the inputs of comparator
+    BOD->BOD_COMP_MODE_REG &= ~SL_BOD_MANUAL_CMP_MUX_SEL_BUTTON_VALUE;
+
+    // Write the comp mux value 5 for button mode
+    BOD->BOD_COMP_MODE_REG |= SL_BOD_MANUAL_CMP_MUX_SEL_BUTTON_VALUE;
+
+    // Set the UULPSS GPIO[2] in analog mode (TO GIVE VOLTAGE SUPPLY THROUGH
+    // PIN)
+    SL_NPSS_GPIO_2_ANALOG_MODE |= SL_NPSS_GPIO_2_ANALOG_MODE_VALUE;
+  } else {
+    // Check if the comparator mux value is set correctly
+    if ((BOD->BOD_COMP_MODE_REG & SL_BOD_MANUAL_CMP_MUX_SEL_BUTTON_CLR) == SL_BOD_MANUAL_CMP_MUX_SEL_BUTTON_VALUE) {
+      // Disable manual BOD mode
+      BOD->BOD_COMP_MODE_REG_b.MANUAL_CMP_MODE_EN = DISABLE;
+
+      // Disable button mode for the calculated delay
+      for (button_loop = 0; button_loop <= delay_button; button_loop++) {
+        BOD->BOD_COMP_SEL_REG_b.BUTTON_WAKEUP_EN = DISABLE;
+      }
+    } else {
+      // Disable button mode for the calculated delay
+      for (button_loop = 0; button_loop <= delay_button; button_loop++) {
+        BOD->BOD_COMP_SEL_REG_b.BUTTON_WAKEUP_EN = DISABLE;
+      }
+    }
+  }
+}
+
+/*******************************************************************************
+ * Function to enable button wakeup
+ ******************************************************************************/
+sl_status_t sl_si91x_bod_button_wakeup_enable_v2(boolean_t bod_button_enable)
 {
 
 #if (SL_BOD_BUTTON_UC_CONFIG_EN == ENABLE)
@@ -270,7 +316,7 @@ sl_status_t sl_si91x_bod_button_interrupt_disable(void)
 en_t sl_si91x_bod_get_blackout_status(void)
 {
   // Get the blackout enable status
-  return uc_config_params.blackout_en;
+  return BOD->BOD_TEST_PG_VBATT_STATUS_REG_b.BLACKOUT_EN;
 }
 
 /*******************************************************************************
@@ -326,6 +372,14 @@ sl_status_t sl_si91x_bod_get_threshold(float *vbatt_threshold)
                      * SL_BOD_VBATT_COMPUT_FIRST_ELEMENT;
 
   return SL_STATUS_OK; // Return success status
+}
+
+/*******************************************************************************
+ * Function to enable BOD interrupt in NVIC
+ ******************************************************************************/
+void sl_si91x_bod_NVIC_enable_irq(void)
+{
+  NVIC_EnableIRQ(SL_NVIC_BOD);
 }
 
 /*******************************************************************************

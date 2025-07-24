@@ -13,7 +13,7 @@
     visibility: never
 - requires:
   - name: siwg917y111mgaba
-  - name: brd4343a_config
+  - name: brd4343b_config
   - name: hardware_board_mainboard
   - name: external_flash_none
   - name: external_psram_none
@@ -35,8 +35,6 @@
     value: '"BRD4343B"'
   - name: SL_BOARD_REV
     value: '"A02"'
-  - name: SL_SI91X_ACX_MODULE
-    value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2

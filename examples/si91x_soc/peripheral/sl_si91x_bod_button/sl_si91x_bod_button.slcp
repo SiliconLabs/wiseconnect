@@ -1,27 +1,16 @@
 project_name: sl_si91x_bod_button
-label: SI91x - BOD
+package: platform
 description: |
   Demonstrates using the BOD button feature to detect voltage changes with a button press.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - BOD
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
-source:
-  - path: bod_button_example.c
-  - path: app.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-      - path: bod_button_example.h
 component:
   - id: sl_main
   - id: status
@@ -31,19 +20,30 @@ component:
     from: wiseconnect3_sdk
   - id: sl_bod
     from: wiseconnect3_sdk
+source:
+  - path: bod_button_example.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: bod_button_example.h
 define:
   - name: RSI_M4_INTERFACE
-provides:
-  - name: si91x_soc
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/bod_button_result_console.png
   - path: resources/uc_screen/bod_button_uc_screen.png
-readme:
-  - path: readme.md
+provides:
+  - name: si91x_soc
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

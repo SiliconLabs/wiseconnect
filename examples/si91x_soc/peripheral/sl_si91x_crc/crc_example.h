@@ -1,42 +1,29 @@
-/*
- * example_crc.h
- *
- *  Created on: May 3, 2024
- *      Author: vebommak
- */
-
+/***************************************************************************/ /**
+* @file  crc_example.h
+* @brief crc examples functions
+*******************************************************************************
+* # License
+* <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
 #ifndef EXAMPLE_CRC_H_
 #define EXAMPLE_CRC_H_
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-/**
- * @brief Enable or disable uDMA.
- *
- * Set USE_UDMA to 1 to enable uDMA, set to 0 to disable.
- */
-#define USE_UDMA 0
-
-/**
- * @brief Size of the buffer.
- */
-#define BUFFSIZE 25
-
-/**
- * @brief Number of DMA descriptors.
- */
-#define NUMDMADESC 1
-
-/**
- * @brief DMA channel number.
- */
-#define SL_DMA_CHANNEL 5
-
-/**
- * @brief DMA instance number.
- */
-#define SL_DMA_INSTANCE 0
+#define BUFFSIZE        25 // Size of the buffer.
+#define NUMDMADESC      1  // Number of DMA descriptors.
+#define SL_DMA_CHANNEL  5  // DMA channel number.
+#define SL_DMA_INSTANCE 0  // DMA instance number.
 
 // -----------------------------------------------------------------------------
 // Prototypes

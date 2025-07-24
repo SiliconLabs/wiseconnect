@@ -1,7 +1,7 @@
 project_name: ble_secureconnection_psram
 package: ble
 quality: production
-label: ble_secureconnection_psram
+label: BLE - Secure Connection (PSRAM)
 category: Example|BLE
 description: >
   This application demonstrates the SMP (Security Manager Protocol) pairing and 
@@ -15,7 +15,7 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
   version: 3.5.2

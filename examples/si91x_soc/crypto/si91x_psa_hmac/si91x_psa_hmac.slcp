@@ -1,27 +1,16 @@
 project_name: si91x_psa_hmac
-label: SI91x - SoC PSA HMAC
+package: platform
 description: |
   This example project demonstrates the PSA HMAC APIs in SI91x.
 category: example|crypto
-package: platform
 quality: production
+label: SI91x - SoC PSA HMAC
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-source:
-  - path: psa_hmac_app.c
-  - path: app.c
-include:
-  - path: .
-    file_list:
-      - path: psa_hmac_app.h
-      - path: app.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: freertos
@@ -54,14 +43,25 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
-readme:
-  - path: readme.md
+source:
+  - path: psa_hmac_app.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_hmac_app.h
+      - path: app.h
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/output.png
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

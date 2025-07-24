@@ -1,7 +1,7 @@
 project_name: ble_power_save_soc
 package: ble
 quality: production
-label: ble_power_save_soc
+label: BLE - Power Save (SoC)
 category: Example|BLE
 description: >
   This application demonstrates how to configure the device in power save 
@@ -15,7 +15,7 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
   version: 3.5.2

@@ -64,11 +64,13 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
       status = nvm3_initDefault();
       VERIFY_STATUS_AND_RETURN(status);
 #endif
-      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                                     default_wifi_client_credential.type,
-                                     (const void *)default_wifi_client_credential.data,
-                                     default_wifi_client_credential.data_length);
-      VERIFY_STATUS_AND_RETURN(status);
+      if (default_wifi_client_credential.data_length > 0) {
+        status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
+                                       default_wifi_client_credential.type,
+                                       (const void *)default_wifi_client_credential.data,
+                                       default_wifi_client_credential.data_length);
+        VERIFY_STATUS_AND_RETURN(status);
+      }
       status = sl_net_set_profile(SL_NET_WIFI_CLIENT_1_INTERFACE,
                                   SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
                                   &DEFAULT_WIFI_CLIENT_PROFILE);
@@ -85,11 +87,13 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
       status = nvm3_initDefault();
       VERIFY_STATUS_AND_RETURN(status);
 #endif
-      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                                     default_wifi_client_credential.type,
-                                     (const void *)default_wifi_client_credential.data,
-                                     default_wifi_client_credential.data_length);
-      VERIFY_STATUS_AND_RETURN(status);
+      if (default_wifi_client_credential.data_length > 0) {
+        status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
+                                       default_wifi_client_credential.type,
+                                       (const void *)default_wifi_client_credential.data,
+                                       default_wifi_client_credential.data_length);
+        VERIFY_STATUS_AND_RETURN(status);
+      }
       status = sl_net_set_profile(SL_NET_WIFI_CLIENT_2_INTERFACE,
                                   SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
                                   &DEFAULT_WIFI_CLIENT_PROFILE);
@@ -106,11 +110,13 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
       status = nvm3_initDefault();
       VERIFY_STATUS_AND_RETURN(status);
 #endif
-      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-                                     default_wifi_ap_credential.type,
-                                     (const void *)default_wifi_ap_credential.data,
-                                     default_wifi_ap_credential.data_length);
-      VERIFY_STATUS_AND_RETURN(status);
+      if (default_wifi_ap_credential.data_length > 0) {
+        status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
+                                       default_wifi_ap_credential.type,
+                                       (const void *)default_wifi_ap_credential.data,
+                                       default_wifi_ap_credential.data_length);
+        VERIFY_STATUS_AND_RETURN(status);
+      }
       status = sl_net_set_profile(SL_NET_WIFI_AP_1_INTERFACE,
                                   SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
                                   &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
@@ -127,11 +133,13 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
       status = nvm3_initDefault();
       VERIFY_STATUS_AND_RETURN(status);
 #endif
-      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-                                     default_wifi_ap_credential.type,
-                                     (const void *)default_wifi_ap_credential.data,
-                                     default_wifi_ap_credential.data_length);
-      VERIFY_STATUS_AND_RETURN(status);
+      if (default_wifi_ap_credential.data_length > 0) {
+        status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
+                                       default_wifi_ap_credential.type,
+                                       (const void *)default_wifi_ap_credential.data,
+                                       default_wifi_ap_credential.data_length);
+        VERIFY_STATUS_AND_RETURN(status);
+      }
       status = sl_net_set_profile(SL_NET_WIFI_AP_2_INTERFACE,
                                   SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
                                   &DEFAULT_WIFI_ACCESS_POINT_PROFILE);

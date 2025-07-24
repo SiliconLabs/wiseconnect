@@ -14,13 +14,12 @@ filter:
       - Intermediate
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
 source:
   - path: app.c
-  - path: main.c
   - path: ble_app.c
   - path: wifi_app.c
 include:
@@ -32,7 +31,7 @@ include:
 define:
 -  name: SL_SI91X_PRINT_DBG_LOG
 component:
-  - id: sl_system
+  - id: sl_main
   - id: freertos
   - id: freertos_heap_4
   - id: syscalls
@@ -81,6 +80,9 @@ other_file:
 - path: resources/readme/serial_log2.png
 - path: resources/readme/setup.png
 - path: resources/readme/TCP_TX.png
+- path: resources/readme/TCP_tx_console_1.png
+- path: resources/readme/TCP_tx_console_2.png
+- path: resources/readme/UDP_tx_console.png
 ui_hints:
   highlight:
   - path: readme.md

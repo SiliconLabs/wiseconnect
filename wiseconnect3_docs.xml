@@ -36,15 +36,6 @@
     <description>Glossary of commonly used terms in the SiWx91x™ documentation.</description>
   </contentItemData>
 
-  <contentItemData label="WiSeConnect SDK Migration Guide from v2.x to v3.0.9" itemURI="https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-guides-overview/" category="Quick Start Guides" priority="4">
-    <property key="core.category" value="Quick Start Guides"/>
-    <property key="core.priority" value="4"/>
-    <property key="core.boardCompatibility" value="brd4338a brd4343a brd4339a brd4342a brd4346a brd4357a"/>
-    <property key="core.partCompatibility" value=".*"/>
-    <property key="core.sdkAndProtocolTags" value="WiSeConnect 3"/>
-    <description>Guide for updating an existing application using the WiSeConnect™ SDK v2.x to a v3.x application. This guide describes the changes made in the WiSeConnect SDK v3.x to simplify the API and make it modular. It also provides a migration example, and the steps for updating a v2.x application to a v3.x application.</description>
-  </contentItemData>
-
   <contentItemData label="WiSeConnect SDK Migration Guide from v3.1.0 to v3.1.1" itemURI="https://github.com/SiliconLabs/wiseconnect/blob/master/docs/software-reference/developer-guides/migrating-from-v3-1-0.md" category="Quick Start Guides" priority="5">
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="5"/>

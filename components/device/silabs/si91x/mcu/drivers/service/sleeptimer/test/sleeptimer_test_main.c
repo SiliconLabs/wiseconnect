@@ -110,7 +110,7 @@ void test_sleeptimer_restart_periodic_timer_ms(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-int main()
+int app_init()
 {
   UnityBeginGroup("Sleeptimer");
 

@@ -107,7 +107,7 @@ Below are the list of GPIO examples available and it's functionality:
   - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
   - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
 - For ULP interrupt:
-  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels.
+  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels on the IC board (or) ULP GPIO8 and ULP_GPIO_4 on the ACX Module board.
   - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
   - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
 

@@ -1,26 +1,16 @@
 project_name: sl_si91x_ps4_state
-label: SI91x - SL_SI91X_PS4_STATE
+package: platform
 description: |
   This application demonstrates the PS4 sleep and active state with NWP shutdown.
 category: example|mcu powerstate
-package: platform
 quality: production
+label: SI91x - SL_SI91X_PS4_STATE
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
+  version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.5.2
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: app.h
-  - path: ps4_state.c
-  - path: ps4_state.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -48,6 +38,17 @@ template_contribution:
 define:
   - name: SI_SI91X_NWP_SHUTDOWN
     value: "1"
+source:
+  - path: app.c
+  - path: ps4_state.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ps4_state.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/ps4_active_state.png
   - path: resources/readme/ps4_sleep_state.png
@@ -56,5 +57,7 @@ ui_hints:
   highlight:
   - path: readme.md
     focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

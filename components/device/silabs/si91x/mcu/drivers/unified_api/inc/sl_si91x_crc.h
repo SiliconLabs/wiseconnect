@@ -61,6 +61,39 @@ typedef RSI_CRC_PARAMS_T sl_crc_params_t; ///< Renamed CRC param structure
 
 /*******************************************************************************/
 /**
+ * @brief Initializes the CRC module with the provided configuration parameters.
+ * 
+ * @details This API configures the CRC module with the specified parameters by performing
+ * the following operations in sequence:
+ *   1. Sets the general control for CRC
+ *   2. Enables the CRC module
+ *   3. Loads the polynomial value
+ *   4. Sets the polynomial width
+ *   5. Initializes the LFSR value
+ *   6. Configures the swapped initialization value
+ *   7. Sets the data width type
+ *   8. Configures the FIFO thresholds
+ * 
+ * @param[in] params Pointer to the CRC parameters structure containing the configuration settings.
+ * 
+ * @return Status code indicating the result:
+ *        - SL_STATUS_OK  - Success.
+ *        - SL_STATUS_INVALID_STATE  - CRC module is not in a valid state.
+ *        - SL_STATUS_NOT_READY  - CRC module is not ready.
+ *        - SL_STATUS_INITIALIZATION  - CRC polynomial configuration failed.
+ *        - SL_STATUS_NOT_SUPPORTED  - Polynomial width setting is not supported.
+ *        - SL_STATUS_NOT_INITIALIZED  - LFSR initialization failed.
+ *        - SL_STATUS_NOT_AVAILABLE  - Swapped initialization configuration failed.
+ *        - SL_STATUS_BUSY  - Data width type setting is busy.
+ *        - SL_STATUS_ABORT  - FIFO threshold configuration failed.
+ * * @note This function performs multiple operations to configure the CRC module.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_crc_set_config(sl_crc_params_t *params);
+
+/*******************************************************************************/
+/**
  * @brief Clears the FIFO and resets all state machines.
  * 
  * @details This API clears the FIFO and resets all state machines. 

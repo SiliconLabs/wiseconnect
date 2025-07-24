@@ -17,8 +17,6 @@
 
  - This application demonstrates how to set up and use the Brown Out Detection (BOD) feature with button voltage monitoring. It allows users to configure voltage ranges for multiple buttons and monitor the voltage levels on the `VBAT_UULP_GPIO_2 (F12)` pin. When the voltage for a button falls within its configured range, a BOD interrupt will be triggered.
 
- - The voltage ranges for the buttons are mapped and defined in the [`sl_si91x_bod.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/src/sl_si91x_bod.c) file. Users can refer to this file to set appropriate ranges for their application needs.
-
 
 ## Prerequisites/Setup Requirements
 
@@ -26,13 +24,14 @@ To use this application, the following hardware, software, and project setup is 
 
 ### Hardware Requirements
 - Windows PC
-- SiWx917 Radio Board
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-  - For serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - For serial console setup instructions, refer to [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 ### Setup Diagram
 
 > ![Figure: setupdiagram](resources/readme/setupdiagram.png)
@@ -47,13 +46,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
-For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+For details on the project folder structure, refer to the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
 ### Application Configuration Parameters
   - **User Input as Percentage:**  
     -  The button voltage regions can also be configured using percentage values through the `sl_bod_button_uc_config_param_t` structure. The application converts these percentage values to actual voltages internally, using the configured VBAT value as a reference.
+    -  The voltage ranges for the buttons are mapped and defined in the `sl_si91x_bod.c` file. Users can refer to this file to set appropriate ranges for their application needs.
   - To configure the voltage range for three buttons, define the following macros in `bod_button_example.h`:
   - **Button 1:**
     ```
@@ -73,7 +73,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
       ```
 **To configure the voltage range for three button using UC**:
 
- - Open  the **sl_si91x_bod_button.slcp** project file, select **Software Component** tab and search for **BOD** in search bar.
+ - Open  the **sl_si91x_bod_button.slcp** project file, select the **Software Component** tab and search for the **BOD** in search bar.
 - Search for and select the **BOD** component.
 - Use the configuration wizard to set the voltage percentage parameters for each button as needed. The configuration screen below shows the available options for customization.
   ![Figure: BOD Button UC Configuration Screen](resources/uc_screen/bod_button_uc_screen.png)
@@ -82,7 +82,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Each button's voltage percentage must be set within the supported range of 33% to 66% of VBAT. 
   
   > **Note:**  
-  > This application supports detection of up to 3 buttons based on voltage regions defined by resistor values.
+  > This application supports detection of up to three buttons based on voltage regions defined by resistor values.
   >
   > - Each button is mapped to a specific voltage range, determined by the `Resbank_Output_Fraction` in the resistor bank configuration.
   > - The button input is received via the `UULP_VBAT_GPIO_2[F12]` pin. When the voltage measured on this pin enters a configured region, the corresponding button interrupt will be triggered.
@@ -103,7 +103,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Expected Results
   - If the voltage on the input pin corresponding to a specific button drops below the configured threshold voltage, the respective BOD interrupt for that button will be triggered.
-The console will as below.(Interrupt operations are not there in the Console Output)
+The console will as below. (Interrupt operations are not there in the Console Output)
 
   - Console Output:
 

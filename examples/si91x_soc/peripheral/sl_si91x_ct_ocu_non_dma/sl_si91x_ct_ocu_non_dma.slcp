@@ -1,24 +1,16 @@
 project_name: sl_si91x_ct_ocu_non_dma
-label: SL Si91x - Config Timer Basic and OCU without DMA
+package: platform
 description: >
   Demonstrates the Config Timer Basic features and Output Compare feature without DMA.
 category: example|peripheral
-package: platform
 quality: production
-readme:
-  - path: readme.md
-
-source:
-  - path: config_timer_ocu_non_dma_example.c
-  - path: app.c
-  - path: app.h
-  - path: config_timer_ocu_non_dma_example.h
+label: SL Si91x - Config Timer Basic and OCU without DMA
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.0"
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -28,6 +20,17 @@ component:
     from: wiseconnect3_sdk
   - id: sl_config_timer
     from: wiseconnect3_sdk
+source:
+  - path: config_timer_ocu_non_dma_example.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: config_timer_ocu_non_dma_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/image502e.png
   - path: resources/uc_screen/uc_screen.png
@@ -39,8 +42,7 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
-sdk_extension:
-  - id: wiseconnect3_sdk
-    version: 3.5.2
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

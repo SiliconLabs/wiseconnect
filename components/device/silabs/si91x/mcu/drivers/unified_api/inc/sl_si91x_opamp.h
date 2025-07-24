@@ -221,7 +221,7 @@ sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config);
  * - **Unity Gain Buffer**: Operates as a voltage follower with no amplification.
  * - **Inverting Programmable Gain Amplifier**: Amplifies signal with inversion.
  * - **Non-Inverting Programmable Gain Amplifier**: Amplifies signal without inversion.
- * - **Inverting Programmable with Hysteresis Comparator**: The output switches when the input crosses a threshold, and hysteresis helps prevent noise-induced toggling.
+ * - **Inverting Programmable with Hysteresis Comparator**: The output switches when the input crosses a threshold and hysteresis helps prevent noise-induced toggling.
  * - **Non-Inverting Programmable with Hysteresis Comparator**: The output switches when the input exceeds a reference, with hysteresis for noise immunity.
  * - **Cascaded Inverting Programmable Gain Amplifier**: Supports cascaded inverting amplifier stages for increased gain and signal inversion.
  * - **Cascaded Non-Inverting Programmable Gain Amplifier**: Supports cascaded non-inverting amplifier stages for increased gain without signal inversion.

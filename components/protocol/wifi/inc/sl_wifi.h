@@ -1916,6 +1916,7 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  * @note This is not a blocking API. Callback SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB can be registered to get the status report from firmware.
  * @note Only 11b/g rates shall be supported.
  * @note It is recommended to use basic rate for multicast/broadcast packets.
+ * @note Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
  * @note Sample command usage:
  * @code
  * // Prepare payload

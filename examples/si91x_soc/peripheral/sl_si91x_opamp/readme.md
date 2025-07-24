@@ -128,23 +128,23 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Pin Configuration of the WPK[BRD4002A] Base Board, and with Radio Board
 
-The following table lists the mentioned pin numbers for the radio board. If you want to use a different radio board other than BRD4338A and BRD4343A, see the board user guide.
+The following table lists the mentioned pin numbers for the radio board. If you want to use a different radio board other than BRD4338A BRD4343A and BRD4342A, see the board user guide.
 
-  | GPIO        | BRD4338A | BRD4343A  |
-  | ----------  | -------- | --------  |
-  | GPIO_27     |   P29    |    P29    |
-  | GPIO_29     |   P33    |    P33    |
-  | GPIO_30     |   P35    |    P35    |
-  | ULP_GPIO_0  |   ---    |    F10    |
-  | ULP_GPIO_2  |   F10    |    P37    |
-  | ULP_GPIO_4  |   ---    |    P17    |
-  | ULP_GPIO_5  |   ---    |    P18    |
-  | ULP_GPIO_6  |  EXP-16  |  EXP-16   |
-  | ULP_GPIO_7  |  EXP-15  |  EXP-15   |
-  | ULP_GPIO_8  |   P15    |    P15    |
-  | ULP_GPIO_9  |   F7     |    F7     |
-  | ULP_GPIO_10 |   P17    |    ---    |
-  | ULP_GPIO_11 |   F6     |    F6     |
+  | GPIO        | BRD4338A | BRD4343A  | BRD4342A  |
+  | ----------  | -------- | --------  | --------  |
+  | GPIO_27     |   P29    |    P29    |    P29    | 
+  | GPIO_29     |   P33    |    P33    |    P33    | 
+  | GPIO_30     |   P35    |    P35    |    P35    | 
+  | ULP_GPIO_0  |   ---    |    F10    |   EXP-4   | 
+  | ULP_GPIO_2  |   F10    |    P37    |    F10    | 
+  | ULP_GPIO_4  |   ---    |    P17    |   EXP-6   | 
+  | ULP_GPIO_5  |   ---    |    P18    |   EXP-8   | 
+  | ULP_GPIO_6  |  EXP-16  |  EXP-16   |  EXP-16   | 
+  | ULP_GPIO_7  |  EXP-15  |  EXP-15   |  EXP-15   |
+  | ULP_GPIO_8  |   P15    |    P15    |    P15    |
+  | ULP_GPIO_9  |   F7     |    F7     |    F7     |
+  | ULP_GPIO_10 |   P17    |    ---    |    P17    |
+  | ULP_GPIO_11 |   F6     |    F6     |    F6     |
 
 ## OPAMP Mux Selection
 ### OPAMP input and ouput pin mux selection 
@@ -173,8 +173,8 @@ The following table shows the available input (VinP, VinN, or Resistor) and outp
 #### Output terminal GPIO Selection
   | OUTPUT SELECTION | OPAMP1 OUT | OPAMP2 OUT | OPAMP3 OUT |
   | --- | --- | --- | --- |
-  | OPAMP_OUT0     |     ULP_GPIO_4   | ULP_GPIO_9 | GPIO_27 |
-  | OPAMP_OUT1     |     GPIO_30 |--- | --- |
+  | OPAMP_OUT     |     ULP_GPIO_4   | ULP_GPIO_9 | GPIO_27 |
+  | OPAMP_OUT     |     GPIO_30 |--- | --- |
 
 ## DAC
 DAC enable, output pin configuration:
@@ -185,8 +185,6 @@ DAC enable, output pin configuration:
   | DAC1 | GPIO_30 |
    
  ## **Limitations:** 
-  - GPIO 27 (Top GPIO) is not supported.
-  - The pin tool does not support selection of GPIOs for each OPAMP instance.
   - ULP_GPIO_9 and ULP_GPIO_11 are connected to VCOM Rx and Tx, and ULP_GPIO_2 is connected to the LED. These GPIOs must be disabled if they are to be used for OPAMP functionality.
 
 > **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
@@ -282,9 +280,13 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
   - Apply the input voltage on non-inverting input terminal, inverting input terminal of OPAMP1 and non-inverting input terminal of OPAMP2 from constant D.C supply source.The output of OPAMP1 (Vout1) is connected to inverting input terminal of OPAMP2.
     ![Figure: Cascaded_Invt](resources/readme/cascaded_inv_pga.png)
   - OPAMP1- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor" in the UC.
-     ![Figure: UC-Screen](resources/uc_screen/cas_invt_uc_opamp1.png)
   - OPAMP2- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select "OPAMP1_OUT" (connected to OPAMP1 output) from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+     ![Figure: UC-Screen](resources/uc_screen/cas_invt_uc_opamp1.png)
      ![Figure: UC-Screen](resources/uc_screen/cas_invt_uc_opamp2.png)
+  - OPAMP2- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor" in the UC.
+  - OPAMP3- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select "OPAMP2_OUT" (connected to OPAMP1 output) from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+     ![Figure: UC-Screen](resources/uc_screen/cas_invt_uc_opamp2_1.png)
+     ![Figure: UC-Screen](resources/uc_screen/cas_invt_uc_opamp3.png)
   - Check the output voltage on board on OPAMP_OUT.
   - Use a Logic analyzer / Oscilloscope  to check output voltage.
   - Calculate the Output Voltage  
@@ -292,7 +294,7 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
   [Vout2=-((Vout1-Vref2)R2/R1)+Vref2]
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
-   OPAMP2 in combination with OPAMP3 is not supported.
+   Use the BRD4342A board when using OPAMP2 with OPAMP3.
 
 #### Cascaded Non-Inverting Programmable Gain Amplifier
   - This configuration uses two opamps. 
@@ -300,9 +302,13 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
     input terminal of OPAMP1 and inverting input terminal of OPAMP2 from constant D.C supply source.The output of OPAMP1 (Vout1) is connected to non-inverting input terminal of OPAMP2.
      ![Figure: Cascaded_Non-Invt](resources/readme/cascaded_noninv_pga.png)
   - OPAMP1- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor" in the UC.
-     ![Figure: UC-Screen](resources/uc_screen/cas_noninvt_uc_opamp1.png)
   - OPAMP2- Choose "OPAMP1_OUT" from the VinP mux selection for input(connected to OPAMP1 output),from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+     ![Figure: UC-Screen](resources/uc_screen/cas_noninvt_uc_opamp1.png)
      ![Figure: UC-Screen](resources/uc_screen/cas_noninvt_uc_opamp2.png)
+  - OPAMP2- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor" in the UC.
+  - OPAMP3- Choose "OPAMP2_OUT" from the VinP mux selection for input(connected to OPAMP2 output),from the "Out selection" for output, set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+     ![Figure: UC-Screen](resources/uc_screen/cas_noninvt_uc_opamp2_1.png)
+     ![Figure: UC-Screen](resources/uc_screen/cas_noninvt_uc_opamp3.png)
   - Check the output voltage on board on OPAMP_OUT.
   - Use a Logic analyzer / Oscilloscope  to check output voltage.
   - Calculate the Output Voltage  
@@ -310,7 +316,7 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
   [Vout2=Vout1+(Vout1-Vref2)R2/R1]
  
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
-   OPAMP2 in combination with OPAMP3 is not supported.
+   Use the BRD4342A board when using OPAMP2 with OPAMP3.
 
 #### Two OPAMPs Differential Amplifier
   - This configuration uses two OPAMPs.
@@ -318,16 +324,20 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
     input terminal of OPAMP2 from constant D.C supply source, inverting input terminal internally connected to output of OPAMP1. The output of OPAMP1(vout1) connected to inverting input terminal of OPAMP2.
      ![Figure: Two_opamps_diff](resources/readme/two_opamps_diff.png)
   - OPAMP1- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output and set VinN mux to "Out". Ensure the resistor mux is set to "None" in the UC.
-     ![Figure: UC-Screen](resources/uc_screen/two_opamps_uc_opamp1.png)
   - OPAMP2- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select OPAMP1_OUT from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+     ![Figure: UC-Screen](resources/uc_screen/two_opamps_uc_opamp1.png)
      ![Figure: UC-Screen](resources/uc_screen/two_opamps_uc_opamp2.png)
+  - OPAMP2- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output and set VinN mux to "Out". Ensure the resistor mux is set to "None" in the UC.
+  - OPAMP3- Choose any GPIO from the VinP mux selection for input,from the "Out selection" for output, set VinN mux to "Resistor tap" and select OPAMP2_OUT from Resistor mux. Select resistors from "R1 Resistor" and "R2 Ressitor"in the UC.
+     ![Figure: UC-Screen](resources/uc_screen/two_opamps_uc_opamp2_1.png)
+     ![Figure: UC-Screen](resources/uc_screen/two_opamps_uc_opamp3.png)
   - Check the output voltage on board on OPAMP_OUT.
   - Use a Logic analyzer / Oscilloscope  to check output voltage.
   - Calculate the Output Voltage    
   [Vout2-V2=(V2-V1)*R2/R1]
 
    **Note:** The GPIO used for the Positive (Non-Inverting Input Terminal) and the Negative (Inverting Input Terminal) must be different.
-   OPAMP2 in combination with OPAMP3 is not supported.
+   Use the BRD4342A board when using OPAMP2 with OPAMP3.
 
 #### Unity Gain with DAC
  - The DAC output serves as the input for OPAMP1.
