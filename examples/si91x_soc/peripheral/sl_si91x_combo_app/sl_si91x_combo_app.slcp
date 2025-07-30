@@ -1,0 +1,91 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_combo_app
+package: platform_siwx91x_apps
+description: >
+  This application demonstrates how to use RTOS based combo application.
+category: example|peripheral
+quality: production
+label: Si91x - SL_COMBO_APPLICATION
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 4.0.0
+component:
+  - id: sl_main
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance:
+      - led0
+    from: wiseconnect3_sdk
+  - id: pwm_instance
+    instance:
+      - channel_0
+    from: wiseconnect3_sdk
+  - id: freertos
+  - id: freertos_heap_4
+  - id: sl_si91x_button_917
+    instance:
+      - btn0
+    from: wiseconnect3_sdk
+  - id: sl_pwm
+    from: wiseconnect3_sdk
+  - id: sl_ulp_timer
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance:
+      - led0
+    from: wiseconnect3_sdk
+  - id: sl_i2c
+    from: wiseconnect3_sdk
+  - id: i2c_instance
+    from: wiseconnect3_sdk
+    instance: 
+     - i2c2
+  - id: ulp_timers_instance
+    from: wiseconnect3_sdk
+    instance:
+      - timer0
+source:
+  - path: app.c
+  - path: src/push_button_app.c
+  - path: src/pwm_app.c
+  - path: src/i2c_app.c
+  - path: src/timer_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+  - path: src/inc
+    file_list:
+      - path: push_button_app.h
+      - path: pwm_app.h
+      - path: i2c_app.h
+      - path: timer_app.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+  - name: SL_BUTTON_CONFIG_BTN0_INTR
+    value: RISE_EDGE_AND_FALL_EDGE_INTERRUPT
+  - name: SL_BUTTON_CONFIG_BTN1_INTR
+    value: RISE_EDGE_AND_FALL_EDGE_INTERRUPT
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/i2c_uc_screen.png
+  - path: resources/readme/image507d.png
+  - path: resources/readme/image507e.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+readme:
+  - path: readme.md
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

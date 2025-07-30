@@ -1,0 +1,45 @@
+project_name: sl_si91x_empty_cpp
+package: platform_siwx91x_apps
+quality: production
+label: Platform - Empty C++ Example
+description: >
+  This application demonstrates the usage of an empty configuration that can be used as a starting point to add components and functionality.
+category: Example|Platform
+filter:
+  - name: "Device Type"
+    value: ["SoC"]
+  - name: "MCU"
+    value: ["32-bit MCU"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 4.0.0
+source:
+  - path: app.cpp
+include:
+  - path: .
+    file_list:
+    - path: app.h
+component:
+  - id: sl_main
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+define:
+  - name: SLI_SI91X_EMPTY_PROJECT
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+library:
+  - system: stdc++
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: readme.md
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

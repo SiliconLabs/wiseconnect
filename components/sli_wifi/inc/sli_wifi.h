@@ -1,0 +1,175 @@
+/***************************************************************************/ /**
+ * @file    sli_wifi.h
+ * @brief
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
+#ifndef SLI_WIFI_H
+#define SLI_WIFI_H
+#include "sl_status.h"
+#include "sl_wifi_device.h"
+#include "sl_wifi_constants.h"
+#include "sl_wifi_types.h"
+#include "sli_wifi_types.h"
+
+sl_wifi_interface_t sli_wifi_get_default_interface(void);
+void sli_wifi_set_default_interface(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_set_antenna(sl_wifi_interface_t interface, sl_wifi_antenna_t antenna);
+sl_status_t sli_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_results, uint32_t max_scan_result_count);
+sl_status_t sli_wifi_start_scan(sl_wifi_interface_t interface,
+                                const sl_wifi_ssid_t *optional_ssid,
+                                const sl_wifi_scan_configuration_t *configuration);
+sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
+                                             sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters);
+sl_status_t sli_wifi_set_advanced_client_configuration(sl_wifi_interface_t interface,
+                                                       const sl_wifi_advanced_client_configuration_t *configuration);
+sl_status_t sli_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *rssi);
+sl_status_t sli_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *tsf);
+sl_status_t sli_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_address_t *mac_address);
+sl_status_t sli_wifi_get_mac_address(sl_wifi_interface_t interface, sl_mac_address_t *mac);
+sl_status_t sli_wifi_set_channel(sl_wifi_interface_t interface, sl_wifi_channel_t channel);
+sl_status_t sli_wifi_get_channel(sl_wifi_interface_t interface, sl_wifi_channel_t *channel_info);
+sl_status_t sli_wifi_set_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_tx_power_t max_tx_power);
+sl_status_t sli_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_tx_power_t *max_tx_power);
+sl_status_t sli_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_configuration_t *configuration);
+sl_status_t sli_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
+                                             const uint8_t type,
+                                             const sl_wifi_ssid_t *ssid,
+                                             const char *pre_shared_key,
+                                             uint8_t *pairwise_master_key);
+sl_status_t sli_wifi_get_associated_client_list(const void *client_list_buffer,
+                                                uint16_t buffer_length,
+                                                uint32_t timeout);
+sl_status_t sli_wifi_connect(sl_wifi_interface_t interface,
+                             const sl_wifi_client_configuration_t *access_point,
+                             uint32_t timeout_ms);
+sl_status_t sli_wifi_disconnect_ap_client(sl_wifi_interface_t interface,
+                                          const sl_mac_address_t *mac,
+                                          sl_wifi_deauth_reason_t reason);
+sl_status_t sli_wifi_get_ap_client_info(sl_wifi_interface_t interface, sl_wifi_client_info_response_t *client_info);
+sl_status_t sli_wifi_get_firmware_version(sl_wifi_firmware_version_t *version);
+sl_status_t sli_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info);
+sl_status_t sli_wifi_get_firmware_size(const void *buffer, uint32_t *fw_image_size);
+sl_status_t sli_wifi_disconnect(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_stop_ap(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statistics_t *statistics);
+sl_status_t sli_wifi_get_operational_statistics(sl_wifi_interface_t interface,
+                                                sl_wifi_operational_statistics_t *operational_statistics);
+sl_status_t sli_wifi_transmit_test_start(sl_wifi_interface_t interface,
+                                         const sl_wifi_transmitter_test_info_t *test_tx_info);
+sl_status_t sli_wifi_transmit_test_stop(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_frequency_offset(sl_wifi_interface_t interface,
+                                      const sl_wifi_freq_offset_t *frequency_calibration);
+sl_status_t sli_wifi_dpd_calibration(sl_wifi_interface_t interface, const sl_wifi_dpd_calib_data_t *dpd_calib_data);
+sl_status_t sli_wifi_start_statistic_report(sl_wifi_interface_t interface, sl_wifi_channel_t channel);
+sl_status_t sli_wifi_stop_statistic_report(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_set_performance_profile(const sl_wifi_performance_profile_t *profile);
+sl_status_t sli_wifi_set_performance_profile_v2(const sl_wifi_performance_profile_v2_t *profile);
+sl_status_t sli_wifi_get_performance_profile(sl_wifi_performance_profile_t *profile);
+sl_status_t sli_wifi_get_performance_profile_v2(sl_wifi_performance_profile_v2_t *profile);
+void sli_wifi_deinit(void);
+bool sli_wifi_is_interface_up(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_set_certificate_with_index(uint8_t certificate_type,
+                                                uint8_t certificate_index,
+                                                const uint8_t *buffer,
+                                                uint32_t certificate_length);
+sl_status_t sli_wifi_set_certificate(uint8_t certificate_type, const uint8_t *buffer, uint32_t certificate_length);
+sl_status_t sli_wifi_set_transmit_rate(sl_wifi_interface_t interface,
+                                       sl_wifi_rate_protocol_t rate_protocol,
+                                       sl_wifi_rate_t mask);
+sl_status_t sli_wifi_get_transmit_rate(sl_wifi_interface_t interface,
+                                       sl_wifi_rate_protocol_t *rate_protocol,
+                                       sl_wifi_rate_t *mask);
+sl_status_t sli_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t *client_list_count);
+sl_status_t sli_wifi_get_ap_client_list(sl_wifi_interface_t interface,
+                                        uint16_t client_list_count,
+                                        sl_mac_address_t *client_list);
+sl_status_t sli_wifi_generate_wps_pin(sl_wifi_wps_pin_t *wps_pin);
+sl_status_t sli_wifi_start_wps(sl_wifi_interface_t interface,
+                               sl_wifi_wps_mode_t mode,
+                               const sl_wifi_wps_pin_t *optional_wps_pin);
+sl_status_t sli_wifi_set_roam_configuration(sl_wifi_interface_t interface,
+                                            const sl_wifi_roam_configuration_t *roam_configuration);
+sl_status_t sli_wifi_set_advanced_scan_configuration(const sl_wifi_advanced_scan_configuration_t *configuration);
+sl_status_t sli_wifi_get_advanced_scan_configuration(sl_wifi_advanced_scan_configuration_t *configuration);
+sl_status_t sli_wifi_stop_scan(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_get_ap_configuration(sl_wifi_interface_t interface, sl_wifi_ap_configuration_t *configuration);
+sl_status_t sli_wifi_reconfigure_ap(sl_wifi_interface_t interface, sl_wifi_ap_reconfiguration_t config);
+sl_status_t sli_wifi_test_client_configuration(sl_wifi_interface_t interface,
+                                               const sl_wifi_client_configuration_t *ap,
+                                               uint32_t timeout_ms);
+sl_status_t sli_wifi_send_raw_data_frame(sl_wifi_interface_t interface, const void *data, uint16_t data_length);
+sl_status_t sli_wifi_enable_target_wake_time(const sl_wifi_twt_request_t *twt_req);
+sl_status_t sli_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_auto_request);
+sl_status_t sli_wifi_disable_target_wake_time(const sl_wifi_twt_request_t *twt_req);
+sl_status_t sli_wifi_reschedule_twt(uint8_t flow_id,
+                                    sl_wifi_reschedule_twt_action_t twt_action,
+                                    uint64_t suspend_duration);
+sl_status_t sli_wifi_filter_broadcast(uint16_t beacon_drop_threshold,
+                                      uint8_t filter_bcast_in_tim,
+                                      uint8_t filter_bcast_tim_till_next_cmd);
+sl_status_t sli_wifi_update_gain_table(uint8_t band,
+                                       uint8_t bandwidth,
+                                       const uint8_t *payload,
+                                       uint16_t payload_length);
+sl_status_t sli_wifi_update_su_gain_table(uint8_t band,
+                                          uint8_t bandwidth,
+                                          const uint8_t *payload,
+                                          uint16_t payload_length,
+                                          uint8_t x_offset,
+                                          uint8_t y_offset);
+sl_status_t sli_wifi_set_11ax_config(uint8_t guard_interval);
+sl_status_t sli_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval);
+sl_status_t sli_wifi_set_listen_interval_v2(sl_wifi_interface_t interface,
+                                            sl_wifi_listen_interval_v2_t listen_interval);
+sl_status_t sli_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval);
+sl_status_t sli_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
+                                            sl_wifi_listen_interval_v2_t *listen_interval);
+sl_status_t sli_wifi_transceiver_set_channel(sl_wifi_interface_t interface, sl_wifi_transceiver_set_channel_t channel);
+sl_status_t sli_wifi_set_transceiver_parameters(sl_wifi_interface_t interface,
+                                                sl_wifi_transceiver_parameters_t *params);
+sl_status_t sli_wifi_transceiver_up(sl_wifi_interface_t interface, sl_wifi_transceiver_configuration_t *config);
+sl_status_t sli_wifi_send_transceiver_data(sl_wifi_interface_t interface,
+                                           sl_wifi_transceiver_tx_data_control_t *control,
+                                           const uint8_t *payload,
+                                           uint16_t payload_len);
+sl_status_t sli_wifi_update_transceiver_peer_list(sl_wifi_interface_t interface,
+                                                  sl_wifi_transceiver_peer_update_t peer);
+sl_status_t sli_wifi_set_transceiver_multicast_filter(sl_wifi_interface_t interface,
+                                                      sl_wifi_transceiver_mcast_filter_t mcast);
+sl_status_t sli_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
+sl_status_t sli_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *multicast_filter_info);
+/* Function used to update the variable that stores the wifi rate */
+sl_status_t sli_wifi_save_rate(sl_wifi_rate_t transfer_rate);
+sl_status_t sli_wifi_send_command(uint32_t command,
+                                  sli_wifi_command_type_t command_type,
+                                  const void *data,
+                                  uint32_t data_length,
+                                  sli_si91x_wait_period_t wait_period,
+                                  void *sdk_context,
+                                  sl_wifi_buffer_t **data_buffer);
+
+#endif

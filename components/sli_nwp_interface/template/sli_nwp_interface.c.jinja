@@ -1,0 +1,29 @@
+#include "sli_nwp_interface.h"
+ 
+sl_status_t sli_nwp_interface_init(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+ 
+{%- for nwp in interface_mgmt %}
+  status = {{ nwp['init'] }}();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+ 
+{%- endif %}
+  return SL_STATUS_OK;
+}
+ 
+sl_status_t sli_nwp_interface_deinit(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+ 
+{%- for nwp in interface_mgmt %}
+  status = {{ nwp['deinit'] }}();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+ 
+{%- endif %}
+  return SL_STATUS_OK;
+}

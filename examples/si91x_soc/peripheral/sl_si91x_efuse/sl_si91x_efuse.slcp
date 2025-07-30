@@ -1,0 +1,47 @@
+project_name: sl_si91x_efuse
+package: platform_siwx91x_apps
+description: |
+  This application demonstrates how to program the E-Fuse and read from a specified address on the SiWx917 SoC device. 
+category: example|peripheral
+quality: production
+label: SI91X - SL EFUSE
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 4.0.0
+component:
+  - id: sl_main
+  - id: status
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_efuse
+    from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: efuse_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: efuse_example.h
+define:
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+readme:
+  - path: readme.md
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

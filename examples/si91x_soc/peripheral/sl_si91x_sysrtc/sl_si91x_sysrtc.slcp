@@ -1,0 +1,54 @@
+project_name: sl_si91x_sysrtc
+package: platform_siwx91x_apps
+description: |
+  demostrate Sysrtc functionality.
+category: example|peripheral
+quality: production
+label: SI91x - SL_SYSRTC
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 4.0.0
+component:
+  - id: sl_main
+  - id: status
+  - id: sl_sysrtc
+    from: wiseconnect3_sdk
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance: [led0]
+    condition: [device_is_module]
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance: [led1]
+    condition: [device_has_chip]
+    from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: sysrtc_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: sysrtc_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/uc_screen/sysrtc_uc_screen.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/image509d.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+readme:
+  - path: readme.md
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -1,0 +1,15 @@
+#ifndef SLI_NWP_INTERFACE_H
+#define SLI_NWP_INTERFACE_H
+ 
+{# Deduplicate includes before printing #include statements -#}
+{% set includes = [] -%}
+{% for nwp in interface_mgmt -%}
+  {% if 'include' in nwp and nwp['include'] not in includes -%}
+    {% if includes.append(nwp['include']) %}{% endif -%}
+  {% endif -%}
+{% endfor -%}
+{%- for include in includes -%}
+#include "{{include}}"
+{% endfor %}
+ 
+#endif // SLI_NWP_INTERFACE_H

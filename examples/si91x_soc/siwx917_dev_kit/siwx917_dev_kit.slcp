@@ -1,0 +1,134 @@
+project_name: siwx917_dev_kit
+package: platform_siwx91x_apps
+description: 
+   This application demonstrates the features of the SiWx917 Dev Kit Board. This can be tested with the Simplicity Connect mobile app.
+category: Example|Wi-Fi
+quality: production
+label: Wi-Fi - SiWx917 Dev Kit
+sdk:
+   id: simplicity_sdk
+   version:  "2025.6.1"
+sdk_extension:
+-  id: wiseconnect3_sdk
+   version: 4.0.0
+component:
+  - id: sl_main
+  - id: slist
+  - id: freertos
+  - id: freertos_heap_4
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: sl_http_server
+    from: wiseconnect3_sdk
+  - id: json_parser
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: bsd_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_asynchronous_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_wireless
+    from: wiseconnect3_sdk
+  - id: sl_si91x_mem_pool_buffers_with_quota
+    from: wiseconnect3_sdk
+  - instance: [i2c2]
+    from: wiseconnect3_sdk
+    id: i2c_instance
+  - id: sl_veml6035
+    from: wiseconnect3_sdk
+  - id: sl_gpio
+    from: wiseconnect3_sdk
+  - id: sl_icm40627
+    from: wiseconnect3_sdk
+  - id: sl_ssi
+    from: wiseconnect3_sdk
+  - id: ssi_ulp_component
+    from: wiseconnect3_sdk
+  - id: sl_si70xx
+    from: wiseconnect3_sdk
+  - id: sl_si91x_rgb_led_917
+    instance:
+      - red
+      - green
+      - blue
+    from: wiseconnect3_sdk
+  - id: ble
+    from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: ble_app.c
+  - path: wifi_app.c
+  - path: sensor_app.c
+  - path: sensors/humidity_sensor.c
+  - path: sensors/light_sensor.c
+  - path: sensors/motion_sensor.c
+  - path: sensors/rgb_led.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: sensor_app.h
+      - path: ble_config.h
+      - path: wifi_config.h
+  - path: sensors
+    file_list:
+      - path: humidity_sensor.h
+      - path: light_sensor.h
+      - path: motion_sensor.h
+      - path: rgb_led.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+  - name: SLI_SI91X_ENABLE_IPV6
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/readme/connected-prints.png
+  - path: resources/readme/connecting-to-webserver.png
+  - path: resources/readme/create-project.png
+  - path: resources/readme/demo-run.png
+  - path: resources/readme/embedded-sensor-demo-setup.png
+  - path: resources/readme/entering-password.png
+  - path: resources/readme/led-control.png
+  - path: resources/readme/led-selection.png
+  - path: resources/readme/selecting-a-network.png
+  - path: resources/readme/startup-prints.png
+  - path: resources/readme/temperature.png
+  - path: resources/readme/wifi-sensor-device-selection.png
+  - path: resources/readme/wifi-sensors-data.png
+  - path: resources/readme/wifi-sensors-demo.png
+configuration:
+  - name: SL_BOARD_ENABLE_VCOM
+    value: '1'
+  - name: SL_SSI_DEVICE_MODE
+    value: SL_SSI_ULP_MASTER_ACTIVE
+  - name: SL_SPI_BAUD
+    value: '500000'
+  - name: SL_ULP_TIMER_DIRECTION
+    value: '1'
+ui_hints:
+   highlight:
+   -  path: readme.md
+      focus: true
+readme:
+-  path: readme.md
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+filter:
+-  name: Wireless Technology
+   value:
+   - Wi-Fi
+-  name: Project Difficulty
+   value:
+   - Beginner
