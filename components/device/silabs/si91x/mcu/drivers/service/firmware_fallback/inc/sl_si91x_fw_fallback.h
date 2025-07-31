@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file  sli_si91x_fw_fallback.h
+ * @file  sl_si91x_fw_fallback.h
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -39,7 +39,7 @@ extern "C" {
 
 /***************************************************************************/
 /**
- * @addtogroup Firmware_Fallback Firmware Fallback A and B
+ * @addtogroup FIRMWARE-FALLBACK Firmware Fallback A and B
  * @ingroup SI91X_SERVICE_APIS
  * @{
  * 
@@ -84,6 +84,12 @@ extern "C" {
 /** @brief CRC polynomial for slot information. */
 #define CRC32_POLYNOMIAL 0x04C11DB7 ///< This macro defines the polynomial used for CRC32 calculation.
 
+/** @brief Memory value to check for memory match. */
+#define SL_SI91X_MEM_CHECK_VALUE 0xAB11 ///< Memory value to check for memory match
+
+/** @brief M4 updater OTA flag. */
+#define SL_SI91X_M4_UPDATER_OTA_FLAG 0xEF ///< M4 updater OTA flag
+
 // @brief Error codes for SI91x A/B slot and fallback operations.
 #define SL_SI91X_AB_ERR_FLASH_READ        ((sl_status_t)0xAB001) ///< A/B fallback: Flash read operation failed
 #define SL_SI91X_AB_ERR_FLASH_VERIFY      ((sl_status_t)0xAB002) ///< A/B fallback: Flash verification failure
@@ -119,11 +125,14 @@ typedef enum {
 
 /** @brief SI91x-specific A/B fallback command types. */
 typedef enum {
-  SL_SI91X_AB_FALLBACK_WRITE_CMD           = 1, ///< Write firmware data for fallback
-  SL_SI91X_AB_FALLBACK_READ_CMD            = 2, ///< Read firmware data for verification
-  SL_SI91X_AB_FALLBACK_ERASE_CMD           = 3, ///< Erase fallback firmware slot
-  SL_SI91X_AB_FALLBACK_INTEGRITY_CHECK_CMD = 4, ///< Perform integrity check before fallback
-  SL_SI91X_AB_FALLBACK_MAX_CMD             = 5  ///< Maximum fallback command value (for validation)
+  SL_SI91X_AB_FALLBACK_WRITE_CMD             = 1, ///< Write firmware data for fallback
+  SL_SI91X_AB_FALLBACK_READ_CMD              = 2, ///< Read firmware data for verification
+  SL_SI91X_AB_FALLBACK_ERASE_CMD             = 3, ///< Erase fallback firmware slot
+  SL_SI91X_AB_FALLBACK_INTEGRITY_CHECK_CMD   = 4, ///< Perform integrity check before fallback
+  SL_SI91X_AB_FALLBACK_BURN_SECURITY_VERSION = 5, ///< Burn security version
+  SL_SI91X_AB_FALLBACK_LOAD_QSPI_KEYS        = 6, ///< Load QSPI keys
+  SL_SI91X_AB_FALLBACK_SOFT_RESET            = 7, ///< NWP Soft reset for fallback
+  SL_SI91X_AB_FALLBACK_MAX_CMD               = 8  ///< Maximum fallback command value (for validation)
 } sl_si91x_ab_fallback_cmd_t;
 
 /************************** Structures ***************************/
@@ -137,15 +146,29 @@ typedef struct {
 
 /** @brief Firmware update request structure. */
 typedef struct {
-  uint16_t chunk_type;   ///< Header (1) or Data (0)
-  uint16_t sub_command;  ///< Operation type: WRITE (1), READ (2), ERASE (3), INTEGRITY_CHECK (4)
-  uint32_t data_length;  ///< Length of data (for erase, must be a multiple of 4K)
-  uint32_t flash_offset; ///< Flash memory address: M4 -> 0x8000000, NWP -> 0x4000000
-  uint32_t reserved1;    ///< Reserved for future use
-  uint32_t reserved2;    ///< Reserved for future use
+  uint16_t chunk_type;    ///< Header (1) or Data (0)
+  uint16_t sub_command;   ///< Operation type: WRITE (1), READ (2), ERASE (3), INTEGRITY_CHECK (4)
+  uint32_t data_length;   ///< Length of data (for erase, must be a multiple of 4K)
+  uint32_t flash_offset;  ///< Flash memory address: M4 -> 0x8000000, NWP -> 0x4000000
+  uint8_t m4_updater_ota; ///< 0xEF if the updater is M4
+  uint8_t reserved1;      ///< Reserved for future use
+  uint16_t reserved2;     ///< Reserved for future use
+  uint32_t reserved3;     ///< Reserved for future use
   uint8_t data
     [SL_SI91X_MAX_OTA_IMAGE_CHUNK_SIZE]; ///< Data buffer (used for WRITE operation, NULL for READ, ERASE, and INTEGRITY_CHECK)
 } sl_si91x_fw_fallback_request_t;
+
+/** @brief Configuration structure for firmware fallback requests. */
+typedef struct {
+  uint32_t ota_image_data_length;  ///< Length of data (for erase, must be a multiple of 4K)
+  uint32_t ota_image_flash_offset; ///< Flash memory address: M4 -> 0x8000000, NWP -> 0x4000000
+  uint16_t ota_image_chunk_type;   ///< Header (1) or Data (0)
+  uint8_t m4_updater_ota_flag;     ///< 0xEF if the updater is M4
+  uint8_t ota_image_type;          ///< Image type: 0=application, 1=updater
+  uint8_t reserved1;               ///< Reserved for future use
+  uint16_t reserved2;              ///< Reserved for future use
+  uint32_t reserved3;              ///< Reserved for future use
+} sl_si91x_fw_fallback_config_t;
 
 /** @brief Structure for slot information. */
 typedef struct {
@@ -170,7 +193,7 @@ typedef struct {
 
 /** @brief Firmware slot management structure. */
 typedef struct {
-  uint32_t slot_magic_word;           ///< Magic word for slot integrity verification
+  uint32_t slot_magic_word;           ///< Magic word for slot integrity verification (0xA5A5B5B5)
   M4_SlotManagement_t m4_slot_info;   ///< Slot information for M4
   NWP_SlotManagement_t nwp_slot_info; ///< Slot information for NWP
   uint32_t slot_struct_crc;           ///< CRC for the slot information structure
@@ -203,6 +226,21 @@ sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota
   * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
   ******************************************************************************/
 sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32_t length);
+
+/***************************************************************************/ /**
+ *  @fn          sl_status_t sl_si91x_fw_fallback_ota_flash_write(const sl_si91x_fw_fallback_config_t *config, const uint8_t *data_buffer)
+ *  @pre         None
+ *  @brief       Unified flash write function for OTA firmware updates.
+ *               This function handles all flash write operations for OTA firmware updates
+ *               using the provided configuration structure and data buffer.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   config             Pointer to the firmware fallback configuration structure.
+ *  @param[in]   data_buffer        Pointer to the data buffer to write.
+ *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_fw_fallback_ota_flash_write(const sl_si91x_fw_fallback_config_t *config,
+                                                 const uint8_t *data_buffer);
 
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_flash_read(uint32_t address, uint8_t *buffer, uint32_t length)
@@ -341,13 +379,48 @@ sl_status_t sl_si91x_verify_image(uint32_t flash_address);
  ******************************************************************************/
 int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number);
 
+/***************************************************************************/ /**
+ *  @fn          sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
+ *  @pre         None
+ *  @brief       Burns the security version to the flash.
+ *               This function burns the security version to the flash.
+ *               This function will work for A/B fallback feature only and only for NWP Firmware .
+ *  @param[in]   flash_address        Flash address to burn the security version to 
+ *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).  
+ ******************************************************************************/
+sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address);
+
+/***************************************************************************/ /**
+ *  @fn          sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
+ *  @pre         None
+ *  @brief       Requests to load QSPI keys.
+ *               This function requests to load QSPI keys for to enable the inline decryption for M4 slot firmware for fallback.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   flash_address        Flash address to enable the inline decryption for M4 slot firmware for fallback.
+ *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).  
+ ******************************************************************************/
+sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset);
+
+/***************************************************************************/ /**
+ *  @fn          void sl_si91x_nwp_soft_reset_for_fallback(void)
+ *  @pre         None
+ *  @brief       Performs a soft reset of the NWP firmware.
+ *               This function sends a soft reset command to the NWP firmware for fallback.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   None
+ *  @return      None
+ ******************************************************************************/
+void sl_si91x_nwp_soft_reset_for_fallback(void);
+
 /// @} (end addtogroup Firmware_Fallback) */
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
 /***************************************************************************/
 /***************************************************************************/
 /**
- * @addtogroup Firmware_Fallback Firmware Fallback A and B
+ * @addtogroup FIRMWARE-FALLBACK Firmware Fallback A and B
  * @{
  *
  * @details
@@ -434,7 +507,7 @@ int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number);
  * - Provides APIs for seamless integration into application firmware.
  * - Optimizes flash memory usage for firmware storage.
  *
- * @} (end addtogroup Firmware_Fallback)
+ * @} (end addtogroup FIRMWARE-FALLBACK)
  */
 /***************************************************************************/
 

@@ -24,14 +24,6 @@ requires:
     condition:
       - si91x_common_flash
 
-configuration:
-  - name: SL_ENABLE_CALENDAR_WAKEUP_SOURCE
-    value: "1"
-  - name: ENABLE_ALARM
-    value: "1"
-  - name: ALARM_TIME_MSEC
-    value: "30000"
-
 template_contribution:
   - name: console_headers
     value: "rsi_wisemcu_hardware_setup.h"

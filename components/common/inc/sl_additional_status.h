@@ -490,22 +490,35 @@
 
 //FW fallback error codes
 #define SL_STATUS_SI91X_AB_FALLBACK_NOT_ENABLED ((sl_status_t)0x1DD0A) ///< AB fall-back feature is not enabled
+#define SL_STATUS_SI91X_LEGACY_OTA_FEATURE_NOT_SUPPORTED \
+  ((sl_status_t)0x1DD0B) ///< Legacy OTA feature is not supported for fw fallback
 #define SL_STATUS_SI91X_INVALID_ERASE_LENGTH_OR_ADDRESS \
-  ((sl_status_t)0x1DD0C) ///< Invalid erase length or address specified for the operation
+  ((sl_status_t)0x1DD0C) ///< Invalid erase length or address specified for the operation for fw fallback
 #define SL_STATUS_SI91X_INVALID_READ_OR_WRITE_REQUEST \
-  ((sl_status_t)0x1DD0D) ///< The read or write request is invalid or not supported
+  ((sl_status_t)0x1DD0D) ///< The read or write request is invalid or not supported for fw fallback
 #define SL_STATUS_SI91X_INVALID_FLASH_RANGE \
-  ((sl_status_t)0x1DD0E) ///< The specified flash range is invalid or out of bounds
+  ((sl_status_t)0x1DD0E) ///< The specified flash range is invalid or out of bounds for fw fallback
 #define SL_STATUS_SI91X_FLASH_ADDRESS_OUT_OF_BOUNDARY \
-  ((sl_status_t)0x1DD0F) ///< The flash address is out of the allowable boundary
+  ((sl_status_t)0x1DD0F) ///< The flash address is out of the allowable boundary for fw fallback
 #define SL_STATUS_SI91X_INVALID_OPERATION_ON_NWP_ACTIVE_IMAGE \
-  ((sl_status_t)0x1DD10) ///< Operation attempted on an active NWP image which is not allowed
+  ((sl_status_t)0x1DD10) ///< Operation attempted on an active NWP image which is not allowed for fw fallback
 #define SL_STATUS_SI91X_MAX_INPUT_LENGTH_EXCEED_1K_SIZE \
-  ((sl_status_t)0x1DD11) ///< The input length exceeds the maximum allowed size of 1KB
+  ((sl_status_t)0x1DD11) ///< The input length exceeds the maximum allowed size of 1KB for fw fallback
 #define SL_STATUS_SI91X_INVALID_FW_ROLLBACK_SUBCOMMAND \
   ((sl_status_t)0x1DD12) ///< The sub-command for firmware fallback is invalid
 #define SL_STATUS_SI91X_INVALID_CONFIG_FOR_FW_ROLLBACK \
   ((sl_status_t)0x1DD13) ///< The configuration for firmware fallback is invalid, applicable for 8MB SoC common-flash
+#define SL_STATUS_SI91X_FW_DOWNGRADE_NOT_ALLOWED \
+  ((sl_status_t)0x1DD14) ///< The NWP firmware downgrade is not allowed for fw fallback
+#define SL_STATUS_SI91X_ANTIROLLBACK_IS_NOT_ENABLED \
+  ((sl_status_t)0x1DD15) ///< Anti-rollback feature is not enabled for firmware fallback
+#define SL_STATUS_SI91X_INVALID_REQUEST_TO_LOAD_QSPI_KEYS \
+  ((sl_status_t)0x1DD16) ///< Invalid request to load QSPI keys for fw fallback
+#define SL_STATUS_SI91X_INVALID_OPERATION_ON_M4_UPDATER_IMAGE \
+  ((sl_status_t)0x1DD17) ///< Invalid operation on M4 updater image for fw fallback
+#define SL_SI91X_DEVICE_AND_OTA_IMAGE_SECURITY_MISMATCH \
+  ((sl_status_t)0x1DD18) ///< Device security and OTA image security mismatch for fw fallback
+//Fw fallback error codes end
 
 #define SL_STATUS_SI91X_FW_UP_CORRUPTED_RPS_HEADER \
   ((sl_status_t)0x1DD49) ///< Corrupted RPS header encountered or Received empty RPS file(no data) during firmware update.

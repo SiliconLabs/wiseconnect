@@ -2041,6 +2041,36 @@
     <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_littlefs_file_operations/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
+<descriptors name="sl_si91x_m4_updater" label="SOC M4-FW FALLBACK UPDATER" description="M4 firmware updater for SOC FW Fallback example">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_m4_updater/sl_si91x_m4_updater.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y121mgnb.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_m4_updater/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="sl_si91x_m4_updater_security" label="SOC M4-FW FALLBACK UPDATER SECURITY" description="M4 firmware security updater for SOC FW Fallback example">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_m4_updater_security/sl_si91x_m4_updater_security.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y121mgnb.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_m4_updater_security/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Advanced"/>
+  </descriptors>
 <descriptors name="sl_si91x_mic" label="SL Si91x - Mic" description="Demonstrates the use of Mic Driver.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -2430,6 +2460,36 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_sleeptimer/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_slot_a_fw" label="SOC FW FALLBACK SLOT-A FW" description="Wirelessly updates the M4 firmware from a remote TCP server">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_slot_a_fw/sl_si91x_slot_a_fw.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y121mgnb.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_slot_a_fw/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="sl_si91x_slot_b_fw" label="SOC FW FALLBACK SLOT-B FW" description="Wirelessly updates the M4 firmware from a remote TCP server">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_slot_b_fw/sl_si91x_slot_b_fw.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd2605a brd2911a brd2708a brd4338a brd4342a brd4340a brd4343a brd4343b brd4339b brd4340b brd4343q"/>
+    <properties key="partCompatibility" value=" .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917y111mgab.* .*siwg917y121mgnb.* .*siwg917y111mgnba.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.* .*siwg917y110lgnba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/soc_fw_fallback/sl_si91x_slot_b_fw/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Advanced"/>
   </descriptors>
 <descriptors name="sl_si91x_ssi_master" label="SL Si91x - SSI Master" description="Demonstrates how to to use SSI Master.">
     <properties key="namespace" value="template.uc"/>

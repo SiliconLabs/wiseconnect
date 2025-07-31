@@ -685,6 +685,58 @@ typedef struct {
 } sl_wifi_max_tx_power_t;
 
 /**
+ * @struct sl_wifi_rts_threshold_t
+ * @brief Wi-Fi Request to Send (RTS) threshold structure.
+ * 
+ * This structure is used to configure the RTS threshold for Wi-Fi operations.
+ * 
+ * Members:
+ * - rts_threshold: RTS threshold in bytes. The device performs an RTS/CTS handshake when the packet size exceeds the threshold.
+ * - reserved: Reserved fields for future use, should be set to zero.
+ * 
+ */
+typedef struct {
+  uint16_t rts_threshold; ///< Request to Send (RTS) threshold in bytes
+  uint8_t reserved[2];    ///< Reserved fields
+} sl_wifi_rts_threshold_t;
+
+/**
+ * @enum sl_wifi_mfp_mode_t
+ * @brief Wi-Fi Management Frame Protection (MFP) mode enumeration.
+ *
+ * This enumeration defines the modes for Management Frame Protection (MFP) in Wi-Fi.
+ * MFP is used to protect management frames from spoofing and other attacks.
+ * The modes are:
+ * - SL_WIFI_MFP_DISABLED: MFP is disabled (0b00)
+ * - SL_WIFI_MFP_CAPABLE: MFP is capable/optional (0b01)
+ * - SL_WIFI_MFP_REQUIRED: MFP is required/mandatory (0b10)
+ * 
+ */
+typedef enum {
+  SL_WIFI_MFP_DISABLED = 0, ///< MFP disabled (0b00)
+  SL_WIFI_MFP_CAPABLE  = 1, ///< MFP capable/optional (0b01)
+  SL_WIFI_MFP_REQUIRED = 2  ///< MFP required/mandatory (0b10)
+} sl_wifi_mfp_mode_t;
+
+/**
+ * @struct sl_wifi_mfp_config_t
+ * @brief Wi-Fi Management Frame Protection (MFP) configuration structure.
+ *
+ * This structure is used to configure the MFP mode for Wi-Fi operations.
+ * It includes the MFP mode and a flag indicating whether the MFP mode is explicitly configured or automatically detected.
+ * Members:
+ * - mfp_mode: MFP mode setting of type @ref sl_wifi_mfp_mode_t
+ * - is_configured: True if MFP mode is explicitly configured, false for automatic detection.
+ * - reserved: Reserved for future use and alignment.
+ * 
+ */
+typedef struct {
+  sl_wifi_mfp_mode_t mfp_mode; ///< MFP mode setting of type @ref sl_wifi_mfp_mode_t
+  bool is_configured;          ///< True if MFP mode is explicitly configured, false for automatic detection
+  uint8_t reserved[2];         ///< Reserved for future use and alignment
+} sl_wifi_mfp_config_t;
+
+/**
  * @struct sl_wifi_async_stats_response_t
  * @brief Structure representing asynchronous Wi-Fi statistics response.
  *

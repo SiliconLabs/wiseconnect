@@ -231,6 +231,15 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
       // Assign callback handler with null
       *usart_handle = NULL;
     }
+
+#ifdef DEBUG_UART_UC
+    // Check the USART instance is already used for Debug output
+    if (SL_DEBUG_INSTANCE == usart_instance) {
+      status = SL_STATUS_NOT_AVAILABLE;
+      break;
+    }
+#endif
+
     // Get the USART Init state
     if (USART_GetInitState(usart_instance)) {
       status = SL_STATUS_BUSY;

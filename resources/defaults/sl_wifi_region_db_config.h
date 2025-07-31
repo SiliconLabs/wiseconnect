@@ -34,7 +34,7 @@ const sli_si91x_set_region_ap_request_t default_US_region_2_4GHZ_configurations 
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "US ",
   .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 11, .max_tx_power = 27 }
+  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 11, .max_tx_power = 30 }
 };
 
 const sli_si91x_set_region_ap_request_t default_US_region_5GHZ_configurations = {

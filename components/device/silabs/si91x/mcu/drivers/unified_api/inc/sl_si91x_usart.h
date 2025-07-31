@@ -43,6 +43,9 @@ extern "C" {
 #include "rsi_rs485.h"
 #include "sl_rs485_board.h"
 #endif
+#ifdef DEBUG_UART_UC
+#include "sl_si91x_debug_uc_config.h"
+#endif
 /***************************************************************************/ /**
 * @addtogroup USART USART
 * @ingroup SI91X_PERIPHERAL_APIS
@@ -332,7 +335,10 @@ typedef struct {
  *         - SL_STATUS_OK  - Success, UART/USART initialization done properly.
  *         - SL_STATUS_FAIL  - Function failed, UART/USART initialization failed.
  *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_NOT_AVAILABLE  - The UART/USART instance is not available (see note below).
  * 
+ * @note
+ *   If the desired usart_instance is dedicated for debug output logs in Debug UC, it cannot be used for other communication. In this case, initialization will return SL_STATUS_NOT_AVAILABLE.
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_handle_t *usart_handle);

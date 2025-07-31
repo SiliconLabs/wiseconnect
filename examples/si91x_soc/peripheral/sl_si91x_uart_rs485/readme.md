@@ -35,7 +35,8 @@
 
 ## About Example Code
 
-- The UART is initialized using the API [sl_si91x_usart_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init).
+- In this example, first UART gets initialized if it is not initialized already with clock and DMA configurations if DMA is enabled using  [sl_si91x_usart_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init).  
+**Note:** If the UART/USART instance is already selected for debug output logs, initialization will return `SL_STATUS_NOT_AVAILABLE`.
 - After initialization, the UART is configured with default settings from the Universal Configuration (UC), including the UART transmit and receive lines, using the API [sl_si91x_usart_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-configuration).
 - RS485 mode is initialized and configured using the APIs [sl_si91x_uart_rs485_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-init) and [sl_si91x_uart_rs485_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-set-configuration).
 - The Driver Enable (DE) and Receiver Enable (~RE) signals are activated using the APIs [sl_si91x_uart_rs485_de_enable](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-de-enable) and [sl_si91x_uart_rs485_re_enable](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-uart-rs485-re-enable).

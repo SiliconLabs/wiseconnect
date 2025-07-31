@@ -40,6 +40,7 @@ component:
     from: wiseconnect3_sdk
 define:
   - name: SL_SI91X_ULP_STATE_ENABLE
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
 template_contribution:
   - name: user_files_ps2
     value: ulp_i2c_leader_example.o

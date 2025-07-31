@@ -185,11 +185,11 @@ sl_status_t sl_si91x_sdc_init(void)
 sl_status_t sl_si91x_sdc_deinit(void)
 {
 
+  sl_si91x_sdc_interrupt_clear();
+
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.SDCSS_CLK_SEL_b       = 0x00; //SDC clock selection enable (01-RC_32MHz,10-HF_RO clock)
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.SDCSS_CLK_EN_b        = 0x00; //To enable dynamic clock for SDC
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.SDCSS_STATIC_CLK_EN_b = 0x00; //To enable static clock for SDC
-
-  sl_si91x_sdc_interrupt_clear();
 
   NVIC_DisableIRQ(NPSS_TO_MCU_SDC_INTR_IRQn);
 

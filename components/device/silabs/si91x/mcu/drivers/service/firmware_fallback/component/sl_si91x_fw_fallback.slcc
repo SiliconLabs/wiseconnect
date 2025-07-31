@@ -1,8 +1,8 @@
-id: firmware_fallback
-label: firmware_fallback
+id: sl_si91x_fw_fallback
+label: Firmware Fallback
 package: platform
 description: >
-  Si91x firmware_fallback Hub API. 
+  Si91x Firmware Fallback Hub API.
 category: Device|Si91x|MCU|Service
 quality: production
 metadata:
@@ -14,6 +14,6 @@ source:
 include:
   - path: "inc"
     file_list:
-    - path: "sl_si91x_fw_fallback.h"
+      - path: "sl_si91x_fw_fallback.h"
 provides:
   - name: sl_si91x_fw_fallback

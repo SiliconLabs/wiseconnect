@@ -38,11 +38,7 @@
 #include "sl_component_catalog.h"
 #endif /* SL_COMPONENT_CATALOG_PRESENT */
 #ifdef DEBUG_UART_UC
-#ifndef SL_SI91X_ULP_UART
-#include "sl_si91x_debug_uc_1_config.h"
-#else
-#include "sl_si91x_debug_uc_2_config.h"
-#endif
+#include "sl_si91x_debug_uc_config.h"
 #endif
 #ifdef SL_CATALOG_SI91X_IOSTREAM_PRINTS_PRESENT
 #include "sl_iostream.h"

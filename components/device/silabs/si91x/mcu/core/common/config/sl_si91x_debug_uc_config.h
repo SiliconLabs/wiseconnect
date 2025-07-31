@@ -1,9 +1,9 @@
 /***************************************************************************/ /**
- * @file sl_si91x_debug_uc_1_config.h
+ * @file sl_si91x_debug_uc_config.h
  * @brief Debug configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_SI91X_DEBUG_UC_1_CONFIG_H
-#define SL_SI91X_DEBUG_UC_1_CONFIG_H
+#ifndef SL_SI91X_DEBUG_UC_CONFIG_H
+#define SL_SI91X_DEBUG_UC_CONFIG_H
 
 /******************************* Debug UART Configuration **************************/
 // <<< Use Configuration Wizard in Context Menu >>>
@@ -45,11 +45,11 @@
 #undef DEBUG_UART
 #endif
 
-#define SL_M4_USART0_INSTANCE 1
-#define SL_M4_UART1_INSTANCE  2
-#define SL_ULP_UART_INSTANCE  3
+#define SL_M4_USART0_INSTANCE 0
+#define SL_M4_UART1_INSTANCE  1
+#define SL_ULP_UART_INSTANCE  2
 
-// <o SL_DEBUG_INSTANCE> Instance
+// <o SL_DEBUG_INSTANCE> Instance (Select TX/RX pins from chosen component)
 //   <SL_M4_USART0_INSTANCE=> UART0/USART0
 //   <SL_M4_UART1_INSTANCE=> UART1
 //   <SL_ULP_UART_INSTANCE=> ULP UART
@@ -64,4 +64,17 @@
 // </h>
 // <<< end of configuration section >>>
 
-#endif /* SL_SI91X_DEBUG_UC_1_CONFIG_H */
+// If Debug UC configuration is enabled, the following dependency checks are
+// performed
+#if (DEBUG_UART_ENABLE == 1) && (SL_DEBUG_INSTANCE == SL_ULP_UART_INSTANCE) && !defined(ULP_UART_MODULE)
+#warning \
+  "Configuration Error: ULP_UART component is required when Debug Configuration is set to ULP_UART. Please ensure ULP_UART is installed."
+#elif (DEBUG_UART_ENABLE == 1) && (SL_DEBUG_INSTANCE == SL_M4_USART0_INSTANCE) && !defined(USART_MODULE)
+#warning \
+  "Configuration Error: USART component is required when Debug Configuration is set to UART0/USART0. Please ensure USART is installed."
+#elif (DEBUG_UART_ENABLE == 1) && (SL_DEBUG_INSTANCE == SL_M4_UART1_INSTANCE) && !defined(UART_MODULE)
+#warning \
+  "Configuration Error: UART component is required when Debug Configuration is set to UART1. Please ensure UART1 is installed."
+#endif
+
+#endif /* SL_SI91X_DEBUG_UC_CONFIG_H */

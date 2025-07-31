@@ -205,6 +205,16 @@ static sl_wifi_max_tx_power_t wifi_max_tx_power = {
   .join_tx_power = 0x1f, //Default power value set to max value supported in dBm
 };
 
+// This value will be used in set RTS threshold command to set the RTS threshold of the module
+static sl_wifi_rts_threshold_t wifi_rts_threshold = {
+  .rts_threshold = SLI_RTS_THRESHOLD // Default RTS threshold value
+};
+
+// This value will be used in set MFP mode command to set the MFP mode of the module
+static sl_wifi_mfp_config_t wifi_mfp_config = { .mfp_mode      = SL_WIFI_MFP_DISABLED,
+                                                .is_configured = false,
+                                                .reserved      = { 0 } };
+
 static sl_wifi_rate_t saved_wifi_data_rate = SL_WIFI_AUTO_RATE;
 
 static sl_wifi_ap_configuration_t ap_configuration;
@@ -715,6 +725,21 @@ void sli_save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power)
   wifi_max_tx_power.join_tx_power = max_join_tx_power;
 }
 
+void sli_save_rts_threshold(uint16_t rts_threshold)
+{
+  wifi_rts_threshold.rts_threshold = rts_threshold;
+}
+
+sl_status_t sli_save_mfp_mode(const sl_wifi_mfp_config_t *config)
+{
+  if (config == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  wifi_mfp_config.mfp_mode      = config->mfp_mode;
+  wifi_mfp_config.is_configured = true;
+  return SL_STATUS_OK;
+}
+
 sl_wifi_max_tx_power_t sli_get_max_tx_power()
 {
   return wifi_max_tx_power;
@@ -724,6 +749,16 @@ void sli_reset_max_tx_power()
 {
   wifi_max_tx_power.scan_tx_power = 0x1f;
   wifi_max_tx_power.join_tx_power = 0x1f;
+}
+
+sl_wifi_rts_threshold_t sli_get_rts_threshold()
+{
+  return wifi_rts_threshold;
+}
+
+sl_wifi_mfp_config_t sli_get_mfp_mode()
+{
+  return wifi_mfp_config;
 }
 
 void sli_set_card_ready_required(bool card_ready_required)

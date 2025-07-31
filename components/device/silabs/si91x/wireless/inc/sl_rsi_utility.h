@@ -156,8 +156,20 @@ bool sli_get_card_ready_required();
 /* Function used to set the maximum transmission power */
 void sli_save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power);
 
+/* Function used to set the RTS threshold */
+void sli_save_rts_threshold(uint16_t rts_threshold);
+
+/* Function used to save the MFP mode */
+sl_status_t sli_save_mfp_mode(const sl_wifi_mfp_config_t *mfp_config);
+
 /* Function used to get maximum transmission power */
 sl_wifi_max_tx_power_t sli_get_max_tx_power();
+
+/* Function used to get RTS threshold */
+sl_wifi_rts_threshold_t sli_get_rts_threshold();
+
+/* Function used to get MFP mode */
+sl_wifi_mfp_config_t sli_get_mfp_mode();
 
 /* Function used to set maximum transmission power to default value(31 dBm) */
 void sli_reset_max_tx_power();

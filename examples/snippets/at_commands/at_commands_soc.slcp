@@ -82,6 +82,12 @@ configuration:
     value: "1"
   - name: NVM3_DEFAULT_MAX_OBJECT_SIZE
     value: '280'
+  - name: SL_ENABLE_CALENDAR_WAKEUP_SOURCE
+    value: "1"
+  - name: ENABLE_ALARM
+    value: "1"
+  - name: ALARM_TIME_MSEC
+    value: "30000"
 readme:
   - path: readme.md
 other_file:

@@ -349,7 +349,7 @@ STATIC INLINE void RSI_CT_ClearControl(RSI_CT_T *pCT, uint32_t value)
  */
 STATIC INLINE void RSI_CT_StartEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
-  pCT->CT_START_COUNTER_EVENT_SEL |= value;
+  pCT->CT_START_COUNTER_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -631,7 +631,7 @@ STATIC INLINE void RSI_CT_OutputEventConfig(RSI_CT_T *pCT, uint32_t andValue, ui
 STATIC INLINE void RSI_CT_StopEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to stop
-  pCT->CT_STOP_COUNTER_EVENT_SEL |= value;
+  pCT->CT_STOP_COUNTER_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -648,7 +648,7 @@ STATIC INLINE void RSI_CT_StopEventSelect(RSI_CT_T *pCT, uint32_t value)
 STATIC INLINE void RSI_CT_ContinueEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to continue
-  pCT->CT_CONTINUE_COUNTER_EVENT_SEL |= value;
+  pCT->CT_CONTINUE_COUNTER_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -665,7 +665,7 @@ STATIC INLINE void RSI_CT_ContinueEventSelect(RSI_CT_T *pCT, uint32_t value)
 STATIC INLINE void RSI_CT_HaltEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to Halt
-  pCT->CT_HALT_COUNTER_EVENT_SEL |= value;
+  pCT->CT_HALT_COUNTER_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -682,7 +682,7 @@ STATIC INLINE void RSI_CT_HaltEventSelect(RSI_CT_T *pCT, uint32_t value)
 STATIC INLINE void RSI_CT_IncrementEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to Increment
-  pCT->CT_INCREMENT_COUNTER_EVENT_SEL |= value;
+  pCT->CT_INCREMENT_COUNTER_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -699,7 +699,7 @@ STATIC INLINE void RSI_CT_IncrementEventSelect(RSI_CT_T *pCT, uint32_t value)
 STATIC INLINE void RSI_CT_CaptureEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to capture
-  pCT->CT_CAPTURE_COUNTER_EVENT_SEL |= value;
+  pCT->CT_CAPTURE_COUNTER_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -716,7 +716,7 @@ STATIC INLINE void RSI_CT_CaptureEventSelect(RSI_CT_T *pCT, uint32_t value)
 STATIC INLINE void RSI_CT_OutputEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to output event
-  pCT->CT_OUTPUT_EVENT_SEL |= value;
+  pCT->CT_OUTPUT_EVENT_SEL = value;
 }
 
 /*===================================================*/
@@ -733,7 +733,7 @@ STATIC INLINE void RSI_CT_OutputEventSelect(RSI_CT_T *pCT, uint32_t value)
 STATIC INLINE void RSI_CT_InterruptEventSelect(RSI_CT_T *pCT, uint32_t value)
 {
   // Event number to interrupt
-  pCT->CT_INTR_EVENT_SEL |= value;
+  pCT->CT_INTR_EVENT_SEL = value;
 }
 
 /*===================================================*/
