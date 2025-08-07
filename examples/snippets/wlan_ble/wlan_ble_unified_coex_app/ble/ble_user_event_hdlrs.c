@@ -3220,6 +3220,12 @@ void rsi_ble_simple_peripheral_on_remote_features_event(uint16_t status, void *e
       }
     }
   }
+  if (ble_confgs.ble_conn_configuration[ble_conn_id].buff_mode_sel.buffer_mode) {
+    status = rsi_ble_set_data_len(rsi_ble_conn_info[ble_conn_id].rsi_connected_dev_addr, MAX_MTU_SIZE, TX_TIME);
+    if (status != RSI_SUCCESS) {
+      LOG_PRINT("\r\n set data len failed with error code %x -conn%d \r\n", status, ble_conn_id);
+    }
+  }
 }
 
 /*==============================================*/

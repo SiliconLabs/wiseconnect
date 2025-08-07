@@ -62,7 +62,8 @@ uint8_t ascii_to_dec(uint8_t *num);
 #define RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST 1
 #define RSI_BLE_MTU_EXCHANGE_FROM_HOST          1
 #define MAX_MTU_SIZE                            240
-#define UPDATE_CONN_PARAMETERS                  0 //! To update connection parameters of remote central connection
+#define TX_TIME                                 0x0780 //! 1920ms
+#define UPDATE_CONN_PARAMETERS                  0      //! To update connection parameters of remote central connection
 #define MITM_ENABLE                             1
 #define RSI_BLE_MAX_CHAR_DESCRIPTORS            5
 #define RSI_MAX_PROFILE_CNT                     8
@@ -81,11 +82,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 #define BLE_DYNAMIC_BUFF_CONFIGURATION_BASED_ON_INTERVAL 0
 
 //! BLE Tx Power Index On Air
-#ifdef SLI_SI915
-#define RSI_BLE_PWR_INX 75 //  HP chain for Si915
-#else
 #define RSI_BLE_PWR_INX 30
-#endif
 
 /*#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20

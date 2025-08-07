@@ -163,7 +163,7 @@ typedef struct {
   uint32_t ota_image_data_length;  ///< Length of data (for erase, must be a multiple of 4K)
   uint32_t ota_image_flash_offset; ///< Flash memory address: M4 -> 0x8000000, NWP -> 0x4000000
   uint16_t ota_image_chunk_type;   ///< Header (1) or Data (0)
-  uint8_t m4_updater_ota_flag;     ///< 0xEF if the updater is M4
+  uint8_t m4_updater_ota_flag;     ///< 0xEF if the M4 updater is used for OTA update
   uint8_t ota_image_type;          ///< Image type: 0=application, 1=updater
   uint8_t reserved1;               ///< Reserved for future use
   uint16_t reserved2;              ///< Reserved for future use
@@ -382,10 +382,11 @@ int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number);
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
  *  @pre         None
- *  @brief       Burns the security version to the flash.
- *               This function burns the security version to the flash.
- *               This function will work for A/B fallback feature only and only for NWP Firmware .
- *  @param[in]   flash_address        Flash address to burn the security version to 
+ *  @brief       Burns the NWP security version to OTP memory.
+ *               This function reads the security version from the NWP firmware at the specified
+ *               flash address and burns it into the One-Time Programmable (OTP) memory.
+ *               This function will work for A/B fallback feature only and only for NWP Firmware.
+ *  @param[in]   flash_address        Flash address of the NWP firmware to extract security version.
  *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).  
  ******************************************************************************/
@@ -397,7 +398,7 @@ sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address);
  *  @brief       Requests to load QSPI keys.
  *               This function requests to load QSPI keys for to enable the inline decryption for M4 slot firmware for fallback.
  *               This function will work for A/B firmware only.
- *  @param[in]   flash_address        Flash address to enable the inline decryption for M4 slot firmware for fallback.
+ *  @param[in]   image_offset         Offset of the image to load the QSPI keys to enable inline decryption for M4 slot firmware for fallback.
  *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).  
  ******************************************************************************/
@@ -405,12 +406,10 @@ sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset);
 
 /***************************************************************************/ /**
  *  @fn          void sl_si91x_nwp_soft_reset_for_fallback(void)
- *  @pre         None
  *  @brief       Performs a soft reset of the NWP firmware.
- *               This function sends a soft reset command to the NWP firmware for fallback.
+ *               This function sends a soft reset command to the NWP firmware for fallback and keep the NWP
+ *               firmware in the boot mode.
  *               This function will work for A/B firmware only.
- *  @param[in]   None
- *  @return      None
  ******************************************************************************/
 void sl_si91x_nwp_soft_reset_for_fallback(void);
 
@@ -490,13 +489,54 @@ void sl_si91x_nwp_soft_reset_for_fallback(void);
  *    the system must be reset to load the newly activated firmware. 
  *    This function should not be part of the regular update process and 
  *    should only be used when both slots contain valid firmware images.
+ * 
+ * 
+ * 8. **Burning NWP security version**:  
+ *    Use @ref sl_si91x_burn_nwp_security_version to burn the NWP security version to OTP memory.
+ *    This step is critical for enforcing firmware security on the NWP (Network Wireless Processor).
+ *    Burning the security version to OTP (One-Time Programmable) memory ensures that only firmware images
+ *    with a security version equal to or greater than the burned value can be executed. This mechanism
+ *    prevents rollback attacks by disallowing the loading of older, potentially vulnerable firmware versions.
+ *    This operation is irreversible and should be performed with caution, typically after a successful
+ *    firmware update or when upgrading the device's security requirements.
+ * 
+ * 9. **Loading QSPI keys for inline decryption**:  
+ *    Use @ref sl_si91x_fallback_load_qspi_keys to load the QSPI keys for
+ *    enabling inline decryption for M4 slot applications during fallback.
+ *    This function is essential when firmware images are stored in encrypted form in QSPI flash.
+ *    Loading the QSPI keys allows the hardware to transparently decrypt firmware as it is read and executed,
+ *    ensuring both security and performance. This step should be performed before attempting to boot or
+ *    validate encrypted firmware images, and the keys must be securely provisioned and managed.
+ * 
+ * 10. **Soft reset for NWP firmware**:  
+ *    Use @ref sl_si91x_nwp_soft_reset_for_fallback to perform a soft reset of the NWP firmware for fallback
+ *    and keep the NWP firmware in boot mode.
+ *    This function is typically used after updating or recovering the NWP firmware, ensuring that the NWP
+ *    restarts cleanly and enters a known state. Keeping the NWP in boot mode allows for further maintenance
+ *    operations, such as additional firmware updates, diagnostics, or recovery actions, before normal
+ *    operation resumes. This step is important for robust fallback and recovery workflows.
+ * 
+ * 11. **Default NWP firmware selection**:  
+ *    Use @ref sl_si91x_select_default_nwp_fw to select the default NWP firmware image to load.
+ *    This API allows you to specify which NWP (Network Wireless Processor) firmware slot (A or B)
+ *    should be used as the default on the next boot. The function takes a firmware image number
+ *    as input (0 for slot A, 1 for slot B) and updates the boot configuration accordingly.
+ *    This is particularly useful for scenarios where you want to manually control which firmware
+ *    version is active, such as after a successful OTA update, for testing a new firmware image,
+ *    or for recovery purposes if the current firmware is not functioning as expected.
+ *    The function returns 0 on success, a negative value if the command fails.
  *
- * 8. **Executing the firmware from the active slot**:  
+ * 12. **Executing the firmware from the active slot**:  
  *    Use @ref sl_si91x_jump_to_m4_application to execute the firmware from the currently 
  *    active slot. This function is primarily used by the M4 Updater to branch 
  *    to the appropriate application after reading slot information. 
  *    It transfers control from the updater to the main application, completing the boot process. This step ensures the system boots into the correct firmware version.
  *
+ * The following three APIs are required only when full encryption is enabled:
+ *  - @ref sl_si91x_burn_nwp_security_version
+ *  - @ref sl_si91x_fallback_load_qspi_keys
+ *  - @ref sl_si91x_nwp_soft_reset_for_fallback
+ * 
  * By following these steps, the Firmware Fallback feature ensures a seamless and reliable firmware update process, with mechanisms for recovery and fallback in case of failures. This design minimizes downtime and ensures the device remains operational even in the event of update issues.
  *
  * @section Firmware_Fallback_Benefits Benefits

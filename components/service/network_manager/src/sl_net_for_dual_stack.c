@@ -481,6 +481,11 @@ static sl_status_t sli_set_sta_link_up_by_profile_mode(sl_net_wifi_client_profil
 
 static void set_sta_link_down(void)
 {
+#if LWIP_IPV4 && LWIP_DHCP
+  SL_DEBUG_LOG("DHCP Link down\n");
+  dhcp_stop(&(wifi_client_context->netif));
+#endif /* LWIP_IPV4 && LWIP_DHCP */
+
   netifapi_netif_set_link_down(&(wifi_client_context->netif));
   netifapi_netif_set_down(&(wifi_client_context->netif));
 }
@@ -491,7 +496,6 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
                                     sl_net_event_handler_t event_handler)
 {
   UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(context);
   sl_status_t status = SL_STATUS_FAIL;
 
   // Validate opermode flags for mutual exclusivity of bypass mode and dual stack mode
@@ -518,8 +522,11 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
   }
 
   wifi_client_context = context;
-  tcpip_init(NULL, NULL);
-  sta_netif_config();
+  // Initialize LwIP stack and netif only if not in offload-only mode
+  if (dual_mode_enabled || bypass_mode_enabled) {
+    tcpip_init(NULL, NULL);
+    sta_netif_config();
+  }
 
   return SL_STATUS_OK;
 }
@@ -527,13 +534,18 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  struct sys_timeo **list_head = NULL;
 
-  //! Free all timers
-  for (int i = 0; i < lwip_num_cyclic_timers; i++) {
-    list_head = sys_timeouts_get_next_timeout();
-    if (*list_head != NULL)
-      sys_untimeout((*list_head)->h, (*list_head)->arg);
+  if (dual_mode_enabled || bypass_mode_enabled) {
+    struct sys_timeo **list_head = NULL;
+
+    //! Free all timers
+    for (int i = 0; i < lwip_num_cyclic_timers; i++) {
+      list_head = sys_timeouts_get_next_timeout();
+      if (*list_head != NULL)
+        sys_untimeout((*list_head)->h, (*list_head)->arg);
+    }
+
+    netif_remove(&(wifi_client_context->netif));
   }
 
   return sl_wifi_deinit();
@@ -573,9 +585,10 @@ sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
 
-  // Set the link down for LWIP interface (includes DHCP cleanup)
-  set_sta_link_down();
-
+  if (dual_mode_enabled || bypass_mode_enabled) {
+    // Set the link down for LWIP interface (includes DHCP cleanup)
+    set_sta_link_down();
+  }
   // Reset DHCP type
   dhcp_type[SLI_SI91X_CLIENT] = SL_IP_MANAGEMENT_DHCP;
 
@@ -592,6 +605,10 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
   UNUSED_PARAMETER(workspace);
   sl_status_t status = SL_STATUS_FAIL;
 
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   // Set the user-defined event handler for AP mode
   sl_si91x_register_event_handler(event_handler);
 
@@ -603,6 +620,11 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sl_wifi_deinit();
 }
 
@@ -611,6 +633,10 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
   UNUSED_PARAMETER(interface);
   sl_status_t status;
   sl_net_wifi_ap_profile_t profile;
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
 
   status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
@@ -638,16 +664,30 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
 }
 
 sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
 {
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sli_si91x_send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_JOIN);
 }
 
 sl_status_t sl_net_leave_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
 {
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sli_si91x_send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_LEAVE);
 }
 
@@ -691,6 +731,11 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
                                         const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
                                         sl_ip_address_t *sl_ip_address)
 {
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   // Check for a NULL pointer for sl_ip_address
   SL_WIFI_ARGS_CHECK_NULL_POINTER(sl_ip_address);
 
@@ -734,6 +779,11 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
 sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, const sl_net_dns_address_t *address)
 {
   UNUSED_PARAMETER(interface);
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   sl_status_t status                                  = 0;
   sli_dns_server_add_request_t dns_server_add_request = { 0 };
 
@@ -800,6 +850,10 @@ sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
   uint8_t vap_id                   = 0;
   sl_net_ip_configuration_t config = { 0 };
 
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   if (SL_NET_WIFI_CLIENT_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
     vap_id                      = SL_SI91X_WIFI_CLIENT_VAP_ID;
     dhcp_type[SLI_SI91X_CLIENT] = ip_config->mode;
@@ -819,6 +873,10 @@ sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_addres
   uint8_t vap_id                      = 0;
   sl_status_t status                  = 0;
   sl_net_ip_configuration_t ip_config = { 0 };
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
 
   if (SL_NET_WIFI_CLIENT_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
     vap_id           = SL_SI91X_WIFI_CLIENT_VAP_ID;

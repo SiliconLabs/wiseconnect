@@ -861,6 +861,21 @@ void RSI_OPAMP_InstrAMP(uint8_t vin_p_sel,
 
 /*==============================================*/
 /**   
+ * @fn          void RSI_OPAMP_Instrumentation_Amplifier(uint32_t channel, const OPAMP_CONFIG_T *Config)
+ * @brief       This API is used to configure all three OPAMPs (OPAMP1, OPAMP2, and OPAMP3) for instrumentation amplifier operation
+ * @param[in]   channel : channel number to set in dynamic mode           
+ * @param[in]   Config  : pointer to OPAMP configuration structure containing settings for all three OPAMPs                       
+ * @return      none
+ */
+void RSI_OPAMP_Instrumentation_Amplifier(uint32_t channel, const OPAMP_CONFIG_T *Config)
+{
+  RSI_OPAMP1_Config(OPAMP, channel, Config);
+  RSI_OPAMP2_Config(OPAMP, channel, Config);
+  RSI_OPAMP3_Config(OPAMP, channel, Config);
+}
+
+/*==============================================*/
+/**   
  * @fn          void RSI_OPAMP1_Config(OPAMP_type *Opamp, uint32_t channel, const OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp1 
  * @param[in]   Opamp   : pointer to opamp

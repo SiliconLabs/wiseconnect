@@ -35,25 +35,40 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_si91x_opamp_common_config.h"
 #include "sl_si91x_opamp_init.h"
-#include "rsi_dac.h"
+#include "sl_si91x_dac.h"
+#if (defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)) && defined(SL_OPAMP_OPAMP3)
+#include "sl_si91x_dac_config.h"
+#endif
 /*******************************************************************************
-  ***************************  LOCAL MACROS   ***********************************
-  ******************************************************************************/
+   ***************************  LOCAL MACROS   ***********************************
+   ******************************************************************************/
 // Reference voltage of OPAMP, Min is 1.6V and Max is 3.3V
-#define SLI_OPAMP_MIN_BATTERY 1.6f ///< Minimum battery voltage
-#define SLI_OPAMP_MAX_BATTERY 3.3f ///< Maximum battery voltage
+#define SLI_OPAMP_MIN_BATTERY 1.6f // Minimum battery voltage
+#define SLI_OPAMP_MAX_BATTERY 3.3f // Maximum battery voltage
 
 // Defines macros for OPAMP pin selections, input/output configurations, and operational modes.
 #define SL_OPAMP_OUTPUT_MUX_ENABLE 1 // OPAMP output mux enable
-#define SL_OPAMP_OUT_MUX_SEL       1 // OPAMP (0-ULP_GPIO_4 , 1- GPIO_30)
 #define SL_OPAMP_DYN_MODE_EN       0 // OPAMP Dynamic mode
 #define SL_OPAMP_CHANNEL_NO        0 // adc channel no in dynamic mode
+// OPAMP1 specific configuration for instrumentation amplifier
+#define SL_OPAMP1_INST_AMP_OUT_MUX_EN     0 // OPAMP1 output mux
+#define SL_OPAMP1_INST_AMP_RES_TO_OUT_VDD 0 // OPAMP1 resistor to VDD
+#define SL_OPAMP1_INST_AMP_EN_RES_BANK    0 // OPAMP1 resistor bank
 
+// OPAMP2 specific configuration for instrumentation amplifier
+#define SL_OPAMP2_INST_AMP_OUT_MUX_EN     0 // OPAMP2 output mux
+#define SL_OPAMP2_INST_AMP_RES_TO_OUT_VDD 2 // OPAMP2 resistor to VDD
+#define SL_OPAMP2_INST_AMP_EN_RES_BANK    1 // OPAMP2 resistor bank
+
+// OPAMP3 specific configuration for instrumentation amplifier
+#define SL_OPAMP3_INST_AMP_OUT_MUX_EN     1 // OPAMP3 output mux
+#define SL_OPAMP3_INST_AMP_RES_TO_OUT_VDD 0 // OPAMP3 resistor to VDD
+#define SL_OPAMP3_INST_AMP_EN_RES_BANK    1 // OPAMP3 resistor bank
 typedef sl_gpio_t sl_si91x_gpio_t;
 
 /*******************************************************************************
- ***********************  LOCAL FUNCTION Definitions *************************
-  ******************************************************************************/
+  ***********************  LOCAL FUNCTION Definitions *************************
+   ******************************************************************************/
 
 static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_inst);
 static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst);
@@ -67,11 +82,25 @@ static void sli_si91x_opamp_configure_trans_impedance_amp(uint8_t opamp_config_i
 static sl_status_t sli_si91x_opamp_configure_instrumentation_amp(uint8_t opamp_config_inst);
 static sl_status_t get_battery_status(float *battery_status);
 
+#if (defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)) && defined(SL_OPAMP_OPAMP3)
+#define VREF_VALUE 3.3f // Reference voltage
+static float vref_value = (float)VREF_VALUE;
+// Define DAC Macros
+#define DAC_SAMPLING_RATE          5000000
+#define NUMBER_OF_INPUT_SAMPLE     1
+#define MAX_DAC_INPUT_SAMPLE_VALUE 1023
+#define DAC_INPUT_SAMPLE_VALUE     1023
+static const int16_t dac_instrument_input_sample_data[1] = { 0x1FF };
+static boolean_t dac_instrument_static_intr_flag         = false;
+static boolean_t dac_instrument_fifo_intr_flag           = false;
+static void dac_instrument_callback_event(uint8_t event);
+#endif
+
 /*******************************************************************************
- * @brief: Initializes OPAMP peripheral
- * @details: This API enables the auxiliary clock using the MHz RC clock
- *           and configures the OPAMP reference voltage to either 2.5V or 3.3V
- *******************************************************************************/
+  * @brief: Initializes OPAMP peripheral
+  * @details: This API enables the auxiliary clock using the MHz RC clock
+  *           and configures the OPAMP reference voltage to either 2.5V or 3.3V
+  *******************************************************************************/
 sl_status_t sl_si91x_opamp_init(void)
 {
   sl_status_t status;
@@ -102,9 +131,9 @@ sl_status_t sl_si91x_opamp_init(void)
   return status;
 }
 /*******************************************************************************
- * @brief: Get battery voltage level status
- * @details: This API reads the current battery voltage and checks if it is within the valid range (1.6V to 3.3V)
- *******************************************************************************/
+  * @brief: Get battery voltage level status
+  * @details: This API reads the current battery voltage and checks if it is within the valid range (1.6V to 3.3V)
+  *******************************************************************************/
 static sl_status_t get_battery_status(float *battery_status)
 {
 
@@ -123,9 +152,9 @@ static sl_status_t get_battery_status(float *battery_status)
   }
 }
 /*******************************************************************************
- * @brief: Set OPAMP GPIO pins for input and output
- * @details: This API is used to validates input/output parameters and initialize OPAMP pins
- *******************************************************************************/
+  * @brief: Set OPAMP GPIO pins for input and output
+  * @details: This API is used to validates input/output parameters and initialize OPAMP pins
+  *******************************************************************************/
 sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
 {
   sl_status_t status;
@@ -270,9 +299,9 @@ sl_status_t sl_si91x_opamp_pin_init(sl_opamp_pin_config_t *opamp_config_ptr)
 }
 
 /*******************************************************************************
- * @brief: Configures OPAMP features based on the selected instance number
- * @details: This API is used to configure OPAMP by selecting feature based on the opamp instance number
- *******************************************************************************/
+  * @brief: Configures OPAMP features based on the selected instance number
+  * @details: This API is used to configure OPAMP by selecting feature based on the opamp instance number
+  *******************************************************************************/
 sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config)
 {
   sl_status_t status;
@@ -342,9 +371,9 @@ sl_status_t sl_si91x_opamp_set_configuration(sl_opamp_config_t *opamp_config)
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Unity Gain Features
- * @details: Configures OPAMP for unity gain features based on the instance number
- *******************************************************************************/
+  * @brief: Configure OPAMP for Unity Gain Features
+  * @details: Configures OPAMP for unity gain features based on the instance number
+  *******************************************************************************/
 static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
@@ -391,9 +420,9 @@ static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_i
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Inverting Programmable Gain Amplifier
- * @details: Configures OPAMP for inverting PGA based on the instance number
- *******************************************************************************/
+  * @brief: Configure OPAMP for Inverting Programmable Gain Amplifier
+  * @details: Configures OPAMP for inverting PGA based on the instance number
+  *******************************************************************************/
 static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
@@ -446,9 +475,9 @@ static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Non-Inverting Programmable Gain Amplifier
- * @details: Configures OPAMP for non-inverting PGA based on the instance number
- *******************************************************************************/
+  * @brief: Configure OPAMP for Non-Inverting Programmable Gain Amplifier
+  * @details: Configures OPAMP for non-inverting PGA based on the instance number
+  *******************************************************************************/
 static void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
@@ -501,9 +530,9 @@ static void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_ins
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Inverting Programmable Hysteresis Comparator
- * @details: Configures OPAMP for inverting hysteresis comparator based on the instance number
- *******************************************************************************/
+  * @brief: Configure OPAMP for Inverting Programmable Hysteresis Comparator
+  * @details: Configures OPAMP for inverting hysteresis comparator based on the instance number
+  *******************************************************************************/
 static void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
@@ -556,9 +585,9 @@ static void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_i
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Non-Inverting Programmable Hysteresis Comparator
- * @details: Configures OPAMP for non-inverting hysteresis comparator based on the instance number
- *******************************************************************************/
+  * @brief: Configure OPAMP for Non-Inverting Programmable Hysteresis Comparator
+  * @details: Configures OPAMP for non-inverting hysteresis comparator based on the instance number
+  *******************************************************************************/
 static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
@@ -610,9 +639,9 @@ static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_conf
   }
 }
 /*******************************************************************************
- * @brief: Configure OPAMP for Cascaded Inverting Programmable Gain Amplifier
- * @details: Configures OPAMP for cascaded inverting pga
- *******************************************************************************/
+  * @brief: Configure OPAMP for Cascaded Inverting Programmable Gain Amplifier
+  * @details: Configures OPAMP for cascaded inverting pga
+  *******************************************************************************/
 sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
@@ -673,9 +702,9 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Cascaded Non-Inverting Programmable Gain Amplifier
- * @details: Configures OPAMP for cascaded non-inverting pga
- *******************************************************************************/
+  * @brief: Configure OPAMP for Cascaded Non-Inverting Programmable Gain Amplifier
+  * @details: Configures OPAMP for cascaded non-inverting pga
+  *******************************************************************************/
 sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
@@ -734,9 +763,9 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Two Opamps Differential Amplifier
- * @details: Configures OPAMP for cascaded non-inverting pga
- *******************************************************************************/
+  * @brief: Configure OPAMP for Two Opamps Differential Amplifier
+  * @details: Configures OPAMP for cascaded non-inverting pga
+  *******************************************************************************/
 sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
@@ -793,9 +822,9 @@ sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Trans Impedance Amplifier
- * @details: Configures OPAMP for trans-impedance amplifier
- *******************************************************************************/
+  * @brief: Configure OPAMP for Trans Impedance Amplifier
+  * @details: Configures OPAMP for trans-impedance amplifier
+  *******************************************************************************/
 void sli_si91x_opamp_configure_trans_impedance_amp(uint8_t opamp_config_inst)
 {
   if (opamp_config_inst == SL_OPAMP_1) {
@@ -848,45 +877,86 @@ void sli_si91x_opamp_configure_trans_impedance_amp(uint8_t opamp_config_inst)
 }
 
 /*******************************************************************************
- * @brief: Configure OPAMP for Instrumentation Amplifier
- * @details: Configures OPAMP for instrumentation amplifier
- *******************************************************************************/
+  * @brief: Configure OPAMP for Instrumentation Amplifier
+  * @details: Configures OPAMP for instrumentation amplifier
+  *******************************************************************************/
 sl_status_t sli_si91x_opamp_configure_instrumentation_amp(uint8_t opamp_config_inst)
 {
   (void)opamp_config_inst;
 #if (defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)) && defined(SL_OPAMP_OPAMP3)
+  sl_status_t status;
+  sl_dac_clock_config_t dac_clock_config;
+  static boolean_t dac_initialized = false; // Static flag to track DAC initialization
+
+  // Initialize DAC only once for instrumentation amplifier configuration
+  if (!dac_initialized) {
+    //Initializing DAC peripheral
+    status = sl_si91x_dac_init(&dac_clock_config);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // DAC configuration
+    status = sl_si91x_dac_set_configuration(sl_dac_config, vref_value);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Register user callback function
+    status = sl_si91x_dac_register_event_callback(dac_instrument_callback_event);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // DAC input sample data writing
+    status = sl_si91x_dac_write_data((int16_t *)dac_instrument_input_sample_data, NUMBER_OF_INPUT_SAMPLE);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Start DAC peripheral
+    status = sl_si91x_dac_start();
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    dac_initialized = true; // DAC is initialized
+  }
   // Configure OPAMP1, OPAMP2 and OPAMP3 for instrumentation amplifier if macros are defined
-  Configure_OPAMP_t config_inst_amp = { 0 };
+  OPAMP_CONFIG_T Config;
+  Config.opamp1.opamp1_dyn_en         = SL_OPAMP_DYN_MODE_EN;
+  Config.opamp1.opamp1_sel_p_mux      = SL_OPAMP1_VINP_SEL;
+  Config.opamp1.opamp1_sel_n_mux      = SL_OPAMP1_VINN_SEL;
+  Config.opamp1.opamp1_out_mux_en     = SL_OPAMP1_INST_AMP_OUT_MUX_EN;
+  Config.opamp1.opamp1_out_mux_sel    = SL_OPAMP_OUT_MUX_SEL;
+  Config.opamp1.opamp1_res_to_out_vdd = SL_OPAMP1_INST_AMP_RES_TO_OUT_VDD;
+  Config.opamp1.opamp1_res_mux_sel    = SL_OPAMP1_VREF_SEL;
+  Config.opamp1.opamp1_en_res_bank    = SL_OPAMP1_INST_AMP_EN_RES_BANK;
+  Config.opamp1.opamp1_r2_sel         = SL_OPAMP1_R2_SELECT;
+  Config.opamp1.opamp1_r1_sel         = SL_OPAMP1_R1_SELECT;
+  Config.opamp1.opamp1_lp_mode        = SL_OPAMP_LP_MODE;
+  Config.opamp1.opamp1_enable         = ENABLE;
 
-  config_inst_amp.vin_p_sel   = SL_OPAMP1_VINP_SEL;
-  config_inst_amp.vin_n_sel   = SL_OPAMP1_VINN_SEL;
-  config_inst_amp.vref_sel    = SL_OPAMP1_VREF_SEL;
-  config_inst_amp.enable      = ENABLE;
-  config_inst_amp.lp_mode     = SL_OPAMP_LP_MODE;
-  config_inst_amp.r1_sel      = SL_OPAMP1_R1_SELECT;
-  config_inst_amp.r2_sel      = SL_OPAMP1_R2_SELECT;
-  config_inst_amp.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
-  config_inst_amp.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
+  Config.opamp2.opamp2_dyn_en         = SL_OPAMP_DYN_MODE_EN;
+  Config.opamp2.opamp2_sel_p_mux      = SL_OPAMP2_VINP_SEL;
+  Config.opamp2.opamp2_sel_n_mux      = SL_OPAMP2_VINN_SEL;
+  Config.opamp2.opamp2_out_mux_en     = SL_OPAMP2_INST_AMP_OUT_MUX_EN;
+  Config.opamp2.opamp2_res_to_out_vdd = SL_OPAMP2_INST_AMP_RES_TO_OUT_VDD;
+  Config.opamp2.opamp2_res_mux_sel    = SL_OPAMP2_VREF_SEL;
+  Config.opamp2.opamp2_en_res_bank    = SL_OPAMP2_INST_AMP_EN_RES_BANK;
+  Config.opamp2.opamp2_r2_sel         = SL_OPAMP1_R2_SELECT;
+  Config.opamp2.opamp2_r1_sel         = SL_OPAMP3_R1_SELECT;
+  Config.opamp2.opamp2_lp_mode        = SL_OPAMP_LP_MODE;
+  Config.opamp2.opamp2_enable         = ENABLE;
 
-  config_inst_amp.vin_p_sel  = SL_OPAMP2_VINP_SEL;
-  config_inst_amp.vin_n_sel  = SL_OPAMP2_VINN_SEL;
-  config_inst_amp.vref_sel   = SL_OPAMP2_VREF_SEL;
-  config_inst_amp.enable     = ENABLE;
-  config_inst_amp.lp_mode    = SL_OPAMP_LP_MODE;
-  config_inst_amp.r1_sel     = SL_OPAMP2_R1_SELECT;
-  config_inst_amp.r2_sel     = SL_OPAMP2_R2_SELECT;
-  config_inst_amp.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
+  Config.opamp3.opamp3_dyn_en         = SL_OPAMP_DYN_MODE_EN;
+  Config.opamp3.opamp3_sel_p_mux      = SL_OPAMP3_VINP_SEL;
+  Config.opamp3.opamp3_sel_n_mux      = SL_OPAMP3_VINN_SEL;
+  Config.opamp3.opamp3_out_mux_en     = SL_OPAMP3_INST_AMP_OUT_MUX_EN;
+  Config.opamp3.opamp3_res_to_out_vdd = SL_OPAMP3_INST_AMP_RES_TO_OUT_VDD;
+  Config.opamp3.opamp3_res_mux_sel    = SL_OPAMP3_VREF_SEL;
+  Config.opamp3.opamp3_en_res_bank    = SL_OPAMP3_INST_AMP_EN_RES_BANK;
+  Config.opamp3.opamp3_r2_sel         = SL_OPAMP1_R2_SELECT;
+  Config.opamp3.opamp3_r1_sel         = SL_OPAMP3_R1_SELECT;
+  Config.opamp3.opamp3_lp_mode        = SL_OPAMP_LP_MODE;
+  Config.opamp3.opamp3_enable         = ENABLE;
 
-  config_inst_amp.vin_p_sel  = SL_OPAMP3_VINP_SEL;
-  config_inst_amp.vin_n_sel  = SL_OPAMP3_VINN_SEL;
-  config_inst_amp.vref_sel   = SL_OPAMP3_VREF_SEL;
-  config_inst_amp.enable     = ENABLE;
-  config_inst_amp.lp_mode    = SL_OPAMP_LP_MODE;
-  config_inst_amp.r1_sel     = SL_OPAMP3_R1_SELECT;
-  config_inst_amp.r2_sel     = SL_OPAMP3_R2_SELECT;
-  config_inst_amp.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
-
-  RSI_OPAMP_InstrAMP_v2(&config_inst_amp, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
+  RSI_OPAMP_Instrumentation_Amplifier(SL_OPAMP_CHANNEL_NO, &Config);
   return SL_STATUS_OK;
 #else
   return SL_STATUS_INVALID_PARAMETER;
@@ -894,9 +964,9 @@ sl_status_t sli_si91x_opamp_configure_instrumentation_amp(uint8_t opamp_config_i
 }
 
 /*******************************************************************************
- * @brief: De-Initializes OPAMP peripheral
- * @details: Disables Peripheral clock and powers down AUX
- *******************************************************************************/
+  * @brief: De-Initializes OPAMP peripheral
+  * @details: Disables Peripheral clock and powers down AUX
+  *******************************************************************************/
 void sl_si91x_opamp_deinit(void)
 {
   analog_set_power_state(OPAMP_BIT_POS, ANALOG_POWERED_OFF);
@@ -907,3 +977,21 @@ void sl_si91x_opamp_deinit(void)
     RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_AUX_CLK);
   }
 }
+
+/*******************************************************************************
+  * DAC instrumentation callback function
+  *
+  * This function handling DAC events. It is invoked when
+  * a DAC event occurs and can be customized for specific event handling needs.
+  ******************************************************************************/
+#if (defined(SL_OPAMP_OPAMP1) && defined(SL_OPAMP_OPAMP2)) && defined(SL_OPAMP_OPAMP3)
+static void dac_instrument_callback_event(uint8_t event)
+{
+  if (event == SL_DAC_STATIC_MODE_EVENT) {
+    dac_instrument_static_intr_flag = true;
+  }
+  if (event == SL_DAC_FIFO_MODE_EVENT) {
+    dac_instrument_fifo_intr_flag = true;
+  }
+}
+#endif

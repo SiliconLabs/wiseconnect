@@ -317,7 +317,7 @@ void RSI_OPAMP_InstrAMP(uint8_t vin_p_sel,
                         uint8_t out_mux_en,
                         uint8_t dyn_en,
                         uint8_t channel);
-
+void RSI_OPAMP_Instrumentation_Amplifier(uint32_t channel, const OPAMP_CONFIG_T *Config);
 void RSI_OPAMP1_Config(OPAMP_Type *opamp, uint32_t channel, const OPAMP_CONFIG_T *config);
 
 void RSI_OPAMP2_Config(OPAMP_Type *pstcOpamp, uint32_t channel, const OPAMP_CONFIG_T *config);
