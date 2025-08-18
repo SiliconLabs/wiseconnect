@@ -274,7 +274,7 @@ sl_status_t sl_wifi_get_rts_threshold(sl_wifi_interface_t interface, uint16_t *r
  * @param[in] config
  *   MFP configuration as identified by @ref sl_wifi_mfp_mode_t
  * @note
- *   This API needs to be called before @ref sl_wifi_init
+ *   This API needs to be called before @ref sl_wifi_connect
  * @note
  *   This API is currently supported only in STA mode
  * @return

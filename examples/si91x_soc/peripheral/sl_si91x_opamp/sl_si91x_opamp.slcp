@@ -78,6 +78,7 @@ other_file:
   - path: resources/readme/cascaded_noninv_pga.png
   - path: resources/readme/two_opamps_diff.png
   - path: resources/readme/instrumentation_amp.png
+  - path: resources/readme/trans_impedance_amp.png
   - path: resources/uc_screen/opamp_uc_screen.png
   - path: resources/uc_screen/unity_gain_uc.png
   - path: resources/uc_screen/invt_pga_uc.png
@@ -100,6 +101,7 @@ other_file:
   - path: resources/uc_screen/instr_amp_opamp1.png 
   - path: resources/uc_screen/instr_amp_opamp2.png
   - path: resources/uc_screen/instr_amp_opamp3.png  
+  - path: resources/uc_screen/trans_impedance_amp_opamp1.png  
 readme:
   - path: readme.md
 ui_hints:

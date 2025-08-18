@@ -1090,12 +1090,8 @@ sl_status_t sl_wifi_get_rts_threshold(sl_wifi_interface_t interface, uint16_t *r
 sl_status_t sl_wifi_set_mfp(sl_wifi_interface_t interface, const sl_wifi_mfp_mode_t config)
 {
   // only supported in STA mode
-  if (interface != SL_WIFI_CLIENT_INTERFACE) {
+  if ((interface & SL_WIFI_CLIENT_INTERFACE) == 0 || (interface & SL_WIFI_AP_INTERFACE) != 0) {
     return SL_STATUS_NOT_SUPPORTED;
-  }
-  // Parameter validation
-  if (device_initialized) {
-    return SL_STATUS_ALREADY_INITIALIZED;
   }
 
   // Store the MFP configuration for future join operations
@@ -1110,7 +1106,7 @@ sl_status_t sl_wifi_set_mfp(sl_wifi_interface_t interface, const sl_wifi_mfp_mod
 sl_status_t sl_wifi_get_mfp(sl_wifi_interface_t interface, sl_wifi_mfp_mode_t *config)
 {
   // only supported in STA mode
-  if (interface != SL_WIFI_CLIENT_INTERFACE) {
+  if ((interface & SL_WIFI_CLIENT_INTERFACE) == 0 || (interface & SL_WIFI_AP_INTERFACE) != 0) {
     return SL_STATUS_NOT_SUPPORTED;
   }
   // Parameter validation

@@ -81,11 +81,11 @@
 // <i> Selection of OPAMP2 Resistor
 #define SL_OPAMP2_VREF_SEL 10
 
-// <o SL_OPAMP_LP_MODE> OPAMP Power mode
+// <o SL_OPAMP2_LP_MODE> OPAMP_2 Power mode
 //   <0=> HP mode
 //   <1=> LP mode
-// <i> Selection of OPAMP Power Mode
-#define SL_OPAMP_LP_MODE 0
+// <i> Selection of OPAMP_2 Power Mode
+#define SL_OPAMP2_LP_MODE 0
 
 // OPAMP2 R1 Resistor
 // <o SL_OPAMP2_R1_SELECT> R1 Resistor (kΩ)

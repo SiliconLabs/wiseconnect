@@ -384,7 +384,7 @@ static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_i
     config.vin_n_sel         = SL_OPAMP1_VINN_SEL;
     config.vref_sel          = SL_OPAMP1_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP1_LP_MODE;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
     config.out_mux_sel       = SL_OPAMP_OUT_MUX_SEL;
 
@@ -398,7 +398,7 @@ static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_i
     config.vin_n_sel         = SL_OPAMP2_VINN_SEL;
     config.vref_sel          = SL_OPAMP2_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP2_LP_MODE;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
 
     RSI_OPAMP_UGB_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
@@ -411,7 +411,7 @@ static void sli_si91x_opamp_configure_unity_gain_features(uint8_t opamp_config_i
     config.vin_n_sel         = SL_OPAMP3_VINN_SEL;
     config.vref_sel          = SL_OPAMP3_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP3_LP_MODE;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
 
     RSI_OPAMP_UGB_V2(opamp_config_inst, &config, SL_OPAMP_DYN_MODE_EN, SL_OPAMP_CHANNEL_NO);
@@ -433,7 +433,7 @@ static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
     config.vin_n_sel         = SL_OPAMP1_VINN_SEL;
     config.vref_sel          = SL_OPAMP1_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP1_LP_MODE;
     config.r1_sel            = SL_OPAMP1_R1_SELECT;
     config.r2_sel            = SL_OPAMP1_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -449,7 +449,7 @@ static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
     config.vin_n_sel         = SL_OPAMP2_VINN_SEL;
     config.vref_sel          = SL_OPAMP2_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP2_LP_MODE;
     config.r1_sel            = SL_OPAMP2_R1_SELECT;
     config.r2_sel            = SL_OPAMP2_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -464,7 +464,7 @@ static void sli_si91x_opamp_configure_inverting_pga(uint8_t opamp_config_inst)
     config.vin_n_sel         = SL_OPAMP3_VINN_SEL;
     config.vref_sel          = SL_OPAMP3_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP3_LP_MODE;
     config.r1_sel            = SL_OPAMP3_R1_SELECT;
     config.r2_sel            = SL_OPAMP3_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -488,7 +488,7 @@ static void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_ins
     config.vin_n_sel         = SL_OPAMP1_VINN_SEL;
     config.vref_sel          = SL_OPAMP1_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP1_LP_MODE;
     config.r1_sel            = SL_OPAMP1_R1_SELECT;
     config.r2_sel            = SL_OPAMP1_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -504,7 +504,7 @@ static void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_ins
     config.vin_n_sel         = SL_OPAMP2_VINN_SEL;
     config.vref_sel          = SL_OPAMP2_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP2_LP_MODE;
     config.r1_sel            = SL_OPAMP2_R1_SELECT;
     config.r2_sel            = SL_OPAMP2_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -519,7 +519,7 @@ static void sli_si91x_opamp_configure_non_inverting_pga(uint8_t opamp_config_ins
     config.vin_n_sel         = SL_OPAMP3_VINN_SEL;
     config.vref_sel          = SL_OPAMP3_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP3_LP_MODE;
     config.r1_sel            = SL_OPAMP3_R1_SELECT;
     config.r2_sel            = SL_OPAMP3_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -543,7 +543,7 @@ static void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_i
     config.vin_n_sel         = SL_OPAMP1_VINN_SEL;
     config.vref_sel          = SL_OPAMP1_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP1_LP_MODE;
     config.r1_sel            = SL_OPAMP1_R1_SELECT;
     config.r2_sel            = SL_OPAMP1_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -559,7 +559,7 @@ static void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_i
     config.vin_n_sel         = SL_OPAMP2_VINN_SEL;
     config.vref_sel          = SL_OPAMP2_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP2_LP_MODE;
     config.r1_sel            = SL_OPAMP2_R1_SELECT;
     config.r2_sel            = SL_OPAMP2_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -574,7 +574,7 @@ static void sli_si91x_opamp_configure_inverting_hyst_comp(uint8_t opamp_config_i
     config.vin_n_sel         = SL_OPAMP3_VINN_SEL;
     config.vref_sel          = SL_OPAMP3_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP3_LP_MODE;
     config.r1_sel            = SL_OPAMP3_R1_SELECT;
     config.r2_sel            = SL_OPAMP3_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -598,7 +598,7 @@ static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_conf
     config.vin_n_sel         = SL_OPAMP1_VINN_SEL;
     config.vref_sel          = SL_OPAMP1_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP1_LP_MODE;
     config.r1_sel            = SL_OPAMP1_R1_SELECT;
     config.r2_sel            = SL_OPAMP1_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -614,7 +614,7 @@ static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_conf
     config.vin_n_sel         = SL_OPAMP2_VINN_SEL;
     config.vref_sel          = SL_OPAMP2_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP2_LP_MODE;
     config.r1_sel            = SL_OPAMP2_R1_SELECT;
     config.r2_sel            = SL_OPAMP2_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -629,7 +629,7 @@ static void sli_si91x_opamp_configure_non_inverting_hyst_comp(uint8_t opamp_conf
     config.vin_n_sel         = SL_OPAMP3_VINN_SEL;
     config.vref_sel          = SL_OPAMP3_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP3_LP_MODE;
     config.r1_sel            = SL_OPAMP3_R1_SELECT;
     config.r2_sel            = SL_OPAMP3_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -655,7 +655,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
   config_cas_invt.vin1_n_sel    = SL_OPAMP1_VINN_SEL;
   config_cas_invt.vref1_sel     = SL_OPAMP1_VREF_SEL;
   config_cas_invt.enable        = ENABLE;
-  config_cas_invt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_invt.lp_mode       = SL_OPAMP1_LP_MODE;
   config_cas_invt.opamp1_r1_sel = SL_OPAMP1_R1_SELECT;
   config_cas_invt.opamp1_r2_sel = SL_OPAMP1_R2_SELECT;
   config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -665,7 +665,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
   config_cas_invt.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
   config_cas_invt.vref2_sel     = SL_OPAMP2_VREF_SEL;
   config_cas_invt.enable        = ENABLE;
-  config_cas_invt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_invt.lp_mode       = SL_OPAMP2_LP_MODE;
   config_cas_invt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
   config_cas_invt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -680,7 +680,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
   config_cas_invt.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
   config_cas_invt.vref2_sel     = SL_OPAMP2_VREF_SEL;
   config_cas_invt.enable        = ENABLE;
-  config_cas_invt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_invt.lp_mode       = SL_OPAMP2_LP_MODE;
   config_cas_invt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
   config_cas_invt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -689,7 +689,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_inverting_pga(uint8_t opamp_confi
   config_cas_invt.vin3_n_sel    = SL_OPAMP3_VINN_SEL;
   config_cas_invt.vref3_sel     = SL_OPAMP3_VREF_SEL;
   config_cas_invt.enable        = ENABLE;
-  config_cas_invt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_invt.lp_mode       = SL_OPAMP3_LP_MODE;
   config_cas_invt.opamp3_r1_sel = SL_OPAMP3_R1_SELECT;
   config_cas_invt.opamp3_r2_sel = SL_OPAMP3_R2_SELECT;
   config_cas_invt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -718,7 +718,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
   config_cas_noninvt.vin1_n_sel    = SL_OPAMP1_VINN_SEL;
   config_cas_noninvt.vref1_sel     = SL_OPAMP1_VREF_SEL;
   config_cas_noninvt.enable        = ENABLE;
-  config_cas_noninvt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_noninvt.lp_mode       = SL_OPAMP1_LP_MODE;
   config_cas_noninvt.opamp1_r1_sel = SL_OPAMP1_R1_SELECT;
   config_cas_noninvt.opamp1_r2_sel = SL_OPAMP1_R2_SELECT;
   config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -728,7 +728,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
   config_cas_noninvt.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
   config_cas_noninvt.vref2_sel     = SL_OPAMP2_VREF_SEL;
   config_cas_noninvt.enable        = ENABLE;
-  config_cas_noninvt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_noninvt.lp_mode       = SL_OPAMP2_LP_MODE;
   config_cas_noninvt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
   config_cas_noninvt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -742,7 +742,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
   config_cas_noninvt.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
   config_cas_noninvt.vref2_sel     = SL_OPAMP2_VREF_SEL;
   config_cas_noninvt.enable        = ENABLE;
-  config_cas_noninvt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_noninvt.lp_mode       = SL_OPAMP2_LP_MODE;
   config_cas_noninvt.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
   config_cas_noninvt.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -751,7 +751,7 @@ sl_status_t sli_si91x_opamp_configure_cascaded_non_inverting_pga(uint8_t opamp_c
   config_cas_noninvt.vin3_n_sel    = SL_OPAMP3_VINN_SEL;
   config_cas_noninvt.vref3_sel     = SL_OPAMP3_VREF_SEL;
   config_cas_noninvt.enable        = ENABLE;
-  config_cas_noninvt.lp_mode       = SL_OPAMP_LP_MODE;
+  config_cas_noninvt.lp_mode       = SL_OPAMP3_LP_MODE;
   config_cas_noninvt.opamp3_r1_sel = SL_OPAMP3_R1_SELECT;
   config_cas_noninvt.opamp3_r2_sel = SL_OPAMP3_R2_SELECT;
   config_cas_noninvt.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -779,7 +779,7 @@ sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_
   config_two_opamps.vin1_n_sel  = SL_OPAMP1_VINN_SEL;
   config_two_opamps.vref1_sel   = SL_OPAMP1_VREF_SEL;
   config_two_opamps.enable      = ENABLE;
-  config_two_opamps.lp_mode     = SL_OPAMP_LP_MODE;
+  config_two_opamps.lp_mode     = SL_OPAMP1_LP_MODE;
   config_two_opamps.out_mux_en  = SL_OPAMP_OUTPUT_MUX_ENABLE;
   config_two_opamps.out_mux_sel = SL_OPAMP_OUT_MUX_SEL;
 
@@ -787,7 +787,7 @@ sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_
   config_two_opamps.vin2_n_sel    = SL_OPAMP2_VINN_SEL;
   config_two_opamps.vref2_sel     = SL_OPAMP2_VREF_SEL;
   config_two_opamps.enable        = ENABLE;
-  config_two_opamps.lp_mode       = SL_OPAMP_LP_MODE;
+  config_two_opamps.lp_mode       = SL_OPAMP2_LP_MODE;
   config_two_opamps.opamp2_r1_sel = SL_OPAMP2_R1_SELECT;
   config_two_opamps.opamp2_r2_sel = SL_OPAMP2_R2_SELECT;
   config_two_opamps.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -802,14 +802,14 @@ sl_status_t sli_si91x_opamp_configure_two_opamps_differential_amp(uint8_t opamp_
   config_two_opamps.vin2_n_sel = SL_OPAMP2_VINN_SEL;
   config_two_opamps.vref2_sel  = SL_OPAMP2_VREF_SEL;
   config_two_opamps.enable     = ENABLE;
-  config_two_opamps.lp_mode    = SL_OPAMP_LP_MODE;
+  config_two_opamps.lp_mode    = SL_OPAMP2_LP_MODE;
   config_two_opamps.out_mux_en = SL_OPAMP_OUTPUT_MUX_ENABLE;
 
   config_two_opamps.vin3_p_sel    = SL_OPAMP3_VINP_SEL;
   config_two_opamps.vin3_n_sel    = SL_OPAMP3_VINN_SEL;
   config_two_opamps.vref3_sel     = SL_OPAMP3_VREF_SEL;
   config_two_opamps.enable        = ENABLE;
-  config_two_opamps.lp_mode       = SL_OPAMP_LP_MODE;
+  config_two_opamps.lp_mode       = SL_OPAMP3_LP_MODE;
   config_two_opamps.opamp3_r1_sel = SL_OPAMP3_R1_SELECT;
   config_two_opamps.opamp3_r2_sel = SL_OPAMP3_R2_SELECT;
   config_two_opamps.out_mux_en    = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -835,7 +835,7 @@ void sli_si91x_opamp_configure_trans_impedance_amp(uint8_t opamp_config_inst)
     config.vin_n_sel         = SL_OPAMP1_VINN_SEL;
     config.vref_sel          = SL_OPAMP1_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP1_LP_MODE;
     config.r1_sel            = SL_OPAMP1_R1_SELECT;
     config.r2_sel            = SL_OPAMP1_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -851,7 +851,7 @@ void sli_si91x_opamp_configure_trans_impedance_amp(uint8_t opamp_config_inst)
     config.vin_n_sel         = SL_OPAMP2_VINN_SEL;
     config.vref_sel          = SL_OPAMP2_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP2_LP_MODE;
     config.r1_sel            = SL_OPAMP2_R1_SELECT;
     config.r2_sel            = SL_OPAMP2_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -866,7 +866,7 @@ void sli_si91x_opamp_configure_trans_impedance_amp(uint8_t opamp_config_inst)
     config.vin_n_sel         = SL_OPAMP3_VINN_SEL;
     config.vref_sel          = SL_OPAMP3_VREF_SEL;
     config.enable            = ENABLE;
-    config.lp_mode           = SL_OPAMP_LP_MODE;
+    config.lp_mode           = SL_OPAMP3_LP_MODE;
     config.r1_sel            = SL_OPAMP3_R1_SELECT;
     config.r2_sel            = SL_OPAMP3_R2_SELECT;
     config.out_mux_en        = SL_OPAMP_OUTPUT_MUX_ENABLE;
@@ -929,7 +929,7 @@ sl_status_t sli_si91x_opamp_configure_instrumentation_amp(uint8_t opamp_config_i
   Config.opamp1.opamp1_en_res_bank    = SL_OPAMP1_INST_AMP_EN_RES_BANK;
   Config.opamp1.opamp1_r2_sel         = SL_OPAMP1_R2_SELECT;
   Config.opamp1.opamp1_r1_sel         = SL_OPAMP1_R1_SELECT;
-  Config.opamp1.opamp1_lp_mode        = SL_OPAMP_LP_MODE;
+  Config.opamp1.opamp1_lp_mode        = SL_OPAMP1_LP_MODE;
   Config.opamp1.opamp1_enable         = ENABLE;
 
   Config.opamp2.opamp2_dyn_en         = SL_OPAMP_DYN_MODE_EN;
@@ -941,7 +941,7 @@ sl_status_t sli_si91x_opamp_configure_instrumentation_amp(uint8_t opamp_config_i
   Config.opamp2.opamp2_en_res_bank    = SL_OPAMP2_INST_AMP_EN_RES_BANK;
   Config.opamp2.opamp2_r2_sel         = SL_OPAMP1_R2_SELECT;
   Config.opamp2.opamp2_r1_sel         = SL_OPAMP3_R1_SELECT;
-  Config.opamp2.opamp2_lp_mode        = SL_OPAMP_LP_MODE;
+  Config.opamp2.opamp2_lp_mode        = SL_OPAMP2_LP_MODE;
   Config.opamp2.opamp2_enable         = ENABLE;
 
   Config.opamp3.opamp3_dyn_en         = SL_OPAMP_DYN_MODE_EN;
@@ -953,7 +953,7 @@ sl_status_t sli_si91x_opamp_configure_instrumentation_amp(uint8_t opamp_config_i
   Config.opamp3.opamp3_en_res_bank    = SL_OPAMP3_INST_AMP_EN_RES_BANK;
   Config.opamp3.opamp3_r2_sel         = SL_OPAMP1_R2_SELECT;
   Config.opamp3.opamp3_r1_sel         = SL_OPAMP3_R1_SELECT;
-  Config.opamp3.opamp3_lp_mode        = SL_OPAMP_LP_MODE;
+  Config.opamp3.opamp3_lp_mode        = SL_OPAMP3_LP_MODE;
   Config.opamp3.opamp3_enable         = ENABLE;
 
   RSI_OPAMP_Instrumentation_Amplifier(SL_OPAMP_CHANNEL_NO, &Config);

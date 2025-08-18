@@ -38,6 +38,7 @@
 sl_net_wifi_lwip_context_t *wifi_client_context = NULL;
 sl_net_wifi_lwip_context_t *wifi_ap_context     = NULL;
 uint32_t gOverrunCount                          = 0;
+static bool lwip_initialized                    = false;
 
 /******************************************************************************
                                 Static Functions
@@ -391,7 +392,13 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
     return status;
   }
   wifi_client_context = context;
-  tcpip_init(NULL, NULL);
+
+  // Initialize LwIP stack only once
+  if (!lwip_initialized) {
+    tcpip_init(NULL, NULL);
+    lwip_initialized = true;
+  }
+
   sta_netif_config();
   return SL_STATUS_OK;
 }

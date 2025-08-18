@@ -85,6 +85,7 @@ extern bool device_initialized;
 static sl_ip_management_t dhcp_type[SLI_SI91X_MAX_INTERFACES] = { 0 };
 bool bypass_mode_enabled                                      = false;
 bool dual_mode_enabled                                        = false;
+static bool lwip_initialized                                  = false;
 
 static void low_level_init(struct netif *netif)
 {
@@ -524,7 +525,12 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
   wifi_client_context = context;
   // Initialize LwIP stack and netif only if not in offload-only mode
   if (dual_mode_enabled || bypass_mode_enabled) {
-    tcpip_init(NULL, NULL);
+    // Initialize LwIP stack only once
+    if (!lwip_initialized) {
+      tcpip_init(NULL, NULL);
+      lwip_initialized = true;
+    }
+
     sta_netif_config();
   }
 

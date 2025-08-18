@@ -30,6 +30,7 @@ The following configurations are used in this example:
 - Cascaded Inverting Programmable Gain Amplifier
 - Cascaded Non-Inverting Programmable Gain Amplifier
 - Two OPAMPs Differential Amplifier
+- Trans-Impedance Amplifier
 - Instrumentation Amplifier
 
 ## Overview
@@ -109,6 +110,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - SL_OPAMP_CASCADED_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER: Cascaded Inverting PGA
     - SL_OPAMP_CASCADED_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER: Cascaded Non-inverting PGA
     - SL_OPAMP_TWO_OPAMPS_DIFFERENTIAL_AMPLIFIER: Two OPAMPs Differential Amplifier
+    - SL_OPAMP_TRANS_IMPEDANCE_AMPLIFIER: Trans-Impedance Amplifier
     - SL_OPAMP_INSTRUMENTATION_AMPLIFIER: Instrumentation Amplifier
 
     ```C
@@ -392,4 +394,32 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
   - The **Instrumentation Amplifier** configuration internally initializes and uses the **DAC peripheral** to provide reference voltage for the differential amplifier stage.
   - This DAC configuration is handled by the driver and does not require user intervention.
   - If you have enabled `DAC` in the OPAMP UC, this will  conflict with the internal DAC usage in Instrumentation Amplifier mode.
- 
+
+#### Trans-Impedance Amplifier
+
+- Apply input current signal to the inverting input terminal and connect reference voltage to the non-inverting terminal via resistor mux.
+     ![Figure: Trans-Impedance Amplifier](resources/readme/trans_impedance_amp.png)
+- Choose the appropriate GPIO from VinP mux selection for current input, select output from "Out selection", set VinN mux to "Resistor tap" and select any GPIO from Resistor mux. Configure feedback resistor from "R2 Resistor" selection in the UC. R1 is None.
+     ![Figure: UC-Screen](resources/uc_screen/trans_impedance_amp_opamp1.png)
+- Check the output voltage on board at OPAMP_OUT.
+- Use a Logic analyzer / Oscilloscope to monitor output voltage.
+- Calculate the output voltage 
+  [Vout2=Vref-Iin*R2]
+
+### Important Note on OPAMP Selection and Debugging
+
+When using the **Two OPAMP Differential Amplifier** configuration, ensure that **only two OPAMPs** are selected. Selecting **three OPAMPs** will result in an error, and the intended functionality will not work.
+
+### Affected Configurations
+
+ This limitation applies to:
+
+- **Cascaded Inverting Programmable Gain Amplifier**
+- **Cascaded Non-Inverting Programmable Gain Amplifier**
+- **Two OPAMPs Differential Amplifier**
+
+### Debugging Limitation
+
+- **OPAMP2** utilizes **ULP_UART** pins for its configuration.
+- As a result, `debug_uart` is **disabled**, which prevents error messages from being printed via the standard debug interface.
+- To view debug/error prints, consider using **alternative USART/UART pins**.

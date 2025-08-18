@@ -61,6 +61,7 @@ extern "C" {
 //   <SL_OPAMP_CASCADED_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=>  Cascaded Inverting PGA
 //   <SL_OPAMP_CASCADED_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Cascaded Non-inverting PGA
 //   <SL_OPAMP_TWO_OPAMPS_DIFFERENTIAL_AMPLIFIER=> Two OPAMPs Differential Amplifier
+//   <SL_OPAMP_TRANS_IMPEDANCE_AMPLIFIER=> Trans-Impedance Amplifier
 //   <SL_OPAMP_INSTRUMENTATION_AMPLIFIER=> Instrumentation Amplifier
 // <i> Selection of OPAMP Feature
 
