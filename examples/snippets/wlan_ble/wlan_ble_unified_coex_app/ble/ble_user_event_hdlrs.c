@@ -48,6 +48,59 @@ void connect_timeout_handler(TimerHandle_t xTimer)
   rsi_ble_event_connection_procedure_timeout_driver_callback(connect_ble_conn_id);
 }
 
+/*==============================================*/
+/**
+ * @fn          void rsi_ble_set_att_resp_driver_callback(uint16_t status, rsi_ble_set_att_resp_t *rsi_ble_set_att_resp)
+ * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
+ * @param[in]   uint16_t , event_status 
+ * @param[in]   rsi_ble_set_att_resp_t *rsi_ble_set_att_resp, event_data
+ * @param[out]  None
+ * @return      None
+ *
+ * @section description
+ * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
+ *
+ */
+
+void rsi_ble_set_att_resp_driver_callback(uint16_t status, rsi_ble_set_att_resp_t *rsi_ble_set_att_resp)
+{
+  LOG_PRINT_D("\n in rsi_ble_set_att_resp_driver_callback \n");
+  uint8_t ble_conn_id;
+  generic_event_message_t *msg;
+
+  //! convert to ascii
+  rsi_6byte_dev_address_to_ascii(remote_dev_addr_conn, rsi_ble_set_att_resp->dev_addr);
+
+#if (CONNECT_OPTION != CONN_BY_NAME)
+  //! get conn_id
+  ble_conn_id = rsi_get_ble_conn_id(remote_dev_addr_conn);
+#else
+  ble_conn_id              = rsi_get_ble_conn_id(remote_dev_addr_conn, NULL, 0);
+#endif
+
+  //! allocate message
+  msg = malloc(sizeof(generic_event_message_t) + sizeof(rsi_ble_set_att_resp_t));
+  if (msg == NULL) {
+    printf("Out of Memory assert\n");
+    _assert((uint8_t *)"Out Of Memory\n", __LINE__);
+  } else {
+    LOG_PRINT_D("Malloc passed\n");
+  }
+  //! init messag details
+  msg->next     = NULL;
+  msg->event_id = set_att_resp_event_id;
+  //! function to be called to free this message
+  msg->free_callback = free;
+  msg->status        = status;
+  //! copy event data to msg
+  memcpy((void *)&msg->event_data[0], (void *)rsi_ble_set_att_resp, sizeof(rsi_ble_set_att_resp_t));
+  //! enqueue message to ble_generic_cb.event_queues[0]
+  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[ble_conn_id + 1],
+                                 (rsi_app_pkt_t *)msg,
+                                 &ble_generic_cb.event_mutex);
+  osSemaphoreRelease(ble_generic_cb.semaphore);
+}
+
 /**
 
  * @fn          void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
@@ -74,7 +127,7 @@ void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
   memcpy((void *)&transmit_event_message[conn_id].event_data, &conn_id, sizeof(uint8_t));
 
   //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
+  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id + 1],
                                  (rsi_app_pkt_t *)&transmit_event_message[conn_id],
                                  &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);
@@ -117,7 +170,7 @@ void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
   //! copy event data to msg
   memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
   //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
+  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id + 1],
                                  (rsi_app_pkt_t *)msg,
                                  &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);

@@ -756,6 +756,7 @@ adv:
           }
         }
         Is_ble_disconnected_by_wifi = 0;
+        wifi_app_set_event(WIFI_AP_BRING_UP_STATE);
       } break;
 
       case APP_FW_VERSION: {

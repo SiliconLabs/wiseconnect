@@ -17,7 +17,7 @@
  ******************************************************************************/
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_clock_manager.h"
-#include "power_manager_m4_wireless_example.h"
+
 #include "rsi_debug.h"
 #include "sl_si91x_calendar.h"
 #include "unity.h"
@@ -41,7 +41,6 @@
  ******************************************************************************/
 static void test_transition_callback(sl_power_state_t from, sl_power_state_t to);
 static void on_sec_callback(void);
-static void test_application_start(void *argument);
 static sl_status_t test_initialize_wireless(void);
 static void test_wireless_sleep(boolean_t sleep_with_retention);
 extern uint32_t SystemCoreClock;
@@ -84,6 +83,12 @@ void test_power_manager_set_wakeup_sources(void);
 void test_power_manager_configure_ram_retention(void);
 void test_power_manager_get_current_state(void);
 void test_power_manager_get_requirement_table(void);
+void test_power_manager_request_ps1_state(void);
+void test_power_manager_remove_ps1_state_request(void);
+void test_power_manager_get_ps1_state_status(void);
+void test_power_manager_request_standby_state(void);
+void test_power_manager_remove_standby_state_request(void);
+void test_power_manager_get_standby_state_status(void);
 void test_power_manager_deinit(void);
 void test_get_lowest_ps(void);
 void test_power_manager_is_ok_to_sleep(void);
@@ -99,15 +104,10 @@ void test_clock_manager_control_pll(void);
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
  ******************************************************************************/
-void test_power_manager_example_init()
-{
-  // Initialization of thread with the application_start function
-  osThreadNew((osThreadFunc_t)test_application_start, NULL, &test_thread_attributes);
-}
+void app_init()
 
-static void test_application_start(void *argument)
 {
-  UNUSED_VARIABLE(argument);
+
   // Initialize the wireless interface and put the NWP in Standby with RAM retention mode.
   test_initialize_wireless();
 
@@ -132,6 +132,12 @@ static void test_application_start(void *argument)
   RUN_TEST(test_power_manager_unsubscribe_ps_transition_event, __LINE__);
   RUN_TEST(test_power_manager_remove_peripheral_requirement, __LINE__);
   RUN_TEST(test_power_manager_remove_ps_requirement, __LINE__);
+  RUN_TEST(test_power_manager_request_ps1_state, __LINE__);
+  RUN_TEST(test_power_manager_remove_ps1_state_request, __LINE__);
+  RUN_TEST(test_power_manager_get_ps1_state_status, __LINE__);
+  RUN_TEST(test_power_manager_request_standby_state, __LINE__);
+  RUN_TEST(test_power_manager_remove_standby_state_request, __LINE__);
+  RUN_TEST(test_power_manager_get_standby_state_status, __LINE__);
   RUN_TEST(test_power_manager_deinit, __LINE__);
 
   UnityEnd();
@@ -642,7 +648,7 @@ void test_power_manager_standby(void)
   UnityPrintf("\n");
   UnityPrintf("Testing Power Manager move into standby mode \n");
 
-  //  sl_si91x_power_manager_standby();
+  sl_si91x_power_manager_standby();
   UnityPrintf("Power Manager move into standby mode successfully \n");
 
   UnityPrintf("Power Manager move into standby mode test completed \n");
@@ -675,7 +681,14 @@ void test_power_manager_set_wakeup_sources(void)
 
   UnityPrintf("Power Manager set wakeup source test completed \n");
 }
-
+void test_power_manager_get_standby_state_status(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing sl_si91x_power_manager_get_standby_state_status API\n");
+  bool status = sl_si91x_power_manager_get_standby_state_status();
+  UnityPrintf("Standby state status: %d\n", status);
+  UnityPrintf("sl_si91x_power_manager_get_standby_state_status executed successfully\n");
+}
 /*******************************************************************************
  * Function to test set ram retention.
  ******************************************************************************/
@@ -775,6 +788,203 @@ void test_power_manager_get_requirement_table(void)
   UnityPrintf("Power Manager get requirement table successfully \n");
 
   UnityPrintf("Power Manager get requirement table test completed \n");
+}
+/*******************************************************************************
+ * Function to test power manger request PS1 state.
+ ******************************************************************************/
+void test_power_manager_request_ps1_state(void)
+{
+  sl_status_t status;
+
+  UnityPrintf("\n");
+  UnityPrintf("Testing sl_si91x_power_manager_request_ps1_state API\n");
+  UnityPrintf("Testing sl_si91x_power_manager_request_ps1_state API for invalid state\n");
+  status = sl_si91x_power_manager_request_ps1_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_STATE, status);
+  UnityPrintf("Tested sl_si91x_power_manager_request_ps1_state API for invalid state\n");
+
+  UnityPrintf("Testing sl_si91x_power_manager_request_ps1_state API for valid state\n");
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  status = sl_si91x_power_manager_request_ps1_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("Tested sl_si91x_power_manager_request_ps1_state API for valid state\n");
+
+  sl_power_state_t get_current_state = sl_si91x_power_manager_get_current_state();
+  TEST_ASSERT_EQUAL_HEX(SL_SI91X_POWER_MANAGER_PS2, get_current_state);
+
+  UnityPrintf("Testing sl_si91x_power_manager_request_ps1_state API with status not initialized state\n");
+  sl_si91x_power_manager_deinit();
+
+  status = sl_si91x_power_manager_remove_ps1_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_NOT_INITIALIZED, status);
+
+  UnityPrintf("Tested sl_si91x_power_manager_request_ps1_state API with status not initialized state\n");
+
+  sl_si91x_power_manager_init();
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  UnityPrintf("\nsl_si91x_power_manager_request_ps1_state executed successfully\n");
+}
+
+/******************************************************************************
+*  Function to test remove PS1 state request.
+******************************************************************************/
+void test_power_manager_remove_ps1_state_request(void)
+{
+  UnityPrintf("\n");
+  sl_power_ram_retention_config_t config = { 0 };
+
+  UnityPrintf("Testing sl_si91x_power_manager_remove_ps1_state_request API\n");
+  sl_status_t status = sl_si91x_power_manager_remove_ps1_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("Tested sl_si91x_power_manager_remove_ps1_state_request API with status ok\n");
+
+  sl_si91x_power_manager_deinit();
+  UnityPrintf("Testing sl_si91x_power_manager_remove_ps1_state_request API for invalid state\n");
+  status = sl_si91x_power_manager_remove_ps1_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_STATE, status);
+  UnityPrintf("Tested sl_si91x_power_manager_remove_ps1_state_request API with status invalid state\n");
+
+  UnityPrintf("Testing sl_si91x_power_manager_remove_ps1_state_request API for status not initilaized state\n");
+
+  status = sl_si91x_power_manager_init();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  config.configure_ram_banks = false;
+  config.m4ss_ram_banks      = 0x0;
+  config.ulpss_ram_banks     = 0x0;
+  config.ulpss_ram_size_kb   = 7;
+  config.m4ss_ram_size_kb    = 192;
+
+  status = sl_si91x_power_manager_configure_ram_retention(&config);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  sl_si91x_calendar_rtc_stop();
+
+  status = sl_si91x_power_manager_set_wakeup_sources(SL_SI91X_POWER_MANAGER_SEC_WAKEUP, true);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  // Calendar is initialized.
+  sl_si91x_calendar_init();
+  // Second trigger callback is configured.
+  status = sl_si91x_calendar_register_sec_trigger_callback(on_sec_callback);
+
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  status = sl_si91x_power_manager_request_ps1_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  sl_si91x_power_manager_deinit();
+
+  status = sl_si91x_power_manager_remove_ps1_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_NOT_INITIALIZED, status);
+  UnityPrintf("Tested sl_si91x_power_manager_remove_ps1_state_request API with status not initialized state\n");
+  sl_si91x_power_manager_init();
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_remove_ps1_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  UnityPrintf("\nsl_si91x_power_manager_remove_ps1_state_request executed successfully\n");
+}
+
+/*******************************************************************************
+ * Function to test get PS1 state status.
+ ******************************************************************************/
+void test_power_manager_get_ps1_state_status(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing sl_si91x_power_manager_get_ps1_state_status API\n");
+  bool status = sl_si91x_power_manager_get_ps1_state_status();
+  UnityPrintf("PS1 state status: %d\n", status);
+  UnityPrintf("sl_si91x_power_manager_get_ps1_state_status executed successfully\n");
+}
+
+/*******************************************************************************
+ * Function to test request standby state.
+ ******************************************************************************/
+void test_power_manager_request_standby_state(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing sl_si91x_power_manager_request_standby_state API\n");
+  UnityPrintf("Testing sl_si91x_power_manager_request_standby_state API with status OK\n");
+
+  sl_status_t status = sl_si91x_power_manager_request_standby_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("Tested sl_si91x_power_manager_request_standby_state API with status OK\n");
+
+  UnityPrintf("Testing sl_si91x_power_manager_request_standby_state API with status invalid state\n");
+
+  status = sl_si91x_power_manager_remove_standby_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  sl_power_state_t get_current_state = sl_si91x_power_manager_get_current_state();
+  TEST_ASSERT_EQUAL_HEX(SL_SI91X_POWER_MANAGER_PS2, get_current_state);
+
+  status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  status = sl_si91x_power_manager_request_ps1_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  status = sl_si91x_power_manager_request_standby_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_STATE, status);
+
+  UnityPrintf("Tested sl_si91x_power_manager_request_standby_state API with status invalid state\n");
+
+  status = sl_si91x_power_manager_remove_ps1_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+
+  UnityPrintf("sl_si91x_power_manager_request_standby_state executed successfully\n");
+}
+
+/******************************************************************************
+* Function to test remove standby state request.
+******************************************************************************/
+void test_power_manager_remove_standby_state_request(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing sl_si91x_power_manager_remove_standby_state_request API\n");
+  sl_status_t status = sl_si91x_power_manager_remove_standby_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_STATE, status);
+  UnityPrintf("Tested sl_si91x_power_manager_remove_standby_state_request API with status invalid status\n");
+  UnityPrintf("Testing sl_si91x_power_manager_remove_standby_state_request API with status ok\n");
+  status = sl_si91x_power_manager_request_standby_state();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  status = sl_si91x_power_manager_remove_standby_state_request();
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("Tested sl_si91x_power_manager_remove_standby_state_request API with status ok\n");
+
+  UnityPrintf("sl_si91x_power_manager_remove_standby_state_request executed successfully\n");
 }
 
 /*******************************************************************************

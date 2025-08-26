@@ -124,17 +124,19 @@ Complete the following steps for successful execution of the application:
 
    ![](resources/readme/remote_screen3.png)
 
-8. Once the Silicon Labs module is connected to the access point, you will be prompted to enter the publish and subscribe topics.
+8. Once the Silicon Labs module is successfully connected to the Wi-Fi network, the BLE connection is automatically disconnected from the application side since it is no longer needed for provisioning.
+
+9. After the Wi-Fi connection is established, you will be prompted to enter the publish and subscribe topics.
 
    ![](resources/readme/Mobile_app_ui_2.png)
 
-9. The application starts publishing sensor data to AWS via MQTT, and this information will be displayed on the mobile app dashboard.
+10. The application starts publishing sensor data to AWS via MQTT, and this information will be displayed on the mobile app dashboard.
 
    ![](resources/readme/Mobile_app_ui_3.png)
 
    ![](resources/readme/Mobile_app_ui_4.png)
 
-10. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
+11. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
 
     ![](resources/readme/Mobile_app_ui_5.png)
 

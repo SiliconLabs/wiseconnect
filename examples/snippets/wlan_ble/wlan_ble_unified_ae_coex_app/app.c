@@ -113,7 +113,7 @@ static const sl_wifi_device_configuration_t
                .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef SLI_SI91X_MCU_INTERFACE
                .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
-                                   | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
+                                   | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
 #else
                .feature_bit_map        = SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1,
 #endif

@@ -499,13 +499,11 @@ void wifi_app_task(void)
         wifi_app_clear_event(WIFI_APP_IPCONFIG_DONE_STATE);
         LOG_PRINT("WIFI App IPCONFIG Done State\r\n");
         wifi_app_send_to_ble(WIFI_APP_REQ_BLE_DISCONNECT, NULL, 0);
-        wifi_app_set_event(WIFI_AP_BRING_UP_STATE);
       } break;
 
       case WIFI_APP_DISCONNECTED_STATE: {
         disconnected = 1;
         wifi_app_clear_event(WIFI_APP_DISCONNECTED_STATE);
-        wifi_app_send_to_ble(WIFI_APP_REQ_BLE_START_ADVERTISING, NULL, 0);
         LOG_PRINT("WIFI App Disconnected State\r\n");
 #if !AP_ONLY_MODE
         wifi_app_set_event(WIFI_DISABLE_NAT);
@@ -601,6 +599,7 @@ void wifi_app_task(void)
           break;
         }
         LOG_PRINT("\r\nAP Stop Success\r\n");
+        wifi_app_send_to_ble(WIFI_APP_REQ_BLE_START_ADVERTISING, NULL, 0);
       } break;
 
       case WIFI_ENABLE_NAT: {
@@ -617,9 +616,9 @@ void wifi_app_task(void)
         wifi_app_clear_event(WIFI_DISABLE_NAT);
         status = sl_net_nat_disable(nat_config.interface);
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nEnabling the NAT failed with error code: 0x%lx\r\n", status);
+          LOG_PRINT("\r\nDisabling the NAT failed with error code: 0x%lx\r\n", status);
         } else {
-          LOG_PRINT("\r\nEnabled NAT\r\n");
+          LOG_PRINT("\r\nDisabled NAT\r\n");
         }
         wifi_app_set_event(WIFI_AP_BRING_DOWN_STATE);
       } break;

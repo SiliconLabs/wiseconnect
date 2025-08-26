@@ -604,8 +604,7 @@ rsi_app_pkt_t *rsi_app_dequeue_pkt_with_mutex(app_queue_t *queue, osMutexId_t *q
   queue->pkt_cnt--;
 
   //! if pending count is zero, then reset head and tail
-  if (!queue->pkt_cnt) {
-    queue->head = NULL;
+  if (queue->head == NULL) {
     queue->tail = NULL;
   }
 
