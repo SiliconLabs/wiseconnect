@@ -31,9 +31,82 @@
 #define SLI_WIFI_CONSTANTS_H
 /// Timeout value for Wi-Fi join command
 #define SLI_WIFI_CONNECT_TIMEOUT 120000 // in ms, i.e., 120s
+// User gain table related
+#define SLI_MAX_GAIN_TABLE_SIZE_WITH_SU_TB 160
+#ifndef SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME
+#define SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME 1000 // 1 second to wait for a command buffer
+#endif
+#define SLI_WLAN_MGMT_Q 4
+#define SLI_BT_Q        2
+
+#define SLI_WIFI_BG_SCAN_DISABLE 0
+#define SLI_WIFI_BG_SCAN_ENABLE  1
+
+#ifndef SLI_WIFI_CONFIG_RTS_THRESHOLD
+#define SLI_WIFI_CONFIG_RTS_THRESHOLD 1
+#endif
+#ifndef SLI_WIFI_RTS_THRESHOLD
+#define SLI_WIFI_RTS_THRESHOLD 2346
+#endif
+
+#define SLI_WIFI_INVALID_MODE 0xFFFF
+
+/// Flag to indicate that the response status of the command is expected.
+#define SLI_WIFI_PACKET_RESPONSE_STATUS (1 << 0)
+
+/// Flag to indicate that the response packet of the command is expected.
+#define SLI_WIFI_PACKET_RESPONSE_PACKET (1 << 1)
+
+/// Flag to indicate that all the packet tx has to be suspended until the corresponding command response is received.
+#define SLI_WIFI_PACKET_GLOBAL_QUEUE_BLOCK (1 << 3)
+
+/// Flag to indicate that host would receive the response from firmware in asynchronous manner.
+#define SLI_WIFI_PACKET_WITH_ASYNC_RESPONSE (1 << 4)
+
+#define SLI_WIFI_SET_WPS_METHOD_PIN   1
+#define SLI_WIFI_SET_WPS_GENERATE_PIN 1
+#define SLI_WIFI_TX_PENDING_FLAG(x)   (1 << (x))
+#define SLI_WIFI_RESPONSE_FLAG(x)     (1 << (SI91X_CMD_MAX + x))
+
+/**
+ * @def SLI_SI91X_FEAT_FW_UPDATE_NEW_CODE
+ * @brief Indicates support for a new set of firmware update result codes. This bit is used for internal purpose.
+ * @details
+ * This bit in the feature bitmap is used to inform the NWP firmware whether
+ * the host supports a new set of result codes to differentiate firmware update
+ * results from other non-firmware-related results. If this bit is set,
+ * the NWP firmware would send result codes from the new set after a firmware update.
+ * If the bit is not set, the legacy result codes would be used.
+ */
+#define SLI_SI91X_FEAT_FW_UPDATE_NEW_CODE BIT(16)
+
+/// Wifi Timeout types
+typedef enum {
+  SLI_WIFI_AUTHENTICATION_ASSOCIATION_TIMEOUT =
+    0, ///< Used for setting association and authentication timeout request in milliseconds
+  SLI_WIFI_CHANNEL_ACTIVE_SCAN_TIMEOUT, ///< Used for setting dwell time per channel in milliseconds during active scan
+  SLI_WIFI_KEEP_ALIVE_TIMEOUT,          ///< Used for setting WLAN keep alive time in seconds
+  SLI_WIFI_CHANNEL_PASSIVE_SCAN_TIMEOUT ///< Used for setting dwell time per channel in milliseconds during passive scan
+} sli_wifi_timeout_type_t;
+
+typedef enum {
+  SLI_WIFI_RETURN_IMMEDIATELY              = 0,
+  SLI_WIFI_WAIT_FOR_RESPONSE_BIT           = (1UL << 30),
+  SLI_WIFI_WAIT_FOR_EVER                   = (1UL << 31),
+  SLI_WIFI_WAIT_FOR_OTAF_RESPONSE          = (SLI_WIFI_WAIT_FOR_RESPONSE_BIT | SLI_WIFI_WAIT_FOR_EVER),
+  SLI_WIFI_WAIT_FOR_SYNC_SCAN_RESULTS      = (SLI_WIFI_WAIT_FOR_RESPONSE_BIT | 12000),
+  SLI_WIFI_WAIT_FOR_COMMAND_RESPONSE       = (SLI_WIFI_WAIT_FOR_RESPONSE_BIT | 1000),
+  SLI_WIFI_WAIT_FOR_SOCKET_ACCEPT_RESPONSE = (SLI_WIFI_WAIT_FOR_RESPONSE_BIT | 5000),
+  SLI_WIFI_WAIT_FOR_COMMAND_SUCCESS        = 3000,
+  SLI_WIFI_WAIT_FOR_DNS_RESOLUTION         = 20000,
+} sli_wifi_wait_period_t;
+
+#define SLI_WIFI_WAIT_FOR(x)          (sli_wifi_wait_period_t)(x)
+#define SLI_WIFI_WAIT_FOR_RESPONSE(x) (sli_wifi_wait_period_t)(SLI_WIFI_WAIT_FOR_RESPONSE_BIT | (x))
 
 typedef enum { SLI_WIFI_NO_ENCRYPTION, SLI_WIFI_TKIP_ENCRYPTION, SLI_WIFI_CCMP_ENCRYPTION } sli_wifi_encryption_t;
 typedef enum {
+  SLI_WIFI_REQ_CONFIG                       = 0xBE, ///< Wi-Fi Config
   SLI_WIFI_REQ_INIT                         = 0x12, ///< Wi-Fi Initialization
   SLI_WIFI_REQ_OPERMODE                     = 0x10, ///< Wi-Fi Operation Mode
   SLI_WIFI_REQ_BAND                         = 0x11, ///< Wi-Fi Band
@@ -42,6 +115,7 @@ typedef enum {
   SLI_WIFI_REQ_PWRMODE                      = 0x15, ///< Power Mode
   SLI_WIFI_REQ_MAC_ADDRESS                  = 0x4A, ///< Set MAC Address
   SLI_WIFI_REQ_DISCONNECT                   = 0x19, ///< Wi-Fi Disconnect
+  SLI_COMMON_REQ_SOFT_RESET                 = 0x1C, ///< Wi-Fi Soft Reset
   SLI_WIFI_REQ_AP_STOP                      = 0xAE, ///< Stop Access Point
   SLI_WIFI_REQ_QUERY_NETWORK_PARAMS         = 0x18, ///< Query Network Parameters
   SLI_WIFI_REQ_ANTENNA_SELECT               = 0x1B, ///< Antenna Selection
@@ -57,12 +131,17 @@ typedef enum {
   SLI_WIFI_REQ_QUERY_GO_PARAMS              = 0x4E, ///< Query GO Parameters
   SLI_WIFI_REQ_EXT_STATS                    = 0x68, ///< Extended Statistics  // Neither part 22q2 nor alpha 2
   SLI_WIFI_REQ_GET_STATS                    = 0xF1, ///< Get Statistics
+  SLI_WIFI_REQ_FREQ_OFFSET                  = 0xF3, ///< Frequency Offset
   SLI_WIFI_REQ_RX_STATS                     = 0xA2, ///< RX Statistics
   SLI_WIFI_REQ_ROAM_PARAMS                  = 0x7B, ///< Roam Parameters
+  SLI_WIFI_REQ_TX_TEST_MODE                 = 0x7C, ///< TX Test Mode
   SLI_WIFI_REQ_TWT_AUTO_CONFIG              = 0x2E, ///< TWT Auto Configuration
+  SLI_WIFI_REQ_DYNAMIC_POOL                 = 0xC7, ///< Dynamic Pool
+  SLI_WIFI_COMMON_REQ_FEATURE_FRAME         = 0xC8, ///< Feature Frame
   SLI_WIFI_REQ_FILTER_BCAST_PACKETS         = 0xC9, ///< Filter Broadcast Packets
   SLI_WIFI_REQ_WPS_METHOD                   = 0x72, ///< WPS Method
   SLI_WIFI_REQ_GAIN_TABLE                   = 0x47, ///< Gain Table
+  SLI_WIFI_REQ_TIMEOUT                      = 0xEA, ///< Timeout
   SLI_WIFI_REQ_11AX_PARAMS                  = 0xFF, ///< 11AX Parameters
   SLI_WIFI_REQ_TWT_PARAMS                   = 0x2F, ///< TWT Parameters
   SLI_WIFI_REQ_RESCHEDULE_TWT               = 0x3F, ///< Reschedule TWT
@@ -74,10 +153,12 @@ typedef enum {
   SLI_WIFI_REQ_SET_MULTICAST_FILTER         = 0x40, ///< Set Multicast Filter
   SLI_WIFI_REQ_CARDREADY                    = 0x89, ///< Card Ready
   SLI_WLAN_REQ_SCAN_RESULTS                 = 0xAF, ///< Scan Results
-  SLI_WIFI_REQ_TSF                          = 0x65  ///< TSF
+  SLI_WIFI_REQ_TSF                          = 0x65, ///< TSF
+  SLI_WIFI_REQ_WIFI_RAIL                    = 0x99  ///< Wi-Fi Rail
 } sli_wifi_request_commands_t;
 
 typedef enum {
+  SLI_WIFI_RSP_CONFIG                       = 0xBE, ///< Wi-Fi Config
   SLI_WIFI_RSP_OPERMODE                     = 0x10, ///< Wi-Fi Operation Mode
   SLI_WIFI_RSP_INIT                         = 0x12, ///< Wi-Fi Initialization
   SLI_WIFI_RSP_BAND                         = 0x11, ///< Wi-Fi
@@ -86,6 +167,7 @@ typedef enum {
   SLI_WIFI_RSP_PWRMODE                      = 0x15, ///< Power Mode
   SLI_WIFI_RSP_MAC_ADDRESS                  = 0x4A, ///< Set MAC Address
   SLI_WIFI_RSP_DISCONNECT                   = 0x19, ///< Wi-Fi Disconnect
+  SLI_COMMON_RSP_SOFT_RESET                 = 0x1C, ///< Wi-Fi Soft Reset
   SLI_WIFI_RSP_AP_STOP                      = 0xAE, ///< Stop Access Point
   SLI_WIFI_RSP_QUERY_NETWORK_PARAMS         = 0x18, ///< Query Network Parameters
   SLI_WIFI_RSP_ANTENNA_SELECT               = 0x1B, ///< Antenna Selection
@@ -105,8 +187,10 @@ typedef enum {
   SLI_WIFI_RSP_ROAM_PARAMS                  = 0x7B, ///< Roam Parameters
   SLI_WIFI_RSP_TWT_AUTO_CONFIG              = 0x2E, ///< TWT Auto Configuration
   SLI_WIFI_RSP_FILTER_BCAST_PACKETS         = 0xC9, ///< Filter Broadcast Packets
+  SLI_WIFI_REQ_GET_DPD_DATA                 = 0xDC, ///< Get DPD Data
   SLI_WIFI_RSP_WPS_METHOD                   = 0x72, ///< WPS Method
   SLI_WIFI_RSP_GAIN_TABLE                   = 0x47, ///< Gain Table
+  SLI_WIFI_RSP_TIMEOUT                      = 0xEA, ///< Timeout
   SLI_WIFI_RSP_11AX_PARAMS                  = 0xFF, ///< 11AX Parameters
   SLI_WIFI_RSP_TWT_PARAMS                   = 0x2F, ///< TWT Parameters
   SLI_WIFI_RSP_RESCHEDULE_TWT               = 0x3F, ///< Reschedule TWT

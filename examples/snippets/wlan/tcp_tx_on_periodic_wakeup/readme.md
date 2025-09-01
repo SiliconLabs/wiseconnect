@@ -63,7 +63,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Simplicity Studio and WiSeConnect 3 extension
+- Install Simplicity Studio and WiSeConnect extension
 - Connect SiWx917 device to the computer
 - Upgrade the device connectivity firmware
 - Create the Studio project

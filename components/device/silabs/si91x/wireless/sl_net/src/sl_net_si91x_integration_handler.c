@@ -70,7 +70,7 @@
 #ifdef SLI_SI91X_INTERNAL_HTTP_CLIENT
 #include "sl_si91x_http_client_callback_framework.h"
 #endif
-
+#include "sli_wifi_utility.h"
 extern sli_wifi_command_queue_t cmd_queues[SI91X_CMD_MAX];
 
 #ifdef SLI_SI91X_EMBEDDED_MQTT_CLIENT
@@ -79,7 +79,8 @@ extern sli_wifi_command_queue_t cmd_queues[SI91X_CMD_MAX];
  */
 static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_asyn_packet)
 {
-  sl_wifi_system_packet_t *raw_rx_packet = sli_wifi_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
+  sl_wifi_system_packet_t *raw_rx_packet =
+    (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
   sl_mqtt_client_t *mqtt_client;
 
   raw_rx_packet->desc[12] = mqtt_asyn_packet->frame_status & 0xFF;        // Lower 8 bits
@@ -258,7 +259,7 @@ static void sli_handle_tx_flush(const sli_si91x_queue_packet_t *data,
 static void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet)
 {
   // Retrieve the current operation mode (e.g., client, AP, concurrent).
-  sl_wifi_operation_mode_t current_operation_mode = sli_get_opermode();
+  sl_wifi_operation_mode_t current_operation_mode = sli_wifi_get_opermode();
 
   // Determine if a Wi-Fi client is disconnected from the access point.
   // This includes cases where the device is operating as an access point (AP mode)
@@ -388,7 +389,7 @@ void sli_si91x_flush_third_party_station_dependent_sockets(const sli_si91x_ap_di
 {
 
   sl_ip_address_t dest_ip_add = { 0 };
-  uint8_t vap_id = (SL_SI91X_CONCURRENT_MODE == sli_get_opermode()) ? SL_WIFI_AP_VAP_ID : SL_WIFI_CLIENT_VAP_ID;
+  uint8_t vap_id = (SL_WIFI_CONCURRENT_MODE == sli_wifi_get_opermode()) ? SL_WIFI_AP_VAP_ID : SL_WIFI_CLIENT_VAP_ID;
   // IPv4 Address Handling
   if (ap_disconnect_resp->flag & BIT(0)) {
     dest_ip_add.type = SL_IPV4;

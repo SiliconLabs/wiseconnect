@@ -51,6 +51,32 @@ sl_status_t sli_queue_manager_init(sli_queue_t *handle, sli_buffer_manager_pool_
   return SL_STATUS_OK;
 }
 
+sl_status_t sli_queue_manager_enqueue_node(sli_queue_t *handle, sli_queue_node_t *node)
+{
+  if (NULL == handle) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (NULL == node) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  CORE_irqState_t state = CORE_EnterAtomic();
+  node->next            = NULL;
+  if (SLI_QUEUE_MANAGER_IS_QUEUE_EMPTY(handle)) {
+    assert(handle->tail == NULL); // Both should be NULL at the same time
+    handle->head = node;
+    handle->tail = node;
+  } else {
+    handle->tail->next = node;
+    handle->tail       = node;
+  }
+
+  CORE_ExitAtomic(state);
+
+  return SL_STATUS_OK;
+}
+
 sl_status_t sli_queue_manager_enqueue(sli_queue_t *handle, void *data)
 {
   sl_status_t status     = SL_STATUS_OK;
@@ -71,20 +97,7 @@ sl_status_t sli_queue_manager_enqueue(sli_queue_t *handle, void *data)
   VERIFY_STATUS_AND_RETURN(status);
   node->data = data;
 
-  CORE_irqState_t state = CORE_EnterAtomic();
-  node->next            = NULL;
-  if (SLI_QUEUE_MANAGER_IS_QUEUE_EMPTY(handle)) {
-    assert(handle->tail == NULL); // Both should be NULL at the same time
-    handle->head = node;
-    handle->tail = node;
-  } else {
-    handle->tail->next = node;
-    handle->tail       = node;
-  }
-
-  CORE_ExitAtomic(state);
-
-  return SL_STATUS_OK;
+  return sli_queue_manager_enqueue_node(handle, node);
 }
 
 sl_status_t sli_queue_manager_add_to_queue_head(sli_queue_t *handle, void *data)
@@ -124,26 +137,25 @@ sl_status_t sli_queue_manager_add_to_queue_head(sli_queue_t *handle, void *data)
   return SL_STATUS_OK;
 }
 
-sl_status_t sli_queue_manager_dequeue(sli_queue_t *handle, void **data)
+sl_status_t sli_queue_manager_dequeue_node(sli_queue_t *handle, sli_queue_node_t **node)
 {
-  sl_status_t status     = SL_STATUS_EMPTY;
-  sli_queue_node_t *node = NULL;
+  sl_status_t status = SL_STATUS_EMPTY;
 
   if (NULL == handle) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if (NULL == data) {
+  if (NULL == node) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
   CORE_irqState_t state = CORE_EnterAtomic();
   if (SLI_QUEUE_MANAGER_IS_QUEUE_EMPTY(handle)) {
     assert(handle->tail == NULL); // Both should be NULL at the same time
-    *data  = NULL;
+    *node  = NULL;
     status = SL_STATUS_EMPTY;
   } else {
-    node   = handle->head;
+    *node  = handle->head;
     status = SL_STATUS_OK;
     if (handle->head == handle->tail) {
       handle->head = NULL;
@@ -154,10 +166,33 @@ sl_status_t sli_queue_manager_dequeue(sli_queue_t *handle, void **data)
   }
   CORE_ExitAtomic(state);
 
-  if (NULL != node) {
-    node->next = NULL;
-    *data      = node->data;
-    status     = sli_buffer_manager_free_buffer((sli_buffer_t)node);
+  if (NULL != *node) {
+    (*node)->next = NULL;
+  }
+
+  return status;
+}
+
+sl_status_t sli_queue_manager_dequeue(sli_queue_t *handle, void **data)
+{
+  sl_status_t status     = SL_STATUS_OK;
+  sli_queue_node_t *node = NULL;
+
+  if (NULL == handle) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (NULL == data) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  status = sli_queue_manager_dequeue_node(handle, &node);
+
+  if (status == SL_STATUS_OK && node != NULL) {
+    *data  = node->data;
+    status = sli_buffer_manager_free_buffer((sli_buffer_t)node);
+  } else {
+    *data = NULL;
   }
 
   return status;

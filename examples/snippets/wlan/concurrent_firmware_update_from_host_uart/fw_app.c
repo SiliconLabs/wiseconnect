@@ -390,7 +390,7 @@ sl_status_t update_firmware()
 
       com_port_send("header", strlen("header"));
 
-      com_port_receive(recv_buffer, sizeof(sl_si91x_firmware_header_t));
+      com_port_receive(recv_buffer, sizeof(sl_wifi_firmware_header_t));
       osSemaphoreAcquire(update_semaphore, osWaitForever);
 
       // Check if the received header contains the magic word

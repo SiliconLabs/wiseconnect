@@ -145,7 +145,7 @@ void rsi_app_set_event(uint32_t event_num,
 {
   //! Take Mutex Lock
   if (event_map_mutex != NULL) {
-    osMutexAcquire(*event_map_mutex, 0);
+    osMutexAcquire(*event_map_mutex, osWaitForever);
   }
   //! Set Actual Event
   if (event_num <= 31) {
@@ -182,7 +182,7 @@ void rsi_app_set_event_from_isr(uint32_t event_num,
 {
   //! Take Mutex Lock
   if (event_map_mutex != NULL) {
-    osMutexAcquire(*event_map_mutex, 0);
+    osMutexAcquire(*event_map_mutex, osWaitForever);
   }
   //! Set Actual Event
   if (event_num <= 31) {
@@ -213,7 +213,7 @@ void rsi_app_set_event_from_isr(uint32_t event_num,
 void rsi_app_clear_event(uint32_t event_num, uint32_t *async_event_map, osMutexId_t *event_map_mutex)
 {
   if (event_map_mutex != NULL) {
-    osMutexAcquire(*event_map_mutex, 0);
+    osMutexAcquire(*event_map_mutex, osWaitForever);
   }
 
   if (event_num <= 31) {
@@ -240,7 +240,7 @@ void rsi_app_clear_event(uint32_t event_num, uint32_t *async_event_map, osMutexI
 void rsi_app_mask_event(uint32_t event_num, uint32_t *async_event_map_mask, osMutexId_t *event_map_mutex)
 {
   if (event_map_mutex != NULL) {
-    osMutexAcquire(*event_map_mutex, 0);
+    osMutexAcquire(*event_map_mutex, osWaitForever);
   }
   if (event_num <= 31) {
     async_event_map_mask[0] |= BIT(event_num);
@@ -271,7 +271,7 @@ void rsi_app_unmask_event_from_isr(uint32_t event_num,
                                    osMutexId_t *event_map_mutex)
 {
   if (event_map_mutex != NULL) {
-    osMutexAcquire(*event_map_mutex, 0);
+    osMutexAcquire(*event_map_mutex, osWaitForever);
   }
   if (event_num <= 31) {
     async_event_map_mask[0] &= ~BIT(event_num);
@@ -305,7 +305,7 @@ void rsi_app_unmask_event(uint32_t event_num,
                           osMutexId_t *event_map_mutex)
 {
   if (event_map_mutex != NULL) {
-    osMutexAcquire(*event_map_mutex, 0);
+    osMutexAcquire(*event_map_mutex, osWaitForever);
   }
 
   if (event_num <= 31) {
@@ -371,7 +371,7 @@ void rsi_app_enqueue_pkt(rsi_app_queue_t *queue, rsi_app_pkt_t *pkt)
 {
 
   //! take lock on queue
-  osMutexAcquire(queue->queue_mutex, 0);
+  osMutexAcquire(queue->queue_mutex, osWaitForever);
 
   //! check queue is empty
   if (!queue->pkt_cnt) {
@@ -409,7 +409,7 @@ void rsi_app_enqueue_pkt_from_isr(rsi_app_queue_t *queue, rsi_app_pkt_t *pkt)
 {
 
   //! take lock on queue
-  osMutexAcquire(queue->queue_mutex, 0);
+  osMutexAcquire(queue->queue_mutex, osWaitForever);
   //! check queue is empty
   if (!queue->pkt_cnt) {
     //! if empty then add packet as first packet (head & tail point to first packet)
@@ -447,12 +447,11 @@ void rsi_app_enqueue_pkt_with_mutex(app_queue_t *queue, rsi_app_pkt_t *pkt, osMu
 {
 
   //! take lock on queue
-  osMutexAcquire(*queue_mutex, 0);
+  osMutexAcquire(*queue_mutex, osWaitForever);
 
   //! check queue is empty
-  if (queue->head == NULL) {
+  if (!queue->pkt_cnt) {
     //! if empty then add packet as first packet (head & tail point to first packet)
-    queue->pkt_cnt = 0;
     queue->head = queue->tail = pkt;
   } else {
     //! if not empty append the packet to list at tail
@@ -486,7 +485,7 @@ rsi_app_pkt_t *rsi_app_dequeue_pkt(rsi_app_queue_t *queue)
   rsi_app_pkt_t *pkt;
 
   //! lock the mutex
-  osMutexAcquire(queue->queue_mutex, 0);
+  osMutexAcquire(queue->queue_mutex, osWaitForever);
 
   //! check queue is empty
   if (!queue->pkt_cnt) {
@@ -536,7 +535,7 @@ rsi_app_pkt_t *rsi_app_dequeue_pkt_from_isr(rsi_app_queue_t *queue)
   rsi_app_pkt_t *pkt;
 
   //! lock the mutex
-  osMutexAcquire(queue->queue_mutex, 0);
+  osMutexAcquire(queue->queue_mutex, osWaitForever);
   //! check queue is empty
   if (!queue->pkt_cnt) {
     //! Unlock the mutex
@@ -584,11 +583,10 @@ rsi_app_pkt_t *rsi_app_dequeue_pkt_with_mutex(app_queue_t *queue, osMutexId_t *q
   rsi_app_pkt_t *pkt;
 
   //! lock the mutex
-  osMutexAcquire(*queue_mutex, 0);
+  osMutexAcquire(*queue_mutex, osWaitForever);
 
   //! check queue is empty
-  if (queue->head == NULL) {
-    queue->pkt_cnt = 0;
+  if (!queue->pkt_cnt) {
     osMutexRelease(*queue_mutex);
     //! return NULL if queue is empty
     return NULL;

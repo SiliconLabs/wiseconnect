@@ -96,6 +96,8 @@ static uint8_t convert_handle_to_instance(sl_ssi_handle_t ssi_handle);
  * @return
  * *         returns status - SL_STATUS_OK if data is set successfully,
  *           error return code such as SL_STATUS_INVALID_PARAMETER otherwise.
+ * @note
+ *   Moving forward, this API will be deprecated. This is retained for backward compatibility.
 *******************************************************************************/
 sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
 {

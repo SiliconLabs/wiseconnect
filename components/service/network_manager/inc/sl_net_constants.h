@@ -51,6 +51,8 @@
 /// Interface Type Selection
 #define SL_NET_INTERFACE_TYPE(x) (x & NETWORK_INTERFACE_TYPE_MASK)
 
+#define SL_NET_MAX_MAC_ADDR_LENGTH 6 ///< Length of the MAC address for network interfaces.
+
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
 
@@ -318,4 +320,14 @@ typedef enum {
  * The valid values for x is only 0.
  */
 #define SL_NET_HTTP_CLIENT_CREDENTIAL_ID(x) (SL_NET_HTTP_CLIENT_CREDENTIAL_START + x)
+
+/**
+ * @brief Network Manager Thread Stack Size Configuration
+ * 
+ * Default value of 3072 bytes.
+ * To use a custom value, define SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE in the preprocessor settings of the project.
+ */
+#ifndef SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE
+#define SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE 3072
+#endif
 /** @} */

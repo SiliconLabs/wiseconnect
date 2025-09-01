@@ -26,7 +26,7 @@ config_file:
 - path: config/pin_config.h
   file_id: pin_config
 - path: config/sl_gpio_board.h
-  unless: [rsilib_board]
+  file_id: sl_gpio_board
 - path: config/sl_i2c_board.h
   unless: [rsilib_board]
 - path: config/sl_pwm_board.h

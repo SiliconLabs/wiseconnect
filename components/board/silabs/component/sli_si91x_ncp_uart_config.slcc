@@ -3,7 +3,7 @@ package: platform_siwx91x
 description: >
   This component implements NCP configuration for host MCU.
 
-label: Si91x NCP bus USART configuration.
+label: Si91x NCP bus USART configuration
 category: Device|Si91x|Wireless|Network Stack
 quality: production
 metadata:

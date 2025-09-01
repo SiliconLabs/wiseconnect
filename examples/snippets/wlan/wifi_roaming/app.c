@@ -199,6 +199,8 @@ static void application_start(void *argument)
   //! Register the scan callback handler
   wifi_scan_configuration.type                   = SL_WIFI_SCAN_TYPE_ADV_SCAN;
   wifi_scan_configuration.periodic_scan_interval = ADV_SCAN_PERIODICITY;
+  scan_results_complete                          = false;
+  callback_status                                = SL_STATUS_FAIL;
 
   sl_wifi_set_scan_callback_v2(scan_callback_handler, NULL);
 

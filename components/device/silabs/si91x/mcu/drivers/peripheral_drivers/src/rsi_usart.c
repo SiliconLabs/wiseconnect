@@ -1186,7 +1186,7 @@ static void configure_ulp_uart_gpio_pin(const USART_PIN *usart_gpio_pin, uint8_t
       RSI_EGPIO_PadSelectionEnable(usart_gpio_pin->pad_sel);
     }
     if (usart_pin_flag == USART_CONFIGURE_RX_GPIO_PIN) {
-      RSI_EGPIO_UlpPadDriverDisableState(usart_gpio_pin->pin, ulp_Pullup);
+      RSI_EGPIO_PadDriverDisableState(usart_gpio_pin->pin, Pullup);
     }
     RSI_EGPIO_PadReceiverEnable(usart_gpio_pin->pin);
     RSI_EGPIO_SetPinMux(EGPIO1, usart_gpio_pin->port, usart_gpio_pin->pin, 0);

@@ -272,6 +272,12 @@ sl_status_t sl_si91x_set_fast_fw_up(void);
  *  |-----------|----------------------|-----------------------|
  *  | SoC       | Not-Supported        | Supported             |
  *  | NCP       | Not-Supported        | Supported             |
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) || defined(DOXYGEN)
 sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,

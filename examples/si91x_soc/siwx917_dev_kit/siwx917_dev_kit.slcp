@@ -1,5 +1,5 @@
 project_name: siwx917_dev_kit
-package: platform_siwx91x_apps
+package: platform_nwp_siwx91x_apps
 description: 
    This application demonstrates the features of the SiWx917 Dev Kit Board. This can be tested with the Simplicity Connect mobile app.
 category: Example|Wi-Fi
@@ -7,7 +7,7 @@ quality: production
 label: Wi-Fi - SiWx917 Dev Kit
 sdk:
    id: simplicity_sdk
-   version:  "2025.6.1"
+   version: 2025.12.0
 sdk_extension:
 -  id: wiseconnect3_sdk
    version: 4.0.0

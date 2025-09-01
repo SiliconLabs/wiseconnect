@@ -33,6 +33,7 @@
 /*=======================================================================*/
 #include "rsi_common_app.h"
 #if WLAN_TASK_ENABLE
+#if (WIFI_APP == MQTT_APP)
 #include "stdlib.h"
 #include "wifi_app_config.h"
 
@@ -484,6 +485,10 @@ sl_status_t start_aws_mqtt(void)
               sl_si91x_select(mqtt_client.networkStack.socket_id + 1, &read_fds, NULL, NULL, NULL, async_socket_select);
 
             printf("\rSelect status: 0x%lX\r\n", status);
+
+            // Break here to allow async_socket_select callback to execute
+            // Prevents race condition where state machine continues before callback completes
+            break;
           }
 
           if (check_for_recv_data) {
@@ -698,4 +703,5 @@ void subscribe_handler(struct _Client *pClient,
   UNUSED_PARAMETER(data);
   printf("\rData received on the Subscribed Topic: %.*s \r\n", pParams->payloadLen, (char *)pParams->payload);
 }
+#endif
 #endif

@@ -329,6 +329,26 @@ void receive_data_from_udp_client(void)
   LOG_PRINT("\r\nListening on Local Port %d\r\n", DEVICE_PORT);
 
   LOG_PRINT("\r\nUDP_RX Async Throughput test start\r\n");
+
+#if CONTINUOUS_THROUGHPUT
+  // Continuous throughput mode - loop forever with interval reporting
+  while (1) {
+    // Reset for each interval
+    has_data_received = 0;
+    bytes_read        = 0;
+    start             = osKernelGetTickCount();
+
+    // Wait for TEST_TIMEOUT interval or max bytes
+    while (!has_data_received) {
+      osThreadYield();
+    }
+
+    now = osKernelGetTickCount();
+    LOG_PRINT("\r\nTotal bytes received : %ld\r\n", bytes_read);
+    measure_and_print_throughput(bytes_read, (now - start));
+  }
+#else
+  // Single measurement mode
   start = osKernelGetTickCount();
   while (!has_data_received) {
     osThreadYield();
@@ -340,6 +360,7 @@ void receive_data_from_udp_client(void)
   measure_and_print_throughput(bytes_read, (now - start));
 
   close(client_socket);
+#endif
 }
 #else
 void receive_data_from_udp_client(void)
@@ -533,6 +554,26 @@ void receive_data_from_tcp_client(void)
   LOG_PRINT("\r\nClient Socket ID : %d\r\n", client_socket);
 
   LOG_PRINT("\r\nTCP_RX Async Throughput test start\r\n");
+
+#if CONTINUOUS_THROUGHPUT
+  // Continuous throughput mode - loop forever with interval reporting
+  while (1) {
+    // Reset for each interval
+    has_data_received = 0;
+    bytes_read        = 0;
+    start             = osKernelGetTickCount();
+
+    // Wait for TEST_TIMEOUT interval or max bytes
+    while (!has_data_received) {
+      osThreadYield();
+    }
+
+    now = osKernelGetTickCount();
+    LOG_PRINT("\r\nTotal bytes received : %ld\r\n", bytes_read);
+    measure_and_print_throughput(bytes_read, (now - start));
+  }
+#else
+  // Single measurement mode
   start = osKernelGetTickCount();
 
   while (!has_data_received) {
@@ -547,6 +588,7 @@ void receive_data_from_tcp_client(void)
   close(client_socket);
   close(server_socket);
   measure_and_print_throughput(bytes_read, (now - start));
+#endif
 }
 #else
 void receive_data_from_tcp_client(void)

@@ -52,7 +52,7 @@ const osThreadAttr_t network_manager_attributes = {
   .cb_mem     = 0,
   .cb_size    = 0,
   .stack_mem  = 0,
-  .stack_size = 2304,
+  .stack_size = SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE,
   .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
@@ -447,7 +447,7 @@ sl_status_t sli_net_nat_configure(const sli_net_nat_config_t *sli_nat_config)
                                          SLI_SI91X_NETWORK_CMD,
                                          sli_nat_config,
                                          sizeof(sli_net_nat_config_t),
-                                         SLI_SI91X_WAIT_FOR_COMMAND_RESPONSE,
+                                         SLI_WIFI_WAIT_FOR_COMMAND_RESPONSE,
                                          NULL,
                                          NULL);
 

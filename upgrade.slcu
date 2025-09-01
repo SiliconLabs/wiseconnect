@@ -114,3 +114,23 @@ upgrade:
       - script: upgrade_script.lua
         description: >
                           
+  - sdk:
+      id: wiseconnect3_sdk
+      version: "4.0.0"
+    component:
+      - trigger: wiseconnect3_common
+        description: >
+                                
+        status: automatic  
+        add:
+           - wiseconnect_common
+        remove:
+           - wiseconnect3_common
+      - trigger: wiseconnect3_logger
+        description: >
+                                
+        status: automatic  
+        add:
+           - wiseconnect_logger
+        remove:
+           - wiseconnect3_logger

@@ -30,7 +30,7 @@
 
 #include "sl_si91x_puf.h"
 #include "sl_si91x_driver.h"
-
+#include "sli_wifi_utility.h"
 /**
  * @brief PUF state machine control block.
  */
@@ -175,7 +175,7 @@ sl_status_t sl_si91x_puf_start_req(void)
   sl_status_t status = SL_STATUS_OK;
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_START,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          NULL,
                                          0,
                                          SLI_COMMON_RSP_PUF_START_WAIT_TIME,
@@ -220,10 +220,10 @@ sl_status_t sl_si91x_puf_set_key_req(uint8_t key_index, uint8_t key_size, const 
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_SET_KEY,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &puf_set_key,
                                          sizeof(sli_si91x_req_puf_set_key_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_SET_KEY_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_SET_KEY_WAIT_TIME),
                                          NULL,
                                          &buffer);
 
@@ -253,7 +253,7 @@ sl_status_t sl_si91x_puf_set_key_disable_req(void)
   sl_status_t status = SL_STATUS_OK;
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_DIS_SET_KEY,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          NULL,
                                          0,
                                          SLI_COMMON_RSP_PUF_DIS_SET_KEY_WAIT_TIME,
@@ -288,10 +288,10 @@ sl_status_t sl_si91x_puf_get_key_req(const uint8_t *key_code_ptr, uint8_t *key_p
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_GET_KEY,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &puf_get_key,
                                          sizeof(sli_si91x_req_puf_get_key_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_GET_KEY_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_GET_KEY_WAIT_TIME),
                                          NULL,
                                          &buffer);
 
@@ -318,7 +318,7 @@ sl_status_t sl_si91x_puf_get_key_disable_req(void)
   sl_status_t status = SL_STATUS_OK;
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_DIS_GET_KEY,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          NULL,
                                          0,
                                          SLI_COMMON_RSP_PUF_DIS_GET_KEY_WAIT_TIME,
@@ -352,10 +352,10 @@ sl_status_t sl_si91x_puf_load_key_req(const uint8_t *key_code_ptr)
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_LOAD_KEY,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &puf_load_key,
                                          sizeof(sli_si91x_req_puf_load_key_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_LOAD_KEY_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_LOAD_KEY_WAIT_TIME),
                                          NULL,
                                          NULL);
 
@@ -392,10 +392,10 @@ sl_status_t sl_si91x_puf_set_intr_key_req(uint8_t key_index, uint8_t key_size, u
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PUF_INTR_KEY,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &puf_intr_key,
                                          sizeof(sli_si91x_req_puf_intr_key_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_INTR_KEY_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_PUF_INTR_KEY_WAIT_TIME),
                                          NULL,
                                          &buffer);
 
@@ -513,10 +513,10 @@ sl_status_t sl_si91x_puf_aes_encrypt_req(uint8_t mode,
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_AES_ENCRYPT,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &aes_encry,
                                          sizeof(sli_si91x_req_aes_encrypt_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_AES_ENCRYPT_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_AES_ENCRYPT_WAIT_TIME),
                                          NULL,
                                          &buffer);
 
@@ -579,10 +579,10 @@ sl_status_t sl_si91x_puf_aes_decrypt_req(uint8_t mode,
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_AES_DECRYPT,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &aes_decry,
                                          sizeof(sli_si91x_req_aes_decrypt_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_AES_DECRYPT_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_AES_DECRYPT_WAIT_TIME),
                                          NULL,
                                          &buffer);
 
@@ -636,10 +636,10 @@ sl_status_t sl_si91x_puf_aes_mac_req(uint8_t key_source,
 
   // driver send
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_AES_MAC,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &aes_mac,
                                          sizeof(sli_si91x_req_aes_mac_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_AES_MAC_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_AES_MAC_WAIT_TIME),
                                          NULL,
                                          &buffer);
 

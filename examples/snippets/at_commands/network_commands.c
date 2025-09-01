@@ -39,7 +39,7 @@
 #include <string.h>
 #include "sl_string.h"
 #include "at_utility.h"
-
+#include "sli_wifi_utility.h"
 /******************************************************
  *                    Constants
  ******************************************************/
@@ -633,7 +633,7 @@ sl_status_t net_configure_ip_command_handler(console_args_t *arguments)
   CHECK_ARGUMENT_BITMAP(arguments, 0x07);
   sl_net_interface_t interface =
     (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
-  uint32_t timeout = GET_OPTIONAL_COMMAND_ARG(arguments, 10, SLI_SI91X_WAIT_FOR_EVER, uint32_t);
+  uint32_t timeout = GET_OPTIONAL_COMMAND_ARG(arguments, 10, SLI_WIFI_WAIT_FOR_EVER, uint32_t);
 
   ip_config.mode      = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_IP_MANAGEMENT_DHCP, uint8_t);
   ip_config.type      = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_IPV4, uint8_t);

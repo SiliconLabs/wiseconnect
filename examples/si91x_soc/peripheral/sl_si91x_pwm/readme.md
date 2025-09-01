@@ -46,6 +46,13 @@ This application demonstrates the PWM (Pulse Width Modulation) to generate a per
   - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
   - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
   - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
+  - Please refer below for Dead Time Insertion
+    - Center Aligned :- Configure DT_COUNTER_A as 0x0
+    ![Figure: Center Aligned](resources/readme/Center_Edge_Aligned.png)
+    - Lead Edge Aligned :- Configure DT_COUNTER_A as 0x1
+    ![Figure: Lead Edge Aligned](resources/readme/Lead_Edge_Aligned.png)
+    - Tail Edge Aligned :- Configure DT_COUNTER_A as 0x10
+    ![Figure: Tail Edge Aligned](resources/readme/Tail_Edge_Aligned.png)
 - If **OVERRIDE** is enabled:
   - OVERRIDE: While overriding PWM outputs, the channel counters continue to run, only the PWM outputs are forced to user-defined values.
   - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API.
@@ -103,7 +110,7 @@ This application demonstrates the PWM (Pulse Width Modulation) to generate a per
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -218,5 +225,5 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    ![Figure: output2](resources/readme/output2.png)
 
 > **Note:**
->
+> - Use [sl_si91x_clock_manager_m4_set_core_clk()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-services/clock-manager#sl-si91x-clock-manager-m4-set-core-clk) API to set system core clock  to 32MHz to achieve PWM frequency between 500Hz to 2700Hz.
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

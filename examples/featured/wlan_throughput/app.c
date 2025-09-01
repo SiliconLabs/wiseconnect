@@ -156,10 +156,14 @@ static const sl_wifi_device_configuration_t throughput_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map =
-                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_WIFI_FEAT_WPS_DISABLE),
+  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION
+                                         | SL_WIFI_FEAT_WPS_DISABLE
+#ifdef ENABLE_UART_NCP_BITMAP
+                                           SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE,
+#endif
+                                       ),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
 #if (THROUGHPUT_TYPE == TLS_TX || THROUGHPUT_TYPE == TLS_RX)
                                               | SL_SI91X_TCP_IP_FEAT_SSL
@@ -489,8 +493,8 @@ void receive_data_from_tcp_client(void)
   printf("\r\nTCP_RX Throughput test finished\r\n");
   printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
 
-  sl_si91x_shutdown(server_socket, 0);
   sl_si91x_shutdown(client_socket, 0);
+  sl_si91x_shutdown(server_socket, 0);
 
   measure_and_print_throughput(bytes_read, (now - start));
 #else

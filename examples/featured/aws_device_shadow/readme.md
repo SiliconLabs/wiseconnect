@@ -92,7 +92,7 @@ $aws/things/thingName/shadow/name/shadowName/update/delta
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-  - Install Studio and WiSeConnect 3 extension
+  - Install Studio and WiSeConnect extension
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
@@ -101,7 +101,7 @@ $aws/things/thingName/shadow/name/shadowName/update/delta
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32) to:
 
   - Install the [Keil IDE](https://www.keil.com/).
-  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Download [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the steps below.
    - Connect the male Arduino compatible header on the carrier board to the female Arduino compatible header on the STM32F411RE Nucleo board.
@@ -109,7 +109,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.
-  - Open the AWS DEVICE SHADOW µVision project - **aws_device_shadow.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → aws_device_shadow → keil_project**. 
+  - Open the AWS DEVICE SHADOW µVision project - **aws_device_shadow.uvprojx** by navigating to **WiSeConnect SDK → examples → featured → aws_device_shadow → keil_project**. 
 
 ## Application Build Environment
 
@@ -164,7 +164,7 @@ The application can be configured to suit user requirements and the development 
 
 > - By default, the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx917, the certificate and private key should be converted into a C-array. For converting the certificates and private key into C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
 
-> - By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
+> - By default, the WiSeConnect SDK contains the Starfield Root CA Certificate in C-array format. 
 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. Replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
@@ -194,7 +194,7 @@ After successful execution, the device updates are written to the AWS cloud and 
 
 ### Setting up Security Certificates
 
-- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script, [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/),
+- The WiSeConnect SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script, [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/),
 is provided in the SDK at `<SDK>/resources/scripts` directory.
 
 - Copy the downloaded device certificate, private key from AWS, and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
@@ -223,7 +223,7 @@ is provided in the SDK at `<SDK>/resources/scripts` directory.
 
 - Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
 
-- The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
+- The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect SDK at `<SDK>/resources/certificates`; no additional setup is required.
 
 > **NOTE :**
 > Support for the SNI extension has been added to the AWS SDK, ensuring it is set by the client when connecting to an AWS server using TLS 1.3. This is handled internally by the AWS SDK and does not affect compatibility with other TLS versions.

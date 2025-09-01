@@ -11,7 +11,7 @@ The SiWx917 operates with two flash memory options: common flash or dual flash. 
 
 The NWP includes support for in-built network and wireless protocol stacks, which applications running on the MCU can access via pre-defined APIs provided by the WiSeConnect™ SDK. Both the processors are connected over an AHB interface. The MCU and NWP rely on firmware-based state machines to manage and coordinate their individual and joint functionalities. These state machines control the operational flow within each processor, ensuring that each one transitions through specific states required for seamless processing and reliable performance
 
-MCU applications can be developed, compiled, and run on the SiWx917 using the WiSeConnect SDK v3.x extension (or **WiSeconnect 3** extension) on Simplicity Studio. The NWP firmware is available as a pre-built binary with the WiSeConnect SDK package. See the [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) documentation for more details.
+MCU applications can be developed, compiled, and run on the SiWx917 using the WiSeConnect SDK extension (or **WiSeconnect** extension) on Simplicity Studio. The NWP firmware is available as a pre-built binary with the WiSeConnect SDK package. See the [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) documentation for more details.
 
 >**Note:** RTOS support is available at Application and Service level. Applications developers must use the correct RTOS primitives when accessing MCU peripherals from multiple SW threads. When using RTOS, developers need to configure interrupt priorities for all MCU interrupts being used in the application.
 
@@ -587,7 +587,7 @@ For example, refer to the section of the .map file for NVM3 memory allocation in
 
 **Configuring NVM3 Size:**
 
-1. Open nvm3_default_config.h from `wiseconnect3/components/device/silabs/si91x/mcu/drivers/service/nvm3/inc/`
+1. Open nvm3_default_config.h from `wiseconnect/components/device/silabs/si91x/mcu/drivers/service/nvm3/inc/`
 2. Update NVM3_DEFAULT_NVM_SIZE
 
 For example, after updating NVM3_DEFAULT_NVM_SIZE to 51200, the NVM3 region in the .map file is updated as follows:
@@ -658,8 +658,9 @@ The IO Stream module is a software platform component that facilitates input and
 
   ![IOSTREAM LOG config](./resources/IOSTREAM_LOG_config.png)  
 
-> **Note:** Ensure that the corresponding IOSTREAM component for your selected interface is installed.  
-> **Note:** IOSTREAM LOG does not support UART. To use `printf` or `DEBUGOUT` with UART, please refer to the IOSTREAM USART example.
+> **Note:** 
+> 1. Ensure that the corresponding IOSTREAM component for your selected interface is installed.
+> 2. IOSTREAM LOG does not support UART. To use `printf` or `DEBUGOUT` with UART, please refer to the IOSTREAM USART example.
 
 **IOSTREAM usage in Si91x:**
 
@@ -667,8 +668,9 @@ The IO Stream module is a software platform component that facilitates input and
 2. Use  ```sl_iostream_read(sl_iostream_t *stream,void *buffer,size_t buffer_length,size_t *bytes_read)``` api to read from a IOSTREAM.
 3. If multiple IOSTREAM components are installed IOSTREAM LOG can be used for selecting which IOSTREAM to use.
 
-> **Note:** For more information on how use above IOSTREAM apis refere to IOSTREAM USART BAREMETAL example.
-> **Note:** IOSTREAM VUART , IOSTREAM debug has limited support.
+> **Note:**
+> 1. For more information on how use above IOSTREAM apis refere to IOSTREAM USART BAREMETAL example.
+> 2. IOSTREAM VUART , IOSTREAM debug has limited support.
 
 
 ### SLEEP-Timer
@@ -680,18 +682,23 @@ The IO Stream module is a software platform component that facilitates input and
 - Solution: Use OS-Timer
   - To avoid conflicts and ensure proper operation, it is recommended to use the OS-TIMER for creating software timers. The OS is aware of the OS-TIMER timeouts, and the OS-TIMER operates based on the sleep timer (SYSRTC). By using the OS-TIMER, the system will be able to manage timer expirations correctly without causing unnecessary wake-ups.
 
-### Watchdog Timer (WDT)
+### Watchdog Timer(WDT) Manager 
 
-The Watchdog Timer (WDT) is a crucial component for ensuring the reliability and stability of the system. It helps to recover from unexpected software failures by resetting the system if the software becomes unresponsive. The WDT manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability
+The Watchdog Timer(WDT) Manager is a crucial component for ensuring the reliability and stability of the system. It helps to recover from unexpected software failures by resetting the system if the software becomes unresponsive. The WDT Manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability
 
 #### Key Features
-- Programmable timeout intervals
+- Programmable timeout intervals.
 - Ability to generate system resets
 - Interrupt generation before reset for graceful shutdown
 
+> **Note:** <br>
+> 1. When the RC clock is used as the source for the LF-FSM, the timeout durations may vary due to the inherent frequency instability of the RC oscillator.<br>
+> 2. The minimum WDT timeout that can be set is approximately 1ms.
+
+
 #### WDT Manager installation and usage for Si91x:
 
-To configure and use the Watchdog Timer, follow these steps:
+To configure and use the Watchdog Timer Manager, follow these steps:
 
 1. **Launch the Application**:
    - Open Simplicity Studio and navigate to your project.
@@ -718,7 +725,7 @@ To configure and use the Watchdog Timer, follow these steps:
    ![WDT Manager Configuration](./resources/WDT_timer_configuration.png)
 
 #### Recommendations
-- The WDT manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability
+- The WDT Manager is specifically meant for system reset recovery and should not be utilized for any other purpose. When interrupts are disabled, make sure to stop the WDT to avoid unintended resets. Once interrupts are re-enabled, restart the WDT to ensure system reliability
 - It is strongly recommended to use `sl_si91x_soc_nvic_reset()` API for system soft reset rather than the `sl_si91x_soc_soft_reset()` function, since this uses the WDT for soft reset, which is specifically intended for system reset recovery
 ## Trace and Debug
 
@@ -818,8 +825,7 @@ The Lite configuration is used for 4 MB SoC OPN where 1.3 MB is allocated for th
 The `SLI_SI91X_MCU_4MB_LITE_IMAGE` macro will be enabled if the **lite_image_for_4mb** component is installed.
 
 For low-power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory. Refer to [Power manager integration guide](
-https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf
-) for more details.
+https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_tickless_idle/resources/power_manager_integration_guide/power_manager_integration.pdf) for more details.
 
 #### SL_SI91X_ENABLE_GCC_LTO
 
@@ -964,5 +970,5 @@ For further assistance and support, please contact:
 | Getting Started with WiSeConnect | [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) |
 | NVM3 - NVM Data Manager | [NVM3 Documentation](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3) |
 | Third Generation NonVolatile Memory (NVM3) Data Storage | [NVM3 Application Note](https://www.silabs.com/documents/public/application-notes/an1135-using-third-generation-nonvolatile-memory.pdf) |
-| Power Manager Integration Guide | [Power Manager Integration Guide](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf) |
+| Power Manager Integration Guide | [Power Manager Integration Guide](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_tickless_idle/resources/power_manager_integration_guide/power_manager_integration.pdf) |
 | SiWx917 Reference Manual | Contact [Silicon Labs Sales](https://www.silabs.com/about-us/contact-sales) for access. |

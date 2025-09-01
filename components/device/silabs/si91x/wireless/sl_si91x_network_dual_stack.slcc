@@ -1,8 +1,8 @@
 id: sl_si91x_network_dual_stack
 package: wifi
 description: >
-  The network dual stack component enables the offloaded network stack subsystem and the LwIP network stack on the host MCU.
-label: Network Dual Stack
+  The dual network stack component enables the offloaded network stack subsystem and the LwIP network stack on the host MCU.
+label: Dual Network Stack
 category: Device|Si91x|Wireless|Network Stack
 quality: production
 metadata:

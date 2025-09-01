@@ -53,9 +53,6 @@
 // Maximum Access points that can be scanned
 #define SLI_AP_SCANNED_MAX 11
 
-// Maximum number of stations associated when running as an AP
-#define SLI_SI91X_MAX_STATIONS 16
-
 // Quick reference: Bit 3 -> DHCPv6 client, Bit 5 -> DHCPv6 server, Bit 17 -> TCP_IP_FEAT_IPV6
 // Details: https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-sapi-reference/opermode#rsi-tcp-ip-feature-bit-map
 #define SLI_SI91X_IPV6_MODE (1 << 3) | (1 << 5) | (1 << 17)
@@ -105,9 +102,6 @@
 
 #define SLI_SI91X_MAX_CERT_SEND_SIZE 1400
 
-// User gain table related
-#define SLI_MAX_GAIN_TABLE_SIZE_WITH_SU_TB 160
-
 /** NOTE: For power save related info
  * https://docs.silabs.com/rs9116/wiseconnect/rs9116w-wifi-at-command-prm/latest/wlan-commands#rsi-pwmode----power-mode
  * ****************************** POWER RELATED DEFINES START *******************************/
@@ -127,16 +121,10 @@
 #define SLI_M4_BASED_DEEP_SLEEP 10
 #endif
 
-#define SLI_DEFAULT_MONITOR_INTERVAL 50
-#define SLI_DEFAULT_DTIM_SKIP        0
-#define SLI_DEFAULT_DTIM_ALIGNMENT   0
+#define SLI_DEFAULT_DTIM_SKIP      0
+#define SLI_DEFAULT_DTIM_ALIGNMENT 0
 
-#define SLI_LP_MODE                       0
-#define SLI_ULP_WITH_RAM_RETENTION        1
-#define SLI_ULP_WITHOUT_RAM_RET_RETENTION 2
-
-#define SLI_MAX_PSP  0
-#define SLI_FAST_PSP 1
+#define SLI_LP_MODE 0
 
 /****************************** POWER RELATED DEFINES END ***********************************/
 
@@ -150,9 +138,7 @@
 //**************************** Macros for WPS Method request START *********************************/
 
 #define SLI_SI91X_SET_WPS_METHOD_PUSH_BUTTON 0
-#define SLI_SI91X_SET_WPS_METHOD_PIN         1
 #define SLI_SI91X_SET_WPS_VALIDATE_PIN       0
-#define SLI_SI91X_SET_WPS_GENERATE_PIN       1
 #define SLI_SI91X_WPS_PIN_LEN                8
 
 //**************************** Macros for WPS Method request END ***********************************/
@@ -670,46 +656,6 @@ typedef struct {
 } sli_si91x_network_params_response_t;
 #pragma pack()
 
-/// Si91x specific station information
-typedef struct {
-  uint8_t ip_version[2]; ///< IP version if the connected client
-  uint8_t mac[6];        ///< Mac Address of the connected client
-  union {
-    uint8_t ipv4_address[4];  ///< IPv4 address of the connected client
-    uint8_t ipv6_address[16]; ///< IPv6 address of the connected client
-
-  } ip_address; ///< IP address
-} sli_si91x_station_info_t;
-
-/// go paramas response structure
-#pragma pack(1)
-typedef struct {
-  /// SSID of the P2p GO
-  uint8_t ssid[SLI_SSID_LEN];
-
-  /// BSSID of the P2p GO
-  uint8_t mac_address[6];
-
-  /// Operating channel of the GO
-  uint8_t channel_number[2];
-
-  /// PSK of the GO
-  uint8_t psk[64];
-
-  /// IPv4 Address of the GO
-  uint8_t ipv4_address[4];
-
-  /// IPv6 Address of the GO
-  uint8_t ipv6_address[16];
-
-  /// Number of stations Connected to GO
-  uint8_t sta_count[2];
-
-  /// Station information
-  sli_si91x_station_info_t sta_info[SLI_SI91X_MAX_STATIONS];
-} sli_si91x_client_info_response;
-#pragma pack()
-
 /// Si91x specific sockt send data parameters
 typedef struct {
   uint8_t sock_fd; ///< Socket identifier
@@ -750,33 +696,6 @@ typedef struct {
   uint8_t afe_type;         ///< AFE Type.
   uint32_t feature_enables; ///< Feature Enables.
 } sli_si91x_feature_frame_request;
-
-/// structure for power save request
-typedef struct {
-  /// power mode to set
-  uint8_t power_mode;
-
-  /// set LP/ULP/ULP-without RAM retention
-  uint8_t ulp_mode_enable;
-
-  /// set DTIM aligment required
-  // 0 - module wakes up at beacon which is just before or equal to listen_interval
-  // 1 - module wakes up at DTIM beacon which is just before or equal to listen_interval
-  uint8_t dtim_aligned_type;
-
-  /// Set PSP type, 0-Max PSP, 1- FAST PSP, 2-APSD
-  uint8_t psp_type;
-
-  /// Monitor interval for the FAST PSP mode
-  // default is 50 ms, and this parameter is valid for FAST PSP only
-  uint16_t monitor_interval;
-  /// Number of DTIMs to skip
-  uint8_t num_of_dtim_skip;
-  /// Listen interval
-  uint16_t listen_interval;
-  /// Wake up for the next beacon if the number of missed beacons exceeds the limit. The default value is 1, with a recommended maximum value of 10. Higher values may cause interoperability issues.
-  uint8_t beacon_miss_ignore_limit;
-} sli_si91x_power_save_request_t;
 
 /// DNS query request structure
 typedef struct {

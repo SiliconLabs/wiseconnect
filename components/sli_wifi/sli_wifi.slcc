@@ -21,5 +21,10 @@ include:
     - path: sli_wifi_types.h
     - path: sli_wifi.h
     - path: sli_wifi_utility.h
+    - path: sli_wifi_power_profile.h
+    - path: sli_wifi_memory_manager.h
 provides:
     - name: sli_wifi
+requires:
+    - name: sli_wifi_power_profile
+    - name: sli_wifi_memory_manager    

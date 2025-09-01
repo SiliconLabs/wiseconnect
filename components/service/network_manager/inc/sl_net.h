@@ -177,6 +177,20 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
  ******************************************************************************/
 sl_status_t sl_net_down(sl_net_interface_t interface);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Gets network interface information for WLAN in AP mode or Client (Station) mode.
+ * @pre Pre-conditions:
+ *   - The device must be initialized by calling @ref sl_net_init before using this API.
+ * @param[in] interface
+ *   The network interface to query. Supported values are SL_NET_WIFI_CLIENT_INTERFACE (Station mode) and SL_NET_WIFI_AP_INTERFACE (AP mode).
+ * @param[out] info
+ *   Pointer to a sl_net_interface_info_t structure that will be populated with the interface information.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_net_get_interface_info(sl_net_interface_t interface, sl_net_interface_info_t *info);
+
 /** @} */
 
 /** 

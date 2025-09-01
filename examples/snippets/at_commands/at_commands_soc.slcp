@@ -14,7 +14,7 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version: "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0
@@ -25,11 +25,14 @@ source:
   - path: network_commands.c
   - path: bsd_socket_commands.c
   - path: at_m4_power_save.c
+  - path: mqtt_commands.c
+  - path: at_command_data_mode.c
 include:
   - path: .
     file_list:
       - path: app.h
       - path: at_utility.h
+      - path: at_command_data_mode.h
 define:
   - name: SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT
     value: 30
@@ -46,7 +49,7 @@ component:
     from: wiseconnect3_sdk
   - id: si91x_memory_default_config
     from: wiseconnect3_sdk
-  - id: wiseconnect3_common
+  - id: wiseconnect_common
     from: wiseconnect3_sdk
   - id: wifi
     from: wiseconnect3_sdk
@@ -74,6 +77,10 @@ component:
     from: wiseconnect3_sdk
   - id: bsd_socket_at_commands
     from: wiseconnect3_sdk
+  - id: mqtt_at_commands
+    from: wiseconnect3_sdk
+  - id: mqtt
+    from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -82,6 +89,12 @@ configuration:
     value: "1"
   - name: NVM3_DEFAULT_MAX_OBJECT_SIZE
     value: '280'
+  - name: SL_ENABLE_CALENDAR_WAKEUP_SOURCE
+    value: "1"
+  - name: ENABLE_ALARM
+    value: "1"
+  - name: ALARM_TIME_MSEC
+    value: "30000"
 readme:
   - path: readme.md
 other_file:

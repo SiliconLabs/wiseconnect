@@ -32,11 +32,12 @@
 #include "sl_si91x_protocol_types.h"
 #include "sl_constants.h"
 #include "sl_si91x_driver.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
                                           const uint8_t *data,
@@ -77,10 +78,10 @@ static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
 
   status = sli_si91x_driver_send_command(
     SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD,
+    SLI_WIFI_COMMON_CMD,
     request,
     (sizeof(sli_si91x_hmac_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
-    SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
+    SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
     NULL,
     &buffer);
 
@@ -91,7 +92,7 @@ static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
 
   sli_si91x_host_free_buffer(buffer);
@@ -131,7 +132,7 @@ static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_hmac_sha_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
   return status;

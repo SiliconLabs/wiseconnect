@@ -196,7 +196,7 @@ sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint
   return SL_STATUS_WIFI_UNSUPPORTED;
 }
 
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer)
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer)
 {
   UNUSED_PARAMETER(addr);
   UNUSED_PARAMETER(length);

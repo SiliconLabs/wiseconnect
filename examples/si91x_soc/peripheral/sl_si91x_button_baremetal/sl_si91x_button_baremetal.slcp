@@ -9,7 +9,7 @@ quality: production
 label: SI91x - Button Baremetal
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0

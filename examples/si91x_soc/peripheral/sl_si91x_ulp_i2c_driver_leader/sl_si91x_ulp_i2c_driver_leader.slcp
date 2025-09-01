@@ -7,7 +7,7 @@ quality: production
 label: SI91x - SL_ULP_I2C_Driver_Leader
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0
@@ -40,6 +40,7 @@ component:
     from: wiseconnect3_sdk
 define:
   - name: SL_SI91X_ULP_STATE_ENABLE
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
 template_contribution:
   - name: user_files_ps2
     value: ulp_i2c_leader_example.o

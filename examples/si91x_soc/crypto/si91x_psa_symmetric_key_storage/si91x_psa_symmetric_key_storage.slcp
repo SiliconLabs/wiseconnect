@@ -1,5 +1,5 @@
 project_name: si91x_psa_symmetric_key_storage
-package: platform_siwx91x_apps
+package: platform_nwp_siwx91x_apps
 description: >
   This application demonstrates Key generate, import, export and PSA ITS write, read
   and erase functions for PERSISTENT PLAINTEXT and VOLATILE PLAINTEXT.
@@ -8,7 +8,7 @@ quality: production
 label: SI91x - SoC PSA symmetric key storage
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0
@@ -27,7 +27,7 @@ component:
     from: wiseconnect3_sdk
   - id: si91x_memory_default_config
     from: wiseconnect3_sdk
-  - id: wiseconnect3_common
+  - id: wiseconnect_common
     from: wiseconnect3_sdk
   - id: wifi
     from: wiseconnect3_sdk

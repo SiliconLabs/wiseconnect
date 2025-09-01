@@ -154,7 +154,7 @@ void uart_rs485_example_init(void)
     // Register user callback function
     status = sl_si91x_usart_multiple_instance_register_event_callback(UART_INSTANCE, uart_rs485_callback_event);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_usart_multiple_instance_register_event_callback: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("UART user event callback registered successfully \n");

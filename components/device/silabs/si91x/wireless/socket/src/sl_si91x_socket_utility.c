@@ -40,6 +40,7 @@
 #include "sl_si91x_core_utilities.h"
 #include "sl_rsi_utility.h"
 #include "sl_core.h"
+#include "sli_wifi.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -516,7 +517,7 @@ void sli_si91x_create_socket_request(sli_si91x_socket_t *si91x_bsd_socket,
                                      sli_si91x_socket_create_request_t *socket_create_request,
                                      int type,
                                      const int *backlog,
-                                     sli_si91x_wait_period_t *wait_period)
+                                     sli_wifi_wait_period_t *wait_period)
 {
   if (si91x_bsd_socket->local_address.sin6_family == AF_INET6) {
     socket_create_request->ip_version = SL_IPV6_VERSION;
@@ -598,7 +599,7 @@ void sli_si91x_create_socket_request(sli_si91x_socket_t *si91x_bsd_socket,
       socket_create_request->total_extension_length = si91x_bsd_socket->tls_extensions.current_size_of_extensions;
       socket_create_request->no_of_tls_extensions   = si91x_bsd_socket->tls_extensions.total_extensions;
     }
-    *wait_period = SL_SI91X_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_SOCKET_CREATE_WAIT_TIME);
+    *wait_period = SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_SOCKET_CREATE_WAIT_TIME);
   }
 
   // Check for HIGH_PERFORMANCE feature bit
@@ -630,10 +631,13 @@ sl_status_t sli_create_and_send_socket_request(int socketIdIndex, int type, cons
   sli_si91x_socket_create_request_t socket_create_request          = { 0 };
   const sli_si91x_socket_create_response_t *socket_create_response = NULL;
   sli_si91x_socket_t *si91x_bsd_socket                             = sli_get_si91x_socket(socketIdIndex);
-  sli_si91x_wait_period_t wait_period = SL_SI91X_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_SOCKET_CREATE_WAIT_TIME);
+  sli_wifi_wait_period_t wait_period = SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_SOCKET_CREATE_WAIT_TIME);
   //Verifying socket existence
   if (si91x_bsd_socket == NULL) {
     return -1;
+  }
+  if (type == SLI_SI91X_SOCKET_TCP_CLIENT) {
+    wait_period = SLI_WIFI_WAIT_FOR_RESPONSE(100000); // timeout is 10 sec
   }
 
   sl_wifi_buffer_t *buffer        = NULL;
@@ -779,7 +783,7 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
                                            SLI_WLAN_REQ_SOCKET_ACCEPT,
                                            &accept_request,
                                            sizeof(accept_request),
-                                           SLI_SI91X_RETURN_IMMEDIATELY,
+                                           SLI_WIFI_RETURN_IMMEDIATELY,
                                            NULL);
     SLI_SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SLI_SI91X_UNDEFINED_ERROR);
     return SL_STATUS_OK;
@@ -788,7 +792,7 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
                                            SLI_WLAN_REQ_SOCKET_ACCEPT,
                                            &accept_request,
                                            sizeof(accept_request),
-                                           SLI_SI91X_WAIT_FOR_EVER | SLI_SI91X_WAIT_FOR_RESPONSE_BIT,
+                                           SLI_WIFI_WAIT_FOR_EVER | SLI_WIFI_WAIT_FOR_RESPONSE_BIT,
                                            &buffer);
     SLI_SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SLI_SI91X_UNDEFINED_ERROR);
   }
@@ -838,7 +842,7 @@ int sli_si91x_shutdown(int socket, int how)
   sl_status_t status                                            = SL_STATUS_OK;
   sli_si91x_socket_close_request_t socket_close_request         = { 0 };
   const sl_si91x_socket_close_response_t *socket_close_response = NULL;
-  sli_si91x_wait_period_t wait_period                           = SL_SI91X_WAIT_FOR_RESPONSE(SLI_SI91X_WAIT_FOR_EVER);
+  sli_wifi_wait_period_t wait_period                            = SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WIFI_WAIT_FOR_EVER);
   sl_wifi_buffer_t *buffer                                      = NULL;
 
   sli_si91x_socket_t *si91x_socket = sli_get_si91x_socket(socket);
@@ -1166,7 +1170,7 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
 
   // Set flags
 #ifdef TEST_USE_UNUSED_FLAGS
-  packet->unused[SLI_SI91X_COMMAND_FLAGS_INDEX] = (wait_period & SLI_SI91X_WAIT_FOR_RESPONSE_BIT) ? (1 << 0) : 0;
+  packet->unused[SLI_SI91X_COMMAND_FLAGS_INDEX] = (wait_period & SLI_WIFI_WAIT_FOR_RESPONSE_BIT) ? (1 << 0) : 0;
   packet->unused[SLI_SI91X_COMMAND_FLAGS_INDEX] |= (response_buffer == NULL) ? (1 << 1) : 0;
   if (command == SLI_WLAN_REQ_SOCKET_ACCEPT) {
     packet->unused[SLI_SI91X_COMMAND_RESPONSE_INDEX] = SLI_WLAN_RSP_CONN_ESTABLISH;
@@ -1174,13 +1178,13 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
     packet->unused[SLI_SI91X_COMMAND_RESPONSE_INDEX] = command;
   }
 #else
-  node->flags = (wait_period & SLI_SI91X_WAIT_FOR_RESPONSE_BIT) ? SI91X_PACKET_RESPONSE_PACKET : 0;
+  node->flags = (wait_period & SLI_WIFI_WAIT_FOR_RESPONSE_BIT) ? SLI_WIFI_PACKET_RESPONSE_PACKET : 0;
 #endif
 
-  wait_period &= ~SLI_SI91X_WAIT_FOR_RESPONSE_BIT;
+  wait_period &= ~SLI_WIFI_WAIT_FOR_RESPONSE_BIT;
 
   if (wait_period != 0) {
-    node->flags |= SI91X_PACKET_RESPONSE_STATUS;
+    node->flags |= SLI_WIFI_PACKET_RESPONSE_STATUS;
   }
 
   // Set various properties of the node representing the command packet
@@ -1188,13 +1192,13 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
   node->firmware_queue_id = SLI_WLAN_MGMT_Q;
   node->command_type      = SLI_SI91X_SOCKET_CMD;
 
-  if (node->flags != SI91X_PACKET_WITH_ASYNC_RESPONSE) {
+  if (node->flags != SLI_WIFI_PACKET_WITH_ASYNC_RESPONSE) {
     node->command_tickcount = osKernelGetTickCount();
     // Calculate the wait time based on wait_period
-    if ((wait_period & SLI_SI91X_WAIT_FOR_EVER) == SLI_SI91X_WAIT_FOR_EVER) {
+    if ((wait_period & SLI_WIFI_WAIT_FOR_EVER) == SLI_WIFI_WAIT_FOR_EVER) {
       node->command_timeout = osWaitForever;
     } else {
-      node->command_timeout = (wait_period & ~SLI_SI91X_WAIT_FOR_RESPONSE_BIT);
+      node->command_timeout = (wait_period & ~SLI_WIFI_WAIT_FOR_RESPONSE_BIT);
     }
   }
   node->sdk_context = NULL;
@@ -1225,12 +1229,12 @@ sl_status_t sli_si91x_send_socket_command(sli_si91x_socket_t *socket,
       rx_queue = &socket->command_queue.rx_queue;
     }
 
-    status = sli_si91x_driver_wait_for_response_packet(rx_queue,
-                                                       si91x_socket_events,
-                                                       (1 << socket->index),
-                                                       this_packet_id,
-                                                       wait_period,
-                                                       response_buffer);
+    status = sli_wifi_wait_for_response_packet(rx_queue,
+                                               si91x_socket_events,
+                                               (1 << socket->index),
+                                               this_packet_id,
+                                               wait_period,
+                                               response_buffer);
     VERIFY_STATUS_AND_RETURN(status);
 
     if (command == SLI_WLAN_REQ_SOCKET_READ_DATA) {
@@ -1666,7 +1670,7 @@ int sli_si91x_select(int nfds,
 
   // If a callback was provided, return immediately (non-blocking)
   if (callback != NULL) {
-    return SLI_SI91X_RETURN_IMMEDIATELY;
+    return SLI_WIFI_RETURN_IMMEDIATELY;
   }
 
   status = sli_wait_for_select_response(&request, select_response_wait_time);
@@ -1822,7 +1826,7 @@ sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_type_len
                                          SLI_SI91X_NETWORK_CMD,
                                          request,
                                          packet_length,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_SET_SNI_EMBEDDED_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_SET_SNI_EMBEDDED_WAIT_TIME),
                                          NULL,
                                          NULL);
   free(request);

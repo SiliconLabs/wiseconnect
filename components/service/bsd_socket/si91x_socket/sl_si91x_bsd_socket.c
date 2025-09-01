@@ -51,7 +51,7 @@
 #include "sl_si91x_socket_support.h"
 #include "sli_wifi_constants.h"
 #include <sl_string.h>
-
+#include "sli_wifi_utility.h"
 /******************************************************
 
  *                    Constants
@@ -174,10 +174,10 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
   const sli_si91x_network_params_response_t *response = NULL;
 
   status = sli_si91x_driver_send_command(SLI_WIFI_REQ_QUERY_NETWORK_PARAMS,
-                                         SLI_SI91X_WLAN_CMD,
+                                         SLI_WIFI_WLAN_CMD,
                                          NULL,
                                          0,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SLI_WIFI_RSP_QUERY_NETWORK_PARAMS_WAIT_TIME),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WIFI_RSP_QUERY_NETWORK_PARAMS_WAIT_TIME),
                                          NULL,
                                          &buffer);
 
@@ -187,7 +187,7 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
 
   VERIFY_STATUS_AND_RETURN(status);
 
-  sl_wifi_system_packet_t *packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   response                        = (sli_si91x_network_params_response_t *)packet->data;
 
   memcpy(&socket_info_response->number_of_opened_sockets,
@@ -467,8 +467,8 @@ static void sli_populate_source_address(struct sockaddr *addr,
 ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct sockaddr *addr, socklen_t *addr_len)
 {
   UNUSED_PARAMETER(flags); // Ignoring the 'flags' parameter
-  sli_si91x_wait_period_t wait_time = 0;
-  errno                             = 0;
+  sli_wifi_wait_period_t wait_time = 0;
+  errno                            = 0;
 
   sli_si91x_req_socket_read_t request        = { 0 }; // Initialize a request structure
   sl_status_t status                         = SL_STATUS_OK;
@@ -495,7 +495,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   memcpy(request.read_timeout, &si91x_socket->read_timeout, sizeof(request.read_timeout));
 
   // Configure wait time and send the command
-  wait_time = (SLI_SI91X_WAIT_FOR_EVER | SLI_SI91X_WAIT_FOR_RESPONSE_BIT);
+  wait_time = (SLI_WIFI_WAIT_FOR_EVER | SLI_WIFI_WAIT_FOR_RESPONSE_BIT);
   status    = sli_si91x_send_socket_command(si91x_socket,
                                          SLI_WLAN_REQ_SOCKET_READ_DATA,
                                          &request,
@@ -514,7 +514,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   SLI_SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SLI_SI91X_UNDEFINED_ERROR);
 
   // Process the response
-  packet   = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  packet   = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   response = (sl_si91x_socket_metadata_t *)packet->data;
   sli_populate_source_address(addr, addr_len, response, buf, buf_len, &bytes_read);
 
@@ -615,8 +615,8 @@ static int sli_handle_so_max_retransmission_timeout_value(sli_si91x_socket_t *si
            (const uint8_t *)option_value,
            SLI_GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->max_retransmission_timeout_value), option_length));
   } else {
-    SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 32 and "
-                 "should be power of two. ex:1,2,4,8,16,32 \n");
+    SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 128 and "
+                 "should be power of two. ex:1,2,4,8,16,32,64,128 \n");
     SLI_SET_ERROR_AND_RETURN(EINVAL);
   }
   return SLI_SI91X_NO_ERROR;
@@ -868,9 +868,9 @@ struct hostent *gethostbyname(const char *name)
   }
 // Retrieve host information based on address type
 #ifdef SLI_SI91X_ENABLE_IPV6
-  status = sl_net_dns_resolve_hostname(name, SLI_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
+  status = sl_net_dns_resolve_hostname(name, SLI_WIFI_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
 #else
-  status = sl_net_dns_resolve_hostname(name, SLI_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
+  status = sl_net_dns_resolve_hostname(name, SLI_WIFI_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
 #endif
 
   // Handle the DNS resolution result
@@ -912,10 +912,10 @@ struct hostent *gethostbyname2(const char *name, int af)
   // Retrieve host information based on address type
   if (af == AF_INET6) {
     status =
-      sl_net_dns_resolve_hostname(name, SLI_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
+      sl_net_dns_resolve_hostname(name, SLI_WIFI_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
   } else {
     status =
-      sl_net_dns_resolve_hostname(name, SLI_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
+      sl_net_dns_resolve_hostname(name, SLI_WIFI_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
   }
 
   // Handle the DNS resolution result

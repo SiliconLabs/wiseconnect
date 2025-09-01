@@ -1067,12 +1067,12 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *   ***Usage Example***
 *
 *   ```C
-*   #define EM_EVENT_MASK_ALL  (SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4
-*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS4
-*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS3
-*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS3
-*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS2
-*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS2
+*   #define  PS_EVENT_MASK      ( SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4\
+*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS4 \
+*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS3\
+*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS3 \
+*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS2\
+*                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS2 \
 *                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_SLEEP)
 *
 *   static void power_manager_app(void)
@@ -1115,7 +1115,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *   // Initialize wakeup source
 *   // Replace the wakeup source peripheral macro defined in sl_si91x_power_manager.h file
 *   // It sets the below peripheral as wakeup source
-*   sl_si91x_power_manager_set_wakeup_source(WAKEUP_SOURCE, true);
+*   sl_si91x_power_manager_set_wakeup_sources(WAKEUP_SOURCE, true);
 *   sl_si91x_power_manager_sleep();
 *   }
 *

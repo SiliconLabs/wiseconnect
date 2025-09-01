@@ -89,7 +89,7 @@ extern "C" {
 #define SDC_MIN_VALUE 0    ///< Minimum value of the SDC
 #define SDC_MID_VALUE 2048 ///< Mid value of the SDC
 
-#define SDC_ONE_CH_MAX_FIFO_TH 16 ///< Maximum FIFO threshold per channel when only using one channel
+#define SDC_ONE_CH_MAX_FIFO_TH 15 ///< Maximum FIFO threshold per channel when only using one channel
 
 #define SDC_TWO_CH_MAX_FIFO_TH 8 ///< Maximum FIFO threshold per channel for SDC with two channels
 
@@ -172,7 +172,7 @@ typedef struct {
  *
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Successfully initialized the SDC.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *        
  *
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -219,6 +219,7 @@ sl_status_t sl_si91x_sdc_driver_deinit(void);
  *      - \ref sl_si91x_sdc_driver_init
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Successfully configured the SDC.
+ *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
  *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  * * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
@@ -250,7 +251,7 @@ sl_status_t sl_si91x_sdc_driver_config(sl_si91x_sdc_config_t *sl_sdc_config);
       1. pin_config structure is auto-generated when instance is created in the application user can directly use that structure.
  * @return
  *   - SL_STATUS_OK on success.
- *   - SL_STATUS_FAIL on failure.
+ *   - SL_STATUS_NULL_POINTER  - The parameter is a null pointer..
  * * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -272,9 +273,7 @@ sl_status_t sl_si91x_sdc_driver_channel_config(sl_si91x_sdc_adc_config_t *pin_co
  *
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK            - Successfully registered the callback.
- *         - SL_STATUS_BUSY          - Callback already registered.
- *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
- *
+ *         - SL_STATUS_INVALID_PARAMETER - callback event is NULL
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/

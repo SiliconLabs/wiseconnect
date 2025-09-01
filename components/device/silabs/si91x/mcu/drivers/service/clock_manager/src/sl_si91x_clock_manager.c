@@ -31,6 +31,11 @@
 #include "sl_si91x_clock_manager.h"
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
+#include "sl_component_catalog.h"
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "cmsis_os2.h"
+#include "sl_cmsis_os2_common.h"
+#endif
 /************************************************************************************
  *************************  DEFINES / MACROS  ***************************************
  ************************************************************************************/
@@ -187,6 +192,11 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
   // RSI API to set M4 SOC clock is called and the status is converted to the SL error code.
   error_status = RSI_CLK_M4SocClkConfig(pCLK, clk_source, div_factor);
   status       = convert_rsi_to_sl_error_code(error_status);
+
+#if defined(SL_CATALOG_KERNEL_PRESENT) && (SL_SI91X_TICKLESS_MODE == 0)
+  // Reconfigure the system tick timer after changing the core clock
+  SysTick_Config(SystemCoreClock / 1000);
+#endif
 
   return status;
 }

@@ -185,11 +185,11 @@ sl_status_t sl_si91x_sdc_init(void)
 sl_status_t sl_si91x_sdc_deinit(void)
 {
 
+  sl_si91x_sdc_interrupt_clear();
+
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.SDCSS_CLK_SEL_b       = 0x00; //SDC clock selection enable (01-RC_32MHz,10-HF_RO clock)
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.SDCSS_CLK_EN_b        = 0x00; //To enable dynamic clock for SDC
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.SDCSS_STATIC_CLK_EN_b = 0x00; //To enable static clock for SDC
-
-  sl_si91x_sdc_interrupt_clear();
 
   NVIC_DisableIRQ(NPSS_TO_MCU_SDC_INTR_IRQn);
 
@@ -215,7 +215,7 @@ sl_status_t sl_si91x_sdc_config(sl_si91x_sdc_config_t *sdc_general_config)
   if (number_of_channels == 3 || number_of_channels > 4 || number_of_channels == 0) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if ((sdc_config->sample_threshold * number_of_channels) > 15) {
+  if ((sdc_config->sample_threshold * number_of_channels) > 14) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   if (sdc_config->sampling_interval > 1023) {

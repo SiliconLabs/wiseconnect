@@ -10,7 +10,7 @@ filter:
     value: ["BLE"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: simplicity_sdk, version:  "2025.6.1"}
+sdk: {id: simplicity_sdk, version: 2025.12.0}
 sdk_extension: 
 - {id: wiseconnect3_sdk, version: 4.0.0}
 source:
@@ -38,7 +38,7 @@ requires:
 - name: sl_main
 - name: network_manager
 - name: basic_network_config_manager
-- name: wiseconnect3_common
+- name: wiseconnect_common
 - name: wifi
 - name: ble
 - name: sl_si91x_internal_stack

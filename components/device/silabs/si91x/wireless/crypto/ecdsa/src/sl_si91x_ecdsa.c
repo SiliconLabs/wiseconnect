@@ -34,6 +34,7 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
@@ -95,10 +96,10 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 
   status = sli_si91x_driver_send_command(
     SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD,
+    SLI_WIFI_COMMON_CMD,
     request,
     (sizeof(sl_si91x_ecdsa_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_ECDSA + chunk_length),
-    SL_SI91X_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
+    SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
     NULL,
     &buffer);
 

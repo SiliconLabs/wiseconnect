@@ -338,7 +338,7 @@ void application_start(const void *unused)
         sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
         //! Bring up client interface
         status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
-        if (status != SL_STATUS_OK) {
+        if (status != SL_STATUS_OK && status != SL_STATUS_SI91X_SCAN_ISSUED_IN_ASSOCIATED_STATE) {
           printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
           app_state = WLAN_UNCONNECTED_STATE;
           break;

@@ -39,7 +39,7 @@
 #include "si91x_mqtt_client_utility.h"
 #include "sl_status.h"
 #include "sli_wifi_constants.h"
-
+#include "sli_wifi_utility.h"
 /**
  * MQTT CLIENT STATE MACHINE
 ========================================================================|
@@ -84,7 +84,9 @@ extern sli_wifi_command_queue_t cmd_queues[SI91X_CMD_MAX];
 #define VERIFY_AND_RETURN_ERROR_IF_FALSE(condition, status) \
   do {                                                      \
     if (!(condition)) {                                     \
-      PRINT_STATUS(INFO_TAG, status)                        \
+      if (PRINT_ERROR_LOGS) {                               \
+        PRINT_STATUS(INFO_TAG, status)                      \
+      }                                                     \
       return status;                                        \
     }                                                       \
   } while (0)
@@ -516,7 +518,7 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
     SLI_SI91X_NETWORK_CMD,
     &si91x_connect_request,
     sizeof(si91x_connect_request),
-    connect_timeout == 0 ? SLI_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR(connect_timeout),
+    connect_timeout == 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR(connect_timeout),
     sdk_context,
     NULL);
 
@@ -588,7 +590,7 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
                                          SLI_SI91X_NETWORK_CMD,
                                          &si91x_deinit_request,
                                          sizeof(si91x_deinit_request),
-                                         timeout <= 0 ? SLI_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR(timeout),
+                                         timeout <= 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR(timeout),
                                          sdk_context,
                                          NULL);
 
@@ -655,7 +657,7 @@ sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
                                          SLI_SI91X_NETWORK_CMD,
                                          si91x_publish_request,
                                          publish_request_size,
-                                         timeout <= 0 ? SLI_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR(timeout),
+                                         timeout <= 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR(timeout),
                                          sdk_context,
                                          NULL);
   free(si91x_publish_request);
@@ -714,6 +716,7 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
   si91x_subscribe_request.topic_len = (uint8_t)topic_length;
   si91x_subscribe_request.qos       = (int8_t)qos_level;
 
+  subscription->qos_of_subscription   = qos_level;
   subscription->topic_length          = topic_length;
   subscription->topic_message_handler = message_handler;
 
@@ -724,7 +727,7 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
                                          SLI_SI91X_NETWORK_CMD,
                                          &si91x_subscribe_request,
                                          sizeof(si91x_subscribe_request),
-                                         timeout <= 0 ? SLI_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR(timeout),
+                                         timeout <= 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR(timeout),
                                          sdk_context,
                                          NULL);
 
@@ -779,7 +782,7 @@ sl_status_t sl_mqtt_client_unsubscribe(sl_mqtt_client_t *client,
                                          SLI_SI91X_NETWORK_CMD,
                                          &si91x_unsubscribe_request,
                                          sizeof(si91x_unsubscribe_request),
-                                         timeout <= 0 ? SLI_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR(timeout),
+                                         timeout <= 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR(timeout),
                                          sdk_context,
                                          NULL);
 
@@ -804,7 +807,7 @@ static uint8_t sli_si91x_mqtt_identification_function(sl_wifi_buffer_t *buffer, 
   UNUSED_PARAMETER(user_data);
   if (buffer == NULL)
     return false;
-  const sl_wifi_system_packet_t *packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  const sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   return (SLI_WLAN_REQ_EMB_MQTT_CLIENT == packet->command);
 }
 

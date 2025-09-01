@@ -288,8 +288,8 @@
 #define SLI_CONFIG_RTSTHRESHOLD 1
 #endif
 
-#ifndef SLI_RTS_THRESHOLD
-#define SLI_RTS_THRESHOLD 2346
+#ifndef SLI_WIFI_RTS_THRESHOLD
+#define SLI_WIFI_RTS_THRESHOLD 2346
 #endif
 
 /*=======================================================================*/

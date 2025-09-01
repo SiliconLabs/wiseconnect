@@ -120,7 +120,7 @@ The application can be configured to suit user requirements and development envi
 
 ## Getting Started
 
-- Install Studio and WiSeConnect 3 extension
+- Install Studio and WiSeConnect extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project

@@ -86,7 +86,7 @@ To authenticate and securely connect with AWS, the SiWx917 device requires a uni
 
 By default, the device certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the device certificate and private key to the SiWx917, the device certificate and private key should be converted into a C-array. For converting the certificates and private key into a C-array, refer to [Setting up Security Certificates](#setting-up-security-certificates).
 
-By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format.
+By default, the WiSeConnect SDK contains the Starfield Root CA Certificate in C-array format.
 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
@@ -124,17 +124,19 @@ Complete the following steps for successful execution of the application:
 
    ![](resources/readme/remote_screen3.png)
 
-8. Once the Silicon Labs module is connected to the access point, you will be prompted to enter the publish and subscribe topics.
+8. Once the Silicon Labs module is successfully connected to the Wi-Fi network, the BLE connection is automatically disconnected from the application side since it is no longer needed for provisioning.
+
+9. After the Wi-Fi connection is established, you will be prompted to enter the publish and subscribe topics.
 
    ![](resources/readme/Mobile_app_ui_2.png)
 
-9. The application starts publishing sensor data to AWS via MQTT, and this information will be displayed on the mobile app dashboard.
+10. The application starts publishing sensor data to AWS via MQTT, and this information will be displayed on the mobile app dashboard.
 
    ![](resources/readme/Mobile_app_ui_3.png)
 
    ![](resources/readme/Mobile_app_ui_4.png)
 
-10. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
+11. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
 
     ![](resources/readme/Mobile_app_ui_5.png)
 
@@ -163,7 +165,7 @@ After successfully connecting to Wi-Fi, the application establishes a connection
 
 ### Setting up Security Certificates
 
-The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/scripts/).
+The WiSeConnect SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/scripts/).
 
 1. Copy the downloaded device certificate, private key from AWS, and the certificate_to_array.py to `<SDK>/resources/certificates`.
 
@@ -196,7 +198,7 @@ The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make
 
 5. Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
 
-The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
+The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect SDK at `<SDK>/resources/certificates`; no additional setup is required.
 
   > **NOTE :**
   > Support for the SNI extension has been added to the AWS SDK, ensuring it is set by the client when connecting to an AWS server using TLS 1.3. This is handled internally by the AWS SDK and does not affect compatibility with other TLS versions.

@@ -26,7 +26,9 @@ int32_t ble_ext_scan_enable(void);
 
 //! To enable WLAN task
 #define WLAN_TASK_ENABLE 0
-
+#define TCP_APP          1
+#define MQTT_APP         2
+#define WIFI_APP         MQTT_APP
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/

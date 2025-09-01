@@ -118,6 +118,12 @@ sl_status_t sl_mqtt_client_deinit(sl_mqtt_client_t *client);
  *   The topic length of the last_will_message must be less than SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH.
  *   The client ID length should be less than SI91X_MQTT_CLIENT_CLIENT_ID_MAXIMUM_LENGTH.
  *   The username and password length must be less than SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH and SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH, respectively.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  */
 sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
                                    const sl_mqtt_broker_t *broker,
@@ -154,6 +160,12 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
  * @note
  *   The function deinitializes the MQTT client context after the disconnection.
  *   The client must be in one of the following states to call this function: SL_MQTT_CLIENT_CONNECTED, SL_MQTT_CLIENT_TA_DISCONNECTED, or SL_MQTT_CLIENT_CONNECTION_FAILED.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout);
 
@@ -191,6 +203,12 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
  * @note
  *   The maximum length of the topic must be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
  *   The function allocates memory for the publish request, and free the space after the operation.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
                                    const sl_mqtt_client_message_t *message,
@@ -239,6 +257,12 @@ sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
  * 
  * @note
  *   The maximum length of the topic should be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
                                      const uint8_t *topic,
@@ -284,6 +308,12 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
  * 
  * @note
  *   The maximum length of the topic must be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_unsubscribe(sl_mqtt_client_t *client,
                                        const uint8_t *topic,

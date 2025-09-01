@@ -66,7 +66,7 @@ Third-party Wi-Fi clients connected to the SiWx91x can access the internet throu
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -94,6 +94,9 @@ The application can be configured to suit your requirements and development envi
       #define WIFI_AP_PROFILE_SSID     "MY_DUAL_AP_SSID"
       #define WIFI_AP_CREDENTIAL       "MY_AP_PASSPHRASE"
       ```
+- To operate in AP-only mode, enable the `AP_ONLY_MODE` macro.
+
+> **Note:** The NAT feature is supported only when the device operates in concurrent AP+STA mode.
 
 > **Note:** Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
 
@@ -146,30 +149,40 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
     ![](resources/readme/serial_log2.png)
 
-12. Connect PC1 to third party AP and connect IoT node to SiWx91x AP.
+###  Throughput testing
 
-13. Start iperf server on PC1.
+**UDP Tx Throughput**
 
-    ### To Run Server
-    To establish TCP Server on the remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the following command from the installed folder's path in the command prompt.
-    The iPerf command to start the TCP server is:
-      
-      > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`
-      >
-      > For example ...
-      >
-      > `C:\> iperf.exe -s -p 5001 -i 1`
+1. Set the following macro in `wifi_config.h`:
+   ```c
+      #define THROUGHPUT_TYPE       UDP_TX
+   ```
+2. Compile and flash the application.
 
-      ![Figure: TCP_TX](resources/readme/TCP_TX.png)
+3. Once connected to the SiWx91x AP, navigate to **`/<SDK>/resources/scripts/`**. Run the **udp_client.py** script on port number 5000 using the following command:
 
-14. Start iperf client on IoT node.
+   `python.exe .\udp_client.py 192.168.10.10 5000`
 
-      The iPerf command to start the TCP client is:
+   ![](resources/readme/UDP_tx_console.png)
 
-      > `C:\> iperf.exe -c <Module_IP> -p <LISTENING_PORT> -i 1 -t <time interval in sec>`
-      >
-      > For example ...
-      >
-      > `C:\> iperf.exe -c 192.168.0.100 -p 5001 -i 1 -t 30`
 
-    > **Note** : The number of NAT entries is limited to 100.
+**TCP Tx Throughput**
+
+1. Set the following macro in `wifi_config.h`:
+   ```c
+      #define THROUGHPUT_TYPE       TCP_TX
+   ```
+2. Compile and flash the application.
+
+3. Once connected to the SiWx91x AP, navigate to **`/<SDK>/resources/scripts/`**. Run the **tcp_client.py** script on port number 5000 using the following command:
+
+   `python.exe .\tcp_client.py 192.168.10.10 5000`
+
+   ![](resources/readme/TCP_tx_console_1.png)
+
+   ![](resources/readme/TCP_tx_console_2.png)
+
+   **NOTE:** If the python command is not working, replace the python with py.
+
+
+> **Note** : The number of NAT entries is limited to 100.

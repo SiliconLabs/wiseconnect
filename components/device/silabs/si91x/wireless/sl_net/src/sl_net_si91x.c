@@ -48,6 +48,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_dns.h"
 #include "sli_wifi_constants.h"
+#include "sli_wifi_utility.h"
 
 typedef enum { SLI_SI91X_CLIENT = 0, SLI_SI91X_AP = 1, SLI_SI91X_MAX_INTERFACES = 2 } sli_si91x_interfaces_t;
 sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
@@ -302,8 +303,7 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
   sli_si91x_dns_query_request_t dns_query_request = { 0 };
 
   // Determine the wait period based on the timeout value
-  sli_si91x_wait_period_t wait_period = timeout == 0 ? SLI_SI91X_RETURN_IMMEDIATELY
-                                                     : SL_SI91X_WAIT_FOR_RESPONSE(timeout);
+  sli_wifi_wait_period_t wait_period = timeout == 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR_RESPONSE(timeout);
   // Determine the IP version to be used (IPv4 or IPv6)
   dns_query_request.ip_version[0] = (dns_resolution_ip == SL_NET_DNS_TYPE_IPV4) ? 4 : 6;
   memcpy(dns_query_request.url_name, host_name, sizeof(dns_query_request.url_name));

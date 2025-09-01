@@ -104,35 +104,64 @@ Below are the list of GPIO examples available and it's functionality:
 - Configure the HP and ULP GPIO pins using the `sl_gpio_set_configuration` API.
 - For HP interrupt:
   - Connect GPIO8 (F8) and GPIO9 (F9) to low or high voltage levels. 
-  - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
-  - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
+  - When the `AND event` is selected, the interrupt occurs when both GPIO pins match the configured polarity simultaneously.
+  - When the `OR event` is selected, the interrupt occurs when at least one pin matches the configured polarity, based on the level or edge configuration.
 - For ULP interrupt:
-  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels.
-  - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
-  - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
+  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels on the IC board (or) ULP GPIO8 and ULP_GPIO_4 on the ACX Module board.
+  - When the `AND event` is selected, the interrupt occurs when both GPIO pins match the configured polarity simultaneously.
+  - When the `OR event` is selected, the interrupt occurs when at least one pin matches the configured polarity, based on the level or edge configuration.
 
-**AND Event table:**
+**Important Note on GPIO Polarity:**
+- The GPIO group interrupt behavior depends on the polarity configuration of the pins.
+- For **low polarity** configuration: The interrupt triggers when the pin state is LOW (0).
+- For **high polarity** configuration: The interrupt triggers when the pin state is HIGH (1).
+- The truth tables below assume **low polarity** configuration for both GPIO8 and GPIO9 pins.
+
+**AND Event table (Low Polarity Configuration):**
 
 > |  GPIO8 pin state | GPIO9 pin state   |    Trigger status |
->  |------------------|-------------------|-------------------|
+> |------------------|-------------------|-------------------|
 > |         0        |        0          |      1            |             
 > |         0        |        1          |      0            |
 > |         1        |        0          |      0            |   
-> |         1        |        1          |      1            |  
+> |         1        |        1          |      0            |  
 > |                  |                   |                   | 
 
-**AND Event table:**
+**OR Event table (Low Polarity Configuration):**
 
 > |  GPIO8 pin state | GPIO9 pin state   |    Trigger status |
->  |------------------|-------------------|-------------------|
-> |         0        |        0          |      0            |             
+> |------------------|-------------------|-------------------|
+> |         0        |        0          |      1            |             
 > |         0        |        1          |      1            |
 > |         1        |        0          |      1            |   
 > |         1        |        1          |      0            |  
 > |                  |                   |                   | 
 
+**AND Event table (High Polarity Configuration):**
+
+> |  GPIO8 pin state | GPIO9 pin state   |    Trigger status |
+> |------------------|-------------------|-------------------|
+> |         0        |        0          |      0            |             
+> |         0        |        1          |      0            |
+> |         1        |        0          |      0            |   
+> |         1        |        1          |      1            |  
+> |                  |                   |                   | 
+
+**OR Event table (High Polarity Configuration):**
+
+> |  GPIO8 pin state | GPIO9 pin state   |    Trigger status |
+> |------------------|-------------------|-------------------|
+> |         0        |        0          |      0            |             
+> |         0        |        1          |      1            |
+> |         1        |        0          |      1            |   
+> |         1        |        1          |      1            |  
+> |                  |                   |                   | 
+
 > **Note:**
-> As per this example application GPIO8 and GPIO9 are considered for group.
+> - As per this example application GPIO8 and GPIO9 are considered for group.
+> - The polarity configuration determines when the interrupt condition is met.
+> - AND event: Interrupt triggers only when both pins match the configured polarity.
+> - OR event: Interrupt triggers when at least one pin matches the configured polarity.
 
 ### Initialization of GPIO
 
@@ -163,7 +192,7 @@ Below are the list of GPIO examples available and it's functionality:
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)

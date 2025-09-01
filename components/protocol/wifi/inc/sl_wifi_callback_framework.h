@@ -30,6 +30,7 @@
 #pragma once
 
 #include "sl_wifi_device.h" // To access the device specific structs
+#include "sli_wifi_callback_framework.h"
 #include <stdint.h>
 #ifndef __ZEPHYR__
 #include "sli_cmsis_os2_ext_task_register.h"
@@ -366,7 +367,7 @@ typedef sl_status_t (*sl_wifi_transceiver_callback_t)(sl_wifi_event_t event,
                                                       void *optional_arg);
 
 /**
- * @typedef sl_wifi_command_engine_status_handler_t
+ * @typedef sl_wifi_command_engine_status_callback_t
  * @brief Callback for SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS group events of type @ref sl_wifi_event_group_t.
  *
  *   This typedef defines a callback function that handles command engine status events of type @ref sl_wifi_event_t.
@@ -390,11 +391,11 @@ typedef sl_status_t (*sl_wifi_transceiver_callback_t)(sl_wifi_event_t event,
  * @note
  *   The @p data and @p data_length parameters are currently unused and should be ignored by the callback implementation.
  */
-typedef sl_status_t (*sl_wifi_command_engine_status_handler_t)(sl_wifi_event_t event,
-                                                               sl_status_t status_code,
-                                                               void *data,
-                                                               uint32_t data_length,
-                                                               void *optional_arg);
+typedef sl_status_t (*sl_wifi_command_engine_status_callback_t)(sl_wifi_event_t event,
+                                                                sl_status_t status_code,
+                                                                void *data,
+                                                                uint32_t data_length,
+                                                                void *optional_arg);
 
 /**
  * @typedef sl_wifi_callback_function_v2_t
@@ -414,7 +415,7 @@ typedef sl_status_t (*sl_wifi_command_engine_status_handler_t)(sl_wifi_event_t e
  * @param data_length
  *   Length of the data received in bytes.
  * @param optional_arg
- *   Optional user-provided argument passed in @ref sl_wifi_set_callback. This parameter allows the user to pass additional context or information to the callback function.
+ *   Optional user-provided argument passed in @ref sl_wifi_set_callback_v2. This parameter allows the user to pass additional context or information to the callback function.
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
  *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
@@ -449,7 +450,7 @@ typedef sl_status_t (*sl_wifi_callback_function_v2_t)(sl_wifi_event_t event,
  * @param data_length
  *   Length of the scan results data received in bytes.
  * @param optional_arg
- *   Optional user provided argument passed in [sl_wifi_set_scan_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-scan-callback).
+ *   Optional user provided argument passed in [sl_wifi_set_scan_callback_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-scan-callback-v2).
  *
  * @pre Wi-Fi module must call @ref sl_wifi_start_scan to receive SL_WIFI_SCAN_RESULT_EVENTS event.
  *
@@ -492,7 +493,7 @@ typedef sl_status_t (*sl_wifi_scan_callback_v2_t)(sl_wifi_event_t event,
  * @param data_length
  *   Length of the payload received in bytes.
  * @param optional_arg
- *   Optional user provided argument passed in [sl_wifi_set_stats_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-stats-callback).
+ *   Optional user provided argument passed in [sl_wifi_set_stats_callback_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-stats-callback-v2).
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
  *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
@@ -629,7 +630,7 @@ typedef sl_status_t (*sl_wifi_stats_callback_v2_t)(sl_wifi_event_t event,
  * @param data_length
  *   Length of the data received in bytes. This parameter indicates the size of the data buffer pointed to by the `data` parameter.
  * @param optional_arg
- *   Optional user provided argument passed in [sl_wifi_set_join_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-join-callback).
+ *   Optional user provided argument passed in [sl_wifi_set_join_callback_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-join-callback-v2).
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
  *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
@@ -680,7 +681,7 @@ typedef sl_status_t (*sl_wifi_join_callback_v2_t)(sl_wifi_event_t event,
  * @param data_length
  *   Length of the data received in bytes.
  * @param optional_arg
- *   Optional user provided argument passed in [sl_wifi_set_twt_config_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-twt-config-callback).
+ *   Optional user provided argument passed in [sl_wifi_set_twt_config_callback_v2](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-twt-config-callback-v2).
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
  *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
@@ -718,7 +719,7 @@ typedef sl_status_t (*sl_wifi_twt_config_callback_v2_t)(sl_wifi_event_t event,
  * @param[out] data_length
  *   Reserved.
  * @param[out] optional_arg
- *   Optional user provided argument passed in [sl_wifi_set_transceiver_callback](../pages/wifi-callback-framework#sl-wifi-set-transceiver-callback)
+ *   Optional user provided argument passed in [sl_wifi_set_transceiver_callback_v2](../pages/wifi-callback-framework#sl-wifi-set-transceiver-callback-v2)
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/4.1/common/api/group-status)
  *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
@@ -775,7 +776,7 @@ sl_status_t sl_wifi_set_callback(sl_wifi_event_group_t group,
  * @param[in] function
  *   Function pointer to callback of type @ref sl_wifi_callback_function_v2_t that would be invoked when an event in the specified group occurs.
  * @param[in] optional_arg
- *   Optional user provided argument to pass additional context or information to the callback function. This would be passed back to callback handler of type @ref sl_wifi_callback_function_t.
+ *   Optional user provided argument to pass additional context or information to the callback function. This would be passed back to callback handler of type @ref sl_wifi_callback_function_v2_t.
  * @pre Pre-conditions:
  * - The Wi-Fi module must be initialized by calling @ref sl_wifi_init before this API can be used.
  * @return
@@ -796,9 +797,9 @@ sl_status_t sl_wifi_set_callback_v2(sl_wifi_event_group_t group,
  *   When passed to the @ref sl_wifi_init function, it would handle incoming Wi-Fi events by dispatching them to the appropriate group event functions.
  *
  * @param[in] event
- * 	 Wi-Fi event of type of @ref sl_wifi_event_t.
+ *   Wi-Fi event of type of @ref sl_wifi_event_t.
  * @param[in] buffer
- *  Buffer containing raw data from NWP firmware
+ *   Buffer containing raw data from NWP firmware
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status)
  *   and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
@@ -832,7 +833,7 @@ extern sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_scan_callback(sl_wifi_scan_callback_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback(SL_WIFI_SCAN_RESULT_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_SCAN_RESULT_EVENTS, (sl_wifi_callback_function_t)function, NULL, optional_arg);
 }
 
 /***************************************************************************/
@@ -859,9 +860,8 @@ static inline sl_status_t sl_wifi_set_scan_callback(sl_wifi_scan_callback_t func
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_join_callback(sl_wifi_join_callback_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback(SL_WIFI_JOIN_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_JOIN_EVENTS, (sl_wifi_callback_function_t)function, NULL, optional_arg);
 }
-
 /***************************************************************************/
 /**
  * @brief
@@ -886,7 +886,7 @@ static inline sl_status_t sl_wifi_set_join_callback(sl_wifi_join_callback_t func
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_twt_config_callback(sl_wifi_twt_config_callback_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback(SL_WIFI_TWT_RESPONSE_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_TWT_RESPONSE_EVENTS, (sl_wifi_callback_function_t)function, NULL, optional_arg);
 }
 
 /***************************************************************************/
@@ -913,7 +913,10 @@ static inline sl_status_t sl_wifi_set_twt_config_callback(sl_wifi_twt_config_cal
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_stats_callback(sl_wifi_stats_callback_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS,
+                               (sl_wifi_callback_function_t)function,
+                               NULL,
+                               optional_arg);
 }
 
 /***************************************************************************/ /**
@@ -939,7 +942,7 @@ static inline sl_status_t sl_wifi_set_stats_callback(sl_wifi_stats_callback_t fu
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_transceiver_callback(sl_wifi_transceiver_callback_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_t)function, NULL, optional_arg);
 }
 
 /***************************************************************************/
@@ -964,7 +967,10 @@ static inline sl_status_t sl_wifi_set_transceiver_callback(sl_wifi_transceiver_c
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_scan_callback_v2(sl_wifi_scan_callback_v2_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback_v2(SL_WIFI_SCAN_RESULT_EVENTS, (sl_wifi_callback_function_v2_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_SCAN_RESULT_EVENTS,
+                               NULL,
+                               (sl_wifi_callback_function_v2_t)function,
+                               optional_arg);
 }
 
 /***************************************************************************/
@@ -989,7 +995,7 @@ static inline sl_status_t sl_wifi_set_scan_callback_v2(sl_wifi_scan_callback_v2_
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_join_callback_v2(sl_wifi_join_callback_v2_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback_v2(SL_WIFI_JOIN_EVENTS, (sl_wifi_callback_function_v2_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_JOIN_EVENTS, NULL, (sl_wifi_callback_function_v2_t)function, optional_arg);
 }
 
 /***************************************************************************/
@@ -1015,7 +1021,10 @@ static inline sl_status_t sl_wifi_set_join_callback_v2(sl_wifi_join_callback_v2_
 static inline sl_status_t sl_wifi_set_twt_config_callback_v2(sl_wifi_twt_config_callback_v2_t function,
                                                              void *optional_arg)
 {
-  return sl_wifi_set_callback_v2(SL_WIFI_TWT_RESPONSE_EVENTS, (sl_wifi_callback_function_v2_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_TWT_RESPONSE_EVENTS,
+                               NULL,
+                               (sl_wifi_callback_function_v2_t)function,
+                               optional_arg);
 }
 
 /***************************************************************************/
@@ -1040,7 +1049,10 @@ static inline sl_status_t sl_wifi_set_twt_config_callback_v2(sl_wifi_twt_config_
  ******************************************************************************/
 static inline sl_status_t sl_wifi_set_stats_callback_v2(sl_wifi_stats_callback_v2_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback_v2(SL_WIFI_STATS_RESPONSE_EVENTS, (sl_wifi_callback_function_v2_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS,
+                               NULL,
+                               (sl_wifi_callback_function_v2_t)function,
+                               optional_arg);
 }
 
 /***************************************************************************/ /**
@@ -1065,7 +1077,10 @@ static inline sl_status_t sl_wifi_set_stats_callback_v2(sl_wifi_stats_callback_v
 static inline sl_status_t sl_wifi_set_transceiver_callback_v2(sl_wifi_transceiver_callback_v2_t function,
                                                               void *optional_arg)
 {
-  return sl_wifi_set_callback_v2(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_v2_t)function, optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS,
+                               NULL,
+                               (sl_wifi_callback_function_v2_t)function,
+                               optional_arg);
 }
 
 #ifndef __ZEPHYR__
@@ -1097,9 +1112,9 @@ static inline sl_status_t sl_wifi_get_saved_firmware_status(void)
  *   When any event within this group occurs, the registered callback function would be invoked, providing the event details and any associated data.
  *
  * @param[in] function
- *   Function pointer to callback of type @ref sl_wifi_command_engine_status_handler_t. This parameter specifies the callback function that would be invoked when an event in the SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS group occurs.
+ *   Function pointer to callback of type @ref sl_wifi_command_engine_status_callback_t. This parameter specifies the callback function that would be invoked when an event in the SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS group occurs.
  * @param[in] optional_arg
- *   Optional user provided argument. This parameter allows the user to pass additional context or information to the callback function. This would be passed back to callback handler of type @ref sl_wifi_command_engine_status_handler_t.
+ *   Optional user provided argument. This parameter allows the user to pass additional context or information to the callback function. This would be passed back to callback handler of type @ref sl_wifi_command_engine_status_callback_t.
  * @pre Pre-conditions:
  *   @ref sl_wifi_init should be called before this API.
  * @return
@@ -1108,11 +1123,12 @@ static inline sl_status_t sl_wifi_get_saved_firmware_status(void)
  * @note
  *   All the individual Wi-Fi events related to this group will be triggered via this callback.
  ******************************************************************************/
-static inline sl_status_t sl_wifi_set_command_engine_status_handler(sl_wifi_command_engine_status_handler_t function,
+static inline sl_status_t sl_wifi_set_command_engine_status_handler(sl_wifi_command_engine_status_callback_t function,
                                                                     void *optional_arg)
 {
-  return sl_wifi_set_callback_v2(SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS,
-                                 (sl_wifi_callback_function_v2_t)function,
-                                 optional_arg);
+  return sli_wifi_set_callback(SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS,
+                               NULL,
+                               (sl_wifi_callback_function_v2_t)function,
+                               optional_arg);
 }
 /** @} */

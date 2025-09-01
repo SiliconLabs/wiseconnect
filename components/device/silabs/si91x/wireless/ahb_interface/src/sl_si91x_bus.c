@@ -38,7 +38,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "sl_rsi_utility.h"
-
+#include "sli_wifi_utility.h"
 rsi_m4ta_desc_t tx_desc[2];
 rsi_m4ta_desc_t rx_desc[2];
 sli_wifi_buffer_queue_t sli_ahb_bus_rx_queue;
@@ -84,7 +84,7 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
     return SL_STATUS_ALLOCATION_FAILED;
   }
 
-  packet     = sli_wifi_host_get_buffer_data(rx_pkt_buffer, 0, &data_length);
+  packet     = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(rx_pkt_buffer, 0, &data_length);
   pkt_buffer = (int8_t *)&packet->desc[0];
 
   // Fill source address in the TX descriptors

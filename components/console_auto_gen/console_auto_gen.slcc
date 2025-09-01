@@ -1,7 +1,7 @@
 id: console_auto_gen
 package: wifi
 description: >
-  Provides readily available command database exercising WiSeConnect 3 SDK functionalities.
+  Provides readily available command database exercising WiSeConnect SDK functionalities.
 label: Built-In Command Database
 category: Service|Console
 quality: production

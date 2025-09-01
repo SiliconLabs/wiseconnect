@@ -39,7 +39,7 @@
 #include "sl_si91x_driver.h"
 #include <stdint.h>
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -253,8 +253,8 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
                (const uint32_t *)option_value,
                SLI_GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->max_retransmission_timeout_value), option_len));
       } else {
-        SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 32 and "
-                     "should be power of two. ex:1,2,4,8,16,32 \n");
+        SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 128 and "
+                     "should be power of two. ex:1,2,4,8,16,32,64,128 \n");
         SLI_SET_ERROR_AND_RETURN(EINVAL);
       }
       break;
@@ -493,7 +493,7 @@ int sl_si91x_recvfrom(int socket,
   UNUSED_PARAMETER(flags);
 
   // Initialize variables for socket communication
-  sli_si91x_wait_period_t wait_time    = 0;
+  sli_wifi_wait_period_t wait_time     = 0;
   sli_si91x_req_socket_read_t request  = { 0 };
   ssize_t bytes_read                   = 0;
   size_t max_buf_len                   = 0;
@@ -546,7 +546,7 @@ int sl_si91x_recvfrom(int socket,
   request.socket_id = (uint8_t)si91x_socket->id;
   memcpy(request.requested_bytes, &buf_len, sizeof(buf_len));
   memcpy(request.read_timeout, &si91x_socket->read_timeout, sizeof(si91x_socket->read_timeout));
-  wait_time = (SLI_SI91X_WAIT_FOR_EVER | SLI_SI91X_WAIT_FOR_RESPONSE_BIT);
+  wait_time = (SLI_WIFI_WAIT_FOR_EVER | SLI_WIFI_WAIT_FOR_RESPONSE_BIT);
 
   sl_status_t status = sli_si91x_send_socket_command(si91x_socket,
                                                      SLI_WLAN_REQ_SOCKET_READ_DATA,
@@ -563,7 +563,7 @@ int sl_si91x_recvfrom(int socket,
   SLI_SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SLI_SI91X_UNDEFINED_ERROR);
 
   // Retrieve the packet from the buffer
-  packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   // Extract the socket receive response data from the firmware packet
   response = (sl_si91x_socket_metadata_t *)packet->data;

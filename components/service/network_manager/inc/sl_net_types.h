@@ -35,6 +35,7 @@
 #include "sl_constants.h"
 #include "sl_status.h"
 #include "sl_utility.h"
+#include "sl_wifi_types.h"
 #include <stdint.h>
 
 /** \addtogroup SL_NET_TYPES Types
@@ -131,4 +132,23 @@ typedef struct {
   uint32_t non_tcp_session_timeout; ///< NAT non-TCP session timeout in seconds
   sl_net_interface_t interface;     ///< Network interface to apply NAT settings
 } sl_net_nat_config_t;
+
+/**
+ * @struct sl_net_interface_info_t
+ * @brief Structure containing network interface information.
+ * 
+ * @details
+ * This structure holds information about a network interface, including MAC address, IPv4 and IPv6 addresses,
+ * and hardware-specific details. The hardware-specific information is stored in a union, allowing for extension
+ * to other hardware types as needed.
+ */
+typedef struct {
+  uint8_t mac_address[SL_NET_MAX_MAC_ADDR_LENGTH]; ///< MAC address of the module
+  sl_ipv4_address_t ipv4_address;                  ///< Module IPv4 Address
+  sl_ipv6_address_t ipv6_address;                  ///< Module IPv6 Address
+  union {
+    sl_wifi_interface_info_t wifi_info; ///< Wi-Fi specific interface info
+    // Add other hardware-specific structs here if needed
+  } hw_info; ///< Hardware-specific information
+} sl_net_interface_info_t;
 /** @} */

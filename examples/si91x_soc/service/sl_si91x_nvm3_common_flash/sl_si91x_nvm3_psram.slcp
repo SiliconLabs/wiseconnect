@@ -1,5 +1,5 @@
 project_name: sl_si91x_nvm3_psram
-package: platform_siwx91x_apps
+package: platform_nwp_siwx91x_apps
 description: |
   Testing NVM3 in Si91x PSRAM 
 category: Example|Service
@@ -7,7 +7,7 @@ quality: production
 label: sl_si91x_nvm3_psram
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0

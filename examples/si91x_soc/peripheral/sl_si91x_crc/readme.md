@@ -34,7 +34,7 @@
 - Serial console setup
   - For serial console setup instructions, see the [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) section of the *WiSeConnect Developer's Guide*.
 - Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer to the [Download and Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio) section in the Developing with *WiSeConnect™ SDK v3.x with SiWx91x™ Boards Guide*).
+  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer to the [Download and Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio) section in the Developing with *WiSeConnect™ SDK with SiWx91x™ Boards Guide*).
 
 ### Setup Diagram
 
@@ -44,7 +44,7 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:
 
-- Install Studio and WiSeConnect 3 extension
+- Install Studio and WiSeConnect extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
@@ -71,7 +71,7 @@ For details on the project folder structure, see the [WiSeConnect_Examples](http
 
 ## Test the Application
 
-Refer to the instructions in the [Create a Project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project) section on the *Developing with WiSeConnect™ SDK v3.x with SiWx91x™ Boards* page to:
+Refer to the instructions in the [Create a Project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project) section on the *Developing with WiSeConnect™ SDK with SiWx91x™ Boards* page to:
 
 - Compile and run the application.
 

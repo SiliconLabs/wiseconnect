@@ -32,7 +32,7 @@
 
 //! defines
 #define MAX_NAME_TASK                 8
-#define MAX_NUM_PRIORITY_QUEUES       10
+#define MAX_NUM_PRIORITY_QUEUES       8
 #define FIXED_LEN_RESPONSE_BUFFER_LEN 16
 #define BD_ADDR_NOT_FOUND             -1
 

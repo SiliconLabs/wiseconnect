@@ -73,7 +73,7 @@ This application demonstrates the use of the Sensor Data Collector (SDC) periphe
 Follow the [WiSeConnect Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install the WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install the WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -158,7 +158,6 @@ Refer to the [Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/
 > - In `sdc_example.c`, update the `sl_adc_channel_config_t` channel parameter to match the installed channel number.
 > - When using a single channel, only channel 1 is available; for two channels, channels 1 and 2, and so on.
 > - SDC DAC and OPAMP are not supported.
-> - Sampling threshold 16 is currently not supported.
 
 > **Formula for Calculating Input Voltage from ADC Output:**
 >

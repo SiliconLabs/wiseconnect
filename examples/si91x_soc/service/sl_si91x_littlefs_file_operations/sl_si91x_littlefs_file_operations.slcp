@@ -1,5 +1,5 @@
 project_name: sl_si91x_littlefs_file_operations
-package: platform_siwx91x_apps
+package: platform_nwp_siwx91x_apps
 description: >
   This application demonstrates the usage of QSPI configured for reading and writing to flash memory to demonstrate file operations.
 category: example|Service
@@ -7,12 +7,14 @@ quality: production
 label: SL Si91x - LittleFS Basic File Operations
 sdk:
   id: simplicity_sdk
-  version: "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0
 component:
   - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
   - id: status
   - id: syscalls
     from: wiseconnect3_sdk

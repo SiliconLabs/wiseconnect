@@ -74,7 +74,7 @@ Before running the application, the user will need the following things to setup
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-   - Install Studio and WiSeConnect 3 extension
+   - Install Studio and WiSeConnect extension
    - Connect your device to the computer
    - Upgrade your connectivity firmware
    - Create a Studio project
@@ -84,7 +84,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
   - Install the [Keil IDE](https://www.keil.com/).
-  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Download [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the steps below:
    	- Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
@@ -92,7 +92,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
    	- After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    	- Connect the setup to the computer.
-  	- Open the BLE PER µVision project - **ble_per.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → ble_per → keil_project**. 
+  	- Open the BLE PER µVision project - **ble_per.uvprojx** by navigating to **WiSeConnect SDK → examples → featured → ble_per → keil_project**. 
 
 ## Application Build Environment
 

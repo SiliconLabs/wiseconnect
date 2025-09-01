@@ -37,6 +37,7 @@
 #include "wifi_app.h"
 #include "ble_config.h"
 #include "rsi_ble_apis.h"
+#include "sl_string.h"
 //! Include SSL CA certificate
 #include "cacert.pem.h"
 #include "sl_si91x_socket.h"
@@ -232,7 +233,7 @@ void rsi_wlan_app_task(void)
 #if CONNECT_WITH_PMK
         sl_wifi_ssid_t ssid;
         uint8_t type = 3;
-        ssid.length  = (uint8_t)strnlen(SSID, sizeof(ssid.value));
+        ssid.length  = (uint8_t)sl_strnlen(SSID, sizeof(ssid.value));
         memcpy(ssid.value, SSID, ssid.length);
 
         status = sl_wifi_get_pairwise_master_key(SL_WIFI_CLIENT_INTERFACE, type, &ssid, PSK, pairwise_master_key);

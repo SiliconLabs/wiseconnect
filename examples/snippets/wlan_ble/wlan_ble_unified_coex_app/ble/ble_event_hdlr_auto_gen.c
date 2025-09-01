@@ -1759,6 +1759,7 @@ APP_WEAK void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
   msg->free_callback = free;
   //msg->status = status;
 
+  memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
   //! enqueue message to ble_generic_cb.event_queues[0]
   rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);

@@ -163,20 +163,6 @@ static inline sl_status_t sli_convert_si91x_status_to_sl_status(si91x_status_t s
 void sli_si91x_append_to_buffer_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
 
 /**
- * @brief Atomically remove the head buffer from a buffer queue.
- * 
- * This function removes the buffer at the head of the specified buffer queue in an atomic operation,
- * ensuring thread safety during the removal. The removed buffer is then passed back through a pointer
- * to the caller.
- *
- * @param[in] queue Pointer to the source buffer queue from which the head buffer will be removed.
- * @param[out] buffer Pointer to a pointer of sl_wifi_buffer_t where the removed buffer's address will be stored.
- * @return sl_status_t Returns the status of the operation. A value of 0 (SL_STATUS_OK) indicates success.
- *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
- */
-sl_status_t sli_si91x_pop_from_buffer_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
-
-/**
  * @brief
  *   Allocate a buffer to send a command
  * @param[out] host_buffer

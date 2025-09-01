@@ -113,4 +113,14 @@ sl_sysrtc_group_config_t sysrtc_group_config_handle = {
 };
 #endif // SL_SYSRTC_COMPARE_CHANNEL0_ENABLE
 
+// <<< sl:start pin_tool >>>
+// <uulp_module signal=(PRS_IN_G0),(PRS_IN_G1),(PRS_OUT_G0_0),(PRS_OUT_G0_1),(PRS_OUT_G1_0),(PRS_OUT_G1_1)> SL_SYSRTC
+// $[UULP_MODULE_SL_UULP_MODULE]
+#ifndef SL_UULP_MODULE_PERIPHERAL
+#define SL_UULP_MODULE_PERIPHERAL SYSRTC
+#endif
+
+// [UULP_MODULE_SL_UULP_MODULE]$
+// <<< sl:end pin_tool >>>
+
 #endif // SL_SYSRTC_CONFIG_H

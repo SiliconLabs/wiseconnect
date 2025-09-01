@@ -37,6 +37,14 @@
 #include "sl_si91x_host_interface.h"
 #include "sl_status.h"
 #include "cmsis_os2.h"
+#include "sli_wifi_utility.h"
+/******************************************************
+ *               Structures and Typedefs
+******************************************************/
+typedef struct {
+  void *data;                                                        ///< Pointer to the data.
+  sli_routing_utility_packet_status_handler_t packet_status_handler; ///< Packet status handler.
+} sli_si91x_hal_packet_t;
 
 /******************************************************
  *               Macros
@@ -49,7 +57,11 @@
     if ((return_value) != (expected_value)) {                                     \
       SL_DEBUG_LOG(message, return_value);                                        \
     }                                                                             \
-  } while (0)
+  } while (0);
+
+#define SLI_HAL_SI91X_IS_FLASH_COMMAND(command)                                                \
+  (((command) == SLI_COMMON_RSP_TA_M4_COMMANDS) || ((command) == SLI_WLAN_REQ_SET_CERTIFICATE) \
+   || ((command) == SLI_COMMON_RSP_SOFT_RESET)) ///< Check if the command is a flash command
 /******************************************************
  *               Function Declarations
 ******************************************************/
@@ -70,7 +82,8 @@ static sl_status_t sli_hal_si91x_send_packet(void *packet,
                                              uint32_t packet_size,
                                              sli_routing_utility_packet_status_handler_t packet_status_handler,
                                              void *context);
-static void sli_hal_si91x_send_packet_to_bus(sl_wifi_buffer_t *buffer);
+static sl_status_t sli_hal_si91x_send_packet_to_bus(sl_wifi_buffer_t *buffer);
+sl_status_t sli_si91x_req_wakeup(void);
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -113,13 +126,25 @@ static sl_status_t sli_hal_si91x_send_packet(void *packet,
   UNUSED_PARAMETER(context);
   UNUSED_PARAMETER(packet_size);
 
-  // TODO: What needs to be done with packet_status_handler
-  if (packet_status_handler != NULL) {
-  }
+  sli_si91x_hal_packet_t *hal_packet = NULL;
 
-  sl_status_t status = sli_queue_manager_enqueue(tx_queue, (sl_slist_node_t *)packet);
+  sl_status_t status = sli_buffer_manager_allocate_buffer(SLI_BUFFER_MANAGER_HAL_METADATA_POOL,
+                                                          SLI_BUFFER_MANAGER_ALLOCATION_TYPE_HYBRID,
+                                                          1000,
+                                                          (sli_buffer_t *)&hal_packet);
 
   VERIFY_STATUS_AND_RETURN(status);
+
+  hal_packet->data                  = packet;
+  hal_packet->packet_status_handler = packet_status_handler;
+
+  status = sli_queue_manager_enqueue(tx_queue, (sl_slist_node_t *)packet);
+
+  if (status != SL_STATUS_OK) {
+    sli_buffer_manager_free_buffer((sli_buffer_t *)hal_packet);
+    return status;
+  }
+
   osEventFlagsSet(sli_hal_si91x_events, event_flag);
 
   return SL_STATUS_IN_PROGRESS;
@@ -127,55 +152,113 @@ static sl_status_t sli_hal_si91x_send_packet(void *packet,
 
 static void sli_hal_si91x_wait_for_event_listener()
 {
-  uint32_t events_received = 0;
-  sl_slist_node_t *node    = NULL;
+  uint32_t events_received       = 0;
+  sl_slist_node_t *node          = NULL;
+  sli_si91x_hal_packet_t *packet = NULL;
+
+  uint16_t interrupt_status = 0;
+  uint32_t wait_time        = osWaitForever;
 
   while (1) {
+    if (!events_received) {
+      wait_time = osWaitForever; // If there are no events, wait indefinitely
+    } else if ((events_received & SLI_HAL_SI91X_WIFI_TX_EVENT) && (interrupt_status & SLI_WIFI_BUFFER_FULL)) {
+      wait_time = 10; // If the wifi TX event is set and the buffer is full, process immediately
+    } else if ((events_received & SLI_HAL_SI91X_BLE_TX_EVENT) && (interrupt_status & SLI_BLE_BUFFER_FULL)) {
+      wait_time = 10; // if the BLE TX event is set and the buffer is full, process immediately
+    } else {
+      wait_time = 0;
+    }
+
     events_received |=
       osEventFlagsWait(sli_hal_si91x_events,
                        (SLI_HAL_SI91X_WIFI_TX_EVENT | SLI_HAL_SI91X_RX_EVENT | SLI_HAL_SI91X_BLE_TX_EVENT),
                        osFlagsWaitAny,
-                       osWaitForever);
+                       wait_time);
 
-    if ((events_received & SLI_HAL_SI91X_WIFI_TX_EVENT)
-        && (SL_STATUS_OK == sli_queue_manager_dequeue(&wifi_tx_queue_handle, (void **)&node))) {
-      sli_hal_si91x_send_packet_to_bus((sl_wifi_buffer_t *)node);
+    sl_status_t status = sli_si91x_req_wakeup();
 
-      events_received &= ~SLI_HAL_SI91X_WIFI_TX_EVENT;
+    if (status != SL_STATUS_OK) {
+      SL_DEBUG_LOG("Failed to wake up SI91X device");
+      continue; // Skip processing if wakeup failed
     }
 
-    if (events_received & SLI_HAL_SI91X_BLE_TX_EVENT
-        && (SL_STATUS_OK == sli_queue_manager_dequeue(&ble_tx_queue_handle, (void **)&node))) {
-      sli_hal_si91x_send_packet_to_bus((sl_wifi_buffer_t *)node);
+    // Read the interrupt status
+    sli_si91x_bus_read_interrupt_status(&interrupt_status);
 
-      events_received &= ~SLI_HAL_SI91X_BLE_TX_EVENT;
+    if ((events_received & SLI_HAL_SI91X_WIFI_TX_EVENT) && !(interrupt_status & SLI_WIFI_BUFFER_FULL)
+        && (SL_STATUS_OK == sli_queue_manager_dequeue(&wifi_tx_queue_handle, (void **)&packet))) {
+
+      status = sli_hal_si91x_send_packet_to_bus((sl_wifi_buffer_t *)packet->data);
+
+      if (status != SL_STATUS_OK) {
+        SL_DEBUG_LOG("Failed to send packet to bus");
+        packet->packet_status_handler(0, status, NULL);
+      }
+
+      sli_buffer_manager_free_buffer(packet);
+
+      if (SLI_QUEUE_MANAGER_IS_QUEUE_EMPTY(&wifi_tx_queue_handle)) {
+        events_received &= ~SLI_HAL_SI91X_WIFI_TX_EVENT;
+      }
+    }
+
+    if (events_received & SLI_HAL_SI91X_BLE_TX_EVENT && !(interrupt_status & SLI_BLE_BUFFER_FULL)
+        && (SL_STATUS_OK == sli_queue_manager_dequeue(&ble_tx_queue_handle, (void **)&packet))) {
+
+      status = sli_hal_si91x_send_packet_to_bus((sl_wifi_buffer_t *)packet->data);
+
+      if (status != SL_STATUS_OK) {
+        SL_DEBUG_LOG("Failed to send BLE packet to bus");
+        packet->packet_status_handler(0, status, NULL);
+      }
+
+      sli_buffer_manager_free_buffer(packet);
+
+      if (SLI_QUEUE_MANAGER_IS_QUEUE_EMPTY(&ble_tx_queue_handle)) {
+        events_received &= ~SLI_HAL_SI91X_BLE_TX_EVENT;
+      }
     }
 
     if ((events_received & SLI_HAL_SI91X_RX_EVENT)
         && (SL_STATUS_OK == sli_queue_manager_dequeue(&rx_queue_handle, (void **)&node))) {
-      sl_wifi_buffer_t *rx_buffer = (sl_wifi_buffer_t *)node;
+
+      sl_wifi_buffer_t *rx_buffer     = (sl_wifi_buffer_t *)node;
+      sl_wifi_system_packet_t *packet = sli_wifi_host_get_buffer_data(rx_buffer, 0, NULL);
+
+      if (SLI_HAL_SI91X_IS_FLASH_COMMAND(packet->command)) {
+        sli_si91x_update_flash_command_status(false);
+      }
 
       sli_routing_utility_route_packet(&hal_si91x_routing_table,
                                        SLI_HAL_SI91X_PACKET,
                                        (void *)rx_buffer,
                                        sizeof(sl_wifi_buffer_t) + rx_buffer->length,
                                        NULL);
-      events_received &= ~SLI_HAL_SI91X_RX_EVENT;
+
+      if (SLI_QUEUE_MANAGER_IS_QUEUE_EMPTY(&rx_queue_handle)) {
+        events_received &= ~SLI_HAL_SI91X_RX_EVENT;
+      }
     }
 
-    node = NULL;
+    node   = NULL;
+    packet = NULL;
   }
 }
 
-static void sli_hal_si91x_send_packet_to_bus(sl_wifi_buffer_t *buffer)
+static sl_status_t sli_hal_si91x_send_packet_to_bus(sl_wifi_buffer_t *buffer)
 {
   sl_wifi_system_packet_t *packet = NULL;
 
   packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
-  sl_si91x_host_clear_sleep_indicator();
+  sli_si91x_update_tx_command_status(true);
 
-  sl_status_t status = sli_si91x_bus_write_frame(packet, packet->data, packet->length);
+  sl_status_t status = sli_si91x_req_wakeup();
+
+  if (status == SL_STATUS_OK) {
+    status = sli_si91x_bus_write_frame(packet, packet->data, packet->length);
+  }
 
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n BUS_WRITE_ERROR \r\n");
@@ -183,8 +266,15 @@ static void sli_hal_si91x_send_packet_to_bus(sl_wifi_buffer_t *buffer)
     // BREAKPOINT();
   }
 
+  if (status == SL_STATUS_OK && SLI_HAL_SI91X_IS_FLASH_COMMAND(packet->command)) {
+    sli_si91x_update_flash_command_status(true);
+  }
+
   sl_si91x_host_clear_sleep_indicator();
   sli_si91x_host_free_buffer(buffer);
+
+  sli_si91x_update_tx_command_status(false);
+  return status;
 }
 
 static void sli_hal_si91x_clean_up_resources(void)

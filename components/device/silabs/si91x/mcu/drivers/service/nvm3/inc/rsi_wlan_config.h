@@ -161,9 +161,12 @@
 //!RSI_ENABLE or RSI_DISABLE to set RTS threshold config
 #define RSI_WLAN_CONFIG_ENABLE RSI_ENABLE
 
-#define SLI_CONFIG_RTSTHRESHOLD 1
-
-#define SLI_RTS_THRESHOLD 2346
+#ifndef SLI_WIFI_CONFIG_RTS_THRESHOLD
+#define SLI_WIFI_CONFIG_RTS_THRESHOLD 1
+#endif
+#ifndef SLI_WIFI_RTS_THRESHOLD
+#define SLI_WIFI_RTS_THRESHOLD 2346
+#endif
 
 /*=======================================================================*/
 

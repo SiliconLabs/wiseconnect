@@ -90,6 +90,12 @@
 /// Maximum interval for Wi-Fi roaming trigger in milliseconds.
 #define SL_WIFI_NEVER_ROAM 0x7FFFFFFF
 
+/// To take listen interval from join command.
+#define SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID (1 << 1)
+
+/// Length of the BSSID (MAC address) for Wi-Fi devices.
+#define SL_WIFI_BSSID_LENGTH 6
+
 /**
   * @enum sl_wifi_security_t
   * @brief Enumeration for Wi-Fi security types.
@@ -119,12 +125,11 @@ typedef enum {
   *
   * @note Some encryption types are not currently supported in station (STA) mode.
   * @note If encryption type is configured anything other than SL_WIFI_DEFAULT_ENCRYPTION, then make sure the AP (third party) supports the configured encryption type. If not, there might be a possibility of getting join failure due to the encryption type mismatch between AP (third party) and STA.
-  * @note If the encryption type is set to SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, then the eap_method is determined by the macro SL_EAP_PEAP_METHOD defined in components/protocol/wifi/si91x/sl_wifi.c.
-  * - PEAP can accept any of the following three values:
-  *     1. PEAP: The EAP server may bypass Phase2 authentication (less secure).
-  *     2. PEAPSAFE1: If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
-  *     3. PEAPSAFE2: Requires Phase2 authentication in all cases (most secure).
-  * - Possible values for the macro SL_EAP_PEAP_METHOD are "PEAP"(default), "PEAPSAFE1", and "PEAPSAFE2".
+  * @note PEAP encryption supports three security levels through different enum values:
+  * - SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION: The EAP server may bypass Phase2 authentication (less secure).
+  * - SL_WIFI_PEAP_SAFE1_ENCRYPTION: If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
+  * - SL_WIFI_PEAP_SAFE2_ENCRYPTION: Requires Phase2 authentication in all cases (most secure).
+  * Users can select the desired PEAP security level by setting the appropriate encryption type in their Wi-Fi profile.
   */
 typedef enum {
   SL_WIFI_DEFAULT_ENCRYPTION,       ///< Default Wi-Fi encryption
@@ -135,8 +140,10 @@ typedef enum {
   SL_WIFI_EAP_TLS_ENCRYPTION,       ///< Wi-Fi with Enterprise TLS Encryption
   SL_WIFI_EAP_TTLS_ENCRYPTION,      ///< Wi-Fi with Enterprise TTLS Encryption
   SL_WIFI_EAP_FAST_ENCRYPTION,      ///< Wi-Fi with Enterprise FAST Encryption
-  SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< Wi-Fi with Enterprise PEAP Encryption
-  SL_WIFI_EAP_LEAP_ENCRYPTION       ///< Wi-Fi with Enterprise LEAP Encryption
+  SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< Wi-Fi with Enterprise PEAP Encryption (default, less secure)
+  SL_WIFI_PEAP_SAFE1_ENCRYPTION,    ///< Wi-Fi with Enterprise PEAP Encryption (SAFE1, medium security)
+  SL_WIFI_PEAP_SAFE2_ENCRYPTION,    ///< Wi-Fi with Enterprise PEAP Encryption (SAFE2, most secure)
+  SL_WIFI_EAP_LEAP_ENCRYPTION,      ///< Wi-Fi with Enterprise LEAP Encryption
 } sl_wifi_encryption_t;
 
 /**
@@ -675,20 +682,24 @@ typedef enum {
 
 /**
   * @enum sl_wifi_region_code_t
+  * 
   * @brief
+  * Enumeration of Wi-Fi region codes.
+  * 
+  * @details
   * Guidance for Region code Mapping for Different Countries
   * | Country         | Country Code  |  Max power (Based on Regulatory domain)   | Frequency Range (Based on Regulatory Domain) | Suggested Region Code Mapping |
   * |:----------------|:--------------|:------------------------------------------|:---------------------------------------------|:------------------------------|
-  * | Korea           | KR            | 23 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_KR             |                         |
-  * | Hong Kong       | HK            | 36 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
-  * | Singapore       | SG            | 200 mW (23 dBm)                           | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
-  * | Malaysia        | MY            | 500 mW (27 dBm)                           | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
-  * | Australia       | AU            | 4000 mW (36 dBm)                          | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
-  * | Taiwan          | TW            | 30 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
-  * | Thailand        | TH            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
-  * | Mexico          | MX            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
-  * | Vietnam         | VN            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
-  * | Indonesia       | ID            | 500mW (27 dBm)                            | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
+  * | Korea           | KR            | 23 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_KR             |
+  * | Hong Kong       | HK            | 36 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Singapore       | SG            | 200 mW (23 dBm)                           | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Malaysia        | MY            | 500 mW (27 dBm)                           | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Australia       | AU            | 4000 mW (36 dBm)                          | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Taiwan          | TW            | 30 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Thailand        | TH            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Mexico          | MX            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Vietnam         | VN            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Indonesia       | ID            | 500mW (27 dBm)                            | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
   * | China           | CN            | 20 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_CN             |
   *
   **/

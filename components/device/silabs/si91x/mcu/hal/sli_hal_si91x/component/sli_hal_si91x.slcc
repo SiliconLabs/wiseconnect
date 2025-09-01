@@ -1,6 +1,6 @@
 id: sli_hal_si91x
 label: sli hal si91x
-package: platform_siwx91x
+package: platform_nwp_siwx91x
 description: >
     Provides HAL layer si91x
 category: HAL

@@ -1,8 +1,8 @@
-# WiSeConnect™ 3 SDK
+# WiSeConnect™ SDK
 
 The Silicon Labs WiSeConnect™ software development kit (SDK) offers an application programming interface (API) for use with the SiWx91x™ chipset family for Wi-Fi and Bluetooth Low Energy (BLE) connectivity.
 
-The WiSeConnect 3 (versions 3.0.0 and later) SDK is the next-generation API for Silicon Labs customers that replaces WiSeConnect 2 (versions earlier than 3.0.0) with modular design and organization of features into configurable components.
+The WiSeConnect (versions 3.0.0 and later) SDK is the next-generation API for Silicon Labs customers that replaces WiSeConnect 2 (versions earlier than 3.0.0) with modular design and organization of features into configurable components.
 
 - [Release Notes](#release-notes)
 - [Licensing](#licensing)
@@ -13,14 +13,14 @@ The WiSeConnect 3 (versions 3.0.0 and later) SDK is the next-generation API for 
 
 ## Release Notes
 
-The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect 3) SDK Version 3.5.0 (June 18, 2025) - Release Notes](https://docs.silabs.com/wiseconnect/3.5.0/sisdk-wifi-release-notes/).
+The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.0 (June 18, 2025) - Release Notes](https://docs.silabs.com/wiseconnect/3.5.0/sisdk-wifi-release-notes/).
 
 ## Licensing
 
-WiSeConnect 3 SDK is covered by one of several different licenses. The default license is the [Master Software License Agreement](https://www.silabs.com/about-us/legal/master-software-license-agreement) (MSLA), which applies unless otherwise noted. See [here](license.md) for full details.
+WiSeConnect SDK is covered by one of several different licenses. The default license is the [Master Software License Agreement](https://www.silabs.com/about-us/legal/master-software-license-agreement) (MSLA), which applies unless otherwise noted. See [here](license.md) for full details.
 
 ## Documentation
-An archive of all documents associated with the latest release of WiSeConnect™ 3 SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect 3 SDK documentation is available [here](https://docs.silabs.com/wiseconnect/3.5.0).
+An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available [here](https://docs.silabs.com/wiseconnect/3.5.0).
 
 ### Software Reference
 

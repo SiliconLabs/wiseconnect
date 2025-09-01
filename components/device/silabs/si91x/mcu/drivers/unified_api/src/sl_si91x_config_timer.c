@@ -1054,13 +1054,15 @@ sl_status_t sl_si91x_config_timer_dma_deinit(uint32_t channel)
   if (status != SL_STATUS_OK) {
     return status;
   }
-  // De-init DMA
-  status = sl_si91x_dma_deinit(CT_DMA_NUMBER);
+
+  // Disables DMA
+  status = sl_si91x_dma_channel_disable(CT_DMA_NUMBER, channel);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  // Disables DMA
-  status = sl_si91x_dma_channel_disable(CT_DMA_NUMBER, channel);
+
+  // De-init DMA
+  status = sl_si91x_dma_deinit(CT_DMA_NUMBER);
   if (status != SL_STATUS_OK) {
     return status;
   }

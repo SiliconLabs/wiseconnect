@@ -1129,7 +1129,7 @@
 
 /**
  * @def SL_SI91X_CUSTOM_FEAT_HTTP_HTTPS_AUTH
- * @brief Enables HTTP/HTTPS authentication.
+ * @brief Enables HTTP/HTTPS authentication (currently not supported).
  * @details This bit enables authentication for HTTP and HTTPS connections, adding an extra layer of security for web-based communications.
  */
 #define SL_SI91X_CUSTOM_FEAT_HTTP_HTTPS_AUTH BIT(23)
@@ -2664,7 +2664,11 @@ typedef struct {
 /** \addtogroup SL_SI91X_TYPES
  * @{
  * */
-/// si91x Specific Wireless information
+/**
+ * @struct sl_si91x_rsp_wireless_info_t
+ * @brief si91x Specific Wireless information.
+ * @note This structure is deprecated. Please use [sl_wifi_interface_info_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-interface-info-t) for new implementations.
+ */
 typedef struct {
 
   uint16_t

@@ -40,7 +40,7 @@
 #include "sl_si91x_core_utilities.h"
 #include <stdbool.h>
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 // Define a bit mask for DHCP unicast offer
 #define SL_SI91X_DHCP_UNICAST_OFFER ((uint32_t)1U << 3)
 
@@ -56,7 +56,7 @@ sl_status_t sli_net_configure_ip_address(sl_net_ip_configuration_t *ip_config,
   sli_si91x_req_ipv6_params_t ipv6_request = { 0 };
   sl_wifi_system_packet_t *packet;
   sl_wifi_buffer_t *buffer = NULL;
-  uint32_t wait_time       = (timeout ? SL_SI91X_WAIT_FOR_RESPONSE(timeout) : SLI_SI91X_RETURN_IMMEDIATELY);
+  uint32_t wait_time       = (timeout ? SLI_WIFI_WAIT_FOR_RESPONSE(timeout) : SLI_WIFI_RETURN_IMMEDIATELY);
 
   // Check if the device is initialized
   if (!device_initialized) {
@@ -120,7 +120,7 @@ sl_status_t sli_net_configure_ip_address(sl_net_ip_configuration_t *ip_config,
 
     // Verify the status and return it
     VERIFY_STATUS_AND_RETURN(status);
-    packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+    packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
     if (SL_IP_MANAGEMENT_DHCP == ip_config->mode) {
       // Extract DHCP response data if in DHCP mode
@@ -168,7 +168,7 @@ sl_status_t sli_net_configure_ip_address(sl_net_ip_configuration_t *ip_config,
     VERIFY_STATUS_AND_RETURN(status);
 
     // Extract the IPv6 configuration response data
-    packet                                           = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+    packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
     const sli_si91x_rsp_ipv6_params_t *ipv6_response = (sli_si91x_rsp_ipv6_params_t *)packet->data;
 
     // Copy the IPv6 addresses to the address structure
@@ -191,5 +191,5 @@ sl_status_t sli_net_configure_ip_address(sl_net_ip_configuration_t *ip_config,
 
 sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, uint8_t virtual_ap_id)
 {
-  return sli_net_configure_ip_address(address, virtual_ap_id, SLI_SI91X_WAIT_FOR_EVER);
+  return sli_net_configure_ip_address(address, virtual_ap_id, SLI_WIFI_WAIT_FOR_EVER);
 }

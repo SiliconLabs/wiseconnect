@@ -24,6 +24,14 @@ requires:
   - name: rsilib_clock_update
   - name: udma_linker_config
   - name: si91x_debug
+  - name: rsilib_headers
+    condition: ["device_si91x"]
+  - name: romdriver_headers
+    condition: ["device_si91x"]
+  - name: cmsis_driver_headers
+    condition: ["device_si91x"]
+  - name: romdriver_romtable_headers 
+    condition: ["device_si91x"]
 define:
   - name: SLI_SI91X_ENABLE_OS
     condition: [freertos]

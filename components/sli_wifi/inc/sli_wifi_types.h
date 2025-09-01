@@ -37,6 +37,10 @@
 #define SLI_WIFI_WPS_PIN_LEN             8
 #define SLI_WIFI_MAX_PMK_LENGTH          64
 #define SLI_WIFI_HARDWARE_ADDRESS_LENGTH 6 // Hardware Address Length
+#define SLI_WIFI_MAX_CERT_SEND_SIZE      1400
+
+// Maximum number of stations associated when running as an AP
+#define SLI_WIFI_MAX_STATIONS 16
 
 /// Efuse data information
 typedef union {
@@ -295,6 +299,39 @@ typedef struct {
   sl_wifi_system_coex_mode_t coex_mode;
 } sli_wifi_performance_profile_t;
 
+/// Internal structure to track individual feature configurations
+typedef struct {
+  sl_wifi_pll_mode_t pll_mode;       ///< Configured PLL mode value
+  sl_wifi_power_chain_t power_chain; ///< Configured power chain value
+} sli_wifi_feature_frame_config_t;
+
+/// structure for power save request
+typedef struct {
+  /// power mode to set
+  uint8_t power_mode;
+
+  /// set LP/ULP/ULP-without RAM retention
+  uint8_t ulp_mode_enable;
+
+  /// set DTIM aligment required
+  // 0 - module wakes up at beacon which is just before or equal to listen_interval
+  // 1 - module wakes up at DTIM beacon which is just before or equal to listen_interval
+  uint8_t dtim_aligned_type;
+
+  /// Set PSP type, 0-Max PSP, 1- FAST PSP, 2-APSD
+  uint8_t psp_type;
+
+  /// Monitor interval for the FAST PSP mode
+  // default is 50 ms, and this parameter is valid for FAST PSP only
+  uint16_t monitor_interval;
+  /// Number of DTIMs to skip
+  uint8_t num_of_dtim_skip;
+  /// Listen interval
+  uint16_t listen_interval;
+  /// Wake up for the next beacon if the number of missed beacons exceeds the limit. The default value is 1, with a recommended maximum value of 10. Higher values may cause interoperability issues.
+  uint8_t beacon_miss_ignore_limit;
+} sli_wifi_power_save_request_t;
+
 /// Si91x specific buffer queue structure
 typedef struct {
   sl_wifi_buffer_t *head; ///< Head
@@ -302,14 +339,13 @@ typedef struct {
 } sli_wifi_buffer_queue_t;
 /// Si91x specific command type
 typedef enum {
-  SI91X_COMMON_CMD      = 0, ///< SI91X Common Command
-  SLI_SI91X_WLAN_CMD    = 1, ///< SI91X Wireless LAN Command
+  SLI_WIFI_COMMON_CMD   = 0, ///< SI91X Common Command
+  SLI_WIFI_WLAN_CMD     = 1, ///< SI91X Wireless LAN Command
   SLI_SI91X_NETWORK_CMD = 2, ///< SI91X Network Command
   SLI_SI91X_BT_CMD      = 3, ///< SI91X Bluetooth Command
   SLI_SI91X_SOCKET_CMD  = 4, ///< SI91X Socket Command
   SI91X_CMD_MAX         = 5  ///< SI91X Maximum Command value
 } sli_wifi_command_type_t;
-
 /// Si91x queue packet structure
 typedef struct {
   sl_wifi_buffer_t *host_packet;        ///< Si91x host buffer
@@ -356,5 +392,76 @@ typedef struct sli_scan_info_s {
   uint8_t ssid[34];                                ///< SSID of the AP
   uint8_t bssid[SLI_WIFI_HARDWARE_ADDRESS_LENGTH]; ///< BSSID of the AP
 } sli_scan_info_t;
+
+/// Si91x specific station information
+typedef struct {
+  uint8_t ip_version[2]; ///< IP version if the connected client
+  uint8_t mac[6];        ///< Mac Address of the connected client
+  union {
+    uint8_t ipv4_address[4];  ///< IPv4 address of the connected client
+    uint8_t ipv6_address[16]; ///< IPv6 address of the connected client
+
+  } ip_address; ///< IP address
+} sli_wifi_station_info_t;
+
+/// go paramas response structure
+#pragma pack(1)
+typedef struct {
+  /// SSID of the P2p GO
+  uint8_t ssid[SLI_WIFI_SSID_LEN];
+
+  /// BSSID of the P2p GO
+  uint8_t mac_address[6];
+
+  /// Operating channel of the GO
+  uint8_t channel_number[2];
+
+  /// PSK of the GO
+  uint8_t psk[64];
+
+  /// IPv4 Address of the GO
+  uint8_t ipv4_address[4];
+
+  /// IPv6 Address of the GO
+  uint8_t ipv6_address[16];
+
+  /// Number of stations Connected to GO
+  uint8_t sta_count[2];
+
+  /// Station information
+  sli_wifi_station_info_t sta_info[SLI_WIFI_MAX_STATIONS];
+} sli_wifi_client_info_response;
+#pragma pack()
+
+/// Set certificate information structure
+typedef struct {
+  uint16_t total_len;          ///< total length of the certificate
+  uint8_t certificate_type;    ///< type of certificate
+  uint8_t more_chunks;         ///< more chunks flag
+  uint16_t certificate_length; ///< length of the current segment
+  uint8_t certificate_inx;     ///< index of certificate
+  uint8_t key_password[127];   ///< reserved
+} sli_wifi_cert_info_t;
+
+/// Set certificate command request structure
+typedef struct {
+  sli_wifi_cert_info_t cert_info;                   ///< certificate information structure
+  uint8_t certificate[SLI_WIFI_MAX_CERT_SEND_SIZE]; ///< certificate
+} sli_wifi_req_set_certificate_t;
+
+/// Request timeout Structure
+typedef struct {
+  uint32_t timeout_bitmap; ///< Timeout bitmap
+  uint16_t timeout_value;  ///< Timeout value
+} sli_wifi_request_timeout_t;
+
+// Config command request structure
+typedef struct {
+  /// config type
+  uint16_t config_type;
+
+  /// value to set
+  uint16_t value;
+} sli_wifi_config_request_t;
 
 #endif

@@ -42,6 +42,7 @@
 #include "socket.h"
 #include "sli_net_utility.h"
 #include "sl_wifi.h"
+#include "sli_wifi_utility.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -464,7 +465,7 @@ static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_res
   char response_code[16]     = { 0 };
   char content_length[32]    = { 0 };
   char *http_version         = NULL;
-  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->expected_data_length;
+  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->current_data_length;
   size_t buffer_length       = 0;
   char *response_buffer      = (char *)malloc(max_response_length);
 
@@ -531,8 +532,8 @@ static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_res
 
   // Add response data if available
   if ((NULL != response->data) && (response->current_data_length > 0)) {
-    buffer_length +=
-      snprintf(response_buffer + buffer_length, strlen((const char *)response->data) + 1, "%s", (char *)response->data);
+    memcpy(response_buffer + buffer_length, response->data, response->current_data_length);
+    buffer_length += response->current_data_length;
   }
 
   // Send all headers in a single call
@@ -559,7 +560,7 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
   }
 
   // Check if the operational mode is invalid
-  sl_wifi_operation_mode_t opermode = sli_get_opermode();
+  sl_wifi_operation_mode_t opermode = sli_wifi_get_opermode();
   if (opermode == 0xFFFF) {
     return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
@@ -888,7 +889,7 @@ sl_status_t sl_http_server_bind_interface(sl_net_interface_t interface)
   vap_id = SLI_HTTP_VAP_ID_CLIENT;
 
   // Check if the operation mode is concurrent
-  if (sli_get_opermode() == SL_SI91X_CONCURRENT_MODE) {
+  if (sli_wifi_get_opermode() == SL_SI91X_CONCURRENT_MODE) {
     // Set wap_id based on the provided interface
     switch (interface) {
       case SL_NET_WIFI_CLIENT_INTERFACE:

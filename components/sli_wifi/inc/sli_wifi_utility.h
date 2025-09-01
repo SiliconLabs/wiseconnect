@@ -34,9 +34,13 @@
 #include "sl_status.h"
 #include "sl_wifi_host_interface.h"
 #ifndef __ZEPHYR__
-#include "sli_cmsis_os2_ext_task_register.h"
-/// External variable representing the index of the thread local array at which the firmware status will be stored.
-extern sli_task_register_id_t sli_fw_status_storage_index;
+/******************************************************************************
+ * @brief
+ * 	A utility function that store the firmware status code in thread specific storage.
+ * @param[in] converted_firmware_status
+ *	Firmware status code that needs to be saved.
+ *****************************************************************************/
+void sli_wifi_save_firmware_status(sl_status_t converted_firmware_status);
 #endif
 typedef bool (*sli_wifi_buffer_comparator)(const sl_wifi_buffer_t *buffer, const void *userdata);
 
@@ -99,20 +103,7 @@ sl_status_t sli_wifi_remove_buffer_from_queue_by_comparator(sli_wifi_buffer_queu
  *   Pointer to the data at the specified offset within the buffer.
  *
  ******************************************************************************/
-void *sli_wifi_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length);
-
-#ifndef __ZEPHYR__
-/******************************************************************************
- * @brief
- * 	A utility function that store the firmware status code in thread specific storage.
- * @param[in] converted_firmware_status
- *	Firmware status code that needs to be saved.
- *****************************************************************************/
-static inline void sli_wifi_save_firmware_status(sl_status_t converted_firmware_status)
-{
-  sli_osTaskRegisterSetValue(NULL, sli_fw_status_storage_index, converted_firmware_status);
-}
-#endif
+void *sli_wifi_host_get_buffer_data(void *buffer, uint16_t offset, uint16_t *data_length);
 
 /******************************************************************************
  * @brief
@@ -166,7 +157,6 @@ void sli_wifi_reset_ap_configuration();
 /* Function to send the requested Wi-Fi and BT/BLE performance profile to firmware */
 sl_status_t sli_wifi_send_power_save_request(const sl_wifi_performance_profile_v2_t *wifi_profile,
                                              const sl_bt_performance_profile_t *bt_profile);
-void sli_wifi_save_wifi_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile);
 void sli_wifi_flush_scan_results_database(void);
 sl_status_t sli_wifi_get_stored_scan_results(
   sl_wifi_interface_t interface,
@@ -177,21 +167,78 @@ sl_status_t sli_wifi_get_saved_ap_configuration(sl_wifi_ap_configuration_t *wifi
 sl_status_t sli_wifi_get_rate_protocol_and_data_rate(const uint8_t data_rate,
                                                      sl_wifi_rate_protocol_t *rate_protocol,
                                                      sl_wifi_rate_t *transfer_rate);
-/* Function used to zero out the coex performance profile */
-void sli_wifi_reset_coex_current_performance_profile(void);
 /* Function used to set maximum transmission power to default value(31 dBm) */
 void sli_wifi_reset_max_tx_power();
 /* Function used to set wifi rate to default value of 1 Mbps */
 void sli_wifi_reset_sl_wifi_rate();
 /* Function used to set whether card ready is required or not */
 void sli_wifi_set_card_ready_required(bool card_ready_required);
-/* Function used to retrieve the coex performance profile */
-void sli_get_coex_performance_profile(sl_wifi_system_performance_profile_t *profile);
-/* Function used to get current wifi performance profile */
-void sli_wifi_get_current_performance_profile(sl_wifi_performance_profile_v2_t *profile);
-void sli_convert_performance_profile_to_power_save_command(sl_wifi_system_performance_profile_t profile,
-                                                           sli_si91x_power_save_request_t *power_save_request);
-void sli_wifi_save_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile);
-/* Function used to check whether card ready is required or not */
+/***************************************************************************/ /**
+ * @brief
+ *   Get the current Opermode of the module.
+ * @return
+ *   sl_wifi_operation_mode_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+void sli_wifi_set_opermode(sl_wifi_operation_mode_t mode);
+
+sl_wifi_operation_mode_t sli_wifi_get_opermode(void);
+
+sl_status_t sli_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval);
+sl_status_t sli_wifi_set_listen_interval_v2(sl_wifi_interface_t interface,
+                                            sl_wifi_listen_interval_v2_t listen_interval);
+sl_status_t sli_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval);
+sl_status_t sli_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
+                                            sl_wifi_listen_interval_v2_t *listen_interval);
+/*==============================================*/
+/**
+ * @brief       Calculate crc for a given byte and accumulate crc.
+ * @param[in]   crc8_din   -  crc byte input  
+ * @param[in]   crc8_state - accumulated crc  
+ * @param[in]   end        - last byte crc  
+ * @return      crc value  
+ *
+ */
+uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end);
+
+/*==============================================*/
+/**
+ * @brief      Calculate 6-bit hash value for given mac address. 
+ * @param[in]  mac - pointer to mac address  
+ * @return     6-bit Hash value
+ *
+ */
+uint8_t sli_multicast_mac_hash(const uint8_t *mac);
+/**
+ * @brief Atomically remove the head buffer from a buffer queue.
+ * 
+ * This function removes the buffer at the head of the specified buffer queue in an atomic operation,
+ * ensuring thread safety during the removal. The removed buffer is then passed back through a pointer
+ * to the caller.
+ *
+ * @param[in] queue Pointer to the source buffer queue from which the head buffer will be removed.
+ * @param[out] buffer Pointer to a pointer of sl_wifi_buffer_t where the removed buffer's address will be stored.
+ * @return sl_status_t Returns the status of the operation. A value of 0 (SL_STATUS_OK) indicates success.
+ *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ */
+sl_status_t sli_wifi_pop_from_buffer_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
+
+sl_status_t sli_wifi_get_join_configuration(sl_wifi_interface_t interface, uint8_t *join_feature_bitmap);
+sl_status_t sli_wifi_set_join_configuration(sl_wifi_interface_t interface, uint8_t join_feature_bitmap);
+/* Function used to set the bluetooth performance profile */
+void sli_save_bt_current_performance_profile(const sl_bt_performance_profile_t *profile);
 bool sli_wifi_get_card_ready_required();
+
+/* Function used to save the MFP mode */
+sl_status_t sli_wifi_save_mfp_mode(const sl_wifi_mfp_config_t *mfp_config);
+/* Function used to get MFP mode */
+sl_wifi_mfp_config_t sli_wifi_get_mfp_mode();
+/* Function used to set the RTS threshold */
+void sli_wifi_save_rts_threshold(uint16_t rts_threshold);
+/* Function used to get RTS threshold */
+sl_wifi_rts_threshold_t sli_get_rts_threshold();
+
+sli_wifi_feature_frame_config_t sli_wifi_get_feature_frame_config(void);
+void sli_wifi_save_pll_mode(const sl_wifi_pll_mode_t pll_mode);
+void sli_wifi_save_power_chain(const sl_wifi_power_chain_t power_chain);
+
 #endif

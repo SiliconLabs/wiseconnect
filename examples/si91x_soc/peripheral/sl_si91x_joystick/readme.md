@@ -43,7 +43,7 @@ This sample app demonstrates the use of the Joystick Driver. It prints the joyst
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -64,9 +64,13 @@ Refer to   ![Figure: sl_joystick_uc_screen](resources/uc_screen/sl_joystick_uc_s
   - **Channel selection**
   - Joystick ADC channel: The selection of the ADC channel instance for the joystick can be adjusted between channels 1 and channel_16.
   > **Note:**
-  - Make sure to install selected ADC channel/instance.
+  - The user can install up to sixteen instances of the channel, which will execute in sequential order. To configure this, follow the steps below:
 
-  - **Joystick Voltage value Configuration**
+       1. Install the channel instances.
+       2. Update the `Number of Channel(s)` value in the **ADC Peripheral Common Configuration** section and number of channels should be equal to the number of instances added in UC.
+  - The order of instances must be strictly sequential, starting from 1 and increasing consecutively (e.g., 1, 2, 3). Non-sequential orders such as 1, 4, 6 or 1, 5, 2 are not permitted.
+
+  > **Joystick Voltage value Configuration**
   - REFERENCE VOLTAGE: Vref magnitude expressed in millivolts. As per Joystick Hardware on Wireless Pro Kit, Vref = AVDD = 3300 mV.
   - CENTER POSITION: Center position value(mV).
   - NORTH POSITION: North/Up position value(mV).

@@ -70,7 +70,7 @@ The following image illustrates the EAP frame exchanges between the SiWx91x, acc
 Refer to the instructions on the [WiSeConnect Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) page to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio).
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension).
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension).
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer).
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware).
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project).
@@ -233,7 +233,7 @@ The configuration explained below is for Linux OS. A similar process may be foll
 
      **![Open the users file and add the lines](resources/readme/eap_credentials.png)**
 
-6. Copy the **wifi-user.pem** file from **WiSeConnect3 → resources → certificates** folder to **C: → FreeRADIUS → etc → raddb → certs** folder.
+6. Copy the **wifi-user.pem** file from **WiSeConnect → resources → certificates** folder to **C: → FreeRADIUS → etc → raddb → certs** folder.
 
      - Open the terminal in Linux, go to the Radius Server path, and give the command below to start the Radius Server:
       

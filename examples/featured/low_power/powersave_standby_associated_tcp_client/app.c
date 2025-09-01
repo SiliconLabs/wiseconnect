@@ -41,7 +41,6 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_si91x_driver.h"
 #include <string.h>
-
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_m4_ps.h"
@@ -76,7 +75,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                       | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                       ),
-                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
 #ifdef SLI_SI91X_ENABLE_IPV6
                                               | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
 #endif

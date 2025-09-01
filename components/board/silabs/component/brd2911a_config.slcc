@@ -19,6 +19,10 @@
       file_id: RTE_Device_917
     path: brd2911a/RTE_Device_917.h
   - override:
+      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
+      file_id: sl_gpio_board
+    path: brd2911a/sl_gpio_board.h
+  - override:
       component: "%extension-wiseconnect3_sdk%psram_core"
       file_id: psram_pin_config
     path: brd2911a/sl_si91x_psram_pin_config.h
@@ -216,7 +220,7 @@
       component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
       file_id: ssi_config
       instance: secondary
-    path: common_config/sl_si91x_ssi_secondary_config.h
+    path: brd2911a/sl_si91x_ssi_secondary_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%sl_ssi_instance"
       file_id: ssi_config

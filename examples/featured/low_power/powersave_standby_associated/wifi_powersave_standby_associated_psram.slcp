@@ -15,7 +15,7 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0
@@ -36,7 +36,7 @@ component:
     from: wiseconnect3_sdk
   - id: si91x_memory_default_config
     from: wiseconnect3_sdk
-  - id: wiseconnect3_common
+  - id: wiseconnect_common
     from: wiseconnect3_sdk
   - id: text_segment_in_psram
     from: wiseconnect3_sdk
@@ -73,7 +73,29 @@ toolchain_settings:
     value: -Wall -Werror
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
-    value: "1"
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_SECURITY_OPEN
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_AGGREGATION
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_ULP_GPIO_BASED_HANDSHAKE
+    value: '1'
+  - name: SL_SI91X_WC_TCP_IP_FEAT_DHCPV4_CLIENT
+    value: '1'
+  - name: SL_SI91X_WC_TCP_IP_FEAT_DNS_CLIENT
+    value: '1'
+  - name: SL_SI91X_WC_EXT_FEAT_LOW_POWER_MODE
+    value: '1'
+  - name: SL_SI91X_WC_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+    value: '1'
+  - name: SL_SI91X_WC_FRONT_END_SWITCH_CONFIG
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_SLEEP_GPIO_SEL_BITMAP
+    value: '1'
+  - name: SL_SI91X_WC_ENABLE_ENHANCED_MAX_PSP
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_WPS_DISABLE
+    value: '1'    
 readme:
   - path: readme.md
 other_file:

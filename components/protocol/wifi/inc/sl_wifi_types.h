@@ -294,6 +294,19 @@ typedef struct {
  * Indicates the configuration parameters for setting up a Wi-Fi Access Point (AP).
  * 
  * @note When configuring AP interface in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
+ * @note The security field refers to the security type of the Wi-Fi Access Point.
+ * In Wi-Fi access point mode, the Access Point supports OPEN, WPA-PSK, WPA2-PSK, WPA/WPA2 Mixed, WPA3 security modes.
+ * Valid configurations are:
+ * - SL_WIFI_OPEN                       - For OPEN security mode (no encryption)
+ * - SL_WIFI_WPA                        - For WPA-PSK security mode
+ * - SL_WIFI_WPA2                       - For WPA2-PSK security mode
+ * - SL_WIFI_WPA_WPA2_MIXED             - For WPA/WPA2 mixed security mode
+ * - SL_WIFI_WPA3                       - For WPA3 security mode
+ *
+ * @note client_idle_timeout - This is the period after which AP will disconnect the station if there are no wireless exchanges from station to AP. Keep alive period is calculated in terms of 32 multiples of beacon interval i.e if there are no wireless transfers from station to AP with in
+ * (32 x beacon_interval) milliseconds time period, station will be disconnected.
+ * If null data based method is selected, AP checks the connectivity of station by sending null data packet. If station does not acknowledge the packet, that station will be disconnected from AP after 4 retries.
+ * The maximum valid range supported is up to 255.
  */
 typedef struct {
   sl_wifi_ssid_t ssid;                   ///< SSID (Service Set Identifier) of the Access Point
@@ -306,7 +319,7 @@ typedef struct {
   uint8_t
     keepalive_type; ///< Keep alive type of the access point. One of the values from [sl_wifi_ap_keepalive_type_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91-x-types#sl-si91x-ap-keepalive-type-t)
   uint16_t beacon_interval;     ///< Beacon interval of the access point in milliseconds
-  uint32_t client_idle_timeout; ///< Duration in milliseconds to kick idle client
+  uint32_t client_idle_timeout; ///< Period after which AP will disconnect the station
   uint16_t dtim_beacon_count;   ///< Number of beacons per DTIM
   uint8_t maximum_clients;      ///< Maximum number of associated clients
   uint8_t beacon_stop;          ///< Flag to stop beaconing when there are no associated clients
@@ -348,6 +361,32 @@ typedef struct {
  * Defines the configuration parameters for a Wi-Fi client interface.
  * 
  * @note When configuring client interface in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
+ * 
+ * @note The security field refers to the security type for the Wi-Fi Station (STA) interface.
+ * @note In Wi-Fi concurrent mode, the client interface supports Open, WPA-PSK, WPA2-PSK, WPA/WPA2 Mixed, WPA3, and WPA3 Transition security (WPA2/WPA3) modes.
+ * Valid configurations are:
+ * - SL_WIFI_OPEN                       - For Open security mode (no encryption)
+ * - SL_WIFI_WPA                        - For WPA security mode
+ * - SL_WIFI_WPA2                       - For WPA2 security mode
+ * - SL_WIFI_WPA_WPA2_MIXED             - For WPA/WPA2 mixed security mode
+ * - SL_WIFI_WPA3                       - For WPA3 security mode
+ * - SL_WIFI_WPA3_TRANSITION            - For WPA3 Transition security mode
+ * 
+ *  @note  In Wi-Fi enterprise client mode, the client interface supports WPA-Enterprise, WPA2-Enterprise, WPA3-Enterprise, and WPA3 Transition Enterprise (WPA2/WPA3 Enterprise) security modes.
+ * Valid configurations are:
+ * - SL_WIFI_WPA_ENTERPRISE                         - For WPA Enterprise security mode
+ * - SL_WIFI_WPA2_ENTERPRISE                        - For WPA2 Enterprise mode
+ * - SL_WIFI_WPA3_ENTERPRISE                        - For WPA3 Enterprise security mode
+ * - SL_WIFI_WPA3_TRANSITION_ENTERPRISE             - For WPA3 Transition Enterprise Security mode
+ * 
+ * @note In Wi-Fi personal client mode, the client interface supports Open, WPA-PSK, WPA2-PSK, WPA/WPA2 Mixed, WPA3, and WPA3 Transition (WPA2/WPA3) security modes.
+ * Valid configurations are:
+ * - SL_WIFI_OPEN                       - For Open security mode (no encryption)
+ * - SL_WIFI_WPA                        - For WPA security mode
+ * - SL_WIFI_WPA2                       - For WPA2 security mode
+ * - SL_WIFI_WPA_WPA2_MIXED             - For WPA/WPA2 mixed security mode
+ * - SL_WIFI_WPA3                       - For WPA3 security mode
+ * - SL_WIFI_WPA3_TRANSITION            - For WPA3 Transition security mode
  */
 typedef struct {
   sl_wifi_ssid_t ssid; ///< SSID (Service Set Identifier) of the Wi-Fi network. This is of type @ref sl_wifi_ssid_t
@@ -685,6 +724,85 @@ typedef struct {
 } sl_wifi_max_tx_power_t;
 
 /**
+ * @struct sl_wifi_rts_threshold_t
+ * @brief Wi-Fi Request to Send (RTS) threshold structure.
+ * 
+ * This structure is used to configure the RTS threshold for Wi-Fi operations.
+ * 
+ * Members:
+ * - rts_threshold: RTS threshold in bytes. The device performs an RTS/CTS handshake when the packet size exceeds the threshold.
+ * - reserved: Reserved fields for future use, should be set to zero.
+ * 
+ */
+typedef struct {
+  uint16_t rts_threshold; ///< Request to Send (RTS) threshold in bytes
+  uint8_t reserved[2];    ///< Reserved fields
+} sl_wifi_rts_threshold_t;
+
+/**
+ * @enum sl_wifi_mfp_mode_t
+ * @brief Wi-Fi Management Frame Protection (MFP) mode enumeration.
+ *
+ * This enumeration defines the modes for Management Frame Protection (MFP) in Wi-Fi.
+ * MFP is used to protect management frames from spoofing and other attacks.
+ * The modes are:
+ * - SL_WIFI_MFP_DISABLED: MFP is disabled (0b00)
+ * - SL_WIFI_MFP_CAPABLE: MFP is capable/optional (0b01)
+ * - SL_WIFI_MFP_REQUIRED: MFP is required/mandatory (0b10)
+ * 
+ */
+typedef enum {
+  SL_WIFI_MFP_DISABLED = 0, ///< MFP disabled (0b00)
+  SL_WIFI_MFP_CAPABLE  = 1, ///< MFP capable/optional (0b01)
+  SL_WIFI_MFP_REQUIRED = 2  ///< MFP required/mandatory (0b10)
+} sl_wifi_mfp_mode_t;
+
+/**
+ * @struct sl_wifi_mfp_config_t
+ * @brief Wi-Fi Management Frame Protection (MFP) configuration structure.
+ *
+ * This structure is used to configure the MFP mode for Wi-Fi operations.
+ * It includes the MFP mode and a flag indicating whether the MFP mode is explicitly configured or automatically detected.
+ * Members:
+ * - mfp_mode: MFP mode setting of type @ref sl_wifi_mfp_mode_t
+ * - is_configured: True if MFP mode is explicitly configured, false for automatic detection.
+ * - reserved: Reserved for future use and alignment.
+ * 
+ */
+typedef struct {
+  sl_wifi_mfp_mode_t mfp_mode; ///< MFP mode setting of type @ref sl_wifi_mfp_mode_t
+  bool is_configured;          ///< True if MFP mode is explicitly configured, false for automatic detection
+  uint8_t reserved[2];         ///< Reserved for future use and alignment
+} sl_wifi_mfp_config_t;
+
+/**
+ * @enum sl_wifi_pll_mode_t
+ * @brief Wi-Fi PLL (Phase-Locked Loop) mode selection.
+ *
+ * Specifies the PLL operating mode for Wi-Fi hardware, determining the clock frequency bandwidth.
+ *
+ * - SL_WIFI_PLL_MODE_20MHZ: PLL mode for 20 MHz channel bandwidth (default).
+ * - SL_WIFI_PLL_MODE_40MHZ: PLL mode for 40 MHz channel bandwidth.
+ */
+typedef enum {
+  SL_WIFI_PLL_MODE_20MHZ = 0, ///< PLL mode for 20 MHz channel bandwidth (default)
+  SL_WIFI_PLL_MODE_40MHZ = 1  ///< PLL mode for 40 MHz channel bandwidth
+} sl_wifi_pll_mode_t;
+
+/**
+ * @enum sl_wifi_power_chain_t
+ * @brief Wi-Fi power chain selection.
+ *
+ * This enum defines the available power chains for Wi-Fi operation.
+ * - SL_WIFI_HP_CHAIN: High Power chain (default).
+ * - SL_WIFI_LP_CHAIN: Low Power chain.
+ */
+typedef enum {
+  SL_WIFI_HP_CHAIN = 0, ///< High Power chain (default)
+  SL_WIFI_LP_CHAIN = 12 ///< Low Power chain
+} sl_wifi_power_chain_t;
+
+/**
  * @struct sl_wifi_async_stats_response_t
  * @brief Structure representing asynchronous Wi-Fi statistics response.
  *
@@ -744,6 +862,19 @@ typedef struct {
 } sl_wifi_cw_tone_config_t;
 
 /**
+ * @struct sl_wifi_response_get_ctune_data_t
+ * @brief Structure representing the response for getting CTUNE data.
+ * 
+ * This structure contains the flags indicating the presence of CTUNE data and the actual CTUNE data values.
+ * @note
+ * This structure is only supported on SiWx353 devices, not on SiWx91x devices.
+ */
+typedef struct {
+  uint32_t flags;         ///< Flags indicating the presence of CTUNE data
+  uint32_t ctune_data[2]; ///< CTUNE data values
+} sl_wifi_response_get_ctune_data_t;
+
+/**
  * @struct sl_wifi_rx_stats_request_t
  * @brief Structure representing the request for RX statistics in Wi-Fi.
  *
@@ -753,7 +884,6 @@ typedef struct {
 typedef struct {
   /// 0 - start, 1 - stop
   uint8_t start[2];
-
   /// channel number
   uint8_t channel[2];
 } sl_wifi_rx_stats_request_t;
@@ -824,41 +954,41 @@ typedef struct {
   ///<  `Continuous Wave Mode (Non-Modulation) in single tone Mode (Center frequency +5 MHz)`: The DUT transmits a spectrum that is generated at 5MHz from the center frequency of the channel selected.
   ///<                                                                                      Some amount of carrier leakage will be seen at Center Frequency. For example, for 2412MHz, the output would be seen at 2417 MHz.
   uint16_t channel; ///< Channel number in 2.4 GHZ / 5 GHZ.
-    ///<         ###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
-    ///<         Channel numbers (2.4GHz)|   Center frequencies for 20 MHz channel width
-    ///<         :----------------------:|:-----------------------------------------------:
-    ///<         1           |   2412
-    ///<         2           |   2417
-    ///<         3           |   2422
-    ///<         4           |   2427
-    ///<         5           |   2432
-    ///<         6           |   2437
-    ///<         7           |   2442
-    ///<         8           |   2447
-    ///<         9           |   2452
-    ///<         10          |   2457
-    ///<         11          |   2462
-    ///<         12          |   2467
-    ///<         13          |   2472
-    ///< @note   To start transmit test in 12,13 channels, configure set region parameters in  sl_si91x_set_device_region
-    ///<    ###  The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
-    ///<         Channel Numbers(5GHz) | Center frequencies for 20MHz channel width
-    ///<         :--------------------:|:------------------------------------------:
-    ///<     36            |5180
-    ///<     40            |5200
-    ///<     44            |5220
-    ///<     48            |5240
-    ///<     52            |5260
-    ///<     56          |5280
-    ///<     60            |5300
-    ///<     64            |5320
-    ///<     149           |5745
-    ///<     153           |5765
-    ///<     157           |5785
-    ///<     161           |5805
-    ///<     165           |5825
+  ///<         ###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
+  ///<         Channel numbers (2.4GHz)|   Center frequencies for 20 MHz channel width
+  ///<         :----------------------:|:-----------------------------------------------:
+  ///<         1           |   2412
+  ///<         2           |   2417
+  ///<         3           |   2422
+  ///<         4           |   2427
+  ///<         5           |   2432
+  ///<         6           |   2437
+  ///<         7           |   2442
+  ///<         8           |   2447
+  ///<         9           |   2452
+  ///<         10          |   2457
+  ///<         11          |   2462
+  ///<         12          |   2467
+  ///<         13          |   2472
+  ///< @note   To start transmit test in 12,13 channels, configure set region parameters in  sl_si91x_set_device_region
+  ///<    ###  The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
+  ///<         Channel Numbers(5GHz) | Center frequencies for 20MHz channel width
+  ///<         :--------------------:|:------------------------------------------:
+  ///<     36            |5180
+  ///<     40            |5200
+  ///<     44            |5220
+  ///<     48            |5240
+  ///<     52            |5260
+  ///<     56          |5280
+  ///<     60            |5300
+  ///<     64            |5320
+  ///<     149           |5745
+  ///<     153           |5765
+  ///<     157           |5785
+  ///<     161           |5805
+  ///<     165           |5825
   uint16_t rate_flags; ///< Rate flags
-    ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
+  ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
   uint16_t channel_bw;  ///< Channel Bandwidth
   uint16_t aggr_enable; ///< tx test mode aggr_enable
   uint16_t reserved;    ///< Reserved
@@ -1351,41 +1481,41 @@ typedef struct {
   ///<  `Continuous Wave Mode (Non-Modulation) in single tone Mode (Center frequency +5 MHz)`: The DUT transmits a spectrum that is generated at 5MHz from the center frequency of the channel selected.
   ///<                                                                                      Some amount of carrier leakage will be seen at Center Frequency. For example, for 2412MHz, the output would be seen at 2417 MHz.
   uint16_t channel; ///< Channel number in 2.4 GHZ / 5 GHZ.
-    ///<			###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
-    ///<			Channel numbers (2.4GHz)|	Center frequencies for 20 MHz channel width
-    ///<			:----------------------:|:-----------------------------------------------:
-    ///<			1			|	2412
-    ///<			2			|	2417
-    ///<			3			|	2422
-    ///<			4			|	2427
-    ///<			5			|	2432
-    ///<			6			|	2437
-    ///<			7			|	2442
-    ///<			8			|	2447
-    ///<			9			|	2452
-    ///<			10			|	2457
-    ///<			11			|	2462
-    ///<			12			|	2467
-    ///<			13			|	2472
-    ///< @note	To start transmit test in channels 12 and 13, configure region parameters in sl_si91x_set_device_region API.
-    ///<    ###	The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
-    ///< 		Channel Numbers(5GHz) |	Center frequencies for 20MHz channel width
-    ///< 		:--------------------:|:------------------------------------------:
-    ///<		36		      |5180
-    ///<		40		      |5200
-    ///<		44		      |5220
-    ///<		48		      |5240
-    ///<		52		      |5260
-    ///<		56	        |5280
-    ///<		60		      |5300
-    ///<		64		      |5320
-    ///<		149		      |5745
-    ///<		153		      |5765
-    ///<		157		      |5785
-    ///<		161		      |5805
-    ///<		165		      |5825
+  ///<			###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
+  ///<			Channel numbers (2.4GHz)|	Center frequencies for 20 MHz channel width
+  ///<			:----------------------:|:-----------------------------------------------:
+  ///<			1			|	2412
+  ///<			2			|	2417
+  ///<			3			|	2422
+  ///<			4			|	2427
+  ///<			5			|	2432
+  ///<			6			|	2437
+  ///<			7			|	2442
+  ///<			8			|	2447
+  ///<			9			|	2452
+  ///<			10			|	2457
+  ///<			11			|	2462
+  ///<			12			|	2467
+  ///<			13			|	2472
+  ///< @note	To start transmit test in channels 12 and 13, configure region parameters in sl_si91x_set_device_region API.
+  ///<    ###	The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
+  ///< 		Channel Numbers(5GHz) |	Center frequencies for 20MHz channel width
+  ///< 		:--------------------:|:------------------------------------------:
+  ///<		36		      |5180
+  ///<		40		      |5200
+  ///<		44		      |5220
+  ///<		48		      |5240
+  ///<		52		      |5260
+  ///<		56	        |5280
+  ///<		60		      |5300
+  ///<		64		      |5320
+  ///<		149		      |5745
+  ///<		153		      |5765
+  ///<		157		      |5785
+  ///<		161		      |5805
+  ///<		165		      |5825
   uint16_t rate_flags; ///< Rate flags
-    ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
+  ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
   uint16_t channel_bw;  ///< Channel Bandwidth
   uint16_t aggr_enable; ///< tx test mode aggr_enable
   uint16_t reserved;    ///< Reserved
@@ -1452,4 +1582,17 @@ typedef struct {
   uint8_t twt_protection;     ///< TWT Protection
   uint8_t twt_flow_id;        ///< TWT flow ID
 } sl_wifi_twt_response_t;
+
+/// Generic Wi-Fi interface information structure
+typedef struct {
+  uint16_t
+    wlan_state; ///< WLAN state: 1 = connected, 0 = disconnected in station mode; number of stations connected in AP mode.
+  uint16_t channel_number; ///< Channel number of connected AP in station mode; channel number of the module in AP mode
+  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected AP in station mode; SSID of the module in AP mode
+  uint8_t sec_type;               ///< Security type of connected AP is supported in station mode, but not in AP mode.
+  uint8_t psk_pmk[SL_WIFI_MAX_PSK_LENGTH]; ///< PSK for AP mode, PMK for station mode
+  uint8_t bssid[SL_WIFI_BSSID_LENGTH];     ///< BSSID address of connected AP in station mode; not supported in AP mode
+  uint8_t
+    wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B) in station mode, not supported in AP mode
+} sl_wifi_interface_info_t;
 /** @} */

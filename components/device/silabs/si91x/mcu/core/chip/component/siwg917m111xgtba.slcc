@@ -70,6 +70,8 @@
   - name: opn_config
 - recommends:
   - id: si91x_mem_config_1
+  - id: trustzone_unaware
+    vendor: silabs
 - template_contribution:
   - name: device_opn
     value: SIWG917M111XGTBA

@@ -42,7 +42,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 
-2. [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+2. [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 3. [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 4. [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
@@ -90,14 +90,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   - ####  If GPDMA is disabled
   >![Figure: output_hspi_secondary_blocking](resources/readme/output_hspi_secondary_blocking.png) 
-
-   - If DMA is enabled:
-
-     ![Figure: Introduction](resources/readme/output_hspi_secondary.PNG)
-
-   - If DMA is disabled
-
-     ![Figure: Introduction](resources/readme/output_hspi_secondary_blocking.PNG)
 
 ## HSPI Secondary Data Flow
 

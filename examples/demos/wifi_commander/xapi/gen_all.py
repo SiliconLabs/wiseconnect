@@ -26,7 +26,7 @@ OUTPUT_PATH = SCRIPTS_PATH / "autogen"
 my_env["PYTHONPATH"] = API3_PATH / "raw/api.py"
 
 DEVICE = "wifi"
-XAPI_FILE_NAME = "wiseconnect3"
+XAPI_FILE_NAME = "wiseconnect"
 XAPI_PATH = ROOT_PATH /"../../.."/ f"{XAPI_FILE_NAME}.xapi"
 
 DEVICE_CLASSES = ["system", "net_intf", "net_profile", "net_cred", "ap", "common", "scan", "ping", "client", "mqtt_client"]

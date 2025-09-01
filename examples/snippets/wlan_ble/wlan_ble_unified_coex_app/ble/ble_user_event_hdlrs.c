@@ -50,80 +50,6 @@ void connect_timeout_handler(TimerHandle_t xTimer)
 
 /**
 
- * @fn          void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
- * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
- * @param[in]   uint8_t conn_id
- * @param[out]  None
- * @return      None
- *
- * @section description
- * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
- *
- */
-void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
-
-{
-  LOG_PRINT_D(" \n in rsi_ble_event_data_transmit_driver_callback \n");
-  memset(&transmit_event_message[conn_id], 0, sizeof(tx_generic_event_message_t));
-
-  transmit_event_message[conn_id].next          = NULL;
-  transmit_event_message[conn_id].event_id      = data_transmit_event_id;
-  transmit_event_message[conn_id].free_callback = NULL;
-
-  //! copy event data to msg2
-  memcpy((void *)&transmit_event_message[conn_id].event_data, &conn_id, sizeof(uint8_t));
-
-  //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
-                                 (rsi_app_pkt_t *)&transmit_event_message[conn_id],
-                                 &ble_generic_cb.event_mutex);
-  osSemaphoreRelease(ble_generic_cb.semaphore);
-}
-
-/**
-
- * @fn          void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
- * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
- * @param[in]   uint8_t *conn_id
- * @param[out]  None
- * @return      None
- *
- * @section description
- * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
- *
- */
-
-void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
-{
-  LOG_PRINT_D("\n in rsi_ble_on_data_recieve_driver_callback \n");
-  generic_event_message_t *msg;
-
-  //! allocate message
-
-  msg = malloc(sizeof(generic_event_message_t) + sizeof(uint8_t));
-  if (msg == NULL) {
-    LOG_PRINT("Out of Memory assert\n");
-    _assert((uint8_t *)"Out Of Memory\n", __LINE__);
-  } else {
-    LOG_PRINT_D("Malloc passed\n");
-  }
-  //! init messag details
-  msg->next     = NULL;
-  msg->event_id = on_data_recieve_event_id;
-  //! function to be called to free this message
-  msg->free_callback = free;
-  //msg->status = status;
-
-  //! copy event data to msg
-  memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
-  //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
-                                 (rsi_app_pkt_t *)msg,
-                                 &ble_generic_cb.event_mutex);
-  osSemaphoreRelease(ble_generic_cb.semaphore);
-}
-/**
-
  * @fn          void rsi_ble_event_scan_restart_driver_callback(rsi_ble_conn_info_t *rsi_ble_conn_info)
  * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
  * @param[in]   rsi_ble_conn_info_t *rsi_ble_conn_info 
@@ -3218,6 +3144,12 @@ void rsi_ble_simple_peripheral_on_remote_features_event(uint16_t status, void *e
                  ble_conn_id);
         }
       }
+    }
+  }
+  if (ble_confgs.ble_conn_configuration[ble_conn_id].buff_mode_sel.buffer_mode) {
+    status = rsi_ble_set_data_len(rsi_ble_conn_info[ble_conn_id].rsi_connected_dev_addr, MAX_MTU_SIZE, TX_TIME);
+    if (status != RSI_SUCCESS) {
+      LOG_PRINT("\r\n set data len failed with error code %x -conn%d \r\n", status, ble_conn_id);
     }
   }
 }

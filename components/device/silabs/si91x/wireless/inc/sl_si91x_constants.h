@@ -151,10 +151,6 @@
 #define SLI_OPERMODE_RESPONSE_WAIT_TIME      (1000) // Milliseconds
 #define SLI_SEND_RAW_DATA_RESPONSE_WAIT_TIME (1000) // Milliseconds
 
-#ifndef SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME
-#define SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME 1000 // 1 second to wait for a command buffer
-#endif
-
 //STM 32 Init Sequence
 #define SLI_SI91X_INIT_CMD 0x005c4a12
 
@@ -246,14 +242,14 @@
 #define SL_SI91X_DISABLE_NWP_WDT_FROM_HOST    BIT(2)
 #define SL_SI91X_SET_XTAL_GOOD_TIME_FROM_HOST BIT(3)
 #define SL_SI91X_SET_PMU_GOOD_TIME_FROM_HOST  BIT(4)
-
+//! @endcond
 /** \addtogroup SL_SI91X_CONSTANTS 
   * @{ */
 #define GET_OPN_BOARD_CONFIG 1 ///< Get board OPN board configuration
 /** @} */
 
 //***************************** Macros for Crypto End **********************************/
-
+//! @cond Doxygen_Suppress
 // Command packet 'unused' bytes
 #define SLI_SI91X_COMMAND_FLAGS_INDEX    10
 #define SLI_SI91X_COMMAND_RESPONSE_INDEX 11
@@ -271,6 +267,10 @@ typedef struct {
 
 // Timeout used in get_channel API
 #define SL_SI91X_GET_CHANNEL_TIMEOUT 30200
+
+/// Timeout used in get_interface_info API (milliseconds)
+#define SL_SI91X_GET_INTERFACE_INFO_TIMEOUT 1000
+
 //! @endcond
 
 /** \addtogroup SL_SI91X_CONSTANTS 
@@ -312,18 +312,6 @@ typedef enum {
 /** @} */
 
 //! @cond Doxygen_Suppress
-typedef enum {
-  SLI_SI91X_RETURN_IMMEDIATELY        = 0,
-  SLI_SI91X_WAIT_FOR_RESPONSE_BIT     = (1UL << 30),
-  SLI_SI91X_WAIT_FOR_EVER             = (1UL << 31),
-  SLI_SI91X_WAIT_FOR_OTAF_RESPONSE    = (SLI_SI91X_WAIT_FOR_RESPONSE_BIT | SLI_SI91X_WAIT_FOR_EVER),
-  SLI_SI91X_WAIT_FOR_COMMAND_RESPONSE = (SLI_SI91X_WAIT_FOR_RESPONSE_BIT | 1000),
-  SLI_SI91X_WAIT_FOR_DNS_RESOLUTION   = 20000,
-} sli_si91x_wait_period_t;
-
-#define SL_SI91X_WAIT_FOR(x)          (sli_si91x_wait_period_t)(x)
-#define SL_SI91X_WAIT_FOR_RESPONSE(x) (sli_si91x_wait_period_t)(SLI_SI91X_WAIT_FOR_RESPONSE_BIT | (x))
-
 typedef enum {
   // (7+/-1)dBm in 2.4GHz band
   // (5+/-1)dBm in 5GHz band
@@ -417,7 +405,6 @@ typedef enum {
   SLI_COMMON_REQ_GET_EFUSE_DATA = 0xA0,
 
   // Unimplemented common command requests
-  SLI_COMMON_REQ_SOFT_RESET            = 0x1C,
   SLI_COMMON_REQ_ENCRYPT_CRYPTO        = 0x76,
   SLI_COMMON_REQ_UART_FLOW_CTRL_ENABLE = 0xA4,
   SLI_COMMON_REQ_TA_M4_COMMANDS        = 0xB0,
@@ -472,7 +459,6 @@ typedef enum {
 
   // Unimplemented common command responses
   SLI_COMMON_RSP_CLEAR                 = 0x00,
-  SLI_COMMON_RSP_SOFT_RESET            = 0x1C,
   SLI_COMMON_RSP_ULP_NO_RAM_RETENTION  = 0xCD,
   SLI_COMMON_RSP_ASYNCHRONOUS          = 0xFF,
   SLI_COMMON_RSP_ENCRYPT_CRYPTO        = 0x76,
@@ -526,7 +512,6 @@ typedef enum {
 // enumeration for WLAN command request codes
 typedef enum {
   // Wi-Fi commands
-  SLI_WLAN_REQ_CONFIG               = 0xBE,
   SLI_WLAN_REQ_SET_REGION           = 0x1D,
   SLI_WLAN_REQ_EVM_OFFSET           = 0x36,
   SLI_WLAN_REQ_EVM_WRITE            = 0x37,
@@ -540,7 +525,6 @@ typedef enum {
   SLI_WLAN_REQ_TWT_AUTO_CONFIG      = 0x2E,
   SLI_WLAN_REQ_TWT_PARAMS           = 0x2F,
   SLI_WLAN_REQ_GAIN_TABLE           = 0x47,
-  SLI_WLAN_REQ_TX_TEST_MODE         = 0x7C,
   SLI_WLAN_REQ_SET_REGION_AP        = 0xBD,
   SLI_WLAN_REQ_CALIB_WRITE          = 0xCA,
   SLI_WLAN_REQ_FILTER_BCAST_PACKETS = 0xC9,
@@ -599,7 +583,6 @@ typedef enum {
   SLI_WLAN_REQ_FREQ_OFFSET                  = 0xF3,
   SLI_WLAN_REQ_DYNAMIC_POOL                 = 0xC7,
   SLI_WLAN_REQ_MDNSD                        = 0xDB,
-  SLI_WLAN_REQ_GET_DPD_DATA                 = 0xDC,
   SLI_WLAN_REQ_FTP                          = 0xE2,
   SLI_WLAN_REQ_FTP_FILE_WRITE               = 0xE3,
   SLI_WLAN_REQ_SMTP_CLIENT                  = 0xE6,
@@ -642,7 +625,6 @@ typedef enum {
   SLI_WLAN_RSP_RADIO                = 0x81,
   SLI_WLAN_RSP_RX_STATS             = 0xA2,
   SLI_WLAN_RSP_SCAN_RESULTS         = 0xAF,
-  SLI_WLAN_RSP_CONFIG               = 0XBE,
   SLI_WLAN_RSP_SET_REGION_AP        = 0xBD,
   SLI_WLAN_RSP_FILTER_BCAST_PACKETS = 0xC9,
   SLI_WLAN_RSP_CALIB_READ           = 0xCF,

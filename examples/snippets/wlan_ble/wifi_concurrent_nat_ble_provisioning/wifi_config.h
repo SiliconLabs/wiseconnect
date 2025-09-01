@@ -53,12 +53,28 @@
 #define WIFI_AP_PROFILE_SSID "MY_DUAL_AP_SSID"
 #define WIFI_AP_CREDENTIAL   "MY_AP_PASSPHRASE"
 
-#define AP_ONLY_MODE 0
+#define AP_ONLY_MODE 0 // Set to 1 to run in AP only mode, 0 for concurrent mode
 
 #if AP_ONLY_MODE
-#define WIFI_MAX_CLIENTS 10
+#define WIFI_MAX_CLIENTS 8
 #else
 #define WIFI_MAX_CLIENTS 4
+#endif
+
+// Type of throughput
+#define UDP_TX 1
+#define TCP_TX 2
+
+#define THROUGHPUT_TYPE 0 // Set this to enable throughput testing
+
+// Memory length for send buffer
+#define TCP_BUFFER_SIZE 1460
+#define UDP_BUFFER_SIZE 1470
+
+#if (THROUGHPUT_TYPE == UDP_TX)
+#define BUFFER_SIZE UDP_BUFFER_SIZE
+#elif (THROUGHPUT_TYPE == TCP_TX)
+#define BUFFER_SIZE TCP_BUFFER_SIZE
 #endif
 
 //! Enumeration for states in application
@@ -106,7 +122,6 @@ typedef enum wifi_app_cmd_e {
 #define TCP_RX_WINDOW_SIZE_CAP          44               //@ TCP RX Window size
 #define TCP_RX_WINDOW_DIV_FACTOR        44               //@ TCP RX Window division factor
 
-#define BUFFER_SIZE    1460
 #define LISTENING_PORT 5000
 #define BACK_LOG       WIFI_MAX_CLIENTS
 

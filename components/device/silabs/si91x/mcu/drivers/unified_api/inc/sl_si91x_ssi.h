@@ -249,8 +249,10 @@ typedef enum {
  *         - SL_STATUS_OK                 - Success.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+  * @note
+ *   Moving forward, this API will be deprecated. This is retained for backward compatibility.
  ******************************************************************************/
-sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config);
+sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -350,13 +352,10 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
  * 
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK                 - Success.
- *         - SL_STATUS_FAIL               - Function failed.
- *         - SL_STATUS_BUSY               - Driver is busy.
  *         - SL_STATUS_NOT_SUPPORTED      - Parameter is not supported.
  *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
  *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
  *         - SL_STATUS_INVALID_HANDLE     - SSI handle is invalid.
- *         - SL_STATUS_INVALID_TYPE       - SPI frame format or transfer type is not valid.
  * 
  * @note This function must be called before using sl_si91x_ssi_send_command_data and 
  *       sl_si91x_ssi_receive_command_data functions that require specific command formatting.
@@ -687,6 +686,8 @@ uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle);
  *         - SL_STATUS_OK                 - Success.
  *         - SL_STATUS_INVALID_PARAMETER  - Frame length is not in range.
  *         - SL_STATUS_NULL_POINTER       - Parameter is a null pointer.
+ *         - SL_STATUS_INVALID_HANDLE     - invalid  ssi_handle
+ *         - SL_STATUS_INVALID_RANGE      - invalid data bits range
  * 
  ******************************************************************************/
 sl_status_t sl_si91x_ssi_set_frame_length(sl_ssi_handle_t ssi_handle, uint8_t frame_length);

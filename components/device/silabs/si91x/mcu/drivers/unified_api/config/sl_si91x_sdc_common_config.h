@@ -51,8 +51,8 @@ extern "C" {
 // <i> Default: 1
 #define SL_SDC_SAMPLING_INTERVAL 100
 
-// <o SL_SDC_SAMPLING_THRESHOLD> Sampling Threshold <1-16>
-// <i> Default: 2
+// <o SL_SDC_SAMPLING_THRESHOLD> Sampling Threshold <1-15>
+// <i> Default: 15
 #define SL_SDC_SAMPLING_THRESHOLD 15
 
 // <q SL_SDC_MILLI_SEC_ENABLE> Enable Milli seconds as Interval

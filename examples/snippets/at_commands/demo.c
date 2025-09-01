@@ -35,6 +35,7 @@
 #include "sl_status.h"
 #include "sl_board_configuration.h"
 #include "cmsis_os2.h"
+#include "at_command_data_mode.h"
 #include "sl_utility.h"
 #include <stdbool.h>
 #include <string.h>
@@ -161,6 +162,11 @@ void application_start(const void *unused)
     }
     end_of_cmd = false;
 #endif
+
+    while (at_command_data_mode_process()) {
+      osDelay(20);
+    }
+
     while (!console_line_ready) {
       console_process_uart_data();
       osDelay(20);

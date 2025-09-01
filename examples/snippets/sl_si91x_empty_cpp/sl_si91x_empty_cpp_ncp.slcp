@@ -1,4 +1,4 @@
-project_name: empty_cpp
+project_name: sl_si91x_empty_cpp_ncp
 package: platform_siwx91x_apps
 quality: production
 label: Platform - Empty C++ Example
@@ -14,7 +14,7 @@ filter:
     value: ["Beginner"]
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 4.0.0

@@ -156,7 +156,7 @@ static const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-static const sl_net_wifi_client_profile_t wifi_client_profile_4 = {
+static sl_net_wifi_client_profile_t wifi_client_profile_4 = {
     .config = {
         .channel.channel = SL_WIFI_AUTO_CHANNEL,
         .channel.band = SL_WIFI_AUTO_BAND,
@@ -325,6 +325,15 @@ static void application_start(void *argument)
         provisioned_access_point.security      = sec_type;
         provisioned_access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
         provisioned_access_point.credential_id = id;
+
+        wifi_client_profile_4.config.ssid.length = strlen((char *)wifi_client_profile_ssid);
+        memcpy(wifi_client_profile_4.config.ssid.value,
+               wifi_client_profile_ssid,
+               wifi_client_profile_4.config.ssid.length);
+        wifi_client_profile_4.config.security      = string_to_security_type(wifi_client_security_type);
+        wifi_client_profile_4.config.credential_id = (wifi_client_profile_4.config.security == SL_WIFI_OPEN)
+                                                       ? SL_NET_NO_CREDENTIAL_ID
+                                                       : SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
 
         //  Keeping the station ipv4 record in profile_id_0
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile_4);
@@ -614,9 +623,9 @@ static sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(arg);
   UNUSED_PARAMETER(result_length);
 
+  callback_status = status_code;
   // Check if the scan event indicates failure
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = status_code;
     return status_code;
   }
 
@@ -680,7 +689,9 @@ static sl_status_t wifi_scan_request_handler(sl_http_server_t *handle, sl_http_s
     memset(scan_result_buffer, 0, SCAN_RESULT_BUFFER_SIZE);
 
     printf("WLAN scan started \r\n");
-    scan_complete = false;
+    scan_complete   = false;
+    callback_status = SL_STATUS_FAIL;
+
     sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, (void *)scan_result_buffer);
     status = sl_wifi_start_scan(SL_WIFI_AP_INTERFACE, NULL, &wifi_scan_configuration);
     if (SL_STATUS_IN_PROGRESS == status) {

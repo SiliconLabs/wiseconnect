@@ -89,7 +89,7 @@ sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_size)
                                          SLI_SI91X_NETWORK_CMD,
                                          &request,
                                          sizeof(sli_si91x_ping_request_t),
-                                         SLI_SI91X_RETURN_IMMEDIATELY,
+                                         SLI_WIFI_RETURN_IMMEDIATELY,
                                          NULL,
                                          NULL);
   VERIFY_STATUS_AND_RETURN(status);

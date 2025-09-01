@@ -62,6 +62,17 @@ extern "C" {
 #endif
 #endif
 
+/**
+ * Macro for marking deprecated functions from WiSeConnect SDK 4.0
+ */
+#ifndef SL_DEPRECATED_API_WISECONNECT_4_0
+#ifdef SL_SUPPRESS_DEPRECATION_WARNINGS_WISECONNECT_4_0
+#define SL_DEPRECATED_API_WISECONNECT_4_0
+#else
+#define SL_DEPRECATED_API_WISECONNECT_4_0 __attribute__((deprecated))
+#endif
+#endif
+
 #ifndef TRUE
 /** Value is true (boolean_t type) */
 #define TRUE 1

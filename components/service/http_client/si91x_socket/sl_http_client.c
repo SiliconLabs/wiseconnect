@@ -656,7 +656,7 @@ static sl_status_t sli_send_single_http_request(sl_http_client_method_type_t sen
                                          SLI_SI91X_NETWORK_CMD,
                                          http_client_request,
                                          packet_length,
-                                         SLI_SI91X_RETURN_IMMEDIATELY,
+                                         SLI_WIFI_RETURN_IMMEDIATELY,
                                          request->context,
                                          NULL);
   } else {
@@ -664,7 +664,7 @@ static sl_status_t sli_send_single_http_request(sl_http_client_method_type_t sen
                                          SLI_SI91X_NETWORK_CMD,
                                          http_client_request,
                                          packet_length,
-                                         SLI_SI91X_RETURN_IMMEDIATELY,
+                                         SLI_WIFI_RETURN_IMMEDIATELY,
                                          request->context,
                                          NULL);
   }
@@ -713,7 +713,7 @@ static sl_status_t sli_send_chunked_http_request(sl_http_client_method_type_t se
         SLI_SI91X_NETWORK_CMD,
         packet_buffer,
         (sizeof(sli_si91x_http_client_request_t) - SLI_SI91X_HTTP_BUFFER_LEN + *chunk_size),
-        SLI_SI91X_RETURN_IMMEDIATELY,
+        SLI_WIFI_RETURN_IMMEDIATELY,
         request->context,
         NULL,
         packet_identifier);
@@ -724,7 +724,7 @@ static sl_status_t sli_send_chunked_http_request(sl_http_client_method_type_t se
         SLI_SI91X_NETWORK_CMD,
         packet_buffer,
         (sizeof(sli_si91x_http_client_request_t) - SLI_SI91X_HTTP_BUFFER_LEN + *chunk_size),
-        SLI_SI91X_RETURN_IMMEDIATELY,
+        SLI_WIFI_RETURN_IMMEDIATELY,
         request->context,
         NULL,
         packet_identifier);
@@ -1023,7 +1023,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
                                              SLI_SI91X_NETWORK_CMD,
                                              http_put_request,
                                              packet_length,
-                                             SLI_SI91X_RETURN_IMMEDIATELY,
+                                             SLI_WIFI_RETURN_IMMEDIATELY,
                                              request->context,
                                              NULL);
 
@@ -1104,7 +1104,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
                                              SLI_SI91X_NETWORK_CMD,
                                              http_post_data,
                                              packet_length,
-                                             SLI_SI91X_RETURN_IMMEDIATELY,
+                                             SLI_WIFI_RETURN_IMMEDIATELY,
                                              http_client_handle.request.context,
                                              NULL);
 
@@ -1141,7 +1141,7 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
                                              SLI_SI91X_NETWORK_CMD,
                                              http_put_pkt_request,
                                              packet_length,
-                                             SLI_SI91X_RETURN_IMMEDIATELY,
+                                             SLI_WIFI_RETURN_IMMEDIATELY,
                                              http_client_handle.request.context,
                                              NULL);
 

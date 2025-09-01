@@ -70,7 +70,7 @@
 
 Refer to the Setup Software instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
-- Install Studio and WiSeConnect 3 extension
+- Install Studio and WiSeConnect extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project with name "sl_cpc_secondary_sdio_freertos"

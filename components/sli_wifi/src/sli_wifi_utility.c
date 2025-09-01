@@ -34,96 +34,144 @@
 #include "sli_wifi_types.h"
 #include "sl_core.h"
 #include "sl_wifi_credentials.h"
-#include "sl_rsi_utility.h"
-#include <assert.h>
-
-#define DEFAULT_BEACON_MISS_IGNORE_LIMIT 1
-
+#include "assert.h"
+#include "sli_wifi_memory_manager.h"
+#include <string.h>
+#ifndef __ZEPHYR__
+#include "sli_cmsis_os2_ext_task_register.h"
+/// External variable representing the index of the thread local array at which the firmware status will be stored.
+extern sli_task_register_id_t sli_fw_status_storage_index;
+#endif
+#define DEFAULT_BEACON_MISS_IGNORE_LIMIT   1
+#define DEFAULT_LISTEN_INTERVAL_MULTIPLIER 1
+static uint32_t client_listen_interval            = 1000;
+static uint32_t client_listen_interval_multiplier = 1;
+static uint8_t client_join_feature_bitmap         = SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint8_t ap_join_feature_bitmap             = SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID;
 // This value will be used in connect request/ AP configurations to set the TX power of the module
 static sl_wifi_max_tx_power_t wifi_max_tx_power = {
   .scan_tx_power = 0x1f, //Default power value set to max value supported in dBm
   .join_tx_power = 0x1f, //Default power value set to max value supported in dBm
 };
+
+// This value will be used in set RTS threshold command to set the RTS threshold of the module
+static sl_wifi_rts_threshold_t wifi_rts_threshold = {
+  .rts_threshold = SLI_WIFI_RTS_THRESHOLD // Default RTS threshold value
+};
+
+// This value will be used in set MFP mode command to set the MFP mode of the module
+static sl_wifi_mfp_config_t wifi_mfp_config = { .mfp_mode      = SL_WIFI_MFP_DISABLED,
+                                                .is_configured = false,
+                                                .reserved      = { 0 } };
+// Global configuration storage with default values
+static sli_wifi_feature_frame_config_t global_feature_config = {
+  .pll_mode    = SL_WIFI_PLL_MODE_20MHZ, // Default: PLL mode for 20MHz operations
+  .power_chain = SL_WIFI_HP_CHAIN,       // Default: High Power chain
+};
+extern bool device_initialized;
+uint16_t initialized_opermode              = SLI_WIFI_INVALID_MODE;
 static bool is_card_ready_required         = true;
 static sl_wifi_rate_t saved_wifi_data_rate = SL_WIFI_AUTO_RATE;
 static sl_wifi_ap_configuration_t ap_configuration;
 sli_wifi_performance_profile_t performance_profile;
 static sli_scan_info_t *scan_info_database = NULL;
 
-extern osEventFlagsId_t si91x_events;
-void sli_convert_performance_profile_to_power_save_command(sl_wifi_system_performance_profile_t profile,
-                                                           sli_si91x_power_save_request_t *power_save_request)
+extern osEventFlagsId_t sli_wifi_events;
+
+void sli_wifi_set_opermode(sl_wifi_operation_mode_t mode)
 {
-  SL_ASSERT(power_save_request != NULL);
-  if (performance_profile.wifi_performance_profile.monitor_interval) {
-    power_save_request->monitor_interval = performance_profile.wifi_performance_profile.monitor_interval;
+  initialized_opermode = mode;
+}
+
+sl_wifi_operation_mode_t sli_wifi_get_opermode(void)
+{
+  return initialized_opermode;
+}
+
+sl_status_t sli_wifi_pop_from_buffer_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t **buffer)
+{
+  sl_status_t status    = SL_STATUS_EMPTY;
+  CORE_irqState_t state = CORE_EnterAtomic();
+  if (queue->head == NULL) {
+    assert(queue->tail == NULL); // Both should be NULL at the same time
+    *buffer = NULL;
+    status  = SL_STATUS_EMPTY;
   } else {
-    power_save_request->monitor_interval = SLI_DEFAULT_MONITOR_INTERVAL;
+    *buffer = queue->head;
+    status  = SL_STATUS_OK;
+    if (queue->head == queue->tail) {
+      queue->head = NULL;
+      queue->tail = NULL;
+    } else {
+      queue->head = (sl_wifi_buffer_t *)queue->head->node.node;
+    }
+  }
+  CORE_ExitAtomic(state);
+  return status;
+}
+
+sl_status_t sli_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval)
+{
+  UNUSED_PARAMETER(interface);
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  if (!sli_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+  client_listen_interval            = listen_interval.listen_interval;
+  client_listen_interval_multiplier = DEFAULT_LISTEN_INTERVAL_MULTIPLIER;
+  return SL_STATUS_OK;
+}
+
+sl_status_t sli_wifi_set_listen_interval_v2(sl_wifi_interface_t interface, sl_wifi_listen_interval_v2_t listen_interval)
+{
+  UNUSED_PARAMETER(interface);
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  if (!sli_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
-  power_save_request->ulp_mode_enable   = SLI_ULP_WITH_RAM_RETENTION;
-  power_save_request->dtim_aligned_type = performance_profile.wifi_performance_profile.dtim_aligned_type;
-  power_save_request->num_of_dtim_skip  = performance_profile.wifi_performance_profile.num_of_dtim_skip;
-  power_save_request->listen_interval   = (uint16_t)performance_profile.wifi_performance_profile.listen_interval;
-  power_save_request->psp_type          = SLI_MAX_PSP;
-  if (performance_profile.wifi_performance_profile.beacon_miss_ignore_limit) {
-    power_save_request->beacon_miss_ignore_limit =
-      performance_profile.wifi_performance_profile.beacon_miss_ignore_limit;
-  } else {
-    power_save_request->beacon_miss_ignore_limit = DEFAULT_BEACON_MISS_IGNORE_LIMIT;
+  if (listen_interval.listen_interval_multiplier < DEFAULT_LISTEN_INTERVAL_MULTIPLIER) {
+    SL_DEBUG_LOG("\r\n listen_interval_multiplier minimum value should be 1, Updating to the minimum value.\r\n");
+    listen_interval.listen_interval_multiplier = DEFAULT_LISTEN_INTERVAL_MULTIPLIER;
+  }
+  client_listen_interval            = listen_interval.listen_interval;
+  client_listen_interval_multiplier = listen_interval.listen_interval_multiplier;
+
+  return SL_STATUS_OK;
+}
+sl_status_t sli_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval)
+{
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
   }
 
-  // Depending on the specified performance profile, configure the power_save_request structure
-  switch (profile) {
-    case HIGH_PERFORMANCE: {
-      // For HIGH_PERFORMANCE profile, reset all fields in the power_save_request structure to zero
-      memset(power_save_request, 0, sizeof(sli_si91x_power_save_request_t));
-      break;
-    }
+  if (!sli_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+  listen_interval->listen_interval = client_listen_interval;
+  return SL_STATUS_OK;
+}
 
-    case ASSOCIATED_POWER_SAVE: {
-#ifdef SLI_SI91X_MCU_INTERFACE
-      power_save_request->power_mode = SLI_CONNECTED_M4_BASED_PS;
-#else
-      power_save_request->power_mode = SLI_CONNECTED_GPIO_BASED_PS;
-#endif
-      break;
-    }
-
-    case ASSOCIATED_POWER_SAVE_LOW_LATENCY: {
-#ifdef SLI_SI91X_MCU_INTERFACE
-      power_save_request->power_mode = SLI_CONNECTED_M4_BASED_PS;
-#else
-      power_save_request->power_mode = SLI_CONNECTED_GPIO_BASED_PS;
-#endif
-      power_save_request->psp_type = SLI_FAST_PSP;
-      break;
-    }
-
-    case DEEP_SLEEP_WITHOUT_RAM_RETENTION: {
-#ifdef SLI_SI91X_MCU_INTERFACE
-      power_save_request->power_mode = SLI_M4_BASED_DEEP_SLEEP;
-#else
-      power_save_request->power_mode = SLI_GPIO_BASED_DEEP_SLEEP;
-#endif
-      power_save_request->ulp_mode_enable = SLI_ULP_WITHOUT_RAM_RET_RETENTION;
-      break;
-    }
-
-    case DEEP_SLEEP_WITH_RAM_RETENTION: {
-#ifdef SLI_SI91X_MCU_INTERFACE
-      power_save_request->power_mode = SLI_M4_BASED_DEEP_SLEEP;
-#else
-      power_save_request->power_mode = SLI_GPIO_BASED_DEEP_SLEEP;
-#endif
-      break;
-    }
-    default: {
-      // Do nothing
-    } break;
+sl_status_t sli_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
+                                            sl_wifi_listen_interval_v2_t *listen_interval)
+{
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
   }
 
-  return;
+  if (!sli_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(listen_interval);
+  listen_interval->listen_interval            = client_listen_interval;
+  listen_interval->listen_interval_multiplier = client_listen_interval_multiplier;
+  return SL_STATUS_OK;
 }
 
 // Function to identify expected scan result based on filter
@@ -193,24 +241,6 @@ sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
   return SL_STATUS_OK;
 }
 
-// Get the current Wi-Fi performance profile
-void sli_wifi_get_current_performance_profile(sl_wifi_performance_profile_v2_t *profile)
-{
-  SL_ASSERT(profile != NULL);
-  memcpy(profile, &performance_profile.wifi_performance_profile, sizeof(sl_wifi_performance_profile_v2_t));
-}
-
-void *sli_wifi_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length)
-{
-  if (offset >= buffer->length) {
-    return NULL;
-  }
-  if (data_length) {
-    *data_length = (uint16_t)(buffer->length) - offset;
-  }
-  return (void *)&buffer->data[offset];
-}
-
 // Function to Clean up all the scan results in scan result database
 void sli_wifi_flush_scan_results_database(void)
 {
@@ -233,8 +263,10 @@ sl_status_t sli_wifi_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
                                              uint32_t wait_duration_ms)
 {
   // Allocate a buffer from the SI91x host for WLAN control messages
-  sl_status_t status =
-    sli_si91x_host_allocate_buffer(host_buffer, SL_WIFI_CONTROL_BUFFER, requested_buffer_size, wait_duration_ms);
+  sl_status_t status = sli_wifi_memory_manager_allocate_buffer(host_buffer,
+                                                               SL_WIFI_CONTROL_BUFFER,
+                                                               requested_buffer_size,
+                                                               wait_duration_ms);
   VERIFY_STATUS_AND_RETURN(status);
 
   uint16_t temp;
@@ -259,7 +291,7 @@ void sli_wifi_append_to_buffer_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buf
 
 void sli_wifi_set_event(uint32_t event_mask)
 {
-  osEventFlagsSet(si91x_events, event_mask);
+  osEventFlagsSet(sli_wifi_events, event_mask);
 }
 
 sl_status_t sli_wifi_remove_buffer_from_queue_by_comparator(sli_wifi_buffer_queue_t *queue,
@@ -318,6 +350,21 @@ sl_wifi_max_tx_power_t sli_get_max_tx_power()
   return wifi_max_tx_power;
 }
 
+sl_wifi_rts_threshold_t sli_get_rts_threshold()
+{
+  return wifi_rts_threshold;
+}
+
+sl_wifi_mfp_config_t sli_wifi_get_mfp_mode()
+{
+  return wifi_mfp_config;
+}
+
+sli_wifi_feature_frame_config_t sli_wifi_get_feature_frame_config(void)
+{
+  return global_feature_config;
+}
+
 sl_status_t sli_wifi_get_saved_rate(sl_wifi_rate_t *transfer_rate)
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(transfer_rate);
@@ -351,6 +398,31 @@ void sli_save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power)
   wifi_max_tx_power.join_tx_power = max_join_tx_power;
 }
 
+void sli_wifi_save_rts_threshold(uint16_t rts_threshold)
+{
+  wifi_rts_threshold.rts_threshold = rts_threshold;
+}
+
+void sli_wifi_save_pll_mode(const sl_wifi_pll_mode_t pll_mode)
+{
+  global_feature_config.pll_mode = pll_mode;
+}
+
+void sli_wifi_save_power_chain(const sl_wifi_power_chain_t power_chain)
+{
+  global_feature_config.power_chain = power_chain;
+}
+
+sl_status_t sli_wifi_save_mfp_mode(const sl_wifi_mfp_config_t *config)
+{
+  if (config == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  wifi_mfp_config.mfp_mode      = config->mfp_mode;
+  wifi_mfp_config.is_configured = true;
+  return SL_STATUS_OK;
+}
+
 sl_status_t sli_wifi_save_ap_configuration(const sl_wifi_ap_configuration_t *wifi_ap_configuration)
 {
   // Check if the input pointer is valid
@@ -358,90 +430,6 @@ sl_status_t sli_wifi_save_ap_configuration(const sl_wifi_ap_configuration_t *wif
   ap_configuration = *wifi_ap_configuration;
 
   return SL_STATUS_OK;
-}
-
-void sli_wifi_save_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile)
-{
-  SL_ASSERT(profile != NULL);
-  memcpy(&performance_profile.wifi_performance_profile, profile, sizeof(sl_wifi_performance_profile_v2_t));
-
-  performance_profile.coex_mode = sli_get_coex_mode();
-}
-
-// Get the coexistence performance profile based on the current coexistence mode
-void sli_get_coex_performance_profile(sl_wifi_system_performance_profile_t *profile)
-{
-  SL_ASSERT(profile != NULL);
-  uint8_t mode_decision                       = 0;
-  sl_wifi_system_coex_mode_t stored_coex_mode = performance_profile.coex_mode;
-  if (stored_coex_mode == SL_SI91X_WLAN_ONLY_MODE) { // Treat SL_SI91X_WLAN_ONLY_MODE as SL_SI91X_WLAN_MODE
-    stored_coex_mode = SL_SI91X_WLAN_MODE;
-  }
-  // Determine the mode decision based on the coexistence mode
-  switch (stored_coex_mode) {
-    case SL_SI91X_WLAN_MODE: {
-      // Wi-Fi only mode
-      mode_decision = (uint8_t)((performance_profile.wifi_performance_profile.profile << 4)
-                                | (performance_profile.wifi_performance_profile.profile));
-    } break;
-    case SL_SI91X_BLUETOOTH_MODE:
-    case SL_SI91X_BLE_MODE:
-    case SL_SI91X_DUAL_MODE: {
-      // Bluetooth only or dual-mode (BT + Wi-Fi) mode
-      mode_decision = (uint8_t)((performance_profile.bt_performance_profile.profile << 4)
-                                | (performance_profile.bt_performance_profile.profile));
-    } break;
-    case SL_SI91X_WLAN_BLUETOOTH_MODE:
-    case SL_SI91X_WLAN_DUAL_MODE:
-    case SL_SI91X_WLAN_BLE_MODE: {
-      // Wi-Fi + Bluetooth mode
-      mode_decision = (uint8_t)((performance_profile.wifi_performance_profile.profile << 4)
-                                | (performance_profile.bt_performance_profile.profile));
-    } break;
-    default:
-      break;
-  }
-
-  // Determine the performance profile based on the mode decision
-  switch (mode_decision) {
-    case 0x00:
-    case 0x01:
-    case 0x02:
-    case 0x03:
-    case 0x04:
-    case 0x10:
-    case 0x20:
-    case 0x30:
-    case 0x40: {
-      *profile = HIGH_PERFORMANCE; // High performance mode
-    } break;
-    case 0x11:
-    case 0x12:
-    case 0x31:
-    case 0x13:
-    case 0x14:
-    case 0x41: {
-      *profile = ASSOCIATED_POWER_SAVE; // Power save mode
-    } break;
-    case 0x22:
-    case 0x21:
-    case 0x32:
-    case 0x23:
-    case 0x42:
-    case 0x24: {
-      *profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY; // Low latency power save mode
-    } break;
-    case 0x33: {
-      *profile = DEEP_SLEEP_WITHOUT_RAM_RETENTION; // Power save mode
-    } break;
-    case 0x44: {
-      *profile = DEEP_SLEEP_WITH_RAM_RETENTION; // Power save mode with RAM retention
-    } break;
-    default: {
-      // Do nothing
-    } break;
-  }
-  return;
 }
 
 void sli_wifi_reset_ap_configuration()
@@ -454,13 +442,13 @@ sl_status_t sli_wifi_send_power_save_request(const sl_wifi_performance_profile_v
                                              const sl_bt_performance_profile_t *bt_profile)
 {
   sl_status_t status;
-  sli_si91x_power_save_request_t power_save_request               = { 0 };
+  sli_wifi_power_save_request_t power_save_request                = { 0 };
   sl_wifi_system_performance_profile_t selected_coex_profile_mode = { 0 };
   // Disable power save mode by setting it to HIGH_PERFORMANCE profile
   status = sli_wifi_send_command(SLI_WIFI_REQ_PWRMODE,
-                                 SI91X_COMMON_CMD,
+                                 SLI_WIFI_COMMON_CMD,
                                  &power_save_request,
-                                 sizeof(sli_si91x_power_save_request_t),
+                                 sizeof(sli_wifi_power_save_request_t),
                                  SLI_WIFI_RSP_PWRMODE_WAIT_TIME,
                                  NULL,
                                  NULL);
@@ -480,7 +468,7 @@ sl_status_t sli_wifi_send_power_save_request(const sl_wifi_performance_profile_v
   sli_get_coex_performance_profile(&selected_coex_profile_mode);
 
   // If the requested performance profile is HIGH_PERFORMANCE, no need to send the request to firmware
-  if (selected_coex_profile_mode == HIGH_PERFORMANCE) {
+  if (selected_coex_profile_mode == SL_WIFI_SYSTEM_HIGH_PERFORMANCE) {
     return SL_STATUS_OK;
   }
 
@@ -488,22 +476,14 @@ sl_status_t sli_wifi_send_power_save_request(const sl_wifi_performance_profile_v
   sli_convert_performance_profile_to_power_save_command(selected_coex_profile_mode, &power_save_request);
 
   status = sli_wifi_send_command(SLI_WIFI_REQ_PWRMODE,
-                                 SI91X_COMMON_CMD,
+                                 SLI_WIFI_COMMON_CMD,
                                  &power_save_request,
-                                 sizeof(sli_si91x_power_save_request_t),
-                                 SL_SI91X_WAIT_FOR_RESPONSE(SLI_WIFI_RSP_PWRMODE_WAIT_TIME),
+                                 sizeof(sli_wifi_power_save_request_t),
+                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WIFI_RSP_PWRMODE_WAIT_TIME),
                                  NULL,
                                  NULL);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
-}
-
-void sli_wifi_save_wifi_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile)
-{
-  SL_ASSERT(profile != NULL);
-  memcpy(&performance_profile.wifi_performance_profile, profile, sizeof(sl_wifi_performance_profile_v2_t));
-
-  performance_profile.coex_mode = sli_get_coex_mode();
 }
 
 sl_status_t sli_wifi_get_saved_ap_configuration(sl_wifi_ap_configuration_t *wifi_ap_configuration)
@@ -585,11 +565,6 @@ sl_status_t sli_wifi_save_rate(sl_wifi_rate_t transfer_rate)
   return SL_STATUS_OK;
 }
 
-void sli_wifi_reset_coex_current_performance_profile(void)
-{
-  memset(&performance_profile, 0, sizeof(sli_wifi_performance_profile_t));
-}
-
 void sli_wifi_reset_max_tx_power()
 {
   wifi_max_tx_power.scan_tx_power = 0x1f;
@@ -631,3 +606,108 @@ sl_status_t sli_wifi_get_nwp_encryption(sl_wifi_encryption_t encryption_mode, ui
 
   return SL_STATUS_OK;
 }
+
+uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end)
+{
+  uint8_t din[8];
+  uint8_t state[8];
+  uint8_t state_c[8];
+  uint8_t crc8_out;
+
+  din[0] = ((crc8_din & BIT(7)) >> 7);
+  din[1] = ((crc8_din & BIT(6)) >> 6);
+  din[2] = ((crc8_din & BIT(5)) >> 5);
+  din[3] = ((crc8_din & BIT(4)) >> 4);
+  din[4] = ((crc8_din & BIT(3)) >> 3);
+  din[5] = ((crc8_din & BIT(2)) >> 2);
+  din[6] = ((crc8_din & BIT(1)) >> 1);
+  din[7] = ((crc8_din & BIT(0)) >> 0);
+
+  state[0] = ((crc8_state & BIT(0)) >> 0);
+  state[1] = ((crc8_state & BIT(1)) >> 1);
+  state[2] = ((crc8_state & BIT(2)) >> 2);
+  state[3] = ((crc8_state & BIT(3)) >> 3);
+  state[4] = ((crc8_state & BIT(4)) >> 4);
+  state[5] = ((crc8_state & BIT(5)) >> 5);
+  state[6] = ((crc8_state & BIT(6)) >> 6);
+  state[7] = ((crc8_state & BIT(7)) >> 7);
+
+  state_c[7] = (state[7] ^ din[7]) ^ (state[6] ^ din[6]) ^ (state[5] ^ din[5]);
+
+  state_c[6] = (state[6] ^ din[6]) ^ (state[5] ^ din[5]) ^ (state[4] ^ din[4]);
+
+  state_c[5] = (state[5] ^ din[5]) ^ (state[4] ^ din[4]) ^ (state[3] ^ din[3]);
+
+  state_c[4] = (state[4] ^ din[4]) ^ (state[3] ^ din[3]) ^ (state[2] ^ din[2]);
+
+  state_c[3] = (state[1] ^ din[1]) ^ (state[2] ^ din[2]) ^ (state[3] ^ din[3]) ^ (state[7] ^ din[7]);
+
+  state_c[2] = (state[0] ^ din[0]) ^ (state[1] ^ din[1]) ^ (state[2] ^ din[2]) ^ (state[6] ^ din[6]);
+
+  state_c[1] = (state[0] ^ din[0]) ^ (state[1] ^ din[1]) ^ (state[6] ^ din[6]);
+
+  state_c[0] = (state[0] ^ din[0]) ^ (state[7] ^ din[7]) ^ (state[6] ^ din[6]);
+  if (!end) {
+    crc8_out = (uint8_t)(((state_c[0] & BIT(0)) << 0) | ((state_c[1] & BIT(0)) << 1) | ((state_c[2] & BIT(0)) << 2)
+                         | ((state_c[3] & BIT(0)) << 3) | ((state_c[4] & BIT(0)) << 4) | ((state_c[5] & BIT(0)) << 5)
+                         | ((state_c[6] & BIT(0)) << 6) | ((state_c[7] & BIT(0)) << 7));
+  } else {
+    crc8_out = (uint8_t)(((state_c[7] & BIT(0)) << 0) | ((state_c[6] & BIT(0)) << 1) | ((state_c[5] & BIT(0)) << 2)
+                         | ((state_c[4] & BIT(0)) << 3) | ((state_c[3] & BIT(0)) << 4) | ((state_c[2] & BIT(0)) << 5));
+
+    crc8_out = ~crc8_out;
+    crc8_out &= 0x3f;
+  }
+  return crc8_out;
+}
+
+uint8_t sli_multicast_mac_hash(const uint8_t *mac)
+{
+  uint8_t crc = 0xff;
+  for (uint8_t i = 0; i < 6; i++) {
+    crc = sli_lmac_crc8_c(mac[i], crc, ((i == 5) ? 1 : 0));
+  }
+  return crc;
+}
+
+sl_status_t sli_wifi_get_join_configuration(sl_wifi_interface_t interface, uint8_t *join_feature_bitmap)
+{
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(join_feature_bitmap);
+
+  // Determine whether to retrieve the configuration for the client or AP interface
+  if (interface & SL_WIFI_CLIENT_INTERFACE) {
+    *join_feature_bitmap = client_join_feature_bitmap;
+  } else if (interface & SL_WIFI_AP_INTERFACE) {
+    *join_feature_bitmap = ap_join_feature_bitmap;
+  } else {
+    return SL_STATUS_WIFI_UNKNOWN_INTERFACE;
+  }
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sli_wifi_set_join_configuration(sl_wifi_interface_t interface, uint8_t join_feature_bitmap)
+{
+  // Determine whether the configuration is for the client or AP interface
+  if (interface & SL_WIFI_CLIENT_INTERFACE) {
+    client_join_feature_bitmap = join_feature_bitmap;
+  } else if (interface & SL_WIFI_AP_INTERFACE) {
+    ap_join_feature_bitmap = join_feature_bitmap;
+  } else {
+    return SL_STATUS_FAIL;
+  }
+  return SL_STATUS_OK;
+}
+
+#ifndef __ZEPHYR__
+/******************************************************************************
+ * @brief
+ * 	A utility function that store the firmware status code in thread specific storage.
+ * @param[in] converted_firmware_status
+ *	Firmware status code that needs to be saved.
+ *****************************************************************************/
+void sli_wifi_save_firmware_status(sl_status_t converted_firmware_status)
+{
+  sli_osTaskRegisterSetValue(NULL, sli_fw_status_storage_index, converted_firmware_status);
+}
+#endif

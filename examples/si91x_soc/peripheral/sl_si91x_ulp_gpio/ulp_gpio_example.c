@@ -116,8 +116,12 @@ void gpio_example_init(void)
     // Initialize GPIO ULP instance
     if (ULP_GPIO_PIN == SET) {
       sl_si91x_gpio_t gpio_port_pin = { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN };
-      sl_si91x_gpio_t port_pin      = { SL_SI91X_ULP_GPIO_10_PORT, SL_SI91X_ULP_GPIO_10_PIN };
-      sl_si91x_gpio_mode_t mode     = MODE_0;
+#ifndef SL_SI91X_ACX_MODULE
+      sl_si91x_gpio_t port_pin = { SL_SI91X_ULP_GPIO_10_PORT, SL_SI91X_ULP_GPIO_10_PIN };
+#else
+      sl_si91x_gpio_t port_pin          = { SL_SI91X_ULP_GPIO_4_PORT, SL_SI91X_ULP_GPIO_4_PIN };
+#endif
+      sl_si91x_gpio_mode_t mode = MODE_0;
       // GPIO initialization function for ULP instance
       gpio_driver_ulp_initialization();
       // Get the pin direction for ULP GPIO pin
@@ -162,9 +166,14 @@ void gpio_example_init(void)
 
     // Configure GPIO ULP instance group interrupt
     if (ULP_GPIO_GROUP_INTR == SET) {
+#ifndef SL_SI91X_ACX_MODULE
       uint8_t ulp_group_pins[PIN_COUNT] = { SL_SI91X_ULP_GPIO_8_PIN,
-                                            SL_SI91X_ULP_GPIO_10_PIN }; // pins for group interrupt
-      uint8_t ulp_group_pol[PIN_COUNT]  = { POLARITY, POLARITY };       // polarity selected for group interrupt
+                                            SL_SI91X_ULP_GPIO_10_PIN }; // pins for group interrupt in IC boards
+#else
+      uint8_t ulp_group_pins[PIN_COUNT] = { SL_SI91X_ULP_GPIO_8_PIN,
+                                            SL_SI91X_ULP_GPIO_4_PIN }; // pins for group interrupt in ACX Module boards
+#endif
+      uint8_t ulp_group_pol[PIN_COUNT] = { POLARITY, POLARITY }; // polarity selected for group interrupt
 
       // Configure ULP GPIO group parameters
       config_grp_int.grp_interrupt     = ULP_GROUP_INTR_0; // Set ULP group interrupt

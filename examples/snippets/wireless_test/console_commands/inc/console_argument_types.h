@@ -59,6 +59,8 @@ typedef enum {
   CONSOLE_TYPE(wifi_init_region),
   CONSOLE_TYPE(ble_user_gain_table_region),
   CONSOLE_TYPE(wifi_interface),
+  CONSOLE_TYPE(wifi_pll_mode),
+  CONSOLE_TYPE(wifi_power_chain),
   CONSOLE_TYPE(wifi_security),
   CONSOLE_TYPE(wps_mode),
   CONSOLE_TYPE_COUNT // Equals the number of different types
@@ -108,6 +110,8 @@ extern const char *wifi_init_mode_type[];
 extern const char *wifi_init_region_type[];
 extern const char *ble_user_gain_table_region_type[];
 extern const char *wifi_interface_type[];
+extern const char *wifi_pll_mode_type[];
+extern const char *wifi_power_chain_type[];
 extern const char *wifi_security_type[];
 extern const char *wps_mode_type[];
 

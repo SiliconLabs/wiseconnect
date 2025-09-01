@@ -18,7 +18,12 @@
 #define __MQTT_CLIENT_C_
 
 #include "MQTTPacket.h"
+
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) || defined(sl_si91x_internal_stack)
 #include "MQTTSi91x.h" //Platform specific implementation header file
+#elif defined(SLI_SI91X_LWIP_HOSTED_NETWORK_STACK) || defined(sl_si91x_lwip_stack)
+#include "MQTTSi91x_lwip.h" //Platform specific implementation header file
+#endif
 
 #define MAX_PACKET_ID        65535
 #define MAX_MESSAGE_HANDLERS 5

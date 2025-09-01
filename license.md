@@ -1,4 +1,4 @@
-# WiSeConnect™ 3 SDK Licensing Terms
+# WiSeConnect™ SDK Licensing Terms
 
 Source code in this SDK is covered by one of several different licenses. The default license is the [Master Software License Agreement](https://www.silabs.com/about-us/legal/master-software-license-agreement) (MSLA), which applies unless otherwise noted.
 

@@ -96,7 +96,7 @@ Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-g
 
 Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:
 
-- Install Studio and WiSeConnect 3 extension
+- Install Studio and WiSeConnect extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project

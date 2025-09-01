@@ -339,6 +339,12 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
  * 
  * @note
  *   This API must be called after the SNTP client has been started using @ref sl_sntp_client_start.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  */
 sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t timeout);
 

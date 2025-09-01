@@ -577,6 +577,8 @@ void wifi_app_task(void)
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
 
         sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
 

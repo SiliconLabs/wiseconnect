@@ -27,6 +27,9 @@ source:
 - path: MQTTPacket/src/MQTTSubscribeClient.c
 - path: MQTTPacket/src/MQTTUnsubscribeClient.c
 - path: MQTTClient-C/src/Si91x/MQTTSi91x.c
+  condition: ["sl_si91x_internal_stack"]
+- path: MQTTClient-C/src/Si91x/MQTTSi91x_lwip.c
+  condition: ["sl_si91x_lwip_stack"]
 
 
 
@@ -41,7 +44,13 @@ include:
 
 - path: MQTTClient-C/src/Si91x
   file_list:
+     - path: MQTTSi91x_lwip.h
+       condition: ["sl_si91x_lwip_stack"]
+
+- path: MQTTClient-C/src/Si91x
+  file_list:
      - path: MQTTSi91x.h
+       condition: ["sl_si91x_internal_stack"]
 
 - path: MQTTPacket/src/
   file_list:
@@ -56,6 +65,10 @@ include:
      
 requires:
 - name: bsd_socket
+  condition: ["sl_si91x_internal_stack"]
 - name: sl_websocket_client
+  condition: ["sl_si91x_internal_stack"]
+- name: mbedtls
+  condition: ["sl_si91x_lwip_stack"]
 
 

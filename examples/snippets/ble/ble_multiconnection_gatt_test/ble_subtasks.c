@@ -365,7 +365,6 @@ void rsi_ble_task_on_conn(void *parameters)
 
         //! check if connection is from remote central device
         if (rsi_ble_conn_info[l_conn_id].remote_device_role == CENTRAL_ROLE) {
-          num_of_conn_centrals++;
 
           LOG_PRINT("\r\n Number of central devices connected: %d - conn%d\r\n", num_of_conn_centrals, l_conn_id);
 
@@ -389,7 +388,7 @@ void rsi_ble_task_on_conn(void *parameters)
           LOG_PRINT("\r\n Advertising device - conn%d\n", l_conn_id);
         } else {
           //! assuming that connection is from remote peripheral device
-          num_of_conn_peripherals++;
+
           LOG_PRINT("\r\n Number of peripheral devices connected: %d\n", num_of_conn_peripherals);
 
           if (rsi_ble_conn_info[l_conn_id].remote_device_role == PERIPHERAL_ROLE) {
@@ -458,7 +457,6 @@ void rsi_ble_task_on_conn(void *parameters)
 
         //! check if connection is from remote central device
         if (rsi_ble_conn_info[l_conn_id].remote_device_role == CENTRAL_ROLE) {
-          num_of_conn_centrals++;
 
           LOG_PRINT("\r\n Number of central devices connected: %d - conn%d\n", num_of_conn_centrals, l_conn_id);
 
@@ -489,7 +487,7 @@ void rsi_ble_task_on_conn(void *parameters)
           LOG_PRINT("\r\n Advertising device - conn%d\n", l_conn_id);
         } else {
           //! assuming that connection is from remote peripheral device
-          num_of_conn_peripherals++;
+
           LOG_PRINT("\r\n Number of peripheral devices connected: %d\n", num_of_conn_peripherals);
 
           if (rsi_ble_conn_info[l_conn_id].remote_device_role == PERIPHERAL_ROLE) {
@@ -1205,7 +1203,7 @@ void rsi_ble_task_on_conn(void *parameters)
                     l_conn_id);
           //! decrement the task count
           central_task_instances--;
-          num_of_conn_centrals--;
+
           if (num_of_conn_centrals < RSI_BLE_MAX_NBR_CENTRALS) {
             status = rsi_ble_stop_advertising();
             if (status != RSI_SUCCESS) {
@@ -1233,7 +1231,7 @@ void rsi_ble_task_on_conn(void *parameters)
                     rsi_disconnect_reason[l_conn_id],
                     l_conn_id);
           peripheral_task_instances--;
-          num_of_conn_peripherals--;
+
           //rsi_ble_set_event_based_on_conn(l_conn_id, RSI_BLE_SCAN_RESTART_EVENT);
           status = rsi_ble_stop_scanning();
           if (status != RSI_SUCCESS) {

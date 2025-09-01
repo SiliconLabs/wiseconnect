@@ -41,9 +41,9 @@ typedef sl_gpio_t sl_si91x_gpio_t;
 
 // Define a configuration structure for GPIO pins that are required, specifying its port, pin number and direction.
 // Below configurations is for GPIO 10. Here SL_SI91X_GPIO_10_PORT corresponds to GPIO pin 10's port number : 0. This
-// is defined to '0' which is PORT_A and  GPIO_PIN_NUMBER10 refers to GPIO pin number 10. Same representation followed
+// is defined to '0' which is PORT_A and  SL_SI91X_GPIO_10_PIN refers to GPIO pin number 10. Same representation followed
 // for other port and pins.
-static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_10_PORT, GPIO_PIN_NUMBER10 }, GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_10_PORT, SL_SI91X_GPIO_10_PIN }, GPIO_OUTPUT };
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/

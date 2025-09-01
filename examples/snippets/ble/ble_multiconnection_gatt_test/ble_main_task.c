@@ -807,6 +807,7 @@ static void rsi_ble_on_connect_event(rsi_ble_event_conn_status_t *resp_conn)
     peripheral_connection_in_prgs = 0;
 
     //! set conn specific event
+    num_of_conn_peripherals++;
     rsi_ble_app_set_task_event(ble_conn_id, RSI_BLE_CONN_EVENT);
 
     //! unblock connection semaphore
@@ -823,6 +824,7 @@ static void rsi_ble_on_connect_event(rsi_ble_event_conn_status_t *resp_conn)
         rsi_ble_conn_info[ble_conn_id].is_enhanced_conn = false;
         central_conn_id                                 = ble_conn_id;
         //! set common event
+        num_of_conn_centrals++;
         rsi_ble_app_set_event(RSI_BLE_CONN_EVENT);
       } else {
         //! wrong state
@@ -881,6 +883,7 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
     peripheral_connection_in_prgs = 0;
 
     //! set conn specific event
+    num_of_conn_peripherals++;
     rsi_ble_app_set_task_event(ble_conn_id, RSI_BLE_ENHC_CONN_EVENT);
 
     //! unblock connection semaphore
@@ -899,6 +902,7 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
         rsi_ble_conn_info[ble_conn_id].is_enhanced_conn = true;
         central_conn_id                                 = ble_conn_id;
         //! set common event
+        num_of_conn_centrals++;
         rsi_ble_app_set_event(RSI_BLE_ENHC_CONN_EVENT);
       } else {
         //! wrong state
@@ -997,7 +1001,11 @@ static void rsi_ble_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconn
   memcpy(&rsi_ble_conn_info[ble_conn_id].rsi_ble_disconn_resp, resp_disconnect, sizeof(rsi_ble_event_disconnect_t));
 
   rsi_disconnect_reason[ble_conn_id] = reason;
-
+  if (rsi_ble_conn_info[ble_conn_id].remote_device_role == CENTRAL_ROLE) {
+    num_of_conn_centrals--;
+  } else {
+    num_of_conn_peripherals--;
+  }
   //! set conn specific event
   rsi_ble_app_set_task_event(ble_conn_id, RSI_BLE_DISCONN_EVENT);
 }

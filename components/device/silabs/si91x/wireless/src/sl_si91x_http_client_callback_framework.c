@@ -31,7 +31,7 @@
 #include "sl_si91x_http_client_callback_framework.h"
 #include "sl_constants.h"
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 /******************************************************
  *                    Constants
  ******************************************************/

@@ -34,6 +34,11 @@
 #define NETWORK_ERROR_NULL_ADDRESS             -2 // Error: NULL address
 #define NETWORK_ERROR_INVALID_TYPE             -3 // Error: Invalid transport type
 
+// MQTT TLS Configuration
+#ifndef MQTT_TLS_AVAILABLE
+#define MQTT_TLS_AVAILABLE 1 // Set to 1 to enable TLS support, 0 to disable
+#endif
+
 typedef struct Timer Timer;
 struct Timer {
   uint32_t systick_period;

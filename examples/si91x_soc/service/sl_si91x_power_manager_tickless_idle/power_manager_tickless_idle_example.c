@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
- * @file power_manager_tickless_idle_example.h
+ * @file power_manager_tickless_idle_example.c
  * @brief Power Manager example functions
  *******************************************************************************
  * # License

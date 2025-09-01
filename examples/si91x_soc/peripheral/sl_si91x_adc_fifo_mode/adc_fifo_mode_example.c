@@ -78,7 +78,10 @@ void adc_fifo_mode_example_init(void)
   dac_clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
   dac_clock_config.division_factor         = DVISION_FACTOR;
 #endif
-
+  // DMA Ping/Pong buffer configuration for FIFO mode:
+  // These fields MUST be configured before calling sl_si91x_adc_init() and
+  // sl_si91x_adc_set_channel_configuration() for FIFO+DMA operation.
+  // The init function does NOT automatically set these addresses.
   sl_adc_channel_config.rx_buf[adc_channel]            = adc_output;
   sl_adc_channel_config.chnl_ping_address[adc_channel] = ADC_PING_BUFFER; /* ADC Ping address */
   sl_adc_channel_config.chnl_pong_address[adc_channel] =

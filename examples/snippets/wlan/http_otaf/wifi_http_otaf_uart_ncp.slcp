@@ -14,7 +14,7 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
 - id: wiseconnect3_sdk
   version: 4.0.0
@@ -37,7 +37,7 @@ component:
 - id: iostream_stdlib_config
 - id: uartdrv_usart
   instance: [exp]
-- id: wiseconnect3_common
+- id: wiseconnect_common
   from: wiseconnect3_sdk
 - id: wifi
   from: wiseconnect3_sdk

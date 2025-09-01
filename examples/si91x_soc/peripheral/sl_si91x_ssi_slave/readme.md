@@ -55,7 +55,6 @@ This application demonstrates the use of Synchronous Serial Interface (SSI) for 
 - The [`sl_si91x_ssi_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_config.h) file contains the control configurations and [`sl_si91x_ssi_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_common_config.h) contains DMA configuration selection.
 - In the example code, first the output buffer is filled with some data which is transferred to the slave.
 - The firmware version of API is fetched using [sl_si91x_ssi_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-get-version) which includes the release version, major version, and minor version [sl_ssi_version_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-version-t).
-- A static function is called to fill in the [sl_ssi_clock_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-clock-config-t) structure, which is passed in [sl_si91x_ssi_configure_clock](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-clock) API to configure the clock.
 - [sl_si91x_ssi_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-init) is used to initialize the peripheral, that includes pin configuration and it powers up the module.
 - SSI instance must be passed in init to get the instance handle [sl_ssi_instance_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-instance-t), which is used in other APIs.
 - After initialization, [sl_si91x_ssi_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-power-mode) is called to set the power mode [sl_ssi_power_state_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-power-state-t).
@@ -109,7 +108,7 @@ This application demonstrates the use of Synchronous Serial Interface (SSI) for 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -172,6 +171,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - To unregister a user event callback for a specific instance, use the API [sl_si91x_ssi_per_instance_unregister_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-per-instance-unregister-event-callback). Alternatively, to unregister callbacks for all instances simultaneously, use the API [sl_si91x_ssi_unregister_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-unregister-event-callback).
 
+> **Note:** For reliable SSI operation, ensure the following condition is met:
+>
+> F<sub>ssi_clk</sub> ≤ 4 × (maximum F<sub>sclk_in</sub>)
+>
+> Where F<sub>sclk_in</sub> is the incoming clock from the master. The SSI Secondary (Slave) peripheral clock (F<sub>ssi_clk</sub>) must satisfy this condition. If the master is configured for a specific frequency, ensure that the slave's clock is properly configured. Failure to properly configure the clock may result in communication errors or unreliable data transfer.
+>
+> Configure the following macro in the [`ssi_slave_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ssi_slave/ssi_slave_example.c) file to set the SSI baud rate for the slave:
+>
+> ```C
+> #define SSI_SLAVE_BAUDRATE 2000000  // SSI baudrate
+> ```
+
 ### Pin Configuration
 
 #### Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board
@@ -185,14 +196,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image511d.png)
 
-#### Pin Configuration of the WPK[BRD4002A] Base Board, and with 917 Radio Board/917Y Module board and Explorer kit
+#### Pin Configuration of Explorer kit as slave
 
-| GPIO pin      | Explorer kit GPIO | Description             |
-| ------------- | ----------------- | ----------------------- |
-| GPIO_26 [P27] |   GPIO_25 [SCK]   | RTE_SSI_SLAVE_SCK_PIN   |
-| GPIO_25 [P25] |   GPIO_28 [CS]    | RTE_SSI_SLAVE_CS_PIN    |
-| GPIO_27 [P29] |   GPIO_27 [MOSI]  | RTE_SSI_SLAVE_MOSI_PIN  |
-| GPIO_28 [P31] |   GPIO_26 [MISO]  | RTE_SSI_SLAVE_MISO_PIN  |
+| Explorer kit GPIO| Description        |
+| ------------| ------------------------|
+|   GPIO_25   | RTE_SSI_SLAVE_SCK_PIN   |
+|   GPIO_28   | RTE_SSI_SLAVE_CS_PIN    |
+|   GPIO_27   | RTE_SSI_SLAVE_MOSI_PIN  |
+|   GPIO_26   | RTE_SSI_SLAVE_MISO_PIN  |
 
 >**Note:** Make sure the following pin configuration are in the `RTE_Device_xxx.h` file:
 >

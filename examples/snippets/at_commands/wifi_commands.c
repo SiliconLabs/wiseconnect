@@ -2036,17 +2036,54 @@ sl_status_t sl_wifi_assert_command_handler()
   return sl_si91x_assert();
 }
 
+//! Update Bump up offset for 52 Tone RU as per Region
+#define X_BUMP_UP_OFFSET_52_TONE_RU 1
+
+//! Update Bump up offset for 106 Tone RU as per Region
+#define Y_BUMP_UP_OFFSET_106_TONE_RU 2
+
 sl_status_t sl_wifi_update_gain_table_command_handler(console_args_t *arguments)
 {
-  sl_status_t status           = SL_STATUS_OK;
-  uint8_t band                 = (uint8_t)GET_COMMAND_ARG(arguments, 0);
-  uint8_t bandwidth            = (uint8_t)GET_COMMAND_ARG(arguments, 1);
-  uint8_t gain_table_payload[] = { 3,  0,  13, 1,  34, 20, 20, 22, 2,  34, 28,  28, 28, 3,  34, 32, 32,  32, 4,  34,
-                                   36, 36, 34, 5,  34, 38, 38, 38, 6,  34, 40,  40, 38, 7,  34, 38, 38,  38, 8,  34,
-                                   36, 36, 38, 9,  34, 32, 32, 32, 10, 34, 32,  32, 28, 11, 34, 24, 24,  24, 12, 34,
-                                   16, 24, 24, 13, 34, 12, 12, 12, 2,  17, 255, 20, 16, 16, 4,  17, 255, 26, 20, 20 };
+  sl_status_t status = SL_STATUS_OK;
+  uint8_t band       = (uint8_t)GET_COMMAND_ARG(arguments, 0);
+  uint8_t bandwidth  = (uint8_t)GET_COMMAND_ARG(arguments, 1);
 
-  status = sl_wifi_update_gain_table(band, bandwidth, gain_table_payload, sizeof(gain_table_payload));
+  /* clang-format off */
+  uint8_t su_gain_table_payload[]  = {
+    4,//NUM_OF_REGIONS
+        0, 0xB,//NUM_OF_CHANNELS
+    //   rate,  11b, 11g, 11n, 11ax(SU) 11ax(TB)
+            1,  32,  22,  22,  20,      14,
+            2,  32,  26,  26,  24,      20,
+            3,  34,  28,  28,  26,      30,
+            4,  36,  34,  32,  30,      32,
+            5,  36,  34,  34,  32,      32,
+            6,  36,  36,  36,  34,      34,
+            7,  36,  34,  34,  32,      28,
+            8,  36,  32,  32,  30,      28,
+            9,  36,  30,  30,  28,      28,
+           10,  32,  28,  28,  24,      14,
+           11,  32,  22,  22,  20,      14,
+        1,0x11,
+           255, 34,  36,  36,  36,      24,
+        2,0x22,
+           13,  34,  38,  36,  36,      24,
+           14,  38,   0,   0,   0,       0,
+        5, 0x25,
+           1,   32,  22,  22,  20,      14,
+           2,   32,  26,  26,  24,      20,
+           11,  32,  22,  22,  20,      14,
+           13,  34,  36,  36,  36,      24,
+           14,  38,  0,   0,    0,      0,
+    };
+  /* clang-format on */
+
+  status = sl_wifi_update_su_gain_table(band,
+                                        bandwidth,
+                                        su_gain_table_payload,
+                                        sizeof(su_gain_table_payload),
+                                        X_BUMP_UP_OFFSET_52_TONE_RU,
+                                        Y_BUMP_UP_OFFSET_106_TONE_RU);
   VERIFY_STATUS_AND_RETURN(status);
 
   return SL_STATUS_OK;

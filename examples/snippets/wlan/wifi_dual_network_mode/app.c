@@ -40,6 +40,7 @@
 #include "sl_net_wifi_types.h"
 #include "sl_net_default_values.h"
 #include <string.h>
+#include "sli_wifi_utility.h"
 
 /******************************************************
  *                    Constants
@@ -343,11 +344,9 @@ static void send_ping_raw_data_frame(void)
 sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_wifi_buffer_t *buffer)
 {
   UNUSED_PARAMETER(interface);
-  void *packet;
   sl_wifi_system_packet_t *rx_pkt;
 
-  packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
-  rx_pkt = (sl_si91x_packet_t *)packet;
+  rx_pkt = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   printf("\r\nReceived raw data frame, frame length : %d\r\n", rx_pkt->length);
 
   // Forward the received data packet to external network stack

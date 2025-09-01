@@ -29,7 +29,11 @@
  ************************************************************************************/
 
 #include "sl_si91x_wdt_manager.h"
-#include "sl_si91x_wdt_config.h"
+#if defined SL_WDT_MANAGER_PRESENT_M4_UC_RC
+#include "sl_si91x_wdt_rc_config.h"
+#elif defined SL_WDT_MANAGER_PRESENT_M4_UC_XTAL
+#include "sl_si91x_wdt_xtal_config.h"
+#endif
 
 #if defined(SLI_SI91X_ENABLE_OS)
 #include "rsi_os.h"

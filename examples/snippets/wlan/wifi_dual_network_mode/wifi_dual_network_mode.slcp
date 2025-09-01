@@ -14,7 +14,7 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
 - id: wiseconnect3_sdk
   version: 4.0.0
@@ -36,7 +36,7 @@ component:
   from: wiseconnect3_sdk
 - id: si91x_memory_default_config
   from: wiseconnect3_sdk
-- id: wiseconnect3_common
+- id: wiseconnect_common
   from: wiseconnect3_sdk
 - id: wifi
   from: wiseconnect3_sdk
@@ -59,6 +59,7 @@ readme:
 other_file:
 - path: resources/readme/station_ping_output.png
 - path: resources/readme/stationpingsetup.png
+- path: resources/readme/station_ping_ipv6_output.png
 ui_hints:
   highlight:
   - path: readme.md

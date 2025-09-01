@@ -22,3 +22,4 @@
 - provides:
   - name: siwn917y100lgnba
   - name: device_family_siwg917
+  - name: device_is_module

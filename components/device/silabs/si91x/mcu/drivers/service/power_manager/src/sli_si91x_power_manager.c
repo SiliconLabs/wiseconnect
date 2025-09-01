@@ -148,7 +148,7 @@ typedef struct {
 } power_state_transition_t;
 
 typedef struct {
-  uint8_t from_ps;                                   // From the power state it transits
+  sl_power_state_t from_ps;                          // From the power state it transits
   power_state_transition_t to_ps[NO_OF_TRANSITIONS]; // All possible transition states
 } power_state_struct_t;
 
@@ -678,10 +678,10 @@ static void ps2_to_ps4_state_change(void)
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
   // Enable 40MHz XTAL clock
   RSI_ULPSS_EnableRefClks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
-  sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS4,
-                                                   sl_si91x_power_manager_get_clock_scaling());
   // To initialize the flash
   initialize_flash();
+  sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS4,
+                                                   sl_si91x_power_manager_get_clock_scaling());
 }
 
 /*******************************************************************************
@@ -693,11 +693,10 @@ static void ps2_to_ps3_state_change(void)
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
   // Enable 40MHz XTAL clock
   RSI_ULPSS_EnableRefClks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
-
-  sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS3,
-                                                   sl_si91x_power_manager_get_clock_scaling());
   // To initialize the flash
   initialize_flash();
+  sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS3,
+                                                   sl_si91x_power_manager_get_clock_scaling());
 }
 
 /*******************************************************************************

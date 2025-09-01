@@ -326,11 +326,12 @@ sl_status_t sl_si91x_sdc_driver_deinit(void)
 
   NVIC_DisableIRQ(NPSS_TO_MCU_SDC_INTR_IRQn); // Disable the SDC NVIC interrupt
 
+  sl_si91x_sdc_ldo_disable(); // Disable the SDC LDO
+
   status = sl_si91x_sdc_deinit(); // Deinitialize the SDC peripheral
   if (status != SL_STATUS_OK) {
     return status; // Return error if deinitialization fails
   }
-  sl_si91x_sdc_ldo_disable(); // Disable the SDC LDO
 
   memset(&sdc_channel_info, 0, sizeof(sdc_channel_info)); //Make global variable sdc_channel_info zero
 

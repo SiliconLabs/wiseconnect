@@ -25,7 +25,7 @@
  *
  */
 #include "rsi_common_app.h"
-
+#if (WIFI_APP == MQTT_APP)
 #if WLAN_TASK_ENABLE
 #ifndef WIFI_CONFIG_H
 #define WIFI_CONFIG_H
@@ -84,4 +84,5 @@ typedef enum wifi_app_state_e {
 } wifi_app_state_t;
 
 #endif /* WIFI_CONFIG_H */
+#endif
 #endif

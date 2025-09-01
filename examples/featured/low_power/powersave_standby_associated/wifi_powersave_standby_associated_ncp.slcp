@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: 
   id: simplicity_sdk
-  version:  "2025.6.1"
+  version: 2025.12.0
 sdk_extension:
 - id: wiseconnect3_sdk
   version: 4.0.0
@@ -34,7 +34,7 @@ component:
   - id: iostream_retarget_stdio
   - id: iostream_recommended_stream
   - id: iostream_stdlib_config
-  - id: wiseconnect3_common
+  - id: wiseconnect_common
     from: wiseconnect3_sdk
   - id: wifi
     from: wiseconnect3_sdk
@@ -62,6 +62,26 @@ configuration:
     value: '1'
   - name: configTOTAL_HEAP_SIZE
     value: '51200'
+  - name: SL_SI91X_WC_FEAT_SECURITY_OPEN
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_AGGREGATION
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_ULP_GPIO_BASED_HANDSHAKE
+    value: '1'
+  - name: SL_SI91X_WC_TCP_IP_FEAT_DHCPV4_CLIENT
+    value: '1'
+  - name: SL_SI91X_WC_TCP_IP_FEAT_DNS_CLIENT
+    value: '1'
+  - name: SL_SI91X_WC_EXT_FEAT_LOW_POWER_MODE
+    value: '1'
+  - name: SL_SI91X_WC_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+    value: '1'
+  - name: SL_SI91X_WC_FRONT_END_SWITCH_CONFIG
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_SLEEP_GPIO_SEL_BITMAP
+    value: '1'
+  - name: SL_SI91X_WC_ENABLE_ENHANCED_MAX_PSP
+    value: '1'    
 readme:
   - path: readme.md
 other_file:

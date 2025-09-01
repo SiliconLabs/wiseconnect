@@ -31,7 +31,7 @@
 #include "sl_slist.h"
 #include "sl_si91x_driver.h"
 #include "sl_string.h"
-
+#include "sli_wifi_utility.h"
 #define MAX_MDNS_SERVICE_COUNT 1
 #define MDNSD_BUFFER_SIZE      1000
 

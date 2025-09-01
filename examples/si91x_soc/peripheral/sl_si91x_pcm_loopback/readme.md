@@ -26,7 +26,7 @@
 ## Overview
 
 - Supports programmable audio data resolutions of 16, 24, and 32 bits.
-- Supported audio sampling rates are 8, 11.025, 16, 22.05, snf 24 kHz.
+- Supported audio sampling rates are 8, 11.025, 16, 22.05, and 24 kHz.
 - Supports Master and Slave modes.
 - Full duplex communication with independent transmitter and receiver.
 - Programmable FIFO thresholds with a maximum FIFO depth of 8 and support for DMA.
@@ -70,7 +70,7 @@
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Install Simplicity Studio.
-2. Install WiSeConnect 3 extension.
+2. Install WiSeConnect extension.
 3. Connect your device to the computer.
 4. Upgrade your connectivity firmware.
 5. Create a Studio project.
@@ -81,7 +81,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 1. Configure UC from the slcp component.
 2. Open **sl_si91x_pcm_loopback.slcp** project file, select the **software component** tab, and search for **PCM** in the search bar.
-
 
 ### General Configuration
 
@@ -99,6 +98,7 @@ Configure the following macros in [`pcm_loopback.c`](https://github.com/SiliconL
   ```
 
 - If the resolution is changed to 24-bit or 32-bit, update the typedef for `pcm_data_size_t` to `uint32_t` instead of `uint16_t` to accommodate the larger data size - 
+
  ```C
  typedef uint32_t pcm_data_size_t;
  ```
@@ -108,6 +108,7 @@ Configure the following macros in [`pcm_loopback.c`](https://github.com/SiliconL
 To use the ULP_PCM instance instead of the default PCM0 instance:
 
 - Change the `PCM_INSTANCE` macro value to `ULP_PCM` in pcm_loopback_exmaple.c:
+
   ```C
   #define PCM_INSTANCE ULP_PCM
   ```

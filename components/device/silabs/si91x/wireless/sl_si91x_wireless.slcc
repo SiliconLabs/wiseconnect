@@ -10,6 +10,8 @@ metadata:
     license: Zlib
 component_root_path: ./components/device/silabs/si91x/wireless
 provides:
+- name: sli_wifi_power_profile
+- name: sli_wifi_memory_manager
 - name: sl_si91x_wireless
 - name: wifi_driver
 - condition: ["brd4271a"]
@@ -17,6 +19,8 @@ provides:
 - condition: ["brd4270a"]
   name: efx_ncp_custom_host_mcu
 source:
+- path: src/sli_wifi_power_profile.c
+- path: src/sli_wifi_memory_manager.c
 - path: src/sl_si91x_driver.c
 - path: sl_net/src/sl_net_si91x.c
   condition: ["sl_si91x_internal_stack"]
@@ -107,7 +111,7 @@ define:
 requires:
 - name: sli_wifi
 - name: sli_wifi_command_engine
-- name: wiseconnect3_common
+- name: wiseconnect_common
 - condition: ["sl_si91x_internal_stack"]
   name: bsd_socket_api
 - condition: ["sl_si91x_internal_stack"]
@@ -120,14 +124,6 @@ requires:
 - name: cmsis_os2_ext_task_register
 - condition: ["device_si91x"]
   name: sl_si91x_mcu
-- condition: ["device_si91x"]
-  name: rsilib_headers
-- condition: ["device_si91x"]
-  name: romdriver_headers
-- condition: ["device_si91x"]
-  name: cmsis_driver_headers
-- condition: ["device_si91x"]
-  name: romdriver_romtable_headers
 - condition: ["device_efx"]
   name: efx32_si91x_wireless_connector
 - condition: ["device_efx"]
@@ -218,6 +214,8 @@ template_contribution:
       ttls: SL_WIFI_EAP_TTLS_ENCRYPTION
       fast: SL_WIFI_EAP_FAST_ENCRYPTION
       peap: SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION
+      peapsafe1: SL_WIFI_PEAP_SAFE1_ENCRYPTION
+      peapsafe2: SL_WIFI_PEAP_SAFE2_ENCRYPTION
     wifi_band:
       auto: SL_WIFI_AUTO_BAND
       900m: SL_WIFI_BAND_900MHZ
@@ -261,6 +259,7 @@ template_contribution:
       SL_SI91X_SO_MAXRETRY : 24
       SL_SI91X_SO_MSS : 40
       SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET: 38
+      SL_SI91X_SO_RCVTIME: 20
     option_level:
       SOL_TCP: 0x0006
       SOL_SOCKET : 0xffff

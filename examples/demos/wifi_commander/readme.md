@@ -54,7 +54,7 @@ The communication between the Wi-Fi Commander Tool and target occurs via a seria
 
 Refer to the instructions here:
 
-- Install Studio and WiSeConnect 3 extension
+- Install Studio and WiSeConnect extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project

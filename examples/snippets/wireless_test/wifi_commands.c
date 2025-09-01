@@ -2038,3 +2038,33 @@ sl_status_t set_region_configuration_handler(console_args_t *arguments)
   VERIFY_STATUS_AND_RETURN(status);
   return SL_STATUS_OK;
 }
+
+sl_status_t wifi_config_pll_mode_handler(console_args_t *arguments)
+{
+  sl_status_t status          = SL_STATUS_OK;
+  sl_wifi_pll_mode_t pll_mode = GET_COMMAND_ARG(arguments, 0);
+
+  printf("Configuring WiFi PLL mode to: %s\n",
+         (pll_mode == SL_WIFI_PLL_MODE_20MHZ) ? "PLL_MODE_20MHZ (20MHz)" : "PLL_MODE_40MHZ (40MHz)");
+
+  status = sl_wifi_config_pll_mode(pll_mode);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  printf("WiFi PLL mode configured successfully\n");
+  return SL_STATUS_OK;
+}
+
+sl_status_t wifi_config_power_chain_handler(console_args_t *arguments)
+{
+  sl_status_t status                = SL_STATUS_OK;
+  sl_wifi_power_chain_t power_chain = GET_COMMAND_ARG(arguments, 0);
+
+  printf("Configuring WiFi power chain to: %s\n",
+         (power_chain == SL_WIFI_HP_CHAIN) ? "HP_CHAIN (High Power)" : "LP_CHAIN (Low Power)");
+
+  status = sl_wifi_config_power_chain(power_chain);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  printf("WiFi power chain configured successfully\n");
+  return SL_STATUS_OK;
+}

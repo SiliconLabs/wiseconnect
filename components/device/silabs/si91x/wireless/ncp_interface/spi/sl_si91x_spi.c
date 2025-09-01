@@ -276,7 +276,7 @@ sl_status_t sli_si91x_bus_write_slave(uint32_t data_length, const uint8_t *buffe
   return status;
 }
 
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer)
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer)
 {
   //  uint8_t rx_buffer[4];
   sl_status_t status;
@@ -303,7 +303,7 @@ sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *bu
   SLI_SPI_VERIFY_STATUS(status);
 
   // Read in the memory data
-  status = sl_si91x_host_spi_transfer(NULL, buffer, length);
+  status = sl_si91x_host_spi_transfer(NULL, (uint8_t *)buffer, length);
 
   sl_si91x_host_spi_cs_deassert();
   return status;

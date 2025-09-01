@@ -76,13 +76,6 @@
 #define SL_SI91X_EVENT_HANDLER_STACK_SIZE 1536
 #endif
 typedef bool (*sli_si91x_wifi_buffer_comparator)(const sl_wifi_buffer_t *buffer, const void *userdata);
-
-typedef struct {
-  sl_wifi_performance_profile_v2_t wifi_performance_profile;
-  sl_bt_performance_profile_t bt_performance_profile;
-  sl_wifi_system_coex_mode_t coex_mode;
-} sli_si91x_performance_profile_t;
-
 typedef uint32_t sl_si91x_host_timestamp_t;
 
 void sli_handle_wifi_beacon(sl_wifi_system_packet_t *packet);
@@ -103,7 +96,7 @@ extern volatile uint8_t tx_socket_command_command_in_flight_queues_status;
 
 /* Function converts NWP client info to SDK client info */
 sl_status_t sli_convert_si91x_wifi_client_info(sl_wifi_client_info_response_t *client_info_response,
-                                               const sli_si91x_client_info_response *sli_si91x_client_info_response);
+                                               const sli_wifi_client_info_response *sli_wifi_client_info_response);
 
 /* Function converts NWP events to SDK events */
 sl_wifi_event_t sli_convert_si91x_event_to_sl_wifi_event(uint32_t command, uint16_t frame_status);
@@ -115,6 +108,28 @@ void sli_save_tcp_auto_close_choice(bool is_tcp_auto_close_enabled);
 bool sli_is_tcp_auto_close_enabled();
 void sli_si91x_save_tcp_ip_total_config_select_request(uint8_t tcp_ip_total_select);
 uint8_t sli_si91x_get_tcp_ip_total_config_select_request();
+
+/* Function used to set whether card ready is required or not */
+void sli_set_card_ready_required(bool card_ready_required);
+
+/* Function used to check whether card ready is required or not */
+bool sli_get_card_ready_required();
+
+/* Function used to set the maximum transmission power */
+void sli_save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power);
+
+/* Function used to get maximum transmission power */
+sl_wifi_max_tx_power_t sli_get_max_tx_power();
+
+/* Function used to set maximum transmission power to default value(31 dBm) */
+void sli_reset_max_tx_power();
+
+/* Function used to set the current performance profile */
+void sli_save_wifi_current_performance_profile(const sl_wifi_performance_profile_v2_t *profile);
+
+/* Function used to get current wifi performance profile */
+void sli_get_wifi_current_performance_profile(sl_wifi_performance_profile_v2_t *profile);
+
 /* Function used to set the bluetooth performance profile */
 void sli_save_bt_current_performance_profile(const sl_bt_performance_profile_t *profile);
 
@@ -129,13 +144,6 @@ void sli_save_boot_configuration(const sl_wifi_system_boot_configuration_t *boot
 
 /* Function used to retrieve the boot configuration */
 void sli_get_saved_boot_configuration(sl_wifi_system_boot_configuration_t *boot_configuration);
-
-/* Function used to update the coex mode */
-void sli_save_coex_mode(sl_wifi_system_coex_mode_t coex_mode);
-
-/* Function used to retrieve the coex mode */
-sl_wifi_system_coex_mode_t sli_get_coex_mode(void);
-
 /***************************************************************************/ /**
  * @brief
  *   Initializes new task register index for storing firmware status.
@@ -260,7 +268,7 @@ sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
  *   Pointer to the data at the specified offset within the buffer.
  *
  ******************************************************************************/
-void *sli_wifi_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length);
+void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length);
 /** @} */
 
 //! @cond Doxygen_Suppress
@@ -298,7 +306,7 @@ uint32_t sli_si91x_host_queue_status(const sli_wifi_buffer_queue_t *queue);
 
 // These aren't host APIs. These should go into a wifi bus API header
 /* Function used to set buffer pointer to point to specified memory address */
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer);
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
 
 /* Function used to set specified memory address to point to buffer */
 sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
@@ -335,26 +343,6 @@ sl_status_t sli_si91x_bus_rx_irq_handler(void);
 
 /* Function used to check the bus availability */
 void sli_si91x_bus_rx_done_handler(void);
-
-/*==============================================*/
-/**
- * @brief       Calculate crc for a given byte and accumulate crc.
- * @param[in]   crc8_din   -  crc byte input  
- * @param[in]   crc8_state - accumulated crc  
- * @param[in]   end        - last byte crc  
- * @return      crc value  
- *
- */
-uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end);
-
-/*==============================================*/
-/**
- * @brief      Calculate 6-bit hash value for given mac address. 
- * @param[in]  mac - pointer to mac address  
- * @return     6-bit Hash value
- *
- */
-uint8_t sli_multicast_mac_hash(const uint8_t *mac);
 
 /*==============================================*/
 /**

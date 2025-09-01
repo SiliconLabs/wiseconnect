@@ -80,7 +80,12 @@ volatile uint16_t rsi_ble_att1_val_hndl;
 volatile uint16_t rsi_ble_att2_val_hndl;
 volatile uint16_t rsi_ble_att3_val_hndl;
 extern void rsi_ui_app_task(void);
+#if (WIFI_APP == MQTT_APP)
 void wifi_app_task();
+#elif (WIFI_APP == TCP_APP)
+void wlan_app_thread(void *unused);
+#endif
+
 uint32_t rsi_app_resp_max_no_of_supp_adv_sets       = 0;
 uint32_t rsi_app_resp_max_adv_data_len              = 0;
 int8_t rsi_app_resp_tx_power                        = 0;
@@ -1426,11 +1431,20 @@ void rsi_wlan_ble_app_init(void)
   }
   //! Thread created for WIFI task
 #if WLAN_TASK_ENABLE
+#if (WIFI_APP == MQTT_APP)
   wifi_app_thread_id = osThreadNew((osThreadFunc_t)wifi_app_task, NULL, &wifi_thread_attributes);
   if (wifi_app_thread_id == NULL) {
     printf("\r\nwifi_app_thread failed to create\r\n");
     return;
   }
+#endif
+#if (WIFI_APP == TCP_APP)
+  wifi_app_thread_id = osThreadNew((osThreadFunc_t)wlan_app_thread, NULL, &wifi_thread_attributes);
+  if (wifi_app_thread_id == NULL) {
+    printf("\r\nwifi_app_thread failed to create\r\n");
+    return;
+  }
+#endif
 #endif
   osThreadTerminate(osThreadGetId());
   while (1)

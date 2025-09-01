@@ -27,6 +27,7 @@
 #include "sl_status.h"
 #include "stm32f4xx_hal.h"
 #include "sl_board_configuration.h"
+#include "sli_wifi_utility.h"
 
 #define SLI_SPI_BUFFER_LENGTH 2300
 #define SLI_DMA_ENABLED

@@ -10,7 +10,7 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: simplicity_sdk, version:  "2025.6.1"}
+sdk: {id: simplicity_sdk, version: 2025.12.0}
 sdk_extension: 
 - {id: wiseconnect3_sdk, version: 4.0.0}
 source:
@@ -60,12 +60,12 @@ component:
 requires:
 - name: component_catalog
 - name: sl_si91x_mcu
-- name: wiseconnect3_common
+- name: wiseconnect_common
 - name: sl_i2c
 - name: sl_main
 - name: aws_sdk
 - name: network_manager
-- name: wiseconnect3_common
+- name: wiseconnect_common
 - name: wifi
 - name: sl_si91x_wireless
 - name: ble

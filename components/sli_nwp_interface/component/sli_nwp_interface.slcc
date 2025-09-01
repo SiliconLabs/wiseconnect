@@ -1,5 +1,5 @@
 id: sli_nwp_interface
-package: wifi_for_everest
+package: wifi_everest
 description: >
   SLI NWP Interface provides an API to initialize the Communication interface for Wireless Subsystem
 label: SLI NWP Interface
