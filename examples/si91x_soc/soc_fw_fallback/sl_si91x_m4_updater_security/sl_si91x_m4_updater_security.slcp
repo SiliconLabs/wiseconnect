@@ -37,10 +37,6 @@ component:
     from: wiseconnect3_sdk
   - id: device_needs_ram_execution
     from: wiseconnect3_sdk
-  - id: pm_ps2_component
-    from: wiseconnect3_sdk
-  - id: user_files
-    from: wiseconnect3_sdk
 source:
   - path: app.c
   - path: sl_si91x_m4_updater_security.c
@@ -59,10 +55,7 @@ template_contribution:
   - name: device_flash_size
     value: 512000 # 0x07D000
     priority: -100
-  - name: user_files_ps2
-    value: sl_si91x_m4_updater_security.o
-  - name: user_files_ps2
-    value: app.o
+
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

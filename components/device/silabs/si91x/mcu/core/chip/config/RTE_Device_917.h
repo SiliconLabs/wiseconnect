@@ -5548,54 +5548,10 @@
 #define RTE_GPIO_12_PIN  12
 #define RTE_GPIO_12_MODE 0
 
-#define RTE_GPIO_13_PORT HP
-#define RTE_GPIO_13_PIN  13
-#define RTE_GPIO_13_MODE 0
-
-#define RTE_GPIO_14_PORT HP
-#define RTE_GPIO_14_PIN  14
-#define RTE_GPIO_14_MODE 0
-
 #define RTE_GPIO_15_PORT HP
 #define RTE_GPIO_15_PAD  8
 #define RTE_GPIO_15_PIN  15
 #define RTE_GPIO_15_MODE 0
-
-#define RTE_GPIO_16_PORT HP
-#define RTE_GPIO_16_PIN  16
-#define RTE_GPIO_16_MODE 0
-
-#define RTE_GPIO_17_PORT HP
-#define RTE_GPIO_17_PIN  17
-#define RTE_GPIO_17_MODE 0
-
-#define RTE_GPIO_18_PORT HP
-#define RTE_GPIO_18_PIN  18
-#define RTE_GPIO_18_MODE 0
-
-#define RTE_GPIO_19_PORT HP
-#define RTE_GPIO_19_PIN  19
-#define RTE_GPIO_19_MODE 0
-
-#define RTE_GPIO_20_PORT HP
-#define RTE_GPIO_20_PIN  20
-#define RTE_GPIO_20_MODE 0
-
-#define RTE_GPIO_21_PORT HP
-#define RTE_GPIO_21_PIN  21
-#define RTE_GPIO_21_MODE 0
-
-#define RTE_GPIO_22_PORT HP
-#define RTE_GPIO_22_PIN  22
-#define RTE_GPIO_22_MODE 0
-
-#define RTE_GPIO_23_PORT HP
-#define RTE_GPIO_23_PIN  23
-#define RTE_GPIO_23_MODE 0
-
-#define RTE_GPIO_24_PORT HP
-#define RTE_GPIO_24_PIN  24
-#define RTE_GPIO_24_MODE 0
 
 #define RTE_GPIO_25_PORT HP
 #define RTE_GPIO_25_PIN  25
@@ -5640,50 +5596,6 @@
 #define RTE_GPIO_34_PAD  9
 #define RTE_GPIO_34_PIN  34
 #define RTE_GPIO_34_MODE 0
-
-#define RTE_GPIO_35_PORT HP
-#define RTE_GPIO_35_PIN  35
-#define RTE_GPIO_35_MODE 0
-
-#define RTE_GPIO_36_PORT HP
-#define RTE_GPIO_36_PIN  36
-#define RTE_GPIO_36_MODE 0
-
-#define RTE_GPIO_37_PORT HP
-#define RTE_GPIO_37_PIN  37
-#define RTE_GPIO_37_MODE 0
-
-#define RTE_GPIO_38_PORT HP
-#define RTE_GPIO_38_PIN  38
-#define RTE_GPIO_38_MODE 0
-
-#define RTE_GPIO_39_PORT HP
-#define RTE_GPIO_39_PIN  39
-#define RTE_GPIO_39_MODE 0
-
-#define RTE_GPIO_40_PORT HP
-#define RTE_GPIO_40_PIN  40
-#define RTE_GPIO_40_MODE 0
-
-#define RTE_GPIO_41_PORT HP
-#define RTE_GPIO_41_PIN  41
-#define RTE_GPIO_41_MODE 0
-
-#define RTE_GPIO_42_PORT HP
-#define RTE_GPIO_42_PIN  42
-#define RTE_GPIO_42_MODE 0
-
-#define RTE_GPIO_43_PORT HP
-#define RTE_GPIO_43_PIN  43
-#define RTE_GPIO_43_MODE 0
-
-#define RTE_GPIO_44_PORT HP
-#define RTE_GPIO_44_PIN  44
-#define RTE_GPIO_44_MODE 0
-
-#define RTE_GPIO_45_PORT HP
-#define RTE_GPIO_45_PIN  45
-#define RTE_GPIO_45_MODE 0
 
 #define RTE_GPIO_46_PORT HP
 #define RTE_GPIO_46_PAD  10
@@ -5744,30 +5656,6 @@
 #define RTE_GPIO_57_PAD  21
 #define RTE_GPIO_57_PIN  57
 #define RTE_GPIO_57_MODE 0
-
-#define RTE_GPIO_58_PORT HP
-#define RTE_GPIO_58_PIN  58
-#define RTE_GPIO_58_MODE 0
-
-#define RTE_GPIO_59_PORT HP
-#define RTE_GPIO_59_PIN  59
-#define RTE_GPIO_59_MODE 0
-
-#define RTE_GPIO_60_PORT HP
-#define RTE_GPIO_60_PIN  60
-#define RTE_GPIO_60_MODE 0
-
-#define RTE_GPIO_61_PORT HP
-#define RTE_GPIO_61_PIN  61
-#define RTE_GPIO_61_MODE 0
-
-#define RTE_GPIO_62_PORT HP
-#define RTE_GPIO_62_PIN  62
-#define RTE_GPIO_62_MODE 0
-
-#define RTE_GPIO_63_PORT HP
-#define RTE_GPIO_63_PIN  63
-#define RTE_GPIO_63_MODE 0
 
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_ULP_GPIO_0_PORT_ID 1

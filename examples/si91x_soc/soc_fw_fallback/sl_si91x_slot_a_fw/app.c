@@ -106,6 +106,9 @@ extern uint32_t __rom_length;
 //! Enables or disables updating of firmware slot information after a successful firmware update.
 #define SL_APP_UPDATE_FIRMWARE_SLOT 0
 
+//! Enables burning NWP security version after Wi-Fi connect (0: disable, 1: enable)
+#define SL_APP_BURN_NWP_SECURITY_VERSION 0
+
 // Get the start address of the ROM from the linker script
 uint32_t rom_address = (uint32_t)&__rom_start;
 // Get the length of the ROM from the linker script
@@ -293,6 +296,27 @@ static void application_start(void *argument)
     osThreadExit(); // Exit thread on failure
   }
   DEBUGOUT("\r\nWi-Fi Client Connected\r\n");
+
+#if SL_APP_BURN_NWP_SECURITY_VERSION
+  {
+    uint32_t nwp_fw_addr = 0;
+    if (app_ab_slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_A) {
+      nwp_fw_addr = app_ab_slot_info.nwp_slot_info.nwp_slot_A.slot_image_offset;
+    } else if (app_ab_slot_info.nwp_slot_info.current_active_nwp_slot == SLOT_B) {
+      nwp_fw_addr = app_ab_slot_info.nwp_slot_info.nwp_slot_B.slot_image_offset;
+    }
+    if (nwp_fw_addr != 0) {
+      sl_status_t burn_status = sl_si91x_burn_nwp_security_version(nwp_fw_addr);
+      if (burn_status != SL_STATUS_OK) {
+        DEBUGOUT("\r\nFailed to burn NWP security version: 0x%lX at 0x%lX\r\n", burn_status, nwp_fw_addr);
+      } else {
+        DEBUGOUT("\r\nBurned NWP security version at 0x%lX\r\n", nwp_fw_addr);
+      }
+    } else {
+      DEBUGOUT("\r\nSkipping NWP security version burn: invalid NWP address\r\n");
+    }
+  }
+#endif
 
   // Configure the server address
   server_address.sin_family = AF_INET;

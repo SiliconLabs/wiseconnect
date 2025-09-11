@@ -224,7 +224,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCPIP_THREAD_PRIO 24 // osPriorityNormal
 
 #ifndef LWIP_TESTMODE
-#define LWIP_TESTMODE 1
+#define LWIP_TESTMODE 0
 #endif
 /*
    ------------------------------------------------

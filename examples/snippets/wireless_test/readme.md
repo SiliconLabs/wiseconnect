@@ -146,7 +146,7 @@ set_region_configuration [-a operating_mode] <region>
 |Parameter       |Description                                                                                |
 |----------------|-------------------------------------------------------------------------------------------|
 |*Operating_mode*        |Optional, (ap, apsta, ble_coex, client, client_ipv6, eap, transmit_test, ble) |
-|*region*        |us → United states, eu → Europen Union, jp → Japan, world →  World wide domain, kr → Korean, sg → Singapore(not currently supported) |
+|*region*        |us → United states, eu → Europen Union, jp → Japan, world →  World wide domain, kr → Korean, sg → Singapore(not currently supported), cn → China  |
 
 ### **wifi_radio_deinit:**
 Deinitlize the Wi-Fi radio.

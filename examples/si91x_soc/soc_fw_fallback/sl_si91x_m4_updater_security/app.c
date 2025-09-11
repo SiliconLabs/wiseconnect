@@ -195,7 +195,7 @@ static void application_start(void *argument)
   }
 
   // Perform a soft reset NWP FW
-  sl_si91x_nwp_soft_reset_for_fallback();
+  sl_si91x_nwp_soft_reset_from_updater(active_slot_info.m4_active_slot_address);
 
   // Call the M4 updater application
   sl_si91x_m4_updater_app();

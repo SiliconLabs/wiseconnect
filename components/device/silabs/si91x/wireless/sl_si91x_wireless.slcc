@@ -261,7 +261,6 @@ template_contribution:
       SL_SI91X_SO_MAXRETRY : 24
       SL_SI91X_SO_MSS : 40
       SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET: 38
-      SL_SI91X_SO_RCVTIME: 20
     option_level:
       SOL_TCP: 0x0006
       SOL_SOCKET : 0xffff

@@ -405,13 +405,14 @@ sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address);
 sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset);
 
 /***************************************************************************/ /**
- *  @fn          void sl_si91x_nwp_soft_reset_for_fallback(void)
+ *  @fn          void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
  *  @brief       Performs a soft reset of the NWP firmware.
  *               This function sends a soft reset command to the NWP firmware for fallback and keep the NWP
  *               firmware in the boot mode.
  *               This function will work for A/B firmware only.
+ *  @param[in]   m4_slot_image_offset  Offset of the M4 slot image for fallback
  ******************************************************************************/
-void sl_si91x_nwp_soft_reset_for_fallback(void);
+void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset);
 
 /// @} (end addtogroup Firmware_Fallback) */
 
@@ -509,7 +510,7 @@ void sl_si91x_nwp_soft_reset_for_fallback(void);
  *    validate encrypted firmware images, and the keys must be securely provisioned and managed.
  * 
  * 10. **Soft reset for NWP firmware**:  
- *    Use @ref sl_si91x_nwp_soft_reset_for_fallback to perform a soft reset of the NWP firmware for fallback
+ *    Use @ref sl_si91x_nwp_soft_reset_from_updater to perform a soft reset of the NWP firmware for fallback
  *    and keep the NWP firmware in boot mode.
  *    This function is typically used after updating or recovering the NWP firmware, ensuring that the NWP
  *    restarts cleanly and enters a known state. Keeping the NWP in boot mode allows for further maintenance
@@ -535,7 +536,7 @@ void sl_si91x_nwp_soft_reset_for_fallback(void);
  * The following three APIs are required only when full encryption is enabled:
  *  - @ref sl_si91x_burn_nwp_security_version
  *  - @ref sl_si91x_fallback_load_qspi_keys
- *  - @ref sl_si91x_nwp_soft_reset_for_fallback
+ *  - @ref sl_si91x_nwp_soft_reset_from_updater
  * 
  * By following these steps, the Firmware Fallback feature ensures a seamless and reliable firmware update process, with mechanisms for recovery and fallback in case of failures. This design minimizes downtime and ensures the device remains operational even in the event of update issues.
  *

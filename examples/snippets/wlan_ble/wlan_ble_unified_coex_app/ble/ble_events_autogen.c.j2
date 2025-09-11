@@ -377,6 +377,8 @@ APP_WEAK void rsi_ble_event_{{ dummy_event }}_driver_callback(rsi_ble_{{ dummy_e
 	memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
 	{% elif dummy_event == 'on_data_recieve' %}
 	memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
+	{% elif dummy_event == 'data_transmit' %}
+	memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
 	{% endif %}
 	//! enqueue message to ble_generic_cb.event_queues[0]
 	rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);

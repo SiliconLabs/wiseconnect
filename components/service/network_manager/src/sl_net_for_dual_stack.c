@@ -542,16 +542,17 @@ sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
   UNUSED_PARAMETER(interface);
 
   if (dual_mode_enabled || bypass_mode_enabled) {
+#if LWIP_TESTMODE
     struct sys_timeo **list_head = NULL;
 
     //! Free all timers
     for (int i = 0; i < lwip_num_cyclic_timers; i++) {
       list_head = sys_timeouts_get_next_timeout();
-      if (*list_head != NULL)
+      if (list_head != NULL && *list_head != NULL)
         sys_untimeout((*list_head)->h, (*list_head)->arg);
     }
-
-    netif_remove(&(wifi_client_context->netif));
+#endif
+    netifapi_netif_remove(&(wifi_client_context->netif));
   }
 
   return sl_wifi_deinit();

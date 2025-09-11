@@ -26,8 +26,9 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 
 This process allows the device to update its software over the air (OTA) without needing a physical connection.
 
-> **Note:**
-. A/B firmware update functionality requires a special MBR and Patch to be preloaded on the device. Ensure these components are correctly loaded before running this example.
+>**Note:**
+>A/B firmware update functionality requires a special MBR to be preloaded on the device. Ensure these components are correctly loaded before running this example.
+>This feature doesnot support sleep wakeup functionality from M4 Updater.
 
 ## Prerequisites/Setup Requirements
 
@@ -70,7 +71,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
+In the Project Explorer pane, expand the **config** folder and open the [`sl_net_default_values.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/resources/defaults/sl_net_default_values.h) file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
 ### STA Instance-related Parameters
 
@@ -119,11 +120,38 @@ In the Project Explorer pane, expand the **config** folder and open the **sl_net
     #define DISABLE_AB_DEBUG_LOGS 1 
     ```
 
-  - The macro is defined in the following file:  `\components\device\silabs\si91x\mcu\drivers\service\firmware_fallback\src\sl_si91x_fw_fallback.c`
+  - The macro is defined in the following file:  [`components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c)
 
-- After completing the OTA update process, it is recommended to perform a system reset using the `sl_si91x_soc_nvic_reset()` function. This ensures that the updated firmware is properly loaded, and the system is initialized with the new firmware.
+- Encryption and Fallback Slot Configuration
+  - The **SL_SI91X_FALLBACK_SLOT_ENCRYPTION** macro enables sleep/wakeup support and is part of the SPL "FW fallback" feature. Enable this macro only when Encrypted XIP of M4 is enabled. Define it in your project's preprocessor settings.
 
-- The `sl_si91x_soc_nvic_reset()` function is available in the `app.c` file but is commented out by default. Uncomment the following line in the `app.c` file to enable the reset:
+    ```c
+    #define SL_SI91X_FALLBACK_SLOT_ENCRYPTION 0  // Disabled by default
+    ```
+
+  - **Important Requirements when enabling this macro:**
+    1. **Encrypted XIP of M4 must be enabled** - This macro should only be used when encryption features are active
+    2. **FW fallback feature must be enabled** for your board before enabling this macro
+    3. **Examples using this macro MUST be loaded with OTA (Over-The-Air) updates**
+    4. **You MUST use the updater application** for examples that have this macro enabled
+    5. **DO NOT use Commander** for examples that have this macro enabled. Please consider this a slot example.
+
+  - **Purpose:** This macro enables enhanced sleep/wakeup support with encryption capabilities for firmware fallback operations. It's an SPL (Silicon Labs) specific feature that requires proper board configuration and OTA deployment methods.
+
+  - **Warning:** When enabled, this macro will display compile-time warnings to ensure developers understand the requirements. These warnings can be disabled by commenting out the `#pragma message` lines in the header file.
+
+- Burn NWP Security Version (optional)
+  - The **SL_APP_BURN_NWP_SECURITY_VERSION** macro controls whether the app burns the NWP security version after a successful Wi-Fi connection. Disabled by default.
+
+    ```c
+    #define SL_APP_BURN_NWP_SECURITY_VERSION 0  // 0: Disabled, 1: Enabled
+    ```
+
+  - When enabled, the app calls `sl_si91x_burn_nwp_security_version()` with the active NWP firmware address obtained from slot info. Use only if your update flow requires burning a new security version.
+
+- After completing the OTA update process, it is recommended to perform a system reset using the [`sl_si91x_soc_nvic_reset()`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-common/soft-reset-functions#sl-si91x-soc-nvic-reset) function. This ensures that the updated firmware is properly loaded, and the system is initialized with the new firmware.
+
+- The [`sl_si91x_soc_nvic_reset()`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-common/soft-reset-functions#sl-si91x-soc-nvic-reset) function is available in the `app.c` file but is commented out by default. Uncomment the following line in the `app.c` file to enable the reset:
 
   ```c
   sl_si91x_soc_nvic_reset();
@@ -147,7 +175,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application
 - Flash, run, and debug the application
 
-To establish the TCP Server with firmware file on remote PC, follow the steps below:
+To establish the TCP server with firmware file on remote PC, follow the steps below:
 
  1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
  

@@ -254,6 +254,60 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig_bypass(uint32_t stack_address,
   (*(volatile uint32_t *)(M4_APP_SIZE_ULP_RAM_ADDR) = \
      (M4_APP_START_ADDR_FROM_FMC + M4_HEADER_SIZE + M4_APP_SIZE_FROM_FMC))
 
+/**
+ * @warning SL_SI91X_FALLBACK_SLOT_ENCRYPTION MACRO WARNING
+ * 
+ * This macro enables sleep/wakeup support for the application but comes under an SPL feature
+ * called "FW fallback feature". 
+ * 
+ * IMPORTANT REQUIREMENTS:
+ * 1. This macro should ONLY be enabled when M4 inline decryption is enabled
+ * 2. Before enabling this macro, MUST enable the FW fallback feature for your board
+ * 3. Examples using this macro MUST be loaded with OTA (Over-The-Air) updates
+ * 4. You MUST branch the example using the updater application
+ * 5. DO NOT use Commander for examples that have this macro enabled
+ * 
+ * This is an SPL (Silicon Labs) specific feature that requires proper board configuration
+ * and OTA deployment methods. Using Commander may cause issues with this feature.
+ * 
+ */
+#if SL_SI91X_FALLBACK_SLOT_ENCRYPTION
+/* 
+ * COMPILE-TIME WARNING - Comment out to disable this warning message to use this function.
+ */
+#pragma message( \
+  "WARNING: SL_SI91X_FALLBACK_SLOT_ENCRYPTION enabled - requires FW fallback and encryption, OTA deployment")
+
+// ULP RAM addresses for storing M4 app start address information
+#define M4_APP_START_ULP_RAM_ADDR 0x24061F30 // ULP RAM address for storing M4 app start address
+
+// M4 QSPI AES SEC SEGMENT_LS and M4 QSPI AES SEC SEGMENT_MS addresses.
+#define QSPI_AES_SEC_SEG_LS_ADDR_1 0x120000E4 // M4 QSPI AES SEC SEGMENT_LS address 1
+#define QSPI_AES_SEC_SEG_MS_ADDR_1 0x120000E8 // M4 QSPI AES SEC SEGMENT_MS address 1
+#define QSPI_AES_SEC_SEG_LS_ADDR_2 0x120000EC // M4 QSPI AES SEC SEGMENT_LS address 2
+#define QSPI_AES_SEC_SEG_MS_ADDR_2 0x120000F0 // M4 QSPI AES SEC SEGMENT_MS address 2
+#define OCTASPI_BUS_CONTROLLER_2   0x120000C4 // M4 OCTASPI BUS CONTROLLER 2
+#endif
+
+#if SL_SI91X_FALLBACK_SLOT_ENCRYPTION
+
+/**
+ * @fn            STATIC INLINE void sl_si91x_save_m4_app_metadata_to_ulp_ram(void)
+ * @brief         Stores M4 application start address and size information from M4 QSPI AES SEC SEGMENT_LS and M4 QSPI AES SEC SEGMENT_MS in ULP RAM for 
+ *                firmware fallback and power management operations with M4 inline decryption enabled.
+ */
+STATIC INLINE void sl_si91x_save_m4_app_metadata_to_ulp_ram(void)
+{
+  if ((*(volatile uint32 *)OCTASPI_BUS_CONTROLLER_2) & BIT(13)) {
+    *(volatile uint32_t *)(M4_APP_START_ULP_RAM_ADDR) = *(volatile uint32 *)QSPI_AES_SEC_SEG_LS_ADDR_2;
+    *(volatile uint32_t *)(M4_APP_SIZE_ULP_RAM_ADDR)  = *(volatile uint32 *)QSPI_AES_SEC_SEG_MS_ADDR_2;
+  } else {
+    *(volatile uint32_t *)(M4_APP_START_ULP_RAM_ADDR) = *(volatile uint32 *)QSPI_AES_SEC_SEG_LS_ADDR_1;
+    *(volatile uint32_t *)(M4_APP_SIZE_ULP_RAM_ADDR)  = *(volatile uint32 *)QSPI_AES_SEC_SEG_MS_ADDR_1;
+  }
+}
+#endif
+
 STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
                                                uint32_t jump_cb_address,
                                                uint32_t vector_offset,
@@ -283,10 +337,16 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
   // at the memory address computed as (M4_FLASH_BASE + M4_APP_START_ADDR).
   // If the bit is set, encryption is enabled; otherwise, it is disabled.
   if ((*(volatile uint32_t *)(M4_FLASH_BASE + M4_APP_START_ADDR_FROM_FMC)) & M4_ENCRYPTION_ENABLE_BIT) {
+
+#if SL_SI91X_FALLBACK_SLOT_ENCRYPTION
+    // Store the M4 app start address and size in ULP RAM
+    sl_si91x_save_m4_app_metadata_to_ulp_ram();
+#else
     // Macro to compute and store the total size of the M4 image
     // It calculates the total size by adding the image start address (with header) and the image size,
     // and stores the result directly in the ULP RAM address.
     STORE_M4_APP_SIZE_IN_QSPI_END_SEGMENT;
+#endif
   }
 #endif
 }

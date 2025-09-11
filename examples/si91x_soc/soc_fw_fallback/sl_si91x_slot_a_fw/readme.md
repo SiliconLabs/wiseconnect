@@ -27,7 +27,8 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 This process allows the device to update its software over the air (OTA) without needing a physical connection.
 
 >**Note:**
->A/B firmware update functionality requires a special MBR and Patch to be preloaded on the device. Ensure these components are correctly loaded before running this example.
+>A/B firmware update functionality requires a special MBR to be preloaded on the device. Ensure these components are correctly loaded before running this example.
+>This feature doesnot support sleep wakeup functionality from M4 Updater.
 
 ## Prerequisites/Setup Requirements
 
@@ -120,6 +121,33 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
     ```
 
   - The macro is defined in the following file:  [`components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c)
+
+- Encryption and Fallback Slot Configuration
+  - The **SL_SI91X_FALLBACK_SLOT_ENCRYPTION** macro enables sleep/wakeup support and is part of the SPL "FW fallback" feature. Enable this macro only when Encrypted XIP of M4 is enabled. Define it in your project's preprocessor settings.
+
+    ```c
+    #define SL_SI91X_FALLBACK_SLOT_ENCRYPTION 0  // Disabled by default
+    ```
+
+  - **Important Requirements when enabling this macro:**
+    1. **Encrypted XIP of M4 must be enabled** - This macro should only be used when encryption features are active
+    2. **FW fallback feature must be enabled** for your board before enabling this macro
+    3. **Examples using this macro MUST be loaded with OTA (Over-The-Air) updates**
+    4. **You MUST use the updater application** for examples that have this macro enabled
+    5. **DO NOT use Commander** for examples that have this macro enabled. Please consider this a slot example.
+
+  - **Purpose:** This macro enables enhanced sleep/wakeup support with encryption capabilities for firmware fallback operations. It's an SPL (Silicon Labs) specific feature that requires proper board configuration and OTA deployment methods.
+
+  - **Warning:** When enabled, this macro will display compile-time warnings to ensure developers understand the requirements. These warnings can be disabled by commenting out the `#pragma message` lines in the header file.
+
+- Burn NWP Security Version (optional)
+  - The **SL_APP_BURN_NWP_SECURITY_VERSION** macro controls whether the app burns the NWP security version after a successful Wi-Fi connection. Disabled by default.
+
+    ```c
+    #define SL_APP_BURN_NWP_SECURITY_VERSION 0  // 0: Disabled, 1: Enabled
+    ```
+
+  - When enabled, the app calls `sl_si91x_burn_nwp_security_version()` with the active NWP firmware address obtained from slot info. Use only if your update flow requires burning a new security version.
 
 - After completing the OTA update process, it is recommended to perform a system reset using the [`sl_si91x_soc_nvic_reset()`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-common/soft-reset-functions#sl-si91x-soc-nvic-reset) function. This ensures that the updated firmware is properly loaded, and the system is initialized with the new firmware.
 

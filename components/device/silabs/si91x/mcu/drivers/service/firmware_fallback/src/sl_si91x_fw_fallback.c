@@ -783,6 +783,7 @@ sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
  *  @param[in]   image_offset        Flash address to enable the inline decryption for M4 slot firmware
  *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
  ******************************************************************************/
+
 sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
 {
   sl_status_t status                        = SL_STATUS_FAIL;
@@ -807,14 +808,19 @@ sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
 }
 
 /***************************************************************************/ /**
- *  @fn          void sl_si91x_nwp_soft_reset_for_fallback(void)
+ *  @fn          void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
  *  @pre         None
  *  @brief       Performs a soft reset of the NWP firmware.
- *               This function sends a soft reset command to the NWP firmware for fallback.
+ *               This function sends a soft reset command to the NWP firmware for fallback and keep the NWP
+ *               firmware in the boot mode.
  *               This function will work for A/B firmware only.
+ *  @param[in]   m4_slot_image_offset  Offset of the M4 slot image for fallback
  *  @return      None
  ******************************************************************************/
-void sl_si91x_nwp_soft_reset_for_fallback(void)
+#define QSPI_AES_SEC_SEG_LS_ADDR_2 0x120000EC                                 // QSPI AES SEC SEGMENT_LS address 2
+#define QSPI_AES_SEC_SEG_MS_ADDR_2 0x120000F0                                 // QSPI AES SEC SEGMENT_MS address 2
+#define OCTASPI_BUS_CONTROLLER_2   0x120000C4                                 // OCTASPI BUS CONTROLLER 2
+void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
 {
   sl_status_t status                        = SL_STATUS_OK;
   sl_si91x_fw_fallback_request_t fw_request = { 0 };
@@ -844,6 +850,16 @@ void sl_si91x_nwp_soft_reset_for_fallback(void)
   //Clearing the RX_Buffer valid bit
   M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
   M4SS_P2P_INTR_CLR_REG;
+
+  const sl_si91x_firmware_header_t *m4_rps_configs = (const sl_si91x_firmware_header_t *)m4_slot_image_offset;
+  *(volatile uint32_t *)OCTASPI_BUS_CONTROLLER_2 |=
+    BIT(13); // Enable bit 13 to enable the next QSPI banks in OCTASPI BUS CONTROLLER 2
+  *(volatile uint32_t *)QSPI_AES_SEC_SEG_LS_ADDR_2 =
+    (m4_rps_configs->flash_location + SLI_SI91X_RPS_HEADER_SIZE); // Store the M4 app start address in ULP RAM
+
+  *(volatile uint32_t *)QSPI_AES_SEC_SEG_MS_ADDR_2 =
+    ((m4_rps_configs->flash_location + SLI_SI91X_RPS_HEADER_SIZE + m4_rps_configs->image_size)
+     - 1); // Store the (M4 app start address + Size of m4 application) in ULP RAM
 }
 #endif
 #ifdef SL_SI91X_FW_FALLBACK_UPDATER
