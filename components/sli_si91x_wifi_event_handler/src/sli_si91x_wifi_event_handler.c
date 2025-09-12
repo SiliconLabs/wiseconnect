@@ -120,7 +120,7 @@ extern sli_si91x_buffer_queue_t sli_uart_bus_rx_queue;
 
 static uint16_t interrupt_status = 0;
 
-static bool global_queue_block = false;
+bool global_queue_block = false;
 
 // Define enum for wait times (can be represented with just 2 bits)
 typedef enum {
@@ -227,6 +227,8 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
                                    bool *global_queue_block);
 
 sl_status_t sli_si91x_req_wakeup(void);
+
+void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet);
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socket_packet);
@@ -795,11 +797,14 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               // create dummy packets for respective queues to be cleared
               sli_handle_dhcp_and_rejoin_failure(cmd_queues[SLI_SI91X_WLAN_CMD].sdk_context, buffer, frame_status);
             }
-            if (((SLI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK))
-                || (SLI_WLAN_RSP_DISCONNECT == frame_type)) {
+            if ((SLI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK)) {
               // Reset current performance profile and set it to high performance
               sli_reset_coex_current_performance_profile();
-              current_performance_profile = HIGH_PERFORMANCE;
+              current_performance_profile = SL_WIFI_SYSTEM_ASSOCIATED_POWER_SAVE_LOW_LATENCY;
+            } else if (SLI_WLAN_RSP_DISCONNECT == frame_type) {
+              // Reset current performance profile and set it to high performance
+              sli_reset_coex_current_performance_profile();
+              current_performance_profile = SL_WIFI_SYSTEM_HIGH_PERFORMANCE;
             }
 
             // check if the frame type is valid
@@ -1802,6 +1807,8 @@ void sli_si91x_process_network_events()
       sl_wifi_system_packet_t *packet =
         (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
 
+      sli_handle_wifi_events(data, packet);
+
       // Dispatch the network event to the appropriate handler.
       SL_NET_EVENT_DISPATCH_HANDLER(data, packet);
 
@@ -1968,4 +1975,93 @@ __WEAK sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interfac
   UNUSED_PARAMETER(interface);
   UNUSED_PARAMETER(buffer);
   return SL_STATUS_OK;
+}
+
+static void sli_handle_client_disconnection(sl_wifi_system_packet_t *packet)
+{
+  uint32_t payload_length = packet->length & 0x0FFF;
+
+  // Extract the MAC address based on the specific disconnection command.
+  if ((packet->command == SLI_WLAN_RSP_CLIENT_DISCONNECTED)
+      && (payload_length == sizeof(sli_si91x_ap_disconnect_resp_t))) {
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+    sli_si91x_flush_third_party_station_dependent_sockets((sli_si91x_ap_disconnect_resp_t *)packet->data);
+#endif
+  }
+}
+
+static void sli_handle_tx_flush(const sli_si91x_queue_packet_t *data,
+                                const sl_wifi_system_packet_t *packet,
+                                sl_wifi_operation_mode_t current_operation_mode)
+{
+  // Handle cases where a general TX flush might be needed due to connection changes.
+  // Check if the condition necessitates a general TX Wi-Fi queue flush.
+  bool is_general_tx_queue_flush_needed =
+    (packet->command == SLI_WLAN_RSP_JOIN || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
+     || packet->command == SLI_WLAN_RSP_IPCONFV4 || packet->command == SLI_WLAN_RSP_IPCONFV6
+     || (packet->command == SLI_WLAN_RSP_DISCONNECT
+         && (current_operation_mode == SL_SI91X_CLIENT_MODE || current_operation_mode == SL_SI91X_ENTERPRISE_CLIENT_MODE
+             || current_operation_mode == SL_SI91X_TRANSCEIVER_MODE
+             || current_operation_mode == SL_SI91X_TRANSMIT_TEST_MODE
+             || (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->desc[7] == SL_WIFI_CLIENT_VAP_ID))));
+
+  // If a general flush is required, clear all TX Wi-Fi queues as the connection is lost.
+  if (is_general_tx_queue_flush_needed) {
+    sli_si91x_flush_all_tx_wifi_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST);
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+    // Flush the select request table based on the provided frame_status
+    sli_si91x_flush_select_request_table(data->frame_status);
+#else
+    (void)data; // Mark data as unused when SLI_SI91X_OFFLOAD_NETWORK_STACK is not defined.
+#endif
+  }
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+  // Define the VAP ID for the client (default to client VAP ID).
+  uint8_t vap_id_for_flush = SL_WIFI_CLIENT_VAP_ID;
+
+  // In concurrent mode with an AP stop command, use the AP VAP ID for the flush.
+  if (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->command == SLI_WLAN_RSP_AP_STOP) {
+    vap_id_for_flush = SL_WIFI_AP_VAP_ID;
+  }
+  // Flush all pending socket commands for the determined VAP ID.
+  sli_si91x_flush_all_socket_command_queues(data->frame_status, vap_id_for_flush);
+
+  // Flush all pending socket data for the determined VAP ID.
+  sli_si91x_flush_all_socket_data_queues(vap_id_for_flush);
+
+  // Shutdown and update the state of the sockets associated with the VAP ID.
+  sli_si91x_vap_shutdown(vap_id_for_flush, SLI_SI91X_BSD_DISCONNECT_REASON_INTERFACE_DOWN);
+#endif
+}
+
+void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet)
+{
+  // Retrieve the current operation mode (e.g., client, AP, concurrent).
+  sl_wifi_operation_mode_t current_operation_mode = sli_get_opermode();
+
+  // Determine if a Wi-Fi client is disconnected from the access point.
+  // This includes cases where the device is operating as an access point (AP mode)
+  // or in concurrent mode where the AP VAP ID is relevant.
+  bool is_client_disconnected_from_ap =
+    (packet->command == SLI_WLAN_RSP_CLIENT_DISCONNECTED
+     || (packet->command == SLI_WLAN_RSP_DISCONNECT
+         && (current_operation_mode == SL_SI91X_ACCESS_POINT_MODE
+             || (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->desc[7] == SL_WIFI_AP_VAP_ID))));
+
+  // Determine if a TX flush is required.
+  // This is true for scenarios such as join failures, IP address changes, and disconnections.
+  bool is_tx_flush_required = (((packet->command == SLI_WLAN_RSP_JOIN) && (data->frame_status != SL_STATUS_OK))
+                               || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
+                               || packet->command == SLI_WLAN_RSP_IPCONFV4 || packet->command == SLI_WLAN_RSP_IPCONFV6
+                               || packet->command == SLI_WLAN_RSP_DISCONNECT
+                               || packet->command == SLI_WLAN_RSP_AP_STOP);
+
+  // Handle the scenario where a Wi-Fi client disconnects from the AP.
+  if (is_client_disconnected_from_ap) {
+    sli_handle_client_disconnection(packet);
+  } else if (is_tx_flush_required) {
+    sli_handle_tx_flush(data, packet, current_operation_mode);
+  }
 }

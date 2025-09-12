@@ -51,7 +51,9 @@
 #include <string.h>
 #include "assert.h"
 
-static bool sli_si91x_tx_command_status = false;
+static bool sli_si91x_tx_command_status              = false;
+static volatile bool power_save_sequence_in_progress = false;
+extern bool global_queue_block;
 
 /******************************************************
  *               Macro Declarations
@@ -684,7 +686,9 @@ void sli_get_coex_performance_profile(sl_wifi_system_performance_profile_t *prof
 
 void sli_reset_coex_current_performance_profile(void)
 {
-  memset(&performance_profile, 0, sizeof(sli_si91x_performance_profile_t));
+  if (!power_save_sequence_in_progress) {
+    memset(&performance_profile, 0, sizeof(sli_si91x_performance_profile_t));
+  }
 }
 
 void sli_save_boot_configuration(const sl_wifi_system_boot_configuration_t *boot_configuration)
@@ -1395,6 +1399,7 @@ sl_status_t sli_handle_command_in_flight_packet(sli_si91x_command_queue_t *queue
 {
   sl_wifi_buffer_t *current_packet     = NULL;
   sli_si91x_queue_packet_t *queue_node = NULL;
+  uint16_t frame_type                  = 0;
   // Create a generic RX packet
   sl_status_t status = sli_create_generic_rx_packet_from_params(&queue_node,
                                                                 &current_packet,
@@ -1422,12 +1427,24 @@ sl_status_t sli_handle_command_in_flight_packet(sli_si91x_command_queue_t *queue
   dummy_packet->desc[2]                 = (uint8_t)queue->frame_type;
   dummy_packet->desc[3]                 = (uint8_t)((0xFF00 & queue->frame_type) >> 8);
 
+  frame_type = queue->frame_type;
+
   if (!compare_function || compare_function(queue_node->host_packet, user_data)) {
     sli_flush_command_in_flight_packet(queue, current_packet, dummy_packet_buffer, event_mask);
   } else {
     // If compare function returns false, free the allocated buffers
     sli_si91x_host_free_buffer(current_packet);
     sli_si91x_host_free_buffer(dummy_packet_buffer);
+  }
+  switch (frame_type) {
+    case SLI_COMMON_RSP_OPERMODE:
+    case SLI_COMMON_RSP_SOFT_RESET:
+    case SLI_COMMON_RSP_PWRMODE: {
+      global_queue_block = false;
+      break;
+    }
+    default:
+      break;
   }
 
   return SL_STATUS_OK;
@@ -1814,7 +1831,13 @@ sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_
 {
   sl_status_t status;
   sli_si91x_power_save_request_t power_save_request               = { 0 };
+  sl_wifi_performance_profile_v2_t highperformance_wifi_profile   = { 0 };
   sl_wifi_system_performance_profile_t selected_coex_profile_mode = { 0 };
+
+  power_save_sequence_in_progress = true;
+
+  sli_save_wifi_current_performance_profile(&highperformance_wifi_profile);
+
   // Disable power save mode by setting it to HIGH_PERFORMANCE profile
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PWRMODE,
                                          SI91X_COMMON_CMD,
@@ -1823,7 +1846,11 @@ sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_
                                          SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
                                          NULL,
                                          NULL);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (status != SL_STATUS_OK) {
+    // Reset flag on failure
+    power_save_sequence_in_progress = false;
+    return status;
+  }
 
   if (NULL != wifi_profile) {
     // Save the new Wi-Fi profile
@@ -1840,6 +1867,8 @@ sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_
 
   // If the requested performance profile is HIGH_PERFORMANCE, no need to send the request to firmware
   if (selected_coex_profile_mode == HIGH_PERFORMANCE) {
+    // Reset flag on failure
+    power_save_sequence_in_progress = false;
     return SL_STATUS_OK;
   }
 
@@ -1853,7 +1882,8 @@ sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_
                                          SL_SI91X_WAIT_FOR_RESPONSE(3000),
                                          NULL,
                                          NULL);
-  VERIFY_STATUS_AND_RETURN(status);
+  // Reset flag on failure
+  power_save_sequence_in_progress = false;
   return status;
 }
 

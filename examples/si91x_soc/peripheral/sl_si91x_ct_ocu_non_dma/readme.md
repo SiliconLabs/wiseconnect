@@ -32,14 +32,11 @@
   - There is a programming feature to select Clocks, events or external clock as a tick.
   - The input clock can be the reference clock or the system clock.
   - Supports a wide range of features like starting the counter, stopping the counter, continuing the counter from the stopped value, halt and increment the counter, and capturing the events.
-  - It can output PWM signals with any cycle/pulse length.
-  - It can start a PPG in synchronous with PWM signal output. It can superimpose a PPGs output signal on the PWM signal and output it.
-  - It can generate a non-overlap signal that maintains the response time of the power transistor(dead time) from PWM signal output.
+  - It can output PWM signals with varying duty cycle.
+  - It can generate a non-overlap signal that maintains the response time of the power transistor(dead time) from PWM signal output.This can be with respect to toggling of transistors.
   - It can capture timing of input signal changes and pulse width in synchronous with PWM signal.
   - It can start the ADC at any time, in synchronous with the PWM signal output.
-  - It performs noise cancelling of the emergency motor shutdown interrupt signal.
   - It can freely set the pin state at the time of motor shutdown when a valid signal input is detected.
-  - Supports APB interface for programming.
 
 ## About Example Code
 
@@ -47,24 +44,24 @@
 - Two macros are present: CT_PWM_MODE_USECASE and CT_COUNTER_MODE_USECASE. By default, the normal counter use case is enabled.
 - Enable only one of the following use case macros at a time.
   - If **CT_PWM_MODE_USECASE** is enabled:
-    - The Config Timer is initialized using [sl_si91x_config_timer_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-init) API.
-    - After initialization, the desired counter parameters are configured using [sl_si91x_config_timer_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-configuration) API, the parameters are set through UC.
-    - Match count for both the counters are configured using same [sl_si91x_config_timer_set_match_count()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-match-count) API.
-    - The desired OCU parameters are configured using [sl_si91x_config_timer_set_ocu_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-ocu-configuration) API.
-    - The desired OCU controls for both counters are configured using API [sl_si91x_config_timer_set_ocu_control()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-ocu-control) by changing the counter number.
-    - Registers the callback for enabling peak interrupt, for counter-1 using [sl_si91x_config_timer_register_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-register-callback) API.
-    - Starts both the counters using API [sl_si91x_config_timer_start_on_software_trigger()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-start-on-software-trigger) by changing the counter number.
+    - The Config Timer is initialized using [sl_si91x_config_timer_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-init) API.
+    - After initialization, the desired counter parameters are configured using [sl_si91x_config_timer_set_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-configuration) API, the parameters are set through UC.
+    - Match count for both the counters are configured using same [sl_si91x_config_timer_set_match_count()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-match-count) API.
+    - The desired OCU parameters are configured using [sl_si91x_config_timer_set_ocu_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-ocu-configuration) API.
+    - The desired OCU controls for both counters are configured using API [sl_si91x_config_timer_set_ocu_control()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-ocu-control) by changing the counter number.
+    - Registers the callback for enabling peak interrupt, for counter-1 using [sl_si91x_config_timer_register_callback()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-register-callback) API.
+    - Starts both the counters using API [sl_si91x_config_timer_start_on_software_trigger()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-start-on-software-trigger) by changing the counter number.
     - After enabling OCU mode, a continuous loop for pwm output is performed.
     - It creates 2 independent PWM Outputs - CT output-0 and CT output-1.
     - CT Output-1 will produce a square wave, and CT Output-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%.
     - Connect the logic analyzer to the Evaluation Kit board's GPIO-29 & GPIO-30 for output-0 and output-1 respectively and observe the PWM waveforms.
   - If **CT_COUNTER_MODE_USECASE** is enabled:
-    - The Config Timer is initialized using [sl_si91x_config_timer_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-init) API.
-    - After initialization, the desired counter parameters are configured using [sl_si91x_config_timer_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-configuration) API. The parameters are set using UC.
-    - Set the initial count value of counter using [sl_si91x_config_timer_set_initial_count()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-initial-count) API.
-    - Match count is configured using [sl_si91x_config_timer_set_match_count()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-match-count) API.
-    - Registers the callback for enabling peak interrupt for counter-0 using [sl_si91x_config_timer_register_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-register-callback) API.
-    - Starts counter-0 using [sl_si91x_config_timer_start_on_software_trigger()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-start-on-software-trigger) API.
+    - The Config Timer is initialized using [sl_si91x_config_timer_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-init) API.
+    - After initialization, the desired counter parameters are configured using [sl_si91x_config_timer_set_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-configuration) API. The parameters are set using UC.
+    - Set the initial count value of counter using [sl_si91x_config_timer_set_initial_count()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-initial-count) API.
+    - Match count is configured using [sl_si91x_config_timer_set_match_count()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-set-match-count) API.
+    - Registers the callback for enabling peak interrupt for counter-0 using [sl_si91x_config_timer_register_callback()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-register-callback) API.
+    - Starts counter-0 using [sl_si91x_config_timer_start_on_software_trigger()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-si91x-config-timer-start-on-software-trigger) API.
     - Generates the console message once the interrupt is triggered.
   -
   
@@ -100,15 +97,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following macros in `config_timer_example.h file` to change the application use case (enable any one at a time).
+- Configure the following macros in `config_timer_ocu_non_dma_example.h file` to change the application use case (enable any one at a time).
 
   ```C
-    #define CT_PWM_MODE_USECASE           1      -  To run PWM output code
-    #define CT_COUNTER_MODE_USECASE       1      -  To run normal counter code
+    #define CT_PWM_MODE_USECASE           SET      -  To run PWM output code
+    #define CT_COUNTER_MODE_USECASE       SET      -  To run normal counter code
   ```
 
 - Also enable the CT-configuration for using PWM mode use case.
-- In the `config_timer_example.c` file, configure the "TIME_PERIOD_VALUE" macro to facilitate user-defined adjustments of the time period value for a counter-mode use case. Modify or update the following macro as necessary to allow flexible customization of the timer's period and compare value.
+- In the `config_timer_ocu_non_dma_example.c` file, configure the "TIME_PERIOD_VALUE" macro to facilitate user-defined adjustments of the time period value for a counter-mode use case. Modify or update the following macro as necessary to allow flexible customization of the timer's period and compare value.
 
   ```C
    #define TIME_PERIOD_VALUE     1000         // Time period in microseconds
@@ -131,7 +128,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
  
 ### Pin Configuration for OCU PWM mode use case
 
-|  Discription  | GPIO    | Breakout pin  | Explorer kit Breakout pin|
+|  Description  | GPIO    | Breakout pin  | Explorer kit Breakout pin|
 | ------------- | ------- | ------------- | ------------------------ |
 |    output-0   | GPIO_29 |     P33       |        [AN]              |
 |    output-1   | GPIO_30 |     P35       |        [RST]             |
@@ -142,13 +139,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Macros for CT Configurations
 
-- \ref SL_CT_MODE_32BIT_ENABLE_MACRO , for possible values refer \ref sl_config_timer_mode_t
-- \ref SL_COUNTER0_DIRECTION_MACRO , for possible values refer \ref sl_counter0_direction_t
-- \ref SL_COUNTER1_DIRECTION_MACRO , for possible values refer \ref sl_counter1_direction_t
-- \ref SL_COUNTER0_PERIODIC_ENABLE_MACRO, true to enable Counter0 Periodic mode & false to skip Counter0 Periodic mode.
-- \ref SL_COUNTER1_PERIODIC_ENABLE_MACRO, true to enable Counter1 Periodic mode & false to skip Counter1 Periodic mode.
-- \ref SL_COUNTER0_SYNC_TRIGGER_ENABLE_MACRO, true to enable Counter0 sync trigger & false to skip Counter0 sync trigger.
-- \ref SL_COUNTER1_SYNC_TRIGGER_ENABLE_MACRO, true to enable Counter1 sync trigger & false to skip Counter1 sync trigger.
+- SL_CT_MODE_32BIT_ENABLE_MACRO , for possible values refer [sl_config_timer_mode_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-config-timer-mode-t)
+- SL_COUNTER0_DIRECTION_MACRO , for possible values refer [sl_counter0_direction_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-counter0-direction-t)
+- SL_COUNTER1_DIRECTION_MACRO , for possible values refer [sl_counter1_direction_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/config-timer#sl-counter1-direction-t)
+- SL_COUNTER0_PERIODIC_ENABLE_MACRO, true to enable Counter0 Periodic mode & false to skip Counter0 Periodic mode.
+- SL_COUNTER1_PERIODIC_ENABLE_MACRO, true to enable Counter1 Periodic mode & false to skip Counter1 Periodic mode.
+- SL_COUNTER0_SYNC_TRIGGER_ENABLE_MACRO, true to enable Counter0 sync trigger & false to skip Counter0 sync trigger.
+- SL_COUNTER1_SYNC_TRIGGER_ENABLE_MACRO, true to enable Counter1 sync trigger & false to skip Counter1 sync trigger.
+
 
 > **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 

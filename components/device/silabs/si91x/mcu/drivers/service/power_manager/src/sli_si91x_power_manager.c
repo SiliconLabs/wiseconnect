@@ -485,15 +485,8 @@ void sli_si91x_power_manager_low_power_hw_config(boolean_t is_sleep)
 #endif
   if (is_sleep) {
     RSI_PS_AnalogPeriPtatDisable();
-#if !defined(SL_BOD_COMPONENT_EN)
-    RSI_PS_BodClksPtatDisable();
-#endif
-
   } else {
     RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2);
-#if !defined(SL_BOD_COMPONENT_EN)
-    RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config2);
-#endif
   }
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);
   // Power-Down High-Frequency PLL Domain

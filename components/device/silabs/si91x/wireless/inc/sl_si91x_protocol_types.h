@@ -2018,3 +2018,15 @@ typedef struct {
   uint16_t mode_11n_enable; ///< 11n mode enable
   uint16_t ht_caps_bitmap;  ///< HT caps bitmap
 } sli_si91x_request_ap_high_throughput_capability_t;
+
+/// Access point disconnect response structure
+#pragma pack(1)
+typedef struct {
+  sl_mac_address_t client_mac_address; ///< Client MAC address
+  uint8_t flag;                        ///< Flag field
+  uint8_t ipv4_address[4];             ///< Remote IPv4 Address
+  uint8_t link_local_address[16];      ///< Remote link-local IPv6 Address
+  uint8_t global_address[16];          ///< Remote unicast global IPv6 Address
+} sli_si91x_ap_disconnect_resp_t;
+
+#pragma pack()

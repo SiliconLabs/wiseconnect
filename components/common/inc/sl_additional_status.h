@@ -60,7 +60,6 @@
 #define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_TEMPORARY ((sl_status_t)0x0B25) ///< WiFi buffer temporarily unavailable.
 #define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_PERMANENT ((sl_status_t)0x0B26) ///< WiFi buffer permanently unavailable.
 #define SL_STATUS_WIFI_WPS_PBC_OVERLAP              ((sl_status_t)0x0B27) ///< WPS PBC overlap detected.
-#define SL_STATUS_WIFI_CONNECTION_LOST              ((sl_status_t)0x0B28) ///< WiFi connection lost.
 #define SL_STATUS_WIFI_OUT_OF_EVENT_HANDLER_SPACE   ((sl_status_t)0x0B29) ///< No space for additional event handlers.
 #define SL_STATUS_WIFI_SEMAPHORE_ERROR              ((sl_status_t)0x0B2A) ///< Semaphore manipulation error.
 #define SL_STATUS_WIFI_FLOW_CONTROLLED              ((sl_status_t)0x0B2B) ///< Packet retrieval cancelled due to flow control.
@@ -144,6 +143,7 @@
   ((sl_status_t)0x1CC9A) ///< Return in AEAD (CCM, GCM, Chachapoly) decryption function, when MAC generated during decryption does not match the MAC passed.
 
 // Si91X Wi-Fi Firmware errors
+#define SL_STATUS_WIFI_CONNECTION_LOST ((sl_status_t)0x10B28) ///< WiFi connection lost.
 #define SL_STATUS_SI91X_SCAN_ISSUED_IN_ASSOCIATED_STATE \
   ((sl_status_t)0x10002) ///< Scan command issued while device is already associated with an access point.
 #define SL_STATUS_SI91X_NO_AP_FOUND ((sl_status_t)0x10003) ///< No access point found.

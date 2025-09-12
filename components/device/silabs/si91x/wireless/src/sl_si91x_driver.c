@@ -665,7 +665,7 @@ sl_status_t sl_si91x_driver_deinit(void)
   VERIFY_STATUS_AND_RETURN(status);
 
   // Flush all TX Wi-Fi queues with the status indicating Wi-Fi connection is lost
-  sli_si91x_flush_all_tx_wifi_queues(SL_STATUS_WIFI_CONNECTION_LOST);
+  sli_si91x_flush_all_tx_wifi_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST);
 
   // Flush the generic TX data queue
   sli_si91x_flush_generic_data_queues(&sli_tx_data_queue);
@@ -673,13 +673,13 @@ sl_status_t sl_si91x_driver_deinit(void)
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
 
   // Flush all pending socket commands in the client VAP queue due to Wi-Fi connection loss
-  sli_si91x_flush_all_socket_command_queues(SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_CLIENT_VAP_ID);
+  sli_si91x_flush_all_socket_command_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_CLIENT_VAP_ID);
 
   // Flush all pending socket data in the client VAP queue due to Wi-Fi connection loss
   sli_si91x_flush_all_socket_data_queues(SL_WIFI_CLIENT_VAP_ID);
 
   // Flush all pending socket commands in the AP VAP queue due to Wi-Fi connection loss
-  sli_si91x_flush_all_socket_command_queues(SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_AP_VAP_ID);
+  sli_si91x_flush_all_socket_command_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_AP_VAP_ID);
 
   // Flush all pending socket data in the AP VAP queue due to Wi-Fi connection loss
   sli_si91x_flush_all_socket_data_queues(SL_WIFI_AP_VAP_ID);
