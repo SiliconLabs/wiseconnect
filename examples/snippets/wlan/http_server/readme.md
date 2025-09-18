@@ -84,7 +84,7 @@ The application can be configured to suit your requirements and development envi
     ```
 **Note:** The `sli_si91x_accept_async` function in sl_http_server_start is not thread-safe.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 NOTE:
 > Procedure to run the example:

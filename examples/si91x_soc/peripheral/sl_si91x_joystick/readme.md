@@ -105,7 +105,7 @@ Image shows Joystick located on BRD4002A, position/direction to press the Joysti
 
 ![Figure: Joystick Hardware](resources/readme/image520d.png)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

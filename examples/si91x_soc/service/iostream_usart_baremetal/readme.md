@@ -84,7 +84,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | ULP_GPIO_TX_PIN | ULP_GPIO_11[F6] | ULP_GPIO_7[F6] |      ULP_GPIO_11   |
   | ULP_GPIO_RX_PIN | ULP_GPIO_9 [F7] | ULP_GPIO_6[F7] |      ULP_GPIO_9    |
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

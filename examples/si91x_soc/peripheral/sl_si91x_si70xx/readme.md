@@ -82,7 +82,7 @@ Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
 > - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

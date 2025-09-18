@@ -147,7 +147,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > **Note** :
  The included self-signed certificates will work for local OpenSSL servers. For a cloud server, using default certificates will not work for the cloud connection. You must replace the default certificates with valid certificates while connecting to a cloud server.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

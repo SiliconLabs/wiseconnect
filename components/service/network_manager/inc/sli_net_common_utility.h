@@ -123,19 +123,19 @@ void sli_cleanup_auto_join(void);
 void sli_network_manager_event_handler(const void *arg);
 
 /**
- * @brief Configures Network Address Translation (NAT) for the Wi-Fi interfaces.
+ * @brief Configures Network Address Translation (NAT) for Wi-Fi interfaces.
  *
- * @param[in] sli_nat_config Pointer to a NAT configuration structure.
+ * @param[in] sli_nat_config Pointer to the NAT configuration structure.
  * 
  * @details
- * This function enables or disables NAT for the Wi-Fi interfaces based on the
- * configuration provided in the sli_nat_config structure. It checks if both the STA
- * (Station) and AP (Access Point) interfaces are up before sending the NAT
+ * This function enables or disables NAT on Wi-Fi interfaces based on the
+ * configuration in the provided sli_nat_config structure. It checks if both the 
+ * Station (STA) and Access Point (AP) interfaces are up before sending the NAT
  * configuration command to the driver.
  * 
- * @return Status of the operation.
+ * @return Status indicating the result of the operation.
  *        - SL_STATUS_OK: NAT configured successfully.
  *        - SL_STATUS_FAIL: Failed to configure NAT.
- *        - SL_STATUS_INVALID_PARAMETER: If the sli_nat_config parameter is NULL.
+ *        - SL_STATUS_INVALID_PARAMETER: sli_nat_config parameter is NULL.
  */
 sl_status_t sli_net_nat_configure(const sli_net_nat_config_t *sli_nat_config);

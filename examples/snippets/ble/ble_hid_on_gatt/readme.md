@@ -208,7 +208,7 @@ The application can be configured to suit your requirements and development envi
 
     > **Note:** ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

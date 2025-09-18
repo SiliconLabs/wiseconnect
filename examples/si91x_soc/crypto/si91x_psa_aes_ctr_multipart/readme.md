@@ -86,7 +86,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Add mbedtls_aes and mbedtls_cipher_ctr in component section of slcp file
   - Undefine the macro SLI_CIPHER_DEVICE_SI91X
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

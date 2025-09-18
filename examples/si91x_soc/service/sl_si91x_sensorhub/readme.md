@@ -352,7 +352,7 @@ AWS ONLY begins by implementing the modifications and settings listed below.
 | ADC Input  | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36) |
 | 
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

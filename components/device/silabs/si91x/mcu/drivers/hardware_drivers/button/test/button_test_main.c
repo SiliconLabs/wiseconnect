@@ -15,19 +15,20 @@
  *
  ******************************************************************************/
 #include "unity.h"
+#include "rte_device_917.h"
 #include "sl_si91x_button.h"
 
 /*******************************************************************************
  ***************************  Local Variables   *******************************
  ******************************************************************************/
 // Mock button configuration
-sl_button_t const mock_button = { .pin           = 2,
-                                  .port          = 5,
-                                  .button_number = 0,
+sl_button_t mock_button = { .pin           = 2,
+                            .port          = 5,
+                            .button_number = 0,
 #ifdef SL_BUTTON_BTN0_PAD
-                                  .pad = 0,
+                            .pad = 0,
 #endif
-                                  .interrupt_config = RISE_EDGE_AND_FALL_EDGE_INTERRUPT };
+                            .interrupt_config = RISE_EDGE_AND_FALL_EDGE_INTERRUPT };
 uint8_t mock_pin   = 1;
 uint8_t mock_state = BUTTON_PRESSED;
 
@@ -44,6 +45,7 @@ void test_button_isr(void);
 void test_button_toggle_state(void);
 void test_button_state(void);
 void test_button_get_state(void);
+void test_button_deinit(void);
 
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
@@ -62,6 +64,7 @@ int app_init()
   RUN_TEST(test_button_isr, __LINE__);
   RUN_TEST(test_button_toggle_state, __LINE__);
   RUN_TEST(test_button_get_state, __LINE__);
+  RUN_TEST(test_button_deinit, __LINE__);
 
   UnityEnd();
   UnityPrintf("END");
@@ -279,5 +282,31 @@ void test_button_get_state(void)
   UnityPrintf("Button get state successfully \n");
   UnityPrintf("Button status = %d \n", status);
 
-  UnityPrintf("Button get state completed \n");
+  UnityPrintf("Button get state completed successfully \n");
+}
+/*******************************************************************************
+ * Function to test the deinitilaize the button
+ ******************************************************************************/
+void test_button_deinit(void)
+{
+  sl_status_t status = sl_si91x_button_deinit(&mock_button);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf(" button deinit passed.\n");
+  mock_button.port = ULP;
+  mock_button.pin  = 1;
+  sl_si91x_button_init(&mock_button);
+  status = sl_si91x_button_deinit(&mock_button);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("ULP button deinit passed\n");
+  mock_button.port = UULP_VBAT;
+  mock_button.pin  = 2;
+  sl_si91x_button_init(&mock_button);
+  status = sl_si91x_button_deinit(&mock_button);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("UULP button deinit passed\n");
+  mock_button.port          = ULP;
+  mock_button.button_number = 2;
+  status = sl_si91x_button_deinit(&mock_button); //invalid handle since button number not initialized or not registerd
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_HANDLE, status);
+  UnityPrintf("Invalid ULP button deinit handled correctly\n");
 }

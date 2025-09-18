@@ -107,7 +107,7 @@ The application can be configured to suit user requirements and development envi
 **NOTE**:
     Receive stats testing should be done in a controlled environment (RF shield box or chamber).
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

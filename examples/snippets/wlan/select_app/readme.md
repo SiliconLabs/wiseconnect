@@ -107,7 +107,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
      #define SELECT_TIME_OUT                                   30
     ```
     
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

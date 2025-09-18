@@ -345,6 +345,15 @@ extern "C" {
 #error "Invalid  SL_SI91X_ULP_GPIO_9_PIN Pin Configuration!"
 #endif
 
+// ULP_GPIO_10 pin is not available on the ACX board and added only for backward compatibility
+#define SL_SI91X_ULP_GPIO_10_PORT_ID 1
+
+#if defined SL_SI91X_ULP_GPIO_10_PORT_ID
+#define SL_SI91X_ULP_GPIO_10_PORT 0
+#define SL_SI91X_ULP_GPIO_10_PIN  0
+// Note: ULP_GPIO_10 is not physically available on this board
+#endif
+
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define SL_SI91X_ULP_GPIO_11_PORT_ID 1
 #else

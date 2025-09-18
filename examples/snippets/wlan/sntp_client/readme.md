@@ -102,7 +102,7 @@ The application can be configured to suit your requirements and development envi
                       SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),                 
 ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

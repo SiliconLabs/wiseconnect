@@ -88,7 +88,7 @@ To optimize performance, memory placement is categorized as follows:
   ```c
   SL_SI91X_CODE_CLASSIFY(<region>, <variable_name>, <classifier_type>)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Testing the Application
 

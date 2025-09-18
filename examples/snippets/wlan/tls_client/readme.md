@@ -138,7 +138,7 @@ When `TLS_EXTENSION_ENABLE` is set to 0:
 #define TLS_EXTENSION_ENABLE 1 // Enable TLS protocol extensions (e.g., SNI)
 ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

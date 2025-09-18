@@ -91,7 +91,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 #define ULP_DMA_TRANSFER_SIZE   2048 ///< DMA transfer size
 ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

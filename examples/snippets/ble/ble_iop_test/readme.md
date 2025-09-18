@@ -85,7 +85,7 @@ The application can be configured to suit your requirements and development envi
 		#define RSI_BLE_DEVICE_NAME 				(void *)"IOP_Test_1"
 	 ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

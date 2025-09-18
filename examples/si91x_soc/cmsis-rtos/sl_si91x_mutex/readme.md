@@ -61,7 +61,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     #define TOGGLE_DELAY_MS 500//  configured for 500 ms   
   ```   
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

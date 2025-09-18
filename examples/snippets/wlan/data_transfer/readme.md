@@ -149,7 +149,7 @@ This application is providing the facility to configure the Access Point’s IP 
     #define SERVER_PORT        5000  // Default port number on which SiWx91x device AP interface connects remote device
     ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

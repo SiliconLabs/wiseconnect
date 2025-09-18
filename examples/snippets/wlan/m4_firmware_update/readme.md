@@ -24,7 +24,6 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 
 This process allows the device to update its software Over-the-air (OTA) without needing a physical connection.
 
-
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements  
@@ -103,7 +102,7 @@ The application can be configured to suit your requirements and development envi
   #define SERVER_IP_ADDRESS  "192.168.0.100"  // Server IP address 
   ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -115,13 +114,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 To esstablish the TCP Server with firmware file on remote PC, follow the steps below:
 
  1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
-  2. Compile the application.
+ 2. Compile the application.
 
-  > `user@linux:~$ gcc firmware_update_tcp_server.c` -o ota_server.bin
+     > `user@linux:~$ gcc firmware_update_tcp_server.c` -o ota_server.bin
 
-  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path.
+ 3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path.
 
-  > `user@linux:~$ ./ota_server.bin 5000 wifi_access_point.rps`
+     > `user@linux:~$ ./ota_server.bin 5000 wifi_access_point.rps`
 
 ... where **wifi_access_point.rps** is the firmware image to be sent to SiWx91x.
 
@@ -129,5 +128,5 @@ To esstablish the TCP Server with firmware file on remote PC, follow the steps b
 
 ![Figure: Log of M4 firmware transfer](resources/readme/output_soc.png)
 
-  > Note:
+  > **Note**:
   > Image size displayed may vary depending on the firmware provided by the server.

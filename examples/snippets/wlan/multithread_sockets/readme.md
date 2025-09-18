@@ -93,7 +93,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make the necessary changes, if required.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### Configure sl_net_default_values.h
 

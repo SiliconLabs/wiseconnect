@@ -53,7 +53,7 @@
 - Set the priority of threads (thread0, thread1, thread2) to low4, low, low respectively to execute the task1 and task2 application threads parallely in round-robin mode.
 - Uncomment SAME_CRYPTO_ACCELERATORS and comment DIFFERENT_CRYPTO_ACCELERATORS in [`app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_multithread/app.c) to execute sha operation in both threads.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

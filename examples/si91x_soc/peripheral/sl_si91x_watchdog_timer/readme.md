@@ -111,7 +111,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - [`SL_WDT_WINDOW_TIME`] is used for setting the window time. For possible values, refer to [`time_delays_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#time-delays-t).
 - After configuring the above macros, their values are passed to the [`watchdog_timer_config_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer-config-t#watchdog_timer_config_t) structure type variable [`sl_watchdog_timer_config_handle`], which is used to configure the timer through the API [`sl_si91x_watchdog_set_configuration`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-set-configuration).
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

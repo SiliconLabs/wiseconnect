@@ -79,7 +79,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Open **sl_si91x_nvm3_common_flash.slcp** project file select **software component** tab and search for **NVM3 for Si91x** in search bar.
 - Using configuration wizard one can configure different parameters like:
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### General Configuration
 

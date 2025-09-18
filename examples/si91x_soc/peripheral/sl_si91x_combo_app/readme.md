@@ -198,7 +198,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | PWM_H         | ULP_GPIO_7  | P12         | F6           | [TX] |
   | PWM_L         | ULP_GPIO_6  | P13         | F7           | [RX] |
   
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

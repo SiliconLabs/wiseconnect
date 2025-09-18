@@ -162,7 +162,7 @@ The application can be configured to suit your requirements and development envi
 - Ensure the access point is configured in WPA2-Enterprise security mode. For more details, refer to [Configure Access Point in WAP2-EAP](#configure-access-point-in-wap2-eap) in the Additional Information section.
 - Ensure the FreeRADIUS set up is ready before running the application project. For more details, please refer to [FreeRADIUS Server set up](#freeradius-server-set-up) in the Additional Information section.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

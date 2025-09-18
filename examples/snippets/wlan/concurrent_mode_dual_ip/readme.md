@@ -148,7 +148,7 @@ The application can be configured to suit your requirements and development envi
     #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512 MB data transfer
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

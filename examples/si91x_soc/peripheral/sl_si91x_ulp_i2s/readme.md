@@ -136,7 +136,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 **Note!** Make sure pin configuration is set in `RTE_Device_917.h` file. (path: /$project/config/RTE_Device_917.h)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

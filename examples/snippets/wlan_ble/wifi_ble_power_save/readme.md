@@ -309,7 +309,7 @@ ble_config.h files are already set with the above desired configuration for this
    #define BLE_ADVERTISE_ONLY                            0
    ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Build and Test the Application
 

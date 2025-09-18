@@ -108,7 +108,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | USART0_CTS_PIN | GPIO_26 |     P27       |           [MISO]         |
   | USART0_RTS_PIN | GPIO_28 |     P31       |           [CS]           |
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

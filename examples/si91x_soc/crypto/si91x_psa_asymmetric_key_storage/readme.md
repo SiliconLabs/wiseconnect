@@ -66,7 +66,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
  * Default key size is 256 bits - can choose between 192 and 256
  * To change the ecc curve and key size, change the corresponding macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) - psa_set_key_type() and change the KEY_MAX_SIZE to the corresponding length of public key generated.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -577,11 +577,11 @@ sl_status_t sli_si91x_flush_generic_data_queues(sli_si91x_buffer_queue_t *tx_dat
  *   Retrieves the current status of the TX command.
  *
  * @details
- *   This function returns the current status flag indicating whether a TX (transmit) command is in progress or completed.
- *   It is typically used to check if the system is ready to send a new TX command or if a previous command is still pending.
+ *   This function returns a status flag indicating whether a TX (transmit) command is currently in progress or completed.
+ *   Use this function to determine if the system is ready to send a new TX command or if a previous command is still pending.
  *
  * @return
- *   Returns `true` if a TX command is in progress, `false` otherwise.
+ *   Returns `true` if a TX command is in progress; `false` otherwise.
  ******************************************************************************/
 bool sli_si91x_get_tx_command_status(void);
 

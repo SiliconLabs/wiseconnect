@@ -740,7 +740,7 @@ sl_status_t sli_save_mfp_mode(const sl_wifi_mfp_config_t *config)
     return SL_STATUS_NULL_POINTER;
   }
   wifi_mfp_config.mfp_mode      = config->mfp_mode;
-  wifi_mfp_config.is_configured = true;
+  wifi_mfp_config.is_configured = config->is_configured;
   return SL_STATUS_OK;
 }
 
@@ -1831,12 +1831,9 @@ sl_status_t sli_si91x_send_power_save_request(const sl_wifi_performance_profile_
 {
   sl_status_t status;
   sli_si91x_power_save_request_t power_save_request               = { 0 };
-  sl_wifi_performance_profile_v2_t highperformance_wifi_profile   = { 0 };
   sl_wifi_system_performance_profile_t selected_coex_profile_mode = { 0 };
 
   power_save_sequence_in_progress = true;
-
-  sli_save_wifi_current_performance_profile(&highperformance_wifi_profile);
 
   // Disable power save mode by setting it to HIGH_PERFORMANCE profile
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_PWRMODE,

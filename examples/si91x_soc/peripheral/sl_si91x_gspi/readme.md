@@ -174,7 +174,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ![Figure: Pin Configuration for GSPI1](resources/readme/image505d.png)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

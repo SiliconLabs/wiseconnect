@@ -128,7 +128,7 @@ Configure the following macros in the [`calendar_example.h`](https://github.com/
     #define TIME_CONVERSION   0 // To enable time conversion 
   ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

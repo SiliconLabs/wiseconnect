@@ -134,7 +134,7 @@ The application can be configured to suit user requirements and development envi
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### TCP Configuration
 

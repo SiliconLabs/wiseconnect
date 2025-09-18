@@ -198,7 +198,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |GPIO_28 [P31]|GPIO_28 [P31] |GPIO_28 [CS]  |Inverting input    |
 |ULP_GPIO_1 [P16]|ULP_GPIO_4 [P36]|ULP_GPIO_1 [EXP_5]|Output Pin   |
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test Application
 

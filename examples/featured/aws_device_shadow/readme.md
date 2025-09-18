@@ -169,7 +169,7 @@ The application can be configured to suit user requirements and the development 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. Replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

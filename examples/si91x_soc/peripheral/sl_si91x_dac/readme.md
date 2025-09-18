@@ -102,7 +102,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > - For BRD4338A, ULP GPIO_4 is not available, so the pintool annotation for DAC is bypassed.
 > - Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output is internally redirected to OPAMP pin GPIO_30.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

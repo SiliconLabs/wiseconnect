@@ -867,13 +867,13 @@ bool sl_si91x_power_manager_get_standby_state_status(void);
  * @brief Check if a TX command is currently in progress.
  * 
  * @details This function is used to check the TX command status. It returns true if
- *          a TX command is currently in progress, false otherwise.
+ *          a TX command is currently in progress; otherwise, it returns false otherwise.
  *
  * @pre Pre-conditions:
- * - WiFi component should be added to the project for this function to work properly.
- *   If WiFi component is not included, this function will always return false.
+ * - The Wi-Fi component must be added to the project for this function to work properly.
+ *   If it is not included, this function will always return false.
  *
- * @return  bool - true if TX command is in progress, false otherwise.
+ * @return  bool - Returns true if TX command is in progress; otherwise, returns false otherwise.
  *
  * @note    This function is useful for power management decisions and determining
  *          when the system is ready for sleep or other power state transitions.

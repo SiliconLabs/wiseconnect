@@ -69,7 +69,7 @@ The following hash algorithms are supported in this example:
   - Add mbedtls_shaxxx in component section of slcp file
   - Undefine the macro SLI_MAC_DEVICE_SI91X
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

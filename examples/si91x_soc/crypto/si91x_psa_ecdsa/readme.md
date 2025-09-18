@@ -85,7 +85,7 @@ curve : SL_SI91X_ECC_SECP256R1
 - To wrap the input private key and use it, set WRAP_INPUT_KEYS macro to 1 in [`psa_ecdsa_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_ecdsa/psa_ecdsa_app.c)
 - To use a wrapped private key directly, set IMPORT_WRAPPED_KEYS macro to 1 in [`psa_ecdsa_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_ecdsa/psa_ecdsa_app.c)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

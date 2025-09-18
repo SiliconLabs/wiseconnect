@@ -49,19 +49,19 @@ For half-duplex communication (that is, send and receive), a primary / secondary
 
 ## About Example Code
 
-- This example demonstrates SSI transfer (that is, full-duplex communication) and SSI send/SSI receive (that is, half-duplex communication).
-- Various parameters like SSI clock mode, Bit-width, Manual cs pin, and SSI baud rate can be configured using the UC. Also, Primary or Secondary or ULP Primary DMA can be configured using UC.
-- The [`sl_si91x_ssi_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_config.h) file contains the control configurations and [`sl_si91x_ssi_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_common_config.h) contains DMA configuration selection.
-- In the example code, first the output buffer is filled with some data which is transferred to the slave.
-- The firmware version of API is fetched using [sl_si91x_ssi_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-get-version) which includes release version, major version and minor version [sl_ssi_version_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-version-t).
-- A static function is called to fill in the [sl_ssi_clock_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-clock-config-t) structure, which is passed in [sl_si91x_ssi_configure_clock](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-clock) API to configure the clock.
-- [sl_si91x_ssi_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-init) is used to initialize the peripheral, that includes pin configuration and it powers up the module.
-- SSI instance must be passed in init to get the instance handle [sl_ssi_instance_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-instance-t), which is used in other APIs.
-- After initialization [sl_si91x_ssi_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-power-mode) is called to set the power mode [sl_ssi_power_state_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-power-state-t).
-- All the necessary parameters are configured using [sl_si91x_ssi_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-set-configuration) API. It expects a structure with required parameters [sl_ssi_control_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-control-config-t).
+- This example demonstrates SSI transfer (full-duplex communication) and SSI send/SSI receive (half-duplex communication).
+- Various parameters like SSI clock mode, bit-width, manual CS pin, and SSI baud rate can be configured using the UC. Additionally, Primary or Secondary or ULP Primary DMA can be configured using UC.
+- The [`sl_si91x_ssi_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_config.h) file contains the control configurations, and [`sl_si91x_ssi_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_common_config.h) contains DMA configuration selection.
+- In the example code, the output buffer is first filled  with data to be transferred to the slave.
+- The firmware version of API is retrieved using [sl_si91x_ssi_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-get-version) which includes the release version, major version, and minor version via the [sl_ssi_version_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-version-t) structure.
+- A static function is called to populate the [sl_ssi_clock_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-clock-config-t) structure, which is passed to the [sl_si91x_ssi_configure_clock](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-clock) API to configure the clock.
+- [sl_si91x_ssi_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-init) initializes the peripheral, including pin configuration and powering up the module.
+- The SSI instance must be passed during initialization to get the instance handle [sl_ssi_instance_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-instance-t), which is used in other APIs.
+- After initialization, [sl_si91x_ssi_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-power-mode) is called to set the power mode [sl_ssi_power_state_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-power-state-t).
+- All required parameters are configured using the [sl_si91x_ssi_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-set-configuration) API, which expects a structure of type [sl_ssi_control_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-control-config-t).
 - After configuration, a callback register API is called to register the callback at the time of events [sl_si91x_ssi_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-register-event-callback).
-- The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in [`ulp_ssi_master_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_ssi_master/ulp_ssi_master_example.c) file.
-- According to the macro which is enabled, the example code executes the transfer of data:
+- A state machine is implemented to handle transfer, send, and receive data operations. The current mode is determined by ssi_mode_enum_t, which is declared in [`ulp_ssi_master_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_ssi_master/ulp_ssi_master_example.c) file.
+- Based on the enabled macro, the example code executes the corresponding data transfer operation:
 
 - If the **ULP_SSI_MASTER_TRANSFER** macro is enabled, it will transfer the data (send and receive data) in full-duplex mode.
 
@@ -182,7 +182,7 @@ Configure UC from the slcp component.
 
 >**Note**: Make sure pin configuration is set in the `RTE_Device_917.h` file.(path: /$project/config/RTE_Device_917.h)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

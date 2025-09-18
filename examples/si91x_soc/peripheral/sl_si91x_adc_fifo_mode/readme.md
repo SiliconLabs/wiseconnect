@@ -163,7 +163,7 @@ The following table lists the mentioned pin numbers for the radio board. If you 
   | 15 | GPIO_28 [CS] | GPIO_26 [MISO] |
   | 16 | GPIO_30 [RST] | ULP_GPIO_7 [TX] |
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

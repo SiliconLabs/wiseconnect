@@ -98,7 +98,7 @@ The application can be configured to suit user requirements and development envi
       3 - Continuous Wave Mode (non modulation) in single tone mode (center frequency -2.5 MHz)
       4 - Continuous Wave Mode (non modulation) in single tone mode (center frequency + 5MHz)
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -95,7 +95,7 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-- SL_APP_TOGGLE_SLOT_INFO controls firmware slot switching when WiFi fails. By default (0), the device stays on the current slot. Setting it to 1 enables automatic switching to the alternate firmware slot if WiFi cannot connect.
+- SL_APP_TOGGLE_SLOT_INFO controls firmware slot switching when Wi-Fi fails. By default (0), the device stays on the current slot. Setting it to 1 enables automatic switching to the alternate firmware slot if Wi-Fi cannot connect.
 
   ```c
   #define SL_APP_TOGGLE_SLOT_INFO 0 
@@ -166,7 +166,7 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
   #define SERVER_IP_ADDRESS  "192.168.0.100"  // Server IP address 
   ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

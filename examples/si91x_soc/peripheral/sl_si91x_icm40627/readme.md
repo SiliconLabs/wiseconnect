@@ -60,7 +60,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     #define DELAY_PERIODIC_MS1  2000      //sleeptimer1 periodic timeout in ms
     ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

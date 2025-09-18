@@ -76,7 +76,7 @@ The application can be configured to suit your requirements and development envi
 
 - The application uses the default configurations as provided in the **wifi_commands.c** and you can choose to configure these parameters as needed.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

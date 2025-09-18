@@ -61,7 +61,7 @@ Open `app.c` file and configure the following parameters accordingly
 - "USE_WRAPPED_KEYS" is defined by default which will enable key wrapping functionality.
 - `sl_si91x_wrap()` pads and wraps the key based on the "padding" and "hmac_mode" configurations and stores it in the provided buffer.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

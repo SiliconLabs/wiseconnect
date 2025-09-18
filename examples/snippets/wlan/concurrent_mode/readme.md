@@ -171,7 +171,7 @@ Configure the following parameters in `app.c` to test throughput app as per requ
       #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
       ```
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

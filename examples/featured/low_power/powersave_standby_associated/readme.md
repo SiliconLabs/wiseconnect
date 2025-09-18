@@ -156,7 +156,7 @@ The application can be configured to suit user requirements and development envi
     - The user can configure monitor interval through `sl_wifi_set_performance_profile_v2()` API. The default interval is set to 50 millisecs if montior_interval is set to 0. This is only valid when the performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
     - The user can configure listen interval through `sl_wifi_set_listen_interval_v2()` API. The default interval is set to 1 millisec.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

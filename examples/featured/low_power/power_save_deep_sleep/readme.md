@@ -116,7 +116,7 @@ The M4 processor is set to sleep mode. To wakeup the M4 processor, use the metho
 
     > **Note** : By default DEEP_SLEEP_WITHOUT_RAM_RETENTION is enabled.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

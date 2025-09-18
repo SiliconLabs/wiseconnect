@@ -243,7 +243,7 @@ The application can be configured to suit your requirements and development envi
         ae_periodic_param.adv_handle                       = BLE_ADV_HNDL1; //select the adv handle for which you want to enable periodic avdertisment.
    ```  
    
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

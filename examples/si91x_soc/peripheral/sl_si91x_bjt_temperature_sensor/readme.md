@@ -85,7 +85,7 @@ The following table lists the mentioned pin numbers for BRD4338a firmware versio
   | OPAMP3_OUT            |         22    |
   | TEMP_SENSOR_OUT       |         23    |
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

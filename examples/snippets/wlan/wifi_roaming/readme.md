@@ -116,7 +116,7 @@ The application can be configured to suit your requirements and development envi
 
     > **Note:** Ensure that `ADV_SCAN_THRESHOLD` is set to a value greater than `ROAMING_THRESHOLD` to optimize the device's roaming performance.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

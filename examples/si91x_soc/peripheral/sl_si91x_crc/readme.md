@@ -67,7 +67,7 @@ For details on the project folder structure, see the [WiSeConnect_Examples](http
 > **Note:**
 > While changing the data which CRC has to calculate and compare with Software CRC, you need to update the data in file `sw_crc.c` variable  `input[]`  and in `crc_example.c` variable `gcrc_tx_Buf[]`.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

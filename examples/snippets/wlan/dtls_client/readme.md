@@ -24,7 +24,7 @@ This application demonstrates how to open a UDP client socket on SiWx917 module 
 
 ### Hardware Requirements
 
-- A Windows PC.
+- A Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4388A](https://www.silabs.com/)
 - NCP Mode:
@@ -83,7 +83,7 @@ The application uses the default configurations as provided in the **default_wif
         #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA2 
         ```
   
-  - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
+   - Other STA instance configurations can be modified if required in the `default_wifi_client_profile` configuration structure.
 
 2. Configure the following parameters in **app.c** to test the tls client app as per requirements.
 
@@ -120,7 +120,7 @@ The application uses the default configurations as provided in the **default_wif
 > **Note** :
  The included self-signed certificates will work for local OpenSSL server. For cloud servers, using default certificates for a cloud connection does not work. Replace the default certificates with valid certificates when connecting to Cloud Server.
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

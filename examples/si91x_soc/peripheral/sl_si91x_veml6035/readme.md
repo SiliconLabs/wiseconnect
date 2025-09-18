@@ -52,7 +52,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-- Configure the following macros in [`veml6035_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_veml6035/veml6035_example.c) file. .Update or  modify the following macros, if required.
+- Configure the following macros in [`veml6035_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_veml6035/veml6035_example.c) file. Update or  modify the following macros, if required.
 
   - `DELAY_PERIODIC_MS1` : Select the delay for data display. By default, the delay is kept as 2 seconds.
 
@@ -90,7 +90,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 | SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
 | SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
-> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
