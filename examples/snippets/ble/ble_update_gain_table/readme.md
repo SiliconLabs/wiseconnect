@@ -2,13 +2,15 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [BLE - Update Gain Table](#ble---update-gain-table)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -86,8 +88,7 @@ int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
 
 ---
 
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 Set below macro to update Max TX power and offset
 ```c

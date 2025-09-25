@@ -52,9 +52,9 @@
     - Now soc goes to sleep using  sl_si91x_power_manager_sleep.
     - Upon wakeup, the calendar is stopped using  sl_si91x_calendar_rtc_stop and the callback is unregistered using  sl_si91x_calendar_unregister_sec_trigger_callback.
   - PS2 -> PS1 -> PS2:
-    - Wakeup Source is selected as ULP Timer. ULP Timer peripheral is initialized before setting it as a wakeup source. It is initialized using \ref sl_si91x_ulp_timer_init. Set the match value for 2 seconds and configure the ULP Timer using \ref sl_si91x_ulp_timer_set_configuration. Now callback is registered for the second trigger (it enables the trigger also) using \ref sl_si91x_ulp_timer_register_timeout_callback. ULPSS-based wakeup source is selected using \ref sl_si91x_power_manager_set_wakeup_sources.
-    - Now the timer is started using \ref sl_si91x_ulp_timer_start. The requirement is added for PS1 state using \ref sl_si91x_power_manager_add_ps_requirement.
-    - Upon wakeup, the timer is stopped using \ref sl_si91x_ulp_timer_stop and callback is unregistered using \ref sl_si91x_ulp_timer_unregister_timeout_callback and the wakeup source is cleared using \ref sl_si91x_power_manager_set_wakeup_sources.  
+    - Wakeup Source is selected as ULP Timer. ULP Timer peripheral is initialized before setting it as a wakeup source. It is initialized using [sl_si91x_ulp_timer_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-init). Set the match value for 2 seconds and configure the ULP Timer using [sl_si91x_ulp_timer_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-set-configuration). Now callback is registered for the timeout event (it enables the trigger also) using [sl_si91x_ulp_timer_register_timeout_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-register-timeout-callback). ULPSS-based wakeup source is selected using sl_si91x_power_manager_set_wakeup_sources.
+    - Now the timer is started using [sl_si91x_ulp_timer_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-start). The requirement is added for PS1 state using sl_si91x_power_manager_add_ps_requirement.
+    - Upon wakeup, the timer is stopped using [sl_si91x_ulp_timer_stop](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-stop), callback is unregistered using [sl_si91x_ulp_timer_unregister_timeout_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer#sl-si91x-ulp-timer-unregister-timeout-callback) and the wakeup source is cleared using sl_si91x_power_manager_set_wakeupsources.  
   - PS2 -> PS3: To transmit to PS3, remove the requirement for the PS2 state using  sl_si91x_power_manager_remove_ps_requirement and add the requirement for the PS3 state using  sl_si91x_power_manager_add_ps_requirement switches the power state to PS3.
   - PS3 -> PS4: To transmit to PS3, remove the requirement for PS3 state using  sl_si91x_power_manager_remove_ps_requirement and add the requirement for PS4 state using  sl_si91x_power_manager_add_ps_requirement switches the power state to PS4.
   - PS4 -> PS0 -> Restarts the soc
@@ -94,6 +94,8 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 - Create a Studio project
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

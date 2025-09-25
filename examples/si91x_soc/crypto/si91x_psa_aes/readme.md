@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
-  - [Expected output](#expected-output)
+- [PSA AES for SI91X](#psa-aes-for-si91x)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
+    - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -57,6 +59,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
  * To use software fallback instead of hardware accelerators:
   - Add mbedtls_aes and mbedtls_cipher_xxx in component section of slcp file
   - Undefine the macro SLI_CIPHER_DEVICE_SI91X
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

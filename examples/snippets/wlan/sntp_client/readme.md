@@ -2,14 +2,16 @@
 
 ## Table of Contents
 
-- [Purpose / Scope](#purpose--scope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - SNTP Client](#wi-fi---sntp-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
 
 ## Purpose / Scope
 
@@ -64,8 +66,6 @@ The application can be configured to suit your requirements and development envi
 #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE   SL_WIFI_WPA2            // Wi-Fi Security Type
 #define DEFAULT_WIFI_CLIENT_ENCRYPTION_TYPE SL_WIFI_DEFAULT_ENCRYPTION
 ```
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 - To select IPv6, FLAGS should be set to 1. By default, it supports IPv4.
 
@@ -101,6 +101,8 @@ The application can be configured to suit your requirements and development envi
                       SL_SI91X_TCP_IP_FEAT_SNTP_CLIENT | 
                       SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),                 
 ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

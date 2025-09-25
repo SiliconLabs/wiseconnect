@@ -54,7 +54,7 @@ extern "C" {
 #define CT_DMA_CHANNEL_8     8   ///< DMA channel for Counter 1
 #define CT_DMA_NUMBER        0   ///< DMA number for Config Timer
 #define CT_CHANNEL_PRIORITY  1   ///< DMA Channel Priority
-#define CT_DMA_TRANSFER_SIZE 100 ///< DMA transfer size
+#define CT_DMA_TRANSFER_SIZE 1   ///< DMA transfer size
 // -----------------------------------------------------------------------------
 // Data Types
 
@@ -353,7 +353,7 @@ void sl_si91x_config_timer_init(void);
  * 
  * @param[in] compare_values Pointer to the array containing compare values for DMA transfer.
  *                           This array is used to transfer data to the Config Timer registers.
- * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_1).
+ * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_8).
  * 
  * @return Status code indicating the result of the operation:
  *         - SL_STATUS_OK - DMA configuration was successful.
@@ -378,7 +378,7 @@ sl_status_t sl_si91x_config_timer_set_dma_configuration(uint32_t *compare_values
  * 
  * @param[in] compare_values Pointer to the array containing compare values for DMA transfer.
  *                           This array is used to transfer data to the Config Timer registers.
- * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_1).
+ * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_8).
  * @param[in] dma_transfer Pointer to the DMA transfer configuration structure.
  *                         This structure contains details such as source and destination addresses,
  *                         transfer size, and transfer type.
@@ -678,7 +678,7 @@ sl_status_t sl_si91x_config_timer_start_on_software_trigger(sl_counter_number_t 
  * 
  * @details This API selects config timer input events for triggering selected timer actions. 
  * Different timer actions include start, stop, continue, halt, increment, capture, 
- * interrupt, and output.
+ * interrupt, and output. ORed value of both events is passed to the register.    
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_config_timer_init();
@@ -911,7 +911,7 @@ void sl_si91x_config_timer_deinit(void);
  * 
  * @details This API de-initializes the config-timer DMA. 
  * 
- * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_1).
+ * @param[in] channel DMA channel to be used for the transfer (e.g., CT_DMA_CHANNEL_0 or CT_DMA_CHANNEL_8).
  * @return Status code indicating the result of the operation:
  *         - SL_STATUS_OK - DMA deinit success
  *         - SL_STATUS_FAIL - DMA deinit failure

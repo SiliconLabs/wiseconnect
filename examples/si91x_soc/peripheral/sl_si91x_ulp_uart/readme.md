@@ -2,16 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL ULP UART](#sl-ulp-uart)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Pin Configuration](#pin-configuration)
+  - [Flow Control Configuration](#flow-control-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -32,11 +36,12 @@ This application demonstrates how to configure ULP UART In asynchronous mode, it
 
 ## About Example Code
 
-- \ref ulp_uart_example.c - This example code demonstrates how to configure the UART to send and receive data in loopback mode.
-- In this example, first UART get initialized if it was not initialized already with clock and DMA configurations if DMA is   enabled using \ref sl_si91x_uart_init.
-- After UART initialization, UART power mode is set using \ref sl_si91x_uart_set_power_mode() and ULP UART is configured with default configurations from UC along with UART transmit and receive lines using the \ref sl_si91x_uart_set_configuration().
-- Then the register the user event callback for send and receive complete notification is set using \ref sl_si91x_usart_register_event_callback().
-- After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_send_data() and \ref sl_si91x_usart_receive_data() respectively.
+- [`ulp_uart_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_uart/ulp_uart_example.c) - This example code demonstrates how to configure the UART to send and receive data in loopback mode.
+- In this example, the UART is first initialized—if not already done—using [`sl_si91x_usart_init`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init), along with clock, power mode and DMA configurations when DMA is enabled.  
+**Note:** If the UART/USART instance is selected for debug output logs, initialization will return `SL_STATUS_NOT_AVAILABLE`.
+- After UART initialization, ULP UART is configured with default configurations from UC along with UART transmit and receive lines using the [`sl_si91x_usart_set_configuration()`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-configuration).
+- Then the register the user event callback for send and receive complete notification is set using [`sl_si91x_usart_register_event_callback()`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-register-event-callback).
+- After setting the user event callback, the data send and receive can happen through [`sl_si91x_usart_send_data`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-send-data) and [`sl_si91x_usart_receive_data`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-receive-data) respectively.
 - Once the receive data event is triggered, both transmit and receive buffer data is compared to confirm if the received data is the same.
 
 > **Note:** When utilizing the ULP UART instance in high-power mode with DMA enabled, it is advisable to allocate buffers in the ULP memory block.
@@ -57,7 +62,7 @@ This application demonstrates how to configure ULP UART In asynchronous mode, it
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -75,10 +80,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Enable the ULP_UART mode in UC before running/flashing the code.
 
-   ![Figure: Introduction](resources/readme/ulpuart_uc.PNG)
+   ![Figure: ulpuart_uc](resources/readme/ulpuart_uc.png)
 
 - Data send and receive from VCOM console is for one iteration only. On VCOM console, set the configuration such that the received data is sent back on the same port.
-- To check continuous data transfer, modify the following macro to ENABLE in the `ulp_uart_example.h` file.
+- To check continuous data transfer, modify the following macro to ENABLE in the [`ulp_uart_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_uart/ulp_uart_example.h) file.
 
   ```c
   #define USE_SEND    ENABLE
@@ -96,7 +101,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 | ULP_GPIO_9   [F7]  | ULP_GPIO_9  [F7]  | RX (VCOM)   |
 | ULP_GPIO_8   [P15] | ULP_GPIO_8  [P15] | GPIO_Toggle |
 
-
 ## Flow Control Configuration
 
 - Set the SL_ULP_UART_FLOW_CONTROL_TYPE parameter to RTS and CTS in UC to enable UART flow control.
@@ -106,6 +110,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | ------------------  | ---------------- | ---------------  |
   |  ULP_GPIO_1  [P16]  | ULP_GPIO_1 [P16] | ULP_UART_CTS_PIN |
   |  ULP_GPIO_10 [P17]  | ULP_GPIO_0 [F10] | ULP_UART_RTS_PIN |
+
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -122,17 +128,22 @@ Follow the steps below for successful execution of the application:
 
    - when use send disabled:
 
-   ![output](resources/readme/ulp_uart_gpio_toggle.png)
+   ![Figure: output](resources/readme/ulp_uart_gpio_toggle.png)
 
    - when use send enabled:
 
-   ![output](resources/readme/ulp_uart_continuous_toggling.png)
+   ![Figure:output](resources/readme/ulp_uart_continuous_toggling.png)
 
 >**Note:**
 >
 >- The required files for low-power state are moved to RAM. The rest of the application is executed from flash.
 >- In this application, we are changing the power state from PS4 to PS2 and vice - versa.
->- Once the power state changes from PS4 to PS2 and vice - versa, you have to reconfigure the uart configs once again using sl_si91x_usart_set_configuration() API  because of frequency change. Refer to `ulp_uart_example.c` file for more info.
+>- Once the power state changes from PS4 to PS2 and vice - versa, you have to reconfigure the uart configs once again using sl_si91x_usart_set_configuration() API  because of frequency change. Refer to  file for more info.
+>
+- Once the power state changes from PS4 to PS2 and vice - versa, you have to reconfigure the uart configs once again using sl_si91x_usart_set_configuration() API  because of frequency change. Refer to [`ulp_uart_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_uart/ulp_uart_example.c) file for more info.
+- Once the power state changes from PS4 to PS2 and vice - versa, you have to reconfigure the uart configs once again using sl_si91x_usart_set_configuration() API  because of frequency change. Refer to [`ulp_uart_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_uart/ulp_uart_example.c) file for more info.
+- Once the power state changes from PS4 to PS2 and vice - versa, you have to reconfigure the uart configs once again using sl_si91x_usart_set_configuration() API  because of frequency change. Refer to [`ulp_uart_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_uart/ulp_uart_example.c) file for more info.
+>
 >- CTS and RTS only works when not using ROM driver for UART
 >
 > **Note:**
@@ -188,3 +199,4 @@ Follow the steps below for successful execution of the application:
 > **Note:**
 >
 >- This application is intended for demonstration purposes only to showcase the ULP peripheral functionality. It should not be used as a reference for real-time use case project development, because the wireless shutdown scenario is not supported in the current SDK.
+>- On the Si917x device, only 4KB of ULP RAM is available for application use. In this example, both the TX (transmit) and RX (receive) data buffers must be placed in ULP memory. Specifically, 2KB of ULP RAM is allocated for TX and 2KB for RX, enabling up to 2KB of data to be transmitted and received per operation.

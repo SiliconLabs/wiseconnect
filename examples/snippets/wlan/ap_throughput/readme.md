@@ -2,21 +2,27 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Run the UDP Server](#run-the-udp-server)
-    - [UDP Tx Throughput](#udp-tx-throughput)
-    - [UDP Rx Throughput](#udp-rx-throughput)
-    - [TCP Tx Throughput](#tcp-tx-throughput)
-    - [TCP Rx Throughput](#tcp-rx-throughput)
-    - [TLS Tx Throughput](#tls-tx-throughput)
-    - [TLS Rx Throughput](#tls-rx-throughput)
+- [Wi-Fi - AP Throughput](#wi-fi---ap-throughput)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
+    - [Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)](#instructions-for-keil-ide-and-stm32f411re-mcu-ncp-mode)
+  - [Application Build Environment](#application-build-environment)
+    - [Test the application](#test-the-application)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes-1)
+    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu)
+      - [Run the UDP Server](#run-the-udp-server)
+        - [UDP Tx Throughput](#udp-tx-throughput)
+        - [UDP Rx Throughput](#udp-rx-throughput)
+        - [TCP Tx Throughput](#tcp-tx-throughput)
+        - [TCP Rx Throughput](#tcp-rx-throughput)
+        - [TLS Tx Throughput](#tls-tx-throughput)
+        - [TLS Rx Throughput](#tls-rx-throughput)
   
 ## Purpose/Scope
 
@@ -113,9 +119,6 @@ The application can be configured to suit your requirements and development envi
   	```c
   	#define DEFAULT_WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 
 - Configure the following parameters in `app.c` to test throughput app as per requirements:
 
@@ -167,6 +170,9 @@ The application can be configured to suit your requirements and development envi
       44  // TCP RX window division factor
     };
     ```  
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ### Test the application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)

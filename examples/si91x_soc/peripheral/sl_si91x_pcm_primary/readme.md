@@ -2,16 +2,22 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL PCM PRIMARY](#sl-pcm-primary)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [General Configuration](#general-configuration)
+    - [Using ULP\_PCM Instance](#using-ulp_pcm-instance)
+    - [Pin Configuration](#pin-configuration)
+    - [Pin Description](#pin-description)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -30,9 +36,9 @@ This application demonstrates the Pulse Code Modulation (PCM) primary device dat
 
 ## About Example Code
 
-- Initialize the PCM peripheral (via I2S) and stores the driver handle in pcm_handle using `sl_si91x_pcm_init()`.
-- Register user callback using `sl_si91x_pcm_register_event_callback()`.
-- Configure transmitter transfer parameters for PCM using `sl_si91x_pcm_set_configuration()`.
+- Initialize the PCM peripheral (via I2S) and stores the driver handle in pcm_handle using [sl_si91x_pcm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pcm#sl-si91x-pcm-init).
+- Register user callback using [sl_si91x_pcm_register_event_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pcm#sl-si91x-pcm-register-event-callback).
+- Configure transmitter transfer parameters for PCM using [sl_si91x_pcm_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pcm#sl-si91x-pcm-set-configuration).
 - Configure receive DMA channel and wait for data to be received from the secondary device.
 - When data is received by the receiver channel, it compares the data received with the transferred data.
 - Configure transmit DMA channel and send data.
@@ -62,7 +68,7 @@ This application demonstrates the Pulse Code Modulation (PCM) primary device dat
 
 ### Setup Diagram
 
- >![Figure: Introduction](resources/readme/setupdiagram.png)
+ >![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -81,7 +87,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 1. Configure UC from the slcp component.
 2. Open **sl_si91x_pcm_primary.slcp** project file, select **Software component** tab and search for **I2S** in search bar.
 
-   ![Figure: Introduction](resources/uc_screen/pcm_primary_uc_screen.png)
+  ![Figure: pcm_primary_uc_screen](resources/uc_screen/pcm_primary_uc_screen.png)
 
 ### General Configuration
 
@@ -93,7 +99,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 Configuration files are generated in **config** folder. If not changed, the code will run on default UC values.
 
-Configure the following macros in `pcm_primary_example.c` file and update/modify the following macros if required.
+Configure the following macros in [`pcm_primary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_pcm_primary/pcm_primary_example.c) file and update/modify the following macros if required.
 
 ```C
  #define PCM_PRIMARY_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
@@ -108,7 +114,7 @@ Configure the following macros in `pcm_primary_example.c` file and update/modify
 
 To use the ULP_PCM instance instead of the default PCM0 instance:
 
-- Change the `PCM_INSTANCE` macro value to `ULP_PCM` in pcm_primary_example.c:
+- Change the `PCM_INSTANCE` macro value to `ULP_PCM` in [`pcm_primary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_pcm_primary/pcm_primary_example.c):
   ```C
   #define PCM_INSTANCE ULP_PCM
   ```
@@ -133,6 +139,8 @@ To use the ULP_PCM instance instead of the default PCM0 instance:
   > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
   > - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -143,7 +151,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 4. When the application runs, it receives data from secondary device and after successful comparision, it sends data to secondary device.
 5. After successful program execution, the prints in serial console looks as shown below.
 
-   >![output](resources/readme/output.png)
+   >![Figure: output](resources/readme/output.png)
 
 
 > **Note:**

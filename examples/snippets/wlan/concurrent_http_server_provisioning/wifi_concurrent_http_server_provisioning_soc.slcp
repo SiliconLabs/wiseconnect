@@ -1,0 +1,83 @@
+project_name: wifi_concurrent_http_server_provisioning_soc
+package: wifi
+quality: production
+label: Wi-Fi - Concurrent HTTP Server Provisioning (SoC)
+category: Example|Wi-Fi
+description: 
+   Start a Wi-Fi Client and Wi-Fi Access Point in IPv4 and IPv6 simultaneously through provisioning from HTTP Server
+filter:
+-  name: Wireless Technology
+   value:
+   - Wi-Fi
+-  name: Project Difficulty
+   value:
+   - Beginner
+sdk:
+   id: simplicity_sdk
+   version:  "2025.6.1"
+sdk_extension:
+-  id: wiseconnect3_sdk
+   version: 3.5.2
+source:
+-  path: app.c
+-  path: wifi_app.c
+include:
+
+-  path: .
+   file_list:
+   -  path: app.h
+define:
+-  name: SL_SI91X_PRINT_DBG_LOG
+-  name: SLI_SI91X_ENABLE_IPV6
+component:
+  - id: sl_main
+  - id: slist
+  - id: freertos
+  - id: freertos_heap_4
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: sl_http_server
+    from: wiseconnect3_sdk
+  - id: json_parser
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: bsd_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_asynchronous_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_wireless
+    from: wiseconnect3_sdk
+  - id: sl_si91x_mem_pool_buffers_with_quota
+    from: wiseconnect3_sdk
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+-  name: SL_BOARD_ENABLE_VCOM
+   value: '1'
+readme:
+-  path: readme.md
+other_file:
+  -  path: resources/readme/concurrent_http_server_provisioning_soc_ncp.png
+  -  path: resources/readme/HTTP_webpage.png
+  -  path: resources/readme/application_console_output_soc_ncp_1.png
+  -  path: resources/readme/application_console_output_soc_ncp_2.png
+  -  path: resources/readme/application_console_output_soc_ncp_3.png
+  -  path: resources/readme/state_machine_diagram.png
+ui_hints:
+   highlight:
+   -  path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

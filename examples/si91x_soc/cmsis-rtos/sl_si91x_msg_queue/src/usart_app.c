@@ -71,7 +71,7 @@ void usart_example_init(void)
   sl_si91x_usart_control_config_t get_config;
 
   do {
-    // Initialize the UART
+    // Initialize the USART
     status = sl_si91x_usart_init(USART_0, &usart_handle);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_initialize: Error Code : %lu \n", status);
@@ -99,7 +99,7 @@ void usart_example_init(void)
     DEBUGOUT("Baud Rate = %ld \n", get_config.baudrate);
 #endif
 
-    // create and initialize message queue object for UART Rx msgs
+    // create and initialize message queue object for USART Rx msgs
     mid_usart_msg_queue = osMessageQueueNew(MSGQUEUE_OBJECTS, BUFFER_SIZE, NULL);
     if (mid_usart_msg_queue == NULL) {
       ; // Message Queue object not created, handle failure
@@ -192,10 +192,10 @@ void usart_example_process_action(void)
           // put the received msg into MessageQueue which will be taken by I2C
           os_status = osMessageQueuePut(mid_usart_msg_queue, usart_data_in, 0U, 0U);
           if (os_status != osOK) {
-            DEBUGOUT("UART Message Queue write failed\n");
+            DEBUGOUT("USART Message Queue write failed\n");
             break;
           }
-          DEBUGOUT("UART_Task: UART Loopback data read successfully and written into UART_Message_Queue\n");
+          DEBUGOUT("USART_Task: USART Loopback data read successfully and written into USART_Message_Queue\n");
 
           // If send macro is not enabled, current mode is set to completed.
           current_mode = SL_TRANSMISSION_COMPLETED;

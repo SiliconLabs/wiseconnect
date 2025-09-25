@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
-  - [Expected output](#expected-output)
+- [PSA ECDH for SI91X](#psa-ecdh-for-si91x)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
+    - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -52,11 +54,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ### Application Configuration Parameters
 
 -  Default ecc curve is SEP256R1.
 -  Default key size is 256
--  To change the ecc curve and key size, set secpr1_key_size_select variable to the correct key_size in app.c
+-  To change the ecc curve and key size, set secpr1_key_size_select variable to the correct key_size in [`app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_ecdh/app.c)
 
 ## Test the Application
 

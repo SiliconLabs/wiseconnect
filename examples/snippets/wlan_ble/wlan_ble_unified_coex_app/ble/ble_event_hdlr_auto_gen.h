@@ -76,6 +76,7 @@ enum ble_enum_ids {
   select_data_transfer_event_id,
   profile_discovery_event_id,
   profile_dummy_event_id,
+  connection_procedure_timeout_event_id,
   max_ble_event_id
 };
 
@@ -623,6 +624,8 @@ void rsi_ble_event_select_data_transfer_driver_callback(uint8_t *conn_id);
 void rsi_ble_event_profile_discovery_driver_callback(uint8_t *conn_id);
 
 void rsi_ble_event_profile_dummy_driver_callback(profile_dummy_data_t *profile_dummy_data);
+/*==============================================*/
+void rsi_ble_event_connection_procedure_timeout_driver_callback(uint8_t conn_id);
 
 void rsi_ble_event_data_transmit(uint16_t status, void *event_data);
 void rsi_ble_event_smp_pending(uint16_t status, void *event_data);
@@ -634,6 +637,7 @@ void rsi_ble_event_set_buffer_config(uint16_t status, void *event_data);
 void rsi_ble_event_select_data_transfer(uint16_t status, void *event_data);
 void rsi_ble_event_profile_discovery(uint16_t status, void *event_data);
 void rsi_ble_event_profile_dummy(uint16_t status, void *event_data);
+void rsi_ble_event_connection_procedure_timeout(uint16_t status, void *event_data);
 
 //! Extern functions
 extern void rsi_ble_event_data_transmit(uint16_t status, void *event_data);
@@ -646,6 +650,7 @@ extern void rsi_ble_event_set_buffer_config(uint16_t status, void *event_data);
 extern void rsi_ble_event_select_data_transfer(uint16_t status, void *event_data);
 extern void rsi_ble_event_profile_discovery(uint16_t status, void *event_data);
 extern void rsi_ble_event_profile_dummy(uint16_t status, void *event_data);
+extern void rsi_ble_event_connection_procedure_timeout(uint16_t status, void *event_data);
 
 /*==============================================*/
 

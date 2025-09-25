@@ -2,17 +2,24 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [iTWT Session Status Codes](#itwt-session-status-codes)
-- [TWT Recommendations](#twt-recommendations)
-- [Test the application](#test-the-application)
-- [Additional Information](#additional-information)
+- [Wi-Fi - TWT TCP Client](#wi-fi---twt-tcp-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [iTWT Session Status Codes](#itwt-session-status-codes)
+  - [TWT Recommendations](#twt-recommendations)
+  - [Soc Mode:](#soc-mode)
+    - [Without Tickless Mode:](#without-tickless-mode)
+    - [Tickless Mode](#tickless-mode)
+  - [Test the Application](#test-the-application)
+    - [Additional Information](#additional-information)
+      - [Using Simplicity Studio Energy Profiler for current measurement](#using-simplicity-studio-energy-profiler-for-current-measurement)
+      - [Using Simplicity Studio Energy Profiler in Min/max Mode](#using-simplicity-studio-energy-profiler-in-minmax-mode)
 
 ## Purpose/Scope
 
@@ -100,8 +107,7 @@ The application can be configured to suit your requirements and development envi
   
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-  > Note: 
-  > The user can configure default region specific regulatory information using `sl_wifi_region_db_config.h`.
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
   - Configure the following parameters in **app.c** to test the application as per requirements:
     - `SERVER_PORT` is the remote TCP server port number on the PC running iPerf.
@@ -275,7 +281,7 @@ The application can be configured to suit your requirements and development envi
     - Set twt_enable parameter to '0' in the **twt_selection** structure. 
     - The other parameters in the structure are ignored. 
 
-    2. For manually configurable TWT parameters API, call the following API to teardown:
+    1. For manually configurable TWT parameters API, call the following API to teardown:
     ```c
       status = sl_wifi_disable_target_wake_time(&twt_req);
     ```

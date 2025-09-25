@@ -2,14 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [BLE - AE Central](#ble---ae-central)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+      - [SoC Mode :](#soc-mode-)
+  - [Getting Started](#getting-started)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
+    - [Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)](#instructions-for-keil-ide-and-stm32f411re-mcu-ncp-mode)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes-1)
+    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu)
 
 ## Purpose/Scope
 
@@ -157,8 +164,6 @@ The application can be configured to suit your requirements and development envi
    ```   
 >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
 
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 - The desired scan parameters are provided for AE_SCAN_SET1. you can enable similar parameters for AE_SCAN_SET2
 ```c
 	ae_set_scan_params.own_addr_type               			 	= LE_PUBLIC_ADDRESS; // SiWx917 device address type
@@ -180,6 +185,9 @@ The application can be configured to suit your requirements and development envi
 	ae_set_scan_enable.duration                     = BLE_SCAN_DUR;
 	ae_set_scan_enable.period                       = BLE_SCAN_PERIOD;
 ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)

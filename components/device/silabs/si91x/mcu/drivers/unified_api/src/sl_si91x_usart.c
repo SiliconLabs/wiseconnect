@@ -231,6 +231,15 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
       // Assign callback handler with null
       *usart_handle = NULL;
     }
+
+#ifdef DEBUG_UART_UC
+    // Check the USART instance is already used for Debug output
+    if (SL_DEBUG_INSTANCE == usart_instance) {
+      status = SL_STATUS_NOT_AVAILABLE;
+      break;
+    }
+#endif
+
     // Get the USART Init state
     if (USART_GetInitState(usart_instance)) {
       status = SL_STATUS_BUSY;
@@ -1217,7 +1226,9 @@ static sl_status_t configure_rs485_gpio_pin(sl_rs485_gpio_pin_config_t *pin_conf
         // Set mode to 11 for USART0 pins ULP GPIO's 5, 6, or 7
         sl_si91x_gpio_driver_set_soc_peri_on_ulp_pin_mode(&sl_gpio_pin_config, SL_GPIO_MODE_11);
       } else if (gpio_config.port_pin.pin == SL_SI91X_ULP_GPIO_9_PIN
+#ifndef SL_SI91X_ACX_MODULE
                  || gpio_config.port_pin.pin == SL_SI91X_ULP_GPIO_10_PIN
+#endif
                  || gpio_config.port_pin.pin == SL_SI91X_ULP_GPIO_11_PIN) {
         // Set mode to 2 for USART0 pins ULP GPIO's 9, 10, or 11
         sl_si91x_gpio_driver_set_soc_peri_on_ulp_pin_mode(&sl_gpio_pin_config, SL_GPIO_MODE_2);

@@ -38,6 +38,7 @@
 sl_net_wifi_lwip_context_t *wifi_client_context = NULL;
 sl_net_wifi_lwip_context_t *wifi_ap_context     = NULL;
 uint32_t gOverrunCount                          = 0;
+static bool lwip_initialized                    = false;
 
 /******************************************************************************
                                 Static Functions
@@ -97,23 +98,24 @@ static void low_level_input(struct netif *netif, uint8_t *b, uint16_t len)
   const uint8_t *dst_mac = b;
 
 #if LWIP_IPV6
-  if (!(ip6_addr_ispreferred(netif_ip6_addr_state(netif, 0)))
-      && (memcmp(netif->hwaddr, src_mac, netif->hwaddr_len) == 0)
+  if ((ip6_addr_istentative(netif_ip6_addr_state(netif, 0))) && (memcmp(netif->hwaddr, src_mac, netif->hwaddr_len) == 0)
       && (memcmp(netif->hwaddr, dst_mac, netif->hwaddr_len) != 0)) {
-    SL_DEBUG_LOG("%s: DROP, [%02x:%02x:%02x:%02x:%02x:%02x]<-[%02x:%02x:%02x:%02x:%02x:%02x] type=%02x%02x",
-                 __func__,
+    SL_DEBUG_LOG("!!! [%02x:%02x:%02x:%02x:%02x:%02x]<-[%02x:%02x:%02x:%02x:%02x:%02x] type=%02x%02x\n",
+                 // DESTINATION MAC
                  dst_mac[0],
                  dst_mac[1],
                  dst_mac[2],
                  dst_mac[3],
                  dst_mac[4],
                  dst_mac[5],
+                 // SOURCE MAC
                  src_mac[0],
                  src_mac[1],
                  src_mac[2],
                  src_mac[3],
                  src_mac[4],
                  src_mac[5],
+                 // ETH PKT TYPE
                  b[12],
                  b[13]);
     return;
@@ -129,21 +131,24 @@ static void low_level_input(struct netif *netif, uint8_t *b, uint16_t len)
       bufferoffset += q->len;
     }
 
-    SL_DEBUG_LOG("%s: ACCEPT %d, [%02x:%02x:%02x:%02x:%02x:%02x]<-[%02x:%02x:%02x:%02x:%02x:%02x] type=%02x%02x",
-                 __func__,
+    SL_DEBUG_LOG("<<< (%03d): [%02x:%02x:%02x:%02x:%02x:%02x]<-[%02x:%02x:%02x:%02x:%02x:%02x] type=%02x%02x\n",
+                 // PKT SIZE
                  bufferoffset,
+                 // DESTINATION MAC
                  dst_mac[0],
                  dst_mac[1],
                  dst_mac[2],
                  dst_mac[3],
                  dst_mac[4],
                  dst_mac[5],
+                 // SOURCE MAC
                  src_mac[0],
                  src_mac[1],
                  src_mac[2],
                  src_mac[3],
                  src_mac[4],
                  src_mac[5],
+                 // ETH PKT TYPE
                  b[12],
                  b[13]);
 
@@ -162,6 +167,28 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
   UNUSED_PARAMETER(netif);
   sl_status_t status;
+
+  // Extract and print the destination MAC address
+  const uint8_t *dst_mac = (uint8_t *)p->payload;
+  const uint8_t *src_mac = (uint8_t *)p->payload + netif->hwaddr_len;
+
+  SL_DEBUG_LOG(">>> (%03d): [%02x:%02x:%02x:%02x:%02x:%02x]->[%02x:%02x:%02x:%02x:%02x:%02x]\n",
+               // PKT SIZE
+               p->len,
+               // SOURCE MAC
+               src_mac[0],
+               src_mac[1],
+               src_mac[2],
+               src_mac[3],
+               src_mac[4],
+               src_mac[5],
+               // DESTINATION MAC
+               dst_mac[0],
+               dst_mac[1],
+               dst_mac[2],
+               dst_mac[3],
+               dst_mac[4],
+               dst_mac[5]);
 
   status = sl_wifi_send_raw_data_frame(SL_WIFI_CLIENT_INTERFACE, (uint8_t *)p->payload, p->len);
   if (status != SL_STATUS_OK) {
@@ -227,7 +254,7 @@ static void sta_netif_config(void)
   netif_set_default(&(wifi_client_context->netif));
 }
 
-static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
+static sl_status_t set_sta_link_up(sl_net_wifi_client_profile_t *profile)
 {
   netifapi_netif_set_up(&(wifi_client_context->netif));
   netifapi_netif_set_link_up(&(wifi_client_context->netif));
@@ -326,13 +353,17 @@ static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
     SL_DEBUG_LOG("IPv6 Address %s\n", ip6addr_ntoa(netif_ip6_addr(&(wifi_client_context->netif), 0)));
 
     // Wait for the link-local address to up
-    while (!ip6_addr_ispreferred(netif_ip6_addr_state(&(wifi_client_context->netif), 0))) {
+    while (ip6_addr_istentative(netif_ip6_addr_state(&(wifi_client_context->netif), 0))) {
       osDelay(200);
+    }
+
+    if (!ip6_addr_ispreferred(netif_ip6_addr_state(&(wifi_client_context->netif), 0))) {
+      return SL_STATUS_SI91X_IP_ADDRESS_ERROR;
     }
 #endif /* LWIP_IPV6 && LWIP_IPV6_AUTOCONFIG */
   }
 
-  return;
+  return SL_STATUS_OK;
 }
 
 static void set_sta_link_down(void)
@@ -391,7 +422,13 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
     return status;
   }
   wifi_client_context = context;
-  tcpip_init(NULL, NULL);
+
+  // Initialize LwIP stack only once
+  if (!lwip_initialized) {
+    tcpip_init(NULL, NULL);
+    lwip_initialized = true;
+  }
+
   sta_netif_config();
   return SL_STATUS_OK;
 }
@@ -431,7 +468,8 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, SLI_WIFI_CONNECT_TIMEOUT);
   VERIFY_STATUS_AND_RETURN(status);
 
-  set_sta_link_up(&profile);
+  status = set_sta_link_up(&profile);
+  VERIFY_STATUS_AND_RETURN(status);
 #if LWIP_IPV4 && LWIP_IPV6
   if ((profile.ip.type & SL_IPV4) == SL_IPV4) {
     ip_addr_t *addr;

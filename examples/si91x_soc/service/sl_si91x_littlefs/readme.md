@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Test the Application](#test-the-application)
+- [SL FILE SYSTEM](#sl-file-system)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -25,7 +27,7 @@ When flashed with this example the boot count get updated in the "boot_count" fi
 
 ## About Example Code
 
-- The example code in **file_system_example.c** shows how to set up QSPI to access flash memory for a file system using the LittleFS library.
+- The example code in [`file_system_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_littlefs/file_system_example.c) shows how to set up QSPI to access flash memory for a file system using the LittleFS library.
 - Initialize QSPI for LittleFS using `sl_si91x_littlefs_qspi_init()`.
 - To use the file system, call `lfs_mount()`.
 - Open a file and read the current boot count  `lfs_file_read()`.
@@ -63,11 +65,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 1. Run the application 
 2. Observe boot_count on console output
- > ![Figure: Build run and Debug](resources/readme/file_system_output.PNG)
+ > ![Figure: Build run and Debug](resources/readme/file_system_output.png)
 
  >
 > **Note**:

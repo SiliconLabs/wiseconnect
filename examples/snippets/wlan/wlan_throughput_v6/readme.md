@@ -2,21 +2,25 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [UDP Tx Throughput](#udp-tx-throughput)
-  - [UDP Rx Throughput](#udp-rx-throughput)
-  - [TCP Tx Throughput](#tcp-tx-throughput)
-  - [TCP Rx Throughput](#tcp-rx-throughput)
-  - [TLS Tx Throughput](#tls-tx-throughput)
+- [Wi-Fi - Throughput IPv6](#wi-fi---throughput-ipv6)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+      - [In the Project explorer pane, expand the **config** folder and open the **sl\_net\_default\_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network](#in-the-project-explorer-pane-expand-the-config-folder-and-open-the-sl_net_default_valuesh-file-configure-the-following-parameters-to-enable-your-silicon-labs-wi-fi-device-to-connect-to-your-wi-fi-network)
+      - [Configure the following parameters in **app.c** to test throughput app as per requirements](#configure-the-following-parameters-in-appc-to-test-throughput-app-as-per-requirements)
+  - [Test the Application](#test-the-application)
+    - [UDP Tx Throughput](#udp-tx-throughput)
+    - [UDP Rx Throughput](#udp-rx-throughput)
+    - [TCP Tx Throughput](#tcp-tx-throughput)
+    - [TCP Rx Throughput](#tcp-rx-throughput)
+    - [TLS Tx Throughput](#tls-tx-throughput)
   - [TLS Rx Throughput](#tls-rx-throughput)
-- [Application Output](#application-output)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -101,9 +105,6 @@ The application can be configured to suit user requirements and development envi
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
-
 #### Configure the following parameters in **app.c** to test throughput app as per requirements
 
 - **Client/Server IP Settings**
@@ -135,6 +136,8 @@ The application can be configured to suit user requirements and development envi
     #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1MB data transfer
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
     ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

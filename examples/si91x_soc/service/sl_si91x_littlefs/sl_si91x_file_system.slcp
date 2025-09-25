@@ -1,24 +1,16 @@
 project_name: sl_si91x_qspi
-label: SI91x - SL_QSPI
+package: platform
 description: >
   This application demonstrates the usage of file system with little-fs library using QSPI.
 category: example|Service
-package: platform
 quality: production
+label: SI91x - SL_QSPI
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: app.c
-  - path: app.h
-  - path: file_system_example.c
-  - path: file_system_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -28,16 +20,27 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_littlefs
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: file_system_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: file_system_example.h
 define:
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
-  - path: resources/readme/file_system_output.PNG  
-readme:
-  - path: readme.md
+  - path: resources/readme/file_system_output.png  
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -4,13 +4,16 @@ This example collects and processes sensor data from the SiWG917 dev kit board, 
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Program Demo Application](#program-demo-application)
-- [Run the Application](#run-the-application)
+- [SiWG917 Dev Kit](#siwg917-dev-kit)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Program Demo Application](#program-demo-application)
+  - [Application Build Environment](#application-build-environment)
+  - [Run the Application](#run-the-application)
 
 ## Purpose/Scope
 
@@ -62,6 +65,10 @@ All device activities can be observed on the serial terminal prints. You may use
 ![Create a Project](resources/readme/create-project.png)
 
 - After upgrading the application binary, proceed with the demo by referring to the next steps under [run the application](#run-the-application) section.
+
+## Application Build Environment
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Run the Application
 

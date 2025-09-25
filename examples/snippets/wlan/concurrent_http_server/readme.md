@@ -2,17 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Procedure to run the example](#procedure-to-run-the-example)
-- [Test the Application](#test-the-application)
-- [Steps to create webpage](#Steps-to-create-webpage)
-- [Steps to add additional information on webpage](#Steps-to-add-additional-information-on-webpage)
+- [Wi-Fi - Concurrent HTTP Server](#wi-fi---concurrent-http-server)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Steps to create webpage](#steps-to-create-webpage)
+  - [Steps to add additional information on webpage](#steps-to-add-additional-information-on-webpage)
 
 ## Purpose/Scope
 
@@ -83,9 +83,6 @@ The application can be configured to suit your requirements and development envi
   	#define WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 NOTE:
 > 1. In concurrent mode, STA and AP should be configured on the same channel. 
 > 2. Valid values for CHANNEL_NO are 1 to 11 in 2.4 GHz band and 36 to 48 and 149 to 165 in 5 GHz. In this example, default configured band is 2.4 GHz.
@@ -106,6 +103,8 @@ NOTE:
 > 6. The SiWx91x will then connect to the AP specified on the webpage in client mode.
 >
 > 7. After serving the request, the HTTP Server will be stopped and deinitialized.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

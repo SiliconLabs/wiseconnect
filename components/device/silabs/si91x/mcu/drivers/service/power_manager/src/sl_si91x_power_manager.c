@@ -33,6 +33,9 @@
 #include "sl_wifi.h"
 #endif
 #include "sli_si91x_clock_manager.h"
+#if SL_WIFI_COMPONENT_INCLUDED
+#include "sl_rsi_utility.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -418,14 +421,6 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
   requirement_ps_table[state] += (uint8_t)((add) ? 1 : -1);
   state = sl_si91x_get_lowest_ps();
   if ((current_state != state) && (state != SL_SI91X_POWER_MANAGER_SLEEP)) {
-#if (SL_SI91X_TICKLESS_MODE == 1)
-    if ((state == SL_SI91X_POWER_MANAGER_PS2)
-        && ((pm_ta_performance_profile.profile != DEEP_SLEEP_WITHOUT_RAM_RETENTION)
-            && (pm_ta_performance_profile.profile != DEEP_SLEEP_WITH_RAM_RETENTION))) {
-      // Only add requirement effects the state transition.
-      return SL_STATUS_INVALID_STATE;
-    }
-#endif
     if (sl_si91x_power_manager_get_ps1_state_status() == true) {
       // Notifies the state transition who has subscribed to it.
       notify_power_state_transition(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_PS1);
@@ -730,4 +725,29 @@ sl_status_t sl_si91x_power_manager_remove_standby_state_request(void)
 bool sl_si91x_power_manager_get_standby_state_status(void)
 {
   return sli_si91x_pm_standby_state_active;
+}
+
+/***************************************************************************
+ * @fn      bool sl_si91x_power_manager_is_tx_command_in_progress(void)
+ * 
+ * @brief   Check if a TX command is currently in progress.
+ * 
+ * @details This function is used to check the TX command status. It returns true if
+ *          a TX command is currently in progress, false otherwise.
+ *
+ * @pre Pre-conditions:
+ * - WiFi component should be added to the project for this function to work properly.
+ *   If WiFi component is not included, this function will always return false.
+ *
+ * @return  bool - true if TX command is in progress, false otherwise.
+ *
+ * @note    This function is useful for power management decisions and determining
+ *          when the system is ready for sleep or other power state transitions.
+ ******************************************************************************/
+bool sl_si91x_power_manager_is_tx_command_in_progress(void)
+{
+#if SL_WIFI_COMPONENT_INCLUDED
+  return sli_si91x_get_tx_command_status();
+#endif
+  return false;
 }

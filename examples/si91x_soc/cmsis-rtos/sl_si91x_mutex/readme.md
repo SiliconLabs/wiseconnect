@@ -2,14 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL MUTEX EXAMPLE](#sl-mutex-example)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -52,11 +55,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following parameter in blinky.c file, update/modify following macro if required.
+- Configure the following parameter in [`blinky.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/cmsis-rtos/sl_si91x_mutex/src/blinky.c) file, update/modify following macro if required.
 
   ```C
     #define TOGGLE_DELAY_MS 500//  configured for 500 ms   
   ```   
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

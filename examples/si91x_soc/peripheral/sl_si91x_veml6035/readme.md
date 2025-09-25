@@ -2,17 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration)
-- [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL VEML6035](#sl-veml6035)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -37,7 +38,7 @@ This example demonstrates the measurement of Lux for every 2 seconds. It also sh
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -51,7 +52,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-- Configure the following macros in `veml6035_example.c` file. .Update or  modify the following macros, if required.
+- Configure the following macros in [`veml6035_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_veml6035/veml6035_example.c) file. Update or  modify the following macros, if required.
 
   - `DELAY_PERIODIC_MS1` : Select the delay for data display. By default, the delay is kept as 2 seconds.
 
@@ -89,6 +90,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 | SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
 | SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 See the instructions [Creating a Project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project) section on the **Developing with Boards in SoC Mode** guide to:
@@ -97,7 +100,7 @@ See the instructions [Creating a Project](https://docs.silabs.com/wiseconnect/la
 2. When the application runs, it measures **ALS channel lux** and **white channel lux** every 2 seconds.
 3. After successful program execution, the output to the serial console should look similar to the following image:
 
-   ![Figure: Introduction](resources/readme/console_output_veml6035.png)
+   ![Figure: console_output_veml6035](resources/readme/console_output_veml6035.png)
 
 > **Note:**
 >

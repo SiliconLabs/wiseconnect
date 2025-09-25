@@ -2,14 +2,22 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - Concurrent Mode](#wi-fi---concurrent-mode)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+      - [Open **sl\_wifi\_device.h** file. You can also refer to `sl_wifi_default_concurrent_configuration` and modify/create configurations as per your needs and requirements.](#open-sl_wifi_deviceh-file-you-can-also-refer-to-sl_wifi_default_concurrent_configuration-and-modifycreate-configurations-as-per-your-needs-and-requirements)
+  - [Test the Application](#test-the-application)
+    - [To Run Server](#to-run-server)
+      - [UDP Tx Throughput](#udp-tx-throughput)
+      - [UDP Rx Throughput](#udp-rx-throughput)
+      - [TCP Tx Throughput](#tcp-tx-throughput)
+      - [TCP Rx Throughput](#tcp-rx-throughput)
 
 ## Purpose/Scope
 
@@ -129,9 +137,6 @@ The application can be configured to suit your requirements and development envi
 >
 > - In `sl_wifi_default_concurrent_configuration`, `oper_mode` must be `SL_SI91X_CONCURRENT_MODE` for this example.
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 Configure the following parameters in `app.c` to test throughput app as per requirements:
 
   - Client/Server IP Settings
@@ -165,6 +170,9 @@ Configure the following parameters in `app.c` to test throughput app as per requ
       #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1 MB data transfer
       #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
       ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

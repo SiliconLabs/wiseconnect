@@ -2,14 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - Concurrent Mode Dual IP](#wi-fi---concurrent-mode-dual-ip)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+      - [Open **sl\_wifi\_device.h** file. You can also refer to `sl_wifi_default_concurrent_v6_configuration` and modify/create configurations as per your needs and requirements.](#open-sl_wifi_deviceh-file-you-can-also-refer-to-sl_wifi_default_concurrent_v6_configuration-and-modifycreate-configurations-as-per-your-needs-and-requirements)
+      - [Configure the following parameters in **app.c** to test throughput app as per requirements](#configure-the-following-parameters-in-appc-to-test-throughput-app-as-per-requirements)
+  - [Test the Application](#test-the-application)
+    - [UDP Tx on IPv6](#udp-tx-on-ipv6)
+    - [TCP Rx on IPv4](#tcp-rx-on-ipv4)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -126,9 +133,6 @@ The application can be configured to suit your requirements and development envi
 >
 > Note: In `sl_wifi_default_concurrent_v6_configuration`, `oper_mode` must be `SL_SI91X_CONCURRENT_MODE` for this example.
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 #### Configure the following parameters in **app.c** to test throughput app as per requirements
 
 - **Client/Server IP Settings**
@@ -143,6 +147,8 @@ The application can be configured to suit your requirements and development envi
     ```c
     #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512 MB data transfer
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

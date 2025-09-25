@@ -647,11 +647,13 @@ sl_status_t sl_si91x_get_firmware_size(const void *buffer, uint32_t *fw_image_si
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.  
  * @note
- * The crystal good time can be configured to any value between 600 and 5000 microseconds, allowing flexibility for fine-tuning based on specific crystal
+ * You can configure the crystal good time to any value between 600 and 5000 microseconds, allowing flexibility to fine-tune based on specific crystal
  * characteristics or application requirements.
  * @note
- * In an ideal environment, the average current consumption in the associated mode increases by approximately 10 µA when the crystal good time is raised
- * from 600 µs to 2000 µs, as observed with the wifi_powersave_standby_associated_soc example.
+ * In an ideal environment, increasing the crystal good time 
+ * from 600 µs to 2000 µs raises the average current consumption in the 
+ * associated mode by approximately 10 µA, as observed with the 
+ * wifi_powersave_standby_associated_soc example.
  * @note
  * However, the @ref SI91X_CONFIG_FEATURE_BITMAP supports only a limited set of predefined values: 600, 1000, 2000, and 3000 microseconds. If both this API and
  * the configuration feature bitmap are used, the Network Processor (NWP) prioritizes the value configured via the API.

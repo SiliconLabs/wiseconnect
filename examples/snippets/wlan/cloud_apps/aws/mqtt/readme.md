@@ -2,20 +2,28 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview of AWS SDK](#overview-of-aws-sdk)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Additional Information](#additional-information)
-  - [Current Measurement using Simplicity Studio Energy Profiler](#current-measurement-using-simplicity-studio-energy-profiler)
-  - [Setting up Security Certificates](#setting-up-security-certificates)
-  - [Create an AWS Thing](#create-an-aws-thing)
-  - [Steps to create a policy from AWS console](#steps-to-create-a-policy-from-aws-console)
+- [Wi-Fi - AWS IoT MQTT Client](#wi-fi---aws-iot-mqtt-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Soc Mode:](#soc-mode)
+    - [Tickless Mode](#tickless-mode)
+  - [Overview of AWS SDK](#overview-of-aws-sdk)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure the Application](#configure-the-application)
+      - [Configure the following parameters in `app.c`:](#configure-the-following-parameters-in-appc)
+    - [Configure the below parameters in `sl_net_default_values.h` present at `\<project>/config`](#configure-the-below-parameters-in-sl_net_default_valuesh-present-at-projectconfig)
+    - [Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`:](#configure-the-following-parameters-in-aws_iot_configh-file-present-at-projectconfig)
+  - [Test the Application](#test-the-application)
+    - [Application Output](#application-output)
+  - [Additional Information](#additional-information)
+    - [Current Measurement using Simplicity Studio Energy Profiler](#current-measurement-using-simplicity-studio-energy-profiler)
+    - [Setting up Security Certificates](#setting-up-security-certificates)
+    - [Create an AWS Thing](#create-an-aws-thing)
 
 ## Purpose/Scope
 
@@ -146,8 +154,6 @@ By default, the application connects to the remote access point with `default_wi
 #define DEFAULT_WIFI_CLIENT_PROFILE_SSID "YOUR_AP_SSID"
 #define DEFAULT_WIFI_CLIENT_CREDENTIAL   "YOUR_AP_PASSPHRASE"
 ```
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 ### Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`:
 
@@ -173,6 +179,8 @@ By default, the application connects to the remote access point with `default_wi
 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

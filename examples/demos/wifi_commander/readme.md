@@ -2,14 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi Commander](#wi-fi-commander)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the application](#test-the-application)
+  - [Evaluating with Wi-Fi Commander](#evaluating-with-wi-fi-commander)
+    - [Below are the examples of the commands on how to enter those commands in the Wi-Fi Commander and get the responses](#below-are-the-examples-of-the-commands-on-how-to-enter-those-commands-in-the-wi-fi-commander-and-get-the-responses)
 
 ## Purpose/Scope
 
@@ -66,6 +70,8 @@ Refer to the instructions here:
 
 > Note
 > If you want to modify the above settings, you can also do by updating the configuration using the Wi-Fi Commander tool.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the application
 

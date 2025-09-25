@@ -2,17 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL DAC](#sl-dac)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -50,7 +52,7 @@ This application demonstrate the DAC peripheral, including:
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -78,7 +80,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - Sample rate: Sample rate can be configurable to DAC, sample rate unit is samples/second. The configuration range from 63sps to 5Msps.
     - FIFO Threshold: This is applicable only for FIFO mode. There is no impact even configure for other modes. The configuration range from 0 to 7.
 
-      ![Figure: Introduction](resources/uc_screen/sl_dac_uc_screen.png)
+      ![Figure: sl_dac_uc_screen](resources/uc_screen/sl_dac_uc_screen.png)
 
 - After running the application, see the output on logic analyzer in GPIO_30[P35].
 - Apply the different voltages (1.8V to 3.6v) as reference voltage and input samples, based on this observe output in analyzer.
@@ -100,6 +102,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > - For BRD4338A, ULP GPIO_4 is not available, so the pintool annotation for DAC is bypassed.
 > - Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output is internally redirected to OPAMP pin GPIO_30.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -112,25 +116,25 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
      - Console Output:
 
-       ![Figure: Introduction](resources/readme/dac_static_console_output.png)
+       ![Figure: dac_static_console_output](resources/readme/dac_static_console_output.png)
 
      - Logic Analyzer Output:
 
-       ![Figure: Introduction](resources/readme/dac_static_analyzer_output.png)
+       ![Figure: dac_static_analyzer_output](resources/readme/dac_static_analyzer_output.png)
 
    - DAC FIFO mode:
 
      - Console Output:
 
-       ![Figure: Introduction](resources/readme/dac_fifo_console_output.png)
+       ![Figure: dac_fifo_console_output](resources/readme/dac_fifo_console_output.png)
 
      - Logic Analyzer Output:
 
-       ![Figure: Introduction](resources/readme/dac_fifo_analyzer_output.png)
+       ![Figure: dac_fifo_analyzer_output](resources/readme/dac_fifo_analyzer_output.png)
 
 > **Note:**
 >
->- In the `sl_ulp_dac_example.c file`, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
+- In the [`sl_ulp_dac_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_dac/sl_ulp_dac_example.c) file, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
 >- Buffer length should be '1' for DAC static mode.
 >
  Use following formula to find equivalent output analog voltage of DAC

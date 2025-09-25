@@ -74,7 +74,6 @@ extern "C" {
 
 /******************************************************************************/
 // <<< end of configuration section >>>
-#ifdef QEI_PINTOOL
 // <<< sl:start pin_tool >>>
 // <qei signal=(DIR),(IDX),PHA,PHB> SL_QEI
 // $[QEI_SL_QEI]
@@ -130,7 +129,6 @@ extern "C" {
 #endif
 // [QEI_SL_QEI]$
 // <<< sl:end pin_tool >>>
-#endif
 
 sl_qei_config_t sl_qei_config = {
   .config_param = (SL_QEI_DIGITAL_FILTER_BYPASS << QEI_DIGITAL_FILTER_BYPASS_MASK)
@@ -140,28 +138,28 @@ sl_qei_config_t sl_qei_config = {
 
 sl_qei_init_t sl_qei_init = {
   .dir = {
-    .port = SL_QEI_DIR_PORT,
-    .pin  = SL_QEI_DIR_PIN,
-    .mux  = SL_QEI_DIR_MUX,
-    .pad  = SL_QEI_DIR_PAD,
+    .port = SL_SL91X_QEI_DIR_PORT,
+    .pin  = SL_SL91X_QEI_DIR_PIN,
+    .mux  = SL_SL91X_QEI_DIR_MUX,
+    .pad  = SL_SL91X_QEI_DIR_PAD,
   },
   .idx = {
-    .port = SL_QEI_IDX_PORT,
-    .pin  = SL_QEI_IDX_PIN,
-    .mux  = SL_QEI_IDX_MUX,
-    .pad  = SL_QEI_IDX_PAD,
+    .port = SL_SL91X_QEI_IDX_PORT,
+    .pin  = SL_SL91X_QEI_IDX_PIN,
+    .mux  = SL_SL91X_QEI_IDX_MUX,
+    .pad  = SL_SL91X_QEI_IDX_PAD,
   },
   .phasea = {
-    .port = SL_QEI_PHA_PORT,
-    .pin  = SL_QEI_PHA_PIN,
-    .mux  = SL_QEI_PHA_MUX,
-    .pad  = SL_QEI_PHA_PAD,
+    .port = SL_SL91X_QEI_PHA_PORT,
+    .pin  = SL_SL91X_QEI_PHA_PIN,
+    .mux  = SL_SL91X_QEI_PHA_MUX,
+    .pad  = SL_SL91X_QEI_PHA_PAD,
   },
   .phaseb = {
-    .port = SL_QEI_PHB_PORT,
-    .pin  = SL_QEI_PHB_PIN,
-    .mux  = SL_QEI_PHB_MUX,
-    .pad  = SL_QEI_PHB_PAD,
+    .port = SL_SL91X_QEI_PHB_PORT,
+    .pin  = SL_SL91X_QEI_PHB_PIN,
+    .mux  = SL_SL91X_QEI_PHB_MUX,
+    .pad  = SL_SL91X_QEI_PHB_PAD,
   },
 };
 

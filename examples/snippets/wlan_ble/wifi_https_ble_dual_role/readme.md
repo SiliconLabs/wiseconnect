@@ -2,14 +2,16 @@
 
 ## Table of Contents
 
-- [Purpose / Scope](#purpose--scope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the application](#test-the-application)
+- [Wi-Fi Coex - Wi-Fi Client HTTPS BLE Dual Role](#wi-fi-coex---wi-fi-client-https-ble-dual-role)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the application](#test-the-application)
 
 ## Purpose / Scope
 
@@ -285,8 +287,7 @@ The application can be configured to suit your requirements and development envi
 
     > **Note:** BY default, when 'HTTPS_DOWNLOAD' is set, SSL and LOAD_CERTIFICATE will be set to '1' as it is required for HTTPS download.
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 - Build the application
 

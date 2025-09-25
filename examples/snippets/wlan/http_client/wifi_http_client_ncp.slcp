@@ -1,0 +1,73 @@
+project_name: wifi_http_client_ncp
+package: wifi
+quality: production
+label: Wi-Fi - HTTP CLIENT(NCP)
+category: Example|Wi-Fi
+description: >
+  Demonstrates how to create HTTP client and do PUT, GET and POST operations with the server opened on remote peer
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: simplicity_sdk, version:  "2025.6.1"}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.5.2}
+source:
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+component:
+- id: freertos
+- id: freertos_heap_4
+- id: slist
+- id: sl_main
+- id: spidrv
+  instance: [exp]
+- id: http_client
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_wireless
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: sl_si91x_spi_bus
+  from: wiseconnect3_sdk
+- id: sl_si91x_basic_buffers
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: iostream_retarget_stdio
+- id: iostream_recommended_stream
+- id: iostream_stdlib_config
+- id: device_init
+- id: emlib_common
+- id: emlib_ldma
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+- {name: configTOTAL_HEAP_SIZE, value: '51200'}
+- {name: configUSE_POSIX_ERRNO, value: '1'}
+- {name: configTIMER_TASK_PRIORITY, value: '55'}
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/http_client_output.png
+- path: resources/readme/http_client_soc_ncp.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true

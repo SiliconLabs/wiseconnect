@@ -62,7 +62,8 @@ uint8_t ascii_to_dec(uint8_t *num);
 #define RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST 1
 #define RSI_BLE_MTU_EXCHANGE_FROM_HOST          1
 #define MAX_MTU_SIZE                            240
-#define UPDATE_CONN_PARAMETERS                  0 //! To update connection parameters of remote central connection
+#define TX_TIME                                 0x0780 //! 1920ms
+#define UPDATE_CONN_PARAMETERS                  0      //! To update connection parameters of remote central connection
 #define MITM_ENABLE                             1
 #define RSI_BLE_MAX_CHAR_DESCRIPTORS            5
 #define RSI_MAX_PROFILE_CNT                     8
@@ -81,11 +82,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 #define BLE_DYNAMIC_BUFF_CONFIGURATION_BASED_ON_INTERVAL 0
 
 //! BLE Tx Power Index On Air
-#ifdef SLI_SI915
-#define RSI_BLE_PWR_INX 75 //  HP chain for Si915
-#else
 #define RSI_BLE_PWR_INX 30
-#endif
 
 /*#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20
@@ -272,7 +269,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P1            240 //! for conn interval of 300ms
 #define CONN_LATENCY_P1             0
-#define CONN_SUPERVISION_TIMEOUT_P1 400
+#define CONN_SUPERVISION_TIMEOUT_P1 800
 
 /*=================Peripheral2 configurations=====================*/
 //! configure below macro to enable secure connection
@@ -310,7 +307,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P2            240 //! for conn interval of 300ms
 #define CONN_LATENCY_P2             0
-#define CONN_SUPERVISION_TIMEOUT_P2 400
+#define CONN_SUPERVISION_TIMEOUT_P2 800
 
 /*=================Peripheral3 configurations=====================*/
 //! configure below macro to enable secure connection
@@ -348,7 +345,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P3            240 //! for conn interval of 300ms
 #define CONN_LATENCY_P3             0
-#define CONN_SUPERVISION_TIMEOUT_P3 400
+#define CONN_SUPERVISION_TIMEOUT_P3 800
 #endif
 
 /*=================Slave4 configurations=====================*/
@@ -387,7 +384,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P4            240 //! for conn interval of 300ms
 #define CONN_LATENCY_P4             0
-#define CONN_SUPERVISION_TIMEOUT_P4 400
+#define CONN_SUPERVISION_TIMEOUT_P4 800
 
 /*=================Slave5 configurations=====================*/
 //! configure below macro to enable secure connection
@@ -425,7 +422,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P5            400 //! for conn interval of 300ms
 #define CONN_LATENCY_P5             0
-#define CONN_SUPERVISION_TIMEOUT_P5 400
+#define CONN_SUPERVISION_TIMEOUT_P5 800
 
 /*=================Slave6 configurations=====================*/
 //! configure below macro to enable secure connection
@@ -463,7 +460,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P6            400 //! for conn interval of 300ms
 #define CONN_LATENCY_P6             0
-#define CONN_SUPERVISION_TIMEOUT_P6 400
+#define CONN_SUPERVISION_TIMEOUT_P6 800
 
 /*=================Slave7 configurations=====================*/
 //! configure below macro to enable secure connection
@@ -501,7 +498,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P7            400 //! for conn interval of 300ms
 #define CONN_LATENCY_P7             0
-#define CONN_SUPERVISION_TIMEOUT_P7 400
+#define CONN_SUPERVISION_TIMEOUT_P7 800
 
 /*=================Slave8 configurations=====================*/
 //! configure below macro to enable secure connection
@@ -539,7 +536,7 @@ uint8_t ascii_to_dec(uint8_t *num);
 //! Configure below macros to select connection paramaters while data transfer
 #define CONN_INTERVAL_P8            400 //! for conn interval of 300ms
 #define CONN_LATENCY_P8             0
-#define CONN_SUPERVISION_TIMEOUT_P8 400
+#define CONN_SUPERVISION_TIMEOUT_P8 800
 /***********************************************************************************************************************************************/
 //! BLE extended advertising sets specific configurations
 /***********************************************************************************************************************************************/

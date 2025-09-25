@@ -1,24 +1,16 @@
 project_name: sl_si91x_ssi_slave
-label: SI91x - SSI SLAVE
+package: platform
 description: |
   This application demonstrates how to configure and use SSI protocol.
 category: example|peripheral
-package: platform
 quality: production
-source:
-  - path: app.c
-  - path: app.h
-  - path: ssi_slave_example.c
-  - path: ssi_slave_example.h
+label: SI91x - SSI SLAVE
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -35,6 +27,17 @@ component:
     instance:
       - timer0
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: ssi_slave_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ssi_slave_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 configuration:
   - name: SL_ULP_TIMER_TIMER0_DIRECTION
     value: "UP_COUNTER"
@@ -43,11 +46,11 @@ other_file:
   - path: resources/readme/image511d.png
   - path: resources/uc_screen/ssi_uc_screen.png
   - path: resources/readme/output.png
-readme:
-  - path: readme.md
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

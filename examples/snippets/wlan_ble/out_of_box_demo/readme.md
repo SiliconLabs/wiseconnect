@@ -4,16 +4,20 @@ This application demonstrates the WLAN, BLE, MCU peripheral features and NWP (ne
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Upgrade application binary](#upgrade-application-binary)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Run the Application](#run-the-application)
-- [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler)
+- [Out of the box demo - SiWG917](#out-of-the-box-demo---siwg917)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Upgrade application binary](#upgrade-application-binary)
+  - [Application build environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Application display](#application-display)
+    - [Run the application](#run-the-application)
+    - [Update MQTT Hostname in wifi\_app.c](#update-mqtt-hostname-in-wifi_appc)
+    - [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler)
 
 ## Purpose/Scope
 
@@ -68,6 +72,8 @@ After upgrading the application binary, proceed with the demo by referring to th
 ## Application build environment
 
 No additional application level changes are required to execute the OOB demo example.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

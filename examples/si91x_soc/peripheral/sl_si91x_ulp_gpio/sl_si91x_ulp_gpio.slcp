@@ -1,26 +1,16 @@
 project_name: sl_si91x_ulp_gpio
-label: SI91x - SL_ULP_GPIO
+package: platform
 description: |
   This application demonstrates to use ULP GPIO
 category: example|peripheral
-package: platform
 quality: production
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: app.h
-  - path: ulp_gpio_example.c
-  - path: ulp_gpio_example.h
+label: SI91x - SL_ULP_GPIO
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -55,6 +45,17 @@ template_contribution:
     condition: [sl_system]
   - name: user_files_ps2
     value: sl_event_handler.o
+source:
+  - path: app.c
+  - path: ulp_gpio_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ulp_gpio_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output_ulp_gpio.png
@@ -62,5 +63,7 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

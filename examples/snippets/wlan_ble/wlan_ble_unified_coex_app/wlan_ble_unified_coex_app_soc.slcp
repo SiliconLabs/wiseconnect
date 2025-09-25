@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 - path: root_auto_gen.c
@@ -61,7 +61,7 @@ component:
 - id: freertos_heap_4
 - id: syscalls
   from: wiseconnect3_sdk
-- id: si91x_memory_default_config
+- id: si91x_mem_config_2
   from: wiseconnect3_sdk
 - id: wiseconnect3_common
   from: wiseconnect3_sdk

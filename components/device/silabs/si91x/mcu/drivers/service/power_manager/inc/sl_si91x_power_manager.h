@@ -864,6 +864,24 @@ bool sl_si91x_power_manager_get_standby_state_status(void);
 
 /***************************************************************************/
 /**
+ * @brief Check if a TX command is currently in progress.
+ * 
+ * @details This function is used to check the TX command status. It returns true if
+ *          a TX command is currently in progress; otherwise, it returns false otherwise.
+ *
+ * @pre Pre-conditions:
+ * - The Wi-Fi component must be added to the project for this function to work properly.
+ *   If it is not included, this function will always return false.
+ *
+ * @return  bool - Returns true if TX command is in progress; otherwise, returns false otherwise.
+ *
+ * @note    This function is useful for power management decisions and determining
+ *          when the system is ready for sleep or other power state transitions.
+ ******************************************************************************/
+bool sl_si91x_power_manager_is_tx_command_in_progress(void);
+
+/***************************************************************************/
+/**
  * @brief To de-initialize the Power Manager service.
  * 
  * @details It clears all the power requirements and callback event subscriptions.
@@ -1097,7 +1115,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 *   // Initialize wakeup source
 *   // Replace the wakeup source peripheral macro defined in sl_si91x_power_manager.h file
 *   // It sets the below peripheral as wakeup source
-*   sl_si91x_power_manager_set_wakeup_source(WAKEUP_SOURCE, true);
+*   sl_si91x_power_manager_set_wakeup_sources(WAKEUP_SOURCE, true);
 *   sl_si91x_power_manager_sleep();
 *   }
 *

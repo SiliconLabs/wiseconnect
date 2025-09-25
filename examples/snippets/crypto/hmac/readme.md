@@ -2,14 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Crypto - HMAC](#crypto---hmac)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+      - [SoC Mode](#soc-mode)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -56,6 +60,8 @@ Open `app.c` file and configure the following parameters accordingly
 - After filling the appropriate **sl_si91x_hmac_config_t** configuration, `sl_si91x_hmac()` stores the digest in the provided buffer. 
 - "USE_WRAPPED_KEYS" is defined by default which will enable key wrapping functionality.
 - `sl_si91x_wrap()` pads and wraps the key based on the "padding" and "hmac_mode" configurations and stores it in the provided buffer.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

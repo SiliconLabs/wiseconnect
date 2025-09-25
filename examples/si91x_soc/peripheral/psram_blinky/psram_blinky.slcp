@@ -1,29 +1,18 @@
 project_name: psram_blinky
-label: SI91x - SoC Peripheral PSRAM Blinky
+package: platform
 description: >
   This application demonstrates a blinky application running from PSRAM. 
   The program's Text and Data segments are placed in PSRAM to utilize external memory effectively. 
   It highlights memory configuration for applications requiring execution from PSRAM, enabling expanded memory space usage and optimizing on-chip resources.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SoC Peripheral PSRAM Blinky
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: app.c
-  - path: blinky.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-      - path: blinky.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: sleeptimer
@@ -43,14 +32,25 @@ component:
     instance:
       - led0
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: blinky.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: blinky.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: ./resources/readme/setupdiagram.png
   - path: ./resources/readme/section_component_installation.png
-readme:
-  - path: readme.md
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

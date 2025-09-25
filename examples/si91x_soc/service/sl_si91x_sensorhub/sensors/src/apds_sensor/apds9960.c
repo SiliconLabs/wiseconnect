@@ -1241,8 +1241,8 @@ bool sl_si91x_apds9960_sensor_init(void)
 
     return RSI_FAIL;
   }
-  if (!(id == SL_ID_1_9960 || id == SL_ID_2_9960)) {
-
+  if (!(id == SL_ID_1_9960 || id == SL_ID_2_9960 || id == SL_ID_3_9960)) {
+    DEBUGOUT("APDS9960 ID mismatch: 0x%02X\n", id);
     return RSI_FAIL;
   }
 

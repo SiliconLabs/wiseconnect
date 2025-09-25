@@ -2,17 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL ULP DAC](#sl-ulp-dac)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -48,7 +50,7 @@
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -76,7 +78,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - Sample rate: Sample rate can be configurable to DAC, sample rate unit is samples/second. The configuration range from 63sps to 5Msps.
     - FIFO Threshold: This is applicable only for FIFO mode. There is no impact even configure for other modes. The configuration range from 0 to 7.
 
-      ![Figure: Introduction](resources/uc_screen/sl_dac_uc_screen.png)
+      ![Figure: sl_dac_uc_screen](resources/uc_screen/sl_dac_uc_screen.png)
 
 - After running the application see the output on logic analyzer in GPIO_30[P35].
 - Apply the different voltages(1.8V to 3.6v) as reference voltage and input samples, based on this observe output in analyzer .
@@ -93,6 +95,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Because of the GPIO workarounds described above, the DAC output in BRD4338a is read internally, supplied to OPAMP1, and allows the user to see the OPAMP1 output on the GPIO_30[P35] pin.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -105,21 +109,21 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
      - Console Output:
 
-       ![Figure: Introduction](resources/readme/dac_static_console_output.png)
+       ![Figure: dac_static_console_output](resources/readme/dac_static_console_output.png)
 
      - Logic Analyzer Output:
 
-       ![Figure: Introduction](resources/readme/dac_static_analyzer_output.png)
+       ![Figure: dac_static_analyzer_output](resources/readme/dac_static_analyzer_output.png)
 
    - DAC FIFO mode:
 
      - Console Output:
 
-       ![Figure: Introduction](resources/readme/dac_fifo_console_output.png)
+       ![Figure: dac_fifo_console_output](resources/readme/dac_fifo_console_output.png)
 
      - Logic Analyzer Output:
 
-       ![Figure: Introduction](resources/readme/dac_fifo_analyzer_output.png)
+       ![Figure: dac_fifo_analyzer_output](resources/readme/dac_fifo_analyzer_output.png)
 
 > **Note:**
 >

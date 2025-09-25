@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites](#prerequisites)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [BLE GATT_long_read Application as a Server](#ble-gatt_long_read-application-as-a-server)
-  - [BLE GATT_long_read Application as a Client](#ble-gatt_long_read-application-as-a-client)
+- [BLE - Gatt Long Read](#ble---gatt-long-read)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites](#prerequisites)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [BLE GATT\_long\_read Application as a Server](#ble-gatt_long_read-application-as-a-server)
+    - [BLE GATT\_long\_read Application as a Client](#ble-gatt_long_read-application-as-a-client)
 
 ## Purpose/Scope
 
@@ -77,9 +79,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ## Application Build Environment
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes if needed.
-
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 - Open **app.c** file.
 
@@ -180,6 +179,8 @@ The application can be configured to suit user requirements and development envi
          ```
 
          > **Note:** `ble_config.h` files are already set with desired configuration in respective example folders you need not change for each example. 
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

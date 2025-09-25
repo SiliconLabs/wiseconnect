@@ -36,6 +36,8 @@
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
 #include "sl_utility.h"
+#include "FreeRTOS.h"
+#include "timers.h"
 
 //! BLE include file to refer BLE APIs
 #include "rsi_common_app.h"
@@ -67,8 +69,9 @@ uint8_t adv_pkt_processing_pending          = 0;
 uint8_t i = 0, temp = 0;
 int32_t status          = 0;
 uint8_t smp_in_progress = 0;
+TimerHandle_t connect_timeout_timer;
 
-uint8_t adv[0x19]; //= { 2, 1, 6 };
+uint8_t adv[0x19] = { 2, 1, 6 };
 
 osMutexId_t power_cmd_mutex = NULL;
 bool powersave_cmd_given    = 0;
@@ -89,6 +92,7 @@ uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
 
 osSemaphoreId_t ble_wait_on_connect;
 int32_t rsi_ble_dual_role(void);
+void connect_timeout_handler(TimerHandle_t xTimer);
 
 /*=======================================================================*/
 //!    Powersave configurations
@@ -1402,6 +1406,15 @@ void rsi_wlan_ble_app_init(void)
   if (power_cmd_mutex == NULL) {
     printf("\r\npower_cmd_mutex creation failed\r\n");
     return;
+  }
+
+  connect_timeout_timer = xTimerCreate("ConnTimeout",
+                                       pdMS_TO_TICKS(10000), // 10 seconds
+                                       pdFALSE,              // One-shot
+                                       NULL,
+                                       connect_timeout_handler);
+  if (connect_timeout_timer == NULL) {
+    printf("\r\n Failed to create connection timeout timer!\n");
   }
 
   //! Thread created for BLE task

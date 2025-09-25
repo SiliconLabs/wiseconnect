@@ -99,7 +99,7 @@ static rsi_ble_scan_req_recvd_t scan_req_recvd                  = { 0 };
 
 osSemaphoreId_t ble_main_task_sem;
 int8_t rsi_app_resp_tx_power                  = 0;
-uint8_t rsi_app_resp_max_no_of_supp_adv_sets  = 0;
+uint32_t rsi_app_resp_max_no_of_supp_adv_sets = 0;
 static uint16_t rsi_app_resp_max_adv_data_len = 0;
 
 static const sl_wifi_device_configuration_t
@@ -440,12 +440,12 @@ void rsi_ble_peripheral(void)
   }
 
   //! get the Max no.of supported adv sets
-  status = rsi_ble_get_max_no_of_supp_adv_sets(&rsi_app_resp_max_no_of_supp_adv_sets);
+  status = rsi_ble_get_max_no_of_supp_adv_sets((uint8_t *)&rsi_app_resp_max_no_of_supp_adv_sets);
   if (status != RSI_SUCCESS) {
     LOG_PRINT("get max supported adv sets failed with 0x%lX\n", status);
     return;
   } else {
-    LOG_PRINT("Max number of supported Adv sets are %d  \n", rsi_app_resp_max_no_of_supp_adv_sets);
+    LOG_PRINT("Max number of supported Adv sets are %d  \n", (uint8_t)rsi_app_resp_max_no_of_supp_adv_sets);
   }
 
   //! set ae adv params

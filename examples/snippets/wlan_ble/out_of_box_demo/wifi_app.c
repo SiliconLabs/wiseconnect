@@ -427,6 +427,9 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
     callback_status = show_scan_results();
   }
 
+  // Send wlan scan result to BLE module
+  wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
+
   return SL_STATUS_OK;
 }
 
@@ -823,9 +826,6 @@ void wifi_app_task(void)
           osDelay(1000);
           wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
-        } else {
-          // Update WLAN application state
-          wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
       } break;
 

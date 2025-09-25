@@ -433,14 +433,6 @@ void ble_central(void *argument)
 #endif
   ble_peripheral_conn_sem = osSemaphoreNew(1, 0, NULL);
 
-  //! start scanning
-  status = rsi_ble_start_scanning();
-  if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n start_scanning status: 0x%lX\r\n", status);
-    return;
-  }
-  LOG_PRINT("\r\n Started scanning\r\n");
-
 #if ENABLE_NWP_POWER_SAVE
   LOG_PRINT("\r\n Keep module in to power save \r\n");
   //! initiating power save in BLE mode
@@ -463,6 +455,13 @@ void ble_central(void *argument)
 
   LOG_PRINT("\r\n Module is in power save \r\n");
 #endif
+  //! start scanning
+  status = rsi_ble_start_scanning();
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n start_scanning status: 0x%lX\r\n", status);
+    return;
+  }
+  LOG_PRINT("\r\n Started scanning\r\n");
 
   while (1) {
     //! Application main loop
@@ -530,27 +529,6 @@ void ble_central(void *argument)
         //! clear the disconnected event.
         rsi_ble_app_clear_event(RSI_APP_EVENT_DISCONNECTED);
         LOG_PRINT("\r\n Module got disconnected\r\n");
-#if ENABLE_NWP_POWER_SAVE
-        LOG_PRINT("\r\n Keep module in to active state \r\n");
-        //! initiating Active mode in BT mode
-        status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
-        if (status != RSI_SUCCESS) {
-          if (status == RSI_FEATURE_NOT_SUPPORTED) {
-            LOG_PRINT("\r\n Configured power save profile not supported in BLE mode \r\n");
-          } else {
-            LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
-          }
-          return;
-        }
-
-        //! initiating power save in wlan mode
-        wifi_profile.profile = HIGH_PERFORMANCE;
-        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
-        if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\n Failed to keep module in HIGH_PERFORMANCE mode \r\n");
-          return;
-        }
-#endif
         device_found = 0;
         LOG_PRINT("\r\n Restarted Scanning\r\n");
         //! start scanning
@@ -558,27 +536,7 @@ void ble_central(void *argument)
         if (status != RSI_SUCCESS) {
           LOG_PRINT("\r\n start_scanning status: 0x%lX\r\n", status);
         }
-#if ENABLE_NWP_POWER_SAVE
-        LOG_PRINT("\r\n keep module in to power save \r\n");
-        status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
-        if (status != RSI_SUCCESS) {
-          if (status == RSI_FEATURE_NOT_SUPPORTED) {
-            LOG_PRINT("\r\n Configured power save profile not supported in BLE mode \r\n");
-          } else {
-            LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
-          }
-          return;
-        }
 
-        //! initiating power save in wlan mode
-        wifi_profile.profile = ASSOCIATED_POWER_SAVE;
-        status               = sl_wifi_set_performance_profile_v2(&wifi_profile);
-        if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\n Failed to keep module in power save \r\n");
-          return;
-        }
-        LOG_PRINT("\r\n Module is in power save \r\n");
-#endif
       } break;
       default: {
       }

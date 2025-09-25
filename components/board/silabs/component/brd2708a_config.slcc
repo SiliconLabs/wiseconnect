@@ -23,6 +23,10 @@
       file_id: psram_pin_config
     path: brd2708a/sl_si91x_psram_pin_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
+      file_id: sl_gpio_board
+    path: brd2708a/sl_gpio_board.h
+  - override:
       component: "%extension-wiseconnect3_sdk%sl_si91x_led_917"
       file_id: led_config
       instance: led0

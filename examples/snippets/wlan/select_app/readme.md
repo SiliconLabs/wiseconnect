@@ -2,14 +2,16 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - Select App](#wi-fi---select-app)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -79,9 +81,6 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
   	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA2 
   	```
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
- 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
   - RECV_BUFFER_SIZE refers to size of buffer used to receive the data sent by the remote client.
@@ -108,6 +107,8 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
      #define SELECT_TIME_OUT                                   30
     ```
     
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

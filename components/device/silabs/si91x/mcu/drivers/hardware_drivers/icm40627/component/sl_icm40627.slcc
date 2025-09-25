@@ -22,4 +22,3 @@ provides:
   - name: sl_icm40627
 requires:
   - name: sl_ssi
-  - name: sl_gpio

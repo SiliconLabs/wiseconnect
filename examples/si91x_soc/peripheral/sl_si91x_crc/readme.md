@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
+- [SL CRC](#sl-crc)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -36,7 +38,7 @@
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -55,7 +57,7 @@ For details on the project folder structure, see the [WiSeConnect_Examples](http
 
 - The application has two configurable parameters:  Polynomial value and Data width.
 
-- Configure the following parameter in the `sl_si91x_crc.h` file (path: components\device\silabs\si91x\mcu\drivers\unified_api\inc\sl_si91x_crc.h). Update or modify the following macro, if required. The code illustrates the default configurations.
+- Configure the following parameter in the [`sl_si91x_crc.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/inc/sl_si91x_crc.h) file. Update or modify the following macro, if required. The code illustrates the default configurations.
 
   ```C
    #define SL_CRC_POLYNOMIAL      0x04C11DB7 /* Polynomial encryption value */
@@ -65,6 +67,8 @@ For details on the project folder structure, see the [WiSeConnect_Examples](http
 > **Note:**
 > While changing the data which CRC has to calculate and compare with Software CRC, you need to update the data in file `sw_crc.c` variable  `input[]`  and in `crc_example.c` variable `gcrc_tx_Buf[]`.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions in the [Create a Project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project) section on the *Developing with WiSeConnect™ SDK v3.x with SiWx91x™ Boards* page to:
@@ -73,6 +77,6 @@ Refer to the instructions in the [Create a Project](https://docs.silabs.com/wise
 
   - Console Output:
 
-    ![Figure: Introduction](resources/readme/crc_result_console.png)
+    ![Figure: crc_result_console](resources/readme/crc_result_console.png)
 
 > **Note:** Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

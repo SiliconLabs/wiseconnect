@@ -573,17 +573,17 @@ sl_status_t sl_si91x_gpdma_get_channel_status(uint32_t channel_number);
  *
  * @section GPDMA_Config Configuration
  *
- * The GPDMA can be configured for various transfer types and operational modes, including:
- * - **Memory-to-Memory**: Direct transfer between two memory locations.
- * - **Memory-to-Peripheral**: Transfer from memory to a peripheral register.
- * - **Peripheral-to-Memory**: Transfer from a peripheral register to memory.
- * - **Peripheral-to-Peripheral**: Transfer between two peripheral registers.
- * - **Linked List Mode**: Use descriptors for chained or scatter-gather transfers.
+ * GPDMA can be configured for various transfer types and operational modes, including:
+ * - **Memory-to-memory**: Direct transfer between two memory locations.
+ * - **Memory-to-peripheral**: Transfer from memory to a peripheral register.
+ * - **Peripheral-to-memory**: Transfer from a peripheral register to memory.
+ * - **Peripheral-to-peripheral**: Transfer between two peripheral registers.
+ * - **Linked list mode**: Use descriptors for chained or scatter-gather transfers.
  * - **FIFO Allocation**: Assign FIFO buffers to channels for burst transfers.
  * - **Callback Registration**: Register callbacks for transfer complete, descriptor fetch, and error events.
  * These configurations are encapsulated in the @ref sl_si91x_gpdma_channel_config_t and related structures, and initialized using the provided GPDMA APIs.
  *
- * For more details on configuration parameters, see the respective peripheral example readme document.
+ * For more details on configuration parameters, see the respective peripheral example README document.
  *
  * @section GPDMA_Usage Usage
  *

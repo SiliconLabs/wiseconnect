@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [PSRAM Core Component Installation](#psram-core-component-installation)
-- [Test the Application](#test-the-application)
+- [PSRAM Driver Example](#psram-driver-example)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [PSRAM Core Component Installation](#psram-core-component-installation)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -31,7 +33,7 @@
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -62,13 +64,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Configuration for Read-Write type and Interface mode
 > ![Figure: PSRAM Device Configuration](resources/readme/device_config.png)
   
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 1. Compile and run the application.
 2. Logs are printed with success or failure status for PSRAM read & write events in auto mode, manual mode, and manual via DMA mode.
 3. Serial console output will be below.
 
-    > ![Figure: Introduction](./resources/readme/outputConsole_PSRAM_DRIVER_Example.png)
+    > ![Figure: outputConsole_PSRAM_DRIVER_Example](resources/readme/outputConsole_PSRAM_DRIVER_Example.png)
 
 
 

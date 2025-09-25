@@ -38,11 +38,59 @@
  * @brief CRC instance.
  */
 #define pCRC CRC
+/*******************************************************************************
+ * @fn           sl_status_t sl_si91x_crc_set_config(sl_crc_params_t *params)
+ * @brief        This API is used to set the CRC configuration parameters.
+ *               It initializes the CRC module with the provided parameters and
+ *               returns the calculated CRC value.
+ *******************************************************************************/
+sl_status_t sl_si91x_crc_set_config(sl_crc_params_t *params)
+{
+  sl_status_t status  = SL_STATUS_OK;
+  uint32_t reg_status = 0;
 
-/**
- * @brief CRC instance.
- */
-#define pCRC CRC
+  // Reset all state machines to IDLE state
+  status = sl_si91x_crc_set_gen_control();
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_INVALID_STATE;
+  }
+  // Enable CRC peripheral clock
+  status = sl_si91x_crc_enable();
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_NOT_READY;
+  }
+  // Configure CRC polynomial value
+  status = sl_si91x_crc_polynomial(params);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_INITIALIZATION;
+  }
+  // Set width of the polynomial
+  status = sl_si91x_crc_polynomial_width(params, &reg_status);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+  // Initialize LFSR with initial value
+  status = sl_si91x_crc_lfsr_init(params);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  // Configure bit-swapped initialization if needed
+  status = sl_si91x_crc_use_swapped_init(params, &reg_status);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_NOT_AVAILABLE;
+  }
+  // Set data width types for CRC calculation
+  status = sl_si91x_crc_set_data_width_type(params, &reg_status);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_BUSY;
+  }
+  // Configure FIFO threshold levels
+  status = sl_si91x_crc_set_fifo_thresholds(params, &reg_status);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_ABORT;
+  }
+  return SL_STATUS_OK;
+}
 
 /*******************************************************************************
  * @fn           sl_status_t sl_si91x_crc_set_gen_control(
@@ -83,10 +131,11 @@ sl_status_t sl_si91x_crc_get_general_status(uint32_t *reg_status)
 sl_status_t sl_si91x_crc_polynomial(sl_crc_params_t *pCRCParams)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL && pCRCParams != NULL)
+  if (pCRC != NULL && pCRCParams != NULL) {
     RSI_CRC_Polynomial(pCRC, pCRCParams);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 
@@ -132,10 +181,11 @@ sl_status_t sl_si91x_crc_lfsr_init(sl_crc_params_t *pCRCParams)
 sl_status_t sl_si91x_crc_use_swapped_init(sl_crc_params_t *pCRCParams, uint32_t *reg_status)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL && pCRCParams != NULL)
+  if ((pCRC != NULL) && (pCRCParams != NULL) && (reg_status != NULL)) {
     *reg_status = RSI_CRC_Use_Swapped_Init(pCRC, pCRCParams);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 /*******************************************************************************
@@ -147,10 +197,11 @@ sl_status_t sl_si91x_crc_use_swapped_init(sl_crc_params_t *pCRCParams, uint32_t 
 sl_status_t sl_si91x_crc_set_data_width_type(sl_crc_params_t *pCRCParams, uint32_t *oper_status)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL && pCRCParams != NULL)
+  if ((pCRC != NULL) && (pCRCParams != NULL) && (oper_status != NULL)) {
     *oper_status = RSI_CRC_Set_DataWidthType(pCRC, pCRCParams);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 /*******************************************************************************
@@ -161,10 +212,12 @@ sl_status_t sl_si91x_crc_set_data_width_type(sl_crc_params_t *pCRCParams, uint32
 sl_status_t sl_si91x_crc_set_fifo_thresholds(sl_crc_params_t *pCRCParams, uint32_t *oper_status)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL && pCRCParams != NULL)
+  if ((pCRC != NULL) && (pCRCParams != NULL) && (oper_status != NULL)) {
     *oper_status = RSI_CRC_SetFifoThresholds(pCRC, pCRCParams);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
+
   return status;
 }
 
@@ -178,10 +231,11 @@ sl_status_t sl_si91x_crc_set_fifo_thresholds(sl_crc_params_t *pCRCParams, uint32
 sl_status_t sl_si91x_crc_write_data(sl_crc_params_t *pCRCParams, uint32_t data, uint32_t *oper_status)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL && pCRCParams != NULL)
+  if (pCRC != NULL && pCRCParams != NULL && oper_status != NULL) {
     *oper_status = RSI_CRC_WriteData(pCRC, pCRCParams, data);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 /*******************************************************************************
@@ -194,10 +248,11 @@ sl_status_t sl_si91x_crc_write_data(sl_crc_params_t *pCRCParams, uint32_t data, 
 sl_status_t sl_si91x_crc_monitor_crc_calc(sl_crc_params_t *pCRCParams, uint32_t *crc)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL && pCRCParams != NULL)
+  if (pCRC != NULL && pCRCParams != NULL && crc != NULL) {
     *crc = RSI_Monitor_CRCcalc(pCRC, pCRCParams);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 /*******************************************************************************
@@ -222,12 +277,12 @@ sl_status_t sl_si91x_crc_lfsr_dynamic_write(sl_crc_params_t *pCRCParams)
  *******************************************************************************/
 sl_status_t sl_si91x_crc_reset_fifo(void)
 {
-
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL)
+  if (pCRC != NULL) {
     RSI_CRC_ResetFifo(pCRC);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 /*******************************************************************************
@@ -238,10 +293,11 @@ sl_status_t sl_si91x_crc_reset_fifo(void)
 sl_status_t sl_si91x_crc_get_fifo_status(uint32_t *reg_status)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (pCRC != NULL)
+  if ((pCRC != NULL) && (reg_status != NULL)) {
     *reg_status = RSI_CRC_GetFifoStatus(pCRC);
-  else
+  } else {
     status = SL_STATUS_NULL_POINTER;
+  }
   return status;
 }
 /*******************************************************************************

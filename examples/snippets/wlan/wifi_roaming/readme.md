@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Set up Diagram](#set-up-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Application Output](#application-output)
+- [Wi-Fi Roaming](#wi-fi-roaming)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -93,10 +95,7 @@ The application can be configured to suit your requirements and development envi
 
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-  > Note: 
-  > You can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
-
-2. Configure the following parameters in ``app.c`` to test the application as per requirements
+1. Configure the following parameters in ``app.c`` to test the application as per requirements
 - **Advanced Scan Configuration Parameters**
 
   - Configure the advanced scan configurations to optimize the device's roaming performance.
@@ -116,6 +115,8 @@ The application can be configured to suit your requirements and development envi
     - `ROAMING_TRIGGER_DELTA_CHANGE`: The change in signal strength required to trigger a roaming event.
 
     > **Note:** Ensure that `ADV_SCAN_THRESHOLD` is set to a value greater than `ROAMING_THRESHOLD` to optimize the device's roaming performance.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

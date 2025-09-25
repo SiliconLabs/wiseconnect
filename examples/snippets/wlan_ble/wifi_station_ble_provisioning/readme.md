@@ -2,14 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose / Scope](#purpose--scope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi Coex - Wi-Fi Client BLE Provisioning](#wi-fi-coex---wi-fi-client-ble-provisioning)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Steps to verify the WLAN Station BLE Provisioning Example](#steps-to-verify-the-wlan-station-ble-provisioning-example)
 
 ## Purpose / Scope
 
@@ -156,8 +159,7 @@ The application can be configured to suit your requirements and development envi
         #define  RSI_BLE_ATT_PROPERTY_NOTIFY                     0x10
         ```
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

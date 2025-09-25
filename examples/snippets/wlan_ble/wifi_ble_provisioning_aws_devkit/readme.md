@@ -2,18 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose / Scope](#purpose--scope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
+- [Sensor Data Publishing and LED Control with AWS IoT MQTT for SiWG917 Dev Kit](#sensor-data-publishing-and-led-control-with-aws-iot-mqtt-for-siwg917-dev-kit)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
     - [Software Requirements](#software-requirements)
     - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
+  - [Getting Started](#getting-started)
     - [Create an application](#create-an-application)
-    - [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#Configure-the-following-parameters-in-aws_iot_configh-file-present-at-projectconfig)
+    - [Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-following-parameters-in-aws_iot_configh-file-present-at-projectconfig)
   - [Test the Application](#test-the-application)
     - [Application Output](#application-output)
     - [MQTT Connection](#mqtt-connection)
-- [Additional Information](#additional-information)
+  - [Additional Information](#additional-information)
     - [Setting up Security Certificates](#setting-up-security-certificates)
     - [Create an AWS Thing](#create-an-aws-thing)
   
@@ -89,9 +91,11 @@ By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
-The following instructions are provied in [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
+The following instructions are provided in [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 - Build the application.
 - Flash, run, and debug the application.
@@ -120,17 +124,19 @@ Complete the following steps for successful execution of the application:
 
    ![](resources/readme/remote_screen3.png)
 
-8. Once the Silicon Labs module is connected to the access point, you will be prompted to enter the publish and subscribe topics.
+8. Once the Silicon Labs module is successfully connected to the Wi-Fi network, the BLE connection is automatically disconnected from the application side since it is no longer needed for provisioning.
+
+9. After the Wi-Fi connection is established, you will be prompted to enter the publish and subscribe topics.
 
    ![](resources/readme/Mobile_app_ui_2.png)
 
-9. The application starts publishing sensor data to AWS via MQTT, and this information will be displayed on the mobile app dashboard.
+10. The application starts publishing sensor data to AWS via MQTT, and this information will be displayed on the mobile app dashboard.
 
    ![](resources/readme/Mobile_app_ui_3.png)
 
    ![](resources/readme/Mobile_app_ui_4.png)
 
-10. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
+11. The mobile app publishes the required LED state to AWS. The application, which is already subscribed to this topic, will turn on the respective LED on the SiWx917.
 
     ![](resources/readme/Mobile_app_ui_5.png)
 
@@ -151,7 +157,7 @@ After successfully connecting to Wi-Fi, the application establishes a connection
 
 1. Go to the mobile app and enable the required LED.
 
-2. Realtime sensor data will be displayed on the mobile app dashboard. You can also see the published data by subscribing to the topic (MQTT_TOPIC1) in AWS console.
+2. Real-time sensor data will be displayed on the mobile app dashboard. You can also see the published data by subscribing to the topic (MQTT_TOPIC1) in AWS console.
 
    ![](resources/readme/publish_status_from_AWS.png)
 

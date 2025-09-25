@@ -156,8 +156,20 @@ bool sli_get_card_ready_required();
 /* Function used to set the maximum transmission power */
 void sli_save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power);
 
+/* Function used to set the RTS threshold */
+void sli_save_rts_threshold(uint16_t rts_threshold);
+
+/* Function used to save the MFP mode */
+sl_status_t sli_save_mfp_mode(const sl_wifi_mfp_config_t *mfp_config);
+
 /* Function used to get maximum transmission power */
 sl_wifi_max_tx_power_t sli_get_max_tx_power();
+
+/* Function used to get RTS threshold */
+sl_wifi_rts_threshold_t sli_get_rts_threshold();
+
+/* Function used to get MFP mode */
+sl_wifi_mfp_config_t sli_get_mfp_mode();
 
 /* Function used to set maximum transmission power to default value(31 dBm) */
 void sli_reset_max_tx_power();
@@ -565,11 +577,11 @@ sl_status_t sli_si91x_flush_generic_data_queues(sli_si91x_buffer_queue_t *tx_dat
  *   Retrieves the current status of the TX command.
  *
  * @details
- *   This function returns the current status flag indicating whether a TX (transmit) command is in progress or completed.
- *   It is typically used to check if the system is ready to send a new TX command or if a previous command is still pending.
+ *   This function returns a status flag indicating whether a TX (transmit) command is currently in progress or completed.
+ *   Use this function to determine if the system is ready to send a new TX command or if a previous command is still pending.
  *
  * @return
- *   Returns `true` if a TX command is in progress, `false` otherwise.
+ *   Returns `true` if a TX command is in progress; `false` otherwise.
  ******************************************************************************/
 bool sli_si91x_get_tx_command_status(void);
 

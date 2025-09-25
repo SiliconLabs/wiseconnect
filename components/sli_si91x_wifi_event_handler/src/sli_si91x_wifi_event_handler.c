@@ -90,6 +90,12 @@ extern osMessageQueueId_t network_manager_queue;
 // Indicates asynchronous RX response received for BLE command type
 #define NCP_HOST_BLE_NOTIFICATION_EVENT SL_SI91X_NOTIFICATION_FLAG(SLI_SI91X_BT_CMD)
 
+// Define a constant for identifying a Wi-Fi packet type
+#define SLI_WIFI_PACKET 1
+
+// Define a constant for identifying a BLE packet type
+#define SLI_BLE_PACKET 2
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -114,7 +120,58 @@ extern sli_si91x_buffer_queue_t sli_uart_bus_rx_queue;
 
 static uint16_t interrupt_status = 0;
 
-static bool global_queue_block = false;
+bool global_queue_block = false;
+
+// Define enum for wait times (can be represented with just 2 bits)
+typedef enum {
+  SLI_WIFI_WAIT_TIME_ZERO        = 0, // 0 ms
+  SLI_WIFI_WAIT_TIME_YIELD       = 1, // 10 ms
+  SLI_WIFI_WAIT_TIME_WAITFOREVER = 2  // osWaitForever
+} sli_wait_time_type_t;
+
+/**
+ * @brief Lookup table encoding command engine wait times for 16 possible states.
+ *
+ * This 32-bit constant encodes wait times for each of the 16 possible combinations
+ * of four status bits, using 2 bits per entry (total 16 entries).
+ *
+ * The four status bits (from MSB to LSB) are:
+ *   - Bit 3: wifi_buffer_full   (1 = WiFi buffer is full, 0 = not full)
+ *   - Bit 2: wifi_packets       (1 = WiFi packets present, 0 = none)
+ *   - Bit 1: ble_buffer_full    (1 = BLE buffer is full, 0 = not full)
+ *   - Bit 0: ble_packets        (1 = BLE packets present, 0 = none)
+ *
+ * The 2-bit value for each entry specifies the wait time action:
+ *   - SLI_WIFI_WAIT_TIME_ZERO         : No wait
+ *   - SLI_WIFI_WAIT_TIME_YIELD        : Yield
+ *   - SLI_WIFI_WAIT_TIME_WAITFOREVER  : Wait forever
+ *
+ * The lookup table is constructed as:
+ *   (wait_time_for_index15 << 30) | (wait_time_for_index14 << 28) | ... | (wait_time_for_index0 << 0)
+ * where index is the 4-bit value: (wifi_buffer_full << 3) | (wifi_packets << 2) | (ble_buffer_full << 1) | (ble_packets)
+ *
+ * Example:
+ *   Index 0b1111 (15): wifi_buffer_full=1, wifi_packets=1, ble_buffer_full=1, ble_packets=1
+ *   Index 0b0000 (0):  wifi_buffer_full=0, wifi_packets=0, ble_buffer_full=0, ble_packets=0
+ */
+// command engine wait time lookup table (16 entries, 2 bits each => 32 bits total)
+static const uint32_t sli_si91x_command_engine_wait_time_lookup =
+  (SLI_WIFI_WAIT_TIME_YIELD << (2 * 15)) |       // index 15: 1111
+  (SLI_WIFI_WAIT_TIME_YIELD << (2 * 14)) |       // index 14: 1110
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 13)) |        // index 13: 1101
+  (SLI_WIFI_WAIT_TIME_YIELD << (2 * 12)) |       // index 12: 1100
+  (SLI_WIFI_WAIT_TIME_YIELD << (2 * 11)) |       // index 11: 1011
+  (SLI_WIFI_WAIT_TIME_WAITFOREVER << (2 * 10)) | // index 10: 1010
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 9)) |         // index 9: 1001
+  (SLI_WIFI_WAIT_TIME_WAITFOREVER << (2 * 8)) |  // index 8: 1000
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 7)) |         // index 7: 0111
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 6)) |         // index 6: 0110
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 5)) |         // index 5: 0101
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 4)) |         // index 4: 0100
+  (SLI_WIFI_WAIT_TIME_YIELD << (2 * 3)) |        // index 3: 0011
+  (SLI_WIFI_WAIT_TIME_WAITFOREVER << (2 * 2)) |  // index 2: 0010
+  (SLI_WIFI_WAIT_TIME_ZERO << (2 * 1)) |         // index 1: 0001
+  (SLI_WIFI_WAIT_TIME_WAITFOREVER << (2 * 0));   // index 0: 0000
 
 /******************************************************
  *             Extern Variable Declarations
@@ -171,11 +228,13 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
 
 sl_status_t sli_si91x_req_wakeup(void);
 
+void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet);
+
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socket_packet);
 #endif
 
-bool sli_si91x_is_bus_ready(bool global_queue_block);
+static bool sli_si91x_is_bus_ready(bool global_queue_block, uint8_t packet_type);
 void sli_si91x_process_wifi_events();
 void sli_si91x_process_network_events();
 void sli_si91x_process_socket_events();
@@ -341,7 +400,7 @@ static void set_async_event(uint32_t event_mask)
 }
 
 // Function to check if the bus is ready for writing
-bool sli_si91x_is_bus_ready(bool global_queue_block)
+static bool sli_si91x_is_bus_ready(bool global_queue_block, uint8_t packet_type)
 {
   // If the global queue block flag is set, the bus is not ready
   if (global_queue_block) {
@@ -355,7 +414,6 @@ bool sli_si91x_is_bus_ready(bool global_queue_block)
   }
 #endif
 
-  uint16_t interrupt_status = 0;
   // Read the interrupt status from the bus
   sli_si91x_bus_read_interrupt_status(&interrupt_status);
 
@@ -366,11 +424,13 @@ bool sli_si91x_is_bus_ready(bool global_queue_block)
   }
 #endif
 
-  // If the buffer is full, unmask the TA interrupt and return false
-  if (interrupt_status & SLI_BUFFER_FULL) {
+  // If the buffer is full for the given packet type, unmask the TA interrupt (if MCU interface) and return false
+  if ((packet_type == SLI_WIFI_PACKET) && (interrupt_status & SLI_WIFI_BUFFER_FULL)) {
 #ifdef SLI_SI91X_MCU_INTERFACE
     unmask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
 #endif
+    return false;
+  } else if ((packet_type == SLI_BLE_PACKET) && (interrupt_status & SLI_BLE_BUFFER_FULL)) {
     return false;
   }
   // The bus is ready for writing
@@ -394,12 +454,18 @@ static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socke
       RESET,
       (int16_t)(socket_create_response->socket_type[0] | (socket_create_response->socket_type[1] << 8)));
   } else if (socket_packet->command == SLI_WLAN_RSP_SOCKET_ACCEPT) {
-    const sli_si91x_socket_t *si91x_socket = sli_si91x_get_socket_from_id(socket_id, RESET, -1);
-    return sli_get_si91x_socket(si91x_socket->client_id);
+    const uint16_t port = ((sli_si91x_rsp_ltcp_est_t *)socket_packet->data)->src_port_num;
+    for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+      if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
+          && sli_si91x_sockets[i]->state == LISTEN) {
+        return sli_si91x_sockets[sli_si91x_sockets[i]->client_id];
+      }
+    }
+    return NULL;
   } else if (socket_packet->command == SLI_WLAN_RSP_SOCKET_CLOSE) {
     if (((sl_si91x_socket_close_response_t *)socket_packet->data)->socket_id == 0) {
       const uint16_t port = ((sl_si91x_socket_close_response_t *)socket_packet->data)->port_number;
-      for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+      for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
         if (sli_si91x_sockets[i] != NULL && sli_si91x_sockets[i]->local_address.sin6_port == port
             && sli_si91x_sockets[i]->state == LISTEN) {
           return sli_si91x_sockets[i];
@@ -731,11 +797,14 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               // create dummy packets for respective queues to be cleared
               sli_handle_dhcp_and_rejoin_failure(cmd_queues[SLI_SI91X_WLAN_CMD].sdk_context, buffer, frame_status);
             }
-            if (((SLI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK))
-                || (SLI_WLAN_RSP_DISCONNECT == frame_type)) {
+            if ((SLI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK)) {
               // Reset current performance profile and set it to high performance
               sli_reset_coex_current_performance_profile();
-              current_performance_profile = HIGH_PERFORMANCE;
+              current_performance_profile = SL_WIFI_SYSTEM_ASSOCIATED_POWER_SAVE_LOW_LATENCY;
+            } else if (SLI_WLAN_RSP_DISCONNECT == frame_type) {
+              // Reset current performance profile and set it to high performance
+              sli_reset_coex_current_performance_profile();
+              current_performance_profile = SL_WIFI_SYSTEM_HIGH_PERFORMANCE;
             }
 
             // check if the frame type is valid
@@ -908,7 +977,8 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case SLI_WLAN_RSP_EMB_MQTT_CLIENT:
           case SLI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT:
           case SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE:
-          case SLI_WLAN_RSP_MDNSD: {
+          case SLI_WLAN_RSP_MDNSD:
+          case SLI_WLAN_RSP_NAT: {
             // Increment the received frame counter for network commands
             ++cmd_queues[SLI_SI91X_NETWORK_CMD].rx_counter;
 
@@ -1314,9 +1384,10 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
         data[1] &= 0xF;
         if (frame_type == SLI_RECEIVE_RAW_DATA) {
           // If the frame type is raw data reception
-
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
           SL_DEBUG_LOG("Raw Data\n");
+
+#if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && !defined(SLI_SI91X_NETWORK_DUAL_STACK)
+          // Offload only mode is not enabled
           sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
           sli_si91x_socket_t *socket             = NULL;
           int socket_id                          = sli_si91x_get_socket_id(socket_packet);
@@ -1347,8 +1418,47 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             socket->command_queue.command_tickcount = 0;
             socket->command_queue.command_timeout   = 0;
           }
+#elif defined(SLI_SI91X_NETWORK_DUAL_STACK)
+          extern bool bypass_mode_enabled;
+
+          if (!bypass_mode_enabled) {
+            sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
+            sli_si91x_socket_t *socket             = NULL;
+            int socket_id                          = sli_si91x_get_socket_id(socket_packet);
+            socket                                 = sli_si91x_get_socket_from_id(socket_id, LISTEN, -1);
+
+            // Check if we found a matching socket
+            if (socket != NULL) {
+              buffer->id = (uint8_t)(socket->command_queue.packet_id);
+              // Check if command has timed out
+              if (socket->command_queue.command_tickcount == 0
+                  || (sl_si91x_host_elapsed_time(socket->command_queue.command_tickcount)
+                      <= (socket->command_queue.command_timeout))) {
+                if (((socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_READ_DATA)
+                     || (socket->command_queue.frame_type == socket_packet->command))
+                    && socket->command_queue.command_in_flight
+                    && socket->command_queue.flags & SI91X_PACKET_RESPONSE_PACKET) {
+                  socket->command_queue.command_in_flight = false;
+                  sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
+                  sli_si91x_set_socket_event(1 << socket->index);
+                } else {
+                  sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
+                  set_async_event(NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT);
+                }
+              } else {
+                sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
+                set_async_event(NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT);
+              }
+              socket->command_queue.command_tickcount = 0;
+              socket->command_queue.command_timeout   = 0;
+            }
+          } else {
+            // If SLI_SI91X_OFFLOAD_NETWORK_STACK is defined and dual stack mode is enabled, process the raw data frame.
+            sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
+            sli_si91x_host_free_buffer(buffer);
+          }
 #else
-          // If SLI_SI91X_OFFLOAD_NETWORK_STACK is not defined, process the data frame and free the buffer.
+          // In bypass mode, process the data frame and free the buffer.
           sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
           sli_si91x_host_free_buffer(buffer);
 #endif
@@ -1410,7 +1520,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 {
   if (*event & SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS) {
     // This condition is checked before writing frames to the bus
-    for (int i = 0; i < SI91X_CMD_MAX; i++) {
+    for (uint8_t i = 0; i < SI91X_CMD_MAX; i++) {
       if (!(*event & (SL_SI91X_TX_PENDING_FLAG(i)))) {
         continue;
       }
@@ -1420,8 +1530,9 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
       } else {
         tx_command_queues_command_in_flight_status &= ~SL_SI91X_TX_PENDING_FLAG(i);
       }
+      uint8_t packet_type = (i == SLI_SI91X_BT_CMD) ? SLI_BLE_PACKET : SLI_WIFI_PACKET;
       // Check if the bus is ready for a packet
-      if (!sli_si91x_is_bus_ready(global_queue_block)) {
+      if (!sli_si91x_is_bus_ready(global_queue_block, packet_type)) {
         break;
       }
 
@@ -1435,7 +1546,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
   if (tx_socket_command_queues_status & (~tx_command_queues_command_in_flight_status)) {
-    for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; i++) {
+    for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; i++) {
       if (sli_si91x_sockets[i] != NULL
           && !sli_si91x_buffer_queue_empty(&sli_si91x_sockets[i]->command_queue.tx_queue)) {
         if (sli_si91x_sockets[i]->command_queue.command_in_flight == true) {
@@ -1445,7 +1556,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
           tx_socket_command_command_in_flight_queues_status &= ~(1 << i);
         }
         // Check if the bus is ready for a packet
-        if (!sli_si91x_is_bus_ready(global_queue_block)) {
+        if (!sli_si91x_is_bus_ready(global_queue_block, SLI_WIFI_PACKET)) {
           break;
         }
 
@@ -1468,12 +1579,12 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
   if (*event & SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT) {
     bool all_socket_data_sent = true;
     // Check each socket if it has something to send
-    for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+    for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
       if (sli_si91x_sockets[i] != NULL && !sli_si91x_buffer_queue_empty(&sli_si91x_sockets[i]->tx_data_queue)) {
         all_socket_data_sent = false;
 
         // Check if the bus is ready for a packet
-        if (!sli_si91x_is_bus_ready(global_queue_block)) {
+        if (!sli_si91x_is_bus_ready(global_queue_block, SLI_WIFI_PACKET)) {
           break;
         }
 
@@ -1495,7 +1606,7 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 #endif
   if (*event & SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT) {
     // Check if the bus is ready for a packet
-    if (sli_si91x_is_bus_ready(global_queue_block)) {
+    if (sli_si91x_is_bus_ready(global_queue_block, SLI_WIFI_PACKET)) {
       bus_write_data_frame(&sli_tx_data_queue);
       if (sli_si91x_buffer_queue_empty(&sli_tx_data_queue)) {
         *event &= ~SL_SI91X_GENERIC_DATA_TX_PENDING_EVENT;
@@ -1530,41 +1641,69 @@ uint32_t sli_wifi_event_handler_get_flags_to_wait_on(void)
   return BUS_THREAD_EVENTS;
 }
 
+// Helper function to extract wait time from the packed lookup table based on current queue/buffer status.
+static inline int32_t sli_get_wait_time(bool wifi_buffer_full,
+                                        bool wifi_packets,
+                                        bool ble_buffer_full,
+                                        bool ble_packets)
+{
+  // Compose a 4-bit key from the status flags.
+  uint8_t key = (wifi_buffer_full << 3) | (wifi_packets << 2) | (ble_buffer_full << 1) | (ble_packets);
+
+  // Extract the 2-bit wait type for the key from the packed lookup table.
+  sli_wait_time_type_t type = (sli_si91x_command_engine_wait_time_lookup >> (2 * key)) & 0x3;
+
+  switch (type) {
+    case SLI_WIFI_WAIT_TIME_ZERO:
+      return 0; // No wait
+    case SLI_WIFI_WAIT_TIME_YIELD:
+      return 10; // Yield for 10 ms
+    case SLI_WIFI_WAIT_TIME_WAITFOREVER:
+      return osWaitForever; // Wait indefinitely
+    default:
+      return osWaitForever;
+  }
+}
+
+// Inline function to determine the optimal wait time for the command engine thread
 extern inline uint32_t sli_wifi_event_handler_get_wait_time(uint32_t *event)
 {
-  bool tx_queues_empty   = 0;
-  uint32_t bus_wait_time = 0;
-
-  // 0 - give up bus thread
-  // 1 - need to process some tx commands/data packets
-  tx_queues_empty = (
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-    (tx_socket_data_queues_status
-     || (tx_socket_command_queues_status & (~tx_socket_command_command_in_flight_queues_status)))
-    ||
-#endif
-    (tx_command_queues_status & (~tx_command_queues_command_in_flight_status)) || tx_generic_socket_data_queues_status);
-  // TODO: Add checking ALL socket command queues
-
-  // Set wait time:
+  // If an RX event is pending, return immediately (no wait).
   if (*event & SL_SI91X_NCP_HOST_BUS_RX_EVENT) {
-    // If there might be a buffer to receive, do that immediately.
-    bus_wait_time = 0;
-  } else if (global_queue_block) {
-    // If there is global queue blocked, wait forever.
-    bus_wait_time = osWaitForever;
-  } else if (interrupt_status & SLI_BUFFER_FULL) {
-    // If the last interrupt_status check indicates buffer full, wait up to 10ms.
-    bus_wait_time = 10;
-  } else if (tx_queues_empty == 0) {
-    // If all queues are empty and no event to be processed, wait indefinitely.
-    bus_wait_time = osWaitForever;
-  } else {
-    // Else any TX queues pending further will be given immediately
-    bus_wait_time = 0;
+    return 0;
+  }
+  // If the global queue is blocked, return wait forever.
+  else if (global_queue_block) {
+    return osWaitForever;
   }
 
-  return bus_wait_time;
+  // Flags to track if Wi-Fi or BLE TX queues are pending and if their buffers are full.
+  bool wifi_tx_queues_pending = false;
+  bool ble_tx_queues_pending  = false;
+  bool wifi_buffer_full       = interrupt_status & SLI_WIFI_BUFFER_FULL;
+  bool ble_buffer_full        = interrupt_status & SLI_BLE_BUFFER_FULL;
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+  // Check if any socket data or command queues are pending (excluding those in flight).
+  wifi_tx_queues_pending =
+    (tx_socket_data_queues_status != 0)
+    || ((tx_socket_command_queues_status & (~tx_socket_command_command_in_flight_queues_status)) != 0);
+#endif
+  // Check if any Wi-Fi TX queues (excluding BLE) or generic data queues are pending.
+  wifi_tx_queues_pending =
+    wifi_tx_queues_pending
+    || (((tx_command_queues_status & ~SL_SI91X_BT_TX_PENDING_EVENT) & (~tx_command_queues_command_in_flight_status))
+        != 0)
+    || (tx_generic_socket_data_queues_status != 0);
+
+#ifdef SLI_SI91X_ENABLE_BLE
+  // Check if any BLE TX queues are pending (excluding those in flight).
+  ble_tx_queues_pending =
+    ((tx_command_queues_status & SL_SI91X_BT_TX_PENDING_EVENT) & (~tx_command_queues_command_in_flight_status)) != 0;
+#endif
+
+  // Use a lookup table to select the appropriate wait time based on buffer and queue status.
+  return sli_get_wait_time(wifi_buffer_full, wifi_tx_queues_pending, ble_buffer_full, ble_tx_queues_pending);
 }
 
 /// Thread which handles the notification events.
@@ -1668,6 +1807,8 @@ void sli_si91x_process_network_events()
       sl_wifi_system_packet_t *packet =
         (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
 
+      sli_handle_wifi_events(data, packet);
+
       // Dispatch the network event to the appropriate handler.
       SL_NET_EVENT_DISPATCH_HANDLER(data, packet);
 
@@ -1706,7 +1847,7 @@ void sli_si91x_process_socket_data_events()
   sl_wifi_buffer_t *buffer = NULL;
 
   // Process data packet for each socket if a data queue is present
-  for (int i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
+  for (uint8_t i = 0; i < SLI_NUMBER_OF_SOCKETS; ++i) {
     if (sli_si91x_sockets[i] != NULL) {
       // If data is available in the RX queue, remove and process it
       if (sli_si91x_remove_from_queue(&sli_si91x_sockets[i]->rx_data_queue, &buffer) == SL_STATUS_OK) {
@@ -1834,4 +1975,93 @@ __WEAK sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interfac
   UNUSED_PARAMETER(interface);
   UNUSED_PARAMETER(buffer);
   return SL_STATUS_OK;
+}
+
+static void sli_handle_client_disconnection(sl_wifi_system_packet_t *packet)
+{
+  uint32_t payload_length = packet->length & 0x0FFF;
+
+  // Extract the MAC address based on the specific disconnection command.
+  if ((packet->command == SLI_WLAN_RSP_CLIENT_DISCONNECTED)
+      && (payload_length == sizeof(sli_si91x_ap_disconnect_resp_t))) {
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+    sli_si91x_flush_third_party_station_dependent_sockets((sli_si91x_ap_disconnect_resp_t *)packet->data);
+#endif
+  }
+}
+
+static void sli_handle_tx_flush(const sli_si91x_queue_packet_t *data,
+                                const sl_wifi_system_packet_t *packet,
+                                sl_wifi_operation_mode_t current_operation_mode)
+{
+  // Handle cases where a general TX flush might be needed due to connection changes.
+  // Check if the condition necessitates a general TX Wi-Fi queue flush.
+  bool is_general_tx_queue_flush_needed =
+    (packet->command == SLI_WLAN_RSP_JOIN || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
+     || packet->command == SLI_WLAN_RSP_IPCONFV4 || packet->command == SLI_WLAN_RSP_IPCONFV6
+     || (packet->command == SLI_WLAN_RSP_DISCONNECT
+         && (current_operation_mode == SL_SI91X_CLIENT_MODE || current_operation_mode == SL_SI91X_ENTERPRISE_CLIENT_MODE
+             || current_operation_mode == SL_SI91X_TRANSCEIVER_MODE
+             || current_operation_mode == SL_SI91X_TRANSMIT_TEST_MODE
+             || (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->desc[7] == SL_WIFI_CLIENT_VAP_ID))));
+
+  // If a general flush is required, clear all TX Wi-Fi queues as the connection is lost.
+  if (is_general_tx_queue_flush_needed) {
+    sli_si91x_flush_all_tx_wifi_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST);
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+    // Flush the select request table based on the provided frame_status
+    sli_si91x_flush_select_request_table(data->frame_status);
+#else
+    (void)data; // Mark data as unused when SLI_SI91X_OFFLOAD_NETWORK_STACK is not defined.
+#endif
+  }
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+  // Define the VAP ID for the client (default to client VAP ID).
+  uint8_t vap_id_for_flush = SL_WIFI_CLIENT_VAP_ID;
+
+  // In concurrent mode with an AP stop command, use the AP VAP ID for the flush.
+  if (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->command == SLI_WLAN_RSP_AP_STOP) {
+    vap_id_for_flush = SL_WIFI_AP_VAP_ID;
+  }
+  // Flush all pending socket commands for the determined VAP ID.
+  sli_si91x_flush_all_socket_command_queues(data->frame_status, vap_id_for_flush);
+
+  // Flush all pending socket data for the determined VAP ID.
+  sli_si91x_flush_all_socket_data_queues(vap_id_for_flush);
+
+  // Shutdown and update the state of the sockets associated with the VAP ID.
+  sli_si91x_vap_shutdown(vap_id_for_flush, SLI_SI91X_BSD_DISCONNECT_REASON_INTERFACE_DOWN);
+#endif
+}
+
+void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet)
+{
+  // Retrieve the current operation mode (e.g., client, AP, concurrent).
+  sl_wifi_operation_mode_t current_operation_mode = sli_get_opermode();
+
+  // Determine if a Wi-Fi client is disconnected from the access point.
+  // This includes cases where the device is operating as an access point (AP mode)
+  // or in concurrent mode where the AP VAP ID is relevant.
+  bool is_client_disconnected_from_ap =
+    (packet->command == SLI_WLAN_RSP_CLIENT_DISCONNECTED
+     || (packet->command == SLI_WLAN_RSP_DISCONNECT
+         && (current_operation_mode == SL_SI91X_ACCESS_POINT_MODE
+             || (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->desc[7] == SL_WIFI_AP_VAP_ID))));
+
+  // Determine if a TX flush is required.
+  // This is true for scenarios such as join failures, IP address changes, and disconnections.
+  bool is_tx_flush_required = (((packet->command == SLI_WLAN_RSP_JOIN) && (data->frame_status != SL_STATUS_OK))
+                               || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
+                               || packet->command == SLI_WLAN_RSP_IPCONFV4 || packet->command == SLI_WLAN_RSP_IPCONFV6
+                               || packet->command == SLI_WLAN_RSP_DISCONNECT
+                               || packet->command == SLI_WLAN_RSP_AP_STOP);
+
+  // Handle the scenario where a Wi-Fi client disconnects from the AP.
+  if (is_client_disconnected_from_ap) {
+    sli_handle_client_disconnection(packet);
+  } else if (is_tx_flush_required) {
+    sli_handle_tx_flush(data, packet, current_operation_mode);
+  }
 }

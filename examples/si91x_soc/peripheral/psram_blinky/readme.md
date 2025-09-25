@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [PSRAM Linker Component Installation](#psram-linker-component-installation)
-- [Test the Application](#test-the-application) 
+- [PSRAM Blinky](#psram-blinky)
+  - [Table of Contents](#table-of-contents)
+  - [Purpo/sescope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [PSRAM Linker Component Installation](#psram-linker-component-installation)
+  - [Test the Application](#test-the-application)
 
 ## Purpo/sescope
 
@@ -29,7 +31,7 @@
 
 ### Setup Diagram
 
- ![Figure: Introduction](resources/readme/setupdiagram.png)
+ ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -46,7 +48,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following parameter in app.c file, update/modify following macro if required
+- Configure the following parameter in [`app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/psram_blinky/app.c) file, update/modify following macro if required
 
   ```C
     #define RSI_BLINK_RATE //  configured for 10 ticks per second   
@@ -60,7 +62,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 3. Utilize the search bar to look for "PSRAM."
 4. Install the necessary component sections located within the PSRAM Linker Configurations.
 
-> ![Figure: Component Installation](resources/readme/section_component_installation.png)
+> ![Figure: section_component_installation](resources/readme/section_component_installation.png)
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -145,9 +145,6 @@ The application can be configured to suit your requirements and development envi
 >
 > Note: In `sl_wifi_default_concurrent_v6_configuration`, `oper_mode` must be `SL_SI91X_CONCURRENT_MODE` for this example.
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 ## Socket Configuration Macros
 
 Configure the sockets using the following macros in `app.h` file.
@@ -404,6 +401,8 @@ create_newsocket_with_new_osthread(receive_data_from_tls_server,
   ```c
   #define PLL_MODE      1
   ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+- [Wi-Fi - Three TLS Concurrent Client Sockets](#wi-fi---three-tls-concurrent-client-sockets)
+  - [Table of Contents](#table-of-contents)
   - [Purpose/Scope](#purposescope)
   - [Prerequisites/Set up Requirements](#prerequisitesset-up-requirements)
     - [Hardware Requirements](#hardware-requirements)
@@ -104,9 +106,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
-  
 - Configure the following parameters in ``app.c`` to test three_ssl_client_sockets app as per requirements:  
 
 ```c
@@ -147,6 +146,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 > **Note** :
  The included self-signed certificates will work for local OpenSSL servers. For a cloud server, using default certificates will not work for the cloud connection. You must replace the default certificates with valid certificates while connecting to a cloud server.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

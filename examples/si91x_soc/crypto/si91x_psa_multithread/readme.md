@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
-  - [Expected output](#expected-output)
+- [PSA MULTITHREAD for SI91X](#psa-multithread-for-si91x)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
+    - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -49,7 +51,9 @@
 - With default configuration, the application executes SHA and AES in two threads one after another.
 - Set the priority of threads (thread0, thread1, thread2) to low, low4, low4 respectively to execute task1 and task2 applications one after another.
 - Set the priority of threads (thread0, thread1, thread2) to low4, low, low respectively to execute the task1 and task2 application threads parallely in round-robin mode.
-- Uncomment SAME_CRYPTO_ACCELERATORS and comment DIFFERENT_CRYPTO_ACCELERATORS in app.c to execute sha operation in both threads.
+- Uncomment SAME_CRYPTO_ACCELERATORS and comment DIFFERENT_CRYPTO_ACCELERATORS in [`app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_multithread/app.c) to execute sha operation in both threads.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

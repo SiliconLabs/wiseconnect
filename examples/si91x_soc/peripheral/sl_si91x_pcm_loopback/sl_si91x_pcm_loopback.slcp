@@ -1,24 +1,16 @@
 project_name: sl_si91x_pcm_loopback
-label: SI91x - SL_PCM_LOOPBACK
+package: platform
 description: |
   Demonstrates how to use the PCM loopback interface on the SI91x SoC device.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SL_PCM_LOOPBACK
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: app.c
-  - path: app.h
-  - path: pcm_loopback.c
-  - path: pcm_loopback.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -32,6 +24,17 @@ component:
     from: wiseconnect3_sdk
     instance:
       - pcm0
+source:
+  - path: app.c
+  - path: pcm_loopback.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: pcm_loopback.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 define:
   - name: SYSCALLS_WRITE
   - name: I2S_LOOP_BACK
@@ -40,11 +43,11 @@ other_file:
   - path: resources/readme/image505d.png
   - path: resources/uc_screen/i2s_primary_uc_screen.png
   - path: resources/readme/loopback_output.png
-readme:
-  - path: readme.md
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

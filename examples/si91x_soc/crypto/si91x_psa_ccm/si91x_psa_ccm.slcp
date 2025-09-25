@@ -1,33 +1,16 @@
 project_name: si91x_psa_ccm
-label: SI91x - SoC PSA CCM
+package: platform
 description: |
   This example project demonstrates the PSA CCM API in SI91x.
 category: example|crypto
-package: platform
 quality: production
-filter:
-  - name: Wireless Technology
-    value:
-      - Wi-Fi
-  - name: Project Difficulty
-    value:
-      - Beginner
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: psa_ccm_app.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-      - path: psa_ccm_app.h
+label: SI91x - SoC PSA CCM
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
+    version: 3.5.2
 component:
   - id: sl_main
   - id: freertos
@@ -52,6 +35,14 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: psa_ccm_app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: psa_ccm_app.h
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/ccm_output.png
@@ -59,8 +50,17 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner

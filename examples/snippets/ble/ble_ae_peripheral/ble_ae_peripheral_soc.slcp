@@ -1,7 +1,7 @@
 project_name: ble_ae_peripheral_soc
 package: ble
 quality: production
-label: ble_ae_peripheral_soc
+label: BLE - AE Peripheral (SoC)
 category: Example|BLE
 description: |
   Start a BLE device in Extended Advertising Peripheral mode.
@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

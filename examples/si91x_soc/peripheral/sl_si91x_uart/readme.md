@@ -2,16 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL UART](#sl-uart)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Pin Configuration](#pin-configuration)
+  - [Flow Control Configuration](#flow-control-configuration)
+  - [Test the Application](#test-the-application)
+  - [Configuring higher clock](#configuring-higher-clock)
 
 ## Purpose/Scope
 
@@ -31,12 +36,12 @@
 
 ## About Example Code
 
-- \ref uart_example.c - This example code demonstrates how to configure the UART to send and receive data.
-- In this example, first UART get initialized if it is not initialized already with clock and DMA configurations if DMA is
-  enabled using \ref sl_si91x_usart_init.
-- After UART initialization, the UART power mode is set using \ref sl_si91x_usart_set_power_mode(). Then UART is configured with the default configurations from UC along with the UART transmit and receive lines using \ref sl_si91x_usart_set_configuration().
-- The register user event callback for send and receive complete notification is set using \ref sl_si91x_usart_register_event_callback().
-- After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_send_data() and \ref sl_si91x_usart_receive_data() respectively.
+- [`uart_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_uart/uart_example.c) - This example code demonstrates how to configure the UART to send and receive data.
+- In this example, first UART gets initialized if it is not initialized already with clock and DMA configurations if DMA is enabled using [sl_si91x_usart_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init).  
+**Note:** If the UART/USART instance is already selected for debug output logs, initialization will return `SL_STATUS_NOT_AVAILABLE`.
+- After UART initialization, the UART power mode is set using [sl_si91x_usart_set_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-power-mode). Then UART is configured with the default configurations from UC along with the UART transmit and receive lines using [sl_si91x_usart_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-configuration).
+- The register user event callback for send and receive complete notification is set using [sl_si91x_usart_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-register-event-callback).
+- After setting the user event callback, the data send and receive can happen through [sl_si91x_usart_send_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-send-data) and [sl_si91x_usart_receive_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-receive-data) respectively.
 - Once the receive data event is triggered, the transmitted and received buffer data is compared to confirm that the received data is the same.
 
 ## Prerequisites/Setup Requirements
@@ -55,7 +60,7 @@
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -101,7 +106,10 @@ Configuration of UART at UC (Universal Configuration):
   | UART_CTS_PIN   | GPIO_28 |     P31         |           [CS]           |
   | UART_RTS_PIN   | GPIO_27 |     P29         |           [MOSI]         |
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
+
 1. Connect the TX pin (GPIO_7) of the board to the RX pin of the UART-TTL cable, and the RX pin (GPIO_6) of the board to the TX pin of the UART-TTL cable.
 2. Power on the board and run the application.
 3. Use a serial terminal on your PC to receive the transmitted data and send it back to the board.

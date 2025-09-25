@@ -2,14 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [BLE - AE Peripheral](#ble---ae-peripheral)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
+    - [Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)](#instructions-for-keil-ide-and-stm32f411re-mcu-ncp-mode)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes-1)
+    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu)
 
 ## Purpose/Scope
 
@@ -202,8 +208,6 @@ The application can be configured to suit your requirements and development envi
     ```
     > **Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
 
-    > **Note:** 
-    > User can configure default region specific regulatory information using `sl_wifi_region_db_config.h` 
 - The desired advertisment parameters are provided for one set of advertising ADV_SET1. you can enable similar parameters for ADV_SET2
   ```c
         ble_ae_params.adv_handle                = 0x00;
@@ -239,6 +243,8 @@ The application can be configured to suit your requirements and development envi
         ae_periodic_param.adv_handle                       = BLE_ADV_HNDL1; //select the adv handle for which you want to enable periodic avdertisment.
    ```  
    
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)

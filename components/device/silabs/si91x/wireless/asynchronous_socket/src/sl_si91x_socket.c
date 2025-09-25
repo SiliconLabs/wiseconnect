@@ -336,8 +336,10 @@ int sl_si91x_send_large_data(int socket, const uint8_t *buffer, size_t buffer_le
     max_len = (si91x_socket->local_address.sin6_family == AF_INET) ? SLI_DEFAULT_DATAGRAM_MSS_SIZE_IPV4
                                                                    : SLI_DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
   } else {
-    max_len = (si91x_socket->local_address.sin6_family == AF_INET) ? SLI_DEFAULT_STREAM_MSS_SIZE_IPV4
-                                                                   : SLI_DEFAULT_STREAM_MSS_SIZE_IPV6;
+    // In case of IPv6, maximum payload size is 1440 bytes (1460 bytes excluding IPv4 header - 20 bytes overhead for IPv6 compared to IPv4).
+    max_len = (si91x_socket->local_address.sin6_family == AF_INET)
+                ? si91x_socket->mss
+                : si91x_socket->mss - (SLI_TCP_V6_HEADER_LENGTH - SLI_TCP_HEADER_LENGTH);
   }
 
   while (offset < buffer_length) {
@@ -389,8 +391,10 @@ int sl_si91x_sendto_async(int socket,
                           : si91x_socket->mss - SLI_SI91X_SSL_HEADER_SIZE_IPV6;
       SLI_SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > max_size, EMSGSIZE);
     } else {
-      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? SLI_DEFAULT_STREAM_MSS_SIZE_IPV4
-                                                                             : SLI_DEFAULT_STREAM_MSS_SIZE_IPV6;
+      // In case of IPv6, maximum payload size is 1440 bytes (1460 bytes excluding IPv4 header - 20 bytes overhead for IPv6 compared to IPv4).
+      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET)
+                          ? si91x_socket->mss
+                          : si91x_socket->mss - (SLI_TCP_V6_HEADER_LENGTH - SLI_TCP_HEADER_LENGTH);
       SLI_SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > max_size, EMSGSIZE);
     }
     if (si91x_socket->socket_bitmap & SLI_SI91X_SOCKET_FEAT_TCP_ACK_INDICATION) {

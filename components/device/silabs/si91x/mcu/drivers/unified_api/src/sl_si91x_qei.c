@@ -290,6 +290,11 @@ static sl_status_t configure_gpio_pin(sl_gpio_pin_config_t *pin_config)
       status = SL_STATUS_NULL_POINTER;
       break;
     }
+    if ((pin_config->pin == SL_SI91X_GPIO_31_PIN) || (pin_config->pin == SL_SI91X_GPIO_32_PIN)
+        || (pin_config->pin == SL_SI91X_GPIO_33_PIN) || (pin_config->pin == SL_SI91X_GPIO_34_PIN)) {
+      // Enable pad selection for GPIO 31, 32, 33, and 34
+      sl_si91x_gpio_driver_enable_pad_selection(PAD_SELECT_9);
+    }
     if (pin_config->pin >= GPIO_MAX_PIN) {
       sl_si91x_gpio_pin_config_t gpio_config = {
         .port_pin = { .port = SL_GPIO_ULP_PORT, .pin = (pin_config->pin - GPIO_MAX_PIN) },

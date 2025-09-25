@@ -2,16 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Joystick on BRD4002A](#joystick-on-brd4002a)
-- [Test the Application](#test-the-application)
+- [SL JOYSTICK](#sl-joystick)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+      - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with radio board](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-radio-board)
+    - [Joystick on BRD4002A](#joystick-on-brd4002a)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -32,7 +36,7 @@ This sample app demonstrates the use of the Joystick Driver. It prints the joyst
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -54,7 +58,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Open **sl_si91x_joystick.slcp** project file select **software component** tab and search for **joystick** in search bar.
 - Configure the UC as mentioned below.
 
-Refer to   ![Figure: Introduction](resources/uc_screen/sl_joystick_uc_screen.png)
+Refer to   ![Figure: sl_joystick_uc_screen](resources/uc_screen/sl_joystick_uc_screen.png)
 
 - Using configuration wizard one can configure different parameters like:
   - **Channel selection**
@@ -101,6 +105,8 @@ Image shows Joystick located on BRD4002A, position/direction to press the Joysti
 
 ![Figure: Joystick Hardware](resources/readme/image520d.png)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -112,7 +118,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 5. The application should print the pressed position/direction of joystick in console.
 6. After successful program execution the prints in serial console looks as shown below.
 
-    ![Figure: Introduction](resources/readme/output.png)
+    ![Figure: output](resources/readme/output.png)
 
 > **Note:**
 >

@@ -4034,6 +4034,8 @@ int32_t rsi_ble_set_ae_params(void *ble_ae_params, int8_t *sel_tx_pwr);
 /**
  * @fn         int32_t rsi_ble_start_ae_advertising(void *adv_enable)
  * @brief      Enable or disable AE advertising
+ * A received event \ref rsi_ble_adv_set_terminated_s,indicates that an AE advertising set has been terminated.
+ * Note: This callback may be triggered due to duration timeout, event count completion, or manual stop, even after a connection is established.
  * @param[in]  adv_enable Parameters to enable or disable specific advertising sets identified by advertising handle
  * @return The following values are returned:
  *     0  =  success
@@ -4098,30 +4100,35 @@ int32_t rsi_ble_ae_set_scan_params(void *ae_scan_params);
 
 /*==============================================*/
 /**
- * @fn         int32_t rsi_ble_ae_set_scan_enable(void *ae_scan_enable)
- * @brief      request the local device to enable scanning for both legacy and extended advertising PDUs
- * @param[in]  ae_scan_enable - Extended Scan Enable command Parameters would be filled here 
- * @return     0  =  success \n
- *            !0  = failure \n
- */
+* @fn         int32_t rsi_ble_ae_set_scan_enable(void *ae_scan_enable)
+* @brief      request the local device to enable scanning for both legacy and extended advertising PDUs
+*             A received event \ref rsi_ble_on_adv_report_event_t indicates advertise report of remote device received.
+* @param[in]  ae_scan_enable - Extended Scan Enable command Parameters would be filled here 
+* @return     0  =  success \n
+*            !0  = failure \n
+*/
 int32_t rsi_ble_ae_set_scan_enable(void *ae_scan_enable);
 
 /*==============================================*/
 /**
- * @fn         int32_t rsi_ble_ae_set_periodic_sync(uint8_t type, void *periodic_sync_data)
- * @brief      Synchronize with a periodic advertising train from an advertiser and begin receiving periodic advertising packets.
- * @param[in]  type - Configure the "type" parameter to values 1 to begin, 2 to cancel and 3 to terminate the periodic advertising sync
- * @param[in]  periodic_sync_data Parameters for starting a perodic advertising sync operation
+ * @fn         int32_t rsi_ble_ae_set_periodic_sync(uint8_t type, void *periodic_sync_data)
+ * @brief      Synchronize with a periodic advertising train from an advertiser and begin receiving periodic advertising packets.
+ *             The callback \ref rsi_ble_ae_per_adv_sync_estbl_t will be received when an AE periodic sync has been established.
+ * @param[in]  type - Configure the "type" parameter to values 1 to begin, 2 to cancel and 3 to terminate the periodic advertising sync
+ * @param[in]  periodic_sync_data Parameters for starting a periodic advertising sync operation
  * @return The following values are returned:
- *     0  =  success
- *     0x4E42 = unknown advertising identifier
- *     0x4E0C = command not permitted 
+ *     0  =  success
+ *     0x4E42 = unknown advertising identifier
+ *     0x4E0C = command not permitted 
  * @note
  * The operation is either started, cancelled or terminated depending on the type parameter.
  * @note
  * "Sync Terminate" to be used when synchronization has already been established, and operation needs to be stopped.
  * "Sync Cancel" to be used when synchronization is still in progress, and process is no longer intended to be completed.
+ * @note
+ * 
  */
+int32_t rsi_ble_ae_set_periodic_sync(uint8_t type, void *periodic_sync_data);
 int32_t rsi_ble_ae_set_periodic_sync(uint8_t type, void *periodic_sync_data);
 
 /*==============================================*/
@@ -4254,9 +4261,9 @@ int32_t rsi_ble_get_profiles_async(uint8_t *dev_addr,
  * @fn         int32_t rsi_ble_get_profile_async(uint8_t *dev_addr, uuid_t profile_uuid,
  *                                               profile_descriptors_t *p_profile)
  * @brief      Get the specific profile / service of the connected remote device. 
- *             The rsi_ble_one_event_profile_by_uuid_t callback function is called after
+ *             The rsi_ble_on_event_profile_by_uuid_t callback function is called after
  *             the service characteristics response is received. This is a blocking API and can unblock the application
- *             on the reception of the callback functions either rsi_ble_one_event_profile_by_uuid_t or \ref rsi_ble_on_gatt_error_resp_t.
+ *             on the reception of the callback functions either rsi_ble_on_event_profile_by_uuid_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
  *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address

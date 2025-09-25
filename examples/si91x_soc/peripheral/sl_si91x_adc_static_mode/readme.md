@@ -2,18 +2,22 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL ADC Static Mode](#sl-adc-static-mode)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+      - [Pin Configuration of the WPK \[BRD4002A\] Base Board, and with radio board](#pin-configuration-of-the-wpk-brd4002a-base-board-and-with-radio-board)
+      - [Pin Configuration of the AC1 Module Explorer Kit](#pin-configuration-of-the-ac1-module-explorer-kit)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -39,15 +43,15 @@ This application demonstrates the ADC peripheral, including:
 
 - This example demonstrates ADC in static mode of operation. It reads the sampled data from data register of ADC and and converts it into equivalent input voltage.
 - Various parameters like Number of Channel, ADC Operation Mode, Input Type, Sampling Rate, and Sample Length can be configured using UC.
-- The `sl_si91x_adc_common_config.h` file contains the common configurations for ADC and `sl_si91x_adc_init_inst_config.h` contains channel instance configuration.
+- The [`sl_si91x_adc_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_adc_common_config.h) file contains the common configurations for ADC and [`sl_si91x_adc_init_inst_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_adc_init_inst_config.h) contains channel instance configuration.
 - This example is working on ADC static mode and it samples the data with **NON-DMA** mode.
-- The firmware version of API is fetched using \ref sl_si91x_adc_get_version which includes the release version, major version and minor version \ref sl_adc_version_t.
-- ADC initialize should call \ref sl_si91x_adc_init API and passing parameters \ref sl_adc_channel_config_t, \ref sl_adc_config_t and reference voltage value.
-- All the necessary parameters are configured using \ref sl_si91x_adc_set_channel_configuration API. It expects a structure with required parameters \ref sl_adc_channel_config_t and \ref sl_adc_config_t.
-- After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_adc_register_event_callback.
-- Then start the ADC to sample the data using \ref sl_si91x_adc_start API.
-- Once sampling is done, the callback will hit and set the true "data_sample_complete_flag" flag to read the sampled data using \ref sl_si91x_adc_read_data_static API for static mode of ADC. This process will run continuously.
-- If the ADC is started, it is recommended to stop it before de-initializing. This is general flow of API calls for ADC: sl_si91x_adc_init -> sl_si91x_adc_start -> sl_si91x_adc_stop -> sl_si91x_adc_deinit.
+- The firmware version of API is fetched using [sl_si91x_adc_get_version](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-get-version) which includes the release version, major version and minor version [sl_adc_version_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-version-t).
+- ADC initialize should call [sl_si91x_adc_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-init) API and passing parameters [sl_adc_channel_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-channel-config-t), [sl_adc_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-config-t) and reference voltage value.
+- All the necessary parameters are configured using [sl_si91x_adc_set_channel_configuration](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-set-channel-configuration) API. It expects a structure with required parameters [sl_adc_channel_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-channel-config-t) and [sl_adc_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-config-t).
+- After configuration, a callback register API is called to register the callback at the time of events [sl_si91x_adc_register_event_callback](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-register-event-callback).
+- Then start the ADC to sample the data using [sl_si91x_adc_start](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-start) API.
+- Once sampling is done, the callback will hit and set the true "data_sample_complete_flag" flag to read the sampled data using [sl_si91x_adc_read_data_static](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-read-data-static) API for static mode of ADC. This process will run continuously.
+- If the ADC is started, it is recommended to stop it before de-initializing. This is general flow of API calls for ADC: [sl_si91x_adc_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-init) -> [sl_si91x_adc_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-start) -> [sl_si91x_adc_stop](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-stop) -> [sl_si91x_adc_deinit](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-deinit).
 
 ## Prerequisites/Setup Requirements
 
@@ -65,7 +69,7 @@ This application demonstrates the ADC peripheral, including:
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -98,7 +102,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - Sampling rate: Sample rate can be configurable to ADC channel, sample rate unit is samples/second. The configuration range from 1sps to 2.5 Msps.
     - Sample length: Set the length of ADC samples, i.e. number of ADC samples collected for operation, it should be minimum value set to 1 and maximum of 1023.
 
-      ![Figure: Introduction](resources/uc_screen/sl_adc_channel_uc_screen.png)
+      ![Figure: sl_adc_channel_uc_screen](resources/uc_screen/sl_adc_channel_uc_screen.png)
 
 - After running the application, it will store the equivalent input voltage from ADC output samples in 'vout'.
 - ADC output will print the configured number of samples output voltage on UART console.
@@ -159,6 +163,8 @@ The following table lists the mentioned pin numbers for the radio board. If you 
   | 15 | GPIO_28 [CS] | GPIO_26 [MISO] |
   | 16 | GPIO_30 [RST] | ULP_GPIO_7 [TX] |
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -171,7 +177,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 4. After completion of the conversion of ADC input, it will print all the captured samples data in console by connecting to the serial console.
 5. After successful program execution, the prints in serial console looks as shown below when the input voltage provided is 3.25v(approx).
 
-    ![Figure: Introduction](resources/readme/output.png)
+    ![Figure: output](resources/readme/output.png)
 
 > **Note:**
 >

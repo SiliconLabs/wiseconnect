@@ -1,15 +1,15 @@
 # Wi-Fi - TWT Use Case Remote app
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Configure the Application](#configure-the-application)
-  - [Application Configuration](#application-configuration)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - TWT Use Case Remote app](#wi-fi---twt-use-case-remote-app)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure the Application](#configure-the-application)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -111,9 +111,6 @@ The application measures Round Trip Time (RTT) in milliseconds, calculated from 
 
   - For Doorlock use case, TCP_RECEIVE should be 1 and for camera streaming scenario TCP_RECEIVE should be 0.
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
-
 - **Configure the following parameters in app.c**
   - Configure RECEIVE_DATA_TIMEOUT. It is the interval between two successive trigger commands from the application. It is in milli seconds. It should be greater than [rx_latency](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#rx-latency) configured in **TWT Use Case Demo App** 
 
@@ -126,6 +123,8 @@ The application measures Round Trip Time (RTT) in milliseconds, calculated from 
       #define TCP_LISTENING_PORT 5001
       #define UDP_LISTENING_PORT 5002            
       ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -2,15 +2,25 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [WLAN throughputs: UDP/TCP/TLS unidirectional](#wlan-throughputs-udptcptls-unidirectional)
-- [Test the Application](#test-the-application)
+- [WLAN - BLE Unified AE Coex App](#wlan---ble-unified-ae-coex-app)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure the BLE Parameters](#configure-the-ble-parameters)
+    - [Extended Advertising Configurations](#extended-advertising-configurations)
+    - [Extended Scanning Configurations](#extended-scanning-configurations)
+  - [WLAN throughputs: UDP/TCP/TLS unidirectional](#wlan-throughputs-udptcptls-unidirectional)
+  - [Test the Application](#test-the-application)
+    - [Central Connection](#central-connection)
+    - [Pairing Procedure](#pairing-procedure)
+    - [Peripheral Connection](#peripheral-connection)
+    - [BLE Data Transfer](#ble-data-transfer)
+  - [Limitations for this App](#limitations-for-this-app)
 
 ## Purpose/Scope
 
@@ -374,10 +384,7 @@ Following are the non-configurable macros in the application.
        ```
 
  >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
-
-> **Note:**
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`.
-
+   
 ## WLAN throughputs: UDP/TCP/TLS unidirectional
 
 To measure **WLAN throughput**, run the following commands.
@@ -452,6 +459,8 @@ To measure **WLAN throughput**, run the following commands.
       ```
 
       ![](resources/readme/tls_rx.png)
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

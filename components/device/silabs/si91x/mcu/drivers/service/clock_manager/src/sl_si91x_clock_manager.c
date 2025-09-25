@@ -423,3 +423,31 @@ void sl_si91x_delay_ms(uint32_t milli_seconds)
     __NOP(); // No operation instruction
   }
 }
+/***************************************************************************/
+/** 
+ * @fn     sl_si91x_clock_manager_ulp_processor_clk_division(uint8_t clk_div)
+ * 
+ * @brief   Set M4 ULP Processor clock division factor.
+ *
+ * @details This API sets the M4 ULP Processor clock division factor by configuring the clock control register.
+ *          The division factor is calculated as 2*clk_div, where clk_div is the input parameter.
+ *
+ * @param clk_div Division factor (the clock will be divided by 2*clk_div)
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER - Invalid argument.
+ * 
+ * @note    This API should be invoked only when the system is in PS2 state, as the source clock in this mode is configured to use a 20 MHz RC
+ *
+ ******************************************************************************/
+sl_status_t sl_si91x_clock_manager_ulp_processor_clk_division(uint8_t clk_div)
+{
+  sl_status_t status = SL_STATUS_OK;
+  if (clk_div >= 5) {
+    status = SL_STATUS_INVALID_PARAMETER;
+    return status;
+  }
+  ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP_PROC_CLK_DIV_FACTOR = clk_div;
+  return status;
+}

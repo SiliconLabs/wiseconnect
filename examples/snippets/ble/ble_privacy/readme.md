@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Verify BLE Privacy application as a Peripheral](#verify-ble-privacy-application-as-a-peripheral)
-  - [Verify BLE Privacy application as a Central](#verify-ble-privacy-application-as-a-central)
+- [BLE - Privacy](#ble---privacy)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Verify BLE Privacy application as a **PERIPHERAL\_ROLE**](#verify-ble-privacy-application-as-a-peripheral_role)
+    - [Verify BLE Privacy application as a **CENTRAL\_ROLE**](#verify-ble-privacy-application-as-a-central_role)
 
 ## Purpose/Scope
 
@@ -191,8 +193,7 @@ The application can be configured to suit your requirements and development envi
 
       > **Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
 
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

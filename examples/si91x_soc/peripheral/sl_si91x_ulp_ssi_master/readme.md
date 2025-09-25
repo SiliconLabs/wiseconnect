@@ -2,17 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Pin Configuration](#pin-configuration-of-the-wpkbrd4002a-base-board)
-- [Test the Application](#test-the-application)
+- [SL ULP SSI MASTER](#sl-ulp-ssi-master)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with BRD4338A radio board](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-brd4338a-radio-board)
+  - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with BRD4343A radio board](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-brd4343a-radio-board)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -46,23 +49,23 @@ For half-duplex communication (that is, send and receive), a primary / secondary
 
 ## About Example Code
 
-- This example demonstrates SSI transfer (that is, full-duplex communication) and SSI send/SSI receive (that is, half-duplex communication).
-- Various parameters like SSI clock mode, Bit-width, Manual cs pin, and SSI baud rate can be configured using the UC. Also, Primary or Secondary or ULP Primary DMA can be configured using UC.
-- The `sl_si91x_ssi_config.h` file contains the control configurations and `sl_si91x_ssi_common_config.h` contains DMA configuration selection.
-- In the example code, first the output buffer is filled with some data which is transferred to the slave.
-- The firmware version of API is fetched using \ref sl_si91x_ssi_get_version which includes release version, major version and minor version \ref sl_ssi_version_t.
-- A static function is called to fill in the \ref sl_ssi_clock_config_t structure, which is passed in \ref sl_si91x_ssi_configure_clock API to configure the clock.
-- \ref sl_si91x_ssi_init is used to initialize the peripheral, that includes pin configuration and it powers up the module.
-- SSI instance must be passed in init to get the instance handle \ref sl_ssi_instance_t, which is used in other APIs.
-- After initialization \ref sl_si91x_ssi_configure_power_mode is called to set the power mode \ref sl_ssi_power_state_t.
-- All the necessary parameters are configured using \ref sl_si91x_ssi_set_configuration API. It expects a structure with required parameters \ref sl_ssi_control_config_t.
-- After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_ssi_register_event_callback.
-- The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in `ulp_ssi_master_example.c` file.
-- According to the macro which is enabled, the example code executes the transfer of data:
+- This example demonstrates SSI transfer (full-duplex communication) and SSI send/SSI receive (half-duplex communication).
+- Various parameters like SSI clock mode, bit-width, manual CS pin, and SSI baud rate can be configured using the UC. Additionally, Primary or Secondary or ULP Primary DMA can be configured using UC.
+- The [`sl_si91x_ssi_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_config.h) file contains the control configurations, and [`sl_si91x_ssi_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_common_config.h) contains DMA configuration selection.
+- In the example code, the output buffer is first filled  with data to be transferred to the slave.
+- The firmware version of API is retrieved using [sl_si91x_ssi_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-get-version) which includes the release version, major version, and minor version via the [sl_ssi_version_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-version-t) structure.
+- A static function is called to populate the [sl_ssi_clock_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-clock-config-t) structure, which is passed to the [sl_si91x_ssi_configure_clock](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-clock) API to configure the clock.
+- [sl_si91x_ssi_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-init) initializes the peripheral, including pin configuration and powering up the module.
+- The SSI instance must be passed during initialization to get the instance handle [sl_ssi_instance_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-instance-t), which is used in other APIs.
+- After initialization, [sl_si91x_ssi_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-power-mode) is called to set the power mode [sl_ssi_power_state_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-power-state-t).
+- All required parameters are configured using the [sl_si91x_ssi_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-set-configuration) API, which expects a structure of type [sl_ssi_control_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-control-config-t).
+- After configuration, a callback register API is called to register the callback at the time of events [sl_si91x_ssi_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-register-event-callback).
+- A state machine is implemented to handle transfer, send, and receive data operations. The current mode is determined by ssi_mode_enum_t, which is declared in [`ulp_ssi_master_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_ssi_master/ulp_ssi_master_example.c) file.
+- Based on the enabled macro, the example code executes the corresponding data transfer operation:
 
 - If the **ULP_SSI_MASTER_TRANSFER** macro is enabled, it will transfer the data (send and receive data) in full-duplex mode.
 
-  - The current_mode enum is set to ULP_SSI_MASTER_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
+  - The current_mode enum is set to ULP_SSI_MASTER_TRANSFER_DATA and calls the [sl_si91x_ssi_transfer_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-transfer-data) API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
   - This test can also be performed in loopback state (connect MISO and MOSI pins).
   - The example code waits until the transfer is completed. When the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
@@ -71,13 +74,13 @@ For half-duplex communication (that is, send and receive), a primary / secondary
 
 - If the **ULP_SSI_MASTER_RECEIVE** macro is enabled, it only receives the data from slave. An SPI slave must be connected; it cannot be tested in loopback mode.
 
-  - The current_mode is set to the ULP_SSI_MASTER_RECEIVE_DATA and calls the \ref sl_si91x_ssi_receive_data API which expects data_in (empty buffer) and number of data bytes to be received.
+  - The current_mode is set to the ULP_SSI_MASTER_RECEIVE_DATA and calls the [sl_si91x_ssi_receive_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-receive-data) API which expects data_in (empty buffer) and number of data bytes to be received.
   - It waits until the receive is completed (that is, until the transfer complete event is generated).
   - Now the current_mode enum is updated as per the macros enabled (ULP_SSI_MASTER_SEND).
   - If no other macros are enabled, the current_mode is updated to ULP_SSI_MASTER_TRANSMISSION_COMPLETED.
 
 - If the **ULP_SSI_MASTER_SEND** macro is enabled, it only sends the data to slave. An SPI slave must be connected; it cannot be tested in loopback mode.
-  - The current_mode enum is set to ULP_SSI_MASTER_SEND_DATA and calls the \ref sl_si91x_ssi_send_data API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
+  - The current_mode enum is set to ULP_SSI_MASTER_SEND_DATA and calls the [sl_si91x_ssi_send_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-send-data) API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
   - It waits till the send is completed i.e., transfer complete event is generated.
   - Now the current_mode enum is updated to ULP_SSI_MASTER_TRANSMISSION_COMPLETED.
 
@@ -100,7 +103,7 @@ Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-g
 
 ### Setup Diagram
 
- > ![Figure: Introduction](resources/readme/setupdiagram.png)
+ > ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -119,7 +122,7 @@ Configure UC from the slcp component.
 1. Open **sl_si91x_ulp_ssi_master.slcp** project file, select the **SOFTWARE COMPONENT** tab, and search for **SSI** in the search bar.
 2. You cna use the configuration wizard to configure different parameters like:
 
-   ![Figure: Introduction](resources/uc_screen/ssi_uc_screen.png)
+   ![Figure: ssi_uc_screen](resources/uc_screen/ssi_uc_screen.png)
 
    - **SSI ULP Primary(ULP_Master) Configuration**
      - **Frame Format**: SSI Frame Format can be configured:
@@ -138,7 +141,7 @@ Configure UC from the slcp component.
      - **Tx FIFO Threshold**: Transmit FIFO Threshold. Controls the level of entries (or below) at which the transmit FIFO controller triggers an interrupt. The configuration range from 0 to 15.
      - **Rx FIFO Threshold**: Receive FIFO Threshold. Controls the level of entries (or below) at which the receive FIFO controller triggers an interrupt. The configuration range from 0 to 15.
    - Configuration files are generated in **config folder**. If the values are not changed, the code will run on default UC values.
-   - Configure the following macros in the `ulp_ssi_master_example.h` file and update/modify following macros, if required.
+- Configure the following macros in the [`ulp_ssi_master_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_ssi_master/ulp_ssi_master_example.h) file and update/modify following macros, if required.
 
       ```C
       #define ULP_SSI_MASTER_TRANSFER ENABLE    // To use the transfer API
@@ -146,7 +149,7 @@ Configure UC from the slcp component.
       #define ULP_SSI_MASTER_RECEIVE  DISABLE   // To use the receive(Click Lock symbol to allow editing and add documentation here) API
       ```
 
-- By default, CS0 is selected in the pintool. To use a different chip select (CS), update the corresponding slave number in the `ulp_ssi_master_example.c` file after configuring the desired CS in the pintool.
+- By default, CS0 is selected in the pintool. To use a different chip select (CS), update the corresponding slave number in the [`ulp_ssi_master_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_ssi_master/ulp_ssi_master_example.c) file after configuring the desired CS in the pintool.
 
     ```C
     // For CS0
@@ -157,7 +160,7 @@ Configure UC from the slcp component.
     static uint32_t ulp_ssi_master_slave_number = SSI_SLAVE_2;
     ```
 
-- To unregister a user event callback for a specific instance, use the API \ref sl_si91x_ssi_per_instance_unregister_event_callback. Alternatively, to unregister callbacks for all instances simultaneously, use the API \ref sl_si91x_ssi_unregister_event_callback.
+- To unregister a user event callback for a specific instance, use the API [sl_si91x_ssi_per_instance_unregister_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-per-instance-unregister-event-callback). Alternatively, to unregister callbacks for all instances simultaneously, use the API [sl_si91x_ssi_unregister_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-unregister-event-callback).
 
 ## Pin Configuration of the WPK[BRD4002A] Base Board, and with BRD4338A radio board
 
@@ -179,6 +182,8 @@ Configure UC from the slcp component.
 
 >**Note**: Make sure pin configuration is set in the `RTE_Device_917.h` file.(path: /$project/config/RTE_Device_917.h)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -199,11 +204,11 @@ Follow the steps below for successful execution of the application:
 
    - ULP Primary output:
 
-     ![output](resources/readme/output_ulp_ssi.png)
+     ![ Figure: output](resources/readme/output_ulp_ssi.png)
 
    - Secondary output:
 
-     ![output](resources/readme/output_ssi_slave.png)
+     ![ Figure: output](resources/readme/output_ssi_slave.png)
 
 > **Note:**
 >

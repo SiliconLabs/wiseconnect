@@ -1,32 +1,17 @@
 # Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_si91x_mutex
-label: Si91x - SL_RTOS_MUTEX
+package: platform
 description: |
   This application demonstrates how to use RTOS concept Mutex in an application.
 category: example|cmsis-rtos
-package: platform
 quality: production
+label: Si91x - SL_RTOS_MUTEX
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: src/blinky.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-  - path: src/inc
-    file_list:
-      - path: blinky.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -41,13 +26,28 @@ component:
     instance:
       - led0
     from: wiseconnect3_sdk
-other_file:
-  - path: resources/readme/setupdiagram.png
+source:
+  - path: app.c
+  - path: src/blinky.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+  - path: src/inc
+    file_list:
+      - path: blinky.h
 define:
   - name: SYSCALLS_WRITE
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/readme/setupdiagram.png
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -1,15 +1,18 @@
 # Wi-Fi - Calibration App
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Spectrum Analyzer Settings](#spectrum-analyzer-settings)
-  - [Acronyms and Abbreviations](#acronyms-and-abbreviations)
+- [Wi-Fi - Calibration App](#wi-fi---calibration-app)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Gain Offset Correction](#gain-offset-correction)
+      - [Update XO Ctune and Gain Offset](#update-xo-ctune-and-gain-offset)
+    - [Spectrum Analyzer Settings](#spectrum-analyzer-settings)
+    - [Acronyms and Abbreviations](#acronyms-and-abbreviations)
 
 ## Purpose/Scope
 
@@ -94,8 +97,8 @@ The application can be configured to suit user requirements and development envi
       2 - Continuous Wave Mode (non modulation) in DC mode
       3 - Continuous Wave Mode (non modulation) in single tone mode (center frequency -2.5 MHz)
       4 - Continuous Wave Mode (non modulation) in single tone mode (center frequency + 5MHz)
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

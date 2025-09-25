@@ -2092,7 +2092,6 @@ void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_
 void rsi_ble_simple_peripheral_on_remote_features_event(rsi_ble_event_remote_features_t *rsi_ble_event_remote_features)
 {
   memcpy(&remote_dev_feature, rsi_ble_event_remote_features, sizeof(rsi_ble_event_remote_features_t));
-  rsi_ble_app_set_event(RSI_BLE_RECEIVE_REMOTE_FEATURES);
 }
 
 /*============================================================================*/
@@ -3094,11 +3093,19 @@ void ble_iop_test_app(void *argument)
 
         //! initiating the SMP pairing process
         if (connection_security > rsi_bt_connection_mode1_level1) {
+          ix = rsi_get_ltk_list(ble_dev_ltk_list, &temp_le_ltk_req);
+
+          if (ix != -1) {
+            LOG_PRINT("Device is bonded\n");
+            break;
+          }
+
           status = rsi_ble_smp_pair_request(remote_dev_address, smp_capabilities.io_capability, mitm_req);
           if (status != RSI_SUCCESS) {
             LOG_PRINT("\n Initiating SMP Pairing process failed with status %lx \n", status);
           }
         }
+
       } break;
 
       case RSI_BLE_DISCONN_EVENT: {
@@ -3344,45 +3351,10 @@ void ble_iop_test_app(void *argument)
       } break;
 
 #endif
-      case RSI_BLE_RECEIVE_REMOTE_FEATURES: {
-        //! clear the served event
-
-        rsi_ble_app_clear_event(RSI_BLE_RECEIVE_REMOTE_FEATURES);
-
-        if (remote_dev_feature.remote_features[0] & 0x20) {
-          status = rsi_ble_set_data_len(remote_dev_address, TX_LEN, TX_TIME);
-          if (status != RSI_SUCCESS) {
-            LOG_PRINT("\n Set data length cmd failed with error code = %lx \n", status);
-            rsi_ble_app_set_event(RSI_BLE_RECEIVE_REMOTE_FEATURES);
-          }
-        }
-
-        if (remote_dev_feature.remote_features[1] & 0x01) {
-          status = rsi_ble_setphy((int8_t *)remote_dev_address, TX_PHY_RATE, RX_PHY_RATE, CODDED_PHY_RATE);
-          if (status != RSI_SUCCESS) {
-            if (status != BT_HCI_COMMAND_DISALLOWED) {
-              rsi_ble_app_set_event(RSI_APP_EVENT_DATA_LENGTH_CHANGE);
-            }
-          }
-        }
-      } break;
-
       case RSI_APP_EVENT_DATA_LENGTH_CHANGE: {
 
         //! clear the disconnected event.
         rsi_ble_app_clear_event(RSI_APP_EVENT_DATA_LENGTH_CHANGE);
-
-        if (remote_dev_feature.remote_features[1] & 0x01) {
-          osDelay(500);
-          status = rsi_ble_setphy((int8_t *)remote_dev_address, TX_PHY_RATE, RX_PHY_RATE, CODDED_PHY_RATE);
-          if (status != RSI_SUCCESS) {
-            if (status != BT_HCI_COMMAND_DISALLOWED) {
-              //retry the same command
-              rsi_ble_app_set_event(RSI_APP_EVENT_DATA_LENGTH_CHANGE);
-            }
-          }
-        }
-
       } break;
 
       case RSI_APP_EVENT_PHY_UPDATE_COMPLETE: {
@@ -3409,6 +3381,12 @@ void ble_iop_test_app(void *argument)
           LOG_PRINT("Configure buffer mode failed with status %lx \n", status);
         }
 
+        if (remote_dev_feature.remote_features[0] & 0x20) {
+          status = rsi_ble_set_data_len(remote_dev_address, TX_LEN, TX_TIME);
+          if (status != RSI_SUCCESS) {
+            LOG_PRINT("\n Set data length cmd failed with error code = %lx \n", status);
+          }
+        }
       } break;
 
       case RSI_BLE_GATT_WRITE_EVENT: {

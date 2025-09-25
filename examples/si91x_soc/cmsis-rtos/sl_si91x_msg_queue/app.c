@@ -57,7 +57,7 @@ void app_init(void)
   // initialize i2c driver
   i2c_follower_example_init();
 
-  // initialize uart driver
+  // initialize usart driver
   usart_example_init();
 
   // create a thread for i2c follower functionality

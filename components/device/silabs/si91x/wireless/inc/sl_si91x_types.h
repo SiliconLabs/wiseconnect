@@ -177,10 +177,6 @@ typedef sl_wifi_firmware_header_t sl_si91x_firmware_header_t; ///< Firmware head
 
 /** @} */
 
-#if defined(__Keil)
-#pragma anon_unions
-#endif
-
 /// driver TX/RX packet structure
 typedef sl_wifi_system_packet_t sl_si91x_packet_t;
 

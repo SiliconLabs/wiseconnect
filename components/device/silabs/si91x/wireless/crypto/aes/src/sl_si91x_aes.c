@@ -232,7 +232,7 @@ sl_status_t sl_si91x_aes_multipart(const sl_si91x_aes_config_t *config,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if (chunk_length % SL_SI91X_AES_BLOCK_SIZE) {
+  if ((chunk_length % SL_SI91X_AES_BLOCK_SIZE) || (chunk_length > SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 

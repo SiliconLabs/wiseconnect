@@ -34,7 +34,7 @@ const sli_si91x_set_region_ap_request_t default_US_region_2_4GHZ_configurations 
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "US ",
   .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 11, .max_tx_power = 27 }
+  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 11, .max_tx_power = 30 }
 };
 
 const sli_si91x_set_region_ap_request_t default_US_region_5GHZ_configurations = {
@@ -134,8 +134,3 @@ const sli_si91x_set_region_ap_request_t default_CN_region_5GHZ_configurations = 
   .channel_info[0]               = { .first_channel = 36, .no_of_channels = 9, .max_tx_power = 20 },
   .channel_info[4]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 33 }
 };
-
-#if defined(__GNUC__)
-// Restore GCC diagnostics
-#pragma GCC diagnostic pop
-#endif

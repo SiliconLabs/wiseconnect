@@ -2,14 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
+- [WLAN TCP TX on periodic wakeup](#wlan-tcp-tx-on-periodic-wakeup)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Soc Mode:](#soc-mode)
+    - [Tickless Mode](#tickless-mode)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
   - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the application](#test-the-application)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 This application demonstrates the process for configuring SiWx91x in connected sleep mode while having a TCP client socket in open state.
@@ -94,17 +98,16 @@ The application can be configured to suit your requirements and development envi
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
-
 **TCP Configuration**
 
 - In the Project Explorer pane, open the **app.c** file. 
 
   ```c
-  #define SERVER_IP_ADDRESS  "192.168.0.100"  // Server IP address 
-  #define SERVER_PORT        5000             // TCP server port of the remote TCP server
+  #define SERVER_IP_ADDRESS  "192.168.0.179"  // Server IP address 
+  #define SERVER_PORT        5002             // TCP server port of the remote TCP server
   ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -118,7 +121,7 @@ To establish TCP Server on remote PC, open [iPerf Application](https://sourcefor
   ```c
   C:\> iperf.exe -s -p <SERVER_PORT> -i 1
    For example ...
-  C:\> iperf.exe -s -p 5001 -i 1
+  C:\> iperf.exe -s -p 5002 -i 1
   ```
 
 The SiWx91x SoC, which is configured as a TCP client, connects to the iPerf server and the power save profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY. Upon successsful TCP connection, the Si917 NWP sends 512MB data to server. Once the configured ALARM_TIMEOUT expires or a button is pressed, M4 is triggered out of sleep, performs data transfer and goes back to sleep.

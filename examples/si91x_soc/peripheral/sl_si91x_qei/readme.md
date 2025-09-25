@@ -2,18 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL QEI](#sl-qei)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -60,7 +62,7 @@ Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-g
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -103,7 +105,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - 1: Enable - Activates velocity calculation.
   - Delta Time: Defines the time interval used for velocity calculations.
 
-- Configure the following macros in qei_example.h file and update/modify following macros if required.
+- Configure the following macros in [`qei_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_qei/qei_example.h) file and update/modify following macros if required.
 
   ```C
     # define BLINK_RATE       1000     // 1000 ticks per second
@@ -124,6 +126,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |GPIO_65 [P16]   |Phase A Signal|
 |GPIO_74 [P17]   |Phase B Signal|
 |GPIO_72 [P15]   |Index Signal  |
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

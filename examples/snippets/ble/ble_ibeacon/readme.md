@@ -1,65 +1,51 @@
-# BLE - iBeacon
+#BLE - iBeacon
 
-## Table of Contents
+##Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [iBeacon Overview](#ibeacon-overview)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+    - [BLE - iBeacon](#ble-- - ibeacon) - [Table of Contents](#table - of - contents) - [Purpose / Scope](#purposescope)
+    - [iBeacon Overview](#ibeacon - overview) - [Prerequisites / Setup Requirements](#prerequisitessetup - requirements)
+    - [Hardware Requirements](#hardware - requirements) - [Software Requirements](#software - requirements)
+    - [Setup Diagram](#setup - diagram) - [Getting Started](#getting - started)
+    - [Application Build Environment](#application - build - environment)
+    - [Test the Application](#test - the - application)
 
-## Purpose/Scope
+          ##Purpose
+        / Scope
 
-This application demonstrates how to set the iBeacon data format in advertising parameters in  BLE peripheral mode.
+          This application demonstrates how to set the iBeacon data format in advertising parameters in BLE
+          peripheral mode.
 
-## iBeacon Overview
+          ##iBeacon Overview
 
-The iBeacon advertise data format is as follows:
+          The iBeacon advertise data format is as follows :
 
-  | iBeacon prefix |UUID |Major Number |Minor |Number |TX Power |
-  |------|---|------|------|------|------|
-  |1|9Bytes|16bytes |2Bytes |2 Bytes |1bytes|
+  | iBeacon prefix | UUID | Major Number | Minor | Number | TX Power |
+  | -- -- -- | -- - | -- -- -- | -- -- -- | -- -- -- | -- -- -- | | 1 | 9Bytes | 16bytes | 2Bytes | 2 Bytes | 1bytes |
 
-- iBeacon Prefix:
-   Vendor specific fixed value.
-   Default iBeacon prefix values setting by application is:
-   ``Prefix = {0x02, 0x01, 0x02, 0x1A, 0xFF, 0x4C, 0x00, 0x02, 0x15}``
+  -iBeacon Prefix : Vendor specific fixed value.Default iBeacon prefix values setting by application is :
+   ``Prefix = { 0x02, 0x01, 0x02, 0x1A, 0xFF, 0x4C, 0x00, 0x02, 0x15 }``
 
-- UUID:
-  - User generated proximity UUID.
-  - Remote devices recognize which beacon they approach on the basis of UUID, major and minor numbers.
-  - Default UUID, Major and Minor values setting by application is:
-   ``UUID = {0xFB , 0x0B , 0x57 , 0xA2 , 0x82 , 0x28 , 0x44 , 0xCD , 0x91 ,
-   0x3A , 0x94 , 0xA1 , 0x22 , 0xBA , 0x12 , 0x06}``
-   major_num = {0x11, 0x22}
-   minor_num = {0x33, 0x44}
+               - UUID : -User generated proximity UUID.
+               - Remote devices recognize which beacon they approach on the basis of UUID,
+    major and minor numbers.- Default UUID,
+    Major and Minor values setting by application is
+    : - ``UUID = { 0xE2, 0xC5, 0x6D, 0xB5, 0xDF, 0xFB, 0x48, 0xD2, 0xB0, 0x60, 0xD0, 0xF5, 0xA7, 0x10, 0x96, 0xE0 }``
+                 - ``major_num = { 0x88, 0xAB }`` - ``minor_num = { 0x04, 0x01 }``
 
-  - TX Power is used to calculate distance from iBeacon.
-   Default TX power value setting by application is:
+                                                                  - TX Power is used to calculate distance from iBeacon
+                                                                      .Default TX power value setting by application is
+    :
    `TX Power = 0x33`
-  > **Note:**
-  >If the user wants to change the prefix, UUID, Major number, Minor number and TX Power values, change the following values in rsi_ble_ibeacon.c_ file.
-  >
-  > **For Prefix:**
-  > adv[31] = {0x02, 0x01, 0x02, 0x1A, 0xFF, 0x4C, 0x00, 0x02, 0x15}; //prefix(9bytes)`
-  >
-  > **For UUID:**
-  >
-  > uint8_t uuid[16] = {0xFB , 0x0B , 0x57 , 0xA2 , 0x82 , 0x28 , 0x44 , 0xCD , 0x91 , 0x3A , 0x94 , 0xA1 , 0x22 , 0xBA , 0x12 , 0x06};
-  >
-  > For Major Number:
-  >
-  > - uint8_t major_num[2] = {0x11, 0x22};
-  >
-  > - For Minor Number:
-  > - uint8_t minor_num[2] = {0x33, 0x44};
-  >
-  > - For TX Power:
-  > - uint8_t tx_power = 0x33;
+                > **Note : ** > -The iBeacon UUID "E2C56DB5-DFFB-48D2-B060-D0F5A71096E0" is specific to Silicon Labs.
+                > -If the user wants to change the prefix,
+    UUID, Major number, Minor number and TX Power values,
+    change the following values in app.c file.>> **For Prefix
+    : ** >> uint8_t adv[31]            = { 0x02, 0x01, 0x02, 0x1A, 0xFF, 0x4C, 0x00, 0x02, 0x15 }; //prefix(9bytes)
+>> **For UUID : ** >> uint8_t uuid[16] = { 0xE2, 0xC5, 0x6D, 0xB5, 0xDF, 0xFB, 0x48, 0xD2,
+                                           0xB0, 0x60, 0xD0, 0xF5, 0xA7, 0x10, 0x96, 0xE0 };
+>> **For Major Number : ** >> uint8_t major_num[2] = { 0x88, 0xAB };
+>> **For Minor Number : ** > uint8_t minor_num[2]  = { 0x04, 0x01 };
+>> **For TX Power : ** > uint8_t tx_power          = 0xD7;
 
 ## Prerequisites/Setup Requirements
 
@@ -131,14 +117,14 @@ The application can be configured to suit your requirements and development envi
   - `RSI_BLE_LOCAL_NAME` refers name of the Silicon Labs device to appear during scanning by remote devices.
 
      ```c
-    #define RSI_BLE_LOCAL_NAME                     "iBeacon"
+#define RSI_BLE_LOCAL_NAME "iBeacon"
     ```
 
   - Following are the event numbers for connection and Disconnection events,
 
     ```c
-    #define RSI_APP_EVENT_CONNECTED                1
-    #define RSI_APP_EVENT_DISCONNECTED             2
+#define RSI_APP_EVENT_CONNECTED    1
+#define RSI_APP_EVENT_DISCONNECTED 2
     ```
 
 - Following are the **non-configurable** macros in the application.
@@ -146,20 +132,19 @@ The application can be configured to suit your requirements and development envi
   - BT_GLOBAL_BUFF_LEN refers Number of bytes required by the application and the driver
 
     ```c
-    #define BT_GLOBAL_BUFF_LEN                     15000
+#define BT_GLOBAL_BUFF_LEN 15000
     ```
 
 - Open `ble_config.h` file and update/modify following macros,
 
   ```c
-  #define RSI_BLE_PWR_INX                        30
-  #define RSI_BLE_PWR_SAVE_OPTIONS               BLE_DISABLE_DUTY_CYCLING
+#define RSI_BLE_PWR_INX          30
+#define RSI_BLE_PWR_SAVE_OPTIONS BLE_DISABLE_DUTY_CYCLING
   ```  
 
   > **Note:** `rsi_ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
 
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -187,13 +172,9 @@ Follow the steps for the successful execution of the program:
 ![](resources/readme/bleibeaconscanfilerapply.png)
 
 
-5. In the App, Silicon Labs module device would appear with the name configured in the macro **RSI\_BLE\_LOCAL\_NAME** (Ex: "iBeacon")
+5. In the Simplicity Connect App (formerly EFR Connect App), the Silicon Labs module appears as an iBeacon packet during scanning. Upon successful detection, the app displays the advertised data from the device, including UUID, Maximum Number, Minimum Number, and TX Power.
 
 ![](resources/readme/bleibeacondevice.png)
-
-5. After successful scan, user can see the Silicon Labs device advertised data i.e UUID, Maximum Number, Minimum Number and TX Power in Simplicity Connect App(formerly EFR Connect App).  
-
-![](resources/readme/bleibeaconscandata.png)
 
 6. Refer the following images for console prints:
 

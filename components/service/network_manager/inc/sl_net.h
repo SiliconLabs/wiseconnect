@@ -223,6 +223,48 @@ sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
  ******************************************************************************/
 sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_address_t *ip_address, uint32_t timeout);
 
+/***************************************************************************/ /**
+ * @brief 
+ * Enables Network Address Translation (NAT) on the specified network interface in concurrent mode.
+ * This function enables NAT on the given network interface. This is a blocking API.
+ * 
+ * @pre Pre-conditions:
+ *
+ *   @ref sl_net_init should be called before this API on AP and STA interfaces.
+ *   @ref sl_net_up should be called before this API on AP and STA interfaces.
+ * 
+ * @param[in] nat_config
+ *   Pointer to the NAT configuration structure of type @ref sl_net_nat_config_t.
+ *
+ * @return status of the operation.
+ *         - SL_STATUS_OK: On successful completion of the operation.
+ *         - SL_STATUS_FAIL: If the operation fails.
+ *         - SL_STATUS_INVALID_PARAMETER: If the nat_config parameter is NULL.
+ * @note
+ * NAT feature is internal test feature only, not recommended for Production.
+ ******************************************************************************/
+sl_status_t sl_net_nat_enable(const sl_net_nat_config_t *nat_config);
+
+/***************************************************************************/ /**
+ * @brief 
+ * Disables Network Address Translation (NAT) on the specified network interface in concurrent mode.
+ * This function disables NAT on the given network interface. This is a blocking API.
+ * 
+ * @pre Pre-conditions:
+ * 
+ *   @ref sl_net_nat_enable should be called before this API.
+ * 
+ * @param[in] interface 
+ *   The network interface on which to disable NAT. (This parameter is currently unused.)
+ *
+ * @return Status of the operation.
+ *         - SL_STATUS_OK: On successful completion of the operation.
+ *         - SL_STATUS_FAIL: If the operation fails.
+ * @note
+ * NAT feature is internal test feature only, not recommended for Production.
+ ******************************************************************************/
+sl_status_t sl_net_nat_disable(const sl_net_interface_t interface);
+
 /** @} */
 
 /** 
@@ -340,6 +382,7 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  *   If the credential is NULL or the credential length is zero, this API will return an error `SL_STATUS_INVALID_PARAMETER`.
+ *   If the credential_length exceeds NVM3_DEFAULT_MAX_OBJECT_SIZE when using NVM3 storage, this API will return an error `SL_STATUS_NVM3_WRITE_DATA_SIZE`.
  * @note
  * - Certificates should follow the standard array format.  
  * - After every 64 bytes, the special character `\n` should be used as a delimiter.

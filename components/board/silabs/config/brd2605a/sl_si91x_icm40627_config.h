@@ -86,6 +86,17 @@ extern "C" {
 #define SL_SI91X_ICM40627_CS0_LOC 9
 #endif
 // [ULP_SSI_SL_SI91X_ICM40627]$
+
+// <gpio> SL_SI91X_IMU_ALS_INT
+// $[GPIO_SL_SI91X_IMU_ALS_INT]
+#ifndef SL_SI91X_IMU_ALS_INT_PORT
+#define SL_SI91X_IMU_ALS_INT_PORT UULP_VBAT
+#endif
+#ifndef SL_SI91X_IMU_ALS_INT_PIN
+#define SL_SI91X_IMU_ALS_INT_PIN 3
+#endif
+// [GPIO_SL_SI91X_IMU_ALS_INT]$
+
 // <<< sl:end pin_tool >>>
 
 #ifdef __cplusplus

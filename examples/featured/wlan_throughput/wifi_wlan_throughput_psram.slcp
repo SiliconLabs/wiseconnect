@@ -1,0 +1,99 @@
+project_name: wifi_wlan_throughput_psram
+package: wifi
+quality: production
+label: Wi-Fi - Throughput (PSRAM)
+category: Example|Wi-Fi
+description: >
+  Measures Wi-Fi transmit/receive throughput performance using a
+  remote iPerf client/server. The application executes from PSRAM.
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Advanced
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+source:
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+component:
+  - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: text_segment_in_psram
+    from: wiseconnect3_sdk
+  - id: data_segment_in_psram
+    from: wiseconnect3_sdk    
+  - id: psram_core
+    from: wiseconnect3_sdk
+  - id: psram_aps6404l_sqh
+    from: wiseconnect3_sdk         
+  - id: bsd_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_asynchronous_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_mem_pool_buffers_with_quota
+    from: wiseconnect3_sdk
+requires:
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash    
+toolchain_settings:
+  - option: gcc_linker_option
+    value: -u _printf_float
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/UDP_TX.png
+  - path: resources/readme/UDP_RX.png
+  - path: resources/readme/TCP_TX.png
+  - path: resources/readme/TCP_RX.png
+  - path: resources/readme/TLS_TX.png
+  - path: resources/readme/TLS_RX.png
+  - path: resources/readme/UDP_TX_NCP.png
+  - path: resources/readme/UDP_RX_NCP.png
+  - path: resources/readme/TCP_TX_NCP.png
+  - path: resources/readme/TCP_RX_NCP.png
+  - path: resources/readme/TLS_TX_NCP.png
+  - path: resources/readme/TLS_RX_NCP.png
+  - path: resources/readme/output_stm32.png
+  - path: resources/readme/setup_soc_ncp.png
+  - path: resources/readme/stm32_setup.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

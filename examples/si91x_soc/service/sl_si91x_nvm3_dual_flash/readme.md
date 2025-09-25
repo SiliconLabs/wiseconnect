@@ -2,17 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Code modifications for printing on the uart console](#code-modifications-for-printing-on-the-uart-console)
-  - [Pinout on WPK for uart console](#pinout-on-wpk-for-uart-console)
-- [Test the Application](#test-the-application)
-- [Resources](#resources)
+- [SL NVM3 DUAL FLASH](#sl-nvm3-dual-flash)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [General Configuration](#general-configuration)
+  - [Test the Application](#test-the-application)
+  - [Resources](#resources)
 
 ## Purpose/Scope
 
@@ -81,6 +84,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - NVM3_DEFAULT_REPACK_HEADROOM: NVM3 Default Instance User Repack Headroom, Headroom determining how many bytes below the forced repack limit 
   the user repack limit should be placed. The default is 0, which means the user and forced repack limits are equal.
 - NVM3_DEFAULT_NVM_SIZE - Size of the NVM3 storage region in flash. This size should be aligned with the flash page size of the device.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

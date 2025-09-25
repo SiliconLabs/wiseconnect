@@ -1,27 +1,17 @@
 project_name: sl_si91x_ulp_calendar
-label: SI91x - SL_ULP_CALENDAR
+package: platform
 description: >
   This application demonstrates the how to configure and use the ULP Calendar
   peripheral in SiLabs MCU chip.
 category: example|peripheral
-package: platform
 quality: production
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: app.h
-  - path: ulp_calendar_example.c
-  - path: ulp_calendar_example.h
+label: SI91x - SL_ULP_CALENDAR
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -43,27 +33,40 @@ component:
     from: wiseconnect3_sdk
   - id: pm_ps2_component
     from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: ulp_calendar_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ulp_calendar_example.h
 define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
   - name: SL_SI91X_ULP_STATE_ENABLE
+template_contribution:
+  - name: user_files_ps2
+    value: ulp_calendar_example.o
+  - name: user_files_ps2 
+    value: app.o
+  - name: user_files_ps2
+    value: main.o
+  - name: user_files_ps2
+    value: sl_system_process_action.o
+    condition: [sl_system]
+  - name: user_files_ps2
+    value: sl_event_handler.o
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output_ulp_calendar.png
-template_contribution:
-- name: user_files_ps2
-  value: ulp_calendar_example.o
-- name: user_files_ps2 
-  value: app.o
-- name: user_files_ps2
-  value: main.o
-- name: user_files_ps2
-  value: sl_system_process_action.o
-  condition: [sl_system]
-- name: user_files_ps2
-  value: sl_event_handler.o
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

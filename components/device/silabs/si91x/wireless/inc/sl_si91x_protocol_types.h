@@ -564,25 +564,32 @@ typedef struct {
 typedef struct {
 
   uint16_t
-    wlan_state; ///< WLAN state: connected or disconnected in station mode; number of stations connected in AP mode.
+    wlan_state; ///< WLAN state: 1 = connected, 0 = disconnected in station mode; number of stations connected in AP mode.
 
-  uint16_t channel_number; ///< Channel number of connected AP
+  uint16_t channel_number; ///< Channel number of connected AP in station mode; channel number of the module in AP mode
+                           ///<
+                           ///< **Wi-Fi Channel Number Range (1–14):**
+  ///< - **Channels 1–11:** Commonly used in most countries, including the United States (default range).
+  ///< - **Channels 12–13:** Permitted in Europe and several other regions.
+  ///< - **Channel 14:** Exclusively allowed in Japan and rarely used elsewhere.
 
-  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected access point
+  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected AP in station mode; SSID of the module in AP mode
 
-  uint8_t mac_address[6]; ///< MAC address
+  uint8_t mac_address[6]; ///< MAC address of the module
 
-  uint8_t sec_type; ///< Security type
+  uint8_t sec_type; ///< Security type of connected AP is supported in station mode, but not in AP mode.
+                    ///< Refer sl_wifi_security_t for possible values of Security type
 
-  uint8_t psk_pmk[64]; ///< PSK for AP mode, PMK for Client mode
+  uint8_t psk_pmk[64]; ///< PSK for AP mode, PMK for station mode
 
-  uint8_t ipv4_address[4]; ///< Module IP Address
+  uint8_t ipv4_address[4]; ///< Module IPv4 Address
 
   uint8_t ipv6_address[16]; ///< Module IPv6 Address
 
-  uint8_t bssid[6]; ///< BSSID address of connected AP
+  uint8_t bssid[6]; ///< BSSID address of connected AP in station mode; not supported in AP mode
 
-  uint8_t wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B)
+  uint8_t
+    wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B) in station mode, not supported in AP mode
 
 } sl_si91x_rsp_wireless_info_t;
 /** @} */
@@ -1273,13 +1280,14 @@ typedef struct {
 
 //! user configurable gain table structure
 typedef struct {
-  uint8_t band;         ///< band value
-  uint8_t bandwidth;    ///< bandwidth value
-  uint16_t size;        ///< payload size
-  uint8_t x_offset;     ///< X: bump up offset for 52 tone RU
-  uint8_t y_offset;     ///< Y: bump up offset for 106 tone RU
-  uint16_t reserved;    ///< Reserved
-  uint8_t gain_table[]; ///< payload
+  uint8_t band;               ///< band value
+  uint8_t bandwidth;          ///< bandwidth value
+  uint16_t size;              ///< payload size
+  uint8_t x_offset;           ///< X: bump up offset for 52 tone RU
+  uint8_t y_offset;           ///< Y: bump up offset for 106 tone RU
+  uint8_t gain_table_version; ///< 0: Old gain table, 1:New gain table
+  uint8_t reserved;           ///< Reserved
+  uint8_t gain_table[];       ///< payload
 } sli_si91x_gain_table_info_t;
 
 /// Si91x specific 11AX configuration parameters
@@ -2010,3 +2018,15 @@ typedef struct {
   uint16_t mode_11n_enable; ///< 11n mode enable
   uint16_t ht_caps_bitmap;  ///< HT caps bitmap
 } sli_si91x_request_ap_high_throughput_capability_t;
+
+/// Access point disconnect response structure
+#pragma pack(1)
+typedef struct {
+  sl_mac_address_t client_mac_address; ///< Client MAC address
+  uint8_t flag;                        ///< Flag field
+  uint8_t ipv4_address[4];             ///< Remote IPv4 Address
+  uint8_t link_local_address[16];      ///< Remote link-local IPv6 Address
+  uint8_t global_address[16];          ///< Remote unicast global IPv6 Address
+} sli_si91x_ap_disconnect_resp_t;
+
+#pragma pack()

@@ -1,17 +1,23 @@
 project_name: si91x_hello_world
-label: Si91x - Hello World
+package: platform
 description: |
   This application demonstrates how to use hello world example that can be used as a starting point 
   to add components and functionality to the Si91x SoC.
 category: example|peripheral
-package: platform
 quality: production
+label: Si91x - Hello World
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
+    version: 3.5.2
+component:
+  - id: sl_main
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
 source:
   - path: app.c
 include:
@@ -21,20 +27,14 @@ include:
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
-component:
-  - id: sl_main
-  - id: syscalls
-    from: wiseconnect3_sdk
-  - id: si91x_memory_default_config
-    from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/outputConsole.png
-readme:
-  - path: readme.md
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -2,17 +2,31 @@
 
 ## Table of Contents
 
-- [Purpose / Scope](#purpose--scope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Project Creation](#project-creation)
-  - [Setup for application prints](setup-for-application-prints)
-- [Application Configuration Parameters](application-configuration-parameters) 
-- [Build and Test the Application](#build-and-test-the-application)
+- [Wi-Fi BLE Power Save](#wi-fi-ble-power-save)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Project Creation](#project-creation)
+      - [SoC Mode](#soc-mode)
+      - [NCP Mode](#ncp-mode)
+    - [Setup for application prints](#setup-for-application-prints)
+      - [SoC Mode](#soc-mode-1)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Configuring the WLAN task](#configuring-the-wlan-task)
+    - [Configuring the BLE task](#configuring-the-ble-task)
+    - [Configuring the BLE Application](#configuring-the-ble-application)
+  - [Build and Test the Application](#build-and-test-the-application)
+      - [SoC Mode](#soc-mode-2)
+    - [Tickless Mode](#tickless-mode)
+      - [NCP Mode](#ncp-mode-1)
+    - [Loading the Application Image](#loading-the-application-image)
+    - [Steps to verify the WLAN Station BLE Power Save Example](#steps-to-verify-the-wlan-station-ble-power-save-example)
+      - [Steps to be followed to verify WLAN Station BLE Provisioning with Android **Simplicity Connect App**](#steps-to-be-followed-to-verify-wlan-station-ble-provisioning-with-android-simplicity-connect-app)
 
 ## Purpose / Scope
 
@@ -206,9 +220,6 @@ The application can be configured to suit your requirements and development envi
      #define SERVER_IP_ADDRESS      "192.168.43.99"
      ```
 
-> Note:
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 ### Configuring the BLE task
 
 ble_config.h files are already set with the above desired configuration for this example.
@@ -297,6 +308,8 @@ ble_config.h files are already set with the above desired configuration for this
    ```c
    #define BLE_ADVERTISE_ONLY                            0
    ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Build and Test the Application
 

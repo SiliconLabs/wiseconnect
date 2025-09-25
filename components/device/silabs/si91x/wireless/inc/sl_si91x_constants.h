@@ -164,17 +164,21 @@
 // frame descriptor length
 #define SLI_FRAME_DESC_LEN 16
 
-// SPI interrupt register values
-// Are these the same as other buses?
-// buffer full indication register value from module
-#ifndef SLI_BUFFER_FULL
-#define SLI_BUFFER_FULL 0x01
+// Bus interrupt register values
+// Wi-Fi buffer full indication register value from NWP module
+#ifndef SLI_WIFI_BUFFER_FULL
+#define SLI_WIFI_BUFFER_FULL (1 << 0)
 #endif
-// buffer empty indication register value from module
+
+// BLE buffer full indication register value from NWP module
+#ifndef SLI_BLE_BUFFER_FULL
+#define SLI_BLE_BUFFER_FULL (1 << 4)
+#endif
+// Wi-Fi buffer empty indication register value from NWP module
 #define SLI_BUFFER_EMPTY 0x02
-// RX packet pending register value from module
+// RX packet pending register value from NWP module
 #define SLI_RX_PKT_PENDING 0x08
-// Assertion Interrupt indication from module
+// Assertion Interrupt indication from NWP module
 #define SLI_ASSERT_INTR 0x80
 
 //Bootloader defines
@@ -568,6 +572,7 @@ typedef enum {
 
   // Network commands
   SLI_WLAN_REQ_PING_PACKET           = 0x29,
+  SLI_WLAN_REQ_NAT                   = 0x2A,
   SLI_WLAN_REQ_IPCONFV4              = 0x41,
   SLI_WLAN_REQ_DNS_QUERY             = 0x44,
   SLI_WLAN_REQ_HTTP_CLIENT_GET       = 0x51,
@@ -690,6 +695,7 @@ typedef enum {
 
   // Network command response
   SLI_WLAN_RSP_PING_PACKET           = 0x29,
+  SLI_WLAN_RSP_NAT                   = 0x2A,
   SLI_WLAN_RSP_IPCONFV4              = 0x41,
   SLI_WLAN_RSP_DNS_QUERY             = 0x44,
   SLI_WLAN_RSP_HTTP_CLIENT_GET       = 0x51,

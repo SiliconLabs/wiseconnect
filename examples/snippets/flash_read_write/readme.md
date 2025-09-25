@@ -2,14 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - Flash Read Write](#wi-fi---flash-read-write)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Configuration Parameters](#configuration-parameters)
+  - [Test the Application](#test-the-application)
   
 ## Purpose/Scope
 
@@ -57,14 +60,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-The application uses the default configurations as provided in the **default_wifi_client_profile** in ``sl_net_default_values.h`` and user can choose to configure these parameters as needed.
-
-> Note: 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+The application uses the default configurations as provided in the **default_wifi_client_profile** in ``sl_net_default_values.h``. You can configure these parameters as needed.
 
 ## Configuration Parameters
 
-In the application (`app.c`), the following parameters can be configured:
+In the application (`app.c`), you can configure the following parameters:
 
 - **M4_FLASH_ADDRESS**: 
   - Represents the starting address in the common flash memory where the M4 region begins.
@@ -80,14 +80,18 @@ In the application (`app.c`), the following parameters can be configured:
   - When set to 1, it enables sector erase, allowing erasure of multiples of 4 KB of data.
   - When set to 0, it disables sector erase, allowing normal write operations onto flash without erasing sectors.
 
+  >**Note**: Before performing a write operation, ensure that the flash memory is erased by setting `FLASH_SECTOR_ERASE_ENABLE` to `1`.
+
 Modify these values in the `app.c` file as per the application requirements.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
-- Flash, run and debug the application.
-- After successful execution of the application, the output will be displayed on the console.
+- Flash, run, and debug the application.
+- After successful execution of the application, the following output is displayed on the console.
 
   ![Output](resources/readme/output_prints.png)

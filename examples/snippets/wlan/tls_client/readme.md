@@ -2,14 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - TLS Client](#wi-fi---tls-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [TLS\_EXTENSION\_ENABLE Macro](#tls_extension_enable-macro)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -82,9 +85,6 @@ The application can be configured to suit user requirements and development envi
   
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> Note: 
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
-
   - Configure the following parameters in ``app.c`` to test tls client app as per requirements
 
   - Client/Server IP Settings
@@ -117,6 +117,28 @@ The application can be configured to suit user requirements and development envi
 
 > **Note** :
  The included self-signed certificates will work for local OpenSSL server. For cloud servers, using default certificates for a cloud connection does not work. Replace the default certificates with valid certificates when connecting to Cloud Server.
+
+---
+
+### TLS_EXTENSION_ENABLE Macro
+
+The `TLS_EXTENSION_ENABLE` macro controls whether advanced TLS extensions—specifically SNI (Server Name Indication) and ALPN (Application-Layer Protocol Negotiation)—are enabled in the TLS client example.
+
+When `TLS_EXTENSION_ENABLE` is set to 1:
+- The application will include and use SNI and ALPN extensions during the TLS handshake.
+- SNI allows the client to specify the hostname it is connecting to, which is required by many modern servers that host multiple domains on a single IP address.
+- ALPN allows the client and server to negotiate the application protocol (such as HTTP/1.1 or HTTP/2) to use over the secure connection.
+
+When `TLS_EXTENSION_ENABLE` is set to 0:
+- The application will not use SNI or ALPN extensions.
+- The TLS handshake will be simpler, but connections to servers that require SNI or ALPN may fail.
+
+**Example:**
+```c
+#define TLS_EXTENSION_ENABLE 1 // Enable TLS protocol extensions (e.g., SNI)
+```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

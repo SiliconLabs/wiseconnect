@@ -36,7 +36,7 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <e>WatchDog Timer UC Configuration
+//  <e> WatchDog Timer UC Configuration
 //  <i> Enable: Peripheral configuration is taken straight from the
 //  configuration set in the universal configuration (UC).
 //  <i> Disable: If the application demands it to be modified during runtime, use the
@@ -45,7 +45,7 @@
 //  <i> Default: 1
 #define WDT_UC 1
 
-// <h>Watchdog Timer Configuration
+// <h> Watchdog Timer Configuration
 
 // <o SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD> WDT Timeout Interval
 //   <SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_1=> 0.0625 ms

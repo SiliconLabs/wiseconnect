@@ -12,9 +12,9 @@
   - [Getting Started](#getting-started)
   - [Application Overview](#application-overview)
   - [Application Build Environment](#application-build-environment)
-      - [Open **sl\_wifi\_device.h** file. You can also refer to the `sl_wifi_default_concurrent_v6_configuration` and can modify/create configurations as per your needs and requirements](#open-sl_wifi_deviceh-file-user-can-also-refer-the-sl_wifi_default_concurrent_v6_configuration-and-can-modifycreate-configurations-as-per-their-needs-and-requirements)
+      - [Open **sl\_wifi\_device.h** file. You can also refer to `sl_wifi_default_concurrent_v6_configuration` and modify/create configurations as per your needs and requirements.](#open-sl_wifi_deviceh-file-you-can-also-refer-to-sl_wifi_default_concurrent_v6_configuration-and-modifycreate-configurations-as-per-your-needs-and-requirements)
       - [Configure the following parameters in **app.c** to test throughput app as per requirements](#configure-the-following-parameters-in-appc-to-test-throughput-app-as-per-requirements)
-    - [Run the Python script](#run-the-python-script)
+    - [Run the Python Script](#run-the-python-script)
 
 ## Purpose/Scope
 
@@ -138,9 +138,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 >
 > Note: In `sl_wifi_default_concurrent_v6_configuration`, `oper_mode` must be `SL_SI91X_CONCURRENT_MODE` for this example.
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 #### Configure the following parameters in **app.c** to test throughput app as per requirements
 
 - **Client/Server IP Settings**
@@ -158,6 +155,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application
 - Flash, run, and debug the application
 - Note that application should start before python script is initiated.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### Run the Python Script
 

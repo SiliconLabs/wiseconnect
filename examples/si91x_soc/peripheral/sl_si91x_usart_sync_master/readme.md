@@ -2,16 +2,24 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL USART MASTER](#sl-usart-master)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configuration of USART at UC (Universal Configuration)](#configuration-of-usart-at-uc-universal-configuration)
+    - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with BRD4338A radio board](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-brd4338a-radio-board)
+    - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with BRD4343A radio board](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-brd4343a-radio-board)
+    - [Pin Configuration of the AC1 Module Explorer Kit](#pin-configuration-of-the-ac1-module-explorer-kit)
+    - [Flow Control Configuration](#flow-control-configuration)
+  - [Test the Application](#test-the-application)
+  - [Configuring higher clock](#configuring-higher-clock)
 
 ## Purpose/Scope
 
@@ -31,12 +39,12 @@ This application demonstrates how to configure Universal Synchronous Asynchronou
 
 ## About Example Code
 
-- \ref usart_example.c - This example code demonstrates how to configure the USART to send and receive data.
-- In this example, first USART get initialized if it was not already initialized with the clock and DMA configurations if DMA is enabled using \ref sl_si91x_usart_init.
-- After USART initialization, the USART power mode is set using \ref sl_si91x_usart_set_power_mode() and then USART configured with the default configurations from UC along with the USART transmit and receive lines using \ref sl_si91x_usart_set_configuration()
-- Then the register user event callback for send and receive complete notification is set using
-  \ref sl_si91x_usart_register_event_callback().
-- After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_transfer_data().
+- [`usart_sync_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_usart_sync_master/usart_sync_example.c) - This example code demonstrates how to configure the USART to send and receive data.
+- In this example, first USART gets initialized if it was not already initialized with the clock and DMA configurations if DMA is enabled using [`sl_si91x_usart_init`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-init).  
+**Note:** If the UART/USART instance is already selected for debug output logs, initialization will return `SL_STATUS_NOT_AVAILABLE`.
+- After USART initialization, the USART power mode is set using [`sl_si91x_usart_set_power_mode()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-power-mode) and then USART is configured with the default configurations from UC along with the USART transmit and receive lines using [`sl_si91x_usart_set_configuration()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-set-configuration).
+- Then the register user event callback for send and receive complete notification is set using [`sl_si91x_usart_register_event_callback()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-register-event-callback).
+- After setting the user event callback, the data send and receive can happen through [`sl_si91x_usart_transfer_data()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-transfer-data).
 - Once the receive data event is triggered, both transmit and receive buffer data is compared to confirm if the received data is the same.
 
 ## Prerequisites/Setup Requirements
@@ -56,7 +64,7 @@ This application demonstrates how to configure Universal Synchronous Asynchronou
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -124,6 +132,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     | -------------- | ------- | ------------- | ------------------------ |
     | USART0_CTS_PIN | GPIO_26 |     P27       |           [MISO]         |
     | USART0_RTS_PIN | GPIO_28 |     P31       |           [CS]           |
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

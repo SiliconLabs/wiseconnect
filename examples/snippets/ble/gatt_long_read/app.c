@@ -763,7 +763,6 @@ static void rsi_ble_gatt_error_event(uint16_t resp_status, rsi_ble_event_error_r
 {
   UNUSED_PARAMETER(resp_status); //This statement is added only to resolve compilation warning, value is unchanged
   memcpy(remote_dev_bd_addr, rsi_ble_gatt_error->dev_addr, 6);
-  UNUSED_PARAMETER(remote_dev_bd_addr);
   rsi_ble_app_set_event(RSI_BLE_GATT_ERROR);
 }
 

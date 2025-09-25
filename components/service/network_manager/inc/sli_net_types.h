@@ -42,3 +42,20 @@ typedef struct {
   sl_net_interface_t interface; ///< Identifier for the network interface
   uint32_t event_flags;         ///< Event flags for the network manager
 } sli_network_manager_message_t;
+
+/**
+ * @struct sli_net_nat_config_t
+ * @brief NAT configuration structure.
+ *
+ * @details
+ * This structure contains configuration parameters for Network Address Translation (NAT)
+ * on a network interface. It includes an enable flag, session timeout values for TCP and
+ * non-TCP connections, and the associated network interface.
+ */
+typedef struct {
+  uint8_t enable;                   ///< Enable or disable NAT (1 = enable, 0 = disable)
+  uint8_t reserved[3];              ///< Reserved for alignment/future use
+  uint32_t tcp_session_timeout;     ///< NAT TCP session timeout in seconds
+  uint32_t non_tcp_session_timeout; ///< NAT non-TCP session timeout in seconds
+  sl_net_interface_t interface;     ///< Network interface to apply NAT settings
+} sli_net_nat_config_t;

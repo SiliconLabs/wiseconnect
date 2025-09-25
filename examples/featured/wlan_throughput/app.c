@@ -247,6 +247,15 @@ void data_callback(uint32_t sock_no,
     start = osKernelGetTickCount();
     printf("\r\nClient Socket ID : %ld\r\n", sock_no);
     switch (THROUGHPUT_TYPE) {
+      case UDP_TX:
+        printf("\r\nUDP_TX Throughput test start\r\n");
+        break;
+      case TCP_TX:
+        printf("\r\nTCP_TX Throughput test start\r\n");
+        break;
+      case TLS_TX:
+        printf("\r\nTLS_TX Throughput test start\r\n");
+        break;
       case UDP_RX:
         printf("\r\nUDP_RX Throughput test start\r\n");
         break;

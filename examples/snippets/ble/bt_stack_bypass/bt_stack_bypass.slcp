@@ -1,7 +1,7 @@
 project_name: bt_stack_bypass
 package: ble
 quality: alpha
-label: BT_STACK_BYPASS
+label: BLE - BT_STACK_BYPASS
 category: Example|BLE
 description: >
   Demonstrates how to configure the Raw HCI commands through uart.
@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: simplicity_sdk, version:  "2025.6.1"}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.5.1}
+- {id: wiseconnect3_sdk, version: 3.5.2}
 source:
   - path: app.c
 include:

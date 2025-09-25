@@ -2,17 +2,32 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
+- [SL COMBO APP](#sl-combo-app)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+    - [1. I2C](#1-i2c)
+    - [2. PWM](#2-pwm)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
   - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+    - [I2C0](#i2c0)
+    - [I2C1](#i2c1)
+    - [ULP\_I2C](#ulp_i2c)
+    - [GPIO Interrupt](#gpio-interrupt)
+    - [PWM Channel0](#pwm-channel0)
+    - [PWM Channel1](#pwm-channel1)
+    - [PWM Channel2](#pwm-channel2)
+    - [PWM Channel3](#pwm-channel3)
+  - [Test the Application](#test-the-application)
   - [Expected Results](#expected-results)
+    - [I2C](#i2c)
+    - [PWM](#pwm)
 
 ## Purpose/Scope
 
@@ -72,7 +87,7 @@ The purpose of this application is to demonstrate the use of CMSIS-RTOS concepts
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -120,7 +135,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - For high-speed mode data transfer, external pullup is must.
 - Configure the UC as mentioned below.
 
-  ![Figure: Introduction](resources/uc_screen/i2c_uc_screen.png)
+  ![Figure: i2c_uc_screen](resources/uc_screen/i2c_uc_screen.png)
 
 ## Pin Configuration
 
@@ -183,6 +198,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | PWM_H         | ULP_GPIO_7  | P12         | F6           | [TX] |
   | PWM_L         | ULP_GPIO_6  | P13         | F7           | [RX] |
   
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 1. Compile and run the application.
@@ -203,7 +220,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - PWM signal toggling can be observed whenever the button BTN0 is pressed.
 - Check PWM output on PWM GPIOs by connecting logic analyser.
 
-  ![Figure: expected result](resources/readme/output.png)
+  ![Figure: output](resources/readme/output.png)
 
  **Note:**
 

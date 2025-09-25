@@ -1,7 +1,7 @@
 project_name: wifi_provisioning_via_access_point_soc
 package: wifi
 quality: production
-label: wifi_provisioning_via_access_point
+label: Wi-Fi - Provisioning via Access Point (SoC)
 category: Example|Wi-Fi
 description: |
    Start Wi-Fi provisioning via Access Point, displaying scan results on an HTTP server, and connecting to a third-party Access Point using the STA instance.
@@ -17,7 +17,7 @@ sdk:
    version:  "2025.6.1"
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.5.1
+   version: 3.5.2
 source:
 -  path: app.c
 include:

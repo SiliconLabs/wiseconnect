@@ -10,21 +10,33 @@
     - [Software Requirements](#software-requirements)
     - [Setup Diagram](#setup-diagram)
   - [Getting Started](#getting-started)
-    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu)
-    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
+    - [Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)](#instructions-for-keil-ide-and-stm32f411re-mcu-ncp-mode)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
   - [Application Build Environment](#application-build-environment)
     - [Configure sl\_net\_default\_values.h](#configure-sl_net_default_valuesh)
-  - [Test the application](#test-the-application)
-    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes-1)
-    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu-1)
+  - [Test the Application](#test-the-application)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes-1)
+    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu)
     - [Application Prints:](#application-prints)
     - [To Run Server](#to-run-server)
       - [UDP Tx Throughput](#udp-tx-throughput)
+        - [For SOC:](#for-soc)
+        - [For NCP with EFR host:](#for-ncp-with-efr-host)
       - [UDP Rx Throughput](#udp-rx-throughput)
+        - [For SOC:](#for-soc-1)
+        - [For NCP with EFR host:](#for-ncp-with-efr-host-1)
       - [TCP Tx Throughput](#tcp-tx-throughput)
+        - [For SOC:](#for-soc-2)
+        - [For NCP with EFR host:](#for-ncp-with-efr-host-2)
       - [TCP Rx Throughput](#tcp-rx-throughput)
+        - [For SOC:](#for-soc-3)
+        - [For NCP with EFR host:](#for-ncp-with-efr-host-3)
       - [TLS Tx Throughput](#tls-tx-throughput)
+        - [For SOC:](#for-soc-4)
+        - [For NCP with EFR host:](#for-ncp-with-efr-host-4)
       - [TLS Rx Throughput](#tls-rx-throughput)
+        - [For SOC:](#for-soc-5)
+        - [For NCP with EFR host:](#for-ncp-with-efr-host-5)
   
 ## Purpose/Scope
 
@@ -151,9 +163,6 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> Note: 
-> The user can configure the default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 **Path for app.c in Keil IDE:**
 
 - Expand the **Application/User/Core** folder and open the **app.c** file.
@@ -208,6 +217,8 @@ Configure the following parameters in `app.c` to test the throughput app as per 
       ```c
       #define PLL_MODE      1
       ```
+
+  > **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

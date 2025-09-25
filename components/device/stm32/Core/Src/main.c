@@ -71,11 +71,7 @@ void Error_Handler(void);
 
 /* USER CODE END 0 */
 
-#ifdef __GNUC__
-  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 
 /**
   * @brief  The application entry point.

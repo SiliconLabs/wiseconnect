@@ -2,20 +2,23 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [iTWT Session Status Codes](#itwt-session-status-codes)
-- [TWT Recommendations](#twt-recommendations)
-- [Test the Application](#test-the-application)
-- [Additional Information](#additional-information)
-  - [Configuring AWS S3 Bucket](#configuring-aws-s3-bucket)
-  - [Configuring and Uploading Firmware on Apache HTTP](#configuring-and-uploading-firmware-on-apache-http)
-  - [Configuring and Uploading Firmware on Apache HTTPs](#configuring-and-uploading-firmware-on-apache-https)
+- [Wi-Fi - HTTP/HTTPS OTAF TWT Update](#wi-fi---httphttps-otaf-twt-update)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [iTWT Session Status Codes](#itwt-session-status-codes)
+  - [TWT Recommendations](#twt-recommendations)
+  - [Test the Application](#test-the-application)
+  - [Additional Information](#additional-information)
+    - [Configuring AWS S3 Bucket](#configuring-aws-s3-bucket)
+    - [Configuring Azure Blob Storage](#configuring-azure-blob-storage)
+    - [Configuring and Uploading Firmware on Apache HTTP](#configuring-and-uploading-firmware-on-apache-http)
+    - [Configuring and Uploading Firmware on Apache HTTPs](#configuring-and-uploading-firmware-on-apache-https)
 
 ## Purpose/Scope
 
@@ -106,8 +109,6 @@ The application can be configured to suit your requirements and the development 
     ```
 
 - Other STA instance configurations can be modified if required in **DEFAULT_WIFI_CLIENT_PROFILE** configuration structure.
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 - The following configurations in the ``app.c`` file can be configured as per requirements.
 
@@ -522,6 +523,8 @@ The application can be configured to suit your requirements and the development 
 > We are providing both root CAs (Starfield class-2 and Starfield G2) in aws_starfield_ca.pem.h, which is located in the WiSeConnect directory `<SDK>/resources/certificates/aws_starfield_ca.pem.h`.
 > Alternate certification chains support is added. With this, as opposed to requiring full chain validation, only the peer certificate must validate to a trusted certificate. This allows loading intermediate root CAs as trusted.
 > The default CA certificate is the Starfield Combined CA certificate. To use the Intermediate Amazon Root CA 1 certificate, define the `SL_SI91X_AWS_IOT_ROOT_CA1` macro in the application.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

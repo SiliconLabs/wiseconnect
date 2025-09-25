@@ -1,31 +1,16 @@
 project_name: sl_si91x_nvm3_psram
 package: wifi
-quality: production
-label: sl_si91x_nvm3_psram
-category: Example|Service
 description: |
   Testing NVM3 in Si91x PSRAM 
-filter:
-  - name: Wireless Technology
-    value:
-      - Wi-Fi
-  - name: Project Difficulty
-    value:
-      - Beginner
+category: Example|Service
+quality: production
+label: sl_si91x_nvm3_psram
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: app.c
-include:
-  - path: .
-    file_list:
-      - path: app.h
-define:
-  - name: SL_SI91X_PRINT_DBG_LOG
+    version: 3.5.2
 component:
   - id: sl_main
   - id: freertos
@@ -54,21 +39,36 @@ component:
     from: wiseconnect3_sdk
   - id: psram_aps6404l_sqh
     from: wiseconnect3_sdk        
+source:
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
-configuration:
-  - name: SL_BOARD_ENABLE_VCOM
-    value: "1"
-readme:
-  - path: readme.md
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
   - path: resources/uc_screen/si91x_nvm3_uc_screen.png
+configuration:
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

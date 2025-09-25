@@ -2,18 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Power save configuration](#power-save-configuration)
-  - [Non-configurable Values](#power-save-configuration)
-- [Test the Application](#test-the-application)
-  - [Server Role](#server-role)
-  - [Client Role](#client-role)
+- [BLE - HID On GATT](#ble---hid-on-gatt)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Power save configuration](#power-save-configuration)
+    - [Non-configurable Values](#non-configurable-values)
+  - [Test the Application](#test-the-application)
+    - [Server Role](#server-role)
+    - [Client Role](#client-role)
 
 ## Purpose/Scope
 
@@ -205,8 +207,8 @@ The application can be configured to suit your requirements and development envi
     ```
 
     > **Note:** ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

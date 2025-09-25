@@ -1,15 +1,16 @@
 # BLE - Testmodes
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [TX Testmodes Execution](#tx-testmodes-execution)
-  - [Configuring the Application for Rx](#configuring-the-application-for-rx)
+- [BLE - Testmodes](#ble---testmodes)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [TX Testmodes Execution](#tx-testmodes-execution)
+    - [Configuring the Application for Rx](#configuring-the-application-for-rx)
 
 ## Purpose/Scope
 
@@ -103,8 +104,8 @@ The application can be configured to suit user requirements and development envi
         ```c
         #define RSI_CONFIG_TEST_MODE                          RSI_BLE_TESTMODE_RECEIVE
         ```
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+  
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

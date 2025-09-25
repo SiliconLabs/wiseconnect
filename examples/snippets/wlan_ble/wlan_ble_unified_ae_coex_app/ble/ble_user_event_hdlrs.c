@@ -14,6 +14,7 @@
 #include "sl_constants.h"
 
 extern rsi_parsed_conf_t rsi_parsed_conf;
+
 ble_confg_info_t ble_confgs;
 profile_dummy_data_t profile_dummy_data;
 uint8_t central_count    = 0;
@@ -29,8 +30,6 @@ static uint8_t remote_name[31];
 static rsi_bt_event_le_security_keys_t temp_le_sec_keys;
 static rsi_bt_event_encryption_enabled_t glbl_enc_enabled;
 static rsi_ble_event_ctkd_t ble_ctkd;
-extern uint8_t ble_connect_procedure_on;
-extern osSemaphoreId_t ble_wait_on_connect_and_discovery;
 
 tx_generic_event_message_t transmit_event_message[TOTAL_CONNECTIONS];
 
@@ -60,7 +59,7 @@ void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
   memcpy((void *)&transmit_event_message[conn_id].event_data, &conn_id, sizeof(uint8_t));
 
   //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0],
+  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
                                  (rsi_app_pkt_t *)&transmit_event_message[conn_id],
                                  &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);
@@ -1794,8 +1793,7 @@ void rsi_ble_event_enhance_conn_status(uint16_t status, void *event_data)
 #else
     ble_conn_id = rsi_get_ble_conn_id(remote_dev_addr_conn, NULL, 0);
 #endif
-    ble_connect_procedure_on--;
-    osSemaphoreRelease(ble_wait_on_connect_and_discovery);
+
     printf("\nBLE CONN ID : %d\n", ble_conn_id);
 
     //! copy to conn specific buffer
@@ -4240,7 +4238,6 @@ void rsi_ble_event_ext_adv_report(uint16_t status, void *event_data)
 
     adv_pkt_processing_pending = 0;
     peripheral_con_req_pending = 1;
-    ble_connect_procedure_on++;
 
     osSemaphoreAcquire(ble_wait_on_connect, 10000);
 
@@ -4251,8 +4248,7 @@ void rsi_ble_event_ext_adv_report(uint16_t status, void *event_data)
       if (status != RSI_SUCCESS) {
         printf("\r\n ble connect cancel cmd status = %x \n", status);
       } else {
-        ble_connect_procedure_on--;
-        osSemaphoreRelease(ble_wait_on_connect_and_discovery);
+
         peripheral_count++;
         rsi_ble_event_disconnect(status,
                                  (int8_t *)rsi_ble_conn_info[ble_conn_id].rsi_app_ae_adv_reports_to_app.remote_addr);

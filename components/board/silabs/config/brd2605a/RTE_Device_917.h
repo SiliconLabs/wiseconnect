@@ -4750,64 +4750,129 @@
 
 //<> QEI (Quadrature Encode Interface)
 
-//QEI_DIR <0=>GPIO_28 <1=>GPIO_49 <2=>GPIO_57 <3=>GPIO_67 <4=>GPIO_71 <5=>GPIO_73 <6=>GPIO_11 <7=>GPIO_34
-
+//QEI_DIR <0=>GPIO_11 <1=>GPIO_28 <2=>GPIO_49 <3=>GPIO_34 <4=>GPIO_57 <5=>GPIO_71 <6=>GPIO_75
+#ifndef QEI_DIR_LOC
 #define RTE_QEI_DIR_PORT_ID 4
 
 #if (RTE_QEI_DIR_PORT_ID == 0)
 #define RTE_QEI_DIR_PORT HP
+#define RTE_QEI_DIR_PIN  11
+#define RTE_QEI_DIR_MUX  5
+#define RTE_QEI_DIR_PAD  6
+#elif (RTE_QEI_DIR_PORT_ID == 1)
+#define RTE_QEI_DIR_PORT HP
 #define RTE_QEI_DIR_PIN  28
 #define RTE_QEI_DIR_MUX  5
-#define RTE_QEI_DIR_PAD  0 //no pad
-#elif (RTE_QEI_DIR_PORT_ID == 1)
+#define RTE_QEI_DIR_PAD  0
+#elif (RTE_QEI_DIR_PORT_ID == 2)
 #define RTE_QEI_DIR_PORT HP
 #define RTE_QEI_DIR_PIN  49
 #define RTE_QEI_DIR_MUX  3
 #define RTE_QEI_DIR_PAD  13
-#elif (RTE_QEI_DIR_PORT_ID == 2)
+#elif (RTE_QEI_DIR_PORT_ID == 3)
+#define RTE_QEI_DIR_PORT HP
+#define RTE_QEI_DIR_PIN  34
+#define RTE_QEI_DIR_MUX  13
+#define RTE_QEI_DIR_PAD  9
+#elif (RTE_QEI_DIR_PORT_ID == 4)
 #define RTE_QEI_DIR_PORT HP
 #define RTE_QEI_DIR_PIN  57
 #define RTE_QEI_DIR_MUX  5
 #define RTE_QEI_DIR_PAD  21
-#elif (RTE_QEI_DIR_PORT_ID == 3)
-#define RTE_QEI_DIR_PORT HP
-#define RTE_QEI_DIR_PIN  67
-#define RTE_QEI_DIR_MUX  3
-#define RTE_QEI_DIR_PAD  25
-#elif (RTE_QEI_DIR_PORT_ID == 4)
+#elif (RTE_QEI_DIR_PORT_ID == 5)
 #define RTE_QEI_DIR_PORT HP
 #define RTE_QEI_DIR_PIN  71
 #define RTE_QEI_DIR_MUX  3
 #define RTE_QEI_DIR_PAD  29
-#elif (RTE_QEI_DIR_PORT_ID == 5)
+#elif (RTE_QEI_DIR_PORT_ID == 6)
 #define RTE_QEI_DIR_PORT HP
-#define RTE_QEI_DIR_PIN  73
+#define RTE_QEI_DIR_PIN  75
 #define RTE_QEI_DIR_MUX  3
-#define RTE_QEI_DIR_PAD  31
+#define RTE_QEI_DIR_PAD  33
 #else
 #error "Invalid  RTE_QEI_DIR_PIN Pin Configuration!"
 #endif
+#else
+//Pintool data
+#define RTE_QEI_DIR_PORT HP
+#if (QEI_DIR_LOC == 0)
+#define RTE_QEI_DIR_PIN QEI_DIR_PIN
+#define RTE_QEI_DIR_MUX 5
+#define RTE_QEI_DIR_PAD 6
+#endif
+#if (QEI_DIR_LOC == 1)
+#define RTE_QEI_DIR_PIN QEI_DIR_PIN
+#define RTE_QEI_DIR_MUX 5
+#define RTE_QEI_DIR_PAD 0
+#endif
+#if (QEI_DIR_LOC == 2)
+#define RTE_QEI_DIR_PIN QEI_DIR_PIN
+#define RTE_QEI_DIR_MUX 3
+#define RTE_QEI_DIR_PAD 13
+#endif
+#if (QEI_DIR_LOC == 3)
+#define RTE_QEI_DIR_PIN QEI_DIR_PIN
+#define RTE_QEI_DIR_MUX 13
+#define RTE_QEI_DIR_PAD 9
+#endif
+#if (QEI_DIR_LOC == 4)
+#define RTE_QEI_DIR_PIN QEI_DIR_PIN
+#define RTE_QEI_DIR_MUX 5
+#define RTE_QEI_DIR_PAD 21
+#endif
+#if (QEI_DIR_LOC == 5)
+#define RTE_QEI_DIR_PIN (QEI_DIR_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_DIR_MUX 3
+#define RTE_QEI_DIR_PAD 29
+#endif
+#if (QEI_DIR_LOC == 6)
+#define RTE_QEI_DIR_PIN (QEI_DIR_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_DIR_MUX 3
+#define RTE_QEI_DIR_PAD 33
+#endif
+//Pintool data
+#endif
 
-//QEI_IDX <0=>GPIO_25 <1=>GPIO_46 <2=>GPIO_52 <3=>GPIO_64 <4=>GPIO_68 <5=>GPIO_72 <6=>GPIO_8 <7=>GPIO_13
-
+//QEI_IDX <0=>GPIO_8 <1=>GPIO_25 <2=>GPIO_46 <3=>GPIO_31 <4=>GPIO_52 <5=>GPIO_68 <6=>GPIO_64 <7=>GPIO_72
+#ifndef QEI_IDX_LOC
 #define RTE_QEI_IDX_PORT_ID 3
 
 #if (RTE_QEI_IDX_PORT_ID == 0)
 #define RTE_QEI_IDX_PORT HP
+#define RTE_QEI_IDX_PIN  8
+#define RTE_QEI_IDX_MUX  5
+#define RTE_QEI_IDX_PAD  3
+#elif (RTE_QEI_IDX_PORT_ID == 1)
+#define RTE_QEI_IDX_PORT HP
 #define RTE_QEI_IDX_PIN  25
 #define RTE_QEI_IDX_MUX  5
-#define RTE_QEI_IDX_PAD  0 //no pad
-#elif (RTE_QEI_IDX_PORT_ID == 1)
+#define RTE_QEI_IDX_PAD  0
+#elif (RTE_QEI_IDX_PORT_ID == 2)
 #define RTE_QEI_IDX_PORT HP
 #define RTE_QEI_IDX_PIN  46
 #define RTE_QEI_IDX_MUX  3
 #define RTE_QEI_IDX_PAD  10
-#elif (RTE_QEI_IDX_PORT_ID == 2)
+#elif (RTE_QEI_IDX_PORT_ID == 3)
+#define RTE_QEI_IDX_PORT HP
+#define RTE_QEI_IDX_PIN  31
+#define RTE_QEI_IDX_MUX  13
+#define RTE_QEI_IDX_PAD  9
+#elif (RTE_QEI_IDX_PORT_ID == 4)
 #define RTE_QEI_IDX_PORT HP
 #define RTE_QEI_IDX_PIN  52
 #define RTE_QEI_IDX_MUX  5
 #define RTE_QEI_IDX_PAD  16
-#elif (RTE_QEI_IDX_PORT_ID == 3)
+#elif (RTE_QEI_IDX_PORT_ID == 5)
+#define RTE_QEI_IDX_PORT HP
+#define RTE_QEI_IDX_PIN  68
+#define RTE_QEI_IDX_MUX  3
+#define RTE_QEI_IDX_PAD  26
+#elif (RTE_QEI_IDX_PORT_ID == 6)
+#define RTE_QEI_IDX_PORT HP
+#define RTE_QEI_IDX_PIN  64
+#define RTE_QEI_IDX_MUX  3
+#define RTE_QEI_IDX_PAD  22
+#elif (RTE_QEI_IDX_PORT_ID == 7)
 #define RTE_QEI_IDX_PORT HP
 #define RTE_QEI_IDX_PIN  72
 #define RTE_QEI_IDX_MUX  3
@@ -4815,9 +4880,54 @@
 #else
 #error "Invalid  RTE_QEI_IDX_PIN Pin Configuration!"
 #endif
+#else
+//Pintool data
+#define RTE_QEI_IDX_PORT HP
+#if (QEI_IDX_LOC == 7)
+#define RTE_QEI_IDX_PIN QEI_IDX_PIN
+#define RTE_QEI_IDX_MUX 5
+#define RTE_QEI_IDX_PAD 3
+#endif
+#if (QEI_IDX_LOC == 8)
+#define RTE_QEI_IDX_PIN QEI_IDX_PIN
+#define RTE_QEI_IDX_MUX 5
+#define RTE_QEI_IDX_PAD 0
+#endif
+#if (QEI_IDX_LOC == 9)
+#define RTE_QEI_IDX_PIN QEI_IDX_PIN
+#define RTE_QEI_IDX_MUX 3
+#define RTE_QEI_IDX_PAD 10
+#endif
+#if (QEI_IDX_LOC == 10)
+#define RTE_QEI_IDX_PIN QEI_IDX_PIN
+#define RTE_QEI_IDX_MUX 13
+#define RTE_QEI_IDX_PAD 9
+#endif
+#if (QEI_IDX_LOC == 11)
+#define RTE_QEI_IDX_PIN QEI_IDX_PIN
+#define RTE_QEI_IDX_MUX 5
+#define RTE_QEI_IDX_PAD 16
+#endif
+#if (QEI_IDX_LOC == 12)
+#define RTE_QEI_IDX_PIN (QEI_IDX_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_IDX_MUX 3
+#define RTE_QEI_IDX_PAD 26
+#endif
+#if (QEI_IDX_LOC == 13)
+#define RTE_QEI_IDX_PIN (QEI_IDX_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_IDX_MUX 3
+#define RTE_QEI_IDX_PAD 22
+#endif
+#if (QEI_IDX_LOC == 14)
+#define RTE_QEI_IDX_PIN (QEI_IDX_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_IDX_MUX 3
+#define RTE_QEI_IDX_PAD 30
+#endif
+//Pintool data
+#endif
 
-//QEI_PHA <0=>GPIO_26 <1=>GPIO_47 <2=>GPIO_53 <3=>GPIO_65 <4=>GPIO_69 <5=>GPIO_73 <6=>GPIO_9 <7=>GPIO_32
-
+//QEI_PHA <0=>GPIO_9 <1=>GPIO_26 <2=>GPIO_47 <3=>GPIO_32 <4=>GPIO_53 <5=>GPIO_69 <6=>GPIO_65 <7=>GPIO_73
+#ifndef QEI_PHA_LOC
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_QEI_PHA_PORT_ID 3
 #else
@@ -4826,25 +4936,40 @@
 
 #if (RTE_QEI_PHA_PORT_ID == 0)
 #define RTE_QEI_PHA_PORT HP
+#define RTE_QEI_PHA_PIN  9
+#define RTE_QEI_PHA_MUX  5
+#define RTE_QEI_PHA_PAD  4
+#elif (RTE_QEI_PHA_PORT_ID == 1)
+#define RTE_QEI_PHA_PORT HP
 #define RTE_QEI_PHA_PIN  26
 #define RTE_QEI_PHA_MUX  5
-#define RTE_QEI_PHA_PAD  0 //no pad
-#elif (RTE_QEI_PHA_PORT_ID == 1)
+#define RTE_QEI_PHA_PAD  0
+#elif (RTE_QEI_PHA_PORT_ID == 2)
 #define RTE_QEI_PHA_PORT HP
 #define RTE_QEI_PHA_PIN  47
 #define RTE_QEI_PHA_MUX  3
 #define RTE_QEI_PHA_PAD  11
-#elif (RTE_QEI_PHA_PORT_ID == 2)
+#elif (RTE_QEI_PHA_PORT_ID == 3)
+#define RTE_QEI_PHA_PORT HP
+#define RTE_QEI_PHA_PIN  32
+#define RTE_QEI_PHA_MUX  13
+#define RTE_QEI_PHA_PAD  9
+#elif (RTE_QEI_PHA_PORT_ID == 4)
 #define RTE_QEI_PHA_PORT HP
 #define RTE_QEI_PHA_PIN  53
 #define RTE_QEI_PHA_MUX  5
 #define RTE_QEI_PHA_PAD  17
-#elif (RTE_QEI_PHA_PORT_ID == 3)
+#elif (RTE_QEI_PHA_PORT_ID == 5)
+#define RTE_QEI_PHA_PORT HP
+#define RTE_QEI_PHA_PIN  69
+#define RTE_QEI_PHA_MUX  3
+#define RTE_QEI_PHA_PAD  27
+#elif (RTE_QEI_PHA_PORT_ID == 6)
 #define RTE_QEI_PHA_PORT HP
 #define RTE_QEI_PHA_PIN  65
 #define RTE_QEI_PHA_MUX  3
 #define RTE_QEI_PHA_PAD  23
-#elif (RTE_QEI_PHA_PORT_ID == 4)
+#elif (RTE_QEI_PHA_PORT_ID == 7)
 #define RTE_QEI_PHA_PORT HP
 #define RTE_QEI_PHA_PIN  73
 #define RTE_QEI_PHA_MUX  3
@@ -4852,9 +4977,54 @@
 #else
 #error "Invalid  RTE_QEI_PHA_PIN Pin Configuration!"
 #endif
+#else
+//Pintool data
+#define RTE_QEI_PHA_PORT HP
+#if (QEI_PHA_LOC == 15)
+#define RTE_QEI_PHA_PIN QEI_PHA_PIN
+#define RTE_QEI_PHA_MUX 5
+#define RTE_QEI_PHA_PAD 4
+#endif
+#if (QEI_PHA_LOC == 16)
+#define RTE_QEI_PHA_PIN QEI_PHA_PIN
+#define RTE_QEI_PHA_MUX 5
+#define RTE_QEI_PHA_PAD 0
+#endif
+#if (QEI_PHA_LOC == 17)
+#define RTE_QEI_PHA_PIN QEI_PHA_PIN
+#define RTE_QEI_PHA_MUX 3
+#define RTE_QEI_PHA_PAD 11
+#endif
+#if (QEI_PHA_LOC == 18)
+#define RTE_QEI_PHA_PIN QEI_PHA_PIN
+#define RTE_QEI_PHA_MUX 13
+#define RTE_QEI_PHA_PAD 9
+#endif
+#if (QEI_PHA_LOC == 19)
+#define RTE_QEI_PHA_PIN QEI_PHA_PIN
+#define RTE_QEI_PHA_MUX 5
+#define RTE_QEI_PHA_PAD 17
+#endif
+#if (QEI_PHA_LOC == 20)
+#define RTE_QEI_PHA_PIN (QEI_PHA_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_PHA_MUX 3
+#define RTE_QEI_PHA_PAD 27
+#endif
+#if (QEI_PHA_LOC == 21)
+#define RTE_QEI_PHA_PIN (QEI_PHA_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_PHA_MUX 3
+#define RTE_QEI_PHA_PAD 23
+#endif
+#if (QEI_PHA_LOC == 22)
+#define RTE_QEI_PHA_PIN (QEI_PHA_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_PHA_MUX 3
+#define RTE_QEI_PHA_PAD 31
+#endif
+//Pintool data
+#endif
 
-//QEI_PHB <0=>GPIO_27 <1=>GPIO_48 <1=>GPIO_56 <1=>GPIO_66 <1=>GPIO_70 <1=>GPIO_74 <7=>GPIO_33
-
+//QEI_PHB <0=>GPIO_10 <1=>GPIO_27 <1=>GPIO_48 <1=>GPIO_33 <1=>GPIO_56 <1=>GPIO_70 <7=>GPIO_74
+#ifndef QEI_PHB_LOC
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_QEI_PHB_PORT_ID 5
 #else
@@ -4863,36 +5033,81 @@
 
 #if (RTE_QEI_PHB_PORT_ID == 0)
 #define RTE_QEI_PHB_PORT HP
+#define RTE_QEI_PHB_PIN  10
+#define RTE_QEI_PHB_MUX  5
+#define RTE_QEI_PHB_PAD  5
+#elif (RTE_QEI_PHB_PORT_ID == 1)
+#define RTE_QEI_PHB_PORT HP
 #define RTE_QEI_PHB_PIN  27
 #define RTE_QEI_PHB_MUX  5
-#define RTE_QEI_PHB_PAD  0 //no pad
-#elif (RTE_QEI_PHB_PORT_ID == 1)
+#define RTE_QEI_PHB_PAD  0
+#elif (RTE_QEI_PHB_PORT_ID == 2)
 #define RTE_QEI_PHB_PORT HP
 #define RTE_QEI_PHB_PIN  48
 #define RTE_QEI_PHB_MUX  3
 #define RTE_QEI_PHB_PAD  12
-#elif (RTE_QEI_PHB_PORT_ID == 2)
+#elif (RTE_QEI_PHB_PORT_ID == 3)
+#define RTE_QEI_PHB_PORT HP
+#define RTE_QEI_PHB_PIN  33
+#define RTE_QEI_PHB_MUX  13
+#define RTE_QEI_PHB_PAD  9
+#elif (RTE_QEI_PHB_PORT_ID == 4)
 #define RTE_QEI_PHB_PORT HP
 #define RTE_QEI_PHB_PIN  56
 #define RTE_QEI_PHB_MUX  5
 #define RTE_QEI_PHB_PAD  20
-#elif (RTE_QEI_PHB_PORT_ID == 3)
-#define RTE_QEI_PHB_PORT HP
-#define RTE_QEI_PHB_PIN  66
-#define RTE_QEI_PHB_MUX  3
-#define RTE_QEI_PHB_PAD  24
-#elif (RTE_QEI_PHB_PORT_ID == 4)
+#elif (RTE_QEI_PHB_PORT_ID == 5)
 #define RTE_QEI_PHB_PORT HP
 #define RTE_QEI_PHB_PIN  70
 #define RTE_QEI_PHB_MUX  3
 #define RTE_QEI_PHB_PAD  28
-#elif (RTE_QEI_PHB_PORT_ID == 5)
+#elif (RTE_QEI_PHB_PORT_ID == 6)
 #define RTE_QEI_PHB_PORT HP
 #define RTE_QEI_PHB_PIN  74
 #define RTE_QEI_PHB_MUX  3
 #define RTE_QEI_PHB_PAD  32
 #else
 #error "Invalid  RTE_QEI_PHB_PIN Pin Configuration!"
+#endif
+#else
+//Pintool data
+#define RTE_QEI_PHB_PORT HP
+#if (QEI_PHB_LOC == 23)
+#define RTE_QEI_PHB_PIN QEI_PHB_PIN
+#define RTE_QEI_PHB_MUX 5
+#define RTE_QEI_PHB_PAD 5
+#endif
+#if (QEI_PHB_LOC == 24)
+#define RTE_QEI_PHB_PIN QEI_PHB_PIN
+#define RTE_QEI_PHB_MUX 5
+#define RTE_QEI_PHB_PAD 0
+#endif
+#if (QEI_PHB_LOC == 25)
+#define RTE_QEI_PHB_PIN QEI_PHB_PIN
+#define RTE_QEI_PHB_MUX 3
+#define RTE_QEI_PHB_PAD 12
+#endif
+#if (QEI_PHB_LOC == 26)
+#define RTE_QEI_PHB_PIN QEI_PHB_PIN
+#define RTE_QEI_PHB_MUX 13
+#define RTE_QEI_PHB_PAD 9
+#endif
+#if (QEI_PHB_LOC == 27)
+#define RTE_QEI_PHB_PIN QEI_PHB_PIN
+#define RTE_QEI_PHB_MUX 5
+#define RTE_QEI_PHB_PAD 20
+#endif
+#if (QEI_PHB_LOC == 28)
+#define RTE_QEI_PHB_PIN (QEI_PHB_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_PHB_MUX 3
+#define RTE_QEI_PHB_PAD 28
+#endif
+#if (QEI_PHB_LOC == 29)
+#define RTE_QEI_PHB_PIN (QEI_PHB_PIN + GPIO_MAX_PIN)
+#define RTE_QEI_PHB_MUX 3
+#define RTE_QEI_PHB_PAD 32
+#endif
+//Pintool data
 #endif
 
 #endif
@@ -5175,25 +5390,6 @@
 #endif
 
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define RTE_ULP_GPIO_3_PORT_ID 1
-#else
-#define RTE_ULP_GPIO_3_PORT_ID 0
-#endif
-
-#if (RTE_ULP_GPIO_3_PORT_ID == 0)
-#define RTE_ULP_GPIO_3_PORT HP
-#define RTE_ULP_GPIO_3_PAD  25
-#define RTE_ULP_GPIO_3_PIN  67
-#define RTE_ULP_GPIO_3_MODE 0
-#elif (RTE_ULP_GPIO_3_PORT_ID == 1)
-#define RTE_ULP_GPIO_3_PORT ULP
-#define RTE_ULP_GPIO_3_PIN  3
-#define RTE_ULP_GPIO_3_MODE 0
-#else
-#error "Invalid  RTE_ULP_GPIO_3_PIN Pin Configuration!"
-#endif
-
-#ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define RTE_ULP_GPIO_4_PORT_ID 1
 #else
 #define RTE_ULP_GPIO_4_PORT_ID 0
@@ -5361,13 +5557,6 @@
 #define RTE_UULP_GPIO_3_PORT UULP_VBAT
 #define RTE_UULP_GPIO_3_PIN  3
 #define RTE_UULP_GPIO_3_MODE 0
-
-#define RTE_UULP_GPIO_4_PORT UULP_VBAT
-#define RTE_UULP_GPIO_4_PIN  4
-#define RTE_UULP_GPIO_4_MODE 0
-
-#define RTE_UULP_GPIO_5_PIN  5
-#define RTE_UULP_GPIO_5_MODE 0
 
 // UULP GPIO as enable pin for sensors
 #define SENSOR_ENABLE_GPIO_MAPPED_TO_UULP

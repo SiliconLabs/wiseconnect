@@ -13,7 +13,7 @@
   - [Application Build Environment](#application-build-environment)
     - [Pin Configuration](#pin-configuration)
   - [Test the Application](#test-the-application)
-  - [HSPI Secondary Data Flow:](#hspi-secondary-data-flow)
+  - [HSPI Secondary Data Flow](#hspi-secondary-data-flow)
 
 ## About Example Code
 This example showcases the use of the HSPI secondary interface with GPDMA, providing reliable communication with an SPI primary device and efficient management of HSPI operation callbacks.
@@ -53,7 +53,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Configure UC from the slcp component to enable or disable the DMA.
 
   >![Figure: hspi_secondary_uc](resources/uc_screen/hspi_secondary_uc.png)
- - To change the buffer size do modify the below macros in `sl_si91x_hspi_secondary_drv_config.h file`  under config drop down
+ - To change the buffer size do modify the below macros in [`sl_si91x_hspi_secondary_drv_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_hspi_secondary_drv_config.h) file under config drop down
   
       ```c
       #define SL_HSPI_TX_BUFFER_SIZE 1024    ///< TX buffer Size
@@ -68,6 +68,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |GPIO_26   | P27 | HSPI_CSn |
 |GPIO_27   | P29 | HSPI_MOSI |
 |GPIO_28   | P31 | HSPI_MISO |
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -2,15 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Transmit Spectrum Example](#transmit-spectrum-example)
+- [Wi-Fi - Wlan RF Test](#wi-fi---wlan-rf-test)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Transmit Spectrum Example](#transmit-spectrum-example)
+    - [RF Test with wifi 6](#rf-test-with-wifi-6)
 
 ## Purpose/Scope
 
@@ -104,18 +107,7 @@ The application can be configured to suit user requirements and development envi
 **NOTE**:
     Receive stats testing should be done in a controlled environment (RF shield box or chamber).
 
-- In app.c file change the region_code to the respective region in transmit_test_configuration.
-
-        region_code - US, EU, JP, WORLD_DOMAIN, KR
-
-        Supported Channels in the specific regions
-        US           -     1-11
-        EUROPE       -     1-13
-        JAPAN        -     1-14
-        WORLD_DOMAIN -     1-14
-        KOREA        -     1-13
-
-    Note: Currently SG region is not supported.
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

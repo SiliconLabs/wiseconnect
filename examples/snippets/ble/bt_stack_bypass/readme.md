@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#Setup-Diagram)
-- [Getting Started](#Getting-Started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
--[Pin configurations for UART cable](#Pin-configurations-for-UART-cable)
+- [Ble - BT\_STACK\_BYPASS](#ble---bt_stack_bypass)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+      - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Pin configurations for UART cable](#pin-configurations-for-uart-cable)
 ## Purpose / Scope
 
 This application demonstrates how to configure the Raw HCI commands through uart.
@@ -77,6 +79,8 @@ Before running the application, the user will need the following things to setup
   ```c
    #define RTE_USART0_CHNL_UDMA_RX_EN         1
   ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

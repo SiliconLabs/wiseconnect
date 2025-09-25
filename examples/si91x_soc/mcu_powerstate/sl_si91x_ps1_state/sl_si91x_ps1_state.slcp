@@ -1,26 +1,16 @@
 project_name: sl_si91x_ps1_state
-label: SI91x - SL_SI91X_PS1_STATE
+package: platform
 description: |
   This application demonstrates the PS1 state with NWP shutdown.
 category: example|mcu powerstate
-package: platform
 quality: production
+label: SI91x - SL_SI91X_PS1_STATE
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: app.h
-  - path: ps1_state.c
-  - path: ps1_state.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -58,6 +48,17 @@ define:
     value: "1"
 provides:
   - name: SL_SI91X_PM_STATE_TRANSITION
+source:
+  - path: app.c
+  - path: ps1_state.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: ps1_state.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/ps1_power_plot.png
@@ -66,5 +67,7 @@ ui_hints:
   highlight:
   - path: readme.md
     focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

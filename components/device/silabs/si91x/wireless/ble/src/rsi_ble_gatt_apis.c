@@ -81,9 +81,9 @@ int32_t rsi_ble_get_profiles_async(uint8_t *dev_addr,
  * @fn         int32_t rsi_ble_get_profile_async(uint8_t *dev_addr, uuid_t profile_uuid,
  *                                               profile_descriptors_t *p_profile)
  * @brief      Get the specific profile / service of the connected remote device.
- *             \ref rsi_ble_one_event_profile_by_uuid_t callback function is called after
+ *             \ref rsi_ble_on_event_profile_by_uuid_t  callback function is called after
  *             the service characteristics response is received. This is a blocking API and can unblock the application
- *             on the reception of the callback functions either \ref rsi_ble_one_event_profile_by_uuid_t or \ref rsi_ble_on_gatt_error_resp_t.
+ *             on the reception of the callback functions either \ref rsi_ble_on_event_profile_by_uuid_t  or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  profile_uuid 	- services/profiles which are searched using profile_uuid \n

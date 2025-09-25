@@ -108,7 +108,7 @@ extern osMutexId_t side_band_crypto_mutex;
 // Private Key Password is required for encrypted private key, format is like "\"12345678\""
 #define SL_DEFAULT_PRIVATE_KEY_PASSWORD ""
 
-// Internal Wi-Fi transceiver mode configurations
+// Internal Wi-Fi transceiver mode configurations are currently not supported.
 #define SLI_EIA_BIT_IN_CTRL_FLAG         BIT(6) //< Extended Information Available bit in Control Flags
 #define SLI_EIA_BIT_IN_HOST_DESC         BIT(4) //< Extended Information Available bit in Host Descriptor
 #define SLI_IMMEDIATE_TRF_CTRL_FLAGS     BIT(7) //< Immediate Transfer bit in Control Flags
@@ -665,7 +665,7 @@ sl_status_t sl_si91x_driver_deinit(void)
   VERIFY_STATUS_AND_RETURN(status);
 
   // Flush all TX Wi-Fi queues with the status indicating Wi-Fi connection is lost
-  sli_si91x_flush_all_tx_wifi_queues(SL_STATUS_WIFI_CONNECTION_LOST);
+  sli_si91x_flush_all_tx_wifi_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST);
 
   // Flush the generic TX data queue
   sli_si91x_flush_generic_data_queues(&sli_tx_data_queue);
@@ -673,13 +673,13 @@ sl_status_t sl_si91x_driver_deinit(void)
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
 
   // Flush all pending socket commands in the client VAP queue due to Wi-Fi connection loss
-  sli_si91x_flush_all_socket_command_queues(SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_CLIENT_VAP_ID);
+  sli_si91x_flush_all_socket_command_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_CLIENT_VAP_ID);
 
   // Flush all pending socket data in the client VAP queue due to Wi-Fi connection loss
   sli_si91x_flush_all_socket_data_queues(SL_WIFI_CLIENT_VAP_ID);
 
   // Flush all pending socket commands in the AP VAP queue due to Wi-Fi connection loss
-  sli_si91x_flush_all_socket_command_queues(SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_AP_VAP_ID);
+  sli_si91x_flush_all_socket_command_queues((uint16_t)SL_STATUS_WIFI_CONNECTION_LOST, SL_WIFI_AP_VAP_ID);
 
   // Flush all pending socket data in the AP VAP queue due to Wi-Fi connection loss
   sli_si91x_flush_all_socket_data_queues(SL_WIFI_AP_VAP_ID);
@@ -1038,56 +1038,57 @@ sl_status_t sli_si91x_driver_wait_for_response_packet(sli_si91x_buffer_queue_t *
                                                       sli_si91x_wait_period_t wait_period,
                                                       sl_wifi_buffer_t **packet_buffer)
 {
-  // Verify that packet_buffer is a valid pointer, return error if invalid
-  SL_VERIFY_POINTER_OR_RETURN(packet_buffer, SL_STATUS_INVALID_PARAMETER);
+  SL_VERIFY_POINTER_OR_RETURN(packet_buffer, SL_STATUS_NULL_POINTER);
+  SL_VERIFY_POINTER_OR_RETURN(queue, SL_STATUS_NULL_POINTER);
+  SL_VERIFY_POINTER_OR_RETURN(event_flag, SL_STATUS_NULL_POINTER);
 
-  // Variables to store event flags, start time, and elapsed time
-  uint32_t events       = 0;
-  uint32_t start_time   = osKernelGetTickCount(); // Capture the start time of the wait period
-  uint32_t elapsed_time = 0;                      // Elapsed time tracker
-  sl_wifi_buffer_t *buffer;
+  uint32_t start_time      = osKernelGetTickCount();
+  uint32_t elapsed_time    = 0;
+  sl_wifi_buffer_t *buffer = NULL;
 
-  do {
-    // Wait for event flag(s) to be set within the specified wait period.
-    // This blocks the thread until any event in the mask is set or a timeout occurs.
-    events = osEventFlagsWait(event_flag, event_mask, (osFlagsWaitAny | osFlagsNoClear), (wait_period - elapsed_time));
+  while (1) {
+    // Calculate the remaining timeout for the event wait
+    uint32_t remaining_timeout = (wait_period > elapsed_time) ? (wait_period - elapsed_time) : 0;
+
+    // Wait for the event flag to be set, with the specified timeout
+    uint32_t events = osEventFlagsWait(event_flag, event_mask, (osFlagsWaitAny | osFlagsNoClear), remaining_timeout);
 
     // If the event wait times out or resources are unavailable, return timeout status
     if (events == (uint32_t)osErrorTimeout || events == (uint32_t)osErrorResource) {
       return SL_STATUS_TIMEOUT;
     }
 
-    // Log the event and queue details (for debugging purposes)
-    SL_DEBUG_LOG("Event: %u, queue %u\n", events, queue);
+    // Enter atomic section to safely access the queue
+    CORE_irqState_t state = CORE_EnterAtomic();
+    // Try to remove the buffer with the matching packet_id from the queue
+    sl_status_t packet_status =
+      sli_si91x_remove_buffer_from_queue_by_comparator(queue,
+                                                       &packet_id,
+                                                       sli_si91x_packet_identification_function,
+                                                       &buffer);
 
-    // Traverse the queue to check if the packet with the desired packet_id is at the head.
-    // Introduce a delay if the head of the queue packet doesn't belong to the current thread.
-    // This allows other threads to process the packet at the head.
-    do {
-      buffer = queue->head; // Peek at the head of the queue
-    } while ((buffer != NULL) && (buffer->id != packet_id)
-             && osDelay(1) == 0); // Delay to yield if packet_id does not match
+    if (packet_status == SL_STATUS_OK) {
+      // If the queue is now empty, clear the event flag
+      if (0 == sli_si91x_host_queue_status(queue)) {
+        osEventFlagsClear(event_flag, event_mask);
+      }
+      CORE_ExitAtomic(state);
+      *packet_buffer = buffer;
+      return SL_STATUS_OK;
+    } else if (packet_status == SL_STATUS_EMPTY) {
+      // If the queue is empty, clear the event flag to avoid spurious wakeups
+      osEventFlagsClear(event_flag, event_mask);
+    }
+    CORE_ExitAtomic(state);
+    if (packet_status == SL_STATUS_NOT_FOUND) {
+      osDelay(2); // Add a small delay to avoid busy waiting
+    }
 
-    // Update the elapsed time since the start of the wait
+    // Update elapsed time for the next iteration
     elapsed_time = sl_si91x_host_elapsed_time(start_time);
-
-  } while (buffer == NULL || (buffer->id != packet_id)); // Loop until the correct packet is found or timeout occurs
-
-  // Remove the identified packet from the queue
-  sli_si91x_pop_from_buffer_queue(queue, &buffer);
-
-  // Assign the identified packet to packet_buffer
-  *packet_buffer = buffer;
-
-  // Enter atomic section to ensure thread safety while clearing the event flag
-  CORE_irqState_t state = CORE_EnterAtomic();
-  // If the queue is empty after popping the packet, clear the event flag to avoid unnecessary waits
-  if (queue->head == NULL) {
-    osEventFlagsClear(event_flag, event_mask);
   }
-  CORE_ExitAtomic(state); // Exit atomic section
-
-  return SL_STATUS_OK; // Return success status
+  // This code path should not be reached; loop exits on success or timeout.
+  return SL_STATUS_FAIL;
 }
 
 sl_status_t sli_si91x_driver_send_command_packet(uint32_t command,
@@ -2462,6 +2463,7 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   ext_desc_size = TRANSCEIVER_TX_DATA_EXT_DESC_SIZE;
 
   // Check if the control flags indicate an EIA packet
+  // Note: Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
   if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
     // If it is an EIA packet, add 5 bytes for the following fields: channel, tx_power, is_last_packet, reserved1, reserved2
     ext_desc_size += SLI_EXT_DESC_SIZE_IF_EIA_PKT;
@@ -2537,6 +2539,7 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
   //! Initialize extended desc
   memcpy(&host_desc[16], &control->token, TRANSCEIVER_TX_DATA_EXT_DESC_SIZE);
 
+  // Note: Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
   //! If it is an EIA packet, update extended descriptor fields
   if (SLI_IS_EIA_PKT(control->ctrl_flags)) {
     host_desc[7] |= SLI_EIA_BIT_IN_HOST_DESC; //! EIA Enable

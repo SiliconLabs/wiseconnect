@@ -2,14 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
+- [Wi-Fi Coex - Wi-Fi Client BLE Throughput App](#wi-fi-coex---wi-fi-client-ble-throughput-app)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
   - [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+  - [Application Build Environment](#application-build-environment)
+    - [Common Steps](#common-steps)
+      - [WLAN throughputs: UDP/TCP/TLS unidirectional](#wlan-throughputs-udptcptls-unidirectional)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -91,9 +95,6 @@ The application can be configured to suit your requirements and development envi
       #define PSK            "1234567890"     // Wi-Fi Password
       #define SECURITY_TYPE  SL_WIFI_WPA2     // Wi-Fi Security Type: SL_WIFI_OPEN / SL_WIFI_WPA / RSI_WPA2
       ```
-
-      > Note:
-      > Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
 
     - **Client/Server IP Settings**
 
@@ -266,6 +267,8 @@ The application can be configured to suit your requirements and development envi
       ```
 
       ![](resources/readme/remote_screen9.png)
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

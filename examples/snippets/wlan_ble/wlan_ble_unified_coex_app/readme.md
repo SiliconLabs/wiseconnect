@@ -2,14 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wifi Coex - WLAN BLE Unified Coex App](#wifi-coex---wlan-ble-unified-coex-app)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`:](#configure-the-following-parameters-in-aws_iot_configh-file-present-at-projectconfig)
+  - [Test the Application](#test-the-application)
+  - [Additional Information](#additional-information)
+    - [Setting up Security Certificates](#setting-up-security-certificates)
 
 ## Purpose/Scope
 
@@ -325,10 +330,8 @@ The application can be configured to suit your requirements and development envi
        ```
 
  >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
-
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h` 
    
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

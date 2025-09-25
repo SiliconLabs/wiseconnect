@@ -217,7 +217,6 @@ sl_status_t ecdsa_sign_message(void)
 
 #if USE_WRAPPED_KEYS
   wrap_config.key_type     = SL_SI91X_TRANSPARENT_KEY;
-  wrap_config.reserved     = 0;
   wrap_config.key_size     = SL_SI91X_PRIVATE_KEY_SIZE;
   wrap_config.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
   memcpy(wrap_config.wrap_iv, iv, SL_SI91X_IV_SIZE);

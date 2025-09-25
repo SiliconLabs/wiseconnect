@@ -2,18 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL I2C DRIVER FOLLOWER BLOCKING](#sl-i2c-driver-follower-blocking)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -37,20 +39,20 @@ The application demonstrates the data transfer from leader to follower and then 
 ## About Example Code
 
 - This example code demonstrates I2C data transfer between a Leader and Follower using Blocking APIs.
-- In the example code, the first I2c instance is initialized using \ref sl_i2c_driver_init to configure various init structure parameters
+- In the example code, the first I2c instance is initialized using [sl_i2c_driver_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-init) to configure various init structure parameters
 - This structure includes:
-  - \ref sl_i2c_operating_mode_t bus speed, it can be Standard, Fast, Fast plus or High speed.
-  - \ref sl_i2c_mode_t mode, it should be Follower mode for the Follower application.
-  - \ref sl_i2c_transfer_type_t, using NON-DMA.
-  - \ref sl_i2c_callback_t , I2C callback
+  - [sl_i2c_operating_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-operating-mode-t) bus speed, it can be Standard, Fast, Fast plus or High speed.
+  - [sl_i2c_mode_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-mode-t) mode, it should be Follower mode for the Follower application.
+  - [sl_i2c_transfer_type_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-transfer-type-t), using NON-DMA.
+  - [sl_i2c_callback_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-callback-t) , I2C callback
 - It also initializes I2C clock and configures I2C SDA & SCL pins.
-- Now Follower address has to configure its own address through \ref sl_i2c_driver_set_follower_address API.
-- Now transmit and receive FIFO threshold values are configured using \ref sl_i2c_driver_configure_fifo_threshold API.
+- Now Follower address has to configure its own address through [sl_i2c_driver_set_follower_address](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-set-follower-address) API.
+- Now transmit and receive FIFO threshold values are configured using [sl_i2c_driver_configure_fifo_threshold](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-configure-fifo-threshold) API.
 - Now write_buffer is filled with some data which needs to be sent to the Leader.
-- Current_mode enum is set to I2C_RECEIVE_DATA. It receives data from the Leader through \ref sl_i2c_driver_receive_data_blocking for a blocking application.
+- Current_mode enum is set to I2C_RECEIVE_DATA. It receives data from the Leader through [sl_i2c_driver_receive_data_blocking](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2-c#sl-i2c-driver-receive-data-blocking) for a blocking application.
 - After that, it will wait until all the data is received by Leader.
 - For Blocking usecase: When all bytes are received then mode changes to I2C_SEND_DATA. (Blocking API will not update any transfer complete flag, as control will be blocked until all bytes are received.)
-- Then it calls the send_data API to send data to the Leader through \ref sl_i2c_driver_send_data_blocking for a blocking application.
+- Then it calls the send_data API to send data to the Leader through [sl_i2c_driver_send_data_blocking](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2c#sl-i2c-driver-send-data-blocking) for a blocking application.
 - After calling send_data, it will wait till all the data is transmitted to leader device.
 - Now it compares the data which is received from the Leader device to the data which it has sent.
 - If the send and receive data is same, it will print 'Test Case Passed' on the console.
@@ -80,7 +82,7 @@ The application demonstrates the data transfer from leader to follower and then 
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -106,7 +108,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - If the project built is without selecting configurations, it uses default values from UC.
 - Configure mode, operating-mode, and transfer-type of I2C instance using the respective instance UC.
 - Change 'Operating Mode' as per bus-speed requirement.
-- After the above UC configurations, also configure following macros in `i2c_follower_example.c` file and update/modify following macros, if required.
+- After the above UC configurations, also configure following macros in [`i2c_follower_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_i2c_driver_follower/i2c_follower_example.c) file and update/modify following macros, if required.
 
   ```C
     #define I2C_INSTANCE_USED        // Update it with i2c instance number used for this application: 0 for i2c0, 1 for i2c1 and 2 for i2c2
@@ -122,7 +124,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure the UC as mentioned below.
 
-  ![Figure: Introduction](resources/uc_screen/i2c_uc_screen.png)
+  ![Figure: i2c_uc_screen](resources/uc_screen/i2c_uc_screen.png)
 
 ### Pin Configuration
 
@@ -152,8 +154,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ![Figure: Pin Configuration I2C](resources/readme/image506e.png)
 
 > **Note- In case of sleep-wakeup :**
+>
+>- As GPIO configurations will be lost after going to sleep state, the user has to initialize I2C pins and driver again after wakeup, by using [sl_i2c_driver_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2c#sl-i2c-driver-init) API for initializing driver and [sl_si91x_i2c_pin_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/i2c#sl-si91x-i2c-pin-init) API for initializing pins.
 
->- As GPIO configurations will be lost after going to sleep state, the user has to initialize I2C pins and driver again after wakeup, by using \ref sl_i2c_driver_init API for initializing driver and \ref sl_si91x_i2c_pin_init API for initializing pins.
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

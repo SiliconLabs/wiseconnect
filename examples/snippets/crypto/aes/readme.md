@@ -2,14 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Crypto - AES](#crypto---aes)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+      - [SoC Mode](#soc-mode)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Note](#note)
+  - [Note](#note-1)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -36,7 +42,7 @@ This application demonstrates how to encrypt and decrypt the data using AES APIs
 
 ## Getting Started
 
-Refer the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Install Studio and WiSeConnect 3 extension
 - Connect your device to the computer
@@ -98,6 +104,8 @@ Open `app.c` file and configure the following parameters accordingly:
 
 - When the user sends data by setting the first chunk, NWP treats it as the start of the data.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -108,8 +116,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Note
 
-- The SDK does not properly handle rx packet lengths over 1616 bytes due to the rx_buffer being capped at 1616 bytes, which may cause data corruption if the input message size exceeds the expected length. Therefore, the AES application limits the input message length to 1400 bytes.
-- If the user provides an input message longer than 1400 bytes, the firmware will return "SL_STATUS_SI91X_CRYPTO_INPUT_MSG_LENGTH_EXCEEDED".
+- The SDK is limited to handling RX packet lengths up to 1616 bytes, as the rx_buffer is capped at this size. Receiving messages larger than this limit may result in data corruption. To mitigate this, the AES application restricts the input message length to 1408 bytes.
+- In the Multipart API, ensure that the chunk length does not exceed 1408 bytes. If the chunk length surpasses this limit, the API will return an error.
+
+## Note
+
+- When using wrapped keys, always ensure that the `wrap_iv_mode` field in the `sl_si91x_key_config_b0_t` struct (`config.key_config.b0.wrap_iv_mode`) is set to the same mode for both encryption and decryption operations.
 
 ## Application Output
 

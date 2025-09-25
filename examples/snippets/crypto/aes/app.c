@@ -217,7 +217,7 @@ sl_status_t aes_multipart_encryption(void)
                                 256,
                                 128,
                                 384,
-                                128 }; // Make sure that some of the chunk sizes are equal to total message length.
+                                128 }; // Make sure that sum of the chunk sizes are equal to total message length.
   int num_chunks            = sizeof(chunk_sizes) / sizeof(chunk_sizes[0]);
   for (int i = 0; i < num_chunks; i++) {
     chunk_len = chunk_sizes[i];

@@ -317,7 +317,7 @@ void RSI_OPAMP_InstrAMP(uint8_t vin_p_sel,
                         uint8_t out_mux_en,
                         uint8_t dyn_en,
                         uint8_t channel);
-
+void RSI_OPAMP_Instrumentation_Amplifier(uint32_t channel, const OPAMP_CONFIG_T *Config);
 void RSI_OPAMP1_Config(OPAMP_Type *opamp, uint32_t channel, const OPAMP_CONFIG_T *config);
 
 void RSI_OPAMP2_Config(OPAMP_Type *pstcOpamp, uint32_t channel, const OPAMP_CONFIG_T *config);
@@ -354,6 +354,23 @@ typedef struct {
   uint8_t out_mux_sel;
 } Configure_OPAMP1_OPAMP2_t;
 
+typedef struct {
+  uint8_t vin2_p_sel;
+  uint8_t vin2_n_sel;
+  uint8_t vref2_sel;
+  uint8_t vin3_p_sel;
+  uint8_t vin3_n_sel;
+  uint8_t vref3_sel;
+  uint8_t enable;
+  uint8_t lp_mode;
+  uint8_t opamp2_r1_sel;
+  uint8_t opamp2_r2_sel;
+  uint8_t opamp3_r1_sel;
+  uint8_t opamp3_r2_sel;
+  uint8_t out_mux_en;
+  uint8_t out_mux_sel;
+} Configure_OPAMP2_OPAMP3_t;
+
 //<-- OPAMP instance -->
 #define OPAMP1_INSTANCE 1 //<-- OPAMP1 instance -->
 #define OPAMP2_INSTANCE 2 //<-- OPAMP2 instance -->
@@ -373,11 +390,17 @@ void RSI_OPAMP_NonInvCMP_V2(uint8_t opamp_instance, const Configure_OPAMP_t *par
 
 void RSI_OPAMP_InstrAMP_v2(const Configure_OPAMP_t *params, uint8_t dyn_en, uint8_t channel);
 
-void RSI_OPAMP_CascInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel);
+void RSI_OPAMP1_OPAMP2_CascInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel);
 
-void RSI_OPAMP_CascNonInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel);
+void RSI_OPAMP2_OPAMP3_CascInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel);
 
-void RSI_OPAMP_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel);
+void RSI_OPAMP1_OPAMP2_CascNonInvtPGAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel);
+
+void RSI_OPAMP2_OPAMP3_CascNonInvtPGAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel);
+
+void RSI_OPAMP1_OPAMP2_TwoOpampsDiffAmp(const Configure_OPAMP1_OPAMP2_t *params, uint8_t dyn_en, uint8_t channel);
+
+void RSI_OPAMP2_OPAMP3_TwoOpampsDiffAmp(const Configure_OPAMP2_OPAMP3_t *params, uint8_t dyn_en, uint8_t channel);
 
 #ifdef __cplusplus
 }

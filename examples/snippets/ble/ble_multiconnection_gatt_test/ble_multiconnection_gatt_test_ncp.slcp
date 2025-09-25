@@ -1,7 +1,7 @@
 project_name: ble_multiconnection_gatt_test_ncp
 package: wiseconnect
 quality: production
-label: ble_multiconnection_gatt_test_ncp
+label: BLE - Multiconnection GATT Test (NCP)
 category: Example|BLE
 description: >
   The Application demonstrates how to configure SiWx91x EVK in
@@ -18,7 +18,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: ble_device_info.c
 - path: ble_main_task.c

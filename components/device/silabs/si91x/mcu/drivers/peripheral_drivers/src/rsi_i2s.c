@@ -390,7 +390,7 @@ int32_t I2S_Control(uint32_t control,
     if (i2s->reg == I2S1) {
       if (i2s->clk->clk_src == ULP_I2S_REF_CLK) {
         val = system_clocks.ulpss_ref_clk / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val / 2);
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val);
       }
       if (i2s->clk->clk_src == ULP_I2S_ULP_MHZ_RC_CLK) {
         val = system_clocks.rc_mhz_clock / bit_freq;

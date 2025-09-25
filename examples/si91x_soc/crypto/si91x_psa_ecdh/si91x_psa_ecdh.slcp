@@ -1,36 +1,16 @@
 project_name: si91x_psa_ecdh
-label: SI91x - SoC PSA ECDH
+package: platform
 description: |
   This example project demonstrates the PSA ECDH API in SI91x.
 category: example|crypto
-package: platform
 quality: production
-filter:
-  - name: Wireless Technology
-    value:
-      - Wi-Fi
-  - name: Project Difficulty
-    value:
-      - Beginner
-readme:
-  - path: readme.md
+label: SI91x - SoC PSA ECDH
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: psa_ecdh.c
-  - path: psa_key.c
-  - path: app.c
-include:
-  - path: .
-    file_list:
-      - path: psa_ecdh.h
-      - path: psa_key.h
-      - path: psa_macro.h
-      - path: app.h
+    version: 3.5.2
 component:
   - id: sl_main
   - id: freertos
@@ -60,15 +40,35 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+source:
+  - path: psa_ecdh.c
+  - path: psa_key.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_ecdh.h
+      - path: psa_key.h
+      - path: psa_macro.h
+      - path: app.h
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/output.png
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner

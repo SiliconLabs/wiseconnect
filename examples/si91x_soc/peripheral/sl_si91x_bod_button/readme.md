@@ -1,15 +1,17 @@
 # BOD Button 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
+- [BOD Button](#bod-button)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -32,7 +34,7 @@ To use this application, the following hardware, software, and project setup is 
   - For serial console setup instructions, refer to [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -74,7 +76,7 @@ For details on the project folder structure, refer to the [WiSeConnect Examples]
  - Open  the **sl_si91x_bod_button.slcp** project file, select the **Software Component** tab and search for the **BOD** in search bar.
 - Search for and select the **BOD** component.
 - Use the configuration wizard to set the voltage percentage parameters for each button as needed. The configuration screen below shows the available options for customization.
-  ![BOD Button UC Configuration Screen](resources/uc_screen/bod_button_uc_screen.png)
+  ![Figure: BOD Button UC Configuration Screen](resources/uc_screen/bod_button_uc_screen.png)
 
   - The `Button 1 Min Voltage Percentage` and `Button 1 Max Voltage Percentage` fields correspond to the `SL_BOD_BUTTON1_MIN_VOLTAGE_PERCENTAGE` and `SL_BOD_BUTTON1_MAX_VOLTAGE_PERCENTAGE` macros, respectively. The same mapping applies for Button 2 and Button 3. These parameters are configurable only when `Enable BOD Button Wakeup` is enabled. 
   - Each button's voltage percentage must be set within the supported range of 33% to 66% of VBAT. 
@@ -91,6 +93,9 @@ For details on the project folder structure, refer to the [WiSeConnect Examples]
   > - Carefully set the minimum and maximum values for each region according to the resistor values used in the button circuits.
   >
   > Proper configuration helps prevent false or multiple button detections due to overlapping or poorly defined regions.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 - Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
     1. Create a Project section [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project).
@@ -102,6 +107,6 @@ The console will as below. (Interrupt operations are not there in the Console Ou
 
   - Console Output:
 
-    > ![Figure: Introduction](resources/readme/bod_button_result_console.png)
+    > ![Figure: bod_button_result_console](resources/readme/bod_button_result_console.png)
 
 > **Note:** Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

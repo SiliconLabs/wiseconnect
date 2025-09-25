@@ -105,6 +105,8 @@ dummy_events:
     handler: rsi_ble_event_profile_discovery
   profile_dummy:
     handler: rsi_ble_event_profile_dummy
+  connection_procedure_timeout:
+    handler: rsi_ble_event_connection_procedure_timeout
 user_interface:
   ble:
     commands:

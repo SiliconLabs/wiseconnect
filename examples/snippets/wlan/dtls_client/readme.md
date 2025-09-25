@@ -2,14 +2,16 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - DTLS Client](#wi-fi---dtls-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -22,7 +24,7 @@ This application demonstrates how to open a UDP client socket on SiWx917 module 
 
 ### Hardware Requirements
 
-- A Windows PC.
+- A Windows PC
 - SoC Mode:
   - Silicon Labs [BRD4388A](https://www.silabs.com/)
 - NCP Mode:
@@ -83,9 +85,6 @@ The application uses the default configurations as provided in the **default_wif
   
    - Other STA instance configurations can be modified if required in the `default_wifi_client_profile` configuration structure.
 
-     > Note:
-     > Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 2. Configure the following parameters in **app.c** to test the tls client app as per requirements.
 
    - Client/Server IP Settings
@@ -118,8 +117,10 @@ The application uses the default configurations as provided in the **default_wif
         status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, ca-certificate, sizeof(ca-certificate) - 1);
          ```
 
-     > **Note** :
-     The included self-signed certificates will work for local OpenSSL server. For cloud servers, using default certificates for a cloud connection does not work. Replace the default certificates with valid certificates when connecting to a cloud server.
+> **Note** :
+ The included self-signed certificates will work for local OpenSSL server. For cloud servers, using default certificates for a cloud connection does not work. Replace the default certificates with valid certificates when connecting to Cloud Server.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

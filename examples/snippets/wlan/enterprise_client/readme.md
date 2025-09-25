@@ -2,17 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Set up Requirements](#prerequisitesset-up-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Additional Information](#additional-information)
-  - [Configure Access Point in WAP2-EAP](#configure-access-point-in-wap2-eap)
-  - [FreeRADIUS server setup](#freeradius-server-setup)
+- [Wi-Fi - Enterprise Client Mode](#wi-fi---enterprise-client-mode)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Set up Requirements](#prerequisitesset-up-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [**Setup Diagram**](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Additional Information](#additional-information)
+    - [Configure Access Point in WAP2-EAP](#configure-access-point-in-wap2-eap)
+    - [FreeRADIUS Server Setup](#freeradius-server-setup)
 
 ## Purpose/Scope
 
@@ -100,9 +102,6 @@ The application can be configured to suit your requirements and development envi
       .config.encryption                                          SL_WIFI_EAP_TLS_ENCRYPTION
       ```
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 >  **NOTE:**
 > 1. The application shall load the certificates using **[sl_net_set_credential](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API.
 > 2. By default, the application loads **wifi-user.pem** certificate present at **<WiFi SDK> → resources → certificates**.
@@ -162,6 +161,8 @@ The application can be configured to suit your requirements and development envi
 
 - Ensure the access point is configured in WPA2-Enterprise security mode. For more details, refer to [Configure Access Point in WAP2-EAP](#configure-access-point-in-wap2-eap) in the Additional Information section.
 - Ensure the FreeRADIUS set up is ready before running the application project. For more details, please refer to [FreeRADIUS Server set up](#freeradius-server-set-up) in the Additional Information section.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

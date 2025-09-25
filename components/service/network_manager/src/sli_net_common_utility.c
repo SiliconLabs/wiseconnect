@@ -36,6 +36,7 @@
 #include "sl_net_si91x.h"
 #include "sl_wifi.h"
 #include "string.h"
+#include "sl_si91x_driver.h"
 #ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
 #include "sl_net_for_lwip.h"
 #endif
@@ -418,4 +419,30 @@ void sli_network_manager_event_handler(const void *arg)
       SL_DEBUG_LOG("\r\n Connected asynchronously\r\n");
     }
   }
+}
+
+sl_status_t sli_net_nat_configure(const sli_net_nat_config_t *sli_nat_config)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (sli_nat_config == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Check if both STA and AP interfaces are up
+  if (!sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE) || !sl_wifi_is_interface_up(SL_WIFI_AP_INTERFACE)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  // Send the NAT configure command to the driver
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_NAT,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         sli_nat_config,
+                                         sizeof(sli_net_nat_config_t),
+                                         SLI_SI91X_WAIT_FOR_COMMAND_RESPONSE,
+                                         NULL,
+                                         NULL);
+
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
 }

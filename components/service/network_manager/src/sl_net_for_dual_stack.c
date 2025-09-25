@@ -83,6 +83,9 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
 extern bool device_initialized;
 
 static sl_ip_management_t dhcp_type[SLI_SI91X_MAX_INTERFACES] = { 0 };
+bool bypass_mode_enabled                                      = false;
+bool dual_mode_enabled                                        = false;
+static bool lwip_initialized                                  = false;
 
 static void low_level_init(struct netif *netif)
 {
@@ -269,9 +272,47 @@ static void sta_netif_config(void)
   netif_set_default(&(wifi_client_context->netif));
 }
 
-/* In dual stack mode, assign the IP received from offloaded stack to LWIP interface */
+/* In dual stack mode, assign the IP received from offloaded stack to LWIP interface statically */
 static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
 {
+  netifapi_netif_set_up(&(wifi_client_context->netif));
+  netifapi_netif_set_link_up(&(wifi_client_context->netif));
+
+#if LWIP_IPV4 && LWIP_IPV6
+  ip_addr_t ipaddr  = { 0 };
+  ip_addr_t gateway = { 0 };
+  ip_addr_t netmask = { 0 };
+
+  if ((profile->ip.type & SL_IPV4) == SL_IPV4) {
+    uint8_t *address = &(profile->ip.ip.v4.ip_address.bytes[0]);
+    IP4_ADDR(&ipaddr.u_addr.ip4, address[0], address[1], address[2], address[3]);
+    address = &(profile->ip.ip.v4.gateway.bytes[0]);
+    IP4_ADDR(&gateway.u_addr.ip4, address[0], address[1], address[2], address[3]);
+    address = &(profile->ip.ip.v4.netmask.bytes[0]);
+    IP4_ADDR(&netmask.u_addr.ip4, address[0], address[1], address[2], address[3]);
+
+    netifapi_netif_set_addr(&(wifi_client_context->netif),
+                            &ipaddr.u_addr.ip4,
+                            &netmask.u_addr.ip4,
+                            &gateway.u_addr.ip4);
+  }
+  if ((profile->ip.type & SL_IPV6) == SL_IPV6) {
+    uint32_t *address = &(profile->ip.ip.v6.link_local_address.value[0]);
+    IP6_ADDR(&ipaddr.u_addr.ip6, address[0], address[1], address[2], address[3]);
+    address = &(profile->ip.ip.v6.global_address.value[0]);
+    IP6_ADDR(&gateway.u_addr.ip6, address[0], address[1], address[2], address[3]);
+    address = &(profile->ip.ip.v6.gateway.value[0]);
+    IP6_ADDR(&netmask.u_addr.ip6, address[0], address[1], address[2], address[3]);
+
+    netif_ip6_addr_set(&(wifi_client_context->netif), 0, &ipaddr.u_addr.ip6);
+    netif_ip6_addr_set(&(wifi_client_context->netif), 1, &gateway.u_addr.ip6);
+    netif_ip6_addr_set(&(wifi_client_context->netif), 2, &netmask.u_addr.ip6);
+
+    netif_ip6_addr_set_state(&(wifi_client_context->netif), 0, IP6_ADDR_PREFERRED);
+    netif_ip6_addr_set_state(&(wifi_client_context->netif), 1, IP6_ADDR_PREFERRED);
+    netif_ip6_addr_set_state(&(wifi_client_context->netif), 2, IP6_ADDR_PREFERRED);
+  }
+#elif LWIP_IPV4
   ip4_addr_t ipaddr  = { 0 };
   ip4_addr_t gateway = { 0 };
   ip4_addr_t netmask = { 0 };
@@ -284,33 +325,168 @@ static void set_sta_link_up(sl_net_wifi_client_profile_t *profile)
   IP4_ADDR(&netmask, address[0], address[1], address[2], address[3]);
 
   netifapi_netif_set_addr(&(wifi_client_context->netif), &ipaddr, &netmask, &gateway);
+#elif LWIP_IPV6
+  ip6_addr_t link_local_address = { 0 };
+  ip6_addr_t global_address     = { 0 };
+  ip6_addr_t gateway            = { 0 };
+  uint32_t *address             = &(profile->ip.ip.v6.link_local_address.value[0]);
 
+  IP6_ADDR(&link_local_address, address[0], address[1], address[2], address[3]);
+  address = &(profile->ip.ip.v6.global_address.value[0]);
+  IP6_ADDR(&global_address, address[0], address[1], address[2], address[3]);
+  address = &(profile->ip.ip.v6.gateway.value[0]);
+  IP6_ADDR(&gateway, address[0], address[1], address[2], address[3]);
+  netif_ip6_addr_set(&(wifi_client_context->netif), 0, &link_local_address);
+  netif_ip6_addr_set(&(wifi_client_context->netif), 1, &global_address);
+  netif_ip6_addr_set(&(wifi_client_context->netif), 2, &gateway);
+
+  netif_ip6_addr_set_state(&(wifi_client_context->netif), 0, IP6_ADDR_PREFERRED);
+  netif_ip6_addr_set_state(&(wifi_client_context->netif), 1, IP6_ADDR_PREFERRED);
+  netif_ip6_addr_set_state(&(wifi_client_context->netif), 2, IP6_ADDR_PREFERRED);
+#endif /* LWIP_IPV6 */
+
+  return;
+}
+
+/* Helper function to handle DHCP_FROM_HOST functionality */
+static sl_status_t sli_configure_host_dhcp(sl_net_wifi_client_profile_t *profile)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  // Set the interface up
   netifapi_netif_set_up(&(wifi_client_context->netif));
   netifapi_netif_set_link_up(&(wifi_client_context->netif));
 
-#if LWIP_IPV4
-  uint64_t addr = wifi_client_context->netif.ip_addr.addr;
-#endif
-#if LWIP_IPV6
-  uint64_t addr = wifi_client_context->netif.ip_addr.u_addr.ip4.addr;
-#endif
-  SL_DEBUG_LOG("DHCP IP: %u.%u.%u.%u\n",
-               NETIF_IPV4_ADDRESS(addr, 0),
-               NETIF_IPV4_ADDRESS(addr, 1),
-               NETIF_IPV4_ADDRESS(addr, 2),
-               NETIF_IPV4_ADDRESS(addr, 3));
+#if LWIP_IPV4 && LWIP_DHCP
+  ip_addr_set_zero_ip4(&(wifi_client_context->netif.ip_addr));
+  ip_addr_set_zero_ip4(&(wifi_client_context->netif.netmask));
+  ip_addr_set_zero_ip4(&(wifi_client_context->netif.gw));
+  dhcp_start(&(wifi_client_context->netif));
+  //! Wait for DHCP to acquire IP Address
+  while (!dhcp_supplied_address(&(wifi_client_context->netif))) {
+    osDelay(100);
+  }
+  SL_DEBUG_LOG("DHCP IP: %s\n", ip4addr_ntoa((const ip4_addr_t *)&wifi_client_context->netif.ip_addr));
+#endif /* LWIP_IPV4 && LWIP_DHCP */
+       /*
+      * Enable DHCPv6 with IPV6
+      */
 
-#if LWIP_IPV6
-#if LWIP_IPV6_AUTOCONFIG
-  wifi_client_context->netif.ip6_autoconfig_enabled = 1;
-#endif /* LWIP_IPV6_AUTOCONFIG */
+  // Stateless DHCPv6
+#if LWIP_IPV6 && LWIP_IPV6_AUTOCONFIG
+  // Automatically configure global addresses from Router Advertisements
+  netif_set_ip6_autoconfig_enabled(&(wifi_client_context->netif), 1);
+  // Create and set the link-local address
   netif_create_ip6_linklocal_address(&(wifi_client_context->netif), MAC_48_BIT_SET);
-#endif
-  return;
+  SL_DEBUG_LOG("IPv6 Address %s\n", ip6addr_ntoa(netif_ip6_addr(&(wifi_client_context->netif), 0)));
+
+  // Wait for the link-local address to up
+  while (!ip6_addr_ispreferred(netif_ip6_addr_state(&(wifi_client_context->netif), 0))) {
+    osDelay(200);
+  }
+#endif /* LWIP_IPV6 && LWIP_IPV6_AUTOCONFIG */
+
+  SL_DEBUG_LOG("\r\nDHCP IP acquired from HOST: %s\r\n",
+               ip4addr_ntoa((const ip4_addr_t *)&wifi_client_context->netif.ip_addr));
+
+// Update the IP address to profile
+#if LWIP_IPV4 && LWIP_IPV6
+  if ((profile->ip.type & SL_IPV4) == SL_IPV4) {
+    ip_addr_t *addr;
+    // Set the IP address of v4 interface
+    addr = &wifi_client_context->netif.ip_addr;
+    memcpy(profile->ip.ip.v4.ip_address.bytes, &addr->u_addr.ip4.addr, sizeof(addr->u_addr.ip4.addr));
+
+    addr = &wifi_client_context->netif.gw;
+    memcpy(profile->ip.ip.v4.gateway.bytes, &addr->u_addr.ip4.addr, sizeof(addr->u_addr.ip4.addr));
+
+    addr = &wifi_client_context->netif.netmask;
+    memcpy(profile->ip.ip.v4.netmask.bytes, &addr->u_addr.ip4.addr, sizeof(addr->u_addr.ip4.addr));
+  }
+
+  if ((profile->ip.type & SL_IPV6) == SL_IPV6) {
+    // Set the IP address of v6 interface
+    // Loop through the first 4 elements of the IPv6 address arrays to convert and assign them to the profile structure
+    for (int i = 0; i < 4; i++) {
+      profile->ip.ip.v6.link_local_address.value[i] = ntohl(wifi_client_context->netif.ip6_addr[0].u_addr.ip6.addr[i]);
+      profile->ip.ip.v6.global_address.value[i]     = ntohl(wifi_client_context->netif.ip6_addr[1].u_addr.ip6.addr[i]);
+      profile->ip.ip.v6.gateway.value[i]            = ntohl(wifi_client_context->netif.ip6_addr[2].u_addr.ip6.addr[i]);
+    }
+  }
+#else /* LWIP_IPV4 && LWIP_IPV6 */
+#if LWIP_IPV4
+  u32_t *addr;
+
+  addr = &wifi_client_context->netif.ip_addr.addr;
+  memcpy(profile->ip.ip.v4.ip_address.bytes, addr, sizeof(*addr));
+
+  addr = &wifi_client_context->netif.gw.addr;
+  memcpy(profile->ip.ip.v4.gateway.bytes, addr, sizeof(*addr));
+
+  addr = &wifi_client_context->netif.netmask.addr;
+  memcpy(profile->ip.ip.v4.netmask.bytes, addr, sizeof(*addr));
+#elif LWIP_IPV6
+  // Loop through the first 4 elements of the IPv6 address arrays to convert and assign them to the profile structure
+  for (int i = 0; i < 4; i++) {
+    profile->ip.ip.v6.link_local_address.value[i] = ntohl(wifi_client_context->netif.ip6_addr[0].addr[i]);
+    profile->ip.ip.v6.global_address.value[i]     = ntohl(wifi_client_context->netif.ip6_addr[1].addr[i]);
+    profile->ip.ip.v6.gateway.value[i]            = ntohl(wifi_client_context->netif.ip6_addr[2].addr[i]);
+  }
+#endif /* LWIP_IPV6 */
+#endif /* LWIP_IPV4 && LWIP_IPV6 */
+
+  return status;
+}
+
+/* Brings up the STA interface according to the profile's IP management mode */
+static sl_status_t sli_set_sta_link_up_by_profile_mode(sl_net_wifi_client_profile_t *profile)
+{
+  const sl_ip_management_t ip_mode = profile->ip.mode;
+  sl_status_t status               = SL_STATUS_OK;
+
+  // SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE mode: Dual Network Stack
+  if (dual_mode_enabled) {
+    SL_DEBUG_LOG("\r\nDual mode - Dual Network Stack (NWP + LwIP)\r\n");
+    // Set IP address by NWP, then sync to LwIP
+    SL_DEBUG_LOG("\r\nDual: DHCP performed by NWP, synced to LwIP\r\n");
+    status = sl_si91x_configure_ip_address(&profile->ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
+    if (status == SL_STATUS_OK) {
+      set_sta_link_up(profile);
+    }
+  } else if (bypass_mode_enabled) {
+    // SL_SI91X_TCP_IP_FEAT_BYPASS mode: Host-only IP management (LwIP only)
+    SL_DEBUG_LOG("\r\nBypass mode - LwIP only IP management\r\n");
+
+    switch (ip_mode) {
+      case SL_IP_MANAGEMENT_DHCP:
+        // DHCP will be performed by LwIP
+        SL_DEBUG_LOG("\r\nBypass: DHCP performed by LwIP\r\n");
+        status = sli_configure_host_dhcp(profile);
+        break;
+      case SL_IP_MANAGEMENT_STATIC_IP:
+        // Static IP configuration to LwIP only
+        SL_DEBUG_LOG("\r\nBypass: Static IP configuration to LwIP\r\n");
+        set_sta_link_up(profile);
+        break;
+      default:
+        status = SL_STATUS_INVALID_PARAMETER;
+    }
+  } else {
+    // Offload only mode: NWP-only IP management
+    SL_DEBUG_LOG("\r\nOffload mode - NWP only IP management\r\n");
+    status = sl_si91x_configure_ip_address(&profile->ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
+  }
+
+  return status;
 }
 
 static void set_sta_link_down(void)
 {
+#if LWIP_IPV4 && LWIP_DHCP
+  SL_DEBUG_LOG("DHCP Link down\n");
+  dhcp_stop(&(wifi_client_context->netif));
+#endif /* LWIP_IPV4 && LWIP_DHCP */
+
   netifapi_netif_set_link_down(&(wifi_client_context->netif));
   netifapi_netif_set_down(&(wifi_client_context->netif));
 }
@@ -321,8 +497,22 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
                                     sl_net_event_handler_t event_handler)
 {
   UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(context);
   sl_status_t status = SL_STATUS_FAIL;
+
+  // Validate opermode flags for mutual exclusivity of bypass mode and dual stack mode
+  if (configuration != NULL) {
+    const sl_wifi_device_configuration_t *config = (const sl_wifi_device_configuration_t *)configuration;
+
+    // Check if both SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE and SL_SI91X_TCP_IP_FEAT_BYPASS are set
+    dual_mode_enabled   = (config->boot_config.ext_tcp_ip_feature_bit_map & SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE) != 0;
+    bypass_mode_enabled = (config->boot_config.tcp_ip_feature_bit_map & SL_SI91X_TCP_IP_FEAT_BYPASS) != 0;
+
+    if (dual_mode_enabled && bypass_mode_enabled) {
+      SL_DEBUG_LOG("\r\nError: SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE and SL_SI91X_TCP_IP_FEAT_BYPASS flags are mutually "
+                   "exclusive\r\n");
+      return SL_STATUS_INVALID_CONFIGURATION;
+    }
+  }
 
   // Set the user-defined event handler for client mode
   sl_si91x_register_event_handler(event_handler);
@@ -333,8 +523,16 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
   }
 
   wifi_client_context = context;
-  tcpip_init(NULL, NULL);
-  sta_netif_config();
+  // Initialize LwIP stack and netif only if not in offload-only mode
+  if (dual_mode_enabled || bypass_mode_enabled) {
+    // Initialize LwIP stack only once
+    if (!lwip_initialized) {
+      tcpip_init(NULL, NULL);
+      lwip_initialized = true;
+    }
+
+    sta_netif_config();
+  }
 
   return SL_STATUS_OK;
 }
@@ -342,13 +540,19 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  struct sys_timeo **list_head = NULL;
 
-  //! Free all timers
-  for (int i = 0; i < lwip_num_cyclic_timers; i++) {
-    list_head = sys_timeouts_get_next_timeout();
-    if (*list_head != NULL)
-      sys_untimeout((*list_head)->h, (*list_head)->arg);
+  if (dual_mode_enabled || bypass_mode_enabled) {
+#if LWIP_TESTMODE
+    struct sys_timeo **list_head = NULL;
+
+    //! Free all timers
+    for (int i = 0; i < lwip_num_cyclic_timers; i++) {
+      list_head = sys_timeouts_get_next_timeout();
+      if (list_head != NULL && *list_head != NULL)
+        sys_untimeout((*list_head)->h, (*list_head)->arg);
+    }
+#endif
+    netifapi_netif_remove(&(wifi_client_context->netif));
   }
 
   return sl_wifi_deinit();
@@ -373,13 +577,11 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, SLI_WIFI_CONNECT_TIMEOUT);
   VERIFY_STATUS_AND_RETURN(status);
 
-  // Configure the IP address settings
-  status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
+  // Configure IP based on the management type
+  status = sli_set_sta_link_up_by_profile_mode(&profile);
   VERIFY_STATUS_AND_RETURN(status);
-  dhcp_type[SLI_SI91X_CLIENT] = profile.ip.mode;
 
-  // Assign the IP address received from offload stack to LWIP interface */
-  set_sta_link_up(&profile);
+  dhcp_type[SLI_SI91X_CLIENT] = profile.ip.mode;
 
   // Set the client profile
   status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
@@ -390,7 +592,12 @@ sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
 
-  set_sta_link_down();
+  if (dual_mode_enabled || bypass_mode_enabled) {
+    // Set the link down for LWIP interface (includes DHCP cleanup)
+    set_sta_link_down();
+  }
+  // Reset DHCP type
+  dhcp_type[SLI_SI91X_CLIENT] = SL_IP_MANAGEMENT_DHCP;
 
   // Disconnect from the Wi-Fi network
   return sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
@@ -405,6 +612,10 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
   UNUSED_PARAMETER(workspace);
   sl_status_t status = SL_STATUS_FAIL;
 
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   // Set the user-defined event handler for AP mode
   sl_si91x_register_event_handler(event_handler);
 
@@ -416,6 +627,11 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sl_wifi_deinit();
 }
 
@@ -424,6 +640,10 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
   UNUSED_PARAMETER(interface);
   sl_status_t status;
   sl_net_wifi_ap_profile_t profile;
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
 
   status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
@@ -451,16 +671,30 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
 }
 
 sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
 {
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sli_si91x_send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_JOIN);
 }
 
 sl_status_t sl_net_leave_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
 {
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   return sli_si91x_send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_LEAVE);
 }
 
@@ -504,6 +738,11 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
                                         const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
                                         sl_ip_address_t *sl_ip_address)
 {
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   // Check for a NULL pointer for sl_ip_address
   SL_WIFI_ARGS_CHECK_NULL_POINTER(sl_ip_address);
 
@@ -547,6 +786,11 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
 sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, const sl_net_dns_address_t *address)
 {
   UNUSED_PARAMETER(interface);
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   sl_status_t status                                  = 0;
   sli_dns_server_add_request_t dns_server_add_request = { 0 };
 
@@ -613,6 +857,10 @@ sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
   uint8_t vap_id                   = 0;
   sl_net_ip_configuration_t config = { 0 };
 
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
+
   if (SL_NET_WIFI_CLIENT_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
     vap_id                      = SL_SI91X_WIFI_CLIENT_VAP_ID;
     dhcp_type[SLI_SI91X_CLIENT] = ip_config->mode;
@@ -632,6 +880,10 @@ sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_addres
   uint8_t vap_id                      = 0;
   sl_status_t status                  = 0;
   sl_net_ip_configuration_t ip_config = { 0 };
+
+  if (bypass_mode_enabled) {
+    return SL_STATUS_WIFI_UNSUPPORTED;
+  }
 
   if (SL_NET_WIFI_CLIENT_INTERFACE == SL_NET_INTERFACE_TYPE(interface)) {
     vap_id           = SL_SI91X_WIFI_CLIENT_VAP_ID;

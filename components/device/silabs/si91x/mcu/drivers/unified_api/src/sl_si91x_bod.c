@@ -316,7 +316,7 @@ sl_status_t sl_si91x_bod_button_interrupt_disable(void)
 en_t sl_si91x_bod_get_blackout_status(void)
 {
   // Get the blackout enable status
-  return uc_config_params.blackout_en;
+  return BOD->BOD_TEST_PG_VBATT_STATUS_REG_b.BLACKOUT_EN;
 }
 
 /*******************************************************************************

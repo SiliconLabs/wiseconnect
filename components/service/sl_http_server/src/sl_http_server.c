@@ -450,7 +450,7 @@ static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_res
   char response_code[16]     = { 0 };
   char content_length[32]    = { 0 };
   char *http_version         = NULL;
-  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->expected_data_length;
+  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->current_data_length;
   size_t buffer_length       = 0;
   char *response_buffer      = (char *)malloc(max_response_length);
 
@@ -517,8 +517,8 @@ static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_res
 
   // Add response data if available
   if ((NULL != response->data) && (response->current_data_length > 0)) {
-    buffer_length +=
-      snprintf(response_buffer + buffer_length, strlen((const char *)response->data) + 1, "%s", (char *)response->data);
+    memcpy(response_buffer + buffer_length, response->data, response->current_data_length);
+    buffer_length += response->current_data_length;
   }
 
   // Send all headers in a single call

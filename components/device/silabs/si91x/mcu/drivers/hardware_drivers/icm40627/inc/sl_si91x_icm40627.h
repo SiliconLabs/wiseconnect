@@ -756,6 +756,25 @@ sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, b
 sl_status_t sl_si91x_icm40627_init(sl_ssi_handle_t ssi_driver_handle);
 
 /***************************************************************************/ /**
+ * @brief Initializes the SSI interface to enable communication with ICM40627 sensor.
+ *
+ * This API configures the SSI peripheral with the required settings for the ICM40627 sensor,
+ * including bit width, device mode, clock mode, baud rate, and sample delay. It also initializes
+ * the SSI driver, sets the configuration, registers the event callback, and sets the slave number.
+ *
+ * @param[out] ssi_driver_handle Pointer to the SSI driver handle to be initialized.
+ * @param[in]  ssi_slave_number  SSI slave number to be used for communication.
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](
+ * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_ssi_interface_init(sl_ssi_handle_t *ssi_driver_handle, uint32_t ssi_slave_number);
+
+/***************************************************************************/ /**
  * @brief
  *    De-initialize the ICM40627 sensor by disconnecting the supply and SPI
  *    lines.

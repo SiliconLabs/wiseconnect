@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
+- [SL SLEEPTIMER](#sl-sleeptimer)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -56,12 +58,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Si91x only uses si91x SYSRTC peripheral for sleeptimer. No UC is present for si91x sleeptimer component.
 
-- Configure the following parameter in sleeptimer.c file, update/modify following macro if required
+- Configure the following parameter in [`sleeptimer.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_sleeptimer/sleeptimer.c) file, update/modify following macro if required
 
   ```C
     #define TOOGLE_DELAY_MS1_ONESHOT //  configured for 5000 ms
     #define TOOGLE_DELAY_MS1_PERIODIC // configured for 400 ms
   ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

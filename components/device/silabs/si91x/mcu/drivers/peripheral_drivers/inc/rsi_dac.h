@@ -116,6 +116,14 @@ __STATIC_INLINE uint8_t analog_get_power_state(void)
 {
   return analog_power_ctrl.analog_power;
 }
+
+__STATIC_INLINE float adc_dac_ceil(float x)
+{
+  int val_int = (int)x;
+
+  return (x > (float)val_int) ? (float)(val_int + 1) : (float)val_int;
+}
+
 uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc event);
 
 rsi_error_t DAC_WriteData_StaticMode(int16_t input_data);

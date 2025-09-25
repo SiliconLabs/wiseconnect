@@ -2,14 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites](#prerequisites)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role](#wi-fi-coex---wi-fi-throughput-ble-dual-role)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [WLAN Throughput](#wlan-throughput)
+  - [BLE throughput](#ble-throughput)
+  - [Test the Application](#test-the-application)
+    - [Common Steps](#common-steps)
+    - [WLAN throughputs: UDP/TCP/SSL unidirectional](#wlan-throughputs-udptcpssl-unidirectional)
+    - [BLE throughput](#ble-throughput-1)
 
 ## Purpose/Scope
 
@@ -233,9 +240,6 @@ The application can be configured to suit your requirements and development envi
     > 1. By default, 'CONTINUOUS_THROUGHPUT' is set to '0'.
     > 2. If CONTINUOUS_THROUGHPUT is set to '1', then ensure that client/server should run with interval at least greater than THROUGHPUT_AVG_TIME.
 
-> Note:
-> Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
-
 - Open `ble_config.h` file
 
   - BLE Advertise name
@@ -375,6 +379,8 @@ This section explains user how to configure the application for measuring BLE Tx
     ```c
     #define     THROUGHPUT_TYPE          TCP_TX 
     ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

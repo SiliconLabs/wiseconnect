@@ -2,15 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Code Classifier Usage](#code-classifier-usage)
-- [Memory Placement](#memory-placement)
-- [Testing the Application](#testing-the-application)
+- [Code Classifier](#code-classifier)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Code Classifier Usage](#code-classifier-usage)
+    - [**Installing the Code Classifier Component**](#installing-the-code-classifier-component)
+  - [Memory Placement](#memory-placement)
+    - [**1. Text and Data to SRAM**](#1-text-and-data-to-sram)
+    - [**2. BSS to PSRAM**](#2-bss-to-psram)
+    - [**3. Customizing Memory Placement**](#3-customizing-memory-placement)
+  - [Testing the Application](#testing-the-application)
 
 ## Purpose/Scope
 
@@ -29,7 +35,7 @@ This example project demonstrates the use of the **Code Classifier** component s
 
 ### Setup Diagram
 
- ![Figure: Introduction](resources/readme/setupdiagram.png)
+ ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -81,6 +87,8 @@ To optimize performance, memory placement is categorized as follows:
 
   ```c
   SL_SI91X_CODE_CLASSIFY(<region>, <variable_name>, <classifier_type>)
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Testing the Application
 

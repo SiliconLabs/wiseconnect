@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "rsi_common_utils.h"
 #include "rsi_common_apis.h"
+#include "sl_constants.h"
 
 generic_task_cb_t ble_generic_cb;
 
@@ -372,6 +373,12 @@ APP_WEAK void rsi_ble_event_{{ dummy_event }}_driver_callback(rsi_ble_{{ dummy_e
 	{% elif value == 'void' %}
 	//! copy event data to msg
 	memcpy((void *)&msg->event_data[0], (void *)rsi_ble_conn_info, sizeof(rsi_ble_conn_info_t));
+	{% elif dummy_event == 'connection_procedure_timeout' %}
+	memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
+	{% elif dummy_event == 'on_data_recieve' %}
+	memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
+	{% elif dummy_event == 'data_transmit' %}
+	memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
 	{% endif %}
 	//! enqueue message to ble_generic_cb.event_queues[0]
 	rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
@@ -489,14 +496,16 @@ APP_WEAK void rsi_ble_event_indication_confirmation_driver_callback(uint16_t sta
 {% if "handler" in callback.keys() and callback["handler"] != Null %}
 	{% if dummy_event == 'data_transmit' %}
 		{{ render_driver_callback_function3(dummy_event, 'uint_without_ptr') -}}
+	{% elif dummy_event == 'connection_procedure_timeout' %}
+		{{ render_driver_callback_function3(dummy_event, 'uint_without_ptr') -}}
+    {% elif dummy_event == 'on_data_recieve' %}
+		{{ render_driver_callback_function3(dummy_event, 'uint_without_ptr') -}}
 	{% elif dummy_event == 'event_smp_pending' %}
 		{{ render_driver_callback_function3(dummy_event, 'uint') -}}
 	{% elif dummy_event == 'advertisement_restart' %}
 		{{ render_driver_callback_function3(dummy_event, 'void') -}}
 	{% elif dummy_event == 'scan_restart' %}
 		{{ render_driver_callback_function3(dummy_event, 'void') -}}
-	{% elif dummy_event == 'event_on_data_recieve' %}
-		{{ render_driver_callback_function3(dummy_event, 'uint') -}}
 	{% elif dummy_event == 'event_conn_update_req' %}
 		{{ render_driver_callback_function3(dummy_event, 'uint') -}}
 	{% elif dummy_event == 'event_set_buffer_config' %}
@@ -639,22 +648,4 @@ void sl_btc_ble_smp_register_callbacks_wrapper()
                                  rsi_ble_event_le_security_keys_driver_callback,
                                  NULL, /* ble_on_cli_smp_response_event */
                                  NULL /* ble_on_sc_method_event not required in this app */);
-}
-
-void sl_btc_ble_adv_extended_register_callbacks_wrapper()
-{
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_ADVERTISE_REPORT_EVENT,
-                                                     (void *)rsi_ble_ae_adv_report_driver_callback);
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_PERIODIC_ADV_SYNC_ESTBL_EVENT,
-                                              (void *)rsi_ble_per_adv_sync_estbl_driver_callback);
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_PERIODIC_ADVERTISE_REPORT_EVENT,
-                                                     (void *)rsi_ble_per_adv_report_driver_callback);
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_PERIODIC_ADV_SYNC_LOST_EVENT,
-                                                     (void *)rsi_ble_per_adv_sync_lost_driver_callback);
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_SCAN_TIMEOUT_EVENT,
-                                                     (void *)rsi_ble_scan_timeout_driver_callback);
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_ADVERTISE_SET_TERMINATED_EVENT,
-                                                     (void *)rsi_ble_adv_set_terminated_driver_callback);
-    rsi_ble_adv_ext_events_register_callbacks(RSI_BLE_ON_ADV_EXT_SCAN_REQUEST_RECEIVED_EVENT,
-                                                     (void *)rsi_ble_scan_req_recvd_driver_callback);
 }

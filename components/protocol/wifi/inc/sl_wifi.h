@@ -239,6 +239,65 @@ sl_status_t sl_wifi_set_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_
 
 /***************************************************************************/ /**
  * @brief
+ *   Set the Request to Send (RTS) threshold for the specified Wi-Fi interface.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] rts_threshold
+ *   RTS threshold value to set, in bytes. Valid range: 0 to 2347.
+ *   A value of 0 has a special meaning: an RTS frame will precede every transmitted frame.
+ * @pre Pre-conditions:
+ * -   @ref sl_wifi_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_set_rts_threshold(sl_wifi_interface_t interface, uint16_t rts_threshold);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Get the current Request to Send (RTS) threshold for the specified Wi-Fi interface.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[out] rts_threshold
+ *   Pointer to a variable that will receive the current RTS threshold value.
+ * @pre Pre-conditions:
+ * -   @ref sl_wifi_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_rts_threshold(sl_wifi_interface_t interface, uint16_t *rts_threshold);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Set the Management Frame Protection (MFP) mode for the specified Wi-Fi interface.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] config
+ *   MFP configuration as identified by @ref sl_wifi_mfp_mode_t
+ * @note
+ *   This API needs to be called before @ref sl_wifi_connect
+ * @note
+ *   This API is currently supported only in STA mode.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_set_mfp(sl_wifi_interface_t interface, const sl_wifi_mfp_mode_t config);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Get the Management Frame Protection (MFP) mode for the specified Wi-Fi interface.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[out] config
+ *   MFP configuration as identified by @ref sl_wifi_mfp_mode_t
+ * @note
+ *   This API is currently supported only in STA mode.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_mfp(sl_wifi_interface_t interface, sl_wifi_mfp_mode_t *config);
+
+/***************************************************************************/ /**
+ * @brief
  *   Set the Wi-Fi antenna for an interface.
  * @pre Pre-conditions:
  * - 
@@ -452,19 +511,19 @@ sl_status_t sl_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
  * @pre Pre-conditions:
  *   @ref sl_wifi_init should be called before this API.
  * 
- * @note 
- *   1. This API will be deprecated in further releases. Suggested to use updated API @ref sl_wifi_update_su_gain_table for better gain table entries in 11ax SU operation.
- *   1. This frame must be used only by customers who have done FCC/ETSI/TELEC/KCC certification with their own antenna. Silicon Labs is not liable for inappropriate usage of this frame that may result in violation of FCC/ETSI/TELEC/KCC or any certifications. 
- *   2. Internally, firmware maintains two tables: Worldwide table, and Region-based table. Worldwide table is populated by the firmware with maximum power values that the chip can transmit and meet target specs like EVM. Region-based table has a default gain value set.
- *   3. When certifying with a user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
- *   4. The FCC/ETSI/TELEC/KCC maximum power level should be loaded in an end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region-based user gain table sent by the application is copied onto the Region-based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
- *   5. For the Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
- *   6. In the 2.4 GHz band, 40 MHz is not supported.
- *   7. Executing this API overwrites calibration values in certified modules.
- *   8. In FCC-certified modules, this API triggers an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
- *   9. Below are the default gain tables:
- *      - Si917 IC OPNs:
- *      <br> Number of regions: 4
+* @note
+ *  This API is deprecated and retained only for backward compatibility. Instead, use the [sl_wifi_update_su_gain_table](../wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/wifi-radio-api#sl-wifi-update-su-gain-table) API. 
+ *  For IC parts:
+ *     This function is applicable in Transmit test mode (SL_WIFI_TRANSMIT_TEST_MODE) and end-to-end modes.
+ *     Use this function only in devices for which you have completed FCC, CE (ETSI), MIC (TELEC), KC (KCC) certification with your own antenna. Silicon Labs disclaims any liability for non-compliant use of this function that could breach those or any other regulatory certifications.
+ *     To enforce regulatory transmit power limits (FCC, CE (ETSI), MIC (TELEC), KC (KCC)):
+ *       - Load the region-specific maximum power values at every boot using the `sl_wifi_update_gain_table()` API.
+ *       - Because the firmware does not retain this information in flash memory, the application must invoke this API at every startup.
+ *       - The provided region-based user gain table is copied into the firmware’s region-based table.
+ *       - The device then uses this table to cap transmit power and ensure compliance with the allowed limits.
+ *     Below are the default gain tables:
+ *       - Si917 IC (SiWx917Mxxxxx) OPNs:
+ *       <br> Number of regions: 4
  *   | Region    | Number of channels | Channel | 11b | 11g | 11n | 11ax |
  *   |-----------|--------------------|---------|-----|-----|-----|------|
  *   | FCC       | 0xB                |         |     |     |     |      |
@@ -489,8 +548,15 @@ sl_status_t sl_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
  *   | KCC       | 0x11               |         |     |     |     |      |
  *   |           |                    | 255     | 36  | 36  |  36 |  36  |
  *
- *      - Si917 ACx OPNs:
- *      <br> Number of regions: 6
+ *  For module parts:
+ *     This function is applicable in Transmit test mode only. This API will return `SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE` unless the module is set in `SL_SI91X_TRANSMIT_TEST_MODE`.
+ *     On boot, Worldsafe gain entries are applied by default. These values are derived by taking the minimum gains across all supported regional regulatory limit tables to ensure global compliance.
+ *     During AP association, the device may automatically switch to region-specific transmit power limits based on the AP's Country IE. If the AP does not include a Country IE, the device continues to operate using the Worldsafe region settings.
+ *     FCC, ISED, and NCC share a common set of gain entries.
+ *     CE (ETSI), UKCA, ACMA, and RSM also share a common set of gain entries.
+ *     Below are the default gain tables:
+ *       - Si917 Module (SiWx917Yxxxxxx) OPNs:
+ *       <br> Number of regions: 6
  *   | Region        | Number of channels | Channel | 11b | 11g | 11n | 11ax |
  *   |---------------|--------------------|---------|-----|-----|-----|------|
  *   | FCC           |  0x29              |         |     |     |     |      |
@@ -522,6 +588,7 @@ sl_status_t sl_wifi_get_listen_interval_v2(sl_wifi_interface_t interface,
  *   |               |                    |       2 |  26 |  26 |  26 |   14 |
  *   |               |                    |      10 |  26 |  30 |  30 |   14 |
  *   |               |                    |      13 |  26 |  20 |  20 |   14 |
+ * 
  ******************************************************************************/
 sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uint8_t *payload, uint16_t payload_length)
   SL_DEPRECATED_API_WISECONNECT_3_5;
@@ -567,15 +634,86 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uin
  *   @ref sl_wifi_init should be called before this API.
  * 
  * @note
- *   1. This frame must be used only by customers who have done FCC/ETSI/TELEC/KCC certification with their own antenna. Silicon Labs is not liable for inappropriate usage of this frame that may result in violation of FCC/ETSI/TELEC/KCC or any certifications.
- *   2. Internally, firmware maintains two tables: Worldwide table, and Region-based table. Worldwide table is populated by the firmware with maximum power values that the chip can transmit and meet target specs like EVM. Region-based table has a default gain value set.
- *   3. When certifying with a user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
- *   4. The FCC/ETSI/TELEC/KCC maximum power level should be loaded in an end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region-based user gain table sent by the application is copied onto the Region-based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
- *   5. For the Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
- *   6. In the 2.4 GHz band, 40 MHz is not supported.
- *   7. Executing this API overwrites calibration values in certified modules.
- *   8. In FCC-certified modules, this API triggers an error SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE if used, except when in SL_SI91X_TRANSMIT_TEST_MODE mode.
- *  ******************************************************************************/
+ * For IC parts:
+ *     This function is applicable in Transmit test mode (SL_WIFI_TRANSMIT_TEST_MODE) and end-to-end modes.
+ *     Use this function only in devices for which you have completed FCC, CE (ETSI), MIC (TELEC), KC (KCC) certification with your own antenna. Silicon Labs disclaims any liability for non-compliant use of this function that could breach those or any other regulatory certifications.
+ *     To enforce regulatory transmit power limits (FCC, CE (ETSI), MIC (TELEC), KC (KCC)):
+ *       - Load the region-specific maximum power values at every boot by using the  `sl_wifi_update_su_gain_table()` API.
+ *       - Because the firmware does not retain this information in flash memory, the application must invoke this API at every startup.
+ *       - The provided region-based user gain table is copied into the firmware’s region-based table.
+ *       - The device then uses this table to cap transmit power and ensure compliance with the allowed limits.
+ *     Below are the default gain tables:
+ *       - Si917 IC (SiWx917Mxxxxx) OPNs:
+ *       <br> Number of regions: 4
+ *   | Region    | Number of channels | Channel | 11b | 11g | 11n |11ax(SU)|11ax(TB)|
+ *   |-----------|--------------------|---------|-----|-----|-----|--------|--------|
+ *   | FCC       | 0xB                |         |     |     |     |        |        |
+ *   |           |                    |  1      | 32  | 22  |  22 |  20    |   14   |
+ *   |           |                    |  2      | 32  | 26  |  26 |  24    |   20   |
+ *   |           |                    |  3      | 34  | 28  |  28 |  26    |   30   |
+ *   |           |                    |  4      | 36  | 34  |  32 |  30    |   32   |
+ *   |           |                    |  5      | 36  | 34  |  34 |  32    |   32   |
+ *   |           |                    |  6      | 36  | 36  |  36 |  34    |   34   |
+ *   |           |                    |  7      | 36  | 34  |  34 |  32    |   28   |
+ *   |           |                    |  8      | 36  | 32  |  32 |  30    |   28   |
+ *   |           |                    |  9      | 36  | 30  |  30 |  28    |   28   |
+ *   |           |                    | 10      | 32  | 28  |  28 |  24    |   14   |
+ *   |           |                    | 11      | 32  | 22  |  22 |  20    |   14   |
+ *   | ETSI      | 0x11               |         |     |     |     |        |        |
+ *   |           |                    | 255     | 34  | 36  |  36 |  36    |   24   |
+ *   | TELEC     | 0x22               |         |     |     |     |        |        |
+ *   |           |                    | 13      | 34  | 38  |  36 |  36    |   24   |
+ *   |           |                    | 14      | 38  |  0  |   0 |   0    |    0   |
+ *   | WORLDSAFE | 0x25               |         |     |     |     |        |        |
+ *   |           |                    | 1       | 32  | 22  |  22 |  20    |   14   |
+ *   |           |                    | 2       | 32  | 26  |  26 |  24    |   20   |
+ *   |           |                    | 11      | 32  | 22  |  22 |  20    |   14   |
+ *   |           |                    | 13      | 34  | 36  |  36 |  36    |   24   |
+ *   |           |                    | 14      | 38  |  0  |   0 |   0    |    0   |
+
+ * For module parts:
+ *     This function is applicable in Transmit test mode only. This API will return `SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE` unless the module is set in `SL_SI91X_TRANSMIT_TEST_MODE`.
+ *     On boot, Worldsafe gain entries are applied by default. These values are derived by taking the minimum gains across all supported regional regulatory limit tables to ensure global compliance.
+ *     During AP association, the device may automatically switch to region-specific transmit power limits based on the AP's Country IE. If the AP does not include a Country IE, the device continues to operate using the Worldsafe region settings.
+ *     FCC, ISED, and NCC share a common set of gain entries.
+ *     CE (ETSI), UKCA, ACMA, and RSM also share a common set of gain entries.
+ *
+ *     Below are the default gain tables:
+ *       - Si917 Module (SiWx917Yxxxxxx) OPNs:
+ *       <br> Number of regions: 6
+ *   | Region        | Number of channels | Channel | 11b | 11g | 11n |11ax(SU)|11ax(TB)|
+ *   |---------------|--------------------|---------|-----|-----|-----|--------|--------|
+ *   | FCC           |  0x29              |         |     |     |     |        |        |
+ *   |               |                    |       1 |  30 |  20 |  20 |   18   |   18   |
+ *   |               |                    |       2 |  36 |  26 |  26 |   22   |   22   |
+ *   |               |                    |       3 |  40 |  30 |  30 |   26   |   26   |
+ *   |               |                    |       4 |  40 |  36 |  36 |   32   |   32   |
+ *   |               |                    |       7 |  40 |  40 |  40 |   36   |   36   |
+ *   |               |                    |       8 |  40 |  36 |  34 |   36   |   36   |
+ *   |               |                    |       9 |  40 |  34 |  32 |   28   |   28   |
+ *   |               |                    |      10 |  36 |  30 |  28 |   20   |   20   |
+ *   |               |                    |      11 |  30 |  20 |  18 |   16   |   16   |
+ *   | ETSI          |  0x11              |         |     |     |     |        |        |
+ *   |               |                    |     255 |  24 |  28 |  28 |   14   |   14   |
+ *   | TELEC         |  0x24              |         |     |     |     |        |        |
+ *   |               |                    |       1 |  28 |  28 |  26 |   16   |   16   |
+ *   |               |                    |      12 |  28 |  36 |  36 |   16   |   16   |
+ *   |               |                    |      13 |  28 |  26 |  26 |   16   |   16   |
+ *   |               |                    |      14 |  28 |   0 |   0 |    0   |   0    |
+ *   | KCC           |  0x11              |         |     |     |     |        |        |
+ *   |               |                    |     255 |  36 |  36 |  36 |   36   |   36   |
+ *   | WORLDSAFE     |  0x24              |         |     |     |     |        |        |
+ *   |               |                    |       1 |  24 |  20 |  20 |   14   |   14   |
+ *   |               |                    |       2 |  24 |  26 |  26 |   14   |   14   |
+ *   |               |                    |      10 |  24 |  28 |  28 |   14   |   14   |
+ *   |               |                    |      11 |  24 |  20 |  18 |   14   |   14   |
+ *   | SRRC          |  0x24              |         |     |     |     |        |        |
+ *   |               |                    |       1 |  26 |  20 |  20 |   14   |   14   |
+ *   |               |                    |       2 |  26 |  26 |  26 |   14   |   14   |
+ *   |               |                    |      10 |  26 |  30 |  30 |   14   |   14   |
+ *   |               |                    |      13 |  26 |  20 |  20 |   14   |   14   |
+
+ ******************************************************************************/
 sl_status_t sl_wifi_update_su_gain_table(uint8_t band,
                                          uint8_t bandwidth,
                                          const uint8_t *payload,
@@ -1888,6 +2026,7 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  * @note This is not a blocking API. Callback SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB can be registered to get the status report from firmware.
  * @note Only 11b/g rates shall be supported.
  * @note It is recommended to use basic rate for multicast/broadcast packets.
+ * @note Bits 6 and 7 of ctrl_flags, bit 0 of ctrl_flags1, and the channel and tx_power fields are currently not supported.
  * @note Sample command usage:
  * @code
  * // Prepare payload

@@ -39,25 +39,25 @@ Then, the WDT is started again with new parameters and the LED is toggled again 
 
 ## About Example Code
 
-- \ref watchdog_timer_example.c - This example file demonstrates how to use the Watchdog timer (WDT) to trigger WDT warnings and reset the system after a few warnings. With a WDT timeout interrupt occurring every 1 second, the WDT is restarted (kicked) by the application, and the onboard LED0 toggles. After toggling the LED 6 times, the application does not restart the WDT, then the timer loads the system-reset time (set to 4 seconds). Once that time is over, the WDT resets the system. Afterward, the WDT is started again with new parameters, and LED0 is toggled 6 times. Finally, the WDT is stopped, the callback is unregistered, and the timer is de-initialized.
-- In this example, the application first toggles LED0 once and checks whether it is a power-on reset or a WDT system reset through the \ref sl_si91x_watchdog_get_timer_system_reset_status API.  
-- If it is a power-on reset, then the WDT is initialized by enabling peripheral power, enabling WDT to run during CPU sleep mode, and unmasking its interrupt through the \ref sl_si91x_watchdog_init_timer API.  
-- Then, the timer is configured with default configuration values from UC through the \ref sl_si91x_watchdog_set_configuration APIs, respectively.  
-- Next, the timer timeout callback is registered, and its interrupt is enabled using the \ref sl_si91x_watchdog_register_timeout_callback API.  
-- The WDT is then started using the \ref sl_si91x_watchdog_start_timer API. The application toggles onboard LED0 and restarts (kicks) the WDT on every interrupt (every 1 second) through the \ref sl_si91x_watchdog_restart_timer.  
+ - [`watchdog_timer_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_watchdog_timer/watchdog_timer_example.c) - This example file demonstrates how to use the Watchdog timer (WDT) to trigger WDT warnings and reset the system after a few warnings. With a WDT timeout interrupt occurring every 1 second, the WDT is restarted (kicked) by the application, and the onboard LED0 toggles. After toggling the LED 6 times, the application does not restart the WDT, then the timer loads the system-reset time (set to 4 seconds). Once that time is over, the WDT resets the system. Afterward, the WDT is started again with new parameters, and LED0 is toggled 6 times. Finally, the WDT is stopped, the callback is unregistered, and the timer is de-initialized.
+ - In this example, the application first toggles LED0 once and checks whether it is a power-on reset or a WDT system reset through the [`sl_si91x_watchdog_get_timer_system_reset_status`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-get-timer-system-reset-status) API.  
+ - If it is a power-on reset, then the WDT is initialized by enabling peripheral power, enabling WDT to run during CPU sleep mode, and unmasking its interrupt through the [`sl_si91x_watchdog_init_timer`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-init-timer) API.  
+ - Then, the timer is configured with default configuration values from UC through the [`sl_si91x_watchdog_set_configuration`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-set-configuration) APIs, respectively.  
+ - Next, the timer timeout callback is registered, and its interrupt is enabled using the [`sl_si91x_watchdog_register_timeout_callback`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-register-timeout-callback) API.  
+ - The WDT is then started using the [`sl_si91x_watchdog_start_timer`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-start-timer) API. The application toggles onboard LED0 and restarts (kicks) the WDT on every interrupt (every 1 second) through the [`sl_si91x_watchdog_restart_timer`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-restart-timer).
 - Upon the 6th WDT interrupt, the application does not restart the WDT. So when the timer count reaches the system-reset time (4 seconds), it resets the application.  
 - After that, the application starts again, toggles LED0 once, checks WDT system reset status, and upon finding it true, debugs out "Watchdog-timer system-reset occurred".  
 - Then, the timer is initialized again, the callback is registered, and it is started with new parameters, configured using the following APIs:  
-- \ref sl_si91x_watchdog_set_system_reset_time to change the WDT system-reset time to 8 seconds. For possible values, refer to the \ref time_delays_t enum.
-  - \ref sl_si91x_watchdog_set_interrupt_time to change the WDT interrupt time to 2 seconds.
-  - \ref sl_si91x_watchdog_set_window_time to change the WDT window time to 32 milliseconds.
-- To read the above time values, the following APIs are used:  
-  - \ref sl_si91x_watchdog_get_system_reset_time to read the system-reset time.
-  - \ref sl_si91x_watchdog_get_interrupt_time to read the interrupt time.
-  - \ref sl_si91x_watchdog_get_window_time to read the window time.
-- Then, the application toggles onboard LED0 6 times and restarts (kicks) the WDT on every interrupt (every 2 seconds) through the \ref sl_si91x_watchdog_restart_timer.
-- Upon the 6th WDT interrupt, the application does not restart the WDT and immediately stops the WDT through the \ref sl_si91x_watchdog_stop_timer API.  
-- Then, the callback is unregistered, and the timer is de-initialized through the \ref sl_si91x_watchdog_deinit_timer API.
+ - [`sl_si91x_watchdog_set_system_reset_time`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-set-system-reset-time) to change the WDT system-reset time to 8 seconds. For possible values, refer to the [`time_delays_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#time-delays-t) enum.
+   - [`sl_si91x_watchdog_set_interrupt_time`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-set-interrupt-time) to change the WDT interrupt time to 2 seconds.
+   - [`sl_si91x_watchdog_set_window_time`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-set-window-time) to change the WDT window time to 32 milliseconds.
+ - To read the above time values, the following APIs are used:  
+   - [`sl_si91x_watchdog_get_system_reset_time`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-get-system-reset-time) to read the system-reset time.
+   - [`sl_si91x_watchdog_get_interrupt_time`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-get-interrupt-time) to read the interrupt time.
+   - [`sl_si91x_watchdog_get_window_time`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-get-window-time) to read the window time.
+ - Then, the application toggles onboard LED0 6 times and restarts (kicks) the WDT on every interrupt (every 2 seconds) through the [`sl_si91x_watchdog_restart_timer`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-restart-timer).
+ - Upon the 6th WDT interrupt, the application does not restart the WDT and immediately stops the WDT through the [`sl_si91x_watchdog_stop_timer`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-stop-timer) API.  
+ - Then, the callback is unregistered, and the timer is de-initialized through the [`sl_si91x_watchdog_deinit_timer`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-deinit-timer) API.
 
 ## Prerequisites/Setup Requirements
 
@@ -75,7 +75,7 @@ Then, the WDT is started again with new parameters and the LED is toggled again 
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -96,9 +96,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - If project built without selecting configurations, it will take default values from UC.
 
-  ![Figure: UC](resources/uc_screen/watchdog_uc_screen.png)
+  ![Figure: watchdog_uc_screen](resources/uc_screen/watchdog_uc_screen.png)
 
-- Configure timer using the following macros, defined in \ref sl_si91x_watchdog_timer_config.h file and update/modify following macros, if required.
+- Configure timer using the following macros, defined in [`sl_si91x_watchdog_timer_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_watchdog_timer_config.h) file and update/modify following macros, if required.
 
 > **Note:**
 >
@@ -106,10 +106,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Macros for Timer Configurations
 
-- \ref SL_WDT_SYSTEM_RESET_TIME is used for setting the system reset time. For possible values, refer to \ref time_delays_t.
-- \ref SL_WDT_INTERRUPT_TIME (timeout time) is used for setting the timeout time. For possible values, refer to \ref time_delays_t.
-- \ref SL_WDT_WINDOW_TIME is used for setting the window time. For possible values, refer to \ref time_delays_t.
-- After configuring the above macros, their values are passed to the \ref watchdog_timer_config_t structure type variable \ref sl_watchdog_timer_config_handle, which is used to configure the timer through the API \ref sl_si91x_watchdog_set_configuration.
+- [`SL_WDT_SYSTEM_RESET_TIME`] is used for setting the system reset time. For possible values, refer to [`time_delays_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#time-delays-t).
+- [`SL_WDT_INTERRUPT_TIME`](timeout time) is used for setting the timeout time. For possible values, refer to [`time_delays_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#time-delays-t).
+- [`SL_WDT_WINDOW_TIME`] is used for setting the window time. For possible values, refer to [`time_delays_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#time-delays-t).
+- After configuring the above macros, their values are passed to the [`watchdog_timer_config_t`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer-config-t#watchdog_timer_config_t) structure type variable [`sl_watchdog_timer_config_handle`], which is used to configure the timer through the API [`sl_si91x_watchdog_set_configuration`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer#sl-si91x-watchdog-set-configuration).
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -125,7 +127,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - After successful program execution, the prints in serial console looks as shown below.
 
-  ![Figure: Introduction](resources/readme/output.png)
+  ![Figure: output](resources/readme/output.png)
 
 > **Note:**
 >

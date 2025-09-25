@@ -35,7 +35,7 @@ This application demonstrates the use of the Sensor Data Collector (SDC) periphe
 
 - This example demonstrates SDC operation in PS1 mode, reading sampled data and converting it to the corresponding input voltage.
 - Parameters such as the number of channels, SDC operation mode, sampling interval, and sample threshold are configurable via UC.
-- Common SDC configurations are defined in `sl_si91x_sdc_common_config.h`, while channel-specific settings are in `sl_si91x_sdc_init_inst_config.h`.
+- Common SDC configurations are defined in [`sl_si91x_sdc_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_sdc_common_config.h), while channel-specific settings are in [`sl_si91x_sdc_init_inst_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_sdc_init_inst_config.h).
 - Initialize SDC using the `sl_si91x_sdc_driver_init` API, providing the reference voltage.
 - Configure SDC parameters with `sl_si91x_sdc_driver_config`, passing a `sl_si91x_sdc_config_t` structure.
 - Channel parameters are set using `sl_si91x_sdc_driver_channel_config`, which expects pointers to `sl_si91x_sdc_adc_config_t`, `sl_si91x_sdc_channel_info_t`, and `sl_si91x_sdc_channel_misc_config_t`.

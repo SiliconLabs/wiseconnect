@@ -1,7 +1,7 @@
-project_name: ble_unified_ae_coex_app
+project_name: ble_unified_ae_coex_app_soc
 package: ble
 quality: alpha
-label: Unified AE app for Bluetooth
+label: BLE - Unified AE Coex App (SoC)
 category: Example|BLE
 description: >
   Bluetooth Low energy Extended Advertising features(Central/Peripheral).
@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 - path: root_auto_gen.c

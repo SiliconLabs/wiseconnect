@@ -172,7 +172,7 @@ void i2c_follower_example_process_action(void)
 
           DEBUGOUT("I2C_Task: Data read from Leader successfully and writing the same into I2C_Message_Queue\n");
 
-          // put the received msg into MessageQueue which will be taken by UART
+          // put the received msg into MessageQueue which will be taken by USART
           os_status = osMessageQueuePut(mid_i2c_msg_queue, i2c_read_buffer, 0U, 0U);
           if (os_status != osOK) {
             DEBUGOUT("I2C Message Queue write failed\n");
@@ -185,10 +185,10 @@ void i2c_follower_example_process_action(void)
           // wait for the i2c_write_buffer buffer to be filled from uart reception
           os_status = osMessageQueueGet(mid_usart_msg_queue, i2c_write_buffer, NULL, osWaitForever); // wait for message
           if (os_status != osOK) {
-            DEBUGOUT("UART Message Queue read failed\n");
+            DEBUGOUT("USART Message Queue read failed\n");
             break;
           }
-          DEBUGOUT("I2C_Task: Data read from UART_Message_Queue successfully and forwarding to Leader\n");
+          DEBUGOUT("I2C_Task: Data read from USART_Message_Queue successfully and forwarding to Leader\n");
 
           // Validation for executing the API only once.
           i2c_status =

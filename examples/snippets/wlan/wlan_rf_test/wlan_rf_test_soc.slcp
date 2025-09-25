@@ -1,7 +1,7 @@
 project_name: wlan_rf_test_soc
 package: wifi
 quality: production
-label: Wlan RF TEST
+label: Wi-Fi - Wlan RF Test (SoC)
 category: Example|Wi-Fi
 description: |
   Configure the SiWx91x to transmit Wi-Fi packets at varying data rates and power levels
@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

@@ -2,17 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration)
-- [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL SI70XX](#sl-si70xx)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -44,7 +45,7 @@ This example demonstrates the measurement of relative humidity and temperature f
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -60,12 +61,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following macros in the `si70xx_example.c` file and update/modify following macros, if required.
+- Configure the following macros in the [`si70xx_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_si70xx/si70xx_example.c) file and update/modify following macros, if required.
 
 - `I2C instance`: Select I2C instance for communication through UC from the Si70xx Humidity and Temperature Sensor slcp component.
  By default I2C2 is selected.
 
-   ![Figure: Si70xx UC](resources/uc_screen/si70xx_uc_screen.png)
+   ![Figure: si70xx_uc_screen](resources/uc_screen/si70xx_uc_screen.png)
 
 ### Pin Configuration
 
@@ -81,6 +82,8 @@ Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
 > - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -90,9 +93,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 3. Connect an oscilloscope to the Evaluation Kit board's ULP_GPIO_6(EXP16) / GPIO_6(EXP16) and ULP_GPIO_7(EXP15) / GPIO_7(EXP15) and observe the temperature and humidity data on I2C line.
 4. After successful program execution, the prints in the serial console looks as shown below.
 
-   ![Figure: Introduction](resources/readme/output1.png)
+   ![Figure: output1](resources/readme/output1.png)
 
-   ![Figure: Introduction](resources/readme/output2.png)
+   ![Figure: output2](resources/readme/output2.png)
 
 > **Note:**
 >

@@ -444,6 +444,8 @@
    * @def SL_WIFI_FEAT_DISABLE_SHORT_GI
    * @brief Disables Short Guard Interval (Short-GI).
    * @details This bit disables the use of Short-GI, which may affect the timing and performance of the system.
+   * 
+   * @note This bit applies only to 802.11n data rates. For 802.11ax data rates, disabling Short-GI is not supported.
    */
 #define SL_WIFI_FEAT_DISABLE_SHORT_GI BIT(20)
 
@@ -1758,6 +1760,16 @@
 #define SL_SI91X_EXT_TCP_MAX_RECV_LENGTH BIT(20)
 
 /**
+ * @def SL_SI91X_EXT_TCP_NAT_SUPPORT
+ * @brief Enable  Network Address Translation (NAT) support.
+ * @details
+ * This feature enables NAT support, allowing
+ * stations connected to SiWx91x to access the internet through a third-party AP.
+ * @note NAT feature is internal test feature only, not recommended for Production.
+ */
+#define SL_SI91X_EXT_TCP_NAT_SUPPORT BIT(21)
+
+/**
  * @def SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS
  * @brief Enable three SSL/TLS sockets.
  * @details
@@ -2287,6 +2299,8 @@
  * @def SL_SI91X_FEAT_DISABLE_SHORT_GI
  * @brief Disables Short Guard Interval (Short-GI).
  * @details This bit disables the use of Short-GI, which may affect the timing and performance of the system.
+ * 
+ * @note This bit applies only to 802.11n data rates. For 802.11ax data rates, disabling Short-GI is not supported.
  */
 #define SL_SI91X_FEAT_DISABLE_SHORT_GI SL_WIFI_FEAT_DISABLE_SHORT_GI
 
@@ -2366,7 +2380,7 @@
 
 /**
  * @def SL_SI91X_ENABLE_ENHANCED_MAX_PSP
- * @brief Enables Enhanced Max PSP.
+ * @brief Enables Enhanced Max Power Save Profile (PSP).
  * @details Set this bit to enable the Enhanced Max PSP feature for improved performance.
  */
 #define SL_SI91X_ENABLE_ENHANCED_MAX_PSP BIT(26)

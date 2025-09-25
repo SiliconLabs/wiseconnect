@@ -60,7 +60,7 @@
 //! Advertising command parameters
 /*=======================================================================*/
 
-#define RSI_BLE_ADV_TYPE          UNDIR_CONN
+#define RSI_BLE_ADV_TYPE          UNDIR_NON_CONN
 #define RSI_BLE_ADV_FILTER_TYPE   ALLOW_SCAN_REQ_ANY_CONN_REQ_ANY
 #define RSI_BLE_ADV_DIR_ADDR_TYPE LE_PUBLIC_ADDRESS
 #define RSI_BLE_ADV_DIR_ADDR      "00:15:83:6A:64:17"

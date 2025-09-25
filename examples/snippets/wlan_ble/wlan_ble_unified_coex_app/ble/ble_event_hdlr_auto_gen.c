@@ -6,6 +6,7 @@
 #include "rsi_common_utils.h"
 #include "rsi_common_apis.h"
 #include "sl_constants.h"
+
 generic_task_cb_t ble_generic_cb;
 
 generic_event_handler_lut_entry_t ble_events_lut[] = { { rsi_ble_event_adv_report },
@@ -59,6 +60,7 @@ generic_event_handler_lut_entry_t ble_events_lut[] = { { rsi_ble_event_adv_repor
                                                        { rsi_ble_event_select_data_transfer },
                                                        { rsi_ble_event_profile_discovery },
                                                        { rsi_ble_event_profile_dummy },
+                                                       { rsi_ble_event_connection_procedure_timeout },
                                                        { NULL } };
 
 /*==============================================*/
@@ -1757,6 +1759,7 @@ APP_WEAK void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
   msg->free_callback = free;
   //msg->status = status;
 
+  memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
   //! enqueue message to ble_generic_cb.event_queues[0]
   rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);
@@ -1893,7 +1896,7 @@ APP_WEAK void rsi_ble_event_scan_restart_driver_callback(void)
 
  * @fn          void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
  * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
- * @param[in]   uint8_t *conn_id
+ * @param[in]   uint8_t conn_id
  * @param[out]  None
  * @return      None
  *
@@ -1923,8 +1926,7 @@ APP_WEAK void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
   msg->free_callback = free;
   //msg->status = status;
 
-  //! copy event data to msg
-  memcpy((void *)&msg->event_data[0], &conn_id, sizeof(uint8_t));
+  memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
   //! enqueue message to ble_generic_cb.event_queues[0]
   rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);
@@ -2135,6 +2137,47 @@ APP_WEAK void rsi_ble_event_profile_dummy_driver_callback(profile_dummy_data_t *
 
   //! copy event data to msg
   memcpy((void *)&msg->event_data[0], (void *)profile_dummy_data, sizeof(profile_dummy_data_t));
+  //! enqueue message to ble_generic_cb.event_queues[0]
+  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
+  osSemaphoreRelease(ble_generic_cb.semaphore);
+}
+
+/*==============================================*/
+/**
+
+ * @fn          void rsi_ble_event_connection_procedure_timeout_driver_callback(uint8_t conn_id)
+ * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
+ * @param[in]   uint8_t conn_id
+ * @param[out]  None
+ * @return      None
+ *
+ * @section description
+ * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
+ *
+ */
+
+APP_WEAK void rsi_ble_event_connection_procedure_timeout_driver_callback(uint8_t conn_id)
+{
+  LOG_PRINT_D("\n in rsi_ble_connection_procedure_timeout_driver_callback \n");
+  generic_event_message_t *msg;
+
+  //! allocate message
+
+  msg = malloc(sizeof(generic_event_message_t) + sizeof(uint8_t));
+  if (msg == NULL) {
+    printf("Out of Memory assert\n");
+    _assert((uint8_t *)"Out Of Memory\n", __LINE__);
+  } else {
+    LOG_PRINT_D("Malloc passed\n");
+  }
+  //! init messag details
+  msg->next     = NULL;
+  msg->event_id = connection_procedure_timeout_event_id;
+  //! function to be called to free this message
+  msg->free_callback = free;
+  //msg->status = status;
+
+  memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
   //! enqueue message to ble_generic_cb.event_queues[0]
   rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
   osSemaphoreRelease(ble_generic_cb.semaphore);
@@ -3048,6 +3091,24 @@ APP_WEAK void rsi_ble_event_profile_discovery(uint16_t __attribute__((unused)) s
  */
 APP_WEAK void rsi_ble_event_profile_dummy(uint16_t __attribute__((unused)) status,
                                           void __attribute__((unused)) * event_data)
+{
+  //! Add handling here
+}
+
+/*==============================================*/
+/**
+ * @fn          void rsi_ble_event_connection_procedure_timeout(uint16_t __attribute__((unused))status, void __attribute__((unused))*event_data)
+ * @brief       handler for connection_procedure_timeout to be executed in ble task context
+ * @param[in]   uint16_t , event_status 
+ * @param[in]   void, event_data
+ * @return      None
+ *
+ * @section description
+ * handler for connection_procedure_timeout to be executed in ble task context
+ *
+ */
+APP_WEAK void rsi_ble_event_connection_procedure_timeout(uint16_t __attribute__((unused)) status,
+                                                         void __attribute__((unused)) * event_data)
 {
   //! Add handling here
 }

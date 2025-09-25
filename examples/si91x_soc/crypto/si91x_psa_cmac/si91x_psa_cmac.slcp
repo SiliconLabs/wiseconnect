@@ -1,27 +1,16 @@
 project_name: si91x_psa_cmac
-label: SI91x - SoC PSA CMAC
+package: platform
 description: |
   This example project demonstrates the PSA CMAC APIs in SI91x.
 category: example|crypto
-package: platform
 quality: production
+label: SI91x - SoC PSA CMAC
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: psa_cmac_app.c
-  - path: app.c
-include:
-  - path: .
-    file_list:
-      - path: psa_cmac_app.h
-      - path: app.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: freertos
@@ -48,12 +37,20 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
-
   - id: mbedtls_cmac
   - id: sl_si91x_psa_mac
     from: wiseconnect3_sdk
-readme:
-  - path: readme.md
+source:
+  - path: psa_cmac_app.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_cmac_app.h
+      - path: app.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/output.png
@@ -61,5 +58,7 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

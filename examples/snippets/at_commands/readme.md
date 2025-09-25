@@ -2,15 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Creating a new command handler](#creating-a-new-command-handler)
+- [AT Commands](#at-commands)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Powersave Commands](#powersave-commands)
+  - [Creating a new command handler](#creating-a-new-command-handler)
+    - [Argument types](#argument-types)
 
 ## Purpose/Scope
 
@@ -71,6 +75,8 @@ For project folder structure details, see the [WiSeConnect Examples](https://doc
 The application can be configured to suit your requirements and development environment.
 
 - The application uses the default configurations as provided in the **wifi_commands.c** and you can choose to configure these parameters as needed.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

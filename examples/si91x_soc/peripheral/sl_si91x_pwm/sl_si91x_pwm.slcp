@@ -1,26 +1,16 @@
 project_name: sl_si91x_pwm
-label: SI91x - SL_PWM
+package: platform
 description: |
   This application demonstrates how to configure PWM peripheral.
 category: example|peripheral
-package: platform
 quality: production
-readme:
-  - path: readme.md
-source:
-  - path: app.c
-  - path: app.h
-  - path: pwm_example.c
-  - path: pwm_example.h
+label: SI91x - SL_PWM
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -34,7 +24,17 @@ component:
       - channel_0
   - id: sl_pwm
     from: wiseconnect3_sdk
-
+source:
+  - path: app.c
+  - path: pwm_example.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: pwm_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/uc_screen/pwm_uc_screen.png
@@ -44,5 +44,7 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

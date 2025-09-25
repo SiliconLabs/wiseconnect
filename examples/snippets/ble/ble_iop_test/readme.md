@@ -2,14 +2,19 @@
   
 ## Table of Contents
 
-  - [Purpose / Scope](#purposescope)
-  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  	- [Hardware Requirements](#hardware-requirements)
-	- [Software Requirements](#software-requirements)
-	- [Setup Diagram](#setup-diagram)
-  - [Application build environment](#application-build-environment)
-  - [Test the Application](#test-the-application)
-  - [Limitation](#limitation)
+- [BLE Interoperability Test App](#ble-interoperability-test-app)
+	- [Table of Contents](#table-of-contents)
+	- [Purpose/Scope](#purposescope)
+	- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+		- [Hardware Requirements](#hardware-requirements)
+		- [Software Requirements](#software-requirements)
+		- [Setup Diagram](#setup-diagram)
+	- [Getting Started](#getting-started)
+	- [Application Build Environment](#application-build-environment)
+	- [Test the Application](#test-the-application)
+	- [Logging and Sharing data](#logging-and-sharing-data)
+		- [Programming the Radio Board](#programming-the-radio-board)
+		- [Limitation](#limitation)
 
 ## Purpose/Scope
 
@@ -79,6 +84,8 @@ The application can be configured to suit your requirements and development envi
      ```c
 		#define RSI_BLE_DEVICE_NAME 				(void *)"IOP_Test_1"
 	 ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

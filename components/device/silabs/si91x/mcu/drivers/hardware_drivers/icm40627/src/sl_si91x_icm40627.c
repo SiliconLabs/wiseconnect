@@ -29,6 +29,8 @@
  ******************************************************************************/
 
 #include "sl_si91x_icm40627.h"
+#include "sl_status.h"
+#include "sl_si91x_ssi.h"
 #include <stdint.h>
 #include <stdio.h>
 #include "sl_sleeptimer.h"
@@ -37,9 +39,15 @@
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 #define DUMMY_DATA 0xA5 // Dummy data to be written to receive data
+// SSI config constants (should match those in icm40627_example.c)
+#define SSI_MASTER_BIT_WIDTH            8
+#define SSI_MASTER_BAUDRATE             10000000
+#define SSI_MASTER_RECEIVE_SAMPLE_DELAY 0
+
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
+
 /*******************************************************************************
  ***********************  Local function Prototypes ***************************
  ******************************************************************************/
@@ -61,6 +69,34 @@ static sl_status_t icm40627_read_register(sl_ssi_handle_t ssi_driver_handle,
 /* Generate the cmu clock symbol based on instance. */
 #define SL_ICM40627_REG_SPI_CLK(N) SL_CONCAT(cmuClock_EUSART, N)
 /** @endcond */
+
+/***************************************************************************/ /**
+ *    Initializes the SSI interface to enable Communication with ICM40627
+ ******************************************************************************/
+sl_status_t sl_si91x_icm40627_ssi_interface_init(sl_ssi_handle_t *ssi_driver_handle, uint32_t ssi_slave_number)
+{
+  sl_status_t sl_status = SL_STATUS_OK;
+  sl_ssi_control_config_t ssi_master_config;
+
+  ssi_master_config.bit_width            = SSI_MASTER_BIT_WIDTH;
+  ssi_master_config.device_mode          = SL_SSI_ULP_MASTER_ACTIVE;
+  ssi_master_config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
+  ssi_master_config.baud_rate            = SSI_MASTER_BAUDRATE;
+  ssi_master_config.receive_sample_delay = SSI_MASTER_RECEIVE_SAMPLE_DELAY;
+
+  do {
+    sl_status = sl_si91x_ssi_init(ssi_master_config.device_mode, ssi_driver_handle);
+    if (sl_status != SL_STATUS_OK) {
+      return sl_status;
+    }
+    sl_status = sl_si91x_ssi_set_configuration(*ssi_driver_handle, &ssi_master_config, ssi_slave_number);
+    if (sl_status != SL_STATUS_OK) {
+      return sl_status;
+    }
+    sl_si91x_ssi_set_slave_number((uint8_t)ssi_slave_number);
+    return SL_STATUS_OK;
+  } while (false);
+}
 
 /***************************************************************************/ /**
  *    Initializes the ICM40627 sensor. Enables the power supply and SPI lines,

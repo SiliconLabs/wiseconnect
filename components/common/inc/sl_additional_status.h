@@ -60,7 +60,6 @@
 #define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_TEMPORARY ((sl_status_t)0x0B25) ///< WiFi buffer temporarily unavailable.
 #define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_PERMANENT ((sl_status_t)0x0B26) ///< WiFi buffer permanently unavailable.
 #define SL_STATUS_WIFI_WPS_PBC_OVERLAP              ((sl_status_t)0x0B27) ///< WPS PBC overlap detected.
-#define SL_STATUS_WIFI_CONNECTION_LOST              ((sl_status_t)0x0B28) ///< WiFi connection lost.
 #define SL_STATUS_WIFI_OUT_OF_EVENT_HANDLER_SPACE   ((sl_status_t)0x0B29) ///< No space for additional event handlers.
 #define SL_STATUS_WIFI_SEMAPHORE_ERROR              ((sl_status_t)0x0B2A) ///< Semaphore manipulation error.
 #define SL_STATUS_WIFI_FLOW_CONTROLLED              ((sl_status_t)0x0B2B) ///< Packet retrieval cancelled due to flow control.
@@ -144,6 +143,7 @@
   ((sl_status_t)0x1CC9A) ///< Return in AEAD (CCM, GCM, Chachapoly) decryption function, when MAC generated during decryption does not match the MAC passed.
 
 // Si91X Wi-Fi Firmware errors
+#define SL_STATUS_WIFI_CONNECTION_LOST ((sl_status_t)0x10B28) ///< WiFi connection lost.
 #define SL_STATUS_SI91X_SCAN_ISSUED_IN_ASSOCIATED_STATE \
   ((sl_status_t)0x10002) ///< Scan command issued while device is already associated with an access point.
 #define SL_STATUS_SI91X_NO_AP_FOUND ((sl_status_t)0x10003) ///< No access point found.
@@ -359,6 +359,7 @@
   ((sl_status_t)0x100CD) ///< Error in extracting country region from beacon.
 #define SL_STATUS_SI91X_SELECTED_REGION_NOT_SUPPORTED \
   ((sl_status_t)0x100CE) ///< Device does not have selected region support.
+#define SL_STATUS_SI91X_HOST_VOLTAGE_OUT_OF_RANGE       ((sl_status_t)0x100D0) ///< Voltage out of range.
 #define SL_STATUS_SI91X_SSL_TLS_CONTEXT_CREATION_FAILED ((sl_status_t)0x100D1) ///< SSL/TLS context create failed.
 #define SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_FAIL \
   ((sl_status_t)0x100D2) ///< SSL/TLS handshake failed. Socket will be closed.
@@ -490,22 +491,35 @@
 
 //FW fallback error codes
 #define SL_STATUS_SI91X_AB_FALLBACK_NOT_ENABLED ((sl_status_t)0x1DD0A) ///< AB fall-back feature is not enabled
+#define SL_STATUS_SI91X_LEGACY_OTA_FEATURE_NOT_SUPPORTED \
+  ((sl_status_t)0x1DD0B) ///< Legacy OTA feature is not supported for fw fallback
 #define SL_STATUS_SI91X_INVALID_ERASE_LENGTH_OR_ADDRESS \
-  ((sl_status_t)0x1DD0C) ///< Invalid erase length or address specified for the operation
+  ((sl_status_t)0x1DD0C) ///< Invalid erase length or address specified for the operation for fw fallback
 #define SL_STATUS_SI91X_INVALID_READ_OR_WRITE_REQUEST \
-  ((sl_status_t)0x1DD0D) ///< The read or write request is invalid or not supported
+  ((sl_status_t)0x1DD0D) ///< The read or write request is invalid or not supported for fw fallback
 #define SL_STATUS_SI91X_INVALID_FLASH_RANGE \
-  ((sl_status_t)0x1DD0E) ///< The specified flash range is invalid or out of bounds
+  ((sl_status_t)0x1DD0E) ///< The specified flash range is invalid or out of bounds for fw fallback
 #define SL_STATUS_SI91X_FLASH_ADDRESS_OUT_OF_BOUNDARY \
-  ((sl_status_t)0x1DD0F) ///< The flash address is out of the allowable boundary
+  ((sl_status_t)0x1DD0F) ///< The flash address is out of the allowable boundary for fw fallback
 #define SL_STATUS_SI91X_INVALID_OPERATION_ON_NWP_ACTIVE_IMAGE \
-  ((sl_status_t)0x1DD10) ///< Operation attempted on an active NWP image which is not allowed
+  ((sl_status_t)0x1DD10) ///< Operation attempted on an active NWP image which is not allowed for fw fallback
 #define SL_STATUS_SI91X_MAX_INPUT_LENGTH_EXCEED_1K_SIZE \
-  ((sl_status_t)0x1DD11) ///< The input length exceeds the maximum allowed size of 1KB
+  ((sl_status_t)0x1DD11) ///< The input length exceeds the maximum allowed size of 1KB for fw fallback
 #define SL_STATUS_SI91X_INVALID_FW_ROLLBACK_SUBCOMMAND \
   ((sl_status_t)0x1DD12) ///< The sub-command for firmware fallback is invalid
 #define SL_STATUS_SI91X_INVALID_CONFIG_FOR_FW_ROLLBACK \
   ((sl_status_t)0x1DD13) ///< The configuration for firmware fallback is invalid, applicable for 8MB SoC common-flash
+#define SL_STATUS_SI91X_FW_DOWNGRADE_NOT_ALLOWED \
+  ((sl_status_t)0x1DD14) ///< The NWP firmware downgrade is not allowed for fw fallback
+#define SL_STATUS_SI91X_ANTIROLLBACK_IS_NOT_ENABLED \
+  ((sl_status_t)0x1DD15) ///< Anti-rollback feature is not enabled for firmware fallback
+#define SL_STATUS_SI91X_INVALID_REQUEST_TO_LOAD_QSPI_KEYS \
+  ((sl_status_t)0x1DD16) ///< Invalid request to load QSPI keys for fw fallback
+#define SL_STATUS_SI91X_INVALID_OPERATION_ON_M4_UPDATER_IMAGE \
+  ((sl_status_t)0x1DD17) ///< Invalid operation on M4 updater image for fw fallback
+#define SL_SI91X_DEVICE_AND_OTA_IMAGE_SECURITY_MISMATCH \
+  ((sl_status_t)0x1DD18) ///< Device security and OTA image security mismatch for fw fallback
+//Fw fallback error codes end
 
 #define SL_STATUS_SI91X_FW_UP_CORRUPTED_RPS_HEADER \
   ((sl_status_t)0x1DD49) ///< Corrupted RPS header encountered or Received empty RPS file(no data) during firmware update.
@@ -603,8 +617,29 @@
 #define SL_STATUS_SI91X_PUF_IN_ERROR_STATE           ((sl_status_t)0x1CC33) ///< The PUF is in an error state.
 #define SL_STATUS_SI91X_PUF_OPERATION_NOT_ALLOWED    ((sl_status_t)0x1CC34) ///< The PUF operation is not allowed.
 #define SL_STATUS_SI91X_PUF_OPERATION_FAILED         ((sl_status_t)0x1CC35) ///< The PUF operation failed.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_SECURITY_MODE \
+  ((sl_status_t)0x1CC43) ///< Invalid security mode in SI91X crypto operations.
+#define SL_STATUS_SI91X_CRYPTO_ERR_DATA_ALIGNMENT_16BYTE \
+  ((sl_status_t)0x1CC92) ///< Input data is not 16-byte aligned (required for AES crypto operation).
+#define SL_STATUS_SI91X_CRYPTO_CMAC_DECRYPTION_NOT_SUPPORTED \
+  ((sl_status_t)0x1CC93) ///< CMAC decryption is not supported.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_KEY_LENGTH \
+  ((sl_status_t)0x1CC94) ///< Invalid key length provided to a crypto operation.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_LENGTH \
+  ((sl_status_t)0x1CC95) ///< Invalid input parameter length (e.g., for CCM operation).
+#define SL_STATUS_SI91X_CRYPTO_SHA_MODE_NOT_SUPPORTED      ((sl_status_t)0x1CC96) ///< Unsupported SHA mode.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_ECDSA_CURVE_ID      ((sl_status_t)0x1CC97) ///< Invalid ECDSA curve identifier.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_ECDH_TYPE           ((sl_status_t)0x1CC98) ///< Invalid ECDH type.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_ECDSA_SUB_ALGORITHM ((sl_status_t)0x1CC99) ///< Invalid ECDSA sub-algorithm.
+#define SL_STATUS_SI91X_CRYPTO_OPERATION_FAILED            ((sl_status_t)0x1CC9B) ///< Crypto operation failure.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_SUB_ALGORITHM       ((sl_status_t)0x1CC9C) ///< Invalid sub-algorithm selection.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_ALGORITHM           ((sl_status_t)0x1CC9D) ///< Invalid algorithm selection.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_ECDH_MODE           ((sl_status_t)0x1CC9E) ///< Invalid ECDH mode.
 #define SL_STATUS_SI91X_CRYPTO_INPUT_MSG_LENGTH_EXCEEDED \
-  ((sl_status_t)0x1CC9F) ///< Input message length exceed the expected length.
+  ((sl_status_t)0x1CC9F) ///< Input message length exceeding the allowed maximum.
+#define SL_STATUS_SI91X_CRYPTO_DEVICE_SECURITY_IS_DISABLED ((sl_status_t)0x1CCA1) ///< Device security is disabled.
+#define SL_STATUS_SI91X_CRYPTO_INVALID_SIGNATURE \
+  ((sl_status_t)0x1CCC6) ///< Invalid signature or tag mismatch (e.g., authentication failure).
 #define SL_STATUS_SI91X_AUTO_JOIN_IN_PROGRESS \
   ((sl_status_t)0x15A5A) ///< Auto join or user store configuration is in progress.
 #define SL_STATUS_SI91X_RSNIE_FROM_AP_INVALID \

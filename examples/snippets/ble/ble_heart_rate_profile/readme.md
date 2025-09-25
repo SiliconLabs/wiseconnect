@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Verify BLE Heart Rate Profile Application as a Server](#verify-ble-heart-rate-profile-application-as-a-server)
-  - [Verify BLE Heart Rate Profile Application as a Client](#verify-ble-heart-rate-profile-application-as-a-client)
+- [BLE - Heart Rate](#ble---heart-rate)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Verify BLE Heart Rate Profile Application as a Server](#verify-ble-heart-rate-profile-application-as-a-server)
+    - [Verify BLE Heart Rate Profile Application as a Client](#verify-ble-heart-rate-profile-application-as-a-client)
 
 ## Purpose/Scope
 
@@ -187,9 +189,6 @@ The application can be configured to suit your requirements and development envi
 
     >  **Note:** The configurations are already set with desired configuration in respective example folders you need not change for each example.
 
-> **Note:** 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
-
 - Open `ble_config.h` file and update/modify following macros,
 
   ```c
@@ -201,6 +200,8 @@ The application can be configured to suit your requirements and development envi
     #define BLE_4X_PWR_SAVE_MODE     4
   ```
   > **Note:** ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

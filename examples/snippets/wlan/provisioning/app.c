@@ -76,17 +76,18 @@
 #define SCAN_RESULT_BUFFER_SIZE (2000)
 
 // Constants for various states and settings
-#define ON            "on"
-#define OFF           "off"
-#define OPEN          "Open"
-#define WPA           "WPA"
-#define WPA2          "WPA2"
-#define WPA3          "WPA3"
-#define MIXED_MODE    "Mixed Mode"
-#define UNKNOWN       "Unknown"
-#define SSID          "ssid"
-#define SECURITY_TYPE "security_type"
-#define PASSPHRASE    "passphrase"
+#define ON              "on"
+#define OFF             "off"
+#define OPEN            "Open"
+#define WPA             "WPA"
+#define WPA2            "WPA2"
+#define WPA3            "WPA3"
+#define WPA3_TRANSITION "WPA3_Transition"
+#define MIXED_MODE      "Mixed Mode"
+#define UNKNOWN         "Unknown"
+#define SSID            "ssid"
+#define SECURITY_TYPE   "security_type"
+#define PASSPHRASE      "passphrase"
 
 // Enumeration for states in the application
 typedef enum {
@@ -740,6 +741,8 @@ static sl_wifi_security_t string_to_security_type(const char *security_type)
     return SL_WIFI_WPA2;
   } else if (strcmp(security_type, WPA3) == 0) {
     return SL_WIFI_WPA3;
+  } else if (strcmp(security_type, WPA3_TRANSITION) == 0) {
+    return SL_WIFI_WPA3_TRANSITION;
   } else if (strcmp(security_type, MIXED_MODE) == 0) {
     return SL_WIFI_WPA_WPA2_MIXED;
   } else {
@@ -759,6 +762,8 @@ static char *security_type_to_string(sl_wifi_security_t security_type)
       return WPA2;
     case SL_WIFI_WPA3:
       return WPA3;
+    case SL_WIFI_WPA3_TRANSITION:
+      return WPA3_TRANSITION;
     case SL_WIFI_WPA_WPA2_MIXED:
       return MIXED_MODE;
     default:

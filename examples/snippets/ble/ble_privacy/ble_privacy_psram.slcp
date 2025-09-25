@@ -1,7 +1,7 @@
 project_name: ble_privacy_psram
 package: ble
 quality: production
-label: ble_privacy_psram
+label: BLE - Privacy (PSRAM)
 category: Example|BLE
 description: >
   This application demonstrates how to configure device with privacy feature by 
@@ -19,7 +19,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

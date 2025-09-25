@@ -2,16 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL I2S SECONDARY](#sl-i2s-secondary)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Pin Description](#pin-description)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -79,7 +82,7 @@ This application demonstrates the I2S secondary device transfer.
 
 ### Setup Diagram
 
- >![Figure: Introduction](resources/readme/setupdiagram.png)
+ >![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -98,7 +101,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Configure UC from the slcp component.
 - Open the **sl_si91x_i2s_secondary.slcp** project file, select the **Software Component** tab, and search for **I2S** in the search bar.
   
-  ![Figure: Introduction](resources/uc_screen/i2s_secondary_uc_screen.png)
+  ![Figure: i2s_secondary_uc_screen](resources/uc_screen/i2s_secondary_uc_screen.png)
 
 - You can use the cofiguration wizard to configure different parameters like:
 
@@ -108,7 +111,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - **SL_I2S0_SAMPLING_RATE**: I2S0 sampling rate can be configured through this macro. Valid sampling rate values are 8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz, 32kHz, 44.1kHz, 48kHz, 88.2kHz, 96kHz and 192kHz.
     - **SL_I2S0_CHANNEL**: I2S0 channel number (0-channel no 0, 1-channel no 1).
     - Configuration files are generated in the **config folder**. If not changed, the code will run on default UC values.
-    - Configure the following macros in `i2s_secondary_example.c` file and update/modify following macros, if required.
+    - Configure the following macros in [`i2s_secondary_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_i2s_secondary/i2s_secondary_example.c) file and update/modify following macros, if required.
 
       ```C
       #define I2S_SECONDARY_BUFFER_SIZE 1024    ///< Transmit/Receive buffer size
@@ -134,6 +137,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
 > - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -144,7 +149,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 4. When the application runs, it sends data to the primary device and after successful comparision, it receives data from primary device.
 5. After successful program execution, the prints in serial console looks as shown below.
 
-   >![output](resources/readme/output.png)
+   >![Figure: output](resources/readme/output.png)
 
 > **Note:**
 >

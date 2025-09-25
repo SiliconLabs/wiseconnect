@@ -1599,11 +1599,13 @@ static void rsi_ble_on_le_security_keys_event(rsi_bt_event_le_security_keys_t *l
 /*==============================================*/
 /**
  * @fn         rsi_ble_gatt_error_event
- * @brief      this function will invoke when set the attribute value complete
- * @param[out] rsi_ble_gatt_error, event structure
- * @param[out] status, status of the response
+ * @brief      Callback invoked when a GATT error response is received.
+ * @param[in]  resp_status           Status code of the error response.
+ * @param[in]  rsi_ble_gatt_error    Pointer to the error response event structure.
  * @return     none
  * @section description
+ * This function is called by the BLE stack when a GATT error response is received from the remote device.
+ * It can be used to handle GATT protocol errors, such as invalid handle, read/write not permitted, etc.
  */
 static void rsi_ble_gatt_error_event(uint16_t resp_status, rsi_ble_event_error_resp_t *rsi_ble_gatt_error)
 {

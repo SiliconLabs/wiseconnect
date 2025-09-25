@@ -2,18 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-  - [Initialization of GPIO](#initialization-of-gpio)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
+- [SL GPIO GROUP EXAMPLE](#sl-gpio-group-example)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+    - [Initialization of GPIO](#initialization-of-gpio)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -34,56 +36,54 @@
 
 - All GPIO pins in the HP/ULP/UULP instances support operations such as set, clear, toggle, and can be programmed as either output or input.
 
- As HP GPIO instance has 4 ports and each port has 16 pins. Each port pins are represented from 0 - 15 set.
+   As HP GPIO instance has 4 ports and each port has 16 pins. Each port pins are represented from 0 - 15 set.
  The table below explains the Port and Pin selection for different instances:
 
-|  GPIO Instance                 |    GPIO Port      |  GPIO Pin Number  |
-|--------------------------------|-------------------|-------------------|  
-|                                |  SL_GPIO_PORT_A   |   (0-15)          |
-| HP GPIO Instance               |  SL_GPIO_PORT_B   |   (16-31)         |
-|                                |  SL_GPIO_PORT_C   |   (32-47)         | 
-|                                |  SL_GPIO_PORT_D   |   (48-57)         |
-| ULP GPIO Instance              |  SL_GPIO_ULP_PORT |   (0-11)          |
-| UULP GPIO Instance             | SL_GPIO_UULP_PORT |   (0-4)           |
-|                                |                   |                   |
+   |  GPIO Instance                 |    GPIO Port      |  GPIO Pin Number  |
+   |--------------------------------|-------------------|-------------------|  
+   |                                |  SL_GPIO_PORT_A   |   (0-15)          |
+   | HP GPIO Instance               |  SL_GPIO_PORT_B   |   (16-31)         |
+   |                                |  SL_GPIO_PORT_C   |   (32-47)         | 
+   |                                |  SL_GPIO_PORT_D   |   (48-57)         |
+   | ULP GPIO Instance              |  SL_GPIO_ULP_PORT |   (0-11)          |
+   | UULP GPIO Instance             | SL_GPIO_UULP_PORT |   (0-4)           |
 
-**NOTE** : There is also option to select (0-57)pins with SL_GPIO_PORT_A. For example, to select HP GPIO pin number 49, one can select Port as SL_GPIO_PORT_A and pin number as 49. This option is given only when SL_GPIO_PORT_A GPIO port is selected. (57-63)pins are reserved.
+   > **Notes**:
+   >- There is also an option to select (0-57) pins with SL_GPIO_PORT_A. For example, to select HP GPIO pin number 49, one can select Port as SL_GPIO_PORT_A and pin number as 49. This option is given only when SL_GPIO_PORT_A GPIO port is selected. (57-63) pins are reserved.
+   >- For information on selecting Port and Pin number for different instances, see the following points:
+   >
+   >   - To select HP GPIO pin number 16 for usage, select Port as SL_GPIO_PORT_B and Pin number as 0.
+   >   - To select HP GPIO pin number 31 for usage, select Port as SL_GPIO_PORT_B and Pin number as 15.
+   >   - To select HP GPIO pin number 33 for usage, select Port as SL_GPIO_PORT_C and Pin number as 1.
+   >   - To select HP GPIO pin number 56 for usage, select Port as SL_GPIO_PORT_D and Pin number as 14.
+   >   - To select ULP GPIO pin number 10 for usage, select Port as SL_GPIO_ULP_PORT and Pin number as 10.
+   >   - To select UULP GPIO pin number 2 for usage, select Port as SL_GPIO_UULP_PORT and Pin number as 2.
 
-**NOTE** : For reference on how to select Port and Pin number for different instances, please see the following points:
+    Refer to the following APIs that are common for all three instances and are differentiated based on Port and Pin:
 
-- To select HP GPIO pin number 16 for usage, Select Port as SL_GPIO_PORT_B and Pin number as 0. 
-- To select HP GPIO pin number 31 for usage, Select Port as SL_GPIO_PORT_B and Pin number as 15. 
-- To select HP GPIO pin number 33 for usage, Select Port as SL_GPIO_PORT_C and Pin number as 1. 
-- To select HP GPIO pin number 56 for usage, Select Port as SL_GPIO_PORT_D and Pin number as 14. 
-- To select ULP  GPIO pin number 10 for usage, Select Port as SL_GPIO_ULP_PORT and Pin number as 10. 
-- To select UULP  GPIO pin number 2 for usage, Select Port as SL_GPIO_UULP_PORT and Pin number as 2. 
+  - [sl_gpio_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-set-configuration) // configure GPIO pin
+  -  [sl_gpio_driver_set_pin()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-set-pin) // set the GPIO pin
+  -  [sl_gpio_driver_clear_pin()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-clear-pin) // clear the GPIO pin
+  - [sl_gpio_driver_get_pin()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-get-pin)  // get the status of the GPIO pin
+  - [sl_gpio_driver_toggle_pin()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-toggle-pin) // toggle the GPIO pin
+  - [sl_gpio_driver_configure_interrupt()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-configure-interrupt) // configure the HP/ULP/UULP  pin interrupt
 
-Please refer to the following APIs which are common for all 3 instances and are differentiated based on Port and Pin:
-
-```c
-  \ref sl_gpio_set_configuration() // configure GPIO pin
-  \ref sl_gpio_driver_set_pin() // set the GPIO pin
-  \ref sl_gpio_driver_clear_pin() // clear the GPIO pin
-  \ref sl_gpio_driver_get_pin()  // get the status of the GPIO pin
-  \ref sl_gpio_driver_toggle_pin() // toggle the GPIO pin
-  \ref sl_gpio_driver_configure_interrupt() // configure the HP/ULP/UULP  pin interrupt
-```
-
-- Using \ref sl_gpio_set_configuration(), we can configure mode and direction using port and pin for all 3 instances. By default, the mode is set to mode0 using this API.
-- To configure the GPIO to a different mode, use \ref sl_gpio_driver_set_pin_mode() - applicable to HP, ULP  instance.
-- Configure GPIO to another direction using \ref sl_si91x_gpio_driver_set_pin_direction() - applicable for all 3 instances, \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() for UULP  instance. To achieve other modes in GPIO, refer to pin MUX section in HRM.
+- Use [sl_gpio_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-set-configuration) to configure mode and direction using port and pin for all three instances. By default, the mode is set to mode0 using this API.
+- To configure the GPIO to a different mode, use [sl_gpio_driver_set_pin_mode()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-set-pin-mode) - applicable to HP, ULP  instance.
+- Configure GPIO to another direction using [sl_si91x_gpio_driver_set_pin_direction()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-set-pin-direction) - applicable for all 3 instances, [sl_si91x_gpio_driver_set_uulp_npss_pin_mux()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-set-uulp-npss-pin-mux) for UULP  instance. To achieve other modes in GPIO, refer to pin MUX section in HRM.
 - There are several individual APIs available for specific GPIO configurations:
-  - Driver Strength (HP instance): The sl_si91x_gpio_driver_select_pad_driver_strength() function allows you to adjust the driver strength in the High Power (HP) instance.
-  - Driver Strength (ULP instance): The sl_si91x_gpio_driver_select_ulp_pad_driver_strength() function allows you to adjust the driver strength in the Ultra-Low Power (ULP) instance.
-  - Slew Rate (HP instance): Use sl_gpio_driver_set_slew_rate() to configure the slew rate for the High Power (HP) instance.
-  - Slew Rate (ULP instance): The sl_si91x_gpio_driver_select_ulp_pad_slew_rate() function is used to set the slew rate for the Ultra-Low Power (ULP) instance.
-  - Driver Disable State (HP instance): The sl_si91x_gpio_driver_select_pad_driver_disable_state() function enables the configuration of pull-up, pull-down, or repeater functionality for GPIO pins in the High Power (HP) instance.
-  - Driver Disable State (ULP instance): The sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state() function enables the configuration of pull-up, pull-down, or repeater functionality for GPIO pins in the Ultra-Low Power (ULP) instance.
-- The PAD selection for corresponding GPIO is taken care implicitly in \ref sl_gpio_set_configuration(). If you explicitly want to use, refer to \ref sl_si91x_gpio_driver_enable_pad_selection().
-- To enable host PAD selection for GPIO pin numbers(25 - 30) refer to \ref sl_si91x_gpio_driver_enable_host_pad_selection().
+  - Driver Strength (HP instance): The [sl_si91x_gpio_driver_select_pad_driver_strength()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-select-pad-driver-strength) function allows you to adjust the driver strength in the HP instance.
+  - Driver Strength (ULP instance): The [sl_si91x_gpio_driver_select_ulp_pad_driver_strength()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-select-ulp-pad-driver-strength) function allows you to adjust the driver strength in the ULP instance.
+  - Slew Rate (HP instance): Use [sl_gpio_driver_set_slew_rate()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-driver-set-slew-rate) to configure the slew rate for the High Power HP instance.
+  - Slew Rate (ULP instance): The [sl_si91x_gpio_driver_select_ulp_pad_slew_rate()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-select-ulp-pad-slew-rate) function is used to set the slew rate for the ULP instance.
+  - Driver Disable State (HP instance): The [sl_si91x_gpio_driver_select_pad_driver_disable_state()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-select-pad-driver-disable-state) function enables the configuration of pull-up, pull-down, or repeater functionality for GPIO pins in the HP instance.
+  - Driver Disable State (ULP instance): The [sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-select-ulp-pad-driver-disable-state) function enables the configuration of pull-up, pull-down, or repeater functionality for GPIO pins in the ULP instance.
+- The PAD selection for corresponding GPIO is taken care implicitly in [sl_gpio_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-set-configuration). If you explicitly want to use, refer to [sl_si91x_gpio_driver_enable_pad_selection()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-enable-pad-selection).
+- To enable host PAD selection for GPIO pin numbers (25 - 30), refer to [sl_si91x_gpio_driver_enable_host_pad_selection()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-enable-host-pad-selection).
+
 **Note:** Do not enable PAD selection number 9, as it is pre-configured for other function .
 
-Below are the list of GPIO examples available and it's functionality:
+The following table provides a list of GPIO examples available and its functionality:
 
   |  GPIO Examples        |    GPIO Functionality                              |  
   |-----------------------|----------------------------------------------------|  
@@ -92,7 +92,6 @@ Below are the list of GPIO examples available and it's functionality:
   | gpio_group_example    | Demonstrates HP, ULP  GPIO group interrupts        | 
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
-  |                       |                                                    |
 
 ## About Example Code
 
@@ -104,7 +103,7 @@ Below are the list of GPIO examples available and it's functionality:
   - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
   - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
 - For ULP interrupt:
-  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels.
+  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels on the IC board **or** ULP GPIO8 and ULP_GPIO_4 on the ACX Module board.
   - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
   - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
 
@@ -133,9 +132,9 @@ Below are the list of GPIO examples available and it's functionality:
 
 ### Initialization of GPIO
 
-- Use \ref sl_gpio_set_configuration(). This configures the GPIO pin based on the port and pin, direction.
-- Use \ref sl_si91x_gpio_driver_configure_group_interrupt(). This configures the group interrupt for HP GPIO instance.
-- Use \ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(). This configures the group interrupt for ULP GPIO instance.
+- Use [sl_gpio_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-gpio-set-configuration)(). This configures the GPIO pin based on the port and pin, direction.
+- Use [sl_si91x_gpio_driver_configure_group_interrupt](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-configure-group-interrupt)(). This configures the group interrupt for HP GPIO instance.
+- Use [sl_si91x_gpio_driver_configure_ulp_group_interrupt](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/gpio#sl-si91x-gpio-driver-configure-ulp-group-interrupt)(). This configures the group interrupt for ULP GPIO instance.
 
 ## Prerequisites/Setup Requirements
 
@@ -153,7 +152,7 @@ Below are the list of GPIO examples available and it's functionality:
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -171,12 +170,14 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Configure the following parameters in gpio_group_example.c (examples/si91x_soc/peripheral/sl_si91x_gpio_group_example/) file and update/modify following macros if required
+- Configure the following parameters in [`gpio_group_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_gpio_group_example/gpio_group_example.c) (examples/si91x_soc/peripheral/sl_si91x_gpio_group_example/) file and update/modify following macros if required
 
   ```c
     #define PIN_COUNT        4      // Number of interrupts needed
     #define GRP_COUNT        2      // Count of group interrupt pins
   ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -186,7 +187,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 2. connect GPIO8(F8) and GPIO9(F9) to low/high based on event selected and see HP group interrupt.
 3. After successful program execution the prints in serial console looks as shown below.
 
-  ![Figure: Introduction](resources/readme/output.png)
+  ![Figure: output](resources/readme/output.png)
 
 > **Note:**
 >

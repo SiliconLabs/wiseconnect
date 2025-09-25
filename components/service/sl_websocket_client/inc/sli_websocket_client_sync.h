@@ -74,6 +74,7 @@ sl_websocket_error_t sli_websocket_connect_sync(sl_websocket_client_t *client);
  * @param[in] subprotocol Pointer to a null-terminated string specifying
  *                        the desired subprotocol. The string must remain
  *                        valid for the duration of the WebSocket connection.
+ *                        For example, use "mqtt" for MQTT over WebSocket.
  *
  * @return SL_STATUS_OK if the subprotocol was successfully set.
  *         An appropriate error code otherwise.

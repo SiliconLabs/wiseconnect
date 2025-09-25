@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-- [Test the Application](#test-the-application)
-  - [Expected output](#expected-output)
+- [PSA Asymmetric Key storage for SI91X](#psa-asymmetric-key-storage-for-si91x)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Test the Application](#test-the-application)
+    - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -53,16 +55,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
- * PERSISTENT_KEY_ID in psa_asymmetric_key_storage_app.c file denotes key uid which will be stored in NVM3.
- * KEY_SIZE_BITS macro in psa_asymmetric_key_storage_app.c file is size of plain private key in bits.
+ * PERSISTENT_KEY_ID in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file denotes key uid which will be stored in NVM3.
+ * KEY_SIZE_BITS macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file is size of plain private key in bits.
  * KEY_MAX_SIZE is the max size of the key buffer used to store the generated public key.
- * Private_key in psa_asymmetric_key_storage_app.c file is the private key to be imported.
+ * Private_key in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file is the private key to be imported.
  * The public key generated will replace the private key in key_attributes.
- * Public_key in psa_asymmetric_key_storage_app.c is the public key generated and exported.
+ * Public_key in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) is the public key generated and exported.
  * Default algo for asymmetric key generation is ECDH.
  * Default ecc curve is SEP256R1
  * Default key size is 256 bits - can choose between 192 and 256
- * To change the ecc curve and key size, change the corresponding macro in psa_asymmetric_key_storage_app.c - psa_set_key_type() and change the KEY_MAX_SIZE to the corresponding length of public key generated.
+ * To change the ecc curve and key size, change the corresponding macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) - psa_set_key_type() and change the KEY_MAX_SIZE to the corresponding length of public key generated.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

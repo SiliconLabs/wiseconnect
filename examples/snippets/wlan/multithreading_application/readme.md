@@ -2,17 +2,27 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Procedure to execute the application](#procedure-to-execute-the-application)
-- [Additional Information](#additional-information)
-   - [Steps to set up MQTT server](#steps-to-set-up-mqtt-server)
+- [Wi-Fi - Multithreading Application](#wi-fi---multithreading-application)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Test the application](#test-the-application)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
+    - [Procedure to execute the application](#procedure-to-execute-the-application)
+      - [Procedure for executing throughput](#procedure-for-executing-throughput)
+        - [UDP Tx Throughput](#udp-tx-throughput)
+        - [UDP Rx Throughput](#udp-rx-throughput)
+        - [TCP Tx Throughput](#tcp-tx-throughput)
+        - [TCP Rx Throughput](#tcp-rx-throughput)
+      - [Procedure for executing Embedded Mqtt](#procedure-for-executing-embedded-mqtt)
+    - [Procedure for executing the application when enabled with SSL](#procedure-for-executing-the-application-when-enabled-with-ssl)
+  - [Additional Information](#additional-information)
+    - [Steps to set up MQTT server](#steps-to-set-up-mqtt-server)
 ## Purpose/Scope
 
 This application demonstrates how to configure the SiWx91x device in concurrent mode using multithreading, i.e., in both Wi-Fi Station mode (STA instance) and Access Point mode (SoftAP instance). The SiWx91x's STA instance is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic, and publishes messages on a particular MQTT topic. And simultaneously, configures the SiWx91x device as a soft Access Point and measures WLAN UDP/TCP throughput by configuring the SiWx91x AP interface in a client/server role.
@@ -110,8 +120,6 @@ The application can be configured to suit your requirements and development envi
   	```c
   	#define DEFAULT_WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 > Note:
 >
@@ -291,6 +299,8 @@ The application can be configured to suit your requirements and development envi
    ```c
    #define PASSWORD "password"
    ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### Test the application
 

@@ -1,19 +1,16 @@
 project_name: sl_si91x_bod
-label: SI91x - BOD
+package: platform
 description: |
   Demonstrates how to use BOD when the supply voltage is less than the BOD threshold .
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - BOD
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 source:
   - path: bod_example.c
   - path: app.c
@@ -22,6 +19,9 @@ include:
     file_list:
       - path: app.h
       - path: bod_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_main
   - id: status
@@ -41,11 +41,11 @@ other_file:
   - path: resources/readme/bod_interrupt_result_console.png
   - path: resources/readme/bod_interrupt_result_console_DisableBlkot.png
   - path: resources/uc_screen/bod_uc_screen.png
-readme:
-  - path: readme.md
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

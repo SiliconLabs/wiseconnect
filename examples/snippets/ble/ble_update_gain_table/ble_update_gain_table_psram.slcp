@@ -1,7 +1,7 @@
 project_name: ble_update_gain_table_psram
 package: ble
 quality: production
-label: ble_update_gain_table_psram
+label: BLE - Update Gain Table (PSRAM)
 category: Example|BLE
 description: |
   Update BLE gain table.
@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

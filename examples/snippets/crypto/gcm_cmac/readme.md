@@ -2,14 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Crypto - GCM\_CMAC](#crypto---gcm_cmac)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+      - [SoC Mode](#soc-mode)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Note](#note)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -71,6 +76,8 @@ Open `app.c` file and configure the following parameters accordingly
 ```
 
 - After filling the appropriate **sl_si91x_gcm_config_t** configuration, `sl_si91x_gcm()` stores the output in the provided encrypted_buffer/decrypted_buffer in case of GCM Mode or stores the output in the provided mac buffer in case of CMAC Mode.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

@@ -334,6 +334,8 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
   int32_t bytes_read      = 0;
   size_t total_bytes_read = 0;
   size_t temp_len         = len;
+  size_t chunk_size       = 0;
+  size_t tls_buffer_size  = 0;
   sl_si91x_time_value timeout = { 0 };
 
   if (len <= 0) {
@@ -360,11 +362,23 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
   pub_state = 0;
   select_given        = 0;
   }
+  tls_buffer_size = sl_si91x_get_socket_mss(pNetwork->socket_id);
   do {
-    bytes_read = recv(pNetwork->socket_id, pMsg, temp_len, 0);
+    // Calculate the next chunk size, ensuring it does not exceed the remaining length or MSS.
+    chunk_size = (temp_len - total_bytes_read < tls_buffer_size) ? (temp_len - total_bytes_read) : tls_buffer_size;
+    // Iteratively receive up to chunk_size bytes from the socket into pMsg.
+    bytes_read = recv(pNetwork->socket_id, pMsg, chunk_size, 0);
     if (bytes_read == 0) {
+      if (total_bytes_read != 0) {
+        *read_len = total_bytes_read;
+        return SUCCESS;
+      }
       return NETWORK_SSL_READ_ERROR;
     } else if (bytes_read < 0) {
+      if (total_bytes_read != 0) {
+        *read_len = total_bytes_read;
+        return SUCCESS;
+      }
       return sli_si91x_get_aws_error(sl_si91x_get_saved_firmware_status());
     }
 

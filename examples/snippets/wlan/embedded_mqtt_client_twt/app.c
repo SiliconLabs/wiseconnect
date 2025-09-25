@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
  * @file
- * @brief Access point Example Application
+ * @brief Embedded MQTT Client TWT Example Application
  *******************************************************************************
  * # License
  * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>

@@ -23,8 +23,10 @@
 #include "sl_si91x_opamp_init.h"
 #include "sl_si91x_opamp.h"
 #include "sl_si91x_bod.h"
+#if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
 #include "sl_si91x_dac.h"
 #include "sl_si91x_dac_config.h"
+#endif
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/

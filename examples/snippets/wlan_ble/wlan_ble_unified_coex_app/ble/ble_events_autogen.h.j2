@@ -167,14 +167,16 @@ void rsi_ble_event_{{ dummy_event }}_driver_callback(rsi_ble_{{ dummy_event }}_t
 {% if "handler" in callback.keys() and callback["handler"] != Null %}
 	{% if dummy_event == 'data_transmit' %}
 		{{ render_driver_callback_function3(dummy_event, 'uint_without_ptr') -}}
+	{% elif dummy_event == 'connection_procedure_timeout' %}
+		{{ render_driver_callback_function3(dummy_event, 'uint_without_ptr') -}}
+	{% elif dummy_event == 'on_data_recieve' %}
+		{{ render_driver_callback_function3(dummy_event, 'uint_without_ptr') -}}
 	{% elif dummy_event == 'event_smp_pending' %}
 		{{ render_driver_callback_function3(dummy_event, 'uint') -}}
 	{% elif dummy_event == 'advertisement_restart' %}
 		{{ render_driver_callback_function3(dummy_event, 'void') -}}
 	{% elif dummy_event == 'scan_restart' %}
 		{{ render_driver_callback_function3(dummy_event, 'void') -}}
-	{% elif dummy_event == 'event_on_data_recieve' %}
-		{{ render_driver_callback_function3(dummy_event, 'uint') -}}
 	{% elif dummy_event == 'event_conn_update_req' %}
 		{{ render_driver_callback_function3(dummy_event, 'uint') -}}
 	{% elif dummy_event == 'event_set_buffer_config' %}

@@ -2,16 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose / Scope](#purpose--scope)
-- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-    - [Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)](#base-board-pin-configuration-for-i2c-b0-boardbrd4338a-soc-boards)
+- [BLE Wi-Fi Provisioning with AWS IoT MQTT](#ble-wi-fi-provisioning-with-aws-iot-mqtt)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose / Scope](#purpose--scope)
+  - [Soc Mode](#soc-mode)
+    - [Tickless Mode](#tickless-mode)
+  - [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+      - [Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)](#base-board-pin-configuration-for-i2c-b0-boardbrd4338a-soc-boards)
+      - [I2C](#i2c)
     - [Software Requirements](#software-requirements)
     - [Setup Diagram](#setup-diagram)
   - [Getting Started](#getting-started)
     - [Application Configuration Parameters](#application-configuration-parameters)
-    - [Configuring the BLE application](#configuring-the-ble-application)
-    - [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-below-parameters-in-aws_iot_configh-file-present-at-projectconfig)
+    - [Configuring the BLE Application](#configuring-the-ble-application)
+    - [Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-following-parameters-in-aws_iot_configh-file-present-at-projectconfig)
   - [Test the Application](#test-the-application)
     - [Application Output](#application-output)
       - [When I2C\_SENSOR\_PERI\_ENABLE macro enabled](#when-i2c_sensor_peri_enable-macro-enabled)
@@ -237,7 +242,6 @@ The following are the **non-configurable** macros in the application.
 **Note:**
 
 - By default, values are configured as shown above.
-- Users can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`
 
 ### Configure the following parameters in `aws_iot_config.h` file present at `<project>/config`
 
@@ -268,6 +272,8 @@ By default, the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in 
 
 > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

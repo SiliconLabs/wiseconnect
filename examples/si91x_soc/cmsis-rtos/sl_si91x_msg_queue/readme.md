@@ -2,17 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL MESSAGE QUEUE EXAMPLE](#sl-message-queue-example)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [I2C Pin Configuration](#i2c-pin-configuration)
+  - [USART Pin Configuration](#usart-pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -20,12 +22,12 @@
   - Message Queues
 - This application contains a comprehensive sample application which includes multiple perpherals listed below
   - I2C (as a Follower)
-  - UART
+  - USART
 - This example creates separate threads for each above mentioned peripheral.
 - These threads run in parallel but are synchronized by using above mentioned CMSIS-RTOS concepts
 - This application deals with low level driver example and demonstrates the I2C will be configured in follower mode. The SCL and SDA lines of leader controller are connected to Follower's SCL and SDA pins.
 After transmission the data is compared and result is printed on the console.
-- This application demonstrates how to configure ULP UART In asynchronous mode, it will send and receive data in loopback mode.
+- This application demonstrates how to configure USART In asynchronous mode, it will send and receive data in loopback mode.
 
 > **Note:** 
 >
@@ -34,17 +36,17 @@ After transmission the data is compared and result is printed on the console.
 >- Data is transferred from leader to follower and follower to leader. 
 
 ## Overview
- - Each of the threads, I2C and UART, creates their own message queues for sharing with other.
+ - Each of the threads, I2C and USART, creates their own message queues for sharing with other.
  - These threads synchronize with the message queues.
  - All the steps involved in this example are described below as per the figure:
 
  ![Figure: Message Queue example overview](resources/readme/msg_queue_example_overview.png)
 
     1. I2C thread received message from the leader
-    2. All the received data is written into I2C's message queue and waits for data in UART's message queue
-    3. On the other hand, UART thread has been waiting for data in I2C message queue and now it received
-    4. UART thread performs a loopback operation with this data. It transmits and receives same data
-    5. If the Tx and Rx data comparison passes, it then fills this data into UART's message queue
+    2. All the received data is written into I2C's message queue and waits for data in USART's message queue
+    3. On the other hand, USART thread has been waiting for data in I2C message queue and now it received
+    4. USART thread performs a loopback operation with this data. It transmits and receives same data
+    5. If the Tx and Rx data comparison passes, it then fills this data into USART's message queue
     6. I2C thread which has been waiting in step-2 has now got the data
     7. I2C thread then sends this data back to Leader, followed by data comparison
     
@@ -58,8 +60,8 @@ After transmission the data is compared and result is printed on the console.
   - 7 or 10-bit addressing and combined format transfers
   - Support for Clock synchronization and Bus Clear
 
-**2. UART**
-- ULP UART is used in communication through wired medium in Asynchronous fashion. It enables the device to communicate using serial protocols
+**2. USART**
+- USART is used in communication through wired medium in Asynchronous fashion. It enables the device to communicate using serial protocols
 - This application is configured with following configs
   - Tx and Rx enabled
   - Asynchronous mode
@@ -103,7 +105,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- After the above UC configurations, also configure following macros in `i2c_follower_app.c` file and update/modify following macros, if required.
+- After the above UC configurations, also configure following macros in [`i2c_follower_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/cmsis-rtos/sl_si91x_msg_queue/src/i2c_follower_app.c) file and update/modify following macros, if required.
 
   ```C
     #define I2C_INSTANCE_USED        // Update it with i2c instance number used for this application: 0 for i2c0, 1 for i2c1 and 2 for i2c2
@@ -124,8 +126,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 | PIN |   GPIO PIN        |    Description            |
 | --- | ----------------- | ------------------------- |
-| SCL |   GPIO_50 [P32]   | Connect to Leader SCL pin |
-| SDA |   GPIO_51 [P34]   | Connect to Leader SDA pin |
+| SCL |   GPIO_50[P32]   | Connect to Leader SCL pin |
+| SDA |   GPIO_51[P34]   | Connect to Leader SDA pin |
 
 **ULP_I2C:**
 
@@ -139,7 +141,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ![Figure: Pin Configuration I2C](resources/readme/image506e.png)
 
 - Configuration of USART at UC.
-  > ![Figure: Selecting UC](resources/uc_screen/usart_uc_screen.png)
+![Figure: Selecting UC](resources/uc_screen/usart_uc_screen.png)
 
 ## USART Pin Configuration
 
@@ -151,6 +153,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
  > ![Figure: Build run and Debug](resources/readme/image513d.png)
   
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

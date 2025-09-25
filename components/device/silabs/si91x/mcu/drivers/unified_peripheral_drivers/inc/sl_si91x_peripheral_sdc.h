@@ -82,8 +82,7 @@ typedef struct {
           3.Reset the SDC FIFO pointer.
  *
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Successfully initialized the SDC.
- *         - SL_STATUS_FAIL               - Initialization failed. 
+ *         - SL_STATUS_OK                 - Successfully initialized the SDC. 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ****************************************************************************************/

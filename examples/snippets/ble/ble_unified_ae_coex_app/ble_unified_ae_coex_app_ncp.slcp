@@ -1,7 +1,7 @@
 project_name: ble_unified_ae_coex_app_ncp
 package: ble
 quality: alpha
-label: ble_unified_ae_coex_app_ncp
+label: BLE - Unified AE Coex App (NCP)
 category: Example|BLE
 description: >
   Bluetooth Low energy Extended Advertising features(Central/Peripheral).
@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 - path: root_auto_gen.c

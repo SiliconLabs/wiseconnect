@@ -35,8 +35,6 @@
     value: '"BRD4343Q"'
   - name: SL_BOARD_REV
     value: '"A02"'
-  - name: SL_SI91X_ACX_MODULE
-    value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2

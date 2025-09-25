@@ -2,16 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL NVM3 COMMON FLASH](#sl-nvm3-common-flash)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [General Configuration](#general-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -75,6 +78,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
    ![Figure: Introduction](resources/uc_screen/si91x_nvm3_uc_screen.png)
 - Open **sl_si91x_nvm3_common_flash.slcp** project file select **software component** tab and search for **NVM3 for Si91x** in search bar.
 - Using configuration wizard one can configure different parameters like:
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### General Configuration
 

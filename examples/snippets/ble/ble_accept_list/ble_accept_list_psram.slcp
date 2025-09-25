@@ -1,7 +1,7 @@
 project_name: ble_accept_list_psram
 package: ble
 quality: production
-label: ble_accept_list_psram
+label: BLE - Acceptlist (PSRAM)
 category: Example|BLE
 description: >
   This application demonstrates how to add a particular BD-Address to the Accept List. 
@@ -18,7 +18,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

@@ -2,18 +2,22 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [SL SSI SLAVE](#sl-ssi-slave)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+    - [Pin Configuration](#pin-configuration)
+      - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with BRD4338A radio board](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-brd4338a-radio-board)
+      - [Pin Configuration of the WPK\[BRD4002A\] Base Board, and with 917 Radio Board/917Y Module board, 915 radio board and Explorer kit](#pin-configuration-of-the-wpkbrd4002a-base-board-and-with-917-radio-board917y-module-board-915-radio-board-and-explorer-kit)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -48,22 +52,22 @@ This application demonstrates the use of Synchronous Serial Interface (SSI) for 
 
 - This example demonstrates SSI transfer (that is, full-duplex communication) and SSI send/SSI receive (that is, half-duplex communication).
 - Various parameters like SSI clock mode, Bit-width, Manual cs pin, and SSI baud rate can be configured using the UC. Also, Master or Slave or ULP Master DMA can be configured using UC.
-- The `sl_si91x_ssi_config.h` file contains the control configurations and `sl_si91x_ssi_common_config.h` contains DMA configuration selection.
+- The [`sl_si91x_ssi_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_config.h) file contains the control configurations and [`sl_si91x_ssi_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_ssi_common_config.h) contains DMA configuration selection.
 - In the example code, first the output buffer is filled with some data which is transferred to the slave.
-- The firmware version of API is fetched using \ref sl_si91x_ssi_get_version which includes the release version, major version, and minor version \ref sl_ssi_version_t.
-- A static function is called to fill in the \ref sl_ssi_clock_config_t structure, which is passed in \ref sl_si91x_ssi_configure_clock API to configure the clock.
-- \ref sl_si91x_ssi_init is used to initialize the peripheral, that includes pin configuration and it powers up the module.
-- SSI instance must be passed in init to get the instance handle \ref sl_ssi_instance_t, which is used in other APIs.
-- After initialization, \ref sl_si91x_ssi_configure_power_mode is called to set the power mode \ref sl_ssi_power_state_t.
-- All the necessary parameters are configured using \ref sl_si91x_ssi_set_configuration API. It expects a structure with required parameters
-  \ref sl_ssi_control_config_t.
-- After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_ssi_register_event_callback.
-- The State machine code is implemented for transfer, send and receive data, and the current mode is determined by ssi_mode_enum_t which is declared in `ssi_slave_example.c file`.
+- The firmware version of API is fetched using [sl_si91x_ssi_get_version](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-get-version) which includes the release version, major version, and minor version [sl_ssi_version_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-version-t).
+- A static function is called to fill in the [sl_ssi_clock_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-clock-config-t) structure, which is passed in [sl_si91x_ssi_configure_clock](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-clock) API to configure the clock.
+- [sl_si91x_ssi_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-init) is used to initialize the peripheral, that includes pin configuration and it powers up the module.
+- SSI instance must be passed in init to get the instance handle [sl_ssi_instance_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-instance-t), which is used in other APIs.
+- After initialization, [sl_si91x_ssi_configure_power_mode](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-configure-power-mode) is called to set the power mode [sl_ssi_power_state_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-power-state-t).
+- All the necessary parameters are configured using [sl_si91x_ssi_set_configuration](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-set-configuration) API. It expects a structure with required parameters
+  [sl_ssi_control_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-ssi-control-config-t).
+- After configuration, a callback register API is called to register the callback at the time of events [sl_si91x_ssi_register_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-register-event-callback).
+- The State machine code is implemented for transfer, send and receive data, and the current mode is determined by ssi_mode_enum_t which is declared in [`ssi_slave_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ssi_slave/ssi_slave_example.c) file.
 - According to the macro which is enabled, the example code executes the transfer of data:
 
 - If the **SSI_SLAVE_TRANSFER** macro is enabled, it will transfer the data (that is, send and receive data) in full-duplex mode.
 
-  - The current_mode enum is set to SSI_SLAVE_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
+  - The current_mode enum is set to SSI_SLAVE_TRANSFER_DATA and calls the [sl_si91x_ssi_transfer_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-transfer-data) API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
   - This test can also be performed in loopback state (that is, connect MISO and MOSI pins).
   - The example code waits until the transfer is completed. When the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
@@ -72,12 +76,12 @@ This application demonstrates the use of Synchronous Serial Interface (SSI) for 
 
 - If the **SSI_SLAVE_SEND** macro is enabled, it only sends the data to slave. The SPI slave must be connected; it cannot be tested in loopback mode.
 
-  - The current_mode enum is set to SSI_SLAVE_SEND_DATA and calls the \ref sl_si91x_ssi_send_data API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
+  - The current_mode enum is set to SSI_SLAVE_SEND_DATA and calls the [sl_si91x_ssi_send_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-send-data) API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
   - It waits until the send is completed (that is, until the transfer complete event is generated).
   - Now the current_mode enum is updated to SSI_SLAVE_TRANSMISSION_COMPLETED.
 
 - If the **SSI_SLAVE_RECEIVE** macro is enabled, it only receives the data from slave. The SPI slave must be connected; it cannot be tested in loopback mode.
-  - The current_mode is set to the SSI_SLAVE_RECEIVE_DATA and calls the \ref sl_si91x_ssi_receive_data API, which expects data_in (empty buffer) and number of data bytes to be received.
+  - The current_mode is set to the SSI_SLAVE_RECEIVE_DATA and calls the [sl_si91x_ssi_receive_data](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-receive-data) API, which expects data_in (empty buffer) and number of data bytes to be received.
   - It waits until the receive is completed (that is, until the transfer complete event is generated).
   - Now the current_mode enum is updated as per the macros enabled (SSI_SLAVE_SEND).
   - If no other macros are enabled, the current_mode is updated to SSI_SLAVE_TRANSMISSION_COMPLETED.
@@ -98,7 +102,7 @@ This application demonstrates the use of Synchronous Serial Interface (SSI) for 
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -140,7 +144,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - Rx FIFO Threshold: Receive FIFO Threshold. Controls the level of entries (or below) at which the receive FIFO controller triggers an interrupt. The configuration range from 0 to 15.
 - Configuration files are generated in the **config folder**. If the configurations are not changed, the code will run on default UC values.
 
-- Configure the following macros in the `ssi_slave_example.h` file and update/modify following macros, if required.
+- Configure the following macros in the [`ssi_slave_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ssi_slave/ssi_slave_example.h) file and update/modify following macros, if required.
 
 - `SSI_SLAVE_TRANSFER`: This macro is enabled by default. It sends and receives data in full duplex.
 
@@ -166,7 +170,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   static uint16_t ssi_slave_rx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
   ```
 
-- To unregister a user event callback for a specific instance, use the API \ref sl_si91x_ssi_per_instance_unregister_event_callback. Alternatively, to unregister callbacks for all instances simultaneously, use the API \ref sl_si91x_ssi_unregister_event_callback.
+- To unregister a user event callback for a specific instance, use the API [sl_si91x_ssi_per_instance_unregister_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-per-instance-unregister-event-callback). Alternatively, to unregister callbacks for all instances simultaneously, use the API [sl_si91x_ssi_unregister_event_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/ssi#sl-si91x-ssi-unregister-event-callback).
 
 ### Pin Configuration
 
@@ -195,6 +199,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
 > - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -206,7 +212,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 5. Post transfer the data with master, the slave should print the console output as test case passed.
 6. After successful program execution, the prints in serial console looks as shown below.
 
-    ![Figure: Introduction](resources/readme/output.png)
+    ![Figure: output](resources/readme/output.png)
 
 > **Note:**
 >

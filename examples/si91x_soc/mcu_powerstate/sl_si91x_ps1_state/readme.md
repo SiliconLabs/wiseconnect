@@ -47,7 +47,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -59,6 +59,8 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 - Create a Studio project
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

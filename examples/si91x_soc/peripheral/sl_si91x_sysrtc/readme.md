@@ -33,38 +33,38 @@
 
 ## About Example Code
 
-- \ref sysrtc_example.c this example file demonstrates how to use sysrtc
-- Initializes SYSRTC module through \ref sl_si91x_sysrtc_init
-- Sets counter start value for counter through \ref sl_si91x_sysrtc_set_count, can change by updating \ref COUNTER_VALUE1 macro in sysrtc_example.c file.
+- [`sysrtc_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) this example file demonstrates how to use sysrtc
+- Initializes SYSRTC module through [sl_si91x_sysrtc_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-init)
+- Sets counter start value for counter through [sl_si91x_sysrtc_set_count](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-set-count), can change by updating [`COUNTER_VALUE1`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) macro in [`sysrtc_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) file.
 
 ### If compare channel0 or compare channel1 is enabled through UC
 
-- Then SYSRTC groups are configured as per UC values through \ref sl_si91x_sysrtc_configure_group API.
-- Sets compare value for selected group's selected compare channel through \ref sl_si91x_sysrtc_set_compare_channel_value, can change compare value by updating \ref      COMPARE_VALUE macro in sysrtc_example.c file.
-- Then registers sysrtc callback and enabled selected compare channel interrupt, through \ref sl_si91x_sysrtc_register_callback.
-- Starts counter through \ref sl_si91x_sysrtc_start
+- Then SYSRTC groups are configured as per UC values through [sl_si91x_sysrtc_configure_group](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-configure-group) API.
+- Sets compare value for selected group's selected compare channel through [sl_si91x_sysrtc_set_compare_channel_value](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-set-compare-channel-value), can change compare value by updating [`COMPARE_VALUE`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) macro in [`sysrtc_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) file.
+- Then registers sysrtc callback and enabled selected compare channel interrupt, through [sl_si91x_sysrtc_register_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-register-callback).
+- Starts counter through [sl_si91x_sysrtc_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-start)
 - When counter reaches compare-value generates respective channel compare interrupt and toggles LED on every second.
-- After every interrupt, compare value is updated again through \ref sl_si91x_sysrtc_set_compare_channel_value with sum of current count (read through \ref sl_si91x_sysrtc_get_count) and compare-value.
-- After 10 interrupts sysrtc is stopped through \ref sl_si91x_sysrtc_stop
-- Callbacks are unregistered and interrupts are disabled through \ref sl_si91x_sysrtc_unregister_callback
-- And SYSRTC is de-initialized through \ref sl_si91x_sysrtc_deinit
+- After every interrupt, compare value is updated again through [sl_si91x_sysrtc_set_compare_channel_value](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-set-compare-channel-value) with sum of current count (read through [sl_si91x_sysrtc_get_count](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-get-count)) and compare-value.
+- After 10 interrupts sysrtc is stopped through [sl_si91x_sysrtc_stop](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-stop)
+- Callbacks are unregistered and interrupts are disabled through [sl_si91x_sysrtc_unregister_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-unregister-callback)
+- And SYSRTC is de-initialized through [sl_si91x_sysrtc_deinit](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-deinit)
 
 ### If capture channel0 is enabled through UC
 
-- Then SYSRTC capture channel of selected group is configured to capture at rising edge of input through \ref sl_si91x_sysrtc_configure_group API.
-- To capture at Register input , gpio capture input is disabled through \ref sl_si91x_sysrtc_enable_input_output_gpio API call.
-- Then registers sysrtc callback and enabled capture channel interrupt, through \ref sl_si91x_sysrtc_register_callback.
-- Starts counter through \ref sl_si91x_sysrtc_start
-- After starting waits unless counter reaches compare value for 1-second and then sets SYSRTC register capture input high through \ref sl_si91x_sysrtc_sets_register_capture_input API.
+- Then SYSRTC capture channel of selected group is configured to capture at rising edge of input through [sl_si91x_sysrtc_configure_group](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-configure-group) API.
+- To capture at Register input , gpio capture input is disabled through [sl_si91x_sysrtc_enable_input_output_gpio](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-enable-input-output-gpio) API call.
+- Then registers sysrtc callback and enabled capture channel interrupt, through [sl_si91x_sysrtc_register_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-register-callback).
+- Starts counter through [sl_si91x_sysrtc_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-start)
+- After starting waits unless counter reaches compare value for 1-second and then sets SYSRTC register capture input high through [sl_si91x_sysrtc_sets_register_capture_input](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-sets-register-capture-input) API.
 - A capture interrupt is generated and toggles LED one time.
-- And SYSRTC is de-initialized through \ref sl_si91x_sysrtc_deinit
+- And SYSRTC is de-initialized through [sl_si91x_sysrtc_deinit](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-deinit)
 
 ### If no channels enabled through UC
 
 - Then SYSRTC overflow interrupt of selected group will be enabled through application.
-- Then registers sysrtc callback and enabled selected group's overflow interrupt, through \ref sl_si91x_sysrtc_register_callback.
-- Sets counter start value for counter through \ref sl_si91x_sysrtc_set_count, can change by updating \ref COUNTER_VALUE2 macro in sysrtc_example.c file.
-- Starts counter through \ref sl_si91x_sysrtc_start
+- Then registers sysrtc callback and enabled selected group's overflow interrupt, through [sl_si91x_sysrtc_register_callback](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-register-callback).
+- Sets counter start value for counter through [sl_si91x_sysrtc_set_count](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-set-count), can change by updating [`COUNTER_VALUE2`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) macro in [`sysrtc_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) file.
+- Starts counter through [sl_si91x_sysrtc_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-start)
 - After starting waits unless counter reaches overflow value (0xffffffff).
 - Then a overflow interrupt is generated and toggles LED one time.
 
@@ -84,7 +84,7 @@
 
 ### Setup Diagram
 
-> ![Figure: Setup Diagram](resources/readme/setupdiagram.png)
+> ![Figure: SetupDiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -108,17 +108,19 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   ![Figure: UC-Screen](resources/uc_screen/sysrtc_uc_screen.png)
   
-- For updating/modifying counter and compare value use \ref COUNTER_VALUE & \ref SYSRTC_COMPARE_VALUE (for 32.768 KHZ clock) macros respectively, present in sysrtc_example.c file.
+- For updating/modifying counter and compare value use \ref [`COUNTER_VALUE`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) & \ref SYSRTC_COMPARE_VALUE (for 32.768 KHZ clock) macros respectively, present in [`sysrtc_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) file.
 
 ### Macros for SYSRTC Configurations
 
-- \ref SL_SYSRTC_RUN_ENABLE_DURING_DEBUG, for enabling sysrtc run during debug
-- \ref SL_SYSRTC_GROUP, for selecting SYSRTC channel group
-- \ref SL_SYSRTC_COMPARE_CHANNEL0_ENABLE, for enabling compare channel-0 of selected SYSRTC group
-- \ref SL_SYSRTC_COMPARE_CHANNEL1_ENABLE, for enabling compare channel-1 of selected SYSRTC group
-- \ref SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE, for enabling capture channel-0 of selected SYSRTC group
+- [`SL_SYSRTC_RUN_ENABLE_DURING_DEBUG`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c), for enabling sysrtc run during debug
+- [`SL_SYSRTC_GROUP`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c), for selecting SYSRTC channel group
+- [`SL_SYSRTC_COMPARE_CHANNEL0_ENABLE`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c), for enabling compare channel-0 of selected SYSRTC group
+- [`SL_SYSRTC_COMPARE_CHANNEL1_ENABLE`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c), for enabling compare channel-1 of selected SYSRTC group
+- [`SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c), for enabling capture channel-0 of selected SYSRTC group
 
-- After configuring above macros, their values are passed to \ref sysrtc_config_t structure type variable \ref sl_timer_handle which is used to configure timer using API-\ref sl_si91x_sysrtc_configure_group.
+- After configuring above macros, their values are passed to [sysrtc_config_t](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sysrtc-config-t) structure type variable [`sl_timer_handle`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_sysrtc/sysrtc_example.c) which is used to configure timer using API-[sl_si91x_sysrtc_configure_group](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/sysrtc#sl-si91x-sysrtc-configure-group).
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

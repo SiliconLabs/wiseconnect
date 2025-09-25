@@ -2,15 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration)
-- [Test the Application](#test-the-application)
+- [IOSTREAM USART BAREMETAL](#iostream-usart-baremetal)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -80,6 +83,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   | --------------- | --------------- | -------------- | ------------------ |
   | ULP_GPIO_TX_PIN | ULP_GPIO_11[F6] | ULP_GPIO_7[F6] |      ULP_GPIO_11   |
   | ULP_GPIO_RX_PIN | ULP_GPIO_9 [F7] | ULP_GPIO_6[F7] |      ULP_GPIO_9    |
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

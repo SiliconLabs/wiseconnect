@@ -131,7 +131,7 @@
 #endif
 #define NWP_DEINIT_IN_COMM_FLASH BIT(7)
 
-//! This interrupt is received from TA when SLI_BUFFER_FULL is clear in TA
+//! This interrupt is received from TA when SLI_WIFI_BUFFER_FULL is clear in TA
 #define TA_RSI_BUFFER_FULL_CLEAR_EVENT BIT(8)
 
 #if defined(SLI_SI917) || defined(SLI_SI915)

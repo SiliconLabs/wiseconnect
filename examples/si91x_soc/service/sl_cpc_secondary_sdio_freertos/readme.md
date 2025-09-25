@@ -1,17 +1,20 @@
 # CPC Secondary SDIO  
 
 ## Table of Contents
-- [Purpose/Scope](#purposescope)
-- [Overview of CPC](#overview-of-cpc)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [CPC Secondary SDIO](#cpc-secondary-sdio)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview of CPC](#overview-of-cpc)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Pin Configuration](#pin-configuration)
+  - [Test the application](#test-the-application)
+    - [Run the CPC Host (Raspberry pi 4 Model B)](#run-the-cpc-host-raspberry-pi-4-model-b)
+    - [Run the Application](#run-the-application)
 
 
 
@@ -100,6 +103,8 @@ Full setup diagram will look like.
 **Note:**
 
 - Short cables should be used for above connections.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the application
 

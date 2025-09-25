@@ -2,14 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - WebSocket Client](#wi-fi---websocket-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Running the WebSocket Server](#running-the-websocket-server)
+  - [Configuring the WebSocket Client for SSL](#configuring-the-websocket-client-for-ssl)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -80,9 +83,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     #define HOST_NAME      "example.com"
     #define RESOURCE_NAME  "/myresource"
     ```
-
-> Note: 
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 NOTE:
 > Procedure to run the example
@@ -158,6 +158,8 @@ To run the WebSocket server, follow these steps:
    }
    printf("\r\nLoad SSL CA certificate at index %d Success\r\n", CERTIFICATE_INDEX);
    ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

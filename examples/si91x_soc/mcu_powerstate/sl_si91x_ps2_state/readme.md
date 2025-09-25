@@ -81,6 +81,8 @@ Configure the following parameters to enable your PS2 Active or sleep state.
     #define ACTIVE_STATE                                      1
     ```
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:

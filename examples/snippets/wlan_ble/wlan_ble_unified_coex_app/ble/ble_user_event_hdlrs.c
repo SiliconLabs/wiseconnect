@@ -12,7 +12,8 @@
 #include "sl_si91x_status.h"
 #include "rsi_common_apis.h"
 #include "sl_constants.h"
-
+#include "FreeRTOS.h"
+#include "timers.h"
 extern rsi_parsed_conf_t rsi_parsed_conf;
 
 ble_confg_info_t ble_confgs;
@@ -34,81 +35,19 @@ static rsi_ble_event_ctkd_t ble_ctkd;
 tx_generic_event_message_t transmit_event_message[TOTAL_CONNECTIONS];
 
 more_data_state_beta_t more_data_state_beta[TOTAL_CONNECTIONS];
+extern TimerHandle_t connect_timeout_timer;
+uint8_t connect_ble_conn_id;
 
-/**
-
- * @fn          void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
- * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
- * @param[in]   uint8_t conn_id
- * @param[out]  None
- * @return      None
- *
- * @section description
- * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
- *
- */
-void rsi_ble_event_data_transmit_driver_callback(uint8_t conn_id)
-
+void connect_timeout_handler(TimerHandle_t xTimer)
 {
-  LOG_PRINT_D(" \n in rsi_ble_event_data_transmit_driver_callback \n");
-  memset(&transmit_event_message[conn_id], 0, sizeof(tx_generic_event_message_t));
 
-  transmit_event_message[conn_id].next          = NULL;
-  transmit_event_message[conn_id].event_id      = data_transmit_event_id;
-  transmit_event_message[conn_id].free_callback = NULL;
+  UNUSED_PARAMETER(xTimer);
 
-  //! copy event data to msg2
-  memcpy((void *)&transmit_event_message[conn_id].event_data, &conn_id, sizeof(uint8_t));
+  printf("\r\n Timer expired: Cancelling BLE connect -conn%d \n", connect_ble_conn_id);
 
-  //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
-                                 (rsi_app_pkt_t *)&transmit_event_message[conn_id],
-                                 &ble_generic_cb.event_mutex);
-  osSemaphoreRelease(ble_generic_cb.semaphore);
+  rsi_ble_event_connection_procedure_timeout_driver_callback(connect_ble_conn_id);
 }
 
-/**
-
- * @fn          void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
- * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
- * @param[in]   uint8_t *conn_id
- * @param[out]  None
- * @return      None
- *
- * @section description
- * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
- *
- */
-
-void rsi_ble_event_on_data_recieve_driver_callback(uint8_t conn_id)
-{
-  LOG_PRINT_D("\n in rsi_ble_on_data_recieve_driver_callback \n");
-  generic_event_message_t *msg;
-
-  //! allocate message
-
-  msg = malloc(sizeof(generic_event_message_t) + sizeof(uint8_t));
-  if (msg == NULL) {
-    LOG_PRINT("Out of Memory assert\n");
-    _assert((uint8_t *)"Out Of Memory\n", __LINE__);
-  } else {
-    LOG_PRINT_D("Malloc passed\n");
-  }
-  //! init messag details
-  msg->next     = NULL;
-  msg->event_id = on_data_recieve_event_id;
-  //! function to be called to free this message
-  msg->free_callback = free;
-  //msg->status = status;
-
-  //! copy event data to msg
-  memcpy((void *)&msg->event_data[0], (void *)&conn_id, sizeof(uint8_t));
-  //! enqueue message to ble_generic_cb.event_queues[0]
-  rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[conn_id],
-                                 (rsi_app_pkt_t *)msg,
-                                 &ble_generic_cb.event_mutex);
-  osSemaphoreRelease(ble_generic_cb.semaphore);
-}
 /**
 
  * @fn          void rsi_ble_event_scan_restart_driver_callback(rsi_ble_conn_info_t *rsi_ble_conn_info)
@@ -533,23 +472,22 @@ void rsi_scan_restart_event()
     if (peripheral_count == RSI_BLE_MAX_NBR_PERIPHERALS) {
       printf("\r\n Start scanning\n");
       //! open scan channel with interval of 33.125ms, window 14.375ms
-      //status = rsi_ble_start_scanning_with_values(&change_scan_param);
-      // if (status != RSI_SUCCESS) {
-      //   printf("\r\n scan channel failed to open 0x%lX \n", status);
-      // } else {
-
-      //   scan_state_dut = non_connectable_scan;
-      // }
+      status = rsi_ble_start_scanning_with_values(&change_scan_param);
+      if (status != RSI_SUCCESS) {
+        printf("\r\n scan channel failed to open 0x%lX \n", status);
+      } else {
+        scan_state_dut = non_connectable_scan;
+      }
 
     } else if (peripheral_count < RSI_BLE_MAX_NBR_PERIPHERALS) {
-
-      status = rsi_ble_start_scanning();
-      if (status != RSI_SUCCESS) {
-        printf("\r\n scanning start failed, cmd status = 0x%lX -conn\n", status);
-        rsi_ble_event_scan_restart_driver_callback();
-      } else {
-
-        scan_state_dut = connectable_scan;
+      if (!peripheral_con_req_pending) {
+        status = rsi_ble_start_scanning();
+        if (status != RSI_SUCCESS) {
+          printf("\r\n scanning start failed, cmd status = 0x%lX -conn\n", status);
+          rsi_ble_event_scan_restart_driver_callback();
+        } else {
+          scan_state_dut = connectable_scan;
+        }
       }
     }
 
@@ -721,15 +659,15 @@ void rsi_ble_event_adv_report(uint16_t status, void *event_data)
   LOG_PRINT_D("\nBLE conn ID: %d\n", ble_conn_id);
 
   LOG_PRINT_D("\r\n Connect command - conn%d \r\n", ble_conn_id);
-
-  status = rsi_ble_stop_scanning();
-  if (status != RSI_SUCCESS) {
-    printf("Scan stopping failed with status : %d - conn%d \r\n", status, ble_conn_id);
-  } else {
-    printf("\n scan stopped \n ");
-    scan_state_dut = scan_off;
+  if (scan_state_dut != scan_off) {
+    status = rsi_ble_stop_scanning();
+    if (status != RSI_SUCCESS) {
+      printf("Scan stopping failed with status : %d - conn%d \r\n", status, ble_conn_id);
+    } else {
+      printf("\n scan stopped \n ");
+      scan_state_dut = scan_off;
+    }
   }
-
   status = rsi_ble_connect_with_params(rsi_ble_conn_info[ble_conn_id].rsi_app_adv_reports_to_app.dev_addr_type,
                                        (int8_t *)rsi_ble_conn_info[ble_conn_id].rsi_app_adv_reports_to_app.dev_addr,
                                        LE_SCAN_INTERVAL_CONN,
@@ -746,23 +684,12 @@ void rsi_ble_event_adv_report(uint16_t status, void *event_data)
 
     rsi_ble_event_scan_restart_driver_callback();
   } else {
-
     peripheral_con_req_pending = 1;
-
-    osSemaphoreAcquire(ble_wait_on_connect, 10000);
-
-    if (peripheral_con_req_pending) {
-      printf("\r\n Initiating connect cancel command in -conn%d \n", ble_conn_id);
-      status = rsi_ble_connect_cancel((int8_t *)rsi_ble_conn_info[ble_conn_id].rsi_app_adv_reports_to_app.dev_addr);
-      if (status != RSI_SUCCESS) {
-        printf("\r\n ble connect cancel cmd status = %x \n", status);
-      } else {
-
-        peripheral_count++;
-        rsi_ble_event_disconnect(status, (int8_t *)rsi_ble_conn_info[ble_conn_id].rsi_app_adv_reports_to_app.dev_addr);
-      }
-      peripheral_con_req_pending = 0;
-      adv_pkt_processing_pending = 0;
+    connect_ble_conn_id        = ble_conn_id;
+    printf("\r\nstarting the timer...\r\n");
+    // Start the 10-second timer (non-blocking)
+    if (xTimerStart(connect_timeout_timer, 0) != pdPASS) {
+      printf("\r\n Failed to start connection timeout timer!\n");
     }
   }
 }
@@ -776,7 +703,9 @@ void rsi_ble_event_enhance_conn_status_driver_callback(
   if (remote_device_role == PERIPHERAL_ROLE) {
     peripheral_con_req_pending = 0;
     adv_pkt_processing_pending = 0;
-    osSemaphoreRelease(ble_wait_on_connect);
+    // Stop the timeout timer
+    xTimerStop(connect_timeout_timer, 0);
+    //connect_in_progress = 0;
   }
   LOG_PRINT_D(" \n in rsi_ble_event_enhance_conn_status_driver_callback \n");
   generic_event_message_t *msg;
@@ -836,7 +765,7 @@ void rsi_ble_event_adv_report_driver_callback(rsi_ble_event_adv_report_t *rsi_bl
 
   //! Check no of connected devices
   if (peripheral_count >= RSI_BLE_MAX_NBR_PERIPHERALS) {
-    printf("\n reached the max num_of_connected_peripheral_devices \n");
+    LOG_PRINT_D("\n reached the max num_of_connected_peripheral_devices \n");
     return;
   }
 
@@ -1129,6 +1058,37 @@ void rsi_ble_event_data_transmit(uint16_t __attribute__((unused)) status, void *
   rsi_ble_on_data_transmit(conn_id);
 }
 
+/*==============================================*/
+/**
+ * @fn          void rsi_ble_event_connection_procedure_timeout(uint16_t status, void *event_data)
+ * @brief       handler for event_connection_procedure_timeout to be executed in ble task context
+ * @param[in]   uint16_t , event_status 
+ * @param[in]   void, event_data
+ * @return      None
+ *
+ * @section description
+ * handler for event_data_transmit to be executed in ble task context
+ *
+ */
+void rsi_ble_event_connection_procedure_timeout(uint16_t __attribute__((unused)) status, void *event_data)
+
+{
+
+  uint8_t conn_id = *(uint8_t *)event_data;
+  if (peripheral_con_req_pending) {
+    printf("\r\n Initiating connect cancel command in -conn%d \n", conn_id);
+
+    int status = rsi_ble_connect_cancel((int8_t *)rsi_ble_conn_info[conn_id].rsi_app_adv_reports_to_app.dev_addr);
+    if (status != RSI_SUCCESS) {
+      printf("\r\n ble connect cancel cmd status = %x \n", status);
+    } else {
+      peripheral_count++;
+      rsi_ble_event_disconnect(status, (int8_t *)rsi_ble_conn_info[conn_id].rsi_app_adv_reports_to_app.dev_addr);
+    }
+    peripheral_con_req_pending = 0;
+    adv_pkt_processing_pending = 0;
+  }
+}
 void rsi_conn_update_req_event(uint8_t conn_id)
 {
   uint8_t ble_conn_id = conn_id;
@@ -3184,6 +3144,12 @@ void rsi_ble_simple_peripheral_on_remote_features_event(uint16_t status, void *e
                  ble_conn_id);
         }
       }
+    }
+  }
+  if (ble_confgs.ble_conn_configuration[ble_conn_id].buff_mode_sel.buffer_mode) {
+    status = rsi_ble_set_data_len(rsi_ble_conn_info[ble_conn_id].rsi_connected_dev_addr, MAX_MTU_SIZE, TX_TIME);
+    if (status != RSI_SUCCESS) {
+      LOG_PRINT("\r\n set data len failed with error code %x -conn%d \r\n", status, ble_conn_id);
     }
   }
 }

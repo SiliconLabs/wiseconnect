@@ -50,13 +50,14 @@ int32_t rsi_app_common_event_loop(generic_task_cb_t *generic_task_cb)
   int32_t status = RSI_SUCCESS;
 
   //! creating module specific mutex
-  status = (int32_t)osMutexNew((osMutexAttr_t *)&generic_task_cb->event_mutex);
-  if (status != RSI_SUCCESS) {
+
+  generic_task_cb->event_mutex = osMutexNew(NULL);
+  if (generic_task_cb->event_mutex == NULL) {
     printf("failed to create event mutex object, error = %lx \r\n", status);
     return status;
   }
-  status = (int32_t)osMutexNew((osMutexAttr_t *)&generic_task_cb->cmd_mutex);
-  if (status != RSI_SUCCESS) {
+  generic_task_cb->cmd_mutex = osMutexNew(NULL);
+  if (generic_task_cb->cmd_mutex == NULL) {
     printf("failed to create cmd mutex object, error = %lx \r\n", status);
     return status;
   }

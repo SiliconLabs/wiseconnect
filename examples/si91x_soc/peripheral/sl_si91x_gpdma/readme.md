@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL GPDMA](#sl-gpdma)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -29,7 +31,7 @@ This example does both a Generic DMA transfer with a predefined config and a use
 
 ## About Example Code
 
-- \ref gpdma_example.c file demonstrates how to use GPDMA peipheral to perform memory-to-memory transfers.
+- [`gpdma_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_gpdma/gpdma_example.c) demonstrates how to use GPDMA peripheral to perform memory-to-memory transfers.
 - In this example, the first GPDMA initialization is done in \ref sl_event_handler.c.
 - Then \ref sl_si91x_gpdma_allocate_channel is used to allocate GPDMA_CHANNEL for transfer.
 - After configuring the channel, callbacks are registered using \ref sl_si91x_gpdma_register_callbacks
@@ -54,7 +56,7 @@ This example does both a Generic DMA transfer with a predefined config and a use
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure:setupdiagram ](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -72,7 +74,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Open **sl_si91x_gpdma.slcp** project file, select the **Software Component** tab, and search for **SL_GPDMA** in the search bar.
 
-   > ![Figure: result](resources/uc_screen/ucScreenGPDMA.PNG)
+  ![Figure: result](resources/uc_screen/ucScreenGPDMA.png)
 
 - Set `SL_GPDMA_MAX_CHANNEL` (0–7) to specify the maximum channel used in the application.
 - Configure and update the required macros in the `gpdma_example.c` file as needed.
@@ -101,6 +103,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
    - Memory should be allocated descriptors of every channel that is used.
    - Size of the descriptor memory buffer can be calculated in the same way as macro `SL_MAX_NUMBER_OF_DESCRIPTORS_CHANNEL0`.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -109,7 +113,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 2. Flash, run, and debug the application.
 3. The following prints should appear on console.
 
-   > ![Figure: result](resources/readme/outputConsoleI_GPDMA.PNG)
+   > ![Figure: result](resources/readme/outputConsoleI_GPDMA.png)
 
 > **Note:**
 >

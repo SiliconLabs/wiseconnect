@@ -93,6 +93,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make the necessary changes, if required.
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ### Configure sl_net_default_values.h
 
 **File path for Simplicity Studio IDE:**
@@ -122,9 +124,6 @@ The application can be configured to suit user requirements and development envi
         ```
 
    - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
-
-> **Note:**
-> User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`.
 
 **Path for app.c in Simplicity Studio IDE:**
 

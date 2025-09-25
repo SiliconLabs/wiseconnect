@@ -1,34 +1,17 @@
 project_name: si91x_psa_asymmetric_key_storage
-label: SI91x - SoC Asymmetric Key Storage
+package: platform
 description: >
   This example project demonstrates the asymmetric Key storage API
   for SI91x devices.
 category: example|crypto
-package: platform
 quality: production
-filter:
-  - name: Wireless Technology
-    value:
-      - Wi-Fi
-  - name: Project Difficulty
-    value:
-      - Beginner
-readme:
-  - path: readme.md
-source:
-  - path: psa_asymmetric_key_storage_app.c
-  - path: app.c
-include:
-  - path: .
-    file_list:
-      - path: psa_asymmetric_key_storage_app.h
-      - path: app.h
+label: SI91x - SoC Asymmetric Key Storage
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
+    version: 3.5.2
 component:
   - id: sl_main
   - id: freertos
@@ -62,15 +45,32 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
+source:
+  - path: psa_asymmetric_key_storage_app.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_asymmetric_key_storage_app.h
+      - path: app.h
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/output.png
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner

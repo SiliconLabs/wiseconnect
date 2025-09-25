@@ -44,7 +44,11 @@ static sl_si91x_gpio_pin_config_t sl_gpio_pin_config[NUMBER_OF_PINS] = {
   { { SL_SI91X_GPIO_8_PORT, GPIO_PIN_NUMBER8 }, GPIO_INPUT },
   { { SL_SI91X_GPIO_9_PORT, GPIO_PIN_NUMBER9 }, GPIO_INPUT },
   { { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN }, GPIO_INPUT },
+#ifndef SL_SI91X_ACX_MODULE
   { { SL_SI91X_ULP_GPIO_10_PORT, SL_SI91X_ULP_GPIO_10_PIN }, GPIO_INPUT },
+#else
+  { { SL_SI91X_ULP_GPIO_4_PORT, SL_SI91X_ULP_GPIO_4_PIN }, GPIO_INPUT },
+#endif
 };
 static sl_si91x_gpio_group_interrupt_config_t config_grp_int, ulp_config_grp_int;
 /*******************************************************************************

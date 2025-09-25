@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Overview](#overview)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL HRNG (Hardware Random Number Generator)](#sl-hrng-hardware-random-number-generator)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Overview](#overview)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -31,11 +33,11 @@
 
 This section provides instructions on how to get started with the Hardware Random Number Generator (HRNG) example.
 
-- **Initialize the HRNG Peripheral**: Before using the HRNG, you need to initialize it. This can be done using the `sl_si91x_hrng_init()` function.
-- **Start the HRNG**: After initialization, start the HRNG using the `sl_si91x_hrng_start()` function.
-- **Generate Random Numbers**: Use the ` sl_si91x_hrng_get_bytes()` function to generate random numbers.
-- **Stop the HRNG**: Once you are done generating random numbers, stop the HRNG using the `sl_si91x_hrng_stop()` function.
-- **Deinitialize the HRNG**: Finally, deinitialize the HRNG using the `sl_si91x_hrng_deinit()` function to release any allocated resources.
+- **Initialize the HRNG Peripheral**: Before using the HRNG, you need to initialize it. This can be done using the [`sl_si91x_hrng_init()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/hrng#sl-si91x-hrng-init) function.
+- **Start the HRNG**: After initialization, start the HRNG using the [`sl_si91x_hrng_start()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/hrng#sl-si91x-hrng-start) function.
+- **Generate Random Numbers**: Use the [`sl_si91x_hrng_get_bytes()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/hrng#sl-si91x-hrng-get-bytes) function to generate random numbers.
+- **Stop the HRNG**: Once you are done generating random numbers, stop the HRNG using the [`sl_si91x_hrng_stop()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/hrng#sl-si91x-hrng-stop) function.
+- **Deinitialize the HRNG**: Finally, deinitialize the HRNG using the [`sl_si91x_hrng_deinit()`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/hrng#sl-si91x-hrng-deinit) function to release any allocated resources.
 
 ## Prerequisites/Setup Requirements
 
@@ -53,7 +55,7 @@ This section provides instructions on how to get started with the Hardware Rando
 
 ### Setup Diagram
 
-> ![Figure: Setup Diagram](resources/readme/setupdiagram.png)
+> ![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -70,13 +72,16 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ## Application Build Environment
 
 - Include the HRNG header file in your project:
-  ```cpp
-  #include "sl_si91x_hrng.h"
-  ```
+  
+  #include ["sl_si91x_hrng.h"](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/inc/sl_si91x_hrng.h)
+  
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
  ## Test the Application
 
 1. Compile and run the application. 
 2. After successful program execution the prints in serial console looks as shown below.
 
-   > ![output](resources/readme/output_hrng.png)
+   > ![Figure: output](resources/readme/output_hrng.png)
 

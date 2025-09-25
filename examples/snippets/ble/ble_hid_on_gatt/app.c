@@ -100,6 +100,7 @@
 #define RSI_BLE_EVENT_LTK_REQ                 0x0f
 #define RSI_BLE_SC_PASSKEY_EVENT              0x10
 #define RSI_BLE_GATT_SEND_DATA                0x11
+#define RSI_BLE_GATT_ERROR                    0x12
 
 #define GATT_READ_RESP      0x00
 #define GATT_READ_BLOB_RESP 0x01
@@ -1298,6 +1299,24 @@ int8_t hid_kbd_in_rpt_send(uint8_t len, uint8_t *p_data)
 
 /*==============================================*/
 /**
+ * @fn         rsi_ble_gatt_error_event
+ * @brief      Callback invoked when a GATT error response is received.
+ * @param[in]  resp_status           Status code of the error response.
+ * @param[in]  rsi_ble_gatt_error    Pointer to the error response event structure.
+ * @return     none
+ * @section description
+ * This function is called by the BLE stack when a GATT error response is received from the remote device.
+ * It can be used to handle GATT protocol errors, such as invalid handle, read/write not permitted, etc.
+ */
+static void rsi_ble_gatt_error_event(uint16_t resp_status, rsi_ble_event_error_resp_t *rsi_ble_gatt_error)
+{
+  UNUSED_PARAMETER(resp_status); //This statement is added only to resolve compilation warning, value is unchanged
+  memcpy(remote_dev_bd_addr, rsi_ble_gatt_error->dev_addr, 6);
+  rsi_ble_app_set_event(RSI_BLE_GATT_ERROR);
+}
+
+/*==============================================*/
+/**
  * @fn         ble_hid_gatt_application
  * @brief      this is the application of ble hid application.
  * @param[in]  event_id, it indicates write/notification event id.
@@ -1381,7 +1400,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
                                   NULL,
                                   rsi_ble_on_read_req_event,
                                   rsi_ble_on_mtu_event,
-                                  NULL,
+                                  rsi_ble_gatt_error_event,
                                   ble_on_att_desc_event,
                                   NULL,
                                   rsi_ble_on_profiles_event,
@@ -1751,7 +1770,12 @@ scan:
         memset(&service_uuid, 0, sizeof(uuid_t));
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_HID_SERVICE_UUID;
-        rsi_ble_get_profile_async(glbl_enc_enabled.dev_addr, service_uuid, NULL);
+        status                 = rsi_ble_get_profile_async(glbl_enc_enabled.dev_addr, service_uuid, NULL);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\n rsi_ble_get_profile_async : error status 0x%lx \n", status);
+        } else {
+          LOG_PRINT("\r\n rsi_ble_get_profile_async : successful \n");
+        }
 #endif
       } break;
 
@@ -1767,10 +1791,15 @@ scan:
                     *(uint16_t *)ble_servs.start_handle,
                     *(uint16_t *)ble_servs.end_handle);
           //! query characteristic services, with in the particular range, from the connected remote device.
-          rsi_ble_get_char_services_async(remote_dev_bd_addr,
-                                          *(uint16_t *)ble_servs.start_handle,
-                                          *(uint16_t *)ble_servs.end_handle,
-                                          NULL);
+          status = rsi_ble_get_char_services_async(remote_dev_bd_addr,
+                                                   *(uint16_t *)ble_servs.start_handle,
+                                                   *(uint16_t *)ble_servs.end_handle,
+                                                   NULL);
+          if (status != RSI_SUCCESS) {
+            LOG_PRINT("\r\n rsi_ble_get_char_services_async : error status 0x%lx \n", status);
+          } else {
+            LOG_PRINT("\r\n rsi_ble_get_char_services_async : successful \n");
+          }
         }
       } break;
 
@@ -1798,17 +1827,27 @@ scan:
           //If number of characteristic discovered is less than 3, means we have no more chars in the specified service.
           //else start discovering the next list of characteristics starting from the end of the last discovered characteristic.
           if (char_servs.num_of_services >= 3) {
-            rsi_ble_get_char_services_async(remote_dev_bd_addr,
-                                            char_servs.char_services[ix - 1].handle + 2,
-                                            *(uint16_t *)ble_servs.end_handle,
-                                            NULL);
+            status = rsi_ble_get_char_services_async(remote_dev_bd_addr,
+                                                     char_servs.char_services[ix - 1].handle + 2,
+                                                     *(uint16_t *)ble_servs.end_handle,
+                                                     NULL);
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("\r\n rsi_ble_get_char_services_async : error status 0x%lx \n", status);
+            } else {
+              LOG_PRINT("\r\n rsi_ble_get_char_services_async : successful \n");
+            }
           } else {
             //if all characteristic has been discovered, discover the descriptors one by one from the desc hanlde list.
             if (desc_handle_index > desc_handle_index_1) {
-              rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
-                                                desc_range[desc_handle_index_1],
-                                                desc_range[desc_handle_index_1],
-                                                NULL);
+              status = rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                                         desc_range[desc_handle_index_1],
+                                                         desc_range[desc_handle_index_1],
+                                                         NULL);
+              if (status != RSI_SUCCESS) {
+                LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : error status 0x%lx \n", status);
+              } else {
+                LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : successful \n");
+              }
               desc_handle_index_1 += 1;
             } else {
               desc_handle_index_1 = desc_handle_index = 0;
@@ -1818,10 +1857,15 @@ scan:
         } else if (att_resp_status == 0x4E60) {
           if (desc_handle_index > desc_handle_index_1) {
             //if all characteristic has been discovered, discover the descriptors one by one from the desc handle list.
-            rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
-                                              desc_range[desc_handle_index_1],
-                                              desc_range[desc_handle_index_1],
-                                              NULL);
+            status = rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                                       desc_range[desc_handle_index_1],
+                                                       desc_range[desc_handle_index_1],
+                                                       NULL);
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : error status 0x%lx \n", status);
+            } else {
+              LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : successful \n");
+            }
             desc_handle_index_1 += 1;
           } else {
             desc_handle_index_1 = desc_handle_index = 0;
@@ -1845,20 +1889,30 @@ scan:
               uint8_t data[2];
               data[0] = 0x01;
               data[1] = 0x00;
-              rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
-                                        *((uint16_t *)att_desc.att_desc[ix].handle),
-                                        2,
-                                        (uint8_t *)data);
+              status  = rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
+                                                 *((uint16_t *)att_desc.att_desc[ix].handle),
+                                                 2,
+                                                 (uint8_t *)data);
+              if (status != RSI_SUCCESS) {
+                LOG_PRINT("\r\n rsi_ble_set_att_cmd_async : error status 0x%lx \n", status);
+              } else {
+                LOG_PRINT("\r\n rsi_ble_set_att_cmd_async : successful \n");
+              }
               LOG_PRINT("Notification enabled \n");
             }
           }
           memset(&att_desc, 0, sizeof(rsi_ble_event_gatt_desc_t));
           //Check for the next descriptor in the list.
           if (desc_handle_index > desc_handle_index_1) {
-            rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
-                                              desc_range[desc_handle_index_1],
-                                              desc_range[desc_handle_index_1],
-                                              NULL);
+            status = rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                                       desc_range[desc_handle_index_1],
+                                                       desc_range[desc_handle_index_1],
+                                                       NULL);
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : error status 0x%lx \n", status);
+            } else {
+              LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : successful \n");
+            }
             desc_handle_index_1 += 1;
           } else {
             desc_handle_index_1 = desc_handle_index = 0;

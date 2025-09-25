@@ -2,17 +2,25 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Steps to execute application](#follow-the-steps-below-for-successful-execution-of-the-application)
-- [Appendix](#appendix)
-- [Documentation](#documentation) 
+- [Wi-Fi - Azure IoT MQTT Client Application](#wi-fi---azure-iot-mqtt-client-application)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Using Simplicity Studio Energy Profiler for Current Measurement](#using-simplicity-studio-energy-profiler-for-current-measurement)
+    - [Follow the steps below for successful execution of the application:](#follow-the-steps-below-for-successful-execution-of-the-application)
+  - [**Appendix**](#appendix)
+    - [1.1 ***Azure Account Creation***](#11-azure-account-creation)
+    - [1.2 ***Azure IoT Hub and Device Creation***](#12-azure-iot-hub-and-device-creation)
+    - [1.3 **Register the Authentication Method**](#13-register-the-authentication-method)
+    - [1.3.1 ***Register IoT Device with Symmetric Key Authentication in IoT Hub:***](#131-register-iot-device-with-symmetric-key-authentication-in-iot-hub)
+    - [1.3.2 ***Register IoT Device with X.509 Authenticated Device with IoT Hub***](#132-register-iot-device-with-x509-authenticated-device-with-iot-hub)
+  - [Documentation](#documentation)
 ## Purpose/Scope
 
 This application demonstrates how to configure the SiWx91x module as an Azure device endpoint. It also explains how to establish a connection with the Azure IoT Hub, send telemetry messages to Hub from the device (D2C), and receive the messages from the IoT Hub (C2D).
@@ -42,14 +50,6 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 - Simplicity Studio
   - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
-
-> **Note:**
->
-> - For establishing an AWS connection, it is essential that you replace the default certificate ([aws_client_certificate.pem.crt.h](https://github.com/SiliconLabs/wiseconnect/blob/master/resources/certificates/aws_client_certificate.pem.crt.h)) and private key ([aws_client_private_key.pem.key.h](https://github.com/SiliconLabs/wiseconnect/blob/master/resources/certificates/aws_client_private_key.pem.key.h)) with the authentic certificate and private key generated from your designated Certificate Authority (CA).
->
-> - Refer to [Setting up Security Certificates](#setting-up-security-certificates) for a complete end-to-end procedure on how to generate and use authentic certificates.
-
-> **Note:** The client must set the SNI extension when connecting to an AWS server using TLS 1.3 version.
 
 ### Setup Diagram
 
@@ -103,8 +103,6 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
   	```
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
-> Note: 
-> You can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
 Open the ``demo_config.h`` file. Configure the following parameters.
 - Refer to connection string from [Appendix](#appendix) 1.3.1 step 5 to define the following macros:
@@ -164,6 +162,8 @@ Open the ``demo_config.h`` file. Configure the following parameters.
 
   > **Note** :
  The included Cloud connectivity certificates are for reference only. If using default certificates in the release, cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

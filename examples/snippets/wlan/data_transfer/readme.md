@@ -2,14 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - Data Transfer](#wi-fi---data-transfer)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+      - [Configure the following TCP/IP parameters in **app.c** to test this app as per requirements](#configure-the-following-tcpip-parameters-in-appc-to-test-this-app-as-per-requirements)
+  - [Test the Application](#test-the-application)
+    - [TCP RX](#tcp-rx)
+    - [TCP TX](#tcp-tx)
+  - [Application Output](#application-output)
 
 ## Purpose/Scope
 
@@ -116,9 +122,6 @@ The application can be configured to suit your requirements and development envi
 > 1. In concurrent mode, STA and AP should be configured on the same channel. The STA instance shall first scan for the specified external AP, wherein the channel number of AP is fetched and passed as an argument during SoftAP creation.
 > 2. Valid values for CHANNEL_NO are 1 to 11 as the supported band is 2.4 GHz.
 
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
 #### Configure the following TCP/IP parameters in **app.c** to test this app as per requirements
 
 This application is providing the facility to configure the Access Point’s IP Parameters. The default IPv4 address for the Silicon Labs Access point is defined to **192.168.10.10**.
@@ -145,6 +148,8 @@ This application is providing the facility to configure the Access Point’s IP 
     #define LISTENING_PORT     5005  // Default port on which the SiWx91x device STA interface listens for remote connection
     #define SERVER_PORT        5000  // Default port number on which SiWx91x device AP interface connects remote device
     ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

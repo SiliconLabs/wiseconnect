@@ -45,7 +45,7 @@
 #define VERIFY_ECODE_AND_RETURN(ecode) \
   do {                                 \
     if (ecode != ECODE_OK) {           \
-      return SL_STATUS_FAIL;           \
+      return ecode;                    \
     }                                  \
   } while (0)
 

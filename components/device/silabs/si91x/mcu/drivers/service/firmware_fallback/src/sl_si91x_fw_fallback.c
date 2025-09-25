@@ -52,6 +52,7 @@ static uint32_t ota_image_type    = 0; ///<        This variable holds the type 
 static sl_status_t sli_si91x_erase_slot_info(uint32_t flash_offset);
 static sl_status_t sli_si91x_calculate_firmware_slot_crc(sl_si91x_fw_ab_slot_management_t *slot_info);
 static void sli_si91x_update_crc(sl_si91x_fw_ab_slot_management_t *slot_info);
+static uint8_t sl_m4_upadter_ota_flag = 0;
 #endif
 
 #define SL_SI91X_SELECT_DEFAULT_NWP_FW_IMAGE 0x35 // Command value for selecting default NWP firmware image
@@ -207,6 +208,60 @@ sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32
 
   return status;
 }
+
+/***************************************************************************/ /**
+ *  @fn          sl_status_t sl_si91x_fw_fallback_ota_flash_write(const sl_si91x_fw_fallback_config_t *config, const uint8_t *data_buffer)
+ *  @pre         None
+ *  @brief       Write data to flash memory for OTA firmware updates.
+ *               This function writes data to the specified flash memory address using the unified flash write API.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   config             Pointer to the firmware fallback configuration structure.
+ *  @param[in]   data_buffer        Pointer to the data buffer.
+ *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
+ ******************************************************************************/
+sl_status_t sl_si91x_fw_fallback_ota_flash_write(const sl_si91x_fw_fallback_config_t *config,
+                                                 const uint8_t *data_buffer)
+{
+  sl_status_t status                        = SL_STATUS_FAIL;
+  sl_si91x_fw_fallback_request_t fw_request = { 0 };
+  size_t request_size                       = 0;
+
+  // Validate input parameters
+  if (config == NULL || data_buffer == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  // Validate data length (ensure it fits within the buffer limit)
+  if (config->ota_image_data_length > SL_SI91X_MAX_OTA_IMAGE_CHUNK_SIZE || config->ota_image_data_length == 0) {
+    return SL_STATUS_INVALID_PARAMETER; // Error if length exceeds 1024 bytes
+  }
+
+  // Fill the firmware fallback request structure with all necessary information
+  fw_request.sub_command    = SL_SI91X_AB_FALLBACK_WRITE_CMD;
+  fw_request.chunk_type     = config->ota_image_chunk_type;
+  fw_request.data_length    = config->ota_image_data_length;
+  fw_request.flash_offset   = config->ota_image_flash_offset;
+  fw_request.m4_updater_ota = config->m4_updater_ota_flag;
+
+  sl_m4_upadter_ota_flag = config->m4_updater_ota_flag;
+
+  // Copy data to the structure
+  memcpy(fw_request.data, data_buffer, config->ota_image_data_length);
+
+  request_size = offsetof(sl_si91x_fw_fallback_request_t, data) + config->ota_image_data_length;
+
+  // Send firmware update command
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         NULL,
+                                         NULL);
+
+  return status;
+}
+
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_verify_image(uint32_t flash_address)
  *  @pre         None
@@ -223,11 +278,19 @@ sl_status_t sl_si91x_verify_image(uint32_t flash_address)
   sl_status_t status                        = SL_STATUS_FAIL;
   sl_si91x_fw_fallback_request_t fw_request = { 0 };
 
+  if (flash_address == 0) {
+    DEBUGOUT("\r\n [verify_image] Error: Invalid flash address (0x00000000)\r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   // Populate request structure
   fw_request.chunk_type   = SL_SI91X_DATA_PACKET;
   fw_request.sub_command  = SL_SI91X_AB_FALLBACK_INTEGRITY_CHECK_CMD;
   fw_request.flash_offset = flash_address;
-
+  if (sl_m4_upadter_ota_flag == SL_SI91X_M4_UPDATER_OTA_FLAG) {
+    fw_request.m4_updater_ota = sl_m4_upadter_ota_flag;
+  }
+  DEBUGOUT("\r\n ota_flag=%X \r\n", fw_request.m4_updater_ota);
   size_t request_size = offsetof(sl_si91x_fw_fallback_request_t, data);
 
   // Send firmware update command
@@ -676,6 +739,127 @@ static sl_status_t sli_si91x_erase_slot_info(uint32_t flash_offset)
 static void sli_si91x_update_crc(sl_si91x_fw_ab_slot_management_t *slot_info)
 {
   slot_info->slot_struct_crc = sli_si91x_calculate_firmware_slot_crc(slot_info);
+}
+/***************************************************************************/ /**
+ *  @fn          sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
+ *  @pre         None
+ *  @brief       Burns the NWP security version to the flash.
+ *               This function burns the NWP security version to the flash.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   flash_address        Flash address of the NWP firmware to burn the security version
+ *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
+ ******************************************************************************/
+sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
+{
+  sl_status_t status                        = SL_STATUS_FAIL;
+  sl_si91x_fw_fallback_request_t fw_request = { 0 };
+
+  // Populate request structure
+  fw_request.chunk_type   = SL_SI91X_DATA_PACKET;
+  fw_request.sub_command  = SL_SI91X_AB_FALLBACK_BURN_SECURITY_VERSION;
+  fw_request.flash_offset = flash_address;
+
+  size_t request_size = offsetof(sl_si91x_fw_fallback_request_t, data);
+
+  // DEBUGOUT("\r\n integratiy+request_size:%u %u \r\n", sizeof(sl_si91x_fw_fallback_request_t), request_size);
+
+  // Send firmware update command
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         NULL,
+                                         NULL);
+  return status;
+}
+
+/***************************************************************************/ /**
+ *  @fn          sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
+ *  @pre         None
+ *  @brief       Requests to load QSPI keys.
+ *               This function requests to load QSPI keys for to enable the inline decryption for M4 slot firmware.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   image_offset        Flash address to enable the inline decryption for M4 slot firmware
+ *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
+ ******************************************************************************/
+
+sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
+{
+  sl_status_t status                        = SL_STATUS_FAIL;
+  sl_si91x_fw_fallback_request_t fw_request = { 0 };
+
+  // Populate request structure
+  fw_request.chunk_type   = SL_SI91X_DATA_PACKET;
+  fw_request.sub_command  = SL_SI91X_AB_FALLBACK_LOAD_QSPI_KEYS;
+  fw_request.flash_offset = image_offset;
+
+  size_t request_size = offsetof(sl_si91x_fw_fallback_request_t, data);
+
+  // Send firmware update command
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         NULL,
+                                         NULL);
+  return status;
+}
+
+/***************************************************************************/ /**
+ *  @fn          void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
+ *  @pre         None
+ *  @brief       Performs a soft reset of the NWP firmware.
+ *               This function sends a soft reset command to the NWP firmware for fallback and keep the NWP
+ *               firmware in the boot mode.
+ *               This function will work for A/B firmware only.
+ *  @param[in]   m4_slot_image_offset  Offset of the M4 slot image for fallback
+ *  @return      None
+ ******************************************************************************/
+#define QSPI_AES_SEC_SEG_LS_ADDR_2 0x120000EC                                 // QSPI AES SEC SEGMENT_LS address 2
+#define QSPI_AES_SEC_SEG_MS_ADDR_2 0x120000F0                                 // QSPI AES SEC SEGMENT_MS address 2
+#define OCTASPI_BUS_CONTROLLER_2   0x120000C4                                 // OCTASPI BUS CONTROLLER 2
+void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
+{
+  sl_status_t status                        = SL_STATUS_OK;
+  sl_si91x_fw_fallback_request_t fw_request = { 0 };
+  volatile uint32_t *addr                   = (volatile uint32_t *)HOST_INTF_REG_OUT;
+
+  // Populate request structure
+  fw_request.chunk_type  = SL_SI91X_DATA_PACKET;
+  fw_request.sub_command = SL_SI91X_AB_FALLBACK_SOFT_RESET;
+
+  size_t request_size = offsetof(sl_si91x_fw_fallback_request_t, data);
+
+  // Send firmware update command
+  status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
+                                         SI91X_COMMON_CMD,
+                                         &fw_request,
+                                         request_size,
+                                         SL_SI91X_WAIT_FOR_RESPONSE(3000),
+                                         NULL,
+                                         NULL);
+  (void)status;
+  // Wait for the memory to match the expected value(SL_SI91X_MEM_CHECK_VALUE) for the NWP firmware
+  while ((*addr != SL_SI91X_MEM_CHECK_VALUE)) {
+    __NOP();
+    // Continue checking until a match is found
+  }
+
+  //Clearing the RX_Buffer valid bit
+  M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
+  M4SS_P2P_INTR_CLR_REG;
+
+  const sl_si91x_firmware_header_t *m4_rps_configs = (const sl_si91x_firmware_header_t *)m4_slot_image_offset;
+  *(volatile uint32_t *)OCTASPI_BUS_CONTROLLER_2 |=
+    BIT(13); // Enable bit 13 to enable the next QSPI banks in OCTASPI BUS CONTROLLER 2
+  *(volatile uint32_t *)QSPI_AES_SEC_SEG_LS_ADDR_2 =
+    (m4_rps_configs->flash_location + SLI_SI91X_RPS_HEADER_SIZE); // Store the M4 app start address in ULP RAM
+
+  *(volatile uint32_t *)QSPI_AES_SEC_SEG_MS_ADDR_2 =
+    ((m4_rps_configs->flash_location + SLI_SI91X_RPS_HEADER_SIZE + m4_rps_configs->image_size)
+     - 1); // Store the (M4 app start address + Size of m4 application) in ULP RAM
 }
 #endif
 #ifdef SL_SI91X_FW_FALLBACK_UPDATER

@@ -161,6 +161,39 @@ static sl_status_t fill_join_request_security_using_encryption(sl_wifi_encryptio
   return SL_STATUS_OK;
 }
 
+static sl_status_t sli_configure_mfp_mode(sl_wifi_mfp_config_t *mfp_config,
+                                          uint8_t security_type,
+                                          uint8_t *join_feature_bitmap)
+{
+  sl_status_t status = SL_STATUS_OK;
+  if (mfp_config->is_configured) {
+    switch (mfp_config->mfp_mode) {
+      case SL_WIFI_MFP_REQUIRED:
+        *join_feature_bitmap |= SL_WIFI_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
+        break;
+      case SL_WIFI_MFP_CAPABLE:
+        *join_feature_bitmap |= SL_WIFI_JOIN_FEAT_MFP_CAPABLE_ONLY;
+        break;
+      default:
+        break;
+    }
+  } else {
+    if ((security_type == SL_WIFI_WPA3) || (security_type == SL_WIFI_WPA3_ENTERPRISE)) {
+      *join_feature_bitmap |= SL_WIFI_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
+      mfp_config->mfp_mode = SL_WIFI_MFP_REQUIRED;
+    } else if ((security_type == SL_WIFI_WPA3_TRANSITION) || (security_type == SL_WIFI_WPA3_TRANSITION_ENTERPRISE)) {
+      *join_feature_bitmap &= ~(SL_WIFI_JOIN_FEAT_MFP_CAPABLE_REQUIRED);
+      *join_feature_bitmap |= SL_WIFI_JOIN_FEAT_MFP_CAPABLE_ONLY;
+      mfp_config->mfp_mode = SL_WIFI_MFP_CAPABLE;
+    } else if (security_type == SL_WIFI_WPA2 || security_type == SL_WIFI_WPA_WPA2_MIXED) {
+      *join_feature_bitmap |= SL_WIFI_JOIN_FEAT_MFP_CAPABLE_ONLY;
+      mfp_config->mfp_mode = SL_WIFI_MFP_CAPABLE;
+    }
+    status = sli_save_mfp_mode(mfp_config);
+  }
+  return status;
+}
+
 static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interface,
                                                const void *configuration,
                                                sli_si91x_join_request_t *join_request)
@@ -184,16 +217,10 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
 
     join_request->ssid_len      = client_configuration->ssid.length;
     join_request->security_type = (uint8_t)client_configuration->security;
-    if ((join_request->security_type == SL_WIFI_WPA3)
-        || (join_request->security_type == SL_WIFI_WPA3_ENTERPRISE)) { //check for WPA3 security
-      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
-    } else if ((join_request->security_type == SL_WIFI_WPA3_TRANSITION)
-               || join_request->security_type == SL_WIFI_WPA3_TRANSITION_ENTERPRISE) {
-      join_request->join_feature_bitmap &= ~(SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED);
-      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
-    } else if (join_request->security_type == SL_WIFI_WPA2 || join_request->security_type == SL_WIFI_WPA_WPA2_MIXED) {
-      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
-    }
+
+    sl_wifi_mfp_config_t mfp_config = sli_get_mfp_mode();
+    status = sli_configure_mfp_mode(&mfp_config, join_request->security_type, &join_request->join_feature_bitmap);
+    VERIFY_STATUS_AND_RETURN(status);
 
     fill_join_request_security_using_encryption(client_configuration->encryption, &(join_request->security_type));
 
@@ -214,13 +241,10 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     join_request->ssid_len      = ap_configuration->ssid.length;
     join_request->security_type = (uint8_t)ap_configuration->security;
     join_request->vap_id        = 0;
-    if (join_request->security_type == SL_WIFI_WPA3) { //check for WPA3 security
-      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
-    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION) { //check for WPA3 Tranisition security
-      join_request->join_feature_bitmap &= ~(SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED);
-      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
-    }
 
+    sl_wifi_mfp_config_t mfp_config = sli_get_mfp_mode();
+    status = sli_configure_mfp_mode(&mfp_config, join_request->security_type, &join_request->join_feature_bitmap);
+    VERIFY_STATUS_AND_RETURN(status);
     if (sli_get_opermode() == SL_SI91X_CONCURRENT_MODE) {
       join_request->vap_id = SL_WIFI_AP_VAP_ID; // For Concurrent mode AP vap_id should be 1 else 0.
     }
@@ -436,7 +460,9 @@ static sl_status_t sli_handle_standard_scan(sl_wifi_interface_t interface,
     scan_request.scan_feature_bitmap |= QUICK_SCAN_ENABLE;
   }
 
-  if (advanced_scan_configuration.active_channel_time != SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME) {
+  // Configure active scan timeout only if active_channel_time is set to a non-default and non-zero value.
+  if (advanced_scan_configuration.active_channel_time != SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME
+      && advanced_scan_configuration.active_channel_time != 0) {
     sl_status_t status =
       sl_si91x_configure_timeout(SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT, advanced_scan_configuration.active_channel_time);
     VERIFY_STATUS_AND_RETURN(status);
@@ -1021,6 +1047,74 @@ sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_
 
   *max_tx_power = sli_get_max_tx_power();
 
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_wifi_set_rts_threshold(sl_wifi_interface_t interface, uint16_t rts_threshold)
+{
+  UNUSED_PARAMETER(interface);
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  sli_si91x_config_request_t config_request = { .config_type = SLI_CONFIG_RTSTHRESHOLD, .value = rts_threshold };
+  sl_status_t status                        = sli_si91x_driver_send_command(SLI_WLAN_REQ_CONFIG,
+                                                     SLI_SI91X_WLAN_CMD,
+                                                     &config_request,
+                                                     sizeof(config_request),
+                                                     SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                                     NULL,
+                                                     NULL);
+  if (status == SL_STATUS_OK) {
+    sli_save_rts_threshold(rts_threshold);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+sl_status_t sl_wifi_get_rts_threshold(sl_wifi_interface_t interface, uint16_t *rts_threshold)
+{
+  UNUSED_PARAMETER(interface);
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(rts_threshold);
+
+  *rts_threshold = sli_get_rts_threshold().rts_threshold;
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_wifi_set_mfp(sl_wifi_interface_t interface, const sl_wifi_mfp_mode_t config)
+{
+  // only supported in STA mode
+  if ((interface & SL_WIFI_CLIENT_INTERFACE) == 0 || (interface & SL_WIFI_AP_INTERFACE) != 0) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  // Store the MFP configuration for future join operations
+  sl_wifi_mfp_config_t mfp_config = sli_get_mfp_mode();
+  sl_status_t status;
+  mfp_config.mfp_mode      = config;
+  mfp_config.is_configured = true;
+  status                   = sli_save_mfp_mode(&mfp_config);
+  return status;
+}
+
+sl_status_t sl_wifi_get_mfp(sl_wifi_interface_t interface, sl_wifi_mfp_mode_t *config)
+{
+  // only supported in STA mode
+  if ((interface & SL_WIFI_CLIENT_INTERFACE) == 0 || (interface & SL_WIFI_AP_INTERFACE) != 0) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+  // Parameter validation
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(config);
+
+  sl_wifi_mfp_config_t mfp_config = sli_get_mfp_mode();
+  // Return current MFP mode
+  *config = mfp_config.mfp_mode;
   return SL_STATUS_OK;
 }
 
@@ -2436,29 +2530,31 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, const uin
     free(su_tb_payload);
     return status;
   }
-  sli_si91x_gain_table_info_t *sl_gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + su_tb_payload_length);
-  if (sl_gain_table_info == NULL) {
+  sli_si91x_gain_table_info_t *gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + su_tb_payload_length);
+  if (gain_table_info == NULL) {
     free(su_tb_payload);
     return SL_STATUS_ALLOCATION_FAILED;
   }
-  sl_gain_table_info->band      = band;
-  sl_gain_table_info->bandwidth = bandwidth;
-  sl_gain_table_info->size      = su_tb_payload_length;
-  sl_gain_table_info->x_offset  = 0;
-  sl_gain_table_info->y_offset  = 0;
-  sl_gain_table_info->reserved  = 0;
+  memset(gain_table_info, 0, sizeof(sli_si91x_gain_table_info_t) + su_tb_payload_length);
+  gain_table_info->band               = band;
+  gain_table_info->bandwidth          = bandwidth;
+  gain_table_info->size               = su_tb_payload_length;
+  gain_table_info->x_offset           = 0;
+  gain_table_info->y_offset           = 0;
+  gain_table_info->gain_table_version = 1;
+  gain_table_info->reserved           = 0;
 
-  memcpy(sl_gain_table_info->gain_table, su_tb_payload, su_tb_payload_length);
+  memcpy(gain_table_info->gain_table, su_tb_payload, su_tb_payload_length);
 
   status = sli_si91x_driver_send_command(SLI_WLAN_REQ_GAIN_TABLE,
                                          SLI_SI91X_WLAN_CMD,
-                                         sl_gain_table_info,
-                                         sizeof(sli_si91x_gain_table_info_t) + (sl_gain_table_info->size),
+                                         gain_table_info,
+                                         sizeof(sli_si91x_gain_table_info_t) + (gain_table_info->size),
                                          SL_SI91X_WAIT_FOR(30100),
                                          NULL,
                                          NULL);
   free(su_tb_payload);
-  free(sl_gain_table_info);
+  free(gain_table_info);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }
@@ -2485,27 +2581,28 @@ sl_status_t sl_wifi_update_su_gain_table(uint8_t band,
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  sli_si91x_gain_table_info_t *sl_gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + payload_length);
-  if (sl_gain_table_info == NULL) {
+  sli_si91x_gain_table_info_t *gain_table_info = malloc(sizeof(sli_si91x_gain_table_info_t) + payload_length);
+  if (gain_table_info == NULL) {
     return SL_STATUS_ALLOCATION_FAILED;
   }
+  memset(gain_table_info, 0, sizeof(sli_si91x_gain_table_info_t) + payload_length);
+  gain_table_info->band               = band;
+  gain_table_info->bandwidth          = bandwidth;
+  gain_table_info->size               = payload_length;
+  gain_table_info->x_offset           = x_offset;
+  gain_table_info->y_offset           = y_offset;
+  gain_table_info->gain_table_version = 1;
+  gain_table_info->reserved           = 0;
 
-  sl_gain_table_info->band      = band;
-  sl_gain_table_info->bandwidth = bandwidth;
-  sl_gain_table_info->size      = payload_length;
-  sl_gain_table_info->x_offset  = x_offset;
-  sl_gain_table_info->y_offset  = y_offset;
-  sl_gain_table_info->reserved  = 0;
-
-  memcpy(sl_gain_table_info->gain_table, payload, payload_length);
+  memcpy(gain_table_info->gain_table, payload, payload_length);
   status = sli_si91x_driver_send_command(SLI_WLAN_REQ_GAIN_TABLE,
                                          SLI_SI91X_WLAN_CMD,
-                                         sl_gain_table_info,
-                                         sizeof(sli_si91x_gain_table_info_t) + (sl_gain_table_info->size),
+                                         gain_table_info,
+                                         sizeof(sli_si91x_gain_table_info_t) + (gain_table_info->size),
                                          SL_SI91X_WAIT_FOR(30100),
                                          NULL,
                                          NULL);
-  free(sl_gain_table_info);
+  free(gain_table_info);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }

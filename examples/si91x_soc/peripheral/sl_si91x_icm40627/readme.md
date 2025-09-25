@@ -2,15 +2,17 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [About Example Code](#about-example-code)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL ICM40627](#sl-icm40627)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -36,7 +38,7 @@ This example demonstrates the measurement of acceleration in 3 axes, gyroscope i
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -50,13 +52,15 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-- Configure the following macros in the `icm40627_example.c` file and update/modify following macros, if required.
+- Configure the following macros in the [`icm40627_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_icm40627/icm40627_example.c) file and update/modify following macros, if required.
 
 - `DELAY_PERIODIC_MS1`: Select the delay for data display. By default, the delay is kept as 2 seconds.
 
     ```C
     #define DELAY_PERIODIC_MS1  2000      //sleeptimer1 periodic timeout in ms
     ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -66,4 +70,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 2. When the application runs, it measures accelerometer, gyroscope and temperature data for every 2 seconds.
 3. After successful program execution the prints in serial console looks as shown below.
 
-   ![Figure: Introduction](resources/readme/output1.png)
+   ![Figure: output1](resources/readme/output1.png)

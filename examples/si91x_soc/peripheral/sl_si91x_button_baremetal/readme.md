@@ -2,18 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [SL BUTTON BAREMETAL](#sl-button-baremetal)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configuration](#configuration)
+  - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
-This example application demonstrates the use of BUTTON in a bare metal environment. The application toggles the LED on each BUTTON press using the `sl_si91x_led_toggle()` function.
+This example application demonstrates the use of BUTTON in a bare metal environment. The application toggles the LED on each BUTTON press using the [sl_si91x_led_toggle()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/led#sl-si91x-led-toggle) function.
 
 ## Prerequisites/Setup Requirements
 
@@ -59,6 +62,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 > ![Figure: Introduction](resources/readme/image600a.png)
 
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 The project uses BTN0 by default. To change the button to BTN1, follow the below steps:
@@ -68,7 +73,7 @@ The project uses BTN0 by default. To change the button to BTN1, follow the below
 
    ![Figure: Adding Button Instance](resources/readme/image600d.png)
 
-2. Change the definition of macro BUTTON_INSTANCE_0 in the `button_baremetal.c` file to button_btn1.
+2. Change the definition of macro BUTTON_INSTANCE_0 in the [`button_baremetal.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_button_baremetal/button_baremetal.c) file to button_btn1.
 
 3. Build and test the output.
 

@@ -1,7 +1,7 @@
 project_name: ble_heart_rate_profile_ncp
 package: ble
 quality: production
-label: ble_heart_rate_profile_ncp
+label: BLE - Heart Rate (NCP)
 category: Example|BLE
 description: |
   This application demonstrates BLE heart rate profile
@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

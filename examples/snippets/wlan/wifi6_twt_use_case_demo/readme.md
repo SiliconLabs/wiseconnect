@@ -1,23 +1,26 @@
 # Wi-Fi - TWT Use Case Demo App
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-  - [Configure the Application](#configure-the-application)
-  - [iTWT Configuration APIs](#itwt-configuration-apis)
-    - [sl_wifi_target_wake_time_auto_selection API](#sl_wifi_target_wake_time_auto_selection-api)
-    - [sl_wifi_enable_target_wake_time API](#sl_wifi_enable_target_wake_time-api)
-  - [iTWT Teardown Configuration](#itwt-teardown-configuration)
-  - [iTWT Command Status Codes](#itwt-command-status-codes)
-  - [iTWT Session Status Codes](#itwt-session-status-codes)
-  - [Recommendations](#recommendations)
-- [Test the Application](#test-the-application)
-  - [Using Simplicity Studio Energy Profiler for current measurement](#using-simplicity-studio-energy-profiler-for-current-measurement)
-  - [Expected output in Energy Profiler](#expected-output-in-energy-profiler)
+- [Wi-Fi - TWT Use Case Demo App](#wi-fi---twt-use-case-demo-app)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure the application](#configure-the-application)
+    - [iTWT Configuration APIs](#itwt-configuration-apis)
+      - [sl\_wifi\_target\_wake\_time\_auto\_selection API](#sl_wifi_target_wake_time_auto_selection-api)
+      - [sl\_wifi\_enable\_target\_wake\_time API](#sl_wifi_enable_target_wake_time-api)
+    - [iTWT Teardown Configuration](#itwt-teardown-configuration)
+    - [iTWT Session Status Codes](#itwt-session-status-codes)
+    - [Recommendations](#recommendations)
+  - [Soc Mode:](#soc-mode)
+    - [Without Tickless Mode:](#without-tickless-mode)
+    - [Tickless Mode](#tickless-mode)
+  - [Test the application](#test-the-application)
+    - [Using Simplicity Studio Energy Profiler for current measurement](#using-simplicity-studio-energy-profiler-for-current-measurement)
+      - [Expected output in Energy Profiler](#expected-output-in-energy-profiler)
 
 ## Purpose/Scope
 
@@ -122,9 +125,6 @@ In general, it is advisable to start the server before the client since the clie
     ```
 
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
-
-  > Note: 
-  > User can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
 
   - Number of packets to send or receive
 
@@ -378,6 +378,8 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 - **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
 
 - **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the application
 

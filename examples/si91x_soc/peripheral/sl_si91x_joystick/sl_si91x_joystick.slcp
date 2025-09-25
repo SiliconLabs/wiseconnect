@@ -1,26 +1,18 @@
 project_name: sl_si91x_joystick
-label: SI91x - SL_JOYSTICK
+package: platform
 description: >
   This application demonstrates how to use the Joystick Driver on the SiWx917 SoC device. 
   It allows reading the joystick position and prints the position when the joystick is pressed, 
   providing an interface for interactive applications that require joystick input.
 category: example|peripheral
-package: platform
 quality: production
+label: SI91x - SL_JOYSTICK
 sdk:
   id: simplicity_sdk
   version:  "2025.6.1"
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.5.1
-source:
-  - path: joystick_example.c
-  - path: app.c
-  - path: app.h
-  - path: joystick_example.h
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+    version: 3.5.2
 component:
   - id: sl_main
   - id: status
@@ -47,6 +39,17 @@ component:
     from: wiseconnect3_sdk
   - id: sl_clock_manager
     from: wiseconnect3_sdk
+source:
+  - path: joystick_example.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: joystick_example.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 define:
   - name: GAIN_OFFSET_CAL_EN
 other_file:
@@ -54,11 +57,11 @@ other_file:
   - path: resources/readme/image520d.png
   - path: resources/uc_screen/sl_joystick_uc_screen.png
   - path: resources/readme/output.png
-readme:
-  - path: readme.md
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
+readme:
+  - path: readme.md
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -2,17 +2,24 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [iTWT Session Status Codes](#itwt-session-status-codes)
-- [TWT Recommendations](#twt-recommendations)
-- [Test the Application](#test-the-application)
-- [Application Output](#application-output)
+- [Wi-Fi - Embedded MQTT Client TWT](#wi-fi---embedded-mqtt-client-twt)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+      - [In the Project explorer pane, expand the **config** folder and open the **sl\_net\_default\_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.](#in-the-project-explorer-pane-expand-the-config-folder-and-open-the-sl_net_default_valuesh-file-configure-the-following-parameters-to-enable-your-silicon-labs-wi-fi-device-to-connect-to-your-wi-fi-network)
+  - [iTWT Session Status Codes](#itwt-session-status-codes)
+  - [TWT Recommendations](#twt-recommendations)
+  - [Soc Mode:](#soc-mode)
+    - [Without Tickless Mode:](#without-tickless-mode)
+    - [Tickless Mode](#tickless-mode)
+  - [Test the Application](#test-the-application)
+    - [Application Output](#application-output)
+    - [Additional Information](#additional-information)
 
 ## Purpose/Scope
 
@@ -102,8 +109,6 @@ The application can be configured to suit user requirements and development envi
    ```c
    #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA2 
    ```
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
@@ -480,6 +485,8 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 - **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
 
 - **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

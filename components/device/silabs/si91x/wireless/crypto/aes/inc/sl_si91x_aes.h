@@ -211,6 +211,7 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output);
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  * @note
  *   - The maximum length of the message in bytes that can be handled in one go is determined by SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES.
+ *   - If the message length exceeds this limit, the function returns SL_STATUS_INVALID_PARAMETER.
  *   - If the message length is not a multiple of SL_SI91X_AES_BLOCK_SIZE, the function returns an error.
  ******************************************************************************/
 sl_status_t sl_si91x_aes_multipart(const sl_si91x_aes_config_t *config,

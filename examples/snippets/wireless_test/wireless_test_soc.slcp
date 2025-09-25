@@ -17,7 +17,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: demo.c
 - path: wifi_commands.c
@@ -85,6 +85,8 @@ toolchain_settings:
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'
+- name: NVM3_DEFAULT_MAX_OBJECT_SIZE
+  value: '280'
 readme:
 - path: readme.md
 other_file:

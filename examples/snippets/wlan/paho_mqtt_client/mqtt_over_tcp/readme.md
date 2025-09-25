@@ -3,17 +3,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Procedure for executing the application when enabled with SSL](#procedure-for-executing-the-application-when-enabled-with-ssl)
-- [Additional Information](#additional-information)
-  - [Steps to set up MQTT server](#steps-to-set-up-mqtt-server)
+- [Wi-Fi - Paho MQTT Client Over TCP](#wi-fi---paho-mqtt-client-over-tcp)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+    - [Procedure for executing the application when enabled with SSL](#procedure-for-executing-the-application-when-enabled-with-ssl)
+  - [Additional Information](#additional-information)
+    - [Steps to set up MQTT server](#steps-to-set-up-mqtt-server)
 
 ## Purpose/Scope
 
@@ -87,9 +89,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
     ```c
 #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA2 
     ```
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
- 
+
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
   - MQTT_BROKER_PORT port refers to the port number on which the remote MQTT broker/server is running.
@@ -138,6 +138,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
    ```c
 #define KEEP_ALIVE_PERIOD 100
    ```
+  - For reliable operation, the MQTTYield's timeout_ms should be less than or equal to keepAliveInterval * 1000. If it exceeds timeout_ms value, the keepalive mechanism may not have enough opportunity to send a PINGREQ before MQTTYield returns. Alternatively, MQTTYield should be called frequently enough to ensure that the keepalive check is performed within the interval.
 
   - MQTT_CONNECT_TIMEOUT Timeout for broker connection in milliseconds.
 
@@ -171,6 +172,9 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
       //! Global buffer or memory which is used for MQTT client initialization. This is used for the MQTT client information storage.
       uint8_t tcp_mqtt_client_buffer[TCP_MQTT_CLIENT_INIT_BUFF_LEN]
    ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

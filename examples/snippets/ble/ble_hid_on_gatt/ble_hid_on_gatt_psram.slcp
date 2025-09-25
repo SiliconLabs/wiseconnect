@@ -1,7 +1,7 @@
 project_name: ble_hid_on_gatt_psram
 package: ble
 quality: production
-label: ble_hid_on_gatt_psram
+label: BLE - HID On GATT (PSRAM)
 category: Example|BLE
 description: >
   This application demonstrates how to configure BLE device as GATT server in BLE peripheral mode
@@ -18,7 +18,7 @@ sdk:
   version:  "2025.6.1"
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.5.1
+  version: 3.5.2
 source:
 - path: app.c
 include:

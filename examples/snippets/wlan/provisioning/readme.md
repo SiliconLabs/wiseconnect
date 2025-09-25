@@ -4,13 +4,17 @@ This example illustrates Wi-Fi provisioning using Access Point (AP) mode. It dem
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Program Demo Application](#program-demo-application)
-- [Run the Application](#run-the-application)
+- [Wi-Fi Provisioning via Access Point](#wi-fi-provisioning-via-access-point)
+	- [Table of Contents](#table-of-contents)
+	- [Purpose/Scope](#purposescope)
+	- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+		- [Hardware Requirements](#hardware-requirements)
+		- [Software Requirements](#software-requirements)
+		- [Setup Diagram](#setup-diagram)
+	- [Getting Started](#getting-started)
+	- [Application Build Environment](#application-build-environment)
+	- [Run the Application](#run-the-application)
+		- [Connecting to a Wi-Fi Network](#connecting-to-a-wi-fi-network)
 
 ## Purpose/Scope
 
@@ -81,6 +85,8 @@ The application can be configured to suit your requirements and development envi
   	```c
   	#define HTTP_SERVER_PORT 80
   	```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Run the Application
 

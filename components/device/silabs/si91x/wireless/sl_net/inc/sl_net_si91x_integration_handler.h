@@ -46,16 +46,6 @@ and then flushes the command and data queues for that socket based on the provid
 sl_status_t sli_si91x_flush_all_socket_tx_queues_based_on_dest_ip_address(uint16_t frame_status,
                                                                           const sl_ip_address_t *dest_ip_add,
                                                                           uint8_t vap_id);
-#pragma pack(1)
-typedef struct {
-  sl_mac_address_t client_mac_address; // Client MAC address
-  uint8_t flag;                        //  flag field
-  uint8_t ipv4_address[4];             // Remote IPv4 Address
-  uint8_t link_local_address[16];      // Remote link-local IPv6 Address
-  uint8_t global_address[16];          // Remote unicast global IPv6 Address
-} sli_si91x_ap_disconnect_resp_t;
-
-#pragma pack()
 
 void sli_si91x_flush_third_party_station_dependent_sockets(const sli_si91x_ap_disconnect_resp_t *ap_disconnect_resp);
 #endif

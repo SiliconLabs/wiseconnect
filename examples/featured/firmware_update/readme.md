@@ -134,8 +134,7 @@ The application can be configured to suit user requirements and development envi
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> Note: 
-> You can configure default region specific regulatory information using `sl_wifi_region_db_config.h`
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### TCP Configuration
 
@@ -170,6 +169,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   ![Figure: Log of firmware transfer](resources/readme/output_soc.png)
 
 - When the firmware update completes, the SiWx91x should be rebooted after which it may take a few minutes to overwrite the old firmware with the new firmware in Flash memory.
+
+  > Note:
+  > Image size displayed may vary depending on the firmware provided by the server.
 
 ### Steps to Create a Combined Image
 

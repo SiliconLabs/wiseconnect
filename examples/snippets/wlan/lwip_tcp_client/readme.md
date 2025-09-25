@@ -2,14 +2,21 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
+- [Wi-Fi - LwIP TCP Client](#wi-fi---lwip-tcp-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+    - [Application Configuration Parameters](#application-configuration-parameters)
+      - [Configure the following parameters in **app.c** to test LWIP app as per requirements](#configure-the-following-parameters-in-appc-to-test-lwip-app-as-per-requirements)
+  - [Soc Mode:](#soc-mode)
+    - [Without Tickless Mode:](#without-tickless-mode)
+    - [Tickless Mode](#tickless-mode)
+    - [Note](#note)
+  - [Test the application](#test-the-application)
 
 ## Purpose/Scope
 
@@ -89,8 +96,6 @@ The application can be configured to suit your requirements and development envi
    ```
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
-> Note: 
-> You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
 
 #### Configure the following parameters in **app.c** to test LWIP app as per requirements
 
@@ -138,6 +143,8 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 ### Note
   - Enable `SL_SI91X_TCP_IP_FEAT_BYPASS` bitmap in tcp_ip_feature_bitmap to use the lwip stack.
   - Refer [sl_net_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) API for using the lwip stack.
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the application
 

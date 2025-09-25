@@ -169,6 +169,27 @@ sl_status_t sl_si91x_clock_manager_control_pll(PLL_TYPE_T pll_type, bool enable)
  ***************************************************************************/
 void sl_si91x_delay_ms(uint32_t milli_seconds);
 
+/***************************************************************************/
+/** 
+ * @fn     sl_si91x_clock_manager_ulp_processor_clk_division(uint8_t clk_div)
+ * 
+ * @brief   Set M4 ULP Processor clock division factor.
+ *
+ * @details This API sets the M4 ULP Processor clock division factor by configuring the clock control register.
+ *          The division factor is calculated as 2*clk_div, where clk_div is the input parameter.
+ *
+ * @param clk_div Division factor (the clock will be divided by 2*clk_div)
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER - Invalid argument.
+ *
+ * @note  This API should be invoked only when the system is in PS2 state, as the source clock in this mode is configured to use a 20 MHz RC.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
+sl_status_t sl_si91x_clock_manager_ulp_processor_clk_division(uint8_t clk_div);
+
 // -----------------------------------------------------------------------------------
 
 /// @} end addtogroup CLOCK-MANAGER ******************************************************/

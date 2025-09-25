@@ -95,6 +95,7 @@
 #define RSI_BLE_GATT_SEND_DATA                0x08
 #define RSI_APP_EVENT_PHY_UPDATE_COMPLETE     0x09
 #define RSI_BLE_COMMAND_SET_PHY               0x0A
+#define RSI_BLE_GATT_ERROR                    0x0B
 
 #define BLE_2M_PHY 0x02
 #define BLE_1M_PHY 0x01
@@ -769,6 +770,24 @@ void check_wakeup_source()
 
 /*==============================================*/
 /**
+ * @fn         rsi_ble_gatt_error_event
+ * @brief      Callback invoked when a GATT error response is received.
+ * @param[in]  resp_status           Status code of the error response.
+ * @param[in]  rsi_ble_gatt_error    Pointer to the error response event structure.
+ * @return     none
+ * @section description
+ * This function is called by the BLE stack when a GATT error response is received from the remote device.
+ * It can be used to handle GATT protocol errors, such as invalid handle, read/write not permitted, etc.
+ */
+static void rsi_ble_gatt_error_event(uint16_t resp_status, rsi_ble_event_error_resp_t *rsi_ble_gatt_error)
+{
+  UNUSED_PARAMETER(resp_status); //This statement is added only to resolve compilation warning, value is unchanged
+  memcpy(remote_dev_bd_addr, rsi_ble_gatt_error->dev_addr, 6);
+  rsi_ble_app_set_event(RSI_BLE_GATT_ERROR);
+}
+
+/*==============================================*/
+/**
  * @fn         ble_heart_rate_gatt_server
  * @brief      this is the application of heart rate profile.
  * @param[in]  event_id, it indicates write/notification event id.
@@ -793,9 +812,6 @@ void ble_heart_rate_gatt_server(void *argument)
 #if (GATT_ROLE == CLIENT)
   uuid_t service_uuid = { 0 };
   uint8_t ix;
-  uint8_t data1[2] = { 1, 0 };
-  uint8_t i;
-  uint16_t notification_handle;
 #else
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
@@ -853,7 +869,7 @@ void ble_heart_rate_gatt_server(void *argument)
                                   NULL,
                                   NULL,
                                   NULL,
-                                  NULL,
+                                  rsi_ble_gatt_error_event,
                                   ble_on_att_desc_event,
                                   rsi_ble_profiles_list_event,
                                   rsi_ble_profile_event,
@@ -1067,8 +1083,13 @@ adv:
         memset(&service_uuid, 0, sizeof(service_uuid));
         service_uuid.size      = 2;
         service_uuid.val.val16 = RSI_BLE_HEART_RATE_SERVICE_UUID;
-        rsi_ble_get_profile_async(conn_event_to_app.dev_addr, service_uuid, NULL);
+        status                 = rsi_ble_get_profile_async(conn_event_to_app.dev_addr, service_uuid, NULL);
 
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\n rsi_ble_get_profile_async : error status 0x%lx \n", status);
+        } else {
+          LOG_PRINT("\r\n rsi_ble_get_profile_async : successful \n");
+        }
       } break;
 
       case RSI_BLE_GATT_PROFILE_RESP_EVENT: {
@@ -1078,10 +1099,15 @@ adv:
         rsi_ble_app_clear_event(RSI_BLE_GATT_PROFILE_RESP_EVENT);
 
         //! get characteristics of the immediate alert servcie
-        rsi_ble_get_char_services_async(conn_event_to_app.dev_addr,
-                                        *(uint16_t *)profiles_list.start_handle,
-                                        *(uint16_t *)profiles_list.end_handle,
-                                        NULL);
+        status = rsi_ble_get_char_services_async(conn_event_to_app.dev_addr,
+                                                 *(uint16_t *)profiles_list.start_handle,
+                                                 *(uint16_t *)profiles_list.end_handle,
+                                                 NULL);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\n rsi_ble_get_char_services_async : error status 0x%lx \n", status);
+        } else {
+          LOG_PRINT("\r\n rsi_ble_get_char_services_async : successful \n");
+        }
       } break;
 
       case RSI_BLE_GATT_CHAR_SERVICES_RESP_EVENT: {
@@ -1097,20 +1123,15 @@ adv:
 
           if (char_servs.char_services[ix].char_data.char_uuid.val.val16 == RSI_BLE_HEART_RATE_MEASUREMENT_UUID) {
             rsi_ble_heartrate_hndl = char_servs.char_services[ix].char_data.char_handle;
-            rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
-                                              char_servs.char_services[ix].handle + 2,
-                                              (char_servs.char_services[ix + 1].handle - 1),
-                                              NULL);
-          }
-        }
-
-        //!CCCD indication to remote device
-        for (i = 0; i < char_servs.num_of_services; i++) {
-
-          if (char_servs.char_services[i].char_data.char_property == 0x10
-              || char_servs.char_services[i].char_data.char_property == 0x20) {
-            notification_handle = char_servs.char_services[i].char_data.char_handle + 1;
-            rsi_ble_set_att_value_async(remote_dev_bd_addr, notification_handle, 2, data1);
+            status                 = rsi_ble_get_att_descriptors_async(conn_event_to_app.dev_addr,
+                                                       char_servs.char_services[ix].handle + 2,
+                                                       (char_servs.char_services[ix + 1].handle - 1),
+                                                       NULL);
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : error status 0x%lx \n", status);
+            } else {
+              LOG_PRINT("\r\n rsi_ble_get_att_descriptors_async : successful \n");
+            }
           }
         }
 
@@ -1126,10 +1147,15 @@ adv:
           if (attr_desc_list.att_desc[ix].att_type_uuid.val.val16 == 0x2902) {
             data[0] = 0x01;
             data[1] = 0x00;
-            rsi_ble_set_att_cmd_async(conn_event_to_app.dev_addr,
-                                      *((uint16_t *)attr_desc_list.att_desc[ix].handle),
-                                      2,
-                                      (uint8_t *)data);
+            status  = rsi_ble_set_att_value_async(conn_event_to_app.dev_addr,
+                                                 *((uint16_t *)attr_desc_list.att_desc[ix].handle),
+                                                 2,
+                                                 (uint8_t *)data);
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("\r\n rsi_ble_set_att_cmd_async : error status 0x%lx \n", status);
+            } else {
+              LOG_PRINT("\r\n rsi_ble_set_att_cmd_async : successful \n");
+            }
           }
           LOG_PRINT("Notification enabled \n");
         }

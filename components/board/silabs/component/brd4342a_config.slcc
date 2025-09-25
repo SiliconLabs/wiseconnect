@@ -19,6 +19,10 @@
       file_id: RTE_Device_917
     path: brd4342a/RTE_Device_917.h
   - override:
+      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
+      file_id: sl_gpio_board
+    path: brd4342a/sl_gpio_board.h
+  - override:
       component: "%extension-wiseconnect3_sdk%sl_si91x_led_917"
       file_id: led_config
       instance: led0

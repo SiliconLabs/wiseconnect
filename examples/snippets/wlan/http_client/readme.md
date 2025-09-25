@@ -2,15 +2,19 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-- [Steps to set up HTTP server](#steps-to-set-up-http-server)
+- [Wi-Fi - HTTP Client](#wi-fi---http-client)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Steps to Setup HTTP server](#steps-to-setup-http-server)
+  - [Steps to Setup HTTPS server](#steps-to-setup-https-server)
+  - [Troubleshooting](#troubleshooting)
 
 ## Purpose/Scope
 
@@ -83,9 +87,6 @@ The application can be configured to suit your requirements and development envi
   
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
   
-  > Note: 
-  > You can configure default region-specific regulatory information using `sl_wifi_region_db_config.h`.
-
   - Configure the following parameters in ``app.c`` to test the HTTP Client app as per requirements:
 
   - HTTP Server Port and IP Settings
@@ -122,6 +123,8 @@ The application can be configured to suit your requirements and development envi
   // Load Security Certificates
   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   ```
+
+> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
