@@ -536,7 +536,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps4tops2(ULP_MODE_T enCtxSel,
                                                          uint8_t socLdoEnable,
                                                          uint8_t standByDc)
 {
-  volatile int x = 0;
+  int x = 0;
 
   /*return error if this function is called from PS2*/
   if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
@@ -553,7 +553,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps4tops2(ULP_MODE_T enCtxSel,
 
   /*Avoid the junk system bus access*/
   for (x = 0; x < 10; x++) {
-    __ASM("NOP");
+    __NOP();
   }
   /*
   Indicates the status of functional switching to ULP Mode operation
@@ -669,7 +669,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
   /*  Wait for Status bit indicating Physical transition from PS2 to PS4*/
   /*Avoid the junk system bus access*/
   for (x = 0; x < 10; x++) {
-    __ASM("NOP");
+    __NOP();
   }
 
   while (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)
@@ -699,7 +699,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
   M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
   for (x = 0; x < 200; x++) {
-    __ASM("NOP");
+    __NOP();
   }
 #if !defined(SLI_SI917) && !defined(SLI_SI915)
   M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
