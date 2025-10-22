@@ -314,8 +314,8 @@ void RSI_Set_Cntrls_To_M4(void)
   BATT_FF->M4SS_TASS_CTRL_SET_REG_b.M4SS_CTRL_TASS_AON_DISABLE_ISOLATION_BYPASS = ENABLE;
   /* M4SS controlling Power supply for TASS AON domains reset pin in bypass mode. */
   M4SS_TASS_CTRL_CLR_REG = M4SS_CTRL_TASS_AON_PWR_DMN_RST_BYPASS_BIT;
-  for (volatile uint8_t delay = 0; delay < 10; delay++) {
-    __ASM("NOP");
+  for (uint8_t delay = 0; delay < 10; delay++) {
+    __NOP();
   }
 }
 /**

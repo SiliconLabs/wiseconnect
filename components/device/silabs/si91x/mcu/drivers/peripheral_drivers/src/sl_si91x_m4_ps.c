@@ -359,7 +359,7 @@ bool sli_si91x_ta_packet_initiated_to_m4(void)
 
     // This delay is introduced to synchronize between the M4 and the NWP.
     for (uint8_t delay = 0; delay < 10; delay++) {
-      __ASM("NOP");
+      __NOP();
     }
 
     // Verify if the NWP has already initiated a packet to the M4

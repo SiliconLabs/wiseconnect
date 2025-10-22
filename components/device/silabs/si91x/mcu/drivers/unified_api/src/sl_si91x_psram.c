@@ -2021,7 +2021,7 @@ sl_psram_return_type_t sl_si91x_psram_sleep(void)
 
   /*Make sure tHS is not violated*/
 
-  __asm("nop");
+  __NOP();
 
   return PSRAM_SUCCESS;
 }
@@ -2038,16 +2038,16 @@ sl_psram_return_type_t sl_si91x_psram_wakeup(void)
 
   /*Make sure tXPHS is not violated*/
 
-  __asm("nop");
-  __asm("nop");
-  __asm("nop");
+  __NOP();
+  __NOP();
+  __NOP();
 
   qspi_reg->QSPI_MANUAL_CONFIG_REG = (qspi_reg->QSPI_MANUAL_CONFIG_REG | 0x1);
 
   /*Make sure tXHS is not violated*/
 
   for (int i = 0; i < tXHS_MAX_COUNT; i++) {
-    __asm("nop");
+    __NOP();
   }
 
   return sl_si91x_psram_init();

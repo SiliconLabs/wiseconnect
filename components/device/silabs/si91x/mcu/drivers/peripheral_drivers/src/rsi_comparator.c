@@ -155,7 +155,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
 
       if (enable) {
         for (i = 0; i < 300; i++) {
-          __ASM("nop");
+          __NOP();
         }
         RSI_COMP_IntrEnableDisable(comp_number, ENABLE);
         NVIC_EnableIRQ(COMP1_IRQn);
@@ -171,7 +171,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
 
       if (enable) {
         for (i = 0; i < 300; i++) {
-          __ASM("nop");
+          __NOP();
         }
         RSI_COMP_IntrEnableDisable(comp_number, ENABLE);
         NVIC_EnableIRQ(COMP2_IRQn);
@@ -190,7 +190,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
 
       if (enable) {
         for (i = 0; i < 300; i++) {
-          __ASM("nop");
+          __NOP();
         }
         NVIC_EnableIRQ(COMP1_IRQn);
       }
@@ -203,7 +203,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
 
       if (enable) {
         for (i = 0; i < 300; i++) {
-          __ASM("nop");
+          __NOP();
         }
         NVIC_EnableIRQ(COMP2_IRQn);
       }
@@ -219,7 +219,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
 
     if (enable) {
       for (i = 0; i < 300; i++) {
-        __ASM("nop");
+        __NOP();
       }
       RSI_COMP_IntrEnableDisable(comp_number, ENABLE);
       NVIC_EnableIRQ(COMP1_IRQn);
@@ -235,7 +235,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
 
     if (enable) {
       for (i = 0; i < 300; i++) {
-        __ASM("nop");
+        __NOP();
       }
       RSI_COMP_IntrEnableDisable(comp_number, ENABLE);
       NVIC_EnableIRQ(COMP2_IRQn);

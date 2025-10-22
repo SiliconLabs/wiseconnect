@@ -1991,7 +1991,7 @@ void RSI_QSPI_ConfigQspiDll(spi_config_t *spi_config, qspi_reg_t *qspi_reg)
      | (spi_config->spi_config_2.qspi_clk_en << 8)); // Octa_mode_enable_with_dqs
   //wait till 10 clocks
   while (delay) {
-    __ASM("nop");
+    __NOP();
     delay--;
   }
 
