@@ -293,8 +293,8 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   P2P_STATUS_REG &= ~M4_is_active;
   P2P_STATUS_REG;
   // Adding delay to sync m4 with NWP
-  for (volatile uint8_t delay = 0; delay < 10; delay++) {
-    __ASM("NOP");
+  for (uint8_t delay = 0; delay < 10; delay++) {
+    __NOP();
   }
 
   // Checking if already NWP have triggered the packet to M4
