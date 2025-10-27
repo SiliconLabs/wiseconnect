@@ -1,0 +1,107 @@
+project_name: wifi_powersave_standby_associated_soc
+package: wifi
+quality: production
+label: Wi-Fi - Powersave Standby Associated (SoC)
+category: Example|Wi-Fi
+description: >
+  Start a Wi-Fi client in ASSOCIATED_POWER_SAVE mode and connects to
+  AP and send data to UDP server 
+filter:
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+source:
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+component:
+  - id: sl_main
+  - id: freertos
+  - id: freertos_heap_4
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: bsd_socket
+    from: wiseconnect3_sdk
+  - id: sl_si91x_mem_pool_buffers_with_quota
+    from: wiseconnect3_sdk
+  - id: sl_power_manager
+    from: wiseconnect3_sdk
+requires:
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+  - name: SL_BOARD_ENABLE_VCOM
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_SECURITY_OPEN
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_AGGREGATION
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_ULP_GPIO_BASED_HANDSHAKE
+    value: '1'
+  - name: SL_SI91X_WC_TCP_IP_FEAT_DHCPV4_CLIENT
+    value: '1'
+  - name: SL_SI91X_WC_TCP_IP_FEAT_DNS_CLIENT
+    value: '1'
+  - name: SL_SI91X_WC_EXT_FEAT_LOW_POWER_MODE
+    value: '1'
+  - name: SL_SI91X_WC_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+    value: '1'
+  - name: SL_SI91X_WC_FRONT_END_SWITCH_CONFIG
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_SLEEP_GPIO_SEL_BITMAP
+    value: '1'
+  - name: SL_SI91X_WC_ENABLE_ENHANCED_MAX_PSP
+    value: '1'
+  - name: SL_SI91X_WC_FEAT_WPS_DISABLE
+    value: '1'
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/energy_profiler_step_6.png
+  - path: resources/readme/energy_profiler_step_7.png
+  - path: resources/readme/energy_profiler_step_8.png
+  - path: resources/readme/image185.png
+  - path: resources/readme/image187.png
+  - path: resources/readme/output_soc.png
+  - path: resources/readme/power_meter_avg_current_consumption.png
+  - path: resources/readme/power_save_current_measurement_pins.png
+  - path: resources/readme/setup_soc_ncp.png
+  - path: resources/readme/alarm_timer_configure.png
+  - path: resources/readme/wakeup_configure.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

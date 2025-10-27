@@ -1,0 +1,442 @@
+{# Macro that expands class and message to the message name, such as "system_boot" #}
+{%- macro msg_name(cls, msg) -%}
+{{cls.name}}_{{msg.name}}
+{%- endmacro %}
+
+{%- macro commander_set_evt_rsp_msg_function_input_params(params) -%}
+{%- for p in params -%}
+{%- if (p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array") -%}
+{# Skip array param completely #}
+{%- else -%}
+, {{p.name}}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{# Macro to generate the parameter list for an Event or Response function #}
+{%- macro commander_evt_rsp_output_function_params(params, param_index, array_style) -%}
+{%- for p in params -%}
+{%- if (p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array") and array_style=="none" -%}
+{# Skip array param completely #}
+{%- else -%}
+{%- if loop.index0 + param_index > 0 -%}, {% endif -%}
+{%- if p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array" -%}
+{%- if array_style=="xbuf*" -%}
+xbuf *{{p.name}}
+{%- elif array_style=="xbuf**" -%}
+xbuf **{{p.name}}
+{%- elif array_style=="len_ptr" -%}
+size_t {{p.name}}_len, const void *{{p.name}}_buf
+{%- endif -%}
+{%- elif p.type.c_datatype == "bd_addr" or p.type.c_datatype == "aes_key_128" or  p.type.c_datatype == "ipv4_addr" or p.type.c_datatype == "ipv6_addr" or p.type.c_datatype == "mac_addr" or p.type.datatype == "byte_array" -%}
+const void* {{p.name}}
+{%- else -%}
+{{p.type.c_datatype}} {{p.name}}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+
+{#
+ # Macro to generate the definition of "wificommander_set_rsp_<msg_name>_msg()" function. This function takes
+ # the output location and the non-array input values for a specific response, and sets
+ # the values to the correct fields of the response message structure.
+ #}
+{%- macro commander_set_rsp_msg_function_def(cls, cmd) -%}
+static inline void app_wifi_set_rsp_{{ msg_name(cls, cmd) }}_msg(struct app_{{data.device_name}}_packet *xapi_msg{{ commander_evt_rsp_output_function_params(cmd.returns(), 1, "none") }})
+{
+    (void) xapi_msg;
+{%- for p in cmd.returns() -%}
+{%- if p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array" -%}
+{# Array parameter is handled by the create/queue function #}
+{%- elif p.type.c_datatype=="bd_addr" or p.type.c_datatype=="aes_key_128" or p.type.c_datatype=="ipv4_addr" or p.type.c_datatype=="ipv6_addr" or p.type.c_datatype == "mac_addr" or p.type.datatype=="byte_array" %}
+    memcpy(&xapi_msg->data.rsp_{{ msg_name(cls, cmd) }}.{{p.name}}, {{p.name}}, sizeof({{p.type.c_datatype}}));
+{%- else %}
+    xapi_msg->data.rsp_{{ msg_name(cls, cmd) }}.{{p.name}} = {{p.name}};
+{%- endif -%}
+{% endfor %} {#for for p in cmd.returns() #}
+}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "wifi_set_evt_<msg_name>_msg()" function. This function takes
+ # the output location and the non-array input values for a specific event, and sets
+ # the values to the correct fields of the response message structure.
+ #}
+{%- macro commander_set_evt_msg_function_def(cls, evt) -%}
+static inline void app_wifi_set_evt_{{ msg_name(cls, evt) }}_msg(struct app_{{data.device_name}}_packet *xapi_msg{{ commander_evt_rsp_output_function_params(evt.params(), 1, "none") }})
+{
+    (void) xapi_msg;
+{%- for p in evt.params() -%}
+{%- if p.type.c_datatype == "uint8array" or p.type.c_datatype == "byte_array" -%}
+{# Array parameter is handled by the create/queue function #}
+{%- elif p.type.c_datatype=="bd_addr" or p.type.c_datatype=="aes_key_128" or p.type.c_datatype=="ipv4_addr" or p.type.c_datatype=="ipv6_addr" or p.type.c_datatype == "mac_addr" or p.type.datatype=="byte_array" %}
+    memcpy(&xapi_msg->data.evt_{{ msg_name(cls, evt) }}.{{p.name}}, {{p.name}}, sizeof({{p.type.c_datatype}}));
+{%- else %}
+    xapi_msg->data.evt_{{ msg_name(cls, evt) }}.{{p.name}} = {{p.name}};
+{%- endif -%}
+{% endfor %} {# for p in evt.params() #}
+}
+{%- endmacro -%}
+
+{# Macro to generate a call to the "wifi_set_rsp_<msg_name>_msg()" function. #}
+{%- macro commander_set_rsp_msg_function_call(cls, cmd, output) -%}
+app_wifi_set_rsp_{{msg_name(cls, cmd)}}_msg((struct app_{{data.device_name}}_packet*){{output}}{{ commander_set_evt_rsp_msg_function_input_params(cmd.returns()) }})
+{%- endmacro -%}
+
+{# Macro to generate a call to the "wifi_set_evt_<msg_name>_msg()" function. #}
+{%- macro commander_set_evt_msg_function_call(cls, evt, output) -%}
+app_wifi_set_evt_{{msg_name(cls, evt)}}_msg((struct app_{{data.device_name}}_packet*){{output}}{{ commander_set_evt_rsp_msg_function_input_params(evt.params()) }})
+{%- endmacro -%}
+
+{#
+ # Macro to generate C-code to select the xbuf flags used when queuing commander events. Most events
+ # use the default flags that create non-expendable events. A few events are always expendable, and
+ # one special case is expendable conditionally depending on the input values.
+ #}
+{%- macro event_xbuf_flags(cls, evt) -%}
+{%- if (msg_name(cls, evt) == "sync_data") or
+       (msg_name(cls, evt) == "periodic_sync_report") or
+       (msg_name(cls, evt) == "pawr_sync_subevent_report") or
+       (msg_name(cls, evt) == "pawr_advertiser_response_report") or
+       (msg_name(cls, evt) == "scanner_legacy_advertisement_report") or
+       (msg_name(cls, evt) == "scanner_extended_advertisement_report") or
+       (msg_name(cls, evt) == "cte_receiver_iq_report") -%}
+xbuf_prio_expendable
+{%- elif (msg_name(cls, evt) == "gatt_characteristic_value") -%}
+(att_opcode == 0x1b /* app_bt_gatt_handle_value_notification */) ? xbuf_prio_expendable : xbuf_flags_default
+{%- else -%}
+xbuf_flags_default
+{%- endif -%}
+{%- endmacro -%}
+
+{# Macro to generate C-code to calculate the size of a response excluding XAPI header and any variable-size data #}
+{%- macro size_of_rsp(cls, cmd) -%}
+{%- if cmd.returns.param|length > 0 %}sizeof(app_{{data.device_name}}_rsp_{{msg_name(cls, cmd)}}_t){%- else -%}0{%- endif -%}
+{%- endmacro -%}
+
+{# Macro to generate C-code to calculate the size of an event excluding XAPI header and any variable-size data #}
+{%- macro size_of_evt(cls, evt) -%}
+{%- if evt.params.param|length > 0 %}sizeof(app_{{data.device_name}}_evt_{{msg_name(cls, evt)}}_t){%- else -%}0{%- endif -%}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "wifi_commader_rsp_<msg_name>()" function used for creating responses
+ # that have no variable-length data. This function takes all input parameters for a specific
+ # response message, and calls the relevant functions to fill the response structure.
+ #}
+{%- macro commander_create_xapi_response_function_def(cls, cmd) -%}
+static inline void app_wifi_rsp_{{msg_name(cls, cmd)}}({{ commander_evt_rsp_output_function_params(cmd.returns(), 0, "none") }})
+{
+    void *xapi_msg =
+        commander_create_xapi_response(API_INTERNAL_XAPI_MSG_HEADER({{cls.index}}, {{cmd.index}},
+                                                         (uint8_t) app_xapi_msg_type_rsp | (uint8_t) app_xapi_dev_type_{{data.device_name}},
+                                                         {{size_of_rsp(cls, cmd)}}));
+    {{commander_set_rsp_msg_function_call(cls, cmd, "xapi_msg")}};
+}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "commander_get_rsp_<msg_name>_data_buf()" function used for obtaining
+ # a pointer to the variable-length data portion of a specific response message.
+ #}
+{%- macro commander_get_rsp_data_buf_function_def(cls, cmd) -%}
+static inline uint8_t *app_wifi_get_rsp_{{ msg_name(cls, cmd) }}_data_buf()
+{
+    return {{rsp_msg_buf_ptr}}->data.rsp_{{msg_name(cls, cmd)}}.{{cmd.returns.array.name}}.data;
+}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "commander_rsp_<msg_name>()" function used for creating responses
+ # that have variable-length data that the caller has in contiguous memory. This function takes
+ # all input parameters for a specific response message, and calls the relevant functions to
+ # fill the response message structure.
+ #}
+{%- macro commander_create_xapi_response_data_function_def(cls, cmd) -%}
+static inline void app_wifi_rsp_{{ msg_name(cls, cmd) }}({{ commander_evt_rsp_output_function_params(cmd.returns(), 0, "len_ptr") }})
+{
+    void *xapi_msg =
+        commander_create_xapi_response_data(API_INTERNAL_XAPI_MSG_HEADER({{cls.index}}, {{cmd.index}}, (uint8_t) app_xapi_msg_type_rsp | (uint8_t) app_xapi_dev_type_{{data.device_name}},
+                                                              {{size_of_rsp(cls, cmd)}}),
+                                        {{cmd.returns.array.name}}_len, {{cmd.returns.array.name}}_buf);
+    {{commander_set_rsp_msg_function_call(cls, cmd, "xapi_msg")}};
+}
+{%- endmacro -%}
+
+{%- macro event_decl_struct_name(cls, evt) -%}
+xapi_event_decl_{{data.device_name}}_{{cls.name}}_{{evt.name}}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "wifi_evt_<msg_name>()" function used for creating and
+ # immediately queuing events that have no variable-length data. This function takes all input
+ # parameters for a specific event message, and calls the relevant functions to allocate and
+ # fill the event structure, and queue it for delivery.
+ #}
+{%- macro commander_queue_xapi_event_function_def(cls, evt) -%}
+static inline bool app_wifi_evt_{{ msg_name(cls, evt) }}({{ commander_evt_rsp_output_function_params(evt.params(), 0, "none") }})
+{
+    app_wifi_msg_t xapi_msg;
+    xapi_msg.header = {{event_decl_struct_name(cls, evt)}}.event_header;
+    {{commander_set_evt_msg_function_call(cls, evt, "&xapi_msg")}};
+    sl_status_t sc = app_wifi_push_event(&xapi_msg);
+    return (sc == SL_STATUS_OK) ? true : false;
+}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "wifi_evt_<msg_name>()" function used for creating events that
+ # have variable-length data that the caller has in contiguous memory. This function takes all input
+ # parameters for a specific event message, and calls the relevant functions to allocate and fill
+ # the event structure, and queue it for delivery.
+ #}
+{%- macro commander_queue_xapi_event_data_function_def(cls, evt) -%}
+static inline bool app_wifi_evt_{{ msg_name(cls, evt) }}({{ commander_evt_rsp_output_function_params(evt.params(), 0, "len_ptr") }})
+{
+    app_wifi_msg_t xapi_msg;
+    xapi_msg.header = {{event_decl_struct_name(cls, evt)}}.event_header;
+    {{commander_set_evt_msg_function_call(cls, evt, "&xapi_msg")}};
+
+    sl_status_t sc = app_wifi_push_event_with_data(&xapi_msg, {{evt.params.array.name}}_len, {{evt.params.array.name}}_buf);
+    return (sc == SL_STATUS_OK) ? true : false;
+}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "wifi_evt_<msg_name>_xbuf_copy()" function used for creating
+ # events that have variable-length data that the caller has in a chain of xbufs that must be
+ # copied. This function takes all input parameters for a specific event message, and calls the
+ # relevant functions to allocate and fill the event structure, and queue it for delivery.
+ #}
+{%- macro commander_queue_xapi_event_xbuf_copy_function_def(cls, evt) -%}
+static inline bool wifi_commmader_{{ msg_name(cls, evt) }}_xbuf_copy({{ commander_evt_rsp_output_function_params(evt.params(), 0, "xbuf*") }})
+{
+    void *xapi_msg =
+        commander_queue_xapi_event_xbuf_copy(&{{event_decl_struct_name(cls, evt)}}, {{event_xbuf_flags(cls, evt)}},
+                                           {{evt.params.array.name}});
+    if (xapi_msg) {
+      {{commander_set_evt_msg_function_call(cls, evt, "xapi_msg")}};
+      return true;
+    }
+
+    return false;
+}
+{%- endmacro -%}
+
+{#
+ # Macro to generate the definition of "wifi_evt_<msg_name>_xbuf_reuse()" function used for creating
+ # events that have variable-length data that the caller has in a chain of xbufs that can be
+ # re-used as the event directly. This function takes all input parameters for a specific event
+ # message, and calls the relevant functions to allocate and fill the event structure, and queue
+ # it for delivery.
+ #}
+{%- macro commander_queue_xapi_event_xbuf_reuse_function_def(cls, evt) -%}
+static inline bool wifi_commader_evt_{{ msg_name(cls, evt) }}_xbuf_reuse({{ commander_evt_rsp_output_function_params(evt.params(), 0, "xbuf**") }})
+{
+    void *xapi_msg =
+        commander_queue_xapi_event_xbuf_reuse(&{{event_decl_struct_name(cls, evt)}}, {{event_xbuf_flags(cls, evt)}},
+                                            {{evt.params.array.name}});
+    if (xapi_msg) {
+      {{commander_set_evt_msg_function_call(cls, evt, "xapi_msg")}};
+      return true;
+    }
+
+    return false;
+}
+{%- endmacro -%}
+
+{%- set rsp_msg_buf_ptr = '((struct app_' + data.device_name + '_packet *)app_internal_xapi_rsp_msg_buf)' -%}
+
+
+/********************************************************************************
+ * @file  app_wifi_xapi_cmd_rx_handler.h
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
+{% set HEADER_GUARD_DEFINE = 'COMMANDER_' + data.device_name.upper() + '_XAPI_H' %}
+#ifndef {{ HEADER_GUARD_DEFINE }}
+#define {{ HEADER_GUARD_DEFINE }}
+#define VERSION no_link_tables
+
+/*****************************************************************************
+ *
+ *  XAPI Internal implementation
+ *
+ *  Autogenerated file, do not edit
+ *
+ ****************************************************************************/
+
+#include <stdarg.h>
+#include "x_types.h"
+#include "app_internal_{{data.device_name}}_api.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <string.h>
+#include "x_types.h"
+#include "xapi.h"
+
+/*
+ * The inline functions below provide a mechanism for creating and filling XAPI responses and
+ * events. The high-level approach and the interface available to callers is documented in
+ * xapi.h. The implementation of the functions follows the design principles of providing a similar
+ * API for both responses and events, minimizing the code size, and avoiding any unnecessary copying
+ * of data.
+ *
+ * A function with naming "commander_set_<rsp/evt>_<class>_<command>_msg()" is created for both
+ * responses and events. The function takes the output location and all non-array parameters for the
+ * message in question. The function sets the class and message ID in the XAPI header, and sets the
+ * non-array parameters in the event-specific fields.
+ *
+ * The functions for creating responses are named "commander_rsp_<class>_<command>()". Depending on
+ * whether the request has variable-length data or not, these functions call either
+ * "commander_create_xapi_response()" or "commander_create_xapi_response_data()" implemented in
+ * xapi.c. The function in xapi.c initializes the type and size of the message, copies the data if
+ * needed, and returns a pointer to the response message structure. The response creation function
+ * "commander_rsp_<class>_<command>()" then uses the corresponding
+ * "commander_set_rsp_<class>_<command>_msg()" function to set the individual non-array parameters.
+ *
+ * Additionally a function named "commander_get_rsp_<class>_<command>_data_buf()" is generated for
+ * responses that have variable-length data. Callers may use that to obtain a pointer to the data
+ * array and fill that directly prior to calling "commander_rsp_<class>_<command>()" (see xapi.h for
+ * description).
+ *
+ * The functions for creating and queuing events support different ways of passing the data, and
+ * those are documented in xapi.h. The functions call a corresponding function in xapi.c that
+ * obtains the required xbufs for the event, initializes the type and size of the message, copies
+ * the data if needed, queues the message in the event queue, and returns a pointer to the event
+ * message header (which is guaranteed to be in contiguous memory). The following functions are
+ * involved:
+ *
+ * - app_internal_xapi_create_event_<device>_<class>_<event>(<non-array parameters>)" calls
+ *   app_internal_xapi_create_event()
+ *
+ * - commander_evt_<class>_<command>(<non-array parameters>) calls commander_queue_xapi_event()
+ *
+ * - commander_evt_<class>_<command>(<non-array parameters>, <data_len>, <void* data>) calls
+ *   commander_queue_xapi_event_data()
+ *
+ * - commander_evt_<class>_<command>_xbuf_copy(<non-array parameters>, <xbuf* data>) calls
+ *   commander_queue_xapi_event_xbuf_copy()
+ *
+ * - commander_evt_<class>_<command>_xbuf_reuse(<non-array parameters>, <xbuf** data>) calls
+ *   commander_queue_xapi_event_xbuf_reuse()
+ *
+ * The event creation function "commander_event_<class>_<command>()" then uses the corresponding
+ * "commander_set_evt_<class>_<command>_msg()" function to set the individual non-array parameters
+ * directly to the message header allocated by the function in xapi.c.
+ */
+
+{%- for cls in classes -%}
+{%- for cmd in cls.command %}
+{#-
+ # Generate functions for Responses. Need a comment and
+ # the "commander_set_rsp_<msg_name>_msg()" function definition.
+ #}
+/* Functions for message commander_rsp_{{ msg_name(cls, cmd) }} */
+{{ commander_set_rsp_msg_function_def(cls, cmd) }}
+{#- Generate functions for Responses -#}
+{% if cmd.returns.array %}
+{#-
+ # Response messages with variable-length data get two functions:
+ # commander_get_rsp_<class>_<cmd>_data_buf() - obtains a pointer to the buffer for variable-length data
+ # commander_rsp_<class>_<cmd>()              - creates the response, taking separate "*_len" and "*_buf" params pointing to contiguous memory
+ #}
+
+{{ commander_get_rsp_data_buf_function_def(cls, cmd) }}
+
+{{ commander_create_xapi_response_data_function_def(cls, cmd) }}
+{%- else -%}
+{#-
+ # Response messages with no variable-length data get one output function:
+ # commander_rsp_<class>_<msg>()
+ #}
+
+{{ commander_create_xapi_response_function_def(cls, cmd) }}
+{%- endif %}
+{% endfor %} {#for cmd in cls.command #}
+{%- for evt in cls.event %}
+{#-
+ # Generate functions for Events. Need a comment and
+ # the "commander_set_evt_<msg_name>_msg()" function definition.
+ #}
+/* Functions for message commander_evt_{{ msg_name(cls, evt) }} */
+{{ commander_set_evt_msg_function_def(cls, evt) }}
+{#- Generate the event declaration #}
+
+static const struct xapi_event {{event_decl_struct_name(cls, evt)}} = {
+  API_INTERNAL_XAPI_MSG_HEADER({{cls.index}}, {{evt.index}}, (uint8_t) app_xapi_msg_type_evt | (uint8_t) app_xapi_dev_type_{{data.device_name}}, {{size_of_evt(cls, evt)}})
+};
+
+{#- Generate functions for Events -#}
+{% if evt.params.array %}
+
+{#-
+ # The current implementation of XAPI events only supports the "uint8array" type for the
+ # variable-length data. Make sure the event is not trying to use something else. It would
+ # be nicer to use Jinja errors ({% error "..." %}), but sadly that extension is not available
+ # in our old script that parses this template. Let's use a preprocessor error instead to catch
+ # the problem in the compilation phase.
+ #}
+{%- if evt.params.array.type.c_datatype != "uint8array" %}
+#error Event app_{{data.device_name}}_{{cls.name}}_{{evt.name}} uses unsupported array type "{{evt.params.array.type.c_datatype}}"
+{%- endif %}
+
+{#-
+ # Event messages with variable-length data get three output functions to construct the event:
+ # commander_evt_<class>_<msg>()             - takes separate "*_len" and "*_buf" params pointing to contiguous memory
+ # commander_evt_<class>_<msg>_xbuf_copy()  - takes one data parameter pointing to a chain of xbufs to copy
+ # commander_evt_<class>_<msg>_xbuf_reuse() - takes one data parameter pointing to a chain of xbufs to re-use as-is
+ #}
+
+{{ commander_queue_xapi_event_data_function_def(cls, evt) }}
+
+
+{%- else -%}
+{#-
+ # Event messages with no variable-length data get one output function that creates and queues an event:
+ # commander_evt_<class>_<msg>()
+ #
+ # And one function that creates an event without queuing it:
+ # app_internal_xapi_create_event_<device>_<class>_<msg>()
+ #}
+
+{{ commander_queue_xapi_event_function_def(cls, evt) }}
+
+{%- endif -%}
+{%- endfor -%} {# for evt in cls.event #}
+{%- endfor -%} {# for cls in classes #}
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

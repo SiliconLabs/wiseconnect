@@ -1,0 +1,82 @@
+project_name: wifi_data_transfer_application_soc
+package: wifi
+quality: production
+label: Wi-Fi - Data Transfer Application (SoC)
+category: Example|Wi-Fi
+description: |
+   In Client interface, recieve the data from remote PC1 to SiWx91x Station. This recieved data is stored in a buffer. Later in AP interface, the stored buffer is sent by SiWx91x AP to remote PC2.
+filter:
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+- name: Project Difficulty
+  value:
+  - Beginner
+sdk:
+  id: simplicity_sdk
+  version:  "2025.6.1"
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.5.2
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+  from: wiseconnect3_sdk
+- id: si91x_memory_default_config
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: sl_si91x_mem_pool_buffers
+  from: wiseconnect3_sdk
+- id: sl_si91x_asynchronous_socket
+  from: wiseconnect3_sdk
+- id: sl_si91x_socket
+  from: wiseconnect3_sdk
+- id: mqtt
+  from: wiseconnect3_sdk
+- id: bsd_socket
+  from: wiseconnect3_sdk
+requires:
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+-  path: readme.md
+other_file:
+-  path: resources/readme/data_transfer_1.png
+-  path: resources/readme/data_transfer_2.png
+-  path: resources/readme/data_transfer_3.png
+-  path: resources/readme/data_transfer_setup.png
+-  path: resources/readme/data_transfer_setup_ncp.png
+ui_hints:
+   highlight:
+   -  path: readme.md
+      focus: true
+post_build:
+   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

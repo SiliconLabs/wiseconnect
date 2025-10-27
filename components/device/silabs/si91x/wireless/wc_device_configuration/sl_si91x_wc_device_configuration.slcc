@@ -1,0 +1,19 @@
+id: sl_si91x_wc_device_configuration
+package: wiseconnect3_sdk
+description: >
+    SiWx917 Device Configuration Wizard
+label: SiWx917 Device Configuration Wizard
+category: Device|Si91x|Wireless
+quality: production
+metadata:
+    sbom:
+        license: MSLA
+component_root_path: ./components/device/silabs/si91x/wireless/wc_device_configuration
+config_file:
+  - path: sl_si91x_wc_device_configuration.h
+
+define:
+- name: SL_SI91X_WC_DEVICE_CONFIGURATION
+
+requires:
+- name: sl_si91x_wireless

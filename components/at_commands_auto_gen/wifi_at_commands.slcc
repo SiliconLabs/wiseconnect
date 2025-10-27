@@ -1,0 +1,173 @@
+id: wifi_at_commands
+package: wiseconnect3_sdk
+description: >
+  Wi-Fi AT commands
+category: Service| AT Commands Autogen| Wi-Fi AT commands
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/at_commands_auto_gen
+provides:
+  - name: wifi_at_commands
+
+include:
+  - path: .
+    file_list:
+      - path: wifi_commands.h
+
+template_contribution:
+  - name: console_headers
+    value: "sl_net_constants.h"
+  - name: console_headers
+    value: "sl_ip_types.h"
+  - name: console_headers
+    value: "wifi_commands.h"
+  - name: console_variables
+    value:
+      wifi:
+        config:
+          type: "ram_struct"
+          struct: "sl_si91x_boot_configuration_t"
+          instance: "si91x_init_configuration.boot_config"
+          members:
+            - name: "oper_mode"
+              type: "uint16"
+            - name: "coex_mode"
+              type: "uint16"
+            - name: "feature_bit_map"
+              type: "uint32"
+            - name: "tcp_ip_feature_bit_map"
+              type: "uint32"
+            - name: "custom_feature_bit_map"
+              type: "uint32"
+            - name: "ext_custom_feature_bit_map"
+              type: "uint32"
+            - name: "bt_feature_bit_map"
+              type: "uint32"
+            - name: "ext_tcp_ip_feature_bit_map"
+              type: "uint32"
+            - name: "ble_feature_bit_map"
+              type: "uint32"
+            - name: "ble_ext_feature_bit_map"
+              type: "uint32"
+            - name: "config_feature_bit_map"
+              type: "uint32"
+  - name: console_commands
+    value:
+      help:
+        handler: help_command_handler
+      ready?:
+        handler: ready_command_handler
+      echo:
+        handler: echo_command_handler
+        arguments:
+          - "uint8"
+      wifi-init:
+        handler: wifi_init_command_handler
+        arguments:
+          - "uint8"
+      wifi-deinit:
+        handler: wifi_deinit_command_handler
+      wifisys-fwver?:
+        handler: wifi_get_firmware_version_command_handler
+      wifi-get-mac:
+        handler: wifi_get_mac_address_command_handler
+        arguments:
+          - "uint8"
+      wifi-net-info?:
+        handler: wifi_get_network_info_handler
+      wifi-start-scan:
+        handler: wifi_scan_command_handler
+        description: "Start scanning"
+        arguments:
+          - "uint8"
+          - "string"
+          - "uint8"
+          - "uint32"
+          - "uint32"
+          - "uint16"
+          - "uint32"
+          - "uint8"
+      wifi-stop-scan:
+        handler: wifi_stop_scan_command_handler
+        arguments:
+          - "uint8"
+      wifi-connect:
+        handler: wifi_connect_command_handler
+        arguments:
+          - "string"
+          - "string"
+          - "wifi_security"
+          - "string"
+          - "wifi_encryption"
+          - "uint32"
+          - "uint8"
+          - "uint16"
+          - "wifi_band"
+          - "wifi_bandwidth"
+          - "uint8"
+          - "boolean"
+          - "string"
+      wifi-disconnect:
+        handler: wifi_disconnect_command_handler
+      wifi-is-ifup:
+        handler: wifi_is_interface_up_command_handler
+        arguments:
+          - "uint8"
+      oper-mode:
+        handler: set_oper_mode_command_handler
+        arguments:
+          - "uint16"
+      mac-addr:
+        handler: set_mac_address_command_handler
+        arguments:
+          - "string"
+      region-code:
+        handler: set_region_code_command_handler
+        arguments:
+          - "uint8"
+      enable-ssl:
+        handler: enable_ssl_command_handler
+        arguments:
+          - "uint8"
+      soft-reset:
+        handler: soc_reset_command_handler
+      wifi-listen-interval:
+        handler: set_listen_interval_command_handler
+        arguments:
+          - "uint16"
+          - "uint32"
+          - "uint32"
+      wifi-get-listen-interval:
+        handler: get_listen_interval_command_handler
+        arguments:
+          - "uint16"
+      wifi-scan-advconf:
+        handler: set_advanced_scan_configuration_command_handler
+        arguments:
+          - "int32"
+          - "uint32"
+          - "uint16"
+          - "uint16"
+          - "uint8"
+          - "uint8"
+      wifi-scan-rslts:
+        handler: wifi_get_extended_scan_results_command_handler
+        arguments:
+          - "uint16"
+          - "uint8"
+          - "uint8"
+          - "uint8"
+          - "uint8"
+          - "uint8"
+      wifi-perf-prof:
+        handler: wifi_set_performance_profile_command_handler
+        arguments:
+          - "uint16"
+          - "uint8"
+          - "uint8"
+          - "uint32"
+          - "uint16"
+      wifi-perf-prof?:
+        handler: wifi_get_performance_profile_command_handler
