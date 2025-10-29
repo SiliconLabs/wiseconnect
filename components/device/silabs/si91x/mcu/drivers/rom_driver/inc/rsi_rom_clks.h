@@ -161,10 +161,10 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(const M4CLK_Type *pCLK, uint32_t
     socPllFreq /= 1000000;
     /*if SOC PLL frequency is greater than 90Mhz  */
     if (socPllFreq < 90) {
-      /* Change the power state from PS4 to PS3 */
-      RSI_PS_PowerStateChangePs4toPs3();
-      /* Configure DCDC to give lower output voltage */
-      RSI_PS_SetDcDcToLowerVoltage();
+      /* Change the power state to PS3 with Higher voltage(1.15V).*/
+      RSI_PS_SetDcDcToHigerVoltage();
+      /* Configure DCDC to give higher output voltage.*/
+      RSI_PS_PowerStateChangePs3toPs4();
     }
     if ((socPllFreq > 90) && (!(BATT_FF->MCU_PMU_LDO_CTRL_CLEAR & MCU_SOC_LDO_LVL))) {
       /* Change the power state from PS3 to PS4 */

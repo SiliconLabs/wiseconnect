@@ -751,3 +751,37 @@ bool sl_si91x_power_manager_is_tx_command_in_progress(void)
 #endif
   return false;
 }
+
+/*****************************************************************************
+ * @fn      bool sl_si91x_power_manager_ps2_pre_check(void)
+ * 
+ * @brief   Performs pre-transition checks before entering PS2 state.
+ * 
+ * @details This function verifies whether the Network Wireless Processor (NWP) has any pending 
+ *          packet transfers to the M4 core. If pending packets are detected, it returns false 
+ *          to prevent PS2 state transition and avoid data loss. Wi-Fi component must be included
+ *          in the project for this function to operate correctly.
+ *
+ * @return  Status code indicating the result:
+ *          - true - Safe to enter PS2 state (no pending packets).
+ *          - false - Pending packets detected, PS2 transition should be blocked.
+ ******************************************************************************/
+bool sl_si91x_power_manager_ps2_pre_check(void)
+{
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  __asm volatile("cpsid i" ::: "memory");
+  __asm volatile("dsb");
+  __asm volatile("isb");
+  // Check if the system is safe to enter PS2 state.
+  bool is_safe_to_enter_ps2 = (sli_si91x_ta_packet_initiated_to_m4() && sli_si91x_is_sdk_ok_to_sleep());
+  if (is_safe_to_enter_ps2 == true) {
+    // Disable the 74 IRQ.
+    NVIC_DisableIRQ(TASS_P2P_IRQn);
+  }
+  // Enable the NVIC interrupts.
+  __asm volatile("cpsie i" ::: "memory");
+  return is_safe_to_enter_ps2;
+#else
+  return true;
+#endif
+}

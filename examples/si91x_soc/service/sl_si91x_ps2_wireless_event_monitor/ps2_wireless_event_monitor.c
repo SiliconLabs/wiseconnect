@@ -146,7 +146,10 @@ static void application_start(void *argument)
   if (status != SL_STATUS_OK) {
     DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
   }
-
+  while (!sl_si91x_power_manager_ps2_pre_check()) {
+    // Wait for the PS2 state to be safe to enter.
+    osDelay(5);
+  }
   // Add PS2 state requirement to transition to PS2
   status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
   if (status != SL_STATUS_OK) {
@@ -455,6 +458,10 @@ static sl_status_t sl_si91x_power_manager_monitor_ps2_state(void)
   status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS3);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("Error Code: 0x%lX, Power State ps3 remove Transition Failed \n", status);
+  }
+  while (!sl_si91x_power_manager_ps2_pre_check()) {
+    // Wait for the PS2 state to be safe to enter.
+    osDelay(5);
   }
   // Add PS2 state requirement to transition to PS2
   status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);

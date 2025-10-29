@@ -234,10 +234,10 @@ sl_status_t sli_si91x_clock_manager_config_clks_on_ps_change(sl_power_state_t po
       sli_status = SL_STATUS_INVALID_PARAMETER;
       break;
   }
-
+#ifndef SLI_SI91X_DISABLE_DEBUG_UART
   // Reinit debug uart after clock configuration
   DEBUGINIT();
-
+#endif
   return sli_status;
 }
 /*******************************************************************************

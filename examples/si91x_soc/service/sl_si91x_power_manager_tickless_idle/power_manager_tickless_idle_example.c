@@ -287,6 +287,10 @@ void power_manager_example_process_action(void)
             DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
           }
         } else if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS3) {
+          while (!sl_si91x_power_manager_ps2_pre_check()) {
+            // Wait for the PS2 state to be safe to enter.
+            osDelay(5);
+          }
           status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
           if (status != SL_STATUS_OK) {
             // If status is not OK, display the error info.

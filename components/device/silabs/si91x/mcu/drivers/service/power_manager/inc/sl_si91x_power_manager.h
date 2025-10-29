@@ -323,6 +323,7 @@ __STATIC_INLINE void sl_si91x_power_manager_core_exitcritical(void)
  * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init
+ * - \ref sl_si91x_power_manager_ps2_pre_check (if PS2 state is added along with WiFi component)
  * 
  * @param[in] state Power state to add requirement: \ref sl_power_state_t
  *                  - SL_POWER_MANAGER_PS4
@@ -892,6 +893,23 @@ bool sl_si91x_power_manager_is_tx_command_in_progress(void);
  * - \ref sl_si91x_power_manager_init 
  ******************************************************************************/
 void sl_si91x_power_manager_deinit(void);
+
+/******************************************************************************/
+/**
+ * @fn      bool sl_si91x_power_manager_ps2_pre_check(void)
+ * 
+ * @brief   Performs pre-transition checks before entering PS2 state.
+ * 
+ * @details This function verifies whether the Network Wireless Processor (NWP) has any pending 
+ *          packet transfers to the M4 core. If pending packets are detected, it returns false 
+ *          to prevent PS2 state transition and avoid data loss. Wi-Fi component must be included
+ *          in the project for this function to operate correctly.
+ *
+ * @return  Status code indicating the result:
+ *          - true - Safe to enter PS2 state (no pending packets).
+ *          - false - Pending packets detected, PS2 transition should be blocked.
+ ******************************************************************************/
+bool sl_si91x_power_manager_ps2_pre_check(void);
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /******************************************************************************* 
