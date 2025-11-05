@@ -185,3 +185,5 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 
 > **Note** : The number of NAT entries is limited to 100.
+
+ **Note** : NAT feature is internal test feature only, not recommended for Production.

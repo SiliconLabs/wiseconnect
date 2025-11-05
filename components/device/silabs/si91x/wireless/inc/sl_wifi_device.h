@@ -1765,6 +1765,7 @@
  * @details
  * This feature enables NAT support, allowing
  * stations connected to SiWx91x to access the internet through a third-party AP.
+ * @note NAT feature is internal test feature only, not recommended for Production.
  */
 #define SL_SI91X_EXT_TCP_NAT_SUPPORT BIT(21)
 

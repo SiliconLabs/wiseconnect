@@ -708,6 +708,13 @@ static void ps2_to_ps4_state_change(void)
   __asm volatile("isb");
   // To initialize the flash
   initialize_flash();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  // Set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls from NWP to M4
+  RSI_Set_Cntrls_To_M4();
+  // Poll for flash magic word
+  while (MBR_MAGIC_WORD != 0x5A5A)
+    ;
+#endif
   // Configuring the clocks as per the PS4 state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS4,
                                                    sl_si91x_power_manager_get_clock_scaling());
@@ -744,6 +751,13 @@ static void ps2_to_ps3_state_change(void)
   __asm volatile("isb");
   // To initialize the flash
   initialize_flash();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  // Set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls from NWP to M4
+  RSI_Set_Cntrls_To_M4();
+  // Poll for flash magic word
+  while (MBR_MAGIC_WORD != 0x5A5A)
+    ;
+#endif
   // Configuring the clocks as per the PS3 state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS3,
                                                    sl_si91x_power_manager_get_clock_scaling());

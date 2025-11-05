@@ -2281,21 +2281,6 @@
     <properties key="readmeFiles" value="examples/si91x_soc/mcu_powerstate/sl_si91x_ps2_state/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_ps2_wireless_event_monitor" label="SiWx917 PS2 Wireless Event Monitor" description="Demonstrates Wireless Event handling during PS2 state.">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_si91x_ps2_wireless_event_monitor/sl_si91x_ps2_wireless_event_monitor.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd2708a brd2911a brd4343a brd4343b"/>
-    <properties key="partCompatibility" value=" .*si917.* .*siwg917y111mgab.* .*siwg917y111mgnba.* .*siwg917y121mgnb.* .*siwg917y111mgnba.* .*siwg917y110lgnba.* .*siwg917y121mgnba.* .*siwg917y111mgaba.* .*siwg917y110lgaba.* .*siwg917y121mgaba.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="production"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_ps2_wireless_event_monitor/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC"/>
-  </descriptors>
 <descriptors name="sl_si91x_ps3_state" label="MCU - PS3 STATE" description="Demonstrates the PS3 Low Power sleep and active state with NWP shutdown.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>

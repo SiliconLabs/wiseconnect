@@ -240,6 +240,8 @@ sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_addres
  *         - SL_STATUS_OK: On successful completion of the operation.
  *         - SL_STATUS_FAIL: If the operation fails.
  *         - SL_STATUS_INVALID_PARAMETER: If the nat_config parameter is NULL.
+ * @note
+ * NAT feature is internal test feature only, not recommended for Production.
  ******************************************************************************/
 sl_status_t sl_net_nat_enable(const sl_net_nat_config_t *nat_config);
 
@@ -258,6 +260,8 @@ sl_status_t sl_net_nat_enable(const sl_net_nat_config_t *nat_config);
  * @return Status of the operation.
  *         - SL_STATUS_OK: On successful completion of the operation.
  *         - SL_STATUS_FAIL: If the operation fails.
+ * @note
+ * NAT feature is internal test feature only, not recommended for Production.
  ******************************************************************************/
 sl_status_t sl_net_nat_disable(const sl_net_interface_t interface);
 
