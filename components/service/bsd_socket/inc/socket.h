@@ -96,7 +96,7 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define SO_TIMESTAMP	0x0800		///< Timestamps received datagram traffic. This option is not supported in the current release.
 #define SO_BINDANY	0x1000		///< Allows binding to any address. This option is not supported in the current release.
 #define SO_ZEROIZE	0x2000		///< Zeroes out all mbufs sent over the socket. This option is not supported in the current release.
-#define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 ///< Configures max retransmission timeout value. The option value associated with this option name should be a power of 2 between 1 and 32.
+#define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 ///< Configures max retransmission timeout value. The option value associated with this option name should be a power of 2 between 1 and 128.
 /*
  * Additional options, not kept in so_options.
  */

@@ -148,7 +148,7 @@ int sl_si91x_socket_async(int family, int type, int protocol, sl_si91x_socket_re
  * @note
  * This function is used only for the SiWx91x socket API.
  * The options set in this function will not be effective if called after `sl_si91x_connect()` or `sl_si91x_listen()` for TCP, or after `sl_si91x_sendto()`, `sl_si91x_recvfrom()`, or `sl_si91x_connect()` for UDP.
- * The value of the option SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE should be a power of 2.
+ * The value of the option SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE should be a power of 2 between 1 and 128.
  */
 int sl_si91x_setsockopt(int32_t socket, int level, int option_name, const void *option_value, socklen_t option_len);
 

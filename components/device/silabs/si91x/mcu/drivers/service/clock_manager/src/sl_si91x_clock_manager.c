@@ -49,8 +49,9 @@
   6 // Division factor used for delay calibration when system clock is below the CLOCK_THRESHOLD macro
 #define HIGH_FREQ_CLK_DIV_FAC \
   12 // Division factor used for delay calibration when system clock is above the CLOCK_THRESHOLD macro
-#define MILLISECONDS_TO_CYCLES 1000      // Conversion factor from milliseconds to clock cycles.
-#define CLOCK_THRESHOLD        120000000 //Threshold clock frequency in Hertz for delay calibration.
+#define MILLISECONDS_TO_CYCLES   1000      // Conversion factor from milliseconds to clock cycles.
+#define CLOCK_THRESHOLD          120000000 //Threshold clock frequency in Hertz for delay calibration.
+#define ULP_PROC_MAX_CLK_DIV_FAC 5         // Maximum division factor for ULP processor clock division
 /************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
  ************************************************************************************/
@@ -444,7 +445,7 @@ void sl_si91x_delay_ms(uint32_t milli_seconds)
 sl_status_t sl_si91x_clock_manager_ulp_processor_clk_division(uint8_t clk_div)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (clk_div >= 5) {
+  if (clk_div > ULP_PROC_MAX_CLK_DIV_FAC) {
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
   }

@@ -614,8 +614,8 @@ static int sli_handle_so_max_retransmission_timeout_value(sli_si91x_socket_t *si
            (const uint8_t *)option_value,
            SLI_GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->max_retransmission_timeout_value), option_length));
   } else {
-    SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 32 and "
-                 "should be power of two. ex:1,2,4,8,16,32 \n");
+    SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 128 and "
+                 "should be power of two. ex:1,2,4,8,16,32,64,128 \n");
     SLI_SET_ERROR_AND_RETURN(EINVAL);
   }
   return SLI_SI91X_NO_ERROR;

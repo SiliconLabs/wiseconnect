@@ -253,8 +253,8 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
                (const uint32_t *)option_value,
                SLI_GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->max_retransmission_timeout_value), option_len));
       } else {
-        SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 32 and "
-                     "should be power of two. ex:1,2,4,8,16,32 \n");
+        SL_DEBUG_LOG("\n Max retransmission timeout value in between 1 - 128 and "
+                     "should be power of two. ex:1,2,4,8,16,32,64,128 \n");
         SLI_SET_ERROR_AND_RETURN(EINVAL);
       }
       break;

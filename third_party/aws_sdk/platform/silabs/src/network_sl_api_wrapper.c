@@ -31,6 +31,7 @@
 #include "sl_si91x_protocol_types.h"
 #include "errno.h"
 #include "aws_iot_error.h"
+#include "aws_iot_config.h"
 #include "cmsis_os2.h"
 #include "sl_string.h"
 
@@ -166,6 +167,12 @@ static int32_t sli_si91x_connect_to_network(Network *n, uint8_t flags, const sl_
     uint8_t certificate_index = SL_CERT_INDEX_0;
     if (setsockopt(n->socket_id, SOL_SOCKET, SL_SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
       return sli_si91x_get_aws_error(errno);
+    }
+
+     // Configure max retransmission timeout using configurable macro.
+    int max_retry = AWS_IOT_MAX_RETRANSMISSION_TIMEOUT;
+    if ( setsockopt(n->socket_id, SOL_TCP, SO_MAX_RETRANSMISSION_TIMEOUT_VALUE, &max_retry, sizeof(max_retry))){
+                return sli_si91x_get_aws_error(errno);
     }
 
     if(dst_port == MQTT_TLS_PORT) {
