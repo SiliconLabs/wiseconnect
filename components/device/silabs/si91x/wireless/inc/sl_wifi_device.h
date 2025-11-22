@@ -688,22 +688,12 @@
 /** \addtogroup SI91X_FEATURE_BITMAP
   * @{ */
 /**
- * @def SL_SI91X_FEAT_CONFIGURE_LDO
- * @brief Low Dropout Regulator (LDO) configuration support.
- * @details
- * Enables support for configuring the Low Dropout Regulator (LDO) settings.
- * When this bit is set, the SoC LDO remains fixed at 1.1 V.
- * If the bit is not set, the SoC LDO drops to 1.0 V during BLE radio operation.
- */
-#define SL_SI91X_FEAT_CONFIGURE_LDO BIT(20)
-
-/**
  * @def SL_SI91X_FEAT_SECURE_ATTESTATION
  * @brief Secure attestation.
  * @details
  * Enables secure attestation functionality.
  *
- * @note Bit(16) is used internally by SDK. Bits 17-19, 21-29 and bit 31 are reserved.
+ * @note Bit(16) is used internally by SDK. Bits 17-29 and bit 31 are reserved.
  */
 #define SL_SI91X_FEAT_SECURE_ATTESTATION SL_WIFI_FEAT_SECURE_ATTESTATION
 /** @} */
