@@ -2396,8 +2396,8 @@
 
 /**
  * @def SL_SI91X_CONFIG_FEAT_BLE_ONLY_LOW_POWER_MODE
- * @brief Enables BLE-only low power mode.
- * @details Set this bit to enable a low power mode specifically for BLE operations. Only BLE low power mode code will be running from RAM.
+ * @brief Enables BLE low power mode for both standalone BLE and coexistence scenarios.
+ * @details When this mode is enabled, only the BLE low power mode code executes from RAM, optimizing power efficiency during BLE activity.
  * 
  * @note Power numbers can be impacted when this feature is enabled. If @ref SL_SI91X_EXT_FEAT_LOW_POWER_MODE in ext_custom_feature_bit_map is enabled, this feature will be ignored.
  */
