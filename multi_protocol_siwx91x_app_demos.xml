@@ -6,7 +6,7 @@
     <property key="core.partCompatibility" value=".*" />
     <property key="core.boardCompatibility" value="brd4338a" />
     <property key="demos.imageFile" value="asset://extension.wiseconnect_4.0.0/multi_protocol_siwx91x_app/brd4338a/wireless_test_soc.rps" />
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.3.rps" />
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.12.rps" />
     <property key="demos.firmwareFile.version" value="1711.2.15.5.0.0.12" />
     <property key="readmeFiles" value="examples/snippets/wireless_test/readme.md" />
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner" />
@@ -18,7 +18,7 @@
     <property key="core.partCompatibility" value=".*" />
     <property key="core.boardCompatibility" value="brd2605a" />
     <property key="demos.imageFile" value="asset://extension.wiseconnect_4.0.0/multi_protocol_siwx91x_app/brd2605a/out_of_box_demo.rps" />
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.3.rps" />
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.12.rps" />
     <property key="demos.firmwareFile.version" value="1711.2.15.5.0.0.12" />
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md" />
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate" />
@@ -30,7 +30,7 @@
     <property key="core.partCompatibility" value=".*" />
     <property key="core.boardCompatibility" value="brd4338a" />
     <property key="demos.imageFile" value="asset://extension.wiseconnect_4.0.0/multi_protocol_siwx91x_app/brd4338a/out_of_box_demo.rps" />
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.3.rps" />
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.12.rps" />
     <property key="demos.firmwareFile.version" value="1711.2.15.5.0.0.12" />
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md" />
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate" />
@@ -42,7 +42,7 @@
     <property key="core.partCompatibility" value=".*" />
     <property key="core.boardCompatibility" value="brd4342a" />
     <property key="demos.imageFile" value="asset://extension.wiseconnect_4.0.0/multi_protocol_siwx91x_app/brd4342a/out_of_box_demo.rps" />
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.3.rps" />
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.12.rps" />
     <property key="demos.firmwareFile.version" value="1711.2.15.5.0.0.12" />
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md" />
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate" />
@@ -54,7 +54,7 @@
     <property key="core.partCompatibility" value=".*" />
     <property key="core.boardCompatibility" value="brd4343a" />
     <property key="demos.imageFile" value="asset://extension.wiseconnect_4.0.0/multi_protocol_siwx91x_app/brd4343a/out_of_box_demo.rps" />
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.3.rps" />
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.12.rps" />
     <property key="demos.firmwareFile.version" value="1711.2.15.5.0.0.12" />
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md" />
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate" />
@@ -66,7 +66,7 @@
     <property key="core.partCompatibility" value=".*" />
     <property key="core.boardCompatibility" value="brd2708a" />
     <property key="demos.imageFile" value="asset://extension.wiseconnect_4.0.0/multi_protocol_siwx91x_app/brd2708a/out_of_box_demo.rps" />
-    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.3.rps" />
+    <property key="demos.firmwareFile" value="asset://extension.wiseconnect_4.0.0/connectivity_firmware/standard/SiWG917-B.2.15.5.0.0.12.rps" />
     <property key="demos.firmwareFile.version" value="1711.2.15.5.0.0.12" />
     <property key="readmeFiles" value="examples/snippets/wlan_ble/out_of_box_demo/readme.md" />
     <property key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Wireless\ Technology|Bluetooth Project\ Difficulty|Intermediate" />
