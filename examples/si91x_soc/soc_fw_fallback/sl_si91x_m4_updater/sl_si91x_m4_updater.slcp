@@ -1,0 +1,54 @@
+project_name: sl_si91x_m4_updater
+package: platform
+description: |
+  This application demonstrates the process of configuring a basic LED blinking functionality. 
+  It highlights how to initialize the GPIO peripheral, set the LED pin as an output, 
+  and toggle its state periodically to achieve a blinking effect.
+category: Example|si91x_soc
+quality: production
+label: sl_si91x_m4_updater
+sdk:
+  id: simplicity_sdk
+  version: "2025.6.1"
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.5.2
+component:
+  - id: sl_main
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si91x_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_si91x_fw_fallback
+    from: wiseconnect3_sdk
+source:
+  - path: app.c
+  - path: m4_fw_updater.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SYSCALLS_WRITE
+  - name: SL_SI91X_FW_FALLBACK_UPDATER
+template_contribution:
+  - name: device_flash_addr
+    value: 136323072 # 0x8202000
+    priority: -100
+  - name: device_flash_size
+    value: 512000 # 0x07D000
+    priority: -100
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/updater.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+readme:
+  - path: readme.md
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
