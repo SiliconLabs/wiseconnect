@@ -14,13 +14,13 @@ To develop with the WiSeConnect SDK, follow one of the workflows below based on 
 
 For a GUI development environment with integrated tools:
 
-- [Simplicity Studio 6 User Guide](https://docs.silabs.com/ssv6ug/latest/ssv6ug-overview/)
+- <a href="https://docs.silabs.com/ssv6ug/latest/ssv6ug-overview/">Simplicity Studio 6 User Guide</a>
 
 #### 2. **Command Line Development**
 
 For advanced users who prefer command-line based workflows:
 
-- [Command Line Development Guide](https://docs.silabs.com/command-line-development/latest/ssv6-command-line-development/)
+- <a href="https://docs.silabs.com/command-line-development/latest/ssv6-command-line-development/">Command Line Development Guide</a>
 
 <br>
 
@@ -39,21 +39,21 @@ The WiSeConnect SDK is the next-generation API for Silicon Labs customers provid
 
 ## Release Notes
 
-The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.2 (September 29, 2025) - Release Notes](https://docs.silabs.com/wiseconnect/3.5.2/sisdk-wifi-release-notes/).
+The release notes for this release are located at: <a href="https://docs.silabs.com/wiseconnect/3.5.2/sisdk-wifi-release-notes/">Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.2 (September 29, 2025) - Release Notes</a>.
 
 ## Licensing
 
 WiSeConnect SDK is covered by one of several different licenses. The default license is the [Master Software License Agreement](https://www.silabs.com/about-us/legal/master-software-license-agreement) (MSLA), which applies unless otherwise noted. See [here](license.md) for full details.
 
 ## Documentation
-An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available [here](https://docs.silabs.com/wiseconnect/latest/).
+An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available <a href="https://docs.silabs.com/wiseconnect/latest/">here</a>.
 
 ### Software Reference
 
-  - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
-  - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
-  - See our [Migration Guide](https://docs.silabs.com/wiseconnect/3.5.2/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-5-1) for information on porting your WiSeConnect v3.5.1 application to WiSeConnect v3.5.2
-  - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
+  - See the <a href="https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started">Getting Started</a> section to run your first example.
+  - See the <a href="https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples">Examples</a> section to explore all the available examples.
+  - See our <a href="https://docs.silabs.com/wiseconnect/3.5.2/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-5-1">Migration Guide</a> for information on porting your WiSeConnect v3.5.1 application to WiSeConnect v3.5.2
+  - <a href="https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary">API Reference Guide</a>
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
 
 ### Hardware Reference
