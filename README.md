@@ -1,10 +1,6 @@
-<div align="center">
-
-⚠️ <span style="color: red;"><b>**IMPORTANT NOTICE**</b></span> ⚠️
-
-Starting with version 4.0.0 and all future releases, GitHub repository will no longer be updated with the latest release content. Please follow the workflows below.
-
-</div>
+> **⚠️ IMPORTANT NOTICE ⚠️**
+>
+> Starting with version 4.0.0 and all future releases, GitHub repository will no longer be updated with the latest release content. Please follow the workflows below.
 
 ### Development Workflows
 
@@ -14,15 +10,13 @@ To develop with the WiSeConnect SDK, follow one of the workflows below based on 
 
 For a GUI development environment with integrated tools:
 
-- <a href="https://docs.silabs.com/ssv6ug/latest/ssv6ug-overview/">Simplicity Studio 6 User Guide</a>
+- [Simplicity Studio 6 User Guide](https://docs.silabs.com/ssv6ug/latest/ssv6ug-overview/)
 
 #### 2. **Command Line Development**
 
 For advanced users who prefer command-line based workflows:
 
-- <a href="https://docs.silabs.com/command-line-development/latest/ssv6-command-line-development/">Command Line Development Guide</a>
-
-<br>
+- [Command Line Development Guide](https://docs.silabs.com/command-line-development/latest/ssv6-command-line-development/)
 
 # WiSeConnect™ SDK
 
@@ -39,21 +33,22 @@ The WiSeConnect SDK is the next-generation API for Silicon Labs customers provid
 
 ## Release Notes
 
-The release notes for this release are located at: <a href="https://docs.silabs.com/wiseconnect/3.5.2/sisdk-wifi-release-notes/">Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.2 (September 29, 2025) - Release Notes</a>.
+The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.2 (September 29, 2025) - Release Notes](https://docs.silabs.com/wiseconnect/3.5.2/sisdk-wifi-release-notes/).
 
 ## Licensing
 
 WiSeConnect SDK is covered by one of several different licenses. The default license is the [Master Software License Agreement](https://www.silabs.com/about-us/legal/master-software-license-agreement) (MSLA), which applies unless otherwise noted. See [here](license.md) for full details.
 
 ## Documentation
-An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available <a href="https://docs.silabs.com/wiseconnect/latest/">here</a>.
+
+An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available [here](https://docs.silabs.com/wiseconnect/latest/).
 
 ### Software Reference
 
-  - See the <a href="https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started">Getting Started</a> section to run your first example.
-  - See the <a href="https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples">Examples</a> section to explore all the available examples.
-  - See our <a href="https://docs.silabs.com/wiseconnect/3.5.2/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-5-1">Migration Guide</a> for information on porting your WiSeConnect v3.5.1 application to WiSeConnect v3.5.2
-  - <a href="https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary">API Reference Guide</a>
+  - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
+  - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
+  - See our [Migration Guide](https://docs.silabs.com/wiseconnect/3.5.2/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-5-1) for information on porting your WiSeConnect v3.5.1 application to WiSeConnect v3.5.2
+  - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
 
 ### Hardware Reference
@@ -71,4 +66,4 @@ An archive of all documents associated with the latest release of WiSeConnect™
 
   - [UG574: Manufacturing Utility Users Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf)
   - [UG562: SiWG917 Single-Band Wi-Fi and BLE with 8 MB Flash Radio Board User’s Guide](https://www.silabs.com/documents/public/user-guides/ug562-brd4338a-user-guide.pdf)
-  - [UG569: Adapter Board for Co-Processor Radio Boards User's Guide](https://www.silabs.com/documents/public/user-guides/ug569-brd8045-user-guide.pdf) 
+  - [UG569: Adapter Board for Co-Processor Radio Boards User's Guide](https://www.silabs.com/documents/public/user-guides/ug569-brd8045-user-guide.pdf)
