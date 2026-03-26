@@ -1,6 +1,10 @@
-> **⚠️ IMPORTANT NOTICE ⚠️**
->
-> Starting with version 4.0.0 and all future releases, GitHub repository will no longer be updated with the latest release content. Please follow the workflows below.
+<div align="center">
+
+⚠️ <span style="color: red;"><b>**IMPORTANT NOTICE**</b></span> ⚠️
+
+Starting with version 4.0.0 and all future releases, GitHub repository will no longer be updated with the latest release content. Please follow the workflows below.
+
+</div>
 
 ### Development Workflows
 
@@ -10,13 +14,15 @@ To develop with the WiSeConnect SDK, follow one of the workflows below based on 
 
 For a GUI development environment with integrated tools:
 
-- [Simplicity Studio 6 User Guide](https://docs.silabs.com/ssv6ug/latest/ssv6ug-overview/)
+- [Simplicity Studio 6 User Guide][doc-ss6]
 
 #### 2. **Command Line Development**
 
 For advanced users who prefer command-line based workflows:
 
-- [Command Line Development Guide](https://docs.silabs.com/command-line-development/latest/ssv6-command-line-development/)
+- [Command Line Development Guide][doc-cli]
+
+<br>
 
 # WiSeConnect™ SDK
 
@@ -33,7 +39,7 @@ The WiSeConnect SDK is the next-generation API for Silicon Labs customers provid
 
 ## Release Notes
 
-The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.2 (September 29, 2025) - Release Notes](https://docs.silabs.com/wiseconnect/3.5.2/sisdk-wifi-release-notes/).
+The release notes for this release are located at: [Wi-Fi 6 + BLE (WiSeConnect) SDK Version 3.5.2 (September 29, 2025) - Release Notes][doc-release-notes].
 
 ## Licensing
 
@@ -41,14 +47,14 @@ WiSeConnect SDK is covered by one of several different licenses. The default lic
 
 ## Documentation
 
-An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available [here](https://docs.silabs.com/wiseconnect/latest/).
+An archive of all documents associated with the latest release of WiSeConnect™ SDK can be found in [Releases](https://github.com/SiliconLabs/wiseconnect/releases). The online WiSeConnect SDK documentation is available [here][doc-wiseconnect-latest].
 
 ### Software Reference
 
-  - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
-  - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
-  - See our [Migration Guide](https://docs.silabs.com/wiseconnect/3.5.2/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-5-1) for information on porting your WiSeConnect v3.5.1 application to WiSeConnect v3.5.2
-  - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
+  - See the [Getting Started][doc-getting-started] section to run your first example.
+  - See the [Examples][doc-examples] section to explore all the available examples.
+  - See our [Migration Guide][doc-migration] for information on porting your WiSeConnect v3.5.1 application to WiSeConnect v3.5.2
+  - [API Reference Guide][doc-api]
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
 
 ### Hardware Reference
@@ -67,3 +73,12 @@ An archive of all documents associated with the latest release of WiSeConnect™
   - [UG574: Manufacturing Utility Users Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf)
   - [UG562: SiWG917 Single-Band Wi-Fi and BLE with 8 MB Flash Radio Board User’s Guide](https://www.silabs.com/documents/public/user-guides/ug562-brd4338a-user-guide.pdf)
   - [UG569: Adapter Board for Co-Processor Radio Boards User's Guide](https://www.silabs.com/documents/public/user-guides/ug569-brd8045-user-guide.pdf)
+
+[doc-ss6]: https://docs.silabs.com/ssv6ug/latest/ssv6ug-overview/
+[doc-cli]: https://docs.silabs.com/command-line-development/latest/ssv6-command-line-development/
+[doc-release-notes]: https://docs.silabs.com/wiseconnect/3.5.2/sisdk-wifi-release-notes/
+[doc-wiseconnect-latest]: https://docs.silabs.com/wiseconnect/latest/
+[doc-getting-started]: https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started
+[doc-examples]: https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples
+[doc-migration]: https://docs.silabs.com/wiseconnect/3.5.2/wiseconnect-developers-guide-migr-guides-overview/migrating-from-v3-5-1
+[doc-api]: https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary
