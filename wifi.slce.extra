@@ -836,7 +836,6 @@ extra_files:
 - docs/software-reference/manuals/resources/lto_compiler_settings.png
 - docs/software-reference/manuals/resources/peripheral_clock_sources.png
 - docs/software-reference/manuals/resources/SiWx917_MCU.png
-- docs/release-notes/index_internal.md
 - utilities/advanced_logging/app_logging/log_decoder.py
 - utilities/advanced_logging/app_logging/advanced_logs_generator.py
 - utilities/advanced_logging/app_logging/manifest.json
