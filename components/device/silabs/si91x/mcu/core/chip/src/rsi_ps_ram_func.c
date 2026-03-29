@@ -530,15 +530,15 @@ void RSI_PS_Restore_WiseAoc(void)
   __set_MSP(INTERMEDIATE_SP);
   /**/
   M4SS_CLK_ENABLE_SET_REG1 = M4SS_STATIC_CLK_SWITCH;
-  __asm("nop");
-  __asm("nop");
-  __asm("nop");
-  __asm("nop");
+  __NOP();
+  __NOP();
+  __NOP();
+  __NOP();
   M4SS_CLK_ENABLE_CLEAR_REG1 = M4SS_STATIC_CLK_SWITCH;
-  __asm("nop");
-  __asm("nop");
-  __asm("nop");
-  __asm("nop");
+  __NOP();
+  __NOP();
+  __NOP();
+  __NOP();
   /*Restore the CPU context*/
   RSI_PS_RestoreCpuContext();
   return;

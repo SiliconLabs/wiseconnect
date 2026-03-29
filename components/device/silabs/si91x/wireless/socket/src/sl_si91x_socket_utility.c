@@ -784,7 +784,7 @@ int sli_si91x_accept(int socket, struct sockaddr *addr, socklen_t *addr_len, sl_
                                            SLI_SI91X_RETURN_IMMEDIATELY,
                                            NULL);
     SLI_SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SLI_SI91X_UNDEFINED_ERROR);
-    return SL_STATUS_OK;
+    return client_socket_id;
   } else {
     status = sli_si91x_send_socket_command(si91x_client_socket,
                                            SLI_WLAN_REQ_SOCKET_ACCEPT,

@@ -128,7 +128,7 @@ void pcm_example_process_action(void)
       do {
         // Delay added to synchronize secondary receive with primary transmission.
         for (int i = 0; i < 11000; i++) {
-          __asm("nop");
+          __NOP();
         }
         if (sl_si91x_pcm_receive_data(pcm_handle,
                                       pcm_secondary_data_in,

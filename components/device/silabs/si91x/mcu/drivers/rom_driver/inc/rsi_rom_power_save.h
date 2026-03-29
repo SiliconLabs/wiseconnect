@@ -132,7 +132,7 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
       M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
       for (uint8_t x = 0; x < 10; x++) {
-        __ASM("NOP");
+        __NOP();
       }
 #if !defined(SLI_SI917) && !defined(SLI_SI915)
       M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;

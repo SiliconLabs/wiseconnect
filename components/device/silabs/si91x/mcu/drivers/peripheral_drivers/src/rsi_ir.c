@@ -64,7 +64,7 @@ void RSI_IR_SoftwareRestart(IR_Type *pIr)
   uint8_t i;
   pIr->IR_CONFIG_b.SREST_IR_CORE = 1U;
   for (i = 0; i < 10; i++) {
-    __ASM("nop");
+    __NOP();
   }
   pIr->IR_CONFIG_b.SREST_IR_CORE = 0U;
 }
