@@ -1,0 +1,1059 @@
+<?xml version="1.0" ?>
+<api device_id="7" device_name="wifi" version="None">
+    <datatypes>
+        <datatype base="uint16" name="errorcode" length="2"/>
+        <datatype base="uint16" name="uint16" length="2"/>
+        <datatype base="uint32" name="uint32" length="4"/>
+        <datatype base="uint8" name="uint8" length="1"/>
+        <datatype base="int8" name="int8" length="1"/>
+        <datatype base="int32" name="int32" length="1"/>
+        <datatype base="uint8array" name="uint8array" length="1"/>
+        <datatype base="uint16array" name="uint16array" length="2"/>
+        <datatype base="byte_array" name="byte_array" length="0"/>
+        <datatype base="bd_addr" name="bd_address" length="6"/>
+        <datatype base="mac_addr" name="mac_address" length="6"/>
+        <datatype base="ipv6_addr" name="ipv6_address" length="16"/>
+        <datatype base="uint8array" name="api_ssid" length="32"/>
+        <datatype base="uint8array" name="mqtt_topic" length="32"/>
+        <datatype base="uint8array" name="mqtt_message" length="32"/>
+        <datatype base="byte_array" name="bssid" length="6"/>
+        <datatype base="byte_array" name="scan_ssid" length="32"/>
+        <datatype base="uint8array" name="api_credential" length="32"/>
+        <datatype base="ipv4_addr" name="ipv4_address" length="4"/>
+    </datatypes>
+    <class index="0" name="system">
+        <command index="0" name="hello" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="1" name="echo" >
+            <params>
+                <param datatype="uint32" name="number_in" type="uint32"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint32" name="number_out" type="uint32"/>
+            </returns>
+        </command>
+        <command index="2" name="reset" no_return="true">
+            <params/>
+        </command>
+        <event index="0" name="boot">
+            <params>
+                <param datatype="uint8" name="app_major" type="uint8"/>
+                <param datatype="uint8" name="app_minor" type="uint8"/>
+                <param datatype="uint8" name="app_patch" type="uint8"/>
+                <param datatype="uint8" name="fw_chip_id" type="uint8"/>
+                <param datatype="uint8" name="fw_rom_id" type="uint8"/>
+                <param datatype="uint8" name="fw_major" type="uint8"/>
+                <param datatype="uint8" name="fw_minor" type="uint8"/>
+                <param datatype="uint8" name="fw_security_version" type="uint8"/>
+                <param datatype="uint8" name="fw_patch_num" type="uint8"/>
+                <param datatype="uint8" name="fw_customer_id" type="uint8"/>
+                <param datatype="uint16" name="fw_build_num" type="uint16"/>
+            </params>
+        </event>
+        <event index="1" name="error">
+            <params>
+                <param datatype="errorcode" name="reason" type="uint16"/>
+                <param datatype="uint8array" name="data" type="uint8array"/>
+            </params>
+        </event>
+    </class>
+    <class index="17" name="net_intf">
+        <command index="0" name="init" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="1" name="deinit" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="2" name="up" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+                <param datatype="uint8" name="profile_id" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="3" name="down" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="4" name="set_device_config" >
+            <params>
+                <param datatype="uint8" name="boot_option" type="uint8"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
+                <param datatype="uint8" name="band" type="uint8"/>
+                <param datatype="uint8" name="region_code" type="uint8"/>
+                <param datatype="uint8" name="tx_ratio_in_buffer_pool" type="uint8"/>
+                <param datatype="uint8" name="rx_ratio_in_buffer_pool" type="uint8"/>
+                <param datatype="uint8" name="global_ratio_in_buffer_pool" type="uint8"/>
+                <param datatype="uint8" name="efuse_data_type" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="6" name="get_init_status" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="is_init" type="uint8"/>
+            </returns>
+        </command>
+        <command index="7" name="get_network_status" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="is_up" type="uint8"/>
+            </returns>
+        </command>
+        <command index="8" name="get_device_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="boot_option" type="uint8"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
+                <param datatype="uint8" name="band" type="uint8"/>
+                <param datatype="uint8" name="region_code" type="uint8"/>
+                <param datatype="uint8" name="tx_ratio_in_buffer_pool" type="uint8"/>
+                <param datatype="uint8" name="rx_ratio_in_buffer_pool" type="uint8"/>
+                <param datatype="uint8" name="global_ratio_in_buffer_pool" type="uint8"/>
+                <param datatype="uint8" name="efuse_data_type" type="uint8"/>
+            </returns>
+        </command>
+        <command index="5" name="set_si91x_boot_config" >
+            <params>
+                <param datatype="uint16" name="oper_mode" type="uint16"/>
+                <param datatype="uint16" name="coex_mode" type="uint16"/>
+                <param datatype="uint32" name="feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="tcp_ip_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="custom_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ext_custom_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="bt_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ext_tcp_ip_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ble_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ble_ext_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="config_feature_bit_map" type="uint32"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="9" name="get_si91x_boot_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint16" name="oper_mode" type="uint16"/>
+                <param datatype="uint16" name="coex_mode" type="uint16"/>
+                <param datatype="uint32" name="feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="tcp_ip_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="custom_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ext_custom_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="bt_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ext_tcp_ip_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ble_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="ble_ext_feature_bit_map" type="uint32"/>
+                <param datatype="uint32" name="config_feature_bit_map" type="uint32"/>
+            </returns>
+        </command>
+        <command index="10" name="load_default_device_config" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <event index="0" name="network_up_completed">
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+                <param datatype="errorcode" name="is_completed" type="uint16"/>
+            </params>
+        </event>
+        <enums name="interface">
+            <enum name="interface_client" value="0x8"/>
+            <enum name="interface_ap" value="0x10"/>
+            <enum name="interface_ethernet" value="0x18"/>
+            <enum name="interface_thread" value="0x20"/>
+            <enum name="interface_bluetooth" value="0x28"/>
+            <enum name="interface_zwave" value="0x30"/>
+        </enums>
+        <enums name="profile_id">
+            <enum name="profile_id_default_wifi_ap_profile" value="0x0"/>
+            <enum name="profile_id_default_wifi_client_profile" value="0x0"/>
+        </enums>
+        <enums name="region_code">
+            <enum name="region_code_default_region" value="0x0"/>
+            <enum name="region_code_us" value="0x1"/>
+            <enum name="region_code_eu" value="0x2"/>
+            <enum name="region_code_jp" value="0x3"/>
+            <enum name="region_code_world_domain" value="0x4"/>
+            <enum name="region_code_kr" value="0x5"/>
+            <enum name="region_code_ch" value="0x7"/>
+        </enums>
+        <enums name="band">
+            <enum name="band_mode_2_4_ghz" value="0x0"/>
+            <enum name="band_mode_5_ghz" value="0x1"/>
+            <enum name="band_mode_dual_ghz" value="0x2"/>
+        </enums>
+        <enums name="boot_option">
+            <enum name="boot_option_load_nwp_fw" value="0x31"/>
+        </enums>
+        <enums name="oper_mode">
+            <enum name="oper_mode_client" value="0x0"/>
+            <enum name="oper_mode_enterprise_client" value="0x2"/>
+            <enum name="oper_mode_ap" value="0x6"/>
+            <enum name="oper_mode_transceiver" value="0x7"/>
+            <enum name="oper_mode_transmit_test" value="0x8"/>
+            <enum name="oper_mode_concurrent" value="0x9"/>
+        </enums>
+        <enums name="coex_mode">
+            <enum name="coex_mode_wlan_only" value="0x0"/>
+            <enum name="coex_mode_ble" value="0xc"/>
+            <enum name="coex_mode_wlan_ble" value="0xd"/>
+        </enums>
+    </class>
+    <class index="18" name="net_profile">
+        <command index="0" name="set" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+                <param datatype="uint8" name="profile_id" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="2" name="delete" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+                <param datatype="uint8" name="profile_id" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="3" name="set_ap_ssid" >
+            <params>
+                <param datatype="api_ssid" name="ssid" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="4" name="set_ap_config" >
+            <params>
+                <param datatype="uint16" name="ap_security" type="uint16"/>
+                <param datatype="uint8" name="ap_encryption" type="uint8"/>
+                <param datatype="uint8" name="ap_rate_protocol" type="uint8"/>
+                <param datatype="uint8" name="ap_options" type="uint8"/>
+                <param datatype="uint32" name="ap_credential_id" type="uint32"/>
+                <param datatype="uint8" name="ap_keepalive_type" type="uint8"/>
+                <param datatype="uint16" name="ap_beacon_interval" type="uint16"/>
+                <param datatype="uint32" name="ap_client_idle_timeout" type="uint32"/>
+                <param datatype="uint16" name="ap_dtim_beacon_count" type="uint16"/>
+                <param datatype="uint8" name="ap_maximum_clients" type="uint8"/>
+                <param datatype="uint8" name="ap_beacon_stop" type="uint8"/>
+                <param datatype="uint8" name="ap_tdi" type="uint8"/>
+                <param datatype="uint8" name="ap_is_11n_enabled" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="5" name="set_ap_channel" >
+            <params>
+                <param datatype="uint16" name="channel" type="uint16"/>
+                <param datatype="uint8" name="band" type="uint8"/>
+                <param datatype="uint8" name="bandwidth" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="6" name="set_ap_ip_config" >
+            <params>
+                <param datatype="uint8" name="mode" type="uint8"/>
+                <param datatype="uint8" name="type" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="7" name="set_ap_ipv4_config" >
+            <params>
+                <param datatype="ipv4_address" name="ipv4_address" type="ipv4_addr"/>
+                <param datatype="ipv4_address" name="gateway" type="ipv4_addr"/>
+                <param datatype="ipv4_address" name="netmask" type="ipv4_addr"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="8" name="set_ap_ipv6_config" >
+            <params>
+                <param datatype="ipv6_address" name="link_local_address" type="ipv6_addr"/>
+                <param datatype="ipv6_address" name="global_address" type="ipv6_addr"/>
+                <param datatype="ipv6_address" name="gateway_address" type="ipv6_addr"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="1" name="get_ap_ssid" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="api_ssid" name="ssid" type="uint8array"/>
+            </returns>
+        </command>
+        <command index="9" name="get_ap_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint16" name="ap_security" type="uint16"/>
+                <param datatype="uint8" name="ap_encryption" type="uint8"/>
+                <param datatype="uint8" name="ap_rate_protocol" type="uint8"/>
+                <param datatype="uint8" name="ap_options" type="uint8"/>
+                <param datatype="uint32" name="ap_credential_id" type="uint32"/>
+                <param datatype="uint8" name="ap_keepalive_type" type="uint8"/>
+                <param datatype="uint16" name="ap_beacon_interval" type="uint16"/>
+                <param datatype="uint32" name="ap_client_idle_timeout" type="uint32"/>
+                <param datatype="uint16" name="ap_dtim_beacon_count" type="uint16"/>
+                <param datatype="uint8" name="ap_maximum_clients" type="uint8"/>
+                <param datatype="uint8" name="ap_beacon_stop" type="uint8"/>
+                <param datatype="uint8" name="ap_tdi" type="uint8"/>
+                <param datatype="uint8" name="ap_is_11n_enabled" type="uint8"/>
+            </returns>
+        </command>
+        <command index="10" name="get_ap_channel" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint16" name="channel" type="uint16"/>
+                <param datatype="uint8" name="band" type="uint8"/>
+                <param datatype="uint8" name="bandwidth" type="uint8"/>
+            </returns>
+        </command>
+        <command index="11" name="get_ap_ip_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="mode" type="uint8"/>
+                <param datatype="uint8" name="type" type="uint8"/>
+            </returns>
+        </command>
+        <command index="12" name="get_ap_ipv4_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="ipv4_address" name="ipv4_address" type="ipv4_addr"/>
+                <param datatype="ipv4_address" name="gateway" type="ipv4_addr"/>
+                <param datatype="ipv4_address" name="netmask" type="ipv4_addr"/>
+            </returns>
+        </command>
+        <command index="13" name="get_ap_ipv6_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="ipv6_address" name="link_local_address" type="ipv6_addr"/>
+                <param datatype="ipv6_address" name="global_address" type="ipv6_addr"/>
+                <param datatype="ipv6_address" name="gateway_address" type="ipv6_addr"/>
+            </returns>
+        </command>
+        <command index="21" name="set_client_ssid" >
+            <params>
+                <param datatype="api_ssid" name="ssid" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="22" name="set_client_config" >
+            <params>
+                <param datatype="bssid" name="bssid" type="byte_array"/>
+                <param datatype="uint16" name="bss_type" type="uint16"/>
+                <param datatype="uint16" name="client_security" type="uint16"/>
+                <param datatype="uint8" name="client_encryption" type="uint8"/>
+                <param datatype="uint32" name="client_options" type="uint32"/>
+                <param datatype="uint32" name="credential_id" type="uint32"/>
+                <param datatype="uint16" name="channel_bitmap_2_4g" type="uint16"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="16" name="set_client_channel" >
+            <params>
+                <param datatype="uint16" name="channel" type="uint16"/>
+                <param datatype="uint8" name="band" type="uint8"/>
+                <param datatype="uint8" name="bandwidth" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="17" name="get_client_ssid" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="api_ssid" name="ssid" type="uint8array"/>
+            </returns>
+        </command>
+        <command index="18" name="get_client_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="bssid" name="bssid" type="byte_array"/>
+                <param datatype="uint16" name="bss_type" type="uint16"/>
+                <param datatype="uint16" name="client_security" type="uint16"/>
+                <param datatype="uint8" name="client_encryption" type="uint8"/>
+                <param datatype="uint32" name="client_options" type="uint32"/>
+                <param datatype="uint32" name="credential_id" type="uint32"/>
+                <param datatype="uint16" name="channel_bitmap_2_4g" type="uint16"/>
+            </returns>
+        </command>
+        <command index="19" name="get_client_channel" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint16" name="channel" type="uint16"/>
+                <param datatype="uint8" name="band" type="uint8"/>
+                <param datatype="uint8" name="bandwidth" type="uint8"/>
+            </returns>
+        </command>
+        <enums name="security_type">
+            <enum name="security_type_open" value="0x0"/>
+            <enum name="security_type_wpa" value="0x1"/>
+            <enum name="security_type_wpa2" value="0x2"/>
+            <enum name="security_type_wep" value="0x3"/>
+            <enum name="security_type_wpa_enterprise" value="0x4"/>
+            <enum name="security_type_wpa2_enterprise" value="0x5"/>
+            <enum name="security_type_wpa_wpa2_mixed" value="0x6"/>
+            <enum name="security_type_wpa3" value="0x7"/>
+            <enum name="security_type_wpa3_transition" value="0x8"/>
+            <enum name="security_type_wpa3_enterprise" value="0x9"/>
+            <enum name="security_type_wpa3_transition_enterprise" value="0xa"/>
+            <enum name="security_type_security_unknown" value="0xffff"/>
+        </enums>
+        <enums name="encryption_type">
+            <enum name="encryption_type_default" value="0x0"/>
+            <enum name="encryption_type_no" value="0x1"/>
+            <enum name="encryption_type_wep" value="0x2"/>
+            <enum name="encryption_type_tkip" value="0x3"/>
+            <enum name="encryption_type_ccmp" value="0x4"/>
+            <enum name="encryption_type_eap_tls" value="0x5"/>
+            <enum name="encryption_type_eap_ttls" value="0x6"/>
+            <enum name="encryption_type_eap_fast" value="0x7"/>
+            <enum name="encryption_type_peap_mschapv2" value="0x8"/>
+            <enum name="encryption_type_eap_leap" value="0x9"/>
+        </enums>
+        <enums name="rate_protocol">
+            <enum name="rate_protocol_b_only" value="0x0"/>
+            <enum name="rate_protocol_g_only" value="0x1"/>
+            <enum name="rate_protocol_n_only" value="0x2"/>
+            <enum name="rate_protocol_ac_only" value="0x3"/>
+            <enum name="rate_protocol_ax_only" value="0x4"/>
+            <enum name="rate_protocol_auto" value="0x5"/>
+        </enums>
+        <enums name="ap_option">
+            <enum name="ap_option_enable_hidden_ssid" value="0x1"/>
+            <enum name="ap_option_disable_hidden_ssid" value="0x0"/>
+        </enums>
+        <enums name="credential_id">
+            <enum name="credential_id_no_credential" value="0x0"/>
+            <enum name="credential_id_default_wifi_client" value="0x1"/>
+            <enum name="credential_id_wifi_client_1" value="0x2"/>
+            <enum name="credential_id_default_wifi_ap" value="0x3"/>
+            <enum name="credential_id_wifi_ap_1" value="0x4"/>
+            <enum name="credential_id_wifi_eap_client" value="0x5"/>
+            <enum name="credential_id_wifi_eap_server" value="0x6"/>
+            <enum name="credential_id_user" value="0x7"/>
+            <enum name="credential_id_tls_client" value="0x100"/>
+            <enum name="credential_id_tls_server" value="0x200"/>
+            <enum name="credential_id_mqtt_server" value="0x300"/>
+            <enum name="credential_id_mqtt_client" value="0x400"/>
+            <enum name="credential_id_http_server" value="0x500"/>
+            <enum name="credential_id_http_client" value="0x600"/>
+        </enums>
+        <enums name="ap_keepalive_type">
+            <enum name="ap_keepalive_type_disable" value="0x0"/>
+            <enum name="ap_keepalive_type_deauth_based" value="0x1"/>
+            <enum name="ap_keepalive_type_null_based" value="0x3"/>
+        </enums>
+        <enums name="is_11n">
+            <enum name="is_11n_enabled" value="0x1"/>
+            <enum name="is_11n_disable" value="0x0"/>
+        </enums>
+        <enums name="tdi">
+            <enum name="tdi_none" value="0x0"/>
+            <enum name="tdi_sae" value="0x10"/>
+        </enums>
+        <enums name="band">
+            <enum name="band_mode_auto" value="0x0"/>
+            <enum name="band_mode_900_mhz" value="0x1"/>
+            <enum name="band_mode_2_4_ghz" value="0x2"/>
+            <enum name="band_mode_5_ghz" value="0x3"/>
+            <enum name="band_mode_6_ghz" value="0x4"/>
+            <enum name="band_mode_60_ghz" value="0x5"/>
+        </enums>
+        <enums name="bandwidth">
+            <enum name="bandwidth_mode_auto" value="0x0"/>
+            <enum name="bandwidth_mode_10_mhz" value="0x0"/>
+            <enum name="bandwidth_mode_20_mhz" value="0x1"/>
+            <enum name="bandwidth_mode_40_mhz" value="0x2"/>
+            <enum name="bandwidth_mode_80_mhz" value="0x3"/>
+            <enum name="bandwidth_mode_160_mhz" value="0x4"/>
+        </enums>
+        <enums name="ip_management">
+            <enum name="ip_management_static_ip" value="0x1"/>
+            <enum name="ip_management_dhcp" value="0x2"/>
+            <enum name="ip_management_link_local" value="0x3"/>
+        </enums>
+        <enums name="ip_address_type">
+            <enum name="ip_address_type_ipv4" value="0x4"/>
+            <enum name="ip_address_type_ipv6" value="0x8"/>
+            <enum name="ip_address_type_ipv6_link_local" value="0x9"/>
+            <enum name="ip_address_type_ipv6_site_local" value="0xa"/>
+            <enum name="ip_address_type_ipv6_global" value="0xb"/>
+            <enum name="ip_address_type_invalid_ip" value="0x0"/>
+        </enums>
+        <enums name="bss_type">
+            <enum name="bss_type_infrastructure" value="0x0"/>
+            <enum name="bss_type_adhoc" value="0x1"/>
+            <enum name="bss_type_any" value="0x2"/>
+            <enum name="bss_type_unknown" value="0x3"/>
+        </enums>
+        <enums name="client_flag">
+            <enum name="client_flag_no_join_option" value="0x0"/>
+            <enum name="client_flag_join_with_no_csa" value="0x1"/>
+            <enum name="client_flag_join_with_scan" value="0x2"/>
+        </enums>
+    </class>
+    <class index="5" name="ap">
+        <command index="1" name="disconnect_client" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
+                <param datatype="uint8" name="reason" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="0" name="get_client_info" >
+            <params>
+                <param datatype="uint8" name="net_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="client_count" type="uint8"/>
+            </returns>
+        </command>
+        <event index="0" name="client_connected_event">
+            <params>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
+            </params>
+        </event>
+        <event index="1" name="client_disconnected_event">
+            <params>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
+            </params>
+        </event>
+        <event index="2" name="get_client_info_event">
+            <params>
+                <param datatype="ipv4_address" name="ipv4_address" type="ipv4_addr"/>
+                <param datatype="mac_address" name="mac_address" type="mac_addr"/>
+            </params>
+        </event>
+        <enums name="wifi_event_group">
+            <enum name="wifi_event_group_client_connected" value="0x8"/>
+            <enum name="wifi_event_group_client_disconnected" value="0xa"/>
+        </enums>
+        <enums name="deauth_reason">
+            <enum name="deauth_reason_wifi_deauth" value="0x0"/>
+            <enum name="deauth_reason_wifi_deauth_unspecified" value="0x1"/>
+        </enums>
+    </class>
+    <class index="19" name="net_cred">
+        <command index="0" name="set" >
+            <params>
+                <param datatype="uint32" name="id" type="uint32"/>
+                <param datatype="uint32" name="type" type="uint32"/>
+                <param datatype="api_credential" name="credential" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="1" name="get" >
+            <params>
+                <param datatype="uint32" name="id" type="uint32"/>
+                <param datatype="uint32" name="type" type="uint32"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint32" name="credential_length" type="uint32"/>
+                <param datatype="api_credential" name="credential" type="uint8array"/>
+            </returns>
+        </command>
+        <command index="2" name="delete" >
+            <params>
+                <param datatype="uint32" name="id" type="uint32"/>
+                <param datatype="uint32" name="type" type="uint32"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <enums name="credential_type">
+            <enum name="credential_type_invalid" value="0x0"/>
+            <enum name="credential_type_psk" value="0x1"/>
+            <enum name="credential_type_pmk" value="0x2"/>
+            <enum name="credential_type_wep" value="0x3"/>
+            <enum name="credential_type_certificate" value="0x4"/>
+            <enum name="credential_type_public_key" value="0x5"/>
+            <enum name="credential_type_private_key" value="0x6"/>
+            <enum name="credential_type_pack_file" value="0x7"/>
+            <enum name="credential_type_signing_certificate" value="0x8"/>
+            <enum name="credential_type_http_client_credential" value="0x9"/>
+            <enum name="credential_type_eap_client_credential" value="0xa"/>
+            <enum name="credential_type_mqtt_client_credential" value="0xb"/>
+            <enum name="credential_type_tls_private_key_cbc_wrap" value="0xc"/>
+            <enum name="credential_type_tls_private_key_ecb_wrap" value="0xd"/>
+        </enums>
+    </class>
+    <class index="1" name="common">
+        <command index="0" name="get_firmware_version" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="chip_id" type="uint8"/>
+                <param datatype="uint8" name="rom_id" type="uint8"/>
+                <param datatype="uint8" name="major" type="uint8"/>
+                <param datatype="uint8" name="minor" type="uint8"/>
+                <param datatype="uint8" name="security_version" type="uint8"/>
+                <param datatype="uint8" name="patch_num" type="uint8"/>
+                <param datatype="uint8" name="customer_id" type="uint8"/>
+                <param datatype="uint16" name="build_num" type="uint16"/>
+            </returns>
+        </command>
+        <enums name="wifi_interface">
+            <enum name="wifi_interface_invalid" value="0x0"/>
+            <enum name="wifi_interface_client_interface" value="0x1"/>
+            <enum name="wifi_interface_ap_interface" value="0x2"/>
+            <enum name="wifi_interface_radio_2_4ghz_interface" value="0x4"/>
+            <enum name="wifi_interface_radio_5ghz_interface" value="0x8"/>
+            <enum name="wifi_interface_dual_interface" value="0xc"/>
+            <enum name="wifi_interface_transceiver_interface" value="0x80"/>
+            <enum name="wifi_interface_client_2_4ghz_interface" value="0x5"/>
+            <enum name="wifi_interface_ap_2_4ghz_interface" value="0x6"/>
+            <enum name="wifi_interface_client_5ghz_interface" value="0x9"/>
+            <enum name="wifi_interface_ap_5ghz_interface" value="0xa"/>
+            <enum name="wifi_interface_client_dual_interface" value="0xd"/>
+            <enum name="wifi_interface_ap_dual_interface" value="0xe"/>
+            <enum name="wifi_interface_all_interfaces" value="0x1f"/>
+        </enums>
+    </class>
+    <class index="3" name="scan">
+        <command index="0" name="start" >
+            <params>
+                <param datatype="uint8" name="wifi_interface" type="uint8"/>
+                <param datatype="uint8" name="mode" type="uint8"/>
+                <param datatype="uint32" name="flags" type="uint32"/>
+                <param datatype="uint16" name="channel_bitmap_2_4ghz" type="uint16"/>
+                <param datatype="uint8" name="lp_mode" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="is_in_progress" type="uint8"/>
+            </returns>
+        </command>
+        <command index="1" name="start_with_ssid" >
+            <params>
+                <param datatype="uint8" name="wifi_interface" type="uint8"/>
+                <param datatype="api_ssid" name="ssid" type="uint8array"/>
+                <param datatype="uint8" name="mode" type="uint8"/>
+                <param datatype="uint32" name="flags" type="uint32"/>
+                <param datatype="uint16" name="channel_bitmap_2_4ghz" type="uint16"/>
+                <param datatype="uint8" name="lp_mode" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="is_in_progress" type="uint8"/>
+            </returns>
+        </command>
+        <command index="2" name="set_advanced_configuration" >
+            <params>
+                <param datatype="int32" name="trigger_level" type="int32"/>
+                <param datatype="uint32" name="trigger_level_change" type="uint32"/>
+                <param datatype="uint16" name="active_channel_time" type="uint16"/>
+                <param datatype="uint16" name="passive_channel_time" type="uint16"/>
+                <param datatype="uint8" name="enable_instant_scan" type="uint8"/>
+                <param datatype="uint8" name="enable_multi_probe" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="3" name="get_advanced_configuration" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="int32" name="trigger_level" type="int32"/>
+                <param datatype="uint32" name="trigger_level_change" type="uint32"/>
+                <param datatype="uint16" name="active_channel_time" type="uint16"/>
+                <param datatype="uint16" name="passive_channel_time" type="uint16"/>
+                <param datatype="uint8" name="enable_instant_scan" type="uint8"/>
+                <param datatype="uint8" name="enable_multi_probe" type="uint8"/>
+            </returns>
+        </command>
+        <command index="4" name="stop" >
+            <params>
+                <param datatype="uint8" name="wifi_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <event index="0" name="results_event">
+            <params>
+                <param datatype="uint8" name="rf_channel" type="uint8"/>
+                <param datatype="uint8" name="security_mode" type="uint8"/>
+                <param datatype="int8" name="rssi" type="int8"/>
+                <param datatype="uint8" name="network_type" type="uint8"/>
+                <param datatype="scan_ssid" name="ssid" type="byte_array"/>
+                <param datatype="bssid" name="bssid" type="byte_array"/>
+            </params>
+        </event>
+        <event index="1" name="error_event">
+            <params>
+                <param datatype="errorcode" name="status" type="uint16"/>
+            </params>
+        </event>
+        <event index="2" name="complete_event">
+            <params>
+                <param datatype="errorcode" name="status" type="uint16"/>
+            </params>
+        </event>
+        <enums name="mode">
+            <enum name="mode_active" value="0x0"/>
+            <enum name="mode_passive" value="0x1"/>
+            <enum name="mode_extended" value="0x2"/>
+            <enum name="mode_prohibited_channels" value="0x4"/>
+            <enum name="mode_advance" value="0x8"/>
+        </enums>
+    </class>
+    <class index="21" name="ping">
+        <command index="0" name="ipv4" >
+            <params>
+                <param datatype="ipv4_address" name="ipv4_address" type="ipv4_addr"/>
+                <param datatype="uint16" name="ping_size" type="uint16"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <event index="0" name="ipv4_response_event">
+            <params>
+                <param datatype="uint32" name="status" type="uint32"/>
+                <param datatype="uint16" name="ip_version" type="uint16"/>
+                <param datatype="uint16" name="ping_size" type="uint16"/>
+                <param datatype="ipv4_address" name="ipv4_address" type="ipv4_addr"/>
+            </params>
+        </event>
+    </class>
+    <class index="4" name="client">
+        <command index="2" name="set_roam_configuration" >
+            <params>
+                <param datatype="uint8" name="wifi_interface" type="uint8"/>
+                <param datatype="int32" name="trigger_level" type="int32"/>
+                <param datatype="uint32" name="trigger_level_change" type="uint32"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="3" name="get_roam_configuration" >
+            <params>
+                <param datatype="uint8" name="wifi_interface" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="int32" name="trigger_level" type="int32"/>
+                <param datatype="uint32" name="trigger_level_change" type="uint32"/>
+            </returns>
+        </command>
+        <event index="0" name="join_event">
+            <params>
+                <param datatype="uint8" name="is_connected" type="uint8"/>
+            </params>
+        </event>
+        <event index="1" name="stats_response_event">
+            <params>
+                <param datatype="uint32" name="timestamp" type="uint32"/>
+                <param datatype="uint8" name="state_code" type="uint8"/>
+                <param datatype="uint8" name="reason_code" type="uint8"/>
+                <param datatype="uint8" name="channel" type="uint8"/>
+                <param datatype="uint8" name="rssi" type="uint8"/>
+                <param datatype="bssid" name="bssid" type="byte_array"/>
+            </params>
+        </event>
+    </class>
+    <class index="16" name="mqtt_client">
+        <command index="0" name="init" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="1" name="set_broker" >
+            <params>
+                <param datatype="ipv4_address" name="ip_address" type="ipv4_addr"/>
+                <param datatype="uint16" name="port" type="uint16"/>
+                <param datatype="uint16" name="connect_timeout" type="uint16"/>
+                <param datatype="uint16" name="keep_alive_interval" type="uint16"/>
+                <param datatype="uint16" name="keep_alive_retries" type="uint16"/>
+                <param datatype="uint8" name="is_connection_encrypted" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="2" name="set_last_will_topic" >
+            <params>
+                <param datatype="uint32" name="qos_level" type="uint32"/>
+                <param datatype="uint8" name="is_retained" type="uint8"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="3" name="set_last_will_message" >
+            <params>
+                <param datatype="mqtt_topic" name="message" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="4" name="set_client_config" >
+            <params>
+                <param datatype="uint8" name="is_auto_connect" type="uint8"/>
+                <param datatype="uint8" name="retry_count" type="uint8"/>
+                <param datatype="uint16" name="min_back_off_time" type="uint16"/>
+                <param datatype="uint16" name="max_back_off_time" type="uint16"/>
+                <param datatype="uint8" name="is_clean_session" type="uint8"/>
+                <param datatype="uint32" name="version" type="uint32"/>
+                <param datatype="uint16" name="client_port" type="uint16"/>
+                <param datatype="uint32" name="credential_id" type="uint32"/>
+                <param datatype="uint32" name="tls_flag" type="uint32"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="18" name="deinit" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="12" name="get_broker" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="ipv4_address" name="ip_address" type="ipv4_addr"/>
+                <param datatype="uint16" name="port" type="uint16"/>
+                <param datatype="uint8" name="is_connection_encrypted" type="uint8"/>
+                <param datatype="uint16" name="connect_timeout" type="uint16"/>
+                <param datatype="uint16" name="keep_alive_interval" type="uint16"/>
+                <param datatype="uint16" name="keep_alive_retires" type="uint16"/>
+            </returns>
+        </command>
+        <command index="13" name="get_last_will_topic" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="is_retained" type="uint8"/>
+                <param datatype="uint32" name="qos_level" type="uint32"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </returns>
+        </command>
+        <command index="14" name="get_last_will_message" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="mqtt_topic" name="message" type="uint8array"/>
+            </returns>
+        </command>
+        <command index="15" name="get_client_config" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint8" name="is_auto_connect" type="uint8"/>
+                <param datatype="uint8" name="retry_count" type="uint8"/>
+                <param datatype="uint16" name="min_back_off_time" type="uint16"/>
+                <param datatype="uint16" name="max_back_off_time" type="uint16"/>
+                <param datatype="uint8" name="is_clean_session" type="uint8"/>
+                <param datatype="uint32" name="version" type="uint32"/>
+                <param datatype="uint16" name="client_port" type="uint16"/>
+                <param datatype="uint32" name="credential_id" type="uint32"/>
+                <param datatype="uint32" name="tls_flag" type="uint32"/>
+            </returns>
+        </command>
+        <command index="6" name="connect" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="17" name="disconnect" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="7" name="subscribe" >
+            <params>
+                <param datatype="uint32" name="qos_level" type="uint32"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="11" name="unsubscribe" >
+            <params>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="8" name="publish_topic" >
+            <params>
+                <param datatype="errorcode" name="qos_level" type="uint16"/>
+                <param datatype="uint16" name="packet_id" type="uint16"/>
+                <param datatype="uint8" name="is_retained" type="uint8"/>
+                <param datatype="uint8" name="is_duplicate_message" type="uint8"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="9" name="publish_message" >
+            <params>
+                <param datatype="mqtt_message" name="content" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="10" name="publish" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="5" name="set_client_id" >
+            <params>
+                <param datatype="mqtt_topic" name="client_id" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="16" name="get_client_id" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="mqtt_topic" name="client_id" type="uint8array"/>
+            </returns>
+        </command>
+        <event index="0" name="connected_event">
+            <params>
+                <param datatype="uint32" name="status" type="uint32"/>
+            </params>
+        </event>
+        <event index="1" name="error_event">
+            <params>
+                <param datatype="errorcode" name="status" type="uint16"/>
+            </params>
+        </event>
+        <event index="2" name="message_received_on_topic">
+            <params>
+                <param datatype="mqtt_topic" name="message_topic" type="uint8array"/>
+            </params>
+        </event>
+        <event index="3" name="message_received_content">
+            <params>
+                <param datatype="mqtt_message" name="message_content" type="uint8array"/>
+            </params>
+        </event>
+        <event index="4" name="subscribe_state_event">
+            <params>
+                <param datatype="errorcode" name="status" type="uint16"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+        </event>
+        <event index="5" name="unsubscribe_state_event">
+            <params>
+                <param datatype="errorcode" name="status" type="uint16"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+        </event>
+        <event index="6" name="publish_state_event">
+            <params>
+                <param datatype="errorcode" name="status" type="uint16"/>
+                <param datatype="mqtt_topic" name="topic" type="uint8array"/>
+            </params>
+        </event>
+        <event index="7" name="disconnected_event">
+            <params>
+                <param datatype="uint32" name="status" type="uint32"/>
+            </params>
+        </event>
+        <enums name="tls_flag">
+            <enum name="tls_flag_enable" value="0x0"/>
+            <enum name="tls_flag_tlsv_1_0" value="0x1"/>
+            <enum name="tls_flag_tlsv_1_1" value="0x2"/>
+            <enum name="tls_flag_tlsv_1_2" value="0x3"/>
+            <enum name="tls_flag_tlsv_1_3" value="0x4"/>
+            <enum name="tls_flag_cert_index_1" value="0x5"/>
+            <enum name="tls_flag_cert_index_2" value="0x6"/>
+        </enums>
+        <enums name="mqtt_version">
+            <enum name="mqtt_version_v3" value="0x0"/>
+            <enum name="mqtt_version_v3_1" value="0x1"/>
+        </enums>
+        <enums name="qos">
+            <enum name="qos_level_0" value="0x0"/>
+            <enum name="qos_level_1" value="0x1"/>
+            <enum name="qos_level_2" value="0x2"/>
+        </enums>
+    </class>
+</api>

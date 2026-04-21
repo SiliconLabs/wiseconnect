@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<api device_id="{{data.device_id}}" device_name="{{data.device_name}}" version="{{version}}">
+    <datatypes>
+{%- for type in data.types.type %}
+        <datatype base="{{ type.datatype }}" name="{{type.name}}" length="{{type.length}}"/>
+{%- endfor %}
+    </datatypes>
+{%- for cls in classes %}
+    <class index="{{ "%d"|format(cls.index|int(base=16)) }}" name="{{cls.name}}">
+{%- for cmd in cls.command %}
+        <command index="{{ "%d"|format(cmd.index|int(base=16)) }}" name="{{cmd.name}}" {% if cmd.no_return %}no_return="true"{% endif %}>
+{%- if cmd.params.param|length > 0 %}
+            <params>
+{%- for p in cmd.params() %}
+                <param datatype="{{p.type.name}}" name="{{p.name}}" type="{{p.type.datatype}}"/>
+{%- endfor %}
+            </params>
+{%- else %}
+            <params/>
+{%- endif %}
+{%- if cmd.returns.param|length > 0 %}
+            <returns>
+{%- for p in cmd.returns() %}
+                <param datatype="{{p.type.name}}" name="{{p.name}}" type="{{p.type.datatype}}"/>
+{%- endfor %}
+            </returns>
+{%- endif %}
+        </command>
+{%- endfor %}
+{%- for evt in cls.event %}
+        <event index="{{ "%d"|format(evt.index|int(base=16)) }}" name="{{evt.name}}">
+{%- if evt.params.param|length > 0 %}
+            <params>
+{%- for p in evt.params() %}
+                <param datatype="{{p.type.name}}" name="{{p.name}}" type="{{p.type.datatype}}"/>
+{%- endfor %}
+            </params>
+{%- else %}
+            <params/>
+{%- endif %}
+        </event>
+{%- endfor %}
+{%- for enums in cls.enums %}
+        <enums name="{{enums.name}}">
+    {%- for enum in enums() %}
+            <enum name="{{enum.name}}" value="0x{{ ("{0:x}").format(enum.value_|int()) }}"/>
+    {%- endfor %}
+        </enums>
+{%- endfor %}
+{%- for defines in cls.defines %}
+        <defines name="{{defines.name}}">
+    {%- for define in defines() %}
+            <define name="{{define.name}}" value="0x{{ ("{0:x}").format(define.value_|int()) }}"/>
+    {%- endfor %}
+        </defines>
+{%- endfor %}
+    </class>
+{%- endfor %}
+</api>

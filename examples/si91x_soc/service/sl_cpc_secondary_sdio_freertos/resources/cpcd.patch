@@ -1,0 +1,13 @@
+diff --git a/platform/service/cpc/daemon/server_core/server_core.c b/platform/service/cpc/daemon/server_core/server_core.c
+index 8ac7e8b89ee4..b33a8db2988b 100644
+--- a/platform/service/cpc/daemon/server_core/server_core.c
++++ b/platform/service/cpc/daemon/server_core/server_core.c
+@@ -280,6 +280,8 @@ void server_core_init(int fd_socket_driver_core, int fd_socket_driver_core_notif
+     // value in place to be able to work.
+     rx_capability = 256;
+ 
++    reset_sequence_state = RESET_SEQUENCE_DONE;
++
+     ret = core_set_protocol_version(PROTOCOL_VERSION);
+     FATAL_ON(ret != 0);
+ 

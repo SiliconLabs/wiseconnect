@@ -1,0 +1,61 @@
+id: paho_mqtt_embedded
+package: wiseconnect3_sdk
+description: >
+ paho_mqtt_embedded SDK 
+label: paho_mqtt_embedded SDK
+category: Third Party
+quality: production
+metadata:
+  sbom:
+    license: Eclipse Distribution License 1.0 and Eclipse Public License 2.0
+    upstream:
+      name: paho_mqtt_embedded
+      version: 1.1.0
+      supplier: eclipse-paho
+      url: https://github.com/eclipse-paho/paho.mqtt.embedded-c/
+      package_url: https://github.com/eclipse-paho/paho.mqtt.embedded-c/releases/tag/v1.1.0
+component_root_path: ./third_party/paho_mqtt_embedded
+provides:
+- name: paho_mqtt_embedded
+source:
+- path: MQTTClient-C/src/MQTTClient.c
+- path: MQTTPacket/src/MQTTConnectClient.c
+- path: MQTTPacket/src/MQTTDeserializePublish.c
+- path: MQTTPacket/src/MQTTFormat.c
+- path: MQTTPacket/src/MQTTPacket.c
+- path: MQTTPacket/src/MQTTSerializePublish.c
+- path: MQTTPacket/src/MQTTSubscribeClient.c
+- path: MQTTPacket/src/MQTTUnsubscribeClient.c
+- path: MQTTClient-C/src/Si91x/MQTTSi91x.c
+
+
+
+include:
+- path: MQTTClient-C/src
+- path: MQTTClient-C/src/Si91x
+- path: MQTTPacket/src/
+
+- path: MQTTClient-C/src
+  file_list:
+     - path: MQTTClient.h
+
+- path: MQTTClient-C/src/Si91x
+  file_list:
+     - path: MQTTSi91x.h
+
+- path: MQTTPacket/src/
+  file_list:
+     - path: MQTTConnect.h
+     - path: MQTTFormat.h
+     - path: MQTTPacket.h
+     - path: MQTTPublish.h
+     - path: MQTTSubscribe.h
+     - path: MQTTUnsubscribe.h
+     - path: StackTrace.h
+
+     
+requires:
+- name: bsd_socket
+- name: sl_websocket_client
+
+
