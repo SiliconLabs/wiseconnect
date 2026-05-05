@@ -1,0 +1,61 @@
+{% extends 'app_wifi_device_api.ht' %}
+
+{% block component_includes -%}
+
+{% endblock -%}
+
+{% block device_specific_macros %}
+
+/* APP_WIFI_ synonyms for XAPI header macros */
+#define APP_WIFI_MSG_ID(HDR)        APP_XAPI_MSG_ID(HDR)
+#define APP_WIFI_MSG_HEADER_LEN     APP_XAPI_MSG_HEADER_LEN
+#define APP_WIFI_MSG_LEN(HDR)       APP_XAPI_MSG_LEN(HDR)
+#define APP_WIFI_BIT_ENCRYPTED      APP_XAPI_BIT_ENCRYPTED
+#define APP_WIFI_MSG_ENCRYPTED(HDR) APP_XAPI_MSG_ENCRYPTED(HDR)
+
+{%- endblock %}
+
+{%- block device_specific_functions %}
+
+/**
+ * Run the Bluetooth stack to process scheduled tasks. Events for user
+ * application may be generated as a result of this operation.
+ */
+sl_status_t app_wifi_init_device(void);
+
+sl_status_t app_{{data.device_name}}_push_event(app_{{data.device_name}}_msg_t* event);
+sl_status_t app_{{data.device_name}}_push_event_with_data(app_{{data.device_name}}_msg_t* event, size_t data_len, const void *data);
+
+void app_wifi_on_event(app_{{data.device_name}}_msg_t* event);
+/**
+ * Handle an API command in binary format.
+ *
+ * This is provided to NCP target applications for processing commands received
+ * from NCP transport. This function is a synonym for a generic XAPI function
+ * @ref app_xapi_handle_command. If the NCP application uses an RTOS, use the
+ * sequence documented in @ref app_xapi_handle_command to handle the XAPI
+ * command in a thread-safe manner.
+ *
+ * @param hdr the command header
+ * @param data the command payload in a byte array
+ */
+void app_wifi_handle_command(uint32_t hdr, void* data);
+
+/**
+ * Get the response to the command currently been handled.
+ *
+ * This is provided to NCP target applications for processing commands received
+ * from NCP transport. This function is a synonym for a generic XAPI function
+ * @ref app_xapi_get_command_response.
+ */
+static inline app_{{data.device_name}}_msg_t* app_wifi_get_command_response()
+{
+  return (app_{{data.device_name}}_msg_t*) app_xapi_get_command_response();
+}
+
+/**
+ * Signals stack to send system_error event when in case of an error.
+ */
+void app_wifi_send_system_error(uint16_t reason, uint8_t data_len, const uint8_t *data);
+
+{% endblock %}

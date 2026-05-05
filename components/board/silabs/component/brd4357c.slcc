@@ -1,0 +1,16 @@
+!!omap
+- id: brd4357c
+- label: BRD4357C
+- package: platform_siwx91x
+- description: Board support for BRD4357C (Refresh Module).
+- category: Board|Radio Board
+- quality: production
+- metadata:
+    sbom:
+      license: Zlib
+- requires:
+  - name: siwn917y100lgaxa
+- tag:
+  - board:pn:BRD4357
+  - board:variant:C
+  - board:revision:a02
