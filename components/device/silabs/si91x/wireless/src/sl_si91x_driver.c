@@ -701,7 +701,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   // NWP would not send card ready command response, if we call init after deinit
 
   if (sli_wifi_get_card_ready_required()) {
-    uint32_t events = sli_si91x_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 20000);
+    uint32_t events = sli_si91x_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 5000);
     if (!(events & NCP_HOST_COMMON_RESPONSE_EVENT)) {
       return SL_STATUS_CARD_READY_TIMEOUT;
     }
@@ -746,13 +746,13 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
                                          NULL,
                                          NULL);
   VERIFY_STATUS_AND_RETURN(status);
-#if 1 // (SL_WDT_MANAGER_PRESENT_NWP == 1)
+#if (SL_WDT_MANAGER_PRESENT_NWP == 1)
   sl_si91x_nwp_configuration_t nwp_config;
 
   // NWP WDT configuration
   memset(&nwp_config, 0, sizeof(sl_si91x_nwp_configuration_t));
-  nwp_config.code                    = 2;//SL_SI91X_ENABLE_NWP_WDT_FROM_HOST;
-  nwp_config.values.wdt_timer_val    = 0;//SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD_NWP;
+  nwp_config.code                    = SL_SI91X_ENABLE_NWP_WDT_FROM_HOST;
+  nwp_config.values.wdt_timer_val    = SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD_NWP;
   nwp_config.values.wdt_enable_in_ps = 0;
   status                             = sl_si91x_set_nwp_config_request(nwp_config);
   VERIFY_STATUS_AND_RETURN(status);
